@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.ErrorUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
@@ -35,8 +35,8 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
 
   CppProjectWizardFirstPage() {
     setPageComplete(false);
-    setTitle(Messages.PWFP_PageTitle);
-    setDescription(Messages.PWFP_PageDescription);
+    setTitle(LaunchMessages.PWFP_PageTitle);
+    setDescription(LaunchMessages.PWFP_PageDescription);
   }
 
   // --- Overridden methods
@@ -65,7 +65,7 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
     infoControl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
     this.fGenHelloProgBt = new Button(composite, SWT.CHECK);
-    this.fGenHelloProgBt.setText(Messages.PWFP_SampleCodeGenButton);
+    this.fGenHelloProgBt.setText(LaunchMessages.PWFP_SampleCodeGenButton);
     this.fGenHelloProgBt.setSelection(true);
     
     setControl(composite);
@@ -96,10 +96,10 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
 
   private IClasspathEntry[] createX10RuntimeEntries() throws Error, IOException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASS_DIR);
+    addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR);
     addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
-    addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASS_DIR);
-    addClassPathEntries(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASS_DIR);
+    addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);
+    addClassPathEntries(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASSES_DIR);
     return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
   }
   
@@ -107,8 +107,8 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
                                    final String folder) throws IOException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
-      ErrorUtils.dialogWithLog(getShell(), Messages.CPWFP_NoBundleDialogTitle, IStatus.ERROR, 
-                               NLS.bind(Messages.CPWFP_NoBundleDialogMsg, bundleName));
+      ErrorUtils.dialogWithLog(getShell(), LaunchMessages.CPWFP_NoBundleDialogTitle, IStatus.ERROR, 
+                               NLS.bind(LaunchMessages.CPWFP_NoBundleDialogMsg, bundleName));
       throw new Error();
     } else {
       URL wURL = bundle.getResource(folder);
@@ -133,7 +133,7 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
   
   private static final String X10_CONSTRAINTS_BUNDLE = "x10.constraints"; //$NON-NLS-1$
   
-  private static final String CLASS_DIR = "class"; //$NON-NLS-1$
+  private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
   
   private static final String SRC_X10_DIR = "src-x10"; //$NON-NLS-1$
 
