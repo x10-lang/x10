@@ -239,7 +239,7 @@ final class PDTTarget implements IPDTTarget, IProcessEventListener, IThreadEvent
       final DebuggeeThread thread = processStopInfo.getStoppingThread(getProcess());
       this.fProxyNotifier.notify(new ProxyDebugBreakpointHitEvent(-1 /* transId */, this.fBits, 
                                                                   pdiBreakpoint.getBreakpointID(),
-                                                                  thread.getId(), 0 /* depth */,
+                                                                  thread.getId(), thread.getStackFrames().length /* depth */,
                                                                   getVariablesAsString(thread)));
     }
   }
