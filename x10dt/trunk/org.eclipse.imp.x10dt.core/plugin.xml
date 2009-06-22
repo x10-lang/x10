@@ -39,12 +39,26 @@
             id="org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard"
             name="X10 Class"/>
       <wizard
+            category="org.eclipse.imp.x10dt.core"
+            class="org.eclipse.imp.x10dt.core.wizards.NewX10InterfaceWizard"
+            hasPages="true"
+            icon="icons/newinterface.gif"
+            id="org.eclipse.imp.x10dt.core.wizards.NewX10InterfaceWizard"
+            name="X10 Interface"/>
+      <wizard
+            category="org.eclipse.imp.x10dt.core"
+            class="org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard"
+            hasPages="true"
+            icon="icons/newpackage.gif"
+            id="org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard"
+            name="X10 Package"/>
+      <wizard
             canFinishEarly="false"
             category="org.eclipse.imp.x10dt.core"
             class="org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard"
             hasPages="true"
             icon="icons/newproject.gif"
-            id="org.eclipse.imp.x10dt.core.newProject"
+            id="org.eclipse.imp.x10dt.core.wizards.newProject"
             name="X10 Project"
             project="true"/>
    </extension>
