@@ -23,14 +23,6 @@
             language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.outliner">
-      <outliner
-            class="x10.uide.views.Outliner"
-            id="outliner"
-            language="X10"
-            name="Outliner for X10"/>
-   </extension>
-   <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             delegate="x10.uide.launching.X10LaunchConfigurationDelegate"
@@ -129,6 +121,33 @@
             id="x10.uide.hoverhelper"
             language="X10"
             name="X10 Hover Helper"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.outliner">
+      <outliner
+            name="X10 Outliner"
+            class="x10.uide.views.Outliner"
+            language="X10"
+            id="x10.uide.outliner">
+      </outliner>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.foldingUpdater">
+      <foldingUpdater
+            name="X10 foldingUpdater"
+            class="x10.uide.editor.X10FoldingUpdater"
+            language="X10"
+            id="x10.safari.foldingUpdater">
+      </foldingUpdater>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.hyperLink">
+      <hyperlinkDetector
+            name="X10 hyperLink"
+            class="x10.uide.editor.HyperlinkDetector"
+            id="x10.safari.hyperLink"
+            language="X10">
+      </hyperlinkDetector>
    </extension>
 
 </plugin>
