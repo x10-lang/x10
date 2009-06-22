@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Language Support
-Bundle-SymbolicName: com.ibm.watson.safari.x10; singleton:=true
-Bundle-Version: 1.0.57
-Bundle-Activator: com.ibm.watson.safari.x10.X10Plugin
+Bundle-SymbolicName: org.eclipse.imp.x10dt.core;singleton:=true
+Bundle-Version: 1.0.58
+Bundle-Activator: org.eclipse.imp.x10dt.core.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
@@ -13,17 +13,17 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.views,
  x10.compiler,
  org.eclipse.jdt.core,
- org.eclipse.uide.runtime,
  org.eclipse.jface.text,
  org.eclipse.jdt.ui,
  org.eclipse.ui.cheatsheets,
  com.ibm.watson.smapifier,
  x10.runtime,
  polyglot,
- lpg.runtime
-Eclipse-AutoStart: true
-Export-Package: com.ibm.watson.safari.x10,
- com.ibm.watson.safari.x10.actions,
- com.ibm.watson.safari.x10.builder,
- com.ibm.watson.safari.x10.preferences,
- com.ibm.watson.safari.x10.wizards
+ lpg.runtime,
+ org.eclipse.imp.runtime
+Eclipse-LazyStart: true
+Export-Package: org.eclipse.imp.x10dt.core,
+ org.eclipse.imp.x10dt.core.actions,
+ org.eclipse.imp.x10dt.core.builder,
+ org.eclipse.imp.x10dt.core.preferences,
+ org.eclipse.imp.x10dt.core.wizards

@@ -1,7 +1,7 @@
 /*
  * Created on Oct 25, 2005
  */
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
 public class X10Preferences {
     public static boolean builderEmitMessages;

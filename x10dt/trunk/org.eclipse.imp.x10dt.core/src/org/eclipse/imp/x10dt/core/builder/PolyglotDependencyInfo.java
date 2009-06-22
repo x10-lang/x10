@@ -1,9 +1,11 @@
-package com.ibm.watson.safari.x10.builder;
+package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
 import java.util.Set;
+
 import org.eclipse.core.resources.IProject;
-import org.eclipse.uide.core.DependencyInfo;
+import org.eclipse.imp.core.DependencyInfo;
+
 import polyglot.types.Type;
 
 /**

@@ -1,13 +1,13 @@
-package com.ibm.watson.safari.x10.actions;
+package org.eclipse.imp.x10dt.core.actions;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import com.ibm.watson.safari.x10.builder.X10ProjectNature;
 
 /**
  * A simple action to enable the X10 builder for the currently-selected project.

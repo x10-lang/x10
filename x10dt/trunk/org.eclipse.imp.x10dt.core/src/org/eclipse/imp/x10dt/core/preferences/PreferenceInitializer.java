@@ -1,12 +1,9 @@
-	package com.ibm.watson.safari.x10.preferences;
-
-import java.io.File;
+package org.eclipse.imp.x10dt.core.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-
-import com.ibm.watson.safari.x10.X10Plugin;
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.SafariPreferencesUtilities;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 
 /**
  * Initializes X10 preference default values.

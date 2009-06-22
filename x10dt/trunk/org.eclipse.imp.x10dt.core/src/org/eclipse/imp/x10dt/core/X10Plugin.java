@@ -1,21 +1,18 @@
-package com.ibm.watson.safari.x10;
+package org.eclipse.imp.x10dt.core;
 
 import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.imp.preferences.SafariPreferencesService;
+import org.eclipse.imp.runtime.SAFARIPluginBase;
+import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
+import org.eclipse.imp.x10dt.core.preferences.PreferenceInitializer;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.uide.preferences.SafariPreferencesService;
-import com.ibm.watson.safari.x10.preferences.*;
-import org.eclipse.uide.runtime.SAFARIPluginBase;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-
-import com.ibm.watson.safari.x10.preferences.PreferenceConstants;
-import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
 /**
  * The main plugin class to be used in the desktop.

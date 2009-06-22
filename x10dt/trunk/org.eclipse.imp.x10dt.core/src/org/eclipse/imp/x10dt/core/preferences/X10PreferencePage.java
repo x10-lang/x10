@@ -1,4 +1,4 @@
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,8 +7,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.preferences.fields.ComboFieldEditor;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -20,9 +23,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.uide.preferences.fields.ComboFieldEditor;
 import org.osgi.framework.Bundle;
-import com.ibm.watson.safari.x10.X10Plugin;
 
 /**
  * This class represents a preference page that is contributed to the Preferences dialog. By 

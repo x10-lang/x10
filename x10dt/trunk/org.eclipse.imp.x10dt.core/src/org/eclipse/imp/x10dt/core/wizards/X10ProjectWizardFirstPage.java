@@ -1,9 +1,9 @@
 /*
  * Created on Feb 6, 2006
  */
-package com.ibm.watson.safari.x10.wizards;
+package org.eclipse.imp.x10dt.core.wizards;
 
-import org.eclipse.uide.wizards.NewProjectWizardFirstPage;
+import org.eclipse.imp.wizards.NewProjectWizardFirstPage;
 
 public class X10ProjectWizardFirstPage extends NewProjectWizardFirstPage {
     public X10ProjectWizardFirstPage() {

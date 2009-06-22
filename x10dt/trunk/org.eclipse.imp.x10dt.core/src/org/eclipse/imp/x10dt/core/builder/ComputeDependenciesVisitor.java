@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ibm.watson.safari.x10.builder;
+package org.eclipse.imp.x10dt.core.builder;
 
 import java.util.Iterator;
 import polyglot.ast.ClassDecl;

@@ -1,12 +1,11 @@
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
 
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.SafariPreferencesTab;
+import org.eclipse.imp.preferences.SafariTabbedPreferencesPage;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.SafariPreferencesTab;
-import org.eclipse.uide.preferences.SafariTabbedPreferencesPage;
-//import org.X10.uide.X10Plugin;
-import com.ibm.watson.safari.x10.X10Plugin;
 
 /**
  * The Safari-based tabbed preferences page for language X10.

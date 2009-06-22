@@ -1,16 +1,15 @@
 /*
  * Created on Feb 6, 2006
  */
-package com.ibm.watson.safari.x10.wizards;
+package org.eclipse.imp.x10dt.core.wizards;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.uide.core.ProjectNatureBase;
-import org.eclipse.uide.wizards.NewProjectWizardSecondPage;
+import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
+import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.osgi.framework.Bundle;
-
-import com.ibm.watson.safari.x10.builder.X10ProjectNature;
 
 public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     public X10ProjectWizardSecondPage(X10ProjectWizardFirstPage firstPage) {

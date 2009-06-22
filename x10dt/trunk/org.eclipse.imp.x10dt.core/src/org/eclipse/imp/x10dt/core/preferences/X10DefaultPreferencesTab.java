@@ -1,19 +1,17 @@
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.imp.preferences.DefaultPreferencesTab;
+import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.SafariPreferencesUtilities;
+import org.eclipse.imp.preferences.fields.SafariBooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.SafariComboFieldEditor;
+import org.eclipse.imp.preferences.fields.SafariFieldEditor;
+import org.eclipse.imp.preferences.fields.SafariIntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.SafariRadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.uide.preferences.DefaultPreferencesTab;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-import org.eclipse.uide.preferences.fields.SafariBooleanFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariComboFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariIntegerFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariRadioGroupFieldEditor;
-// TODO:  Import additional classes for specific field types from
-// org.eclipse.uide.preferences.fields
 
 	
 public class X10DefaultPreferencesTab extends DefaultPreferencesTab {

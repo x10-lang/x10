@@ -1,7 +1,7 @@
 /*
  * Created on Oct 6, 2005
  */
-package com.ibm.watson.safari.x10.builder;
+package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
 import java.io.IOException;

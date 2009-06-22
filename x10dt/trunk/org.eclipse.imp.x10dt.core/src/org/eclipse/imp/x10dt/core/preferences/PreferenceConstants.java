@@ -1,4 +1,4 @@
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
 /**
  * Holds the ID's of the various preferences for the X10 plugin.

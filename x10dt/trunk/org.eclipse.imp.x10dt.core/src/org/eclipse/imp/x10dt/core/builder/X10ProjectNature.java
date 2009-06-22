@@ -1,9 +1,10 @@
-package com.ibm.watson.safari.x10.builder;
+package org.eclipse.imp.x10dt.core.builder;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.uide.core.ProjectNatureBase;
-import org.eclipse.uide.runtime.IPluginLog;
-import com.ibm.watson.safari.x10.X10Plugin;
+import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.runtime.IPluginLog;
+import org.eclipse.imp.x10dt.core.X10Plugin;
+
 import com.ibm.watson.smapifier.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
