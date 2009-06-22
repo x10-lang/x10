@@ -24,6 +24,10 @@
         <os family="mac"/>
     </condition>
 
+    <condition property="mac.jre.path" value="">
+        <not> <os family="mac"/> </not>
+    </condition>
+
     <echo message="mac.jre.path = ${mac.jre.path}"/>
 
     <path id="path_bootclasspath">
@@ -40,37 +44,12 @@
 
     <property name="bootclasspath" refid="path_bootclasspath"/>
 
-    <condition property="eclipse.home" value="${eclipse_path}">
-        <and>
-            <not>
-                <isset property="eclipse.home"/>
-            </not>
-            <os family="mac"/>
-        </and>
-    </condition>
+    <fail unless="x10dt.eclipse.target" message="You must define x10dt.eclipse.target as the location of the Eclipse installation against which X10DT should be built."/>
 
-    <condition property="eclipse.home" value="${eclipse_path}">
-        <and>
-            <not>
-	        <isset property="eclipse.home"/>
-	    </not>
-            <os family="unix"/>
-	</and>
-    </condition>
-
-    <condition property="eclipse.home" value="${eclipse_path}">
-        <and>
-            <not>
-	        <isset property="eclipse.home"/>
-	    </not>
-            <os family="windows"/>
-	</and>
-    </condition>
-
-    <echo message="eclipse.home = ${eclipse.home}"/>
+    <echo message="x10dt.eclipse.target = ${x10dt.eclipse.target}"/>
 
     <path id="path_eclipse.build.path">
-        <fileset dir="${eclipse.home}/plugins">
+        <fileset dir="${x10dt.eclipse.target}/plugins">
             <include name="**/*.jar"/>
         </fileset>
     </path>
