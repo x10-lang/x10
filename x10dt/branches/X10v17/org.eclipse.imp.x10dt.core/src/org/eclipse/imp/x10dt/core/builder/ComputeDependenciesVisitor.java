@@ -23,6 +23,9 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
@@ -59,6 +62,7 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     private final PolyglotDependencyInfo fDependencyInfo;
 
     private static boolean DEBUG= false;
+    private static boolean printOnce=true;
 
     public ComputeDependenciesVisitor(Job job, TypeSystem ts, PolyglotDependencyInfo di) {
         fJob= job;
@@ -93,7 +97,15 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         // BRT don't bother looking for dependencies if we're in jar/zip
         //PORT1.7 don't bother looking for dependencies if we're in jar/zip
         if(path.endsWith(".jar")|| path.endsWith(".zip")) {
-        	System.out.println("looking for resource in zip/jar???");
+        	if(printOnce) {
+        		// print this out only once, so we don't forget about it.
+        		printOnce=false;   		
+        		String msg = "ComputeDependenciesVisitor - looking in zip/jar file.";
+        		//X10Plugin.getInstance().writeErrorMsg(msg);
+        		String id=X10Plugin.getInstance().getID();
+        		//X10Plugin.getInstance().getLog().log(new Status(IStatus.WARNING,id,msg+" logStatus"));
+        		X10Plugin.getInstance().logException(msg, new Exception("zip/jar file in dependencies"));
+        	}
         	return null;
         }
         if (path.startsWith(wsPath)) {

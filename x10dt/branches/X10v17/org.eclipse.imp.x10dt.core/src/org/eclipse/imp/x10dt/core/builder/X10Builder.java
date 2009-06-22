@@ -380,8 +380,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             }
             catch(Exception e) {
             	//PORT1.7 -- Hack to postpone JPGPosition.getLeftIToken() problem (always null now, need general method to recompute)
-            	X10Plugin.getInstance().logException("Error while collecting bookmarks during build: probably JPGPosition token problem", e);
-            	System.out.println(e.getMessage());
+            	X10Plugin.getInstance().logException("Error while collecting bookmarks during build: JPGPosition / adjuncts", e);
             	adjuncts=new ArrayList<IToken>();
             }
             IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
