@@ -290,7 +290,7 @@ public class X10StackFrame extends JDIStackFrame implements IX10StackFrame {
 		// add any new locals
 		Iterator newOnes= locals.iterator();
 		while (newOnes.hasNext()) {
-			JDILocalVariable local= new JDILocalVariable(this, (LocalVariable) newOnes.next());
+			X10LocalVariable local= new X10LocalVariable(this, (LocalVariable) newOnes.next());
 			fVariables.add(local);
 		}
 	}
