@@ -289,12 +289,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //		SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
 		ISourcePositionLocator locator = parseController.getNodeLocator();
 
-		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
+//		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
+		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x+sel.y);
 		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
+		System.out.println(retNode);
 		Node_c tmp;
 		Node_c last = null;
 		for (int pos_index = sel.x; pos_index >= 0; pos_index--) {
-			tmp = (Node_c) locator.findNode(root, pos_index, sel.x);
+			tmp = (Node_c) locator.findNode(root, pos_index, sel.x+sel.y);
 			if (!tmp.equals(last)) {System.out.println(tmp + " "+ tmp.getClass()); last = tmp;}
 			if (innerExprNode == null && tmp instanceof Expr_c)
 				innerExprNode = (Expr_c) tmp;
@@ -1330,7 +1332,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		if (!(fNode instanceof Expr))
 			return RefactoringStatus
-			.createFatalErrorStatus("Extract Async is only valid for expressions");
+			.createFatalErrorStatus("Extract Async is only valid for expressions, not "+fNode.getClass());
 
 		fPivot = (Expr) fNode;
 
