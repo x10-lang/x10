@@ -54,13 +54,18 @@ public class X10InstanceTab extends InstancePreferencesTab {
 			true);
 		fields.add(SourceFont);
 
+
 		DirectoryFieldEditor DefaultRuntime = fPrefUtils.makeNewDirectoryField(
-		        page, this, fPrefService,
-		        "instance", "DefaultRuntime", "Default runtime",
-		        "Folder containing the default X10 runtime libraries",
-		        parent,
-		        true, true, false, null, true, "", true);
+			page, this, fPrefService,
+			"instance", "DefaultRuntime", "Default runtime",
+			"Folder containing the default X10 runtime libraries",
+			parent,
+			true, true,
+			false, "Unspecified",
+			true, "",
+			true);
 		fields.add(DefaultRuntime);
+
 
 		BooleanFieldEditor BadPlaceRuntimeCheck = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
