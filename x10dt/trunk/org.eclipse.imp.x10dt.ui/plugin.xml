@@ -19,7 +19,7 @@
    <extension
          point="org.eclipse.uide.runtime.tokenColorer">
       <tokenColorer
-            class="x10.uide.views.MyTokenColorer"
+            class="x10.uide.editor.MyTokenColorer"
             language="X10"/>
    </extension>
    <extension
@@ -71,6 +71,14 @@
             </enablement>
          </contextualLaunch>
       </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.autoEditStrategy">
+      <autoEditStrategy
+            class="x10.uide.editor.X10AutoIndentStrategy"
+            id="x10.uide.autoEditStrategy"
+            language="X10"
+            name="X10 Auto-Edit Strategy"/>
    </extension>
 
 </plugin>
