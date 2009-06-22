@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class X10UIPlugin extends AbstractUIPlugin {
-    public static final String PLUGIN_ID= "x10.uide";
+    public static final String PLUGIN_ID= "org.eclipse.imp.x10dt.ui";
 
     private static X10UIPlugin sInstance;
 
