@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.safari.x10dt"
+      label="X10 Development Toolkit"
+      version="1.0.23"
+      provider-name="rfuhrer@watson.ibm.com">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <url>
+      <update label="SAFARI Update Site" url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"/>
+   </url>
+
+   <requires>
+      <import feature="org.eclipse.safari.runtime" version="1.0.22"/>
+   </requires>
+
+   <plugin
+         id="com.ibm.watson.safari.x10"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
+   <plugin
+         id="x10.compiler"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
+   <plugin
+         id="x10.runtime"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
+   <plugin
+         id="x10.uide"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
+</feature>

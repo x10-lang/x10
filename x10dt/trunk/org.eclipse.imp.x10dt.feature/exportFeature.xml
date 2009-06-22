@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.safari.x10dt.feature" default="build.feature.jar" basedir=".">
+	<import file="../com.ibm.watson.safari.feature/buildCommon.xml"/>
+
+	<target name="init">
+		<property name="feature.name"        value="org.eclipse.safari.x10dt"/>
+		<property name="feature.version"     value="${safari.version}"/>
+		<property name="feature.temp.folder" value="${basedir}/feature.temp.folder"/>
+		<property name="feature.destination" value="${basedir}"/>
+	</target>
+
+	<target name="all.plugins"
+		depends="build.x10.runtime,build.x10.compiler,build.x10.uide,build.safari.x10">
+	</target>
+
+	<target name="build.feature.jar" depends="init" description="Build the feature jar for SAFARI for an update site.">
+		<property name="feature.base" value="${feature.temp.folder}"/>
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="gather.bin.parts" inheritAll="false">
+			<param name="arch" value="ia64,ia64_32,PA_RISC,ppc,sparc,x86,x86_64"/>
+			<param name="ws" value="carbon,gtk,motif,photon,win32"/>
+			<param name="nl" value="*"/>
+			<param name="os" value="aix,hpux,linux,macosx,qnx,solaris,win32"/>
+			<param name="feature.base" value="${feature.temp.folder}"/>
+		</antcall>
+		<jar destfile="${feature.destination}/${feature.name}_${feature.version}.jar" basedir="${feature.temp.folder}/features/${feature.name}_${feature.version}"/>
+		<delete dir="${feature.temp.folder}"/>
+		<antcall target="gather.plugin.jars"/>
+		<echo message="Feature jar build complete."/>
+	</target>
+
+	<target name="gather.bin.parts" depends="init" if="feature.base">
+		<mkdir dir="${feature.base}/features/${feature.name}_${feature.version}"/>
+		<copy todir="${feature.base}/features/${feature.name}_${feature.version}" failonerror="true" overwrite="false">
+			<fileset dir="${basedir}" includes="feature.xml"/>
+		</copy>
+	</target>
+
+	<!-- RMF Copy the plugin jars to the 'plugins' folder so that exportUpdate script can see it -->
+	<target name="gather.plugin.jars" depends="all.plugins">
+		<delete failonerror="false">
+			<fileset dir="plugins" includes="*.jar"/>
+		</delete>
+		<mkdir dir="plugins"/>
+		<copy todir="plugins" file="../com.ibm.watson.safari.x10/com.ibm.watson.safari.x10_${feature.version}.jar"/>
+		<copy todir="plugins" file="../x10.compiler/x10.compiler_${feature.version}.jar"/>
+		<copy todir="plugins" file="../x10.runtime/x10.runtime_${feature.version}.jar"/>
+		<copy todir="plugins" file="../x10.uide/x10.uide_${feature.version}.jar"/>
+	</target>
+
+	<!-- ========================================================================================= -->
+
+	<target name="build.x10.runtime">
+		<antcall target="build.child">
+			<param name="plugin.id" value="x10.runtime"/>
+		</antcall>
+	</target>
+
+	<target name="build.x10.compiler">
+		<antcall target="build.child">
+			<param name="plugin.id" value="x10.compiler"/>
+		</antcall>
+	</target>
+
+	<target name="build.x10.uide" depends="build.x10.compiler">
+		<antcall target="build.child">
+			<param name="plugin.id" value="x10.uide"/>
+		</antcall>
+	</target>
+
+	<target name="build.safari.x10" depends="build.x10.compiler">
+		<antcall target="build.child">
+			<param name="plugin.id" value="com.ibm.watson.safari.x10"/>
+		</antcall>
+	</target>
+
+	<!-- ========================================================================================= -->
+
+	<target name="build.child">
+		<ant antfile="../${plugin.id}/exportPlugin.xml" dir="../${plugin.id}" target="build.update.jar"/>
+	</target>
+
+	<!-- ========================================================================================= -->
+
+	<target name="zip.distribution" depends="init" description="Create a zip containing all the plug-ins and features for the feature: ${feature.name}.">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="gather.bin.parts">
+			<param name="arch" value="ia64,ia64_32,PA_RISC,ppc,sparc,x86,x86_64"/>
+			<param name="ws" value="carbon,gtk,motif,photon,win32"/>
+			<param name="nl" value="*"/>
+			<param name="include.children" value="true"/>
+			<param name="feature.base" value="${feature.temp.folder}"/>
+			<param name="os" value="aix,hpux,linux,macosx,qnx,solaris,win32"/>
+		</antcall>
+		<zip destfile="${feature.destination}/${feature.name}_${feature.version}.bin.dist.zip" basedir="${feature.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="zip.sources" depends="init">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/${feature.name}.source_${feature.version}/src"/>
+			<param name="include.children" value="true"/>
+			<param name="target" value="gather.sources"/>
+		</antcall>
+		<zip destfile="${feature.destination}/${feature.name}_${feature.version}.src.zip" basedir="${feature.temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="zip.logs" depends="init">
+		<delete dir="${feature.temp.folder}"/>
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="all.children" inheritAll="false">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins"/>
+			<param name="include.children" value="true"/>
+			<param name="target" value="gather.logs"/>
+		</antcall>
+		<zip destfile="${feature.destination}/${feature.name}_${feature.version}.log.zip" basedir="${feature.temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${feature.temp.folder}"/>
+	</target>
+
+	<target name="clean" depends="init" description="Clean the feature: ${feature.name} of all the zips, jars and logs created.">
+		<delete file="${feature.destination}/${feature.name}_${feature.version}.jar"/>
+		<delete file="${feature.destination}/${feature.name}_${feature.version}.bin.dist.zip"/>
+		<delete file="${feature.destination}/${feature.name}_${feature.version}.log.zip"/>
+		<delete file="${feature.destination}/${feature.name}_${feature.version}.src.zip"/>
+		<delete dir="${feature.temp.folder}"/>
+		<antcall target="all.children">
+			<param name="target" value="clean"/>
+		</antcall>
+	</target>
+
+	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
+		<eclipse.convertPath fileSystemPath="E:/RMF/Eclipse/Workspaces/safari/${feature.name}/" property="resourcePath"/>
+		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
+		<antcall target="all.children">
+			<param name="target" value="refresh"/>
+		</antcall>
+	</target>
+	<target name="gather.sources">
+		<antcall target="children">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins/${feature.name}.source_${feature.version}/src"/>
+			<param name="target" value="gather.sources"/>
+		</antcall>
+	</target>
+
+	<target name="gather.logs" depends="init">
+		<mkdir dir="${feature.temp.folder}"/>
+		<antcall target="all.children" inheritAll="false">
+			<param name="destination.temp.folder" value="${feature.temp.folder}/plugins"/>
+			<param name="target" value="gather.logs"/>
+		</antcall>
+	</target>
+</project>
