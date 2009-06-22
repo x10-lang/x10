@@ -184,10 +184,11 @@ public class X10Plugin extends PluginBase {
 	}
 	
 	private static void setDefaultPreferences() {
+		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, "4");
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
-
+		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
 	}
 }
