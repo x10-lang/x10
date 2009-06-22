@@ -10,7 +10,7 @@ package org.eclipse.imp.x10dt.ui.cpp.launch.launching;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.widgets.Shell;
@@ -24,7 +24,7 @@ final class FilteredX10FileSelectionDialog extends FilteredResourcesSelectionDia
   
     addListFilter(new X10ViewerFilter());
     
-    setTitle(Messages.FFSD_DialogTitle);
+    setTitle(LaunchMessages.FFSD_DialogTitle);
   }
   
   // --- Private classes
