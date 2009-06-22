@@ -6,9 +6,12 @@ import java.net.URISyntaxException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IPersistableSourceLocator;
 import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.debug.core.sourcelookup.containers.ZipEntryStorage;
+import org.eclipse.ptp.core.resources.FileStorage;
 import org.eclipse.ptp.debug.core.PTPDebugCorePlugin;
 import org.eclipse.ptp.debug.core.model.IPStackFrame;
 
@@ -46,8 +49,10 @@ public class CppSourceLocator implements IPersistableSourceLocator {
     int line = frame.getFrameLineNumber();
     IWorkspaceRoot wsRoot = PTPDebugCorePlugin.getWorkspace().getRoot();
 	String wsRootPath = wsRoot.getLocation().toString();
-    if (!file.startsWith(wsRootPath))
-      return null;
+    if (!file.startsWith(wsRootPath)) {
+      // TODO: try to find it in the classpath jars and return a ZipEntryStorage
+      return new FileStorage(new Path(file));
+    }
     IFile[] wsFiles = null;
 	try {
 	  wsFiles = wsRoot.findFilesForLocationURI(new URI("file://"+file)); //$NON-NLS-1$
