@@ -1,27 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <description url="http://eclipse-imp.sourceforge.net/updates/">
-      This update site hosts the distribution for the X10 Development Toolkit (X10DT).
+      This update site hosts the distribution for the X10 Development Toolkit (X10DT) for X10 1.7.
    </description>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.87.jar" id="org.eclipse.imp.x10dt" version="0.1.87">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.88.jar" id="org.eclipse.imp.x10dt" version="0.1.88">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.89.jar" id="org.eclipse.imp.x10dt" version="0.1.89">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.90.jar" id="org.eclipse.imp.x10dt" version="0.1.90">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.91.jar" id="org.eclipse.imp.x10dt" version="0.1.91">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.92.jar" id="org.eclipse.imp.x10dt" version="0.1.92">
-      <category name="X10 Development Tools"/>
-   </feature>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.93.jar" id="org.eclipse.imp.x10dt" version="0.1.93">
+   <feature url="features/org.eclipse.imp.x10dt_0.2.1.jar" id="org.eclipse.imp.x10dt" version="0.2.1">
       <category name="X10 Development Tools"/>
    </feature>
    <category-def name="X10 Development Tools" label="X10 Development Tools"/>
