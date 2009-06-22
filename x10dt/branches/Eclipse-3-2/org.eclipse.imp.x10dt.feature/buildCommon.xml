@@ -23,11 +23,6 @@
     <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
 
     <property name="x10dt.version" value="${x10dt.feature(version)}"/>
-    <property name="plugin.version.prefix31" value="1.0"/>
-    <property name="plugin.version.prefix32" value="3.2"/>
-    <property name="plugin.version.suffix" value="59"/>
-    <property name="plugins.version.31" value="${plugin.version.prefix31}.${plugin.version.suffix}"/>
-    <property name="plugins.version.32" value="${plugin.version.prefix32}.${plugin.version.suffix}"/>
 
     <path id="path_bootclasspath">
         <fileset dir="${java.home}/lib">
