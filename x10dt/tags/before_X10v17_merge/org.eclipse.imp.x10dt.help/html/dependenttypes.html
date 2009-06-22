@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Dependent Types</title>
+</head>
+
+<body>
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Dependent types</h1><a name="XtenDepTypes">
+</a>
+
+
+
+<div class="p"><!----></div>
+Dependent types are a fundamental extension to the type system for
+Java-like languages. A dependent type records constraints on
+<em>properties</em> (final fields) of the type.  Since types are a fundamental
+building block of Java-like languages, the introduction of dependent
+types affects many facets of the language simultaneously - the
+definition of types, classes, interfaces, methods, constructors,
+fields, inheritance, overriding, overloading, and type related
+operators (cast, and instanceof).
+
+<div class="p"><!----></div>
+Indeed dependent types bring substantial expressiveness to Java-like
+languages. Just as generic classes permit a single definition for a
+class C to be treated as a template for an unbounded number of classes
+obtained from C by "instantiating" C with type arguments, so also a
+dependent type permits a single definition to produce a potentially
+unbounded family of types. That is, just as generic types permit a
+programmer to express and use <em>functions</em> from types to types, so also
+dependent types permit a programmer to express and use functions from values
+to types.  Indeed, the family of types generated from C form a
+lattice of subtypes of C, one for each constraint on the properties
+of C expressible in the underlying constraint system, but all sharing
+the same &#223;tructure".
+
+<div class="p"><!----></div>
+In  X10 dependent types are checked statically. However, as in
+Java-like languages an instanceof relation is available to dynamically
+check that an object belongs to a particular (dependent) type. Also a
+cast operation is available to force the runtime system to treat an
+object o as belonging to a particular dependent type (the operation
+throws a ClassCast exception if it is not possible to do so).
+
+<div class="p"><!----></div>
+Dependent types are also the basis for an implicit syntax for
+ X10. This is discussed in the last section.
+</body>
+</html>
