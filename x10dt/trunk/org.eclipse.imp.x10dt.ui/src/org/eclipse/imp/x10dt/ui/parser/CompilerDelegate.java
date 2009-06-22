@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import lpg.javaruntime.Monitor;
+import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;

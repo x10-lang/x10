@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 
-import lpg.javaruntime.Monitor;
-import lpg.javaruntime.PrsStream;
+import lpg.runtime.Monitor;
+import lpg.runtime.PrsStream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;

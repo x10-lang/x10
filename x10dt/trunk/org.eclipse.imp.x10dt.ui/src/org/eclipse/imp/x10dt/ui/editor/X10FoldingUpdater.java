@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import lpg.javaruntime.Adjunct;
-import lpg.javaruntime.IToken;
-import lpg.javaruntime.ILexStream;
-import lpg.javaruntime.IPrsStream;
+import lpg.runtime.Adjunct;
+import lpg.runtime.ILexStream;
+import lpg.runtime.IPrsStream;
+import lpg.runtime.IToken;
 
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;

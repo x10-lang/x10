@@ -2,9 +2,9 @@ package x10.uide.parser;
 
 import java.io.IOException;
 
-import lpg.javaruntime.LexStream;
-import lpg.javaruntime.Monitor;
-import lpg.javaruntime.IPrsStream;
+import lpg.runtime.IPrsStream;
+import lpg.runtime.LexStream;
+import lpg.runtime.Monitor;
 
 import org.eclipse.uide.parser.ILexer;
 import x10.parser.X10Lexer;

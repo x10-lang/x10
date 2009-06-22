@@ -3,8 +3,8 @@ package x10.safari.contentProposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import lpg.javaruntime.IToken;
-import lpg.javaruntime.IPrsStream;
+import lpg.runtime.IPrsStream;
+import lpg.runtime.IToken;
 
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
