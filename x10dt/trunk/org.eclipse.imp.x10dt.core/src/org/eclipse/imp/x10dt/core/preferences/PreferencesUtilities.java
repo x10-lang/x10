@@ -36,7 +36,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -84,7 +83,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 		// care of this elsewhere but, until that is verified, keep
 		// doing it here.
 		// Note also:  loadWithInheritance (which calls setField(..))
-		// won't know that project == null and will try toset the field
+		// won't know that project == null and will try to set the field
 		// from some higher level
 		if (IPreferencesService.PROJECT_LEVEL.equals(level) &&
 			service.getProject() == null)
@@ -183,8 +182,8 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 				// Assume that editability on the project level is set
 				// appropriately by a project-selection listener
 				//field.getTextControl(composite).setEditable(false);
-				field.getComboBoxControl(composite).setBackground(colorWhite);
-				Control[] children = field.getComboBoxControl(composite).getChildren();
+				field.getComboBoxControl().setBackground(colorWhite);
+				Control[] children = field.getComboBoxControl().getChildren();
 		    	if (children != null) {
 		    		for (int i = 0; i < children.length; i++) {
 		    			Button button = (Button) children[i];
@@ -246,7 +245,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 		field.setFieldValueFromOutside(value);
 		// setString(value) takes care of setting isInherited
 		// and presentsDefaultValue, but not ...
-		field.getComboBoxControl(composite).setBackground(colorWhite);
+		field.getComboBoxControl().setBackground(colorWhite);
 
 		return level;
 	}
@@ -848,7 +847,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 		PreferencePage page, int foo, PreferencesTab tab,
 		IPreferencesService service, String level,	
 		String name, String labelText, int numColumns,
-        String[][] labelAndValues, Composite parent, boolean useGroup,
+        String[] values, String[] labels, Composite parent, boolean useGroup,
 		boolean isEnabled, boolean isRemovable)	
 	{	
 		//System.err.println("SPU.makeNewRadioGroupField() starting for key = " + key);
@@ -867,7 +866,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 	    
 	    RadioGroupFieldEditor field = new RadioGroupFieldEditor(
 	    		page, tab, service, level, name, labelText, numColumns,
-	    		labelAndValues, parent, useGroup);
+	    		values, labels, parent, useGroup);
 	    
 	    //Composite radioBoxControl = field.getRadioBoxControl(parent);
 	    //Composite radioBoxControlParent = field.getRadioBoxControl(parent).getParent();
@@ -1616,7 +1615,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 			Dialog.applyDialogFont(defaultsButton);
 			//GridData 
 			GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-			Point minButtonSize = defaultsButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+//			Point minButtonSize = defaultsButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 			//data.widthHint = Math.max(widthHint, minButtonSize.x);
 			defaultsButton.setLayoutData(data);
 			defaultsButton.addSelectionListener(new SelectionAdapter() {
@@ -1629,8 +1628,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 			applyButton.setText(labels[1]);
 			Dialog.applyDialogFont(applyButton);
 			data = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-			minButtonSize = applyButton.computeSize(SWT.DEFAULT, SWT.DEFAULT,
-					true);
+//			minButtonSize = applyButton.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 			//data.widthHint = Math.max(widthHint, minButtonSize.x);
 			applyButton.setLayoutData(data);
 			applyButton.addSelectionListener(new SelectionAdapter() {
@@ -1658,10 +1656,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 	/*
 	 * For laying out grid data in 	wigets for preferences pages (or anythink else)
 	 */
-	
-	
 	public static void fillGridPlace(Composite composite, int num) {
-		int count = num < 0 ? 0 : num;
 		for (int i = 1; i <= num; i++) {
 			Label label = new Label(composite, SWT.NONE);
 			label.setText("This space intentionally left blank");
