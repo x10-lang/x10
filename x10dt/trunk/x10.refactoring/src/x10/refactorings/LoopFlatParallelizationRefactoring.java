@@ -43,6 +43,7 @@ import polyglot.types.TypeSystem;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
+import x10.refactorings.EffectsVisitor.XVarDefWrapper;
 import x10.refactorings.utils.NodePathComputer;
 
 public class LoopFlatParallelizationRefactoring extends Refactoring {
@@ -216,12 +217,13 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             if (bodyEff == null) {
                 return RefactoringStatus.createFatalErrorStatus("Unable to compute the effects of the loop body.");
             }
-            if (!bodyEff.commutesWithForall(XTerms.makeLocal(new XNameWrapper<Id>(fLoop.formal().name())))) {
+            System.out.println("Loop body effect = " + bodyEff);
+            if (!bodyEff.commutesWithForall(XTerms.makeLocal(new XVarDefWrapper(fLoop.formal().localDef())))) {
                 return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute.");
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10RefactoringPlugin.kPluginID, ""));
         } catch (Exception e) {
-            return RefactoringStatus.createFatalErrorStatus(e.getMessage());
+            return RefactoringStatus.createFatalErrorStatus("Exception occurred while analyzing loop: " + e.getMessage());
         }
     }
 
