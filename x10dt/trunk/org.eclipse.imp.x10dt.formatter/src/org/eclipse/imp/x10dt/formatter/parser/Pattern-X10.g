@@ -1,10 +1,11 @@
 %options fp=PatternX10Parser
 %options package=org.eclipse.imp.x10dt.formatter.parser
 %options la=6
-%options template=btParserTemplate.gi
+%options template=btParserTemplateF.gi
 %options parent_saved,automatic_ast=toplevel,visitor=preorder,ast_directory=./ast,ast_type=ASTNode
 %options prefix=TK_
 %options import_terminals="Pattern-X10Lexer.gi"
+%options noconflicts
 
 
 %Notice
@@ -51,6 +52,7 @@
             | ArgumentList
             | BlockStatements
             | ActualTypeArgumentList
+            | ClockList
             | CompilationUnit
  
 PackageName ::= METAVARIABLE_PackageName

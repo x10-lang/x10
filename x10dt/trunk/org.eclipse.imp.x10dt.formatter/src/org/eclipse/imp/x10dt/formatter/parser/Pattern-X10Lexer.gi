@@ -2,7 +2,7 @@
 %options package=org.eclipse.imp.x10dt.formatter.parser
 %options la=2
 %options single_productions
-%options template=LexerTemplate.gi
+%options template=LexerTemplateF.gi
 %options filter=x10KWLexer.gi
 %options prefix=TK_
 
@@ -23,6 +23,8 @@
 %Import
     x10Lexer.gi
 %End
+
+
 
 %Define
     $kw_lexer_class /.$x10KWLexer./
