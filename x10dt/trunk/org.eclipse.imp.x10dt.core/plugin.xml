@@ -113,10 +113,10 @@
                label="Enable Builder"
                icon="icons/builderEnable.gif"
                tooltip="Enable the X10 Compiler for this project"
-               class="org.eclipse.imp.x10dt.core.actions.ProjectBuilderEnable"
+               class="org.eclipse.imp.x10dt.core.actions.BuilderEnable"
                menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
                enablesFor="1"
-               id="org.eclipse.imp.x10dt.core.newAction">
+               id="org.eclipse.imp.x10dt.core.enableBuilderAction">
          </action>
       </objectContribution>
    </extension>
