@@ -205,6 +205,8 @@ public class LaunchMessages extends NLS {
 
   public static String PWSP_UpdateProjectTaskName;
 
+  public static String DBG_Attributes_1;
+
   // --- Private code
   
   private static final String BUNDLE_NAME = "org.eclipse.imp.x10dt.ui.cpp.launch.messages"; //$NON-NLS-1$
