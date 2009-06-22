@@ -224,9 +224,9 @@ public class X10RuntimeUtils {
 	     */
 	    public static IPath guessJarLocation(final Bundle bundle) {
 	        PreferencesService prefsService = X10DTCorePlugin.getInstance().getPreferencesService();
-	        String runtimeJarDirName = prefsService.getStringPreference(X10Constants.P_DEFAULT_RUNTIME);
+	        String runtimeJarDirName = prefsService.getStringPreference(X10Constants.P_DEFAULTRUNTIME);
 
-	        if (prefsService.isDefined(X10Constants.P_DEFAULT_RUNTIME) && runtimeJarDirName.length() > 0) {
+	        if (prefsService.isDefined(X10Constants.P_DEFAULTRUNTIME) && runtimeJarDirName.length() > 0) {
 	            File runtimeJarDir = new File(runtimeJarDirName);
 
 	            if (runtimeJarDir.exists() && runtimeJarDir.isDirectory()) {
