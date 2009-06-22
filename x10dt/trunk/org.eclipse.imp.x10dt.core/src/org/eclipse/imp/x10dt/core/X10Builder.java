@@ -163,7 +163,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    Position errorPos= errorInfo.getPosition();
 	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
 
-	    addMarkerTo(errorFile, errorInfo.getErrorString(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
+	    addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
 	}
     }
 
