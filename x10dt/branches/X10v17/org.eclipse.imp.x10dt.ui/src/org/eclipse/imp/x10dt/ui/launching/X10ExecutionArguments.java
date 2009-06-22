@@ -35,4 +35,8 @@ public class X10ExecutionArguments extends ExecutionArguments {
     public String[] getRuntimeArgumentsArray() {
         return DebugPlugin.parseArguments(fRuntimeArgs);
     }
+    public String toString() {
+    	String str="vmArgs: ["+this.getVMArguments().toString()+"] rtArgs: ["+fRuntimeArgs+"] programArgs= ["+this.getProgramArguments()+"]";
+    	return str;
+    }
 }
