@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="org.eclipse.imp.x10dt"
-      label="%featureName"
-      version="3.2.70"
-      provider-name="%providerName"
-      image="eclipse_update_120.jpg">
+<feature id="org.eclipse.imp.x10dt" image="eclipse_update_120.jpg" label="%featureName" provider-name="%providerName" version="3.2.71">
 
    <description url="http://x10.sourceforge.net/">
       %description
@@ -19,44 +14,19 @@
    </url>
 
    <requires>
-      <import feature="polyglot" version="2.3.0" match="greaterOrEqual"/>
-      <import feature="lpg.runtime" version="2.0.10" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="3.2.70" match="greaterOrEqual"/>
+      <import feature="polyglot" match="greaterOrEqual" version="2.3.0"/>
+      <import feature="lpg.runtime" match="greaterOrEqual" version="2.0.10"/>
+      <import feature="org.eclipse.imp.runtime" match="greaterOrEqual" version="3.2.71"/>
    </requires>
 
-   <plugin
-         id="x10.compiler"
-         download-size="910"
-         install-size="910"
-         version="1.0.70"
-         unpack="false"/>
+   <plugin download-size="910" id="x10.compiler" install-size="910" unpack="false" version="1.0.71"/>
 
-   <plugin
-         id="x10.runtime"
-         download-size="319"
-         install-size="319"
-         version="1.0.70"
-         unpack="false"/>
+   <plugin download-size="319" id="x10.runtime" install-size="319" unpack="false" version="1.0.71"/>
 
-   <plugin
-         id="org.eclipse.imp.x10dt.core"
-         download-size="68"
-         install-size="68"
-         version="1.0.70"
-         unpack="false"/>
+   <plugin download-size="68" id="org.eclipse.imp.x10dt.core" install-size="68" unpack="false" version="1.0.71"/>
 
-   <plugin
-         id="org.eclipse.imp.x10dt.ui"
-         download-size="115"
-         install-size="115"
-         version="1.0.70"
-         unpack="false"/>
+   <plugin download-size="115" id="org.eclipse.imp.x10dt.ui" install-size="115" unpack="false" version="1.0.71"/>
 
-   <plugin
-         id="org.eclipse.imp.x10dt"
-         download-size="2"
-         install-size="2"
-         version="3.2.70"
-         unpack="false"/>
+   <plugin download-size="2" id="org.eclipse.imp.x10dt" install-size="2" unpack="false" version="3.2.71"/>
 
 </feature>
