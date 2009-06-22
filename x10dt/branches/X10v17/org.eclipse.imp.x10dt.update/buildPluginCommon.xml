@@ -46,7 +46,7 @@
 	</target>
 
 	<target name="javaInit" description="Initializes compiler settings from bundle meta-data">
-		<loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs">
+		<loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs" failonerror="true">
 			<filterchain>
 				<containsregex pattern="org.eclipse.jdt.core.compiler.source"/>
 				<replaceregex pattern="org.eclipse.jdt.core.compiler.source=(.*)" replace="\1"/>
@@ -55,7 +55,7 @@
 		</loadfile>
 		<echo message="Java source compatibility = ${javacSource}"/>
 
-		<loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs">
+		<loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs" failonerror="true">
 			<filterchain>
 				<containsregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform"/>
 				<replaceregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform=(.*)" replace="\1"/>
@@ -75,11 +75,11 @@
 				<containsregex pattern="Require-Bundle: "/>
 				<replaceregex pattern="Require-Bundle: (.*)" replace="\1"/>
 				<!-- Filter out Eclipse plugins that are handled by eclipse.build.path -->
-                                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
+                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.compare[^,]*,?" replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.core[^,]*,?"    replace="" flags="g"/>
-                                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
-                                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
+                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jdt[^,]*,?"     replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jface[^,]*,?"   replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.ltk[^,]*,?"     replace="" flags="g"/>
@@ -91,10 +91,11 @@
 				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
 				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
 				<replaceregex pattern=",lpg.runtime,?" replace=",lpg.runtime.java,"/>
-				<replaceregex pattern="([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
+				<replaceregex pattern="polyglot,?" replace="polyglot3-dev,"/>
+				<replaceregex pattern="([-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
 			</filterchain>
 		</loadfile>
-		<echo message="Non-Eclipse Plugin dependencies:"/>
+		<echo message="Non-Eclipse plugin dependencies:"/>
 		<echo message="${plugin.dependencies}"/>
 	</target>
 
