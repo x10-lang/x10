@@ -211,9 +211,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 	} catch (JavaModelException e) {
 	    X10Plugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
 	}
-	System.out.println("Source path = " + opts.source_path);
-	System.out.println("Class path = " + opts.classpath);
-	System.out.println("Output directory = " + opts.output_directory);
+	X10Plugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
+	X10Plugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+	X10Plugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
 
     /**
