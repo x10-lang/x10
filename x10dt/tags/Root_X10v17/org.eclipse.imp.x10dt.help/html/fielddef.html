@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Field Definitions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Field definitions</h2>
+
+<div class="p"><!----></div>
+Not every instance of a class needs to have every field defined on the
+class. In Java-like languages this is ensured by conditionally setting
+fields to a default value, such as <tt>null</tt>, in those instances where the
+fields are not needed.  
+
+<div class="p"><!----></div>
+Consider the class <tt>List</tt> used earlier.  Here all instances of <tt>List</tt>
+returned by the second constructor do not need the fields <tt>value</tt> and
+<tt>tail</tt>; their value is set to null.
+
+<div class="p"><!----></div>
+ X10 permits a much cleaner solution that does not require default
+values such as null to be stored in such fields.  X10 permits fields to
+be <em>guarded</em>, that is defined only if a certain constraint on the
+properties of the class, called the <tt>guard</tt> of that field, is true.
+
+<div class="p"><!----></div>
+<pre>
+FieldDeclaration  ::= 
+   FieldModifiersopt ThisClauseopt 
+   Type VariableDeclarators ;
+ThisClause       ::= this DepParameters
+ThisClauseopt    ::= null  |  ThisClause
+</pre>
+
+<div class="p"><!----></div>
+It is illegal for code to access a guarded field through a reference
+whose static type does not satisfy the associated guard, even
+implicitly (i.e. through an implicit <tt>this</tt>). Rather the source
+program should contain an explict cast, e.g. <tt>C(:c) me = (C(:c)) this</tt>.
+
+<div class="p"><!----></div>
+
+<blockquote> Static Semantics Rule: Let <tt>f</tt> be a field defined in class
+<tt>C</tt> with guard <tt>this(:c)</tt>.  The compiler declares an error if
+field <tt>f</tt> is accessed through a reference <tt>o</tt> whose static
+type is not a subtype of <tt>C(:c)</tt>.
+</blockquote>
+
+<div class="p"><!----></div>
+<b>Example 9.1</b> We may now rewrite the List example:
+<pre>
+public class List(int(:n &#62;=0) n) {
+  protected this(:n&#62;0) Object  value;
+  protected this(:n&#62;0) List(n-1)  tail;
+  public List(t.n+1)(Object o, final List t){
+     n=t.n+1;
+     List(:n&#62;0) me = (List(:n&#62;0)) this;
+     me.tail=t;
+     me.value=o;
+  }
+  public List(0) () {
+     n=0;
+  }
+  ...
+}
+</pre>
+
+<div class="p"><!----></div>
+The fields <tt>value</tt> and <tt>tail</tt> do not exist for instances of the class
+<tt>List(0)</tt>.
+
+
+<div class="p"><!----></div>
+It is a compile-time error for a class to have two fields of the same
+name, even if their <tt>ThisClauses</tt> are different. A class <tt>C</tt> with a field
+named <tt>f</tt> is said to <em>hide</em> a field in a superclass named <tt>f</tt>.
+
+<div class="p"><!----></div>
+
+<blockquote>  Static Semantics Rule:
+     A class may not declare two fields with the same name.
+</blockquote>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.1">
+9.1</a>&nbsp;&nbsp;Field hiding</h3>
+
+<div class="p"><!----></div>
+The definition of field hiding does not take <tt>ThisClauses</tt> in
+account. Suppose a class <tt>C</tt> has a field
+
+<div class="p"><!----></div>
+<pre>
+ this(:c) Foo f;  
+</pre>
+
+<div class="p"><!----></div>
+ and a subclass <tt>D</tt> of <tt>C</tt> has a field
+<pre>
+ this(:d) Fum f;  
+</pre>
+
+<div class="p"><!----></div>
+We will say that <tt>D.f</tt> hides <tt>C.f</tt>, <em>regardless</em> of the
+constraints <tt>c</tt> and <tt>d</tt>. This is in keeping with Java, and
+permits a naive implementation which always allocates space for a
+conditional field.
+
+<div class="p"><!----></div>
+ DESIGN RATIONALE It might seem attractive to require that <tt>
+D.f</tt> hides <tt>C.f</tt> only if <tt>d</tt> entails <tt>c</tt>. This would seem
+to necessitate a rather complex implementation structure for classes,
+requiring some kind of a heterogenous translation for deptypes of <tt>C</tt>
+and <tt>D</tt>. This bears further investigation.
+
+</body>
+</html>

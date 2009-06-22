@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+    <provider id="org.eclipse.team.cvs.core.cvsnature">
+        <project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt,org.eclipse.imp.x10dt"/>
+        <project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.core,org.eclipse.imp.x10dt.core"/>
+        <project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.ui,org.eclipse.imp.x10dt.ui"/>
+		<project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.formatter,org.eclipse.imp.x10dt.formatter"/>
+		<project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.analysis,org.eclipse.imp.analysis"/>
+        <project reference="1.0,:pserver:anonymous@x10.cvs.sourceforge.net:/cvsroot/x10,x10.compiler,x10.compiler"/>
+        <project reference="1.0,:pserver:anonymous@x10.cvs.sourceforge.net:/cvsroot/x10,x10.runtime,x10.runtime"/>
+    </provider>
+</psf>
