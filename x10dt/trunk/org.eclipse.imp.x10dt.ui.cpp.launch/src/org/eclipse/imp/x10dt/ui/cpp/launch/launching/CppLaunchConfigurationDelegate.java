@@ -227,10 +227,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
             final StringBuilder sb = new StringBuilder();
             sb.append("#include \"").append(appProgName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write(sb.toString());
+            final String progName = appProgName.substring(appProgName.lastIndexOf('/') + 1);
             
             String line = null;
             while ((line = reader.readLine()) != null) {
-              writer.write(line.replace(PATTERN, appProgName.substring(appProgName.lastIndexOf('/') + 1)) + '\n');
+              writer.write(line.replace(PATTERN, progName).replace("#", "##") + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
             }
           } finally {
             reader.close();
