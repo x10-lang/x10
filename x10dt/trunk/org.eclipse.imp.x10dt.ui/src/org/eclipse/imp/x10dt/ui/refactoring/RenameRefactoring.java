@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IDocument;
@@ -262,7 +263,7 @@ public class RenameRefactoring extends Refactoring {
 	private void doVisit(IFile file) {
 	    System.out.println("Visiting file " + file.getName() + ".");
 	    IParseController parseCtrlr= new ParseController();
-	    String declFilePath= file.getLocation().toOSString().substring(fProject.getLocation().toOSString().length()+1);
+	    IPath declFilePath= file.getLocation().removeFirstSegments(fProject.getLocation().segmentCount());
 	    IFileEditorInput fileInput= new FileEditorInput(file);
 
 	    parseCtrlr.initialize(declFilePath, fProject, null);

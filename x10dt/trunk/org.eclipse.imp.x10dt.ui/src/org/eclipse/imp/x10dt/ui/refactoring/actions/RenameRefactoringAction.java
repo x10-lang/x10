@@ -2,6 +2,8 @@ package safari.X10.refactoring.actions;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodCall;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -144,7 +146,7 @@ public class RenameRefactoringAction extends TextEditorAction {
             IProject project= fileInput.getFile().getProject();
 	    IParseController parseCtrlr= new ParseController();
 	    // TODO Handle cross-project references
-	    String declFilePath= position.file().substring(project.getLocation().toOSString().length()+1);
+	    IPath declFilePath= new Path(position.file()).removeFirstSegments(project.getLocation().segmentCount());
 
             parseCtrlr.initialize(declFilePath, fileInput.getFile().getProject(), null);
             IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
