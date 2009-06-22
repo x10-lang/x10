@@ -109,7 +109,8 @@ public class X10Plugin extends PluginBase {
 	// Filling in the field here for now, but eventually want to replace references to this
 	// field with calls to the preference service
 	//fEmitInfoMessages= X10Preferences.builderEmitMessages;
-	fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
+	// BRT fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
+	// BRT consider putting this in an X10DT pref page.  Probably want several flavors.
     }
 
     /**
