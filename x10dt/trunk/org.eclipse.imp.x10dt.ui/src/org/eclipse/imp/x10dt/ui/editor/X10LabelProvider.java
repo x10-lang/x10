@@ -132,7 +132,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 		    buff.append(", ");
 	    }
 	    buff.append(")");
-	    return buff.toString();
+	    return buff.toString().replaceAll("\\{amb\\}", "");
 	}
 	return "???";
     }
