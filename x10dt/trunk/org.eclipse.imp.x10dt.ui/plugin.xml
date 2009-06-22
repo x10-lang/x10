@@ -7,6 +7,7 @@
             extensions="x10"
             description="X10 Concurrent Programming Language"
             natureID="org.eclipse.imp.x10dt.core.x10nature"
+            icons="icons/compilationUnitNormal.gif"
             language="X10">
       </language>
    </extension>
@@ -397,5 +398,11 @@
          </action>
       </actionSet>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.toggleBreakpointHandler">
+         <toggleBreakpointHandler
+             language="x10"
+             class="org.eclipse.imp.x10dt.debug.X10ToggleBreakpointHandler"/>
+            </extension>
 
 </plugin>
