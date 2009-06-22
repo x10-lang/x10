@@ -92,8 +92,6 @@ public class X10Builder extends IncrementalProjectBuilder {
 	}
     }
 
-    // This is a test comment.
-
     private IProject fProject;
     private IJavaProject fX10Project;
     private IProgressMonitor fMonitor;
