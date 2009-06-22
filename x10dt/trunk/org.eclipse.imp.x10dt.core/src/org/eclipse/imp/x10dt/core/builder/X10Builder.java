@@ -89,6 +89,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     public X10Builder() {}
 
+    /**
+     * "Compile" the given resource
+     * @param resource
+     * @return true if the resource's children should be visited, false otherwise
+     */
     protected boolean processResource(IResource resource) {
 	if (resource instanceof IFile) {
 	    IFile file= (IFile) resource;
@@ -106,6 +111,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private boolean isBinaryFolder(IResource resource) {
+	// BUG This should check whether the given resource is the
+	// "output location" of a source classpath entry.
 	return resource.getFullPath().lastSegment().equals("bin");
     }
 
