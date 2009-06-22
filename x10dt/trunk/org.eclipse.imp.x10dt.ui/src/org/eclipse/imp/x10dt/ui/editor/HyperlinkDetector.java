@@ -29,6 +29,8 @@ import x10.uide.parser.ParseController;
 public class HyperlinkDetector implements ISourceHyperlinkDetector, ILanguageService {
     ParseController fParseController;
 
+    private final static boolean sDebugLink= false;
+
     public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, IParseController parseController) {
 	fParseController= (ParseController) parseController;
 	Node ast= (Node) fParseController.getCurrentAst();
@@ -37,7 +39,8 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector, ILanguageSer
 	final Node node= (Node) locator.findNode(ast, region.getOffset());
 
 	if (!isBoundReference(node))
-	    return dummyHyperlink(textViewer, region, node);
+	    return sDebugLink ? dummyHyperlink(textViewer, region, node) : null;
+	System.out.println("Creating hyperlink for " + node);
 	return createDefHyperlink(node, region, textViewer);
     }
 
