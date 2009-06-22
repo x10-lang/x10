@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.utils;
 
+import polyglot.ext.x10cpp.visit.Emitter;
+
 /**
  * X10 utility methods.
  * 
@@ -15,7 +17,11 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.utils;
 public final class X10Utils {
   
   public static String FMGL(final String name) {
-    return "x10__" + name;
+    String mangled = Emitter.mangled_field_name(name);
+    assert (mangled.startsWith("FMGL("));
+    int paren = PDTUtils.findMatch(mangled, "FMGL".length());
+    assert (paren != -1);
+    return "x10__" + mangled.substring("FMGL(".length(), paren);
   }
   
   // --- Private code
