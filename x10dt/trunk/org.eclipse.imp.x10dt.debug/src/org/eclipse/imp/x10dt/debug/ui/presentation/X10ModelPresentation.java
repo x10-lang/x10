@@ -47,6 +47,8 @@ import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 
 import org.eclipse.jdt.debug.core.IJavaVariable;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
+import org.eclipse.jdt.internal.debug.ui.JDIModelPresentation;
+
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Method;
 import com.sun.jdi.Type;
@@ -86,21 +88,21 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 
-public class X10ModelPresentation implements IDebugModelPresentation, IEvaluationListener {
+public class X10ModelPresentation extends JDIModelPresentation implements IDebugModelPresentation, IEvaluationListener {
 
 	private Map fProjectsByFrame=new HashMap();
 	private IEvaluationResult fResult;
 
-	public void computeDetail(IValue value, IValueDetailListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public Image getImage(Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+//	public void computeDetail(IValue value, IValueDetailListener listener) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public Image getImage(Object element) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
 	public String getText(Object element) {
 		try {
 		if (element instanceof X10DebugTargetAlt) {
@@ -178,41 +180,41 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 		}
 	}
 	
-	public void setAttribute(String attribute, Object value) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void addListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
-	}
+//	public void setAttribute(String attribute, Object value) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public void addListener(ILabelProviderListener listener) {
+//		// TODO Auto-generated method stub
+//
+//	}
 
 	public void dispose() {
 		// TODO Auto-generated method stub
 
 	}
 
-	public boolean isLabelProperty(Object element, String property) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void removeListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public String getEditorId(IEditorInput input, Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IEditorInput getEditorInput(Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+//	public boolean isLabelProperty(Object element, String property) {
+//		// TODO Auto-generated method stub
+//		return false;
+//	}
+//
+//	public void removeListener(ILabelProviderListener listener) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//
+//	public String getEditorId(IEditorInput input, Object element) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	public IEditorInput getEditorInput(Object element) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
 
 	// Copied from JavaLineBreakpoint
 	private IJavaProject getJavaProject(JDIStackFrame stackFrame) {
