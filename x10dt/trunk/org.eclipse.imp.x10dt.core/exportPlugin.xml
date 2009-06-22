@@ -42,6 +42,35 @@
 
 		<property name="compilerArg" value=""/>
 
+		<loadfile property="plugin.dependencies" srcfile="META-INF/MANIFEST.MF">
+			<filterchain>
+				<tokenfilter>
+					<filetokenizer/>
+					<replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
+				</tokenfilter>
+				<containsregex pattern="Require-Bundle: "/>
+				<replaceregex pattern="Require-Bundle: (.*)" replace="\1"/>
+				<!-- Filter out Eclipse plugins that are handled by eclipse.build.path -->
+				<replaceregex pattern="org\.eclipse\.compare[^,]*,?" replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.core[^,]*,?"    replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.jdt[^,]*,?"     replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.jface[^,]*,?"   replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.ltk[^,]*,?"     replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.pde[^,]*,?"     replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.search[^,]*,?"  replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.team[^,]*,?"    replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.text[^,]*,?"    replace="" flags="g"/>
+				<replaceregex pattern="org\.eclipse\.ui[^,]*,?"      replace="" flags="g"/>
+				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
+				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
+				<replaceregex pattern="lpg.runtime,?" replace="lpg.runtime.java,"/>
+				<replaceregex pattern="([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
+			</filterchain>
+		</loadfile>
+		<echo message="Non-Eclipse Plugin dependencies:"/>
+		<echo message="${plugin.dependencies}"/>
+
 		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.id}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.id}src.zip"/>
@@ -71,12 +100,13 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../lpg.runtime.java/bin"/>
+<!--			<pathelement path="../lpg.runtime.java/bin"/>
 				<pathelement path="../polyglot/classes"/>
 				<pathelement path="../x10.runtime/bin"/>
 				<pathelement path="../x10.compiler/bin"/>
 				<pathelement path="../org.eclipse.imp.runtime/bin"/>
-				<pathelement path="../org.eclipse.imp.smapifier/bin"/>
+				<pathelement path="../org.eclipse.imp.smapifier/bin"/> -->
+				<pathelement path="${plugin.dependencies}"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
