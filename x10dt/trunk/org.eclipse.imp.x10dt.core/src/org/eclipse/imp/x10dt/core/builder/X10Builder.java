@@ -243,6 +243,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    if (errorPos == null) continue;
 
 	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
+
+	    if (errorFile == null)
+		errorFile= findFileInSrcPath(errorPos.file(), wsRoot);
+
 	    int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
 
 	    if (errorPos == Position.COMPILER_GENERATED)
@@ -255,6 +259,26 @@ public class X10Builder extends IncrementalProjectBuilder {
 		addMarkerTo(errorFile, errorInfo.getMessage(), severity,
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), -1, -1);
 	}
+    }
+
+    private IFile findFileInSrcPath(String string, IWorkspaceRoot wsRoot) {
+	try {
+	    IClasspathEntry[] cp= fX10Project.getResolvedClasspath(true);
+
+	    for(int i= 0; i < cp.length; i++) {
+		IClasspathEntry entry= cp[i];
+		if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+		    IPath entryPath= entry.getPath();
+		    IFile entryFile= wsRoot.getFile(entryPath.append(string));
+
+		    if (entryFile != null && entryFile.exists())
+			return entryFile;
+		}
+	    }
+	} catch (JavaModelException e) {
+	    e.printStackTrace();
+	}
+	return null;
     }
 
     private List/*<SourceStream>*/ collectStreamSources(Collection/*<IFile>*/ sourceFiles) {
