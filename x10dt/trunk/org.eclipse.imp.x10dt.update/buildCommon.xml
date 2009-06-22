@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10dt.update.common" basedir=".">
+    <property name="basews" value="${ws}"/>
+    <property name="baseos" value="${os}"/>
+    <property name="basearch" value="${arch}"/>
+    <property name="basenl" value="${nl}"/>
+
+    <!-- Compiler settings. -->
+    <property name="javacFailOnError" value="true"/>
+    <property name="javacDebugInfo" value="on"/>
+    <property name="javacVerbose" value="false"/>
+
+    <echo message="java.home = ${java.home}"/>
+    <echo message="ant.home = ${ant.home}"/>
+
+    <path id="path_bootclasspath">
+        <fileset dir="${java.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+	<fileset dir="${ant.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <property name="bootclasspath" refid="path_bootclasspath"/>
+
+    <condition property="eclipse.home" value="/usr/lib/eclipse-3.2">
+        <and>
+            <not>
+	        <isset property="eclipse.home"/>
+	    </not>
+            <os family="unix"/>
+	</and>
+    </condition>
+
+    <condition property="eclipse.home" value="f:/eclipse-3.2.2">
+        <and>
+            <not>
+	        <isset property="eclipse.home"/>
+	    </not>
+            <os family="windows"/>
+	</and>
+    </condition>
+
+    <echo message="eclipse.home = ${eclipse.home}"/>
+
+    <path id="path_eclipse.build.path">
+        <fileset dir="${eclipse.home}/plugins">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+    <pathconvert property="eclipse.build.path" refid="path_eclipse.build.path" targetos="windows"/>
+</project>
