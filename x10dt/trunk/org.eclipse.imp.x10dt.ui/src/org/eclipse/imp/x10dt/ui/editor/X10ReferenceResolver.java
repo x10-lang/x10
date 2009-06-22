@@ -8,6 +8,7 @@ import org.eclipse.uide.parser.IParseController;
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
 import polyglot.ast.Field;
+import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
@@ -20,15 +21,20 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.visit.NodeVisitor;
+import x10.uide.parser.PolyglotNodeLocator;
 
 public class X10ReferenceResolver implements IReferenceResolver, ILanguageService {
     /**
-     * Get the target for a given source node in the AST represented by a
-     * given Parse Controller.
+     * Get the target for a given referencing source node in the AST represented
+     * by a given ParseController.
      */
     public Object getLinkTarget(Object node, IParseController parseController) {
 	if (node instanceof Ambiguous) {
 	    return null;
+	}
+	if (node instanceof Id) {
+	    Id id= (Id) node;
+	    node= findParent(id, parseController);
 	}
 	if (node instanceof TypeNode) {
 	    TypeNode typeNode= (TypeNode) node;
@@ -50,6 +56,12 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 		return li.declaration();
 	}
 	return node; // If it's not something we know how to resolve, just return the node itself
+    }
+
+    private Object findParent(Id id, IParseController parseController) {
+	PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+
+	return locator.findParentNode(parseController.getCurrentAst(), id.position().offset(), id.position().endOffset());
     }
 
     public static Node findVarDefinition(Local local, Node ast) {
