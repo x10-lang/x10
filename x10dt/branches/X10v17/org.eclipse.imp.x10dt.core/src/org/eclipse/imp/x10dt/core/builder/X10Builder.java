@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 /*
@@ -19,24 +18,17 @@ package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.IToken;
 
@@ -55,19 +47,15 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.builder.BuilderUtils;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
@@ -77,22 +65,15 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
@@ -100,10 +81,8 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
-import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
 import polyglot.frontend.SourceGoal_c;
-import polyglot.frontend.SourceLoader;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
@@ -578,7 +557,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 String optionString = prefService.getStringPreference(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
                 String[] options = optionString.split("\\s");
                 int extraOptionsPos=0;
-                for (String s: options) { 
+                for (String s: options) {
                     if (s!=null) {
                         optsList.add(extraOptionsPos++, s);
                     }
