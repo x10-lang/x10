@@ -13,6 +13,6 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.io.EOFException", null, null)
 public value EOFException extends IOException {
-    public native def this(): EOFException;
-    public native def this(message: String): EOFException;
+    public def this() { super(); }
+    public def this(message: String) { super(message); }
 }
