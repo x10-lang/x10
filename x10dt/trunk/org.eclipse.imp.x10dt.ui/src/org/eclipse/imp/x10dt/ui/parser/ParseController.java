@@ -82,6 +82,7 @@ public class ParseController extends SimpleLPGParseController {
             fileSource= new StringSource(contents, file, path);
             
             List<FileSource> streams= new ArrayList<FileSource>();
+            // Bug 526: NPE when opening a file outside the workspace due to null fProject.
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
             
             streams.add(fileSource); // PC: just to test...
