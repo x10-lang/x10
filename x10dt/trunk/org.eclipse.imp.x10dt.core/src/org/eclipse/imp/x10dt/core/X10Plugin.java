@@ -29,10 +29,13 @@ import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
+import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -186,16 +189,27 @@ public class X10Plugin extends PluginBase {
 		return preferencesService;
 	}
 	
+	// Default option values
+	private final static String DEFAULT_FONT_NAME = "org.eclipse.jface.textfont";
+	private final static String DEFAULT_TAB_WIDTH = "4";
+	private final static boolean DEFAULT_OPTION_BAD_PLACE_CHECK = true;
+	private final static boolean DEFAULT_OPTION_LOOP_OPTIMIZATIONS = true;
+	private final static boolean DEFAULT_OPTION_ARRAY_OPTIMIZATIONS = true;
+	private final static boolean DEFAULT_OPTION_ASSERT = true;
+	
 	private static void setDefaultPreferences() {
-		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, "4");
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
+		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, DEFAULT_TAB_WIDTH);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, DEFAULT_OPTION_BAD_PLACE_CHECK);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, DEFAULT_OPTION_LOOP_OPTIMIZATIONS);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, DEFAULT_OPTION_ARRAY_OPTIMIZATIONS);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, DEFAULT_OPTION_ASSERT);
 		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
 		
-		// Need the following to get initial tab width to work properly on eclipse startup with and w/o new workspace
 		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+		PreferenceConverter.setDefault(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) JFaceResources.getFontRegistry().getFontData(DEFAULT_FONT_NAME));
+//		prefStore.setToDefault(PreferenceConstants.P_SOURCE_FONT);
+		
+		// Need the following to get initial tab width to work properly on eclipse startup with and w/o new workspace
 		Integer tabWidth = preferencesService.getIntPreference(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH);
 		prefStore.setValue(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, tabWidth);
 		PreferenceCache.tabWidth = tabWidth.intValue();
