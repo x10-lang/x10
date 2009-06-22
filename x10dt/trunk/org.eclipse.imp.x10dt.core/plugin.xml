@@ -85,7 +85,7 @@
             id="org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard">
       </wizard>
       <wizard
-            name="X10 Project"
+            name="X10 Project (Java back-end)"
             canFinishEarly="false"
             icon="icons/newproject.gif"
             category="org.eclipse.imp.x10dt.core"
