@@ -38,11 +38,14 @@
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 
 		<!-- LPG-related properties for plugins with grammar files -->
-		<property name="lpg.location" value="../lpg.runtime.java"/>
+		<property name="lpg.runtime.location" value="../lpg.runtime.java"/>
+		<property name="lpg.generator.location" value="../lpg.generator"/>
+		<!--
 		<property name="lpg.executable" location="../lpg.generator.${baseos}_${os.arch}/lpgexe/lpg-${baseos}_${os.arch}"/>
-		<property name="lpg.templates" location="${lpg.location}/templates"/>
-		<property name="lpg.metatooling.location" value="../org.eclipse.imp.lpg.metatooling"/>
-		<property name="lpg.metatooling.templates" location="${lpg.metatooling.location}/templates"/>
+		-->
+		<property name="lpg.executable" location="../lpg.generator.macosx_x86/lpgexe/lpg-macosx_x86"/>
+		<property name="lpg.templates" location="${lpg.generator.location}/templates/java"/>
+		<property name="lpg.include" location="${lpg.generator.location}/include/java"/>
 	</target>
 
 	<target name="javaInit" description="Initializes compiler settings from bundle meta-data">
@@ -91,7 +94,8 @@
 				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
 				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
 				<replaceregex pattern=",lpg.runtime,?" replace=",lpg.runtime.java,"/>
-				<replaceregex pattern="polyglot,?" replace="polyglot3-dev,"/>
+				<replaceregex pattern="org.eclipse.imp.analysis.p3,?" replace="org.eclipse.imp.analysis,"/>
+				<replaceregex pattern="polyglot3,?" replace="polyglot3-dev,"/>
 				<replaceregex pattern="([-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
 			</filterchain>
 		</loadfile>
