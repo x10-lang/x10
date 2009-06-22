@@ -1,6 +1,6 @@
 %options fp=PatternX10Lexer
 %options package=org.eclipse.imp.x10dt.formatter.parser
-%Options la=2,list
+%Options la=2
 %options single_productions
 %options template=LexerTemplate.gi
 %options filter=x10KWLexer.gi

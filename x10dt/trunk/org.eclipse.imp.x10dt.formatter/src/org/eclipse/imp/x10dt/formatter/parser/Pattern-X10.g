@@ -1,12 +1,6 @@
 %options fp=PatternX10Parser
 %options package=org.eclipse.imp.x10dt.formatter.parser
-%options variables=nt
-
-%options list
 %options la=6
-%options conflicts
-%options softkeywords
-
 %options template=btParserTemplate.gi
 %options parent_saved,automatic_ast=toplevel,visitor=preorder,ast_directory=./ast,ast_type=ASTNode
 %options import_terminals="Pattern-X10Lexer.gi"
@@ -43,7 +37,11 @@
 %End
 
 %Rules 
-  Pattern ::= Statement
+  Pattern ::=  %Empty
+            | Statement
             | Expression
- 
+            | TypeDeclaration
+            | ClassBodyDeclaration
+            | CompilationUnit
+           
 %End
