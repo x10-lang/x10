@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  x10.compiler,
  org.eclipse.uide.runtime,
- lpg,
  org.eclipse.jdt.ui,
  org.eclipse.debug.core,
  org.eclipse.jdt.launching,
@@ -28,6 +27,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ui.editors,
- polyglot
+ polyglot,
+ lpg.javaruntime
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: x10.uide.X10UIPlugin

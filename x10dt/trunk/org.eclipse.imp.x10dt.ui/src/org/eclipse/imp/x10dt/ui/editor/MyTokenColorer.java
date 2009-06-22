@@ -9,7 +9,7 @@ import org.eclipse.uide.parser.IParseController;
  
 import x10.parser.X10Parsersym;
 
-import lpg.lpgjavaruntime.IToken;
+import lpg.javaruntime.IToken;
 
 public class MyTokenColorer extends DefaultTokenColorer implements X10Parsersym, ITokenColorer {
 

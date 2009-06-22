@@ -5,7 +5,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Iterator;
 
-import lpg.lpgjavaruntime.Monitor;
+import lpg.javaruntime.Monitor;
 
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;

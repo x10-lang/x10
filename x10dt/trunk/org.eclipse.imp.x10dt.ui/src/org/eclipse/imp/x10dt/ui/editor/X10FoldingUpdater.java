@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import lpg.lpgjavaruntime.Adjunct;
-import lpg.lpgjavaruntime.IToken;
-import lpg.lpgjavaruntime.LexStream;
-import lpg.lpgjavaruntime.PrsStream;
+import lpg.javaruntime.Adjunct;
+import lpg.javaruntime.IToken;
+import lpg.javaruntime.ILexStream;
+import lpg.javaruntime.IPrsStream;
 
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -47,8 +47,8 @@ public class X10FoldingUpdater implements IFoldingUpdater
     private ArrayList oldAnnotationsList = null;
     private boolean astWasInvalid = false;
         
-    private PrsStream prsStream;
-    private LexStream lexStream;
+    private IPrsStream prsStream;
+    private ILexStream lexStream;
 
     //
     // A simplistic test of whether two lists differ significantly. This may

@@ -4,7 +4,7 @@
 package x10.uide.editor;
 
 import java.util.List;
-import lpg.lpgjavaruntime.LexStream;
+import lpg.javaruntime.LexStream;
 import org.eclipse.jdt.internal.ui.text.HTMLPrinter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;

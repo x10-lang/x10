@@ -3,8 +3,8 @@ package x10.safari.contentProposer;
 import java.util.ArrayList;
 import java.util.List;
 
-import lpg.lpgjavaruntime.IToken;
-import lpg.lpgjavaruntime.PrsStream;
+import lpg.javaruntime.IToken;
+import lpg.javaruntime.IPrsStream;
 
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
@@ -194,7 +194,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         // the index of the token preceding the offset when the offset is not
         // the offset of a valid token.
         //
-        PrsStream prs_stream = controller.getParser().getParseStream(); 
+        IPrsStream prs_stream = controller.getParser().getParseStream(); 
         int index = prs_stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index);
         IToken token = prs_stream.getIToken(token_index),
