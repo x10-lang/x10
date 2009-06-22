@@ -6,14 +6,21 @@ import java.util.List;
 import lpg.lpgjavaruntime.IToken;
 import lpg.lpgjavaruntime.PrsStream;
 
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
+import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.uide.editor.IContentProposer;
 import org.eclipse.uide.editor.SourceProposal;
 import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.IParseController;
 
 import polyglot.ast.*;
-import polyglot.ext.jl.ast.Field_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -135,28 +142,44 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         {
             assert(fields.get(i) instanceof FieldInstance);
             FieldInstance field = (FieldInstance) fields.get(i);
-            list.add(new SourceProposal(field.name(), "", offset));
+            list.add(new SourceProposal(field.name(), prefix, offset));
         }
 
         for (int i = 0; i < methods.size(); i++)
         {
             assert(methods.get(i) instanceof MethodInstance);
             MethodInstance method = (MethodInstance) methods.get(i);
-            list. add(new SourceProposal(method.name() + "()", "", offset));
+            list. add(new SourceProposal(method.signature(), prefix, offset));
         }
         
         for (int i = 0; i < classes.size(); i++)
         {
             assert(classes.get(i) instanceof ClassType);
             //ClassType type = ((ReferenceType) classes.get(i)).toClass();
-            Node type = (Node) classes.get(i);
-            list. add(new SourceProposal(type.toString() + "()", "", offset));
+            ClassType type = (ClassType) classes.get(i);
+            if (!type.isAnonymous())
+        	list. add(new SourceProposal(type.name(), prefix, offset));
         }
     }
 
-    public ICompletionProposal[] getContentProposals(IParseController controller, int offset)
+    private static final String CONTEXT_ID= "x10Source";
+
+    private TemplateContextType fContextType= new TemplateContextType(CONTEXT_ID, "Coding Templates");
+
+    private final Template fRegion1DTemplate= new Template("1-D region", "X10 1-dimensional region creation", CONTEXT_ID, "[${lower}:${upper}]", false);
+    private final Template fRegion2DTemplate= new Template("2-D region", "X10 2-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2}]", false);
+    private final Template fRegion3DTemplate= new Template("3-D region", "X10 3-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2},${lower3}:${upper3}]", false);
+//  private final Template fDistribTemplate= new Template("distribution", "X10 distribution creation", CONTEXT_ID, "async (${place}) { }", false);
+    private final Template fArrayNewTemplate= new Template("array new", "X10 array instantiation", CONTEXT_ID, "new ${type}[] (point ${p}) {\n return ${expr};\n}\n", false);
+    private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) {\n \n}\n", false);
+    private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (point ${p}: ${region}) {\n \n}\n", false);
+    private final Template fForRegionTemplate= new Template("for region", "for iterating over a region", CONTEXT_ID, "for (point ${p}: ${region}) {\n \n}\n", false);
+    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
+    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { }.force()", false);
+
+    public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
     {
-        ArrayList list = new ArrayList();
+	ArrayList list = new ArrayList();
         //
         // When the offset is in between two tokens (forexample, on a white space or comment)
         // the getTokenIndexAtCharacter in parse stream returns the negative index
@@ -283,15 +306,36 @@ list.add(new SourceProposal("Candidate: " + candidate, "", offset));
             {
                  list.add(new SourceProposal("UNARY: " + node.getClass().toString(), " source proposal ", 0));
             }
-            else list.add(new SourceProposal("Other: " + node.getClass().toString(), " source proposal ", 0));
-            
-            if (prefix != null && prefix.length() > 0)
+            else
             {
-                // complete this prefix...
-                list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            }
-        }
+                IDocument docu= viewer.getDocument();
+                Region r= new Region(offset, prefix.length());
+                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
 
+                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
+            }
+//          else list.add(new SourceProposal("Other: " + node.getClass().toString(), " source proposal ", 0));
+//
+//          if (prefix != null && prefix.length() > 0)
+//          {
+//              // complete this prefix...
+//              list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
+//          }
+        }
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
+    }
+
+    private void addTemplateProposalIfMatch(ArrayList list, Template template, TemplateContext tc, Region r, String prefix) {
+	if (template.getName().startsWith(prefix))
+	    list.add(new TemplateProposal(template, tc, r, null));
     }
 }
