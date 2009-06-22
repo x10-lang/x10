@@ -1,5 +1,6 @@
 package x10.refactorings;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -55,13 +56,11 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
-import polyglot.types.Name;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XArray;
 import x10.constraint.XConstraint;
@@ -80,12 +79,6 @@ import x10.effects.constraints.Locs;
 import x10.refactorings.ReachingDefsVisitor.ValueMap;
 
 public class EffectsVisitor extends NodeVisitor {
-    private final Map<Node,Effect> fEffects= new HashMap<Node, Effect>();
-
-    private final XConstraint fMethodContext;
-
-    private final ValueMap fValueMap;
-
     public static class XVarDefWrapper implements XName {
         private final VarDef fVarDef;
         public XVarDefWrapper(VarDef vd) {
@@ -246,7 +239,7 @@ public class EffectsVisitor extends NodeVisitor {
                     fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(l)));
                 } else if (old instanceof Id) {
                     // do nothing
-                    System.out.println("TermVisitor doing nothing for expr of type " + old.getClass().getCanonicalName());
+                    EffectsVisitor.fDiagStream.println("TermVisitor doing nothing for expr of type " + old.getClass().getCanonicalName());
                 } else {
                     throw new UnsupportedOperationException("Unknown expression type");
                 }
@@ -267,6 +260,14 @@ public class EffectsVisitor extends NodeVisitor {
             return fTermMap.get(fExpr);
         }
     }
+
+    private final Map<Node,Effect> fEffects= new HashMap<Node, Effect>();
+
+    private final XConstraint fMethodContext;
+
+    private final ValueMap fValueMap;
+
+    private static final PrintStream fDiagStream= X10RefactoringPlugin.getInstance().getConsoleStream();
 
     public EffectsVisitor(ValueMap valueMap, X10MethodDecl method) throws XFailure {
         fValueMap = valueMap;
@@ -578,9 +579,9 @@ public class EffectsVisitor extends NodeVisitor {
             if (ownerClassName.equals("x10.lang.Array")) {
                 Expr targetExpr= (Expr) target;
                 if (call.name().id().toString().equals("apply")) {
-                    return computeEffectOfArrayRead(call, targetExpr, args.get(0));
+                    result= computeEffectOfArrayRead(call, targetExpr, args.get(0));
                 } else if (call.name().id().toString().equals("set")) {
-                    return computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1));
+                    result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1));
                 }
             } else {
                 // First compute the effects of argument evaluation
@@ -589,6 +590,7 @@ public class EffectsVisitor extends NodeVisitor {
                 result= followedBy(result, getMethodEffects(methodInstance));
             }
         }
+        fDiagStream.println("Effect of call to method " + methodInstance.container() + "." + methodInstance.signature() + ": " + result);
         return result;
     }
 
@@ -650,15 +652,15 @@ public class EffectsVisitor extends NodeVisitor {
         Effect result= null;
         // aggregate effects of the individual statements.
         // prune out the effects on local vars whose scope is this block.
-        System.out.println("Computing effect of block " + b);
+        fDiagStream.println("Computing effect of block " + b);
         List<LocalDecl> blockDecls= collectDecls(b);
         for(Stmt s: b.statements()) {
             Effect stmtEffect= fEffects.get(s);
-            System.out.println("   statement = " + s + "; effect = " + stmtEffect);
+            fDiagStream.println("   statement = " + s + "; effect = " + stmtEffect);
             Effect filteredEffect= removeLocalVarsFromEffect(blockDecls, stmtEffect);
-            System.out.println("             filtered effect = " + filteredEffect);
+            fDiagStream.println("             filtered effect = " + filteredEffect);
             result= followedBy(result, filteredEffect);
-            System.out.println("   aggregate effect = " + result);
+            fDiagStream.println("   aggregate effect = " + result);
         }
         return result;
     }
@@ -689,12 +691,12 @@ public class EffectsVisitor extends NodeVisitor {
     }
 
     public void dump() {
-        System.out.println("*** Effects: ");
+        fDiagStream.println("*** Effects: ");
         for (Node n : fEffects.keySet()) {
             Effect e= fEffects.get(n);
-            System.out.println(n.toString() + ":");
-            System.out.println("   " + e);
-            System.out.println();
+            fDiagStream.println(n.toString() + ":");
+            fDiagStream.println("   " + e);
+            fDiagStream.println();
         }
     }
 }
