@@ -21,6 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.core,
  org.eclipse.core.resources,
  org.eclipse.ui.ide,
- com.ibm.watson.safari.x10
+ com.ibm.watson.safari.x10,
+ org.eclipse.ui.cheatsheets
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: x10.uide.X10UIPlugin
