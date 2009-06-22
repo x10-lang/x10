@@ -182,7 +182,7 @@ public class X10RuntimeUtils {
 	                // Oh well, try the highest version.
 	                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
 	                    public int compare(String o1, String o2) {
-	                        return -o1.compareTo(o2); // Make the sort order decreasing, so that iterator().next() gives the greatest element
+	                        return -o1.compareTo(o2); // Make the sort order decreasing, so that sortedJars.first() gives the greatest element
 	                    }
 	                });
 	                for(int i= 0; i < runtimeJars.length; i++) {
@@ -191,7 +191,7 @@ public class X10RuntimeUtils {
 
 	                    sortedJars.add(jarPath);
 	                }
-	                return new Path(sortedJars.iterator().next());
+	                return new Path(sortedJars.first());
 	            }
 	        }
 	        return null; // we're out of heuristics... (handle the case where install location is remote, for example)
