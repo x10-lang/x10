@@ -12,6 +12,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -21,6 +23,30 @@ import x10.uide.X10UIPlugin;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
     private final static String x10RuntimeType= "x10.lang.Runtime";
+
+    @Override
+    public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
+        IVMInstall vm= super.getVMInstall(configuration);
+
+        if (vm instanceof IVMInstall2) {
+	    IVMInstall2 vm2= (IVMInstall2) vm;
+            if (!vm2.getJavaVersion().startsWith("1.5")) {
+    	    Display.getDefault().asyncExec(new Runnable() {
+		public void run() {
+		    Shell shell= X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+		    String projectName= "";
+		    try {
+			projectName= configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
+		    } catch (CoreException e) {
+		    }
+		    MessageDialog.openError(shell, "Launch Error", "Project '" + projectName + "' must use a Java 5.0 runtime.");
+		}
+	    });
+        	return null;
+            }
+        }
+        return vm;
+    }
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 	// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
