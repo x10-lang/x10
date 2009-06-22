@@ -9,5 +9,9 @@ public class X10Preferences {
     public static String x10ConfigFile;
     public static boolean autoAddRuntime;
 
+    public static String x10CompilerDataDir;
+    public static int samplingFreq;
+    public static String statsDisable;
+
     private X10Preferences() {}
 }

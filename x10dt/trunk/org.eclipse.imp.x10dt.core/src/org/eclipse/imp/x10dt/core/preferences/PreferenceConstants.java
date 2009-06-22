@@ -11,4 +11,10 @@ public class PreferenceConstants {
     public static final String P_EMIT_MESSAGES= "emitMessages";
 
     public static final String P_AUTO_ADD_RUNTIME= "autoAddRuntimme";
+
+    public static final String P_COMPILER_DATA_DIR= "compilerDataDir";
+
+    public static final String P_SAMPLING_FREQ= "samplingFreq";
+
+    public static final String P_STATS_DISABLE= "statsDisable";
 }

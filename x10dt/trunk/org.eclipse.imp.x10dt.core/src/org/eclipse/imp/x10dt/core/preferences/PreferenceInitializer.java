@@ -1,6 +1,5 @@
 package com.ibm.watson.safari.x10.preferences;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -31,9 +30,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	try {
 	    Bundle x10CommonBundle= Platform.getBundle("x10.common");
             URL x10CommonURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("")));
+            Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
+            URL x10CompilerDataURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("data")));
             URL stdCfgURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("etc/standard.cfg")));
 	    String x10CommonPath= x10CommonURL.getPath();
             String stdCfgPath= stdCfgURL.getPath();
+            String x10CompilerDataPath= x10CompilerDataURL.getPath();
 
             if (Platform.getOS().equals("win32")) {
                 x10CommonPath= x10CommonPath.substring(1);
@@ -41,9 +43,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
             }
             store.setDefault(PreferenceConstants.P_X10COMMON_PATH, x10CommonPath);
             store.setDefault(PreferenceConstants.P_X10CONFIG_FILE, stdCfgPath);
+            store.setDefault(PreferenceConstants.P_COMPILER_DATA_DIR, x10CompilerDataPath);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}
+        store.setDefault(PreferenceConstants.P_SAMPLING_FREQ, 50);
+        store.setDefault(PreferenceConstants.P_STATS_DISABLE, "none");
 //	store.setDefault(PreferenceConstants.P_CHOICE, "choice2");
     }
 }
