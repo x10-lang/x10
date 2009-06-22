@@ -222,7 +222,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return filter(cd.name());
         } else if (node instanceof FieldDecl) {
             FieldDecl fd= (FieldDecl) node;
-            return filter(fd.type() + " " + fd.name());
+            return filter(fd.name() + " : " + fd.type());
         } else if (node instanceof ProcedureDecl) {
     	    ProcedureDecl pd= (ProcedureDecl) node;
     	    List/*<Formal>*/ formals= pd.formals();
