@@ -658,7 +658,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			//    add the psi results from these LValueFinders to the phi map for the statement
 				for (Variable v : statVarFinder.getLValues()){
-					fPhi.get(a).addAll(psi.get(v));
+					fPhi.get(a).addAll(psi.get(v)); // TODO: Fix ME!!
 				}
 			//    determine if lhs gamma variable flows in from statement and that this is the
 			//        first time lhs is used in the loop --> updated rho if this is true
@@ -1019,7 +1019,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private void createDummyInstanceFieldKey(HashMap<CAstNode, Variable> cast2VarMap, Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode) {
 		TypeName typeName;
 		if (cast2VarMap.get(cNode.getChild(0)) != null)
-			typeName = TypeName.findOrCreate("L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.', '/'));
+			typeName = TypeName.findOrCreate("L"+cast2VarMap.get(cNode.getChild(0)).type().toClass().declaration().toString().replace('.', '/'));
 		else
 			typeName = ((FieldReference)cNode.getChild(1).getValue()).getDeclaringClass().getName();
 		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension()).getSourceLoader().lookupClass(typeName);
@@ -1028,7 +1028,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	private void createDummyArrayInstanceKey(HashMap<CAstNode, Variable> cast2VarMap, Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode, CGNode srcNode) {
-		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.', '/'));
+		CAstNode tempC = cNode.getChild(0);
+		Variable tempV = cast2VarMap.get(cNode);
+//		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.', '/'));
+		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode).type().toClass().declaration().toString().replace('.', '/'));
 		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension()).getSourceLoader().lookupClass(typeName);
 // Shane's change
 		cast2KeyMap.put(cNode, new ArrayContentsKey(new NormalAllocationInNode(srcNode,null,cNodeClass)));
@@ -1157,8 +1160,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
 		}
-//		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
-		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+//		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		fEngine.setExclusionsFile(exclusionsFile);
 	}
 

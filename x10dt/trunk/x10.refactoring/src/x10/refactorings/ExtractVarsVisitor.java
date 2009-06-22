@@ -243,9 +243,9 @@ public class ExtractVarsVisitor extends NodeVisitor {
 						else
 							evTypeMap.put(vn, vutype.getStandardType(vn, parType ^ VarUseType.ARRAY));
 					else
-						if (apar instanceof X10ArrayAccessAssign){
+						//if (apar instanceof X10ArrayAccessAssign){
 							evTypeMap.put(vn, vutype.getStandardType(vn, VarUseType.POINT));
-						}
+						//}
 				} 
 				else if (par instanceof Assign) {
 					if (vn.equals(((Assign) par).left()))

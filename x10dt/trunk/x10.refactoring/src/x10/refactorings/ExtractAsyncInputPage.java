@@ -43,7 +43,7 @@ public class ExtractAsyncInputPage extends UserInputWizardPage implements Listen
 	fText = new Text(result,SWT.BORDER | SWT.SINGLE);
 	//test.setSize(result.getSize().x - testlabel.getSize().x,test.getSize().y);
 	gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-	gd.horizontalSpan= 1;
+	gd.horizontalSpan= 1000;
 	fText.setLayoutData(gd);
 	fText.addListener(SWT.KeyUp,this);
 	setControl(result);
