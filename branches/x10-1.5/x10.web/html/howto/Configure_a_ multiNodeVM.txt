@@ -1,0 +1,18 @@
+There are two modes for the X10 reference compiler: single-VM and multi-VM.  There is additional and
+overhead associated with the multi-VM version that is unneccessary in the single node version, hence the
+two modes.
+
+Single node is the default.  To enable the multiVM version, an additional clause must be specified in
+the configuration file: "COMPILER_FRAGMENT_DATA_EXT_DIRECTORY".
+This must point to a directory which may contain xcd template files.  Any xcd files found in this directory
+will be used instead of their singleVM equivalent.  For instance, the statement
+
+final [.] X = new int[0:1];
+
+will generate code for a sharedmemory integer array.  However, is the following stanza is added to your config
+file (e.g. standard.cfg), assuming x10 is installed in 'd:/x10/eclipse/workspace/x10',
+
+COMPILER_FRAGMENT_DATA_EXT_DIRECTORY=D:/x10/eclipse/workspace/x10/dataext/
+
+then generated code will be for a distributed integer array ie the template int_array_dist_op.xcd is selected from
+the dataext directory instead of from the data directory.
