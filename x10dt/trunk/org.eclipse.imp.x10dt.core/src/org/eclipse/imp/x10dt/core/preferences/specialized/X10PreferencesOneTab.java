@@ -17,7 +17,7 @@ import org.eclipse.imp.preferences.InstancePreferencesTab;
 import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInitializer;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -34,8 +34,8 @@ public class X10PreferencesOneTab extends TabbedPreferencesPage implements IProp
 	
 	public X10PreferencesOneTab () {
 		super();
-        prefService = X10Plugin.getInstance().getPreferencesService();
-		setPreferenceStore(X10Plugin.getInstance().getPreferenceStore());
+        prefService = RuntimePlugin.getInstance().getPreferencesService();
+		setPreferenceStore(RuntimePlugin.getInstance().getPreferenceStore());
 
 	}
 

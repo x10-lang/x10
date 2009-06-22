@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Language Support
 Bundle-SymbolicName: org.eclipse.imp.x10dt.core;singleton:=true
-Bundle-Version: 0.1.92
+Bundle-Version: 0.2.1
 Bundle-Activator: org.eclipse.imp.x10dt.core.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
@@ -12,12 +12,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.views,
- x10.compiler,
  org.eclipse.jdt.core,
  org.eclipse.jface.text,
  org.eclipse.jdt.ui,
  org.eclipse.ui.cheatsheets,
- x10.runtime,
+ x10.runtime.17,
+ x10.common.17,
  polyglot,
  lpg.runtime,
  org.eclipse.imp.smapifier,
@@ -25,10 +25,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.debug.ui
+ org.eclipse.debug.ui,
+ x10.compiler.p3
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
  org.eclipse.imp.x10dt.core.builder,
+ org.eclipse.imp.x10dt.core.runtime,
  org.eclipse.imp.x10dt.core.wizards
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

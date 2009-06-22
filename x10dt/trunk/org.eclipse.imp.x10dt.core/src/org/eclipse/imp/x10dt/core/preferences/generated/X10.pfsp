@@ -23,13 +23,10 @@ page X10 {
     	    defvalue true; }
     	boolean LoopOptimizations { defvalue true; }
     	boolean ArrayOptimizations { defvalue true; }
-    	boolean PermitAssert { label "Permit asserts"; defvalue true; }
+    	boolean PermitAssert { defvalue true; }
     	int NumPlaces {
     	    tooltip "The number of logical places upon which the application is executed";
     	    range 1..50;
     	    defvalue 4; }
-    	string AdditionalCompilerOptions {
-    	    defvalue ""; 
-    	    validator "org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator"; }
     }
 }

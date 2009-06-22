@@ -35,7 +35,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
+import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -52,12 +54,17 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
         return new X10ProjectNature();
     }
 
-    protected IClasspathEntry createLanguageRuntimeEntry() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
-        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
-
-        return JavaCore.newVariableEntry(x10RuntimePath, null, null);
+    /**
+     * Get the installed language runtime path
+     */
+    @Override
+    protected IClasspathEntry createLanguageRuntimeEntry() { 
+        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 was x10.runtime hardcoded
+        //PORT1.7 use common algorithm now in X10RuntimeUtils instead of looking in ECLIPSE_HOME/plugins/x10.runtime. ... etc
+        IPath x10RuntimePath= X10RuntimeUtils.guessRuntimeLocation(x10RuntimeBundle);
+        IClasspathEntry langRuntimeCPE = JavaCore.newLibraryEntry(x10RuntimePath, null, null);
+        //PORT1.7 return IClasspathEntry not IPath like previous impl (adapt to change in IMP)
+        return langRuntimeCPE;
     }
 
     @Override

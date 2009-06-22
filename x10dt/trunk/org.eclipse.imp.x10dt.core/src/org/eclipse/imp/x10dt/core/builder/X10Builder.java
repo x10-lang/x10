@@ -7,7 +7,6 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
 /*
@@ -19,24 +18,17 @@ package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.IToken;
 
@@ -55,53 +47,44 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
+import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.dom.DomParser;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
-import polyglot.frontend.Pass;
+import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
-import polyglot.frontend.goals.AbstractGoal;
-import polyglot.frontend.goals.Goal;
-import polyglot.frontend.goals.VisitorGoal;
+import polyglot.frontend.Goal;
+import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
@@ -115,7 +98,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class X10Builder extends IncrementalProjectBuilder {
-    /**
+	/**
      * Builder ID for the X10 compiler. Must match the ID of the builder extension defined in plugin.xml.
      */
     public static final String BUILDER_ID= X10Plugin.kPluginID + ".X10Builder";
@@ -264,9 +247,9 @@ public class X10Builder extends IncrementalProjectBuilder {
     // and should be made a prereq of TypeChecked, so that dependency information
     // gets collected even if code can't be generated for some reason.
     private class ComputeDependenciesGoal extends VisitorGoal {
-        public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
+        public ComputeDependenciesGoal(Job job) {
             super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
-            addPrerequisiteGoal(job.extensionInfo().scheduler().CodeGenerated(job), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().TypeChecked(job));
         }
     }
 
@@ -277,7 +260,17 @@ public class X10Builder extends IncrementalProjectBuilder {
         public CheckPackageDeclVisitor(Job job) {
             fJob= job;
         }
-
+        @Override
+        public NodeVisitor begin() {
+            String path= fJob.source().path();
+            // BRT don't bother looking for dependencies if we're in jar/zip
+            //PORT1.7
+            if(path.endsWith(".jar")|| path.endsWith(".zip")) {
+            	System.out.println("looking for resource in zip/jar???");
+            	return null;
+            }
+            return super.begin();
+        }
         private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
             if (!actualPkg.equals(declaredPkg)) {
                 fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pos));
@@ -289,7 +282,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (n instanceof PackageNode) {
                 PackageNode pkg= (PackageNode) n;
                 Source src= fJob.source();
-                String declaredPkg= pkg.package_().fullName();
+                String declaredPkg= pkg.package_().get().fullName().name().toString();
                 String actualPkg= determineActualPackage(src);
 
                 checkPackage(declaredPkg, actualPkg, pkg.position());
@@ -335,73 +328,89 @@ public class X10Builder extends IncrementalProjectBuilder {
     };
 
     private class CheckPackageDeclGoal extends VisitorGoal {
-        public CheckPackageDeclGoal(Job job) throws CyclicDependencyException {
+        public CheckPackageDeclGoal(Job job) {
             super(job, new CheckPackageDeclVisitor(job));
-            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new ComputeDependenciesGoal(job)), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().intern(new ComputeDependenciesGoal(job)));
         }
     }
 
     private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
 
-    private class CollectBookmarksGoal extends AbstractGoal {
-        public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
+    private class CollectBookmarksGoal extends SourceGoal_c {
+        public CollectBookmarksGoal(Job job) {
             super(job);
-            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new CheckPackageDeclGoal(job)), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job)));
         }
-        @Override
-        public Pass createPass(ExtensionInfo extInfo) {
-            return new AbstractPass(CollectBookmarksGoal.this) {
-                @Override
-                public boolean run() {
-                    Job job= goal().job();
-                    Node ast= job.ast();
-                    String path= job.source().path();
-                    X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
-                    List<IToken> adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
-                    IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
+		@Override
+		public boolean runTask() {
+            Job job= this.job();
+            Node ast= job.ast();
+            String path= job.source().path();
+            // PORT1.7 if in a zip or jar then we don't need to...
+            if(path.contains("*.zip")||path.contains("*.jar")) {
+            	return true;
+            }
+            X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
+            
+            List<IToken> adjuncts=null;
+            try {
+            	//PORT1.7 -- uses getLeftToken()... can we get to parse stream in another way??
+            	//adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
+            	throw new UnsupportedOperationException("X10Builder collecting bookmarks, need adjuncts");
+            }
+            catch(Exception e) {
+            	//PORT1.7 -- Hack to postpone JPGPosition.getLeftIToken() problem (always null now, need general method to recompute)
+            	X10Plugin.getInstance().logException("Error while collecting bookmarks during build: JPGPosition / adjuncts", e);
+            	adjuncts=new ArrayList<IToken>();
+            }
+            IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
 
-                    try {
-                        file.deleteMarkers(IMarker.TASK, true, 1);
-                    } catch (CoreException e) {
-                        X10Plugin.getInstance().logException("Error while creating task", e);
+            try {
+                file.deleteMarkers(IMarker.TASK, true, 1);
+            } catch (CoreException e) {
+                X10Plugin.getInstance().logException("Error while creating task", e);
+            }
+
+            for(IToken adjunct: adjuncts) {
+                String adjunctStr= adjunct.toString();
+                for(int i=0; i < sTaskPrefixes.length; i++) {
+                    if (adjunctStr.startsWith(sTaskPrefixes[i])) {
+                        String msg= adjunctStr.substring(3);
+                        int lineNum= adjunct.getLine();
+                        int startOffset= adjunct.getStartOffset();
+                        int endOffset= adjunct.getEndOffset();
+
+                        addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
                     }
-
-                    for(IToken adjunct: adjuncts) {
-                        String adjunctStr= adjunct.toString();
-                        for(int i=0; i < sTaskPrefixes.length; i++) {
-                            if (adjunctStr.startsWith(sTaskPrefixes[i])) {
-                                String msg= adjunctStr.substring(3);
-                                int lineNum= adjunct.getLine();
-                                int startOffset= adjunct.getStartOffset();
-                                int endOffset= adjunct.getEndOffset();
-
-                                addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
-                            }
-                        }
-                    }
-                    return true;
                 }
-            };
-        }
+            }
+            return true;
+		}
     }
 
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
-        public Goal getCompileGoal(Job job) {
-            try {
-                return scheduler().internGoal(new CollectBookmarksGoal(job) /* CheckPackageDeclGoal(job)*/);
-            } catch (CyclicDependencyException e) {
-                job.compiler().errorQueue().enqueue(
-                        new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
-                return null;
-            }
-        }
+    	@Override
+    	protected Scheduler createScheduler() {
+    		return new X10Scheduler(this) {
+    			@Override
+    			public List<Goal> goals(Job job) {
+    				List<Goal> goals= super.goals(job);
+    				Goal endGoal = goals.get(goals.size()-1);
+    				if(!(endGoal.name().equals("End"))) {
+    					throw new IllegalStateException("Not an End Goal?");
+    				}
+					endGoal.addPrereq(new CollectBookmarksGoal(job));
+					return goals;
+    			}
+    		};
+    	}
     	/**
     	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
     	 */
     	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
-    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-    	    }
+//    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+//    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+//    	    }
 
     	    try {
                 //
@@ -420,12 +429,28 @@ public class X10Builder extends IncrementalProjectBuilder {
                 // The advantage of using the Reader constructor is that it
                 // will always work, though not as efficiently.
                 //
-                // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+    	    	final X10Lexer x10_lexer = new X10Lexer(reader, source.name());
                 //
-                final X10Lexer x10_lexer= new X10Lexer(source.path());
+//                final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
+//                if (source instanceof SourceLoader.ZipSource) {
+//                	//PORT 1.7 special case for loading from jar file
+//                	SourceLoader.ZipSource zipSource = (SourceLoader.ZipSource) source;
+//                	String name= zipSource.name();
+//                	String contents= BuilderUtils.getFileContents(zipSource.open());
+//
+//                	x10_lexer.initialize(contents.toCharArray(), name);
+//                }
                 x10_lexer.setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
-                        Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
+                       //PORT1.7 -- need to get info (e.g. is this zipfile?) 
+                    	// need file and entry name from sourceLoader$ZipSource
+                    	// to be able to issue accurate error messages
+                    	// store enough info in the Position so that createMarkers can put marker in right spot (or ???)
+                    	//(but.. runtime jar file will usually be outside the workspace)
+                    	// UBT
+                    	// check whether this message corresponds to something outside workspace; if so, discard or put "someplace obvious"
+                    	//            ( visible)  -- project root folder???  so that marker will show up and info isn't lost
+                    	Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
                                 msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
                                 msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
                                 msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
@@ -445,16 +470,17 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void compileAllSources(Collection<IFile> sourceFiles) {
         fExtInfo= new BuilderExtensionInfo();
 
-        List<StreamSource> streams= collectStreamSources(sourceFiles);
+        List<Source> streams= collectStreamSources(sourceFiles);
         final Collection<ErrorInfo> errors= new ArrayList<ErrorInfo>();
 
         buildOptions();
 
-        Compiler compiler= new PolyglotFrontEnd(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
+        Compiler compiler= new Compiler(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
                 errors.add(error);
             }
         });
+        Globals.initialize(compiler);//PORT1.7 Must initialize before actually calling compiler
 //      Report.addTopic(Report.verbose, 1);
         try {
             compiler.compile(streams);
@@ -497,13 +523,13 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private void buildOptions() {
         Options opts= fExtInfo.getOptions();
-
-        Options.global= opts;
+      
+//      Options.global= opts; // PORT1.7 RMF 9/23/2008 - Global Options object no longer exists
         try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
-            String projectSrcPath= pathListToPathString(projectSrcLoc);
+            String projectSrcPath= pathListToPathString(projectSrcLoc);// note this is user's src dir, plus runtime jar.
             String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
-
+            //BRT note: probably won't work if > 1 src folder
             // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
 //          opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
             List<String> optsList = new ArrayList();
@@ -515,28 +541,33 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                "-commandlineonly"
+                //"-commandlineonly"  FIXME temp only  BRT
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
+            // get the same PreferencesService (from RuntimePlugin) that the pref. page uses.  
+            // getting it from X10Plugin returns a different one.
+            IPreferencesService prefService = RuntimePlugin.getInstance().getPreferencesService();
+            
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));
             optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)));
             if (prefService.getBooleanPreference(X10PreferenceConstants.P_ASSERT)) {
                 optsList.add(0, "-assert");
             }
+
             if (prefService.isDefined(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
                 String optionString = prefService.getStringPreference(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
                 String[] options = optionString.split("\\s");
                 int extraOptionsPos=0;
                 for (String s: options) {
                     if (s!=null) {
-                        optsList.add(extraOptionsPos++, s);
+                        optsList.add(extraOptionsPos++, s);  // FIXME refactor this and do stuff in the order it belongs in the first place
                     }
                 }
             }
+
             String[] optsArray = optsList.toArray(new String[optsList.size()]);
             opts.parseCommandLine(optsArray, new HashSet());
         } catch (UsageError e) {
@@ -553,11 +584,16 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
+        IPath wsLoc= fProject.getWorkspace().getRoot().getLocation();
 
         for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext();) {
             IPath path= iter.next();
 
-            buff.append(fProject.getWorkspace().getRoot().getLocation().append(path).toOSString());
+            if (wsLoc.isPrefixOf(path)) {
+            	buff.append(wsLoc.append(path).toOSString());
+            } else {
+            	buff.append(path.toOSString());
+            }
             if (iter.hasNext())
                 buff.append(File.pathSeparatorChar);
         }
@@ -579,6 +615,11 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
                 srcPath.add(e.getPath());
             else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+            	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
+            	// so add source path entries of referenced projects to this project's sourcepath.
+            	// Assume that goal dependencies are such that Polyglot will not be compelled to
+            	// compile referenced X10 source down to Java source (causing duplication; see below).
+            	//
                 // RMF 6/4/2008 - Don't add referenced projects to the source path:
                 // 1) doing so should be unnecessary, since the classpath will include
                 //    the project, and the class files should satisfy all references,
@@ -586,14 +627,24 @@ public class X10Builder extends IncrementalProjectBuilder {
                 //    the other project to Java source files located in the *referencing*
                 //    project, causing duplication, which is not what we want.
                 //
-                // IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
-                // IJavaProject refJavaProject= JavaCore.create(refProject);
-                // IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
-                // for(int j= 0; j < refJavaCPEntries.length; j++) {
-                //     if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                //         srcPath.add(refJavaCPEntries[j].getPath());
-                //     }
-                // }
+            	IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
+            	IJavaProject refJavaProject= JavaCore.create(refProject);
+            	IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+            	for(int j= 0; j < refJavaCPEntries.length; j++) {
+            		if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            			srcPath.add(refJavaCPEntries[j].getPath());
+            		}
+            	}
+            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+            	// PORT1.7 Add the X10 runtime jar to the source path, since the compiler
+            	// needs to see the X10 source for the user-visible runtime classes (like
+            	// x10.lang.Region) to get the extra type information (for deptypes) that
+            	// can't be stored in Java class files, and for now, these source files
+            	// actually live in the X10 runtime jar.
+            	IPath path= e.getPath();
+            	if (path.toPortableString().contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {
+            		srcPath.add(path);
+            	}
             }
         }
         if (srcPath.size() == 0)
@@ -616,13 +667,20 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (errorFile == null)
                 errorFile= findFileInSrcPath(errorPos.file(), wsRoot);
 
-            int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
+            // if file is still null (e.g. file isn't within eclipse project), then attach it to this project, so we don't lose it
+            if (errorFile == null) {      	
+            	String msg = "Error on runtime library file " + errorPos.nameAndLineString()+" - "+errorInfo.getMessage();
+            	System.out.println(msg+"\n   "+errorPos);
+            	addProblemMarkerTo(fProject, msg, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+            } else {
+            	int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
 
-            if (errorPos == Position.COMPILER_GENERATED)
-                X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
-            else
-                addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
+            	if (errorPos == Position.COMPILER_GENERATED)
+            		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
+            	else
+            		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
                         .offset(), errorPos.endOffset());
+            }
         }
     }
 
@@ -671,8 +729,8 @@ public class X10Builder extends IncrementalProjectBuilder {
         return entryFile;
     }
 
-    private List<StreamSource> collectStreamSources(Collection<IFile> sourceFiles) {
-        List<StreamSource> streams= new ArrayList<StreamSource>();
+    private List<Source> collectStreamSources(Collection<IFile> sourceFiles) {
+        List<Source> streams= new ArrayList<Source>();
 
         for(Iterator<IFile> it= sourceFiles.iterator(); it.hasNext(); ) {
             IFile sourceFile= it.next();
@@ -791,10 +849,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
         IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
-
+		boolean traceOn=true;
         for(IFile srcFile: fSourcesToCompile) {
+        	if(traceOn)System.out.println("srcFile: "+srcFile);
             IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+            if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
             IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
+            if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
 
             genFiles.add(wsRoot.getFile(genJavaFile));
         }
@@ -830,6 +891,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void readCompilerConfig() {
+    	// PORT1.7 RMF 9/28/2008 - Not sure we even need to do this any more - check w/ compiler team
         // Read configuration at every compiler invocation, in case it changes (e.g. via
         // the X10 Preferences page). Theoretically, if the user really does change the
         // compiler configuration, we should trigger a full rebuild, but we don't yet.
@@ -837,8 +899,9 @@ public class X10Builder extends IncrementalProjectBuilder {
             // The X10 configuration file's location is given by the value of the System
             // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
             // and by a preference store listener in X10PreferencePage.
-            Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
-        } catch (x10.runtime.util.ConfigurationError e) {
+        	String x10Config=System.getProperty("x10.configuration");
+            Configuration.readConfiguration(Configuration.class, x10Config);
+        } catch (x10.config.ConfigurationError e) {
             if (e.getCause() instanceof FileNotFoundException) {
                 FileNotFoundException fnf= (FileNotFoundException) e.getCause();
                 if (fnf.getMessage().startsWith("???\\standard.cfg")) {
@@ -885,160 +948,21 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    protected IPath getLanguageRuntimePath() {
-        try {
-            // Can't figure out a way to get the location of the x10.runtime jar directly.
-            // First, try the easy way: ask the platform. This often doesn't work
-            Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
-            String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
 
-            // The JDT will allow you to create a folder/library classpath entry, but
-            // it really doesn't support it (at least not until 3.4), so don't create
-            // such an entry.
-            if (new File(x10RuntimeLoc).isDirectory()) {
-                // The platform didn't give us an answer we can use; now we do it the hard way...
-                IPath path= guessRuntimeLocation(x10RuntimeBundle);
 
-                if (path == null) {
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                        public void run() {
-                            postMsgDialog("Can't find the X10 runtime jar file",
-                                    "The Eclipse Platform seems to believe that the X10 Runtime lives in a folder, " +
-                                    "but the X10DT needs it to be in a jar file. " +
-                                    "This is probably due to running an X10DT version that lives in your workspace. " +
-                                    "[If you're doing this, you'd almost certainly know it.]\n\n" +
-                                    "Please create the appropriate entry manually by going to the Project Properties dialog, " +
-                                    "clicking on 'Add External JARs' in the 'Java Build Path' page, and " +
-                                    "specifying a suitable X10 Runtime jar file.");
-                        }
-                    });
-                }
-                return path;
-            }
-            IPath x10RuntimePath= new Path(x10RuntimeLoc);
 
-            return x10RuntimePath;
-        } catch (IOException e) {
-            X10Plugin.getInstance().logException("Unable to resolve X10 runtime location", e);
-            return null;
-        }
-    }
 
-    private IPath guessRuntimeLocation(Bundle x10RuntimeBundle) {
-        // Try to find either the X10 runtime of the same version as the one that's
-        // presently installed and enabled, or, failing that, the most recent.
-        String x10BundleVersion= (String) x10RuntimeBundle.getHeaders().get(Constants.BUNDLE_VERSION);
-        Location installLoc= Platform.getInstallLocation();
-        URL installURL= installLoc.getURL();
+                                                                                                                                                                                                  
 
-        if (installURL.getProtocol().equals("file")) {
-            String installPath= installURL.getPath();
-            String pluginPath= installPath.concat("/plugins");
-            File pluginDir= new File(pluginPath);
+   
 
-            if (pluginDir.exists() && pluginDir.isDirectory()) {
-                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.contains("x10.runtime") && name.endsWith(".jar");
-                    }
-                });
-                if (runtimeJars.length == 0) {
-                    return null;
-                }
-                // First, prefer the version that's installed and enabled in the platform,
-                // if we can find it.
-                for(int i= 0; i < runtimeJars.length; i++) {
-                    File jarFile= runtimeJars[i];
-                    String jarPath= jarFile.getAbsolutePath();
-                    if (jarPath.contains(x10BundleVersion)) {
-                        return new Path(jarPath);
-                    }
-                }
-                // Oh well, try the highest version.
-                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
-                    public int compare(String o1, String o2) {
-                        return -o1.compareTo(o2); // Make the sort order decreasing, so that iterator().next() gives the greatest element
-                    }
-                });
-                for(int i= 0; i < runtimeJars.length; i++) {
-                    File jarFile= runtimeJars[i];
-                    String jarPath= jarFile.getAbsolutePath();
 
-                    sortedJars.add(jarPath);
-                }
-                return new Path(sortedJars.iterator().next());
-            }
-        }
-        return null; // we're out of heuristics...
-    }
-
-    protected String getCurrentRuntimeVersion() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
-        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-
-        return bundleVersion;
-    }
-
-    private int findValidX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
-        for(int i= 0; i < entries.length; i++) {
-            IClasspathEntry entry= entries[i];
-
-            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-                IPath entryPath= entry.getPath();
-                File entryFile= entryPath.toFile();
-
-                if (entryFile.isDirectory()) {
-                    File x10ObjFile= new File(entryFile.getPath() + File.separator + "x10" + File.separator + "lang" + File.separator + "Object.class");
-
-                    if (x10ObjFile.exists()) {
-                        return i;
-                    }
-                } else {
-                    try {
-                        JarFile x10Jar= new JarFile(entryFile);
-                        ZipEntry x10ObjEntry= x10Jar.getEntry("x10/lang/Object.class");
-                        
-                        if (x10ObjEntry != null) {
-                            return i;
-                        }
-                    } catch (IOException e) {
-                        ; // I guess this wasn't a jar file, so we don't know what to do with it...
-                    }
-                }
-//                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
-//                    return i;
-//                }
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Finds and returns the index of all classpath entries in the argument that
-     * look like an X10 Runtime entry, including those that may be invalid, so
-     * that they can be removed.
-     */
-    private List<Integer> findAllX10RuntimeClasspathEntries(IClasspathEntry[] entries) throws JavaModelException {
-        List<Integer> runtimeIndexes= new ArrayList<Integer>();
-        for(int i= 0; i < entries.length; i++) {
-            IClasspathEntry entry= entries[i];
-
-            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-                IPath entryPath= entry.getPath();
-
-                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
-                    runtimeIndexes.add(i);
-                }
-            }
-        }
-        return runtimeIndexes;
-    }
 
     private void updateProjectClasspath() {
         try {
             IClasspathEntry[] entries= fX10Project.getRawClasspath();
-            List<Integer> runtimeIndexes= findAllX10RuntimeClasspathEntries(entries);
-            IPath languageRuntimePath= getLanguageRuntimePath();
+            List<Integer> runtimeIndexes= X10RuntimeUtils.findAllX10RuntimeClasspathEntries(entries);//PORT1.7 moved to X10runtimeUtils
+            IPath languageRuntimePath= X10RuntimeUtils.getLanguageRuntimePath();//PORT1.7 moved to X10runtimeUtils
             IClasspathEntry newEntry;
             if (languageRuntimePath == null) {
                 return;
@@ -1074,12 +998,12 @@ public class X10Builder extends IncrementalProjectBuilder {
      * Checks the project's classpath to make sure that an X10 runtime is available,
      * and warns the user if not.
      */
-    private void checkClasspathForRuntime() {
+    private void checkClasspathForRuntime() {// BRT put in utils too later
         if (fSuppressClasspathWarnings)
             return;
         try {
-            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true);
-            int runtimeIdx= findValidX10RuntimeClasspathEntry(entries);
+            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true); // PORT1.7 --  use getRawClasspath() here? Note for Bob?
+            int runtimeIdx= X10RuntimeUtils.findValidX10RuntimeClasspathEntry(entries);//PORT1.7 moved to RuntimeUtils
 
             if (runtimeIdx >= 0) {
                 IPath entryPath= entries[runtimeIdx].getPath();
@@ -1092,7 +1016,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                             new MaybeSuppressFutureClasspathWarnings());
                     return; // found a runtime entry but it is/was broken
                 }
-                String currentVersion= getCurrentRuntimeVersion();
+                String currentVersion= X10RuntimeUtils.getCurrentRuntimeVersion();
 
                 // TODO Only insist that a jar file whose name embeds the version has the right version.
                 // Jar files whose names don't embed a version number won't be checked.
@@ -1151,6 +1075,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection<IProject> doCompile() throws CoreException {
         if (!fSourcesToCompile.isEmpty()) {
+        	System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
             // RMF 8/5/2008 - Don't clear the dependency info right away - if Polyglot fails to
             // get to some source file on the list, it'll end up with no dependency info. Better
             // to just leave the dependency info untouched. So, instead: clear a file's dependency
@@ -1250,6 +1175,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         collectSourceFolders();
 
         IResourceDelta delta= getDelta(fProject);
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
         if (delta != null) {
             X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
@@ -1260,6 +1186,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             fProject.accept(fResourceVisitor);
             X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
         }
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);// OK here
         collectChangeDependents();
         collectFilesWithErrors();
     }
