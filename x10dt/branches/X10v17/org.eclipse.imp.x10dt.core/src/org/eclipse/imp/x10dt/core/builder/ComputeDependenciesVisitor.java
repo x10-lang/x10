@@ -91,7 +91,7 @@ class ComputeDependenciesVisitor extends NodeVisitor {
 
         String path= fJob.source().path();
         // BRT don't bother looking for dependencies if we're in jar/zip
-        //PORT1.7
+        //PORT1.7 don't bother looking for dependencies if we're in jar/zip
         if(path.endsWith(".jar")|| path.endsWith(".zip")) {
         	System.out.println("looking for resource in zip/jar???");
         	return null;
