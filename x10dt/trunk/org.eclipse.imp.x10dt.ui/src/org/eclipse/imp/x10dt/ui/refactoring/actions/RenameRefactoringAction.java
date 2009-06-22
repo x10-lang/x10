@@ -48,6 +48,9 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.types.Def;
+import polyglot.types.FieldDef;
+import polyglot.types.MemberDef;
+import polyglot.types.MethodDef;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -96,7 +99,7 @@ public class RenameRefactoringAction extends TextEditorAction {
         final Shell shell= getTextEditor().getSite().getShell();
 
         if (fNode instanceof Ambiguous) {
-            MessageDialog.openError(shell, "Cannot rename", "Cannot rename ambiguous entity (failed name resolution due to compile errors).");
+            MessageDialog.openError(shell, "Cannot rename", "Cannot rename an ambiguous entity (failed name resolution due to compile errors).");
             return;
         }
 
@@ -112,24 +115,27 @@ public class RenameRefactoringAction extends TextEditorAction {
             node= parent;
         }
         if (node instanceof Local) {
-			decl= ((Local) node).localInstance().def();    //PORT1.7  localInstance()->localInstance().def();
+			decl= ((Local) node).localInstance().def();
         } else if (node instanceof Field) {
-			decl= ((Field) node).fieldInstance().def();    //PORT1.7  fieldInstance()->fieldInstance().def();
+			FieldDef fieldDef= ((Field) node).fieldInstance().def();
+			if (!checkPrivate(shell, fieldDef)) return;
+            decl= fieldDef;
         } else if (node instanceof Formal) {
-            Formal formal = (Formal) node;
-            decl=formal.localDef();                        //PORT1.7   localInstance() returning Declaration -> localDef() returning Def
+            decl= ((Formal) node).localDef();
         } else if (node instanceof FieldDecl) {
-            FieldDecl fieldDecl = (FieldDecl) node;
-            decl = fieldDecl.fieldDef();                   //PORT1.7 fieldInstance()->fieldDef();
+            FieldDef fieldDef= ((FieldDecl) node).fieldDef();
+            if (!checkPrivate(shell, fieldDef)) return;
+            decl = fieldDef;
         } else if (node instanceof LocalDecl) {
-            LocalDecl localDecl = (LocalDecl) node;
-            decl = localDecl.localDef();                   //PORT1.7  localInstance()->localDef()
+            decl = ((LocalDecl) node).localDef();
         } else if (node instanceof MethodDecl) {
-            MethodDecl methodDecl = (MethodDecl) node;
-            decl = methodDecl.methodDef();                 //PORT1.7  methodInstance()->methodDef();
+            MethodDef methodDef= ((MethodDecl) node).methodDef();
+            if (!checkPrivate(shell, methodDef)) return;
+            decl = methodDef;
         } else if (node instanceof Call) {            
-			decl= ((Call) node).methodInstance().def();    //PORT methodInstance()->methodInstance().def();
-//      } else if (fNode instanceof TypeNode) {
+			MethodDef methodDef= ((Call) node).methodInstance().def();
+			if (!checkPrivate(shell, methodDef)) return;
+            decl= methodDef;
         } else {
             MessageDialog.openError(shell, "Cannot rename", "Renaming of entities other than local variables, fields and methods not yet implemented.");
             return;
@@ -151,6 +157,16 @@ public class RenameRefactoringAction extends TextEditorAction {
 
         if (refactoring != null)
 		new RefactoringStarter().activate(refactoring, new RenameWizard(refactoring, "Rename"), shell, "Rename", false);
+    }
+
+    private boolean checkPrivate(final Shell shell, MemberDef memberDef) {
+        // Short-term check, until we have the search index in place to find all refs in all files.
+        if (memberDef.flags().isPrivate()) {
+            return true;
+        } else {
+            MessageDialog.openError(shell, "Cannot rename", "Renaming of non-private members not yet supported (but will be soon).");
+            return false;
+        }
     }
 
     /**
