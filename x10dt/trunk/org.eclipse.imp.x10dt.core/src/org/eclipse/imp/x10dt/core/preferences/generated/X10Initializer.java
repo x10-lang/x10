@@ -16,15 +16,15 @@ public class X10Initializer extends PreferencesInitializer {
 		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABSIZE, 4);
-		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULT_RUNTIME, "");
 		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_SOURCEFONT, "courier");
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULTRUNTIME, "");
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_BADPLACERUNTIMECHECK, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_LOOPOPTIMIZATIONS, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ARRAYOPTIMIZATIONS, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE, false);
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_NUMPLACES, 4);
-		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "-commandlineonly");
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "");
 	}
 
 	/*
