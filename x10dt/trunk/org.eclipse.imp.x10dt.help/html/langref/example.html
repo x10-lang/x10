@@ -50,8 +50,8 @@ public class Jacobi {
         B.update(Temp);
         iters++; 
       }
-      Console.OUT.println(&#203;rror="+err);
-      Console.OUT.println(&#207;terations="+iters);
+      Console.OUT.println("Error="+err);
+      Console.OUT.println("Iterations="+iters);
       return Math.abs(err-EXPECTED_ERR)&lt;epsilon2 
           && iters==EXPECTED_ITERS;
    }
