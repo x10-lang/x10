@@ -12,5 +12,12 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler,
  org.eclipse.uide.runtime,
  lpg,
- org.eclipse.jdt.ui
+ org.eclipse.jdt.ui,
+ org.eclipse.debug.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.debug.ui,
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.jdt.core,
+ org.eclipse.core.resources
 Bundle-Vendor: pcharles@us.ibm.com
+Bundle-Activator: X10UIPlugin

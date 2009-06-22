@@ -30,5 +30,47 @@
             language="X10"
             name="Outliner for X10"/>
    </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="x10.uide.launching.X10LaunchConfigurationDelegate"
+            id="x10.uide.launching.X10LaunchConfigurationType"
+            modes="run,debug"
+            name="X10 Application"
+            public="true"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="x10.uide.launching.X10LaunchConfigurationType"
+            icon="icons/x10_application.gif"
+            id="x10.uide.launching.X10LaunchConfigurationTypeImage"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="x10.uide.launching.X10LaunchConfigurationTabGroup"
+            id="x10.uide.launching.X10LaunchConfigurationTabGroup"
+            type="x10.uide.launching.X10LaunchConfigurationType"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="x10.uide.launching.X10LaunchShortcut"
+            icon="icons/x10_application.gif"
+            id="x10.uide.launching.x10LaunchShortcut"
+            label="X10 Application"
+            modes="run,debug">
+         <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
+         <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
 
 </plugin>
