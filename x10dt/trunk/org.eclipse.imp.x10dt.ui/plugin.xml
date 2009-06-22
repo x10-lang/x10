@@ -97,18 +97,6 @@
             name="Debug X10 Application"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.annotationHover">
-      <annotationHover
-            class="x10.uide.editor.AnnotationHover"
-            language="X10"/>
-   </extension>
-   <extension
-         point="org.eclipse.uide.runtime.hoverHelper">
-      <hoverhelper
-            class="x10.uide.editor.HoverHelper"
-            language="X10"/>
-   </extension>
-   <extension
          point="org.eclipse.uide.runtime.outliner">
       <outliner
             class="x10.uide.views.Outliner"
@@ -121,14 +109,6 @@
             language="X10">
       </foldingUpdater>
    </extension>
-<!-- <extension
-         point="org.eclipse.uide.runtime.hyperLink">
-      <hyperlinkDetector
-            class="x10.uide.editor.HyperlinkDetector"
-            language="X10">
-      </hyperlinkDetector>
-   </extension>
-  -->
    <extension
          point="org.eclipse.uide.runtime.contentProposer">
       <proposer
@@ -186,5 +166,12 @@
             class="safari.X10.refactoring.actions.RefactoringContributor"
             language="X10">
       </refactoringContributor>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.documentationProvider">
+         <docProvider
+             class="x10.uide.editor.X10DocProvider"
+             language="X10">
+         </docProvider>
    </extension>
 </plugin>
