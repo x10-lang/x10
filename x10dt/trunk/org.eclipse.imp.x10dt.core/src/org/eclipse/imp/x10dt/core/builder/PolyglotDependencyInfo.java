@@ -31,7 +31,7 @@ import polyglot.types.Type;
  */
 public class PolyglotDependencyInfo extends DependencyInfo {
     public PolyglotDependencyInfo(IProject project) {
-	super(project);
+        super(project);
     }
 
     protected String typeToPath(Type type) {
