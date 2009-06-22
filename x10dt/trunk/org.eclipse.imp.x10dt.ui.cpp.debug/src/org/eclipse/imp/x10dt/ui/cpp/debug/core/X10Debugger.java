@@ -21,6 +21,7 @@ import org.eclipse.imp.x10dt.ui.cpp.debug.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
 import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10PDIDebugger;
+import org.eclipse.imp.x10dt.ui.cpp.launch.launching.X10DebugAttributes;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.IPJob;
@@ -82,7 +83,7 @@ public final class X10Debugger implements IPDebugger {
     }
     final List<String> args = attrMgr.getAttribute(JobAttributes.getProgramArgumentsAttributeDefinition()).getValue();
     final String[] newArgs = new String[args.size() + 2];
-    newArgs[0] = getQHostOptionValue(config);
+    newArgs[0] = getQHostOptionValue(config, attrMgr);
     newArgs[1] = config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH, (String) null);
     int i = 1;
     for (final String arg : args) {
@@ -127,9 +128,11 @@ public final class X10Debugger implements IPDebugger {
     }
   }
   
-  private String getQHostOptionValue(final ILaunchConfiguration config) throws CoreException {
+  private String getQHostOptionValue(final ILaunchConfiguration config, AttributeManager attrMgr) throws CoreException {
     final StringBuilder sb = new StringBuilder();
-    sb.append("-qhost=").append(config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_DEBUGGER_HOST, (String) null)) //$NON-NLS-1$
+    String hostAddr = attrMgr.getAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition()).getValue();
+//    assert (hostAddr.equals(config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_DEBUGGER_HOST, (String) null)));
+	sb.append("-qhost=").append(hostAddr) //$NON-NLS-1$
       .append(':').append(this.fPort);
     return sb.toString();
   }
