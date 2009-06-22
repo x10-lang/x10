@@ -231,7 +231,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
             
             String line = null;
             while ((line = reader.readLine()) != null) {
-              writer.write(line.replace(PATTERN, progName).replace("#", "##") + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
+              writer.write(line.replace(PATTERN, progName).replace("##", "#") + '\n'); //$NON-NLS-1$ //$NON-NLS-2$
             }
           } finally {
             reader.close();
