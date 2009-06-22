@@ -19,16 +19,20 @@ package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,10 +68,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
@@ -81,9 +87,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
-import polyglot.frontend.goals.CodeGenerated;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
@@ -96,7 +100,6 @@ import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
-import x10.parser.X10Parser.JPGPosition;
 
 public class X10Builder extends IncrementalProjectBuilder {
     /**
@@ -683,25 +686,33 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     protected IPath getLanguageRuntimePath() {
         try {
+            // Can't figure out a way to get the location of the x10.runtime jar directly.
+            // First, try the easy way: ask the platform. This often doesn't work
             Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
             String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
+
+            // The JDT will allow you to create a folder/library classpath entry, but
+            // it really doesn't support it (at least not until 3.4), so don't create
+            // such an entry.
             if (new File(x10RuntimeLoc).isDirectory()) {
-                // The JDT will allow you to create a folder/library classpath entry, but
-                // it really doesn't support it (at least not until 3.4), so don't create
-                // such an entry.
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                    public void run() {
-                        postMsgDialog("Can't find the X10 runtime jar file",
-                                "The Eclipse Platform seems to believe that the X10 Runtime lives in a folder, " +
-                                "but the X10DT needs it to be in a jar file. " +
-                                "This is probably due to running an X10DT version that lives in your workspace. " +
-                                "[If you're doing this, you'd almost certainly know it.]\n\n" +
-                                "Please create the appropriate entry manually by going to the Project Properties dialog, " +
-                                "clicking on 'Add External JARs' in the 'Java Build Path' page, and " +
-                                "specifying a suitable X10 Runtime jar file.");
-                    }
-                });
-                return null;
+                // The platform didn't give us an answer we can use; now we do it the hard way...
+                IPath path= guessRuntimeLocation(x10RuntimeBundle);
+
+                if (path == null) {
+                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                        public void run() {
+                            postMsgDialog("Can't find the X10 runtime jar file",
+                                    "The Eclipse Platform seems to believe that the X10 Runtime lives in a folder, " +
+                                    "but the X10DT needs it to be in a jar file. " +
+                                    "This is probably due to running an X10DT version that lives in your workspace. " +
+                                    "[If you're doing this, you'd almost certainly know it.]\n\n" +
+                                    "Please create the appropriate entry manually by going to the Project Properties dialog, " +
+                                    "clicking on 'Add External JARs' in the 'Java Build Path' page, and " +
+                                    "specifying a suitable X10 Runtime jar file.");
+                        }
+                    });
+                }
+                return path;
             }
             IPath x10RuntimePath= new Path(x10RuntimeLoc);
 
@@ -710,6 +721,54 @@ public class X10Builder extends IncrementalProjectBuilder {
             X10Plugin.getInstance().logException("Unable to resolve X10 runtime location", e);
             return null;
         }
+    }
+
+    private IPath guessRuntimeLocation(Bundle x10RuntimeBundle) {
+        // Try to find either the X10 runtime of the same version as the one that's
+        // presently installed and enabled, or, failing that, the most recent.
+        String x10BundleVersion= (String) x10RuntimeBundle.getHeaders().get(Constants.BUNDLE_VERSION);
+        Location installLoc= Platform.getInstallLocation();
+        URL installURL= installLoc.getURL();
+
+        if (installURL.getProtocol().equals("file")) {
+            String installPath= installURL.getPath();
+            String pluginPath= installPath.concat("/plugins");
+            File pluginDir= new File(pluginPath);
+
+            if (pluginDir.exists() && pluginDir.isDirectory()) {
+                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
+                    public boolean accept(File dir, String name) {
+                        return name.contains("x10.runtime") && name.endsWith(".jar");
+                    }
+                });
+                if (runtimeJars.length == 0) {
+                    return null;
+                }
+                // First, prefer the version that's installed and enabled in the platform,
+                // if we can find it.
+                for(int i= 0; i < runtimeJars.length; i++) {
+                    File jarFile= runtimeJars[i];
+                    String jarPath= jarFile.getAbsolutePath();
+                    if (jarPath.contains(x10BundleVersion)) {
+                        return new Path(jarPath);
+                    }
+                }
+                // Oh well, try the highest version.
+                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
+                    public int compare(String o1, String o2) {
+                        return -o1.compareTo(o2); // Make the sort order decreasing, so that iterator().next() gives the greatest element
+                    }
+                });
+                for(int i= 0; i < runtimeJars.length; i++) {
+                    File jarFile= runtimeJars[i];
+                    String jarPath= jarFile.getAbsolutePath();
+
+                    sortedJars.add(jarPath);
+                }
+                return new Path(sortedJars.iterator().next());
+            }
+        }
+        return null; // we're out of heuristics...
     }
 
     protected String getCurrentRuntimeVersion() {
