@@ -1,6 +1,5 @@
 package org.eclipse.imp.x10dt.refactoring;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -17,7 +16,6 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -25,7 +23,6 @@ import polyglot.ast.Block;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import x10.effects.constraints.Effect;
 

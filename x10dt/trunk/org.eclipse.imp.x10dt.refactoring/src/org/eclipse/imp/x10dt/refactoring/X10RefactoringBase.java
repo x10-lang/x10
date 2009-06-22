@@ -10,6 +10,7 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -37,7 +38,7 @@ public abstract class X10RefactoringBase extends Refactoring {
     /**
      * The editor from which the refactoring was initiated
      */
-    protected IASTFindReplaceTarget fEditor;
+    protected ITextEditor fEditor;
 
     protected ISourcePositionLocator fNodeLocator;
 
@@ -62,12 +63,12 @@ public abstract class X10RefactoringBase extends Refactoring {
     private String fLineTerminator;
 
     protected X10RefactoringBase(ITextEditor editor) {
-        fEditor= (IASTFindReplaceTarget) editor;
+        fEditor= editor;
 
         IEditorInput input= editor.getEditorInput();
-        IParseController parseController= fEditor.getParseController();
+        IParseController parseController= ((IASTFindReplaceTarget) fEditor).getParseController();
 
-        fNodeLocator= fEditor.getParseController().getSourcePositionLocator();
+        fNodeLocator= parseController.getSourcePositionLocator();
         fSourceAST= (SourceFile) parseController.getCurrentAst();
 
         if (input instanceof IFileEditorInput) {
@@ -76,6 +77,8 @@ public abstract class X10RefactoringBase extends Refactoring {
             fSourceFile= fileInput.getFile();
             fSelNodes= findNodes();
         } else {
+            // TODO How to handle case where we can't get an IFile?
+            // Various sub-classes ultimately create a TextFileChange, which needs an IFile...
             fSelNodes= null;
             fSourceFile= null;
         }
@@ -164,10 +167,10 @@ public abstract class X10RefactoringBase extends Refactoring {
      * is the starting offset of the selection, and the y coordinate is its length.
      */
     protected Point trimSelection() {
-        Point sel= fEditor.getSelection();
-        String text= fEditor.getSelectionText();
-        int start= sel.x;
-        int end= sel.x + sel.y - 1;
+        ITextSelection textSel= (ITextSelection) fEditor.getSelectionProvider().getSelection();
+        String text= textSel.getText();
+        int start= textSel.getOffset();
+        int end= textSel.getOffset() + textSel.getLength() - 1;
         for(int i=0; i < text.length(); i++) {
             if (Character.isWhitespace(text.charAt(i))) {
                 start++;

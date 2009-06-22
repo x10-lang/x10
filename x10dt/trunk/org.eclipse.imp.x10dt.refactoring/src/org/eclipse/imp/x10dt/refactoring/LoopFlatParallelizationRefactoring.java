@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
 import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
 import org.eclipse.imp.x10dt.refactoring.effects.XVarDefWrapper;
@@ -114,7 +115,7 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         try {
-            IParseController pc= fEditor.getParseController();
+            IParseController pc= ((IASTFindReplaceTarget) fEditor).getParseController();
             CompilerDelegate cd= ((ParseController) pc).getCompiler();
             ExtensionInfo extInfo = cd.getExtInfo();
             Stmt loopBody = fLoop.body();
