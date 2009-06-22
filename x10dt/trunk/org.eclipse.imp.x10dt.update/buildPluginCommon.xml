@@ -73,6 +73,7 @@
 			<filterchain>
 				<tokenfilter>
 					<filetokenizer/>
+					<replaceregex pattern=";bundle-version=&quot;[.0-9]+&quot;" replace="" flags="gs"/>
 					<replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
 				</tokenfilter>
 				<containsregex pattern="Require-Bundle: "/>
