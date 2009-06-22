@@ -303,6 +303,17 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return filter(fd.name() + " : " + fd.type());
         } else if (node instanceof ProcedureDecl) {
     	    ProcedureDecl pd= (ProcedureDecl) node;
+    	    /*
+    	    if(node instanceof X10ConstructorDecl) {
+				X10ConstructorDecl cd = (X10ConstructorDecl) node;
+				String cdstr=cd.toString();
+				
+				Id cdname=cd.name();
+				String cdns=cdname.toString();
+				System.out.println("ctor name: "+cdname);
+    	    	
+    	    }
+*/
     	    List<Formal> formals= pd.formals();
     	    StringBuffer buff= new StringBuffer();
     	    buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
