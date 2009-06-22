@@ -2,6 +2,7 @@ package org.eclipse.imp.x10dt.debug.model;
 
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Clock;
 
@@ -24,5 +25,5 @@ public interface IX10Activity {
 	X10ActivityState getRunState();
 	//IX10Clock blockedOn();
 	IX10Place getPlace();
-	IX10StackFrame[] getStackFrames() throws DebugException;
+	IStackFrame[] getStackFrames() throws DebugException;
 }
