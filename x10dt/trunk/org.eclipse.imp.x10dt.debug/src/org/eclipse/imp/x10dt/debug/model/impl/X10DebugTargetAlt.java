@@ -705,15 +705,17 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	synchronized public void initializeX10RTObject() {
 		if (fX10RT!=null) return;
 		ReferenceType typeForRT=null;
-		while (typeForRT==null) {
+//		while (typeForRT==null) {
+		if (typeForRT==null)
 			typeForRT = getX10RuntimeType();
 			if (typeForRT==null) {
 				try {
 					Thread.sleep(1000);
+					typeForRT = getX10RuntimeType();
 				} catch (InterruptedException e) {
 				}
 			}
-		}
+//		}
 		// mmk: is there a reason to create these types?
 //		IJavaType[] type = new IJavaType[classes.size()];
 //		for (int i = 0; i < type.length; i++) {
@@ -746,15 +748,17 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		ReferenceType typeForRT = null;
 		for (ReferenceType t: classes){
 			if (t instanceof IJavaReferenceType) {
-				while (typeForRT==null) {
+//				while (typeForRT==null) {
+				if (typeForRT==null)
 					typeForRT =(ReferenceType)((JDIReferenceType)t).getUnderlyingType();
 					if (typeForRT==null) {
 						try {
 							Thread.sleep(1000);
+							typeForRT =(ReferenceType)((JDIReferenceType)t).getUnderlyingType();
 						} catch (InterruptedException e) {
 						}
 					}
-				}
+//				}
 				break;
 			} else typeForRT = t;
 		}
@@ -762,13 +766,17 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	}		
     
 	public ObjectReference getX10RTObject() {
-		while (fX10RT==null) {
+//		while (fX10RT==null) {
+		if (fX10RT==null)
 			initializeX10RTObject();
 			try {
-			if (fX10RT==null) Thread.sleep(1000);
+			if (fX10RT==null) {
+				Thread.sleep(1000);
+				initializeX10RTObject();
+			}
 			} catch (InterruptedException e) {
 			}
-		}
+//		}
 		return fX10RT;
 	}
 	
