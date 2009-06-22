@@ -25,12 +25,12 @@ import lpg.runtime.Adjunct;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
-import lpg.runtime.PrsStream;
 
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IFoldingUpdater;
+import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -178,23 +178,10 @@ public class X10FoldingUpdater implements IFoldingUpdater
             Node first_import = (Node) imports.get(0),
                  last_import = (Node) imports.get(imports.size() - 1);
             
-            //PORT1.7 get tokens from parseController, JPGPosition doesn't cache tokens         
-            //ParseController pc= (ParseController) parseController;
-            //IPrsStream prsStream=pc.getLexer().getLexStream().getPrsStream();
-            //int firstPos=first_import.position().offset();
-            //int lastPos=last_import.position().offset();  
-            //IToken left= prsStream.getTokenAtCharacter(firstPos);
-            //IToken right=prsStream.getTokenAtCharacter(lastPos);       
-            IToken left=getTokenFromNode(parseController, first_import);
-            IToken right=getTokenFromNode(parseController, last_import);
-            
-            // BRT couldn't we just more easily use makeAnnotation(firstPos,lastPos)??
-            if(left!=null && right !=null){
-                 makeAnnotation(left,right);
-            }
-            else{
-            	System.out.println("X10FoldingUpdater, skipping annotations for node with null left and right tokens.");
-            }
+            //PORT1.7 get tokens from parseController, JPGPosition doesn't cache tokens                            
+            IToken left=X10Util.getLeftToken(first_import.position(), parseController);
+            IToken right=X10Util.getLeftToken(last_import.position(), parseController);
+            makeAnnotation(left,right);
         }
 
         //            
@@ -234,57 +221,13 @@ public class X10FoldingUpdater implements IFoldingUpdater
 	 */
     private void makeAnnotation(IPrsStream ps, Node node)
     {
-	if (node.position() instanceof JPGPosition) {
-		//PORT1.7 compute tokens, can't use JPGPosition now. should we just always use position() directly as done in else?
-		IToken left=getLeftTokenFromNode(ps, node);
-		IToken right=getRightTokenFromNode(ps, node);
-	    makeAnnotation(left,right);
-	}
-	else
+		//PORT1.7 no speical case for JPGPosition now. tokens are not cached in JPGPosition
 	    makeAnnotation(node.position().offset(), node.position().endOffset());
     }   
-    
-    /**
-     * PORT1.7 Get the token from the node, via the parseController.
-     * Can't get them from JPGPosition any more, it no longer caches tokens.
-     * 
-     * @param parseController
-     * @param node
-     * @return
-     */
-    //PORT1.7 token   redundant methods, delete us!
-    IToken getTokenFromNode(IParseController parseController, Node node) {
-        ParseController pc= (ParseController) parseController;
-        IPrsStream prsStream=pc.getLexer().getLexStream().getPrsStream();
-        IToken token=getTokenFromNode(prsStream, node);
-        return token;
-    }
-    /**
-     * PORT 1.7 Get token from node, given PrsStream already
-     * @param ps
-     * @param node
-     * @return
-     */
-    IToken getTokenFromNode(IPrsStream ps, Node node) {
-    	int pos=node.position().offset(); 
-    	IToken token= prsStream.getTokenAtCharacter(pos);
-        return token;
-    	
-    }
-    IToken getLeftTokenFromNode(IPrsStream ps, Node node) {
-    	int pos=node.position().offset();
-    	IToken token=prsStream.getTokenAtCharacter(pos);
-    	return token;
-    }
-    IToken getRightTokenFromNode(IPrsStream ps, Node node) {
-    	int pos=node.position().endOffset();
-    	IToken token=prsStream.getTokenAtCharacter(pos);
-    	return token;
-    }
 
     /**
      * Update the folding structure for a source text, where the text and its
-     * AST are represented by a gven parse controller and the folding structure
+     * AST are represented by a given parse controller and the folding structure
      * is represented by annotations in a given annotation model.  This is the
      * principal routine of the folding updater.
      * 
@@ -381,7 +324,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         public FoldingVisitor(IPrsStream ps)
         {
             super();
-            prsStream=ps;
+            prsStream=ps;//PORT1.7 -- This should be valid over the life of this object
         }
                         
         // START_HERE
@@ -407,17 +350,17 @@ public class X10FoldingUpdater implements IFoldingUpdater
             {
                 Stmt true_part = ((If) n).consequent();
                 Stmt else_part = ((If) n).alternative();
-                //PORT1.7 -- token -- must calculate tokens, not get from JPGPosition
-                IToken last_true_part_token;// = ((JPGPosition) true_part.position()).getRightIToken(); 
-                last_true_part_token = getRightTokenFromNode(prsStream, n);
-                //PORT1.7 --   token work to be done here too
-                makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_true_part_token);
-                makeAnnotation(getLeftTokenFromNode(prsStream, n), last_true_part_token);
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                IToken last_true_part_token = X10Util.getRightToken(true_part.position(), prsStream);
+                
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                makeAnnotation(X10Util.getLeftToken(n.position(), prsStream), last_true_part_token);
+                
                 if (else_part != null && (! (else_part instanceof If)))
                 {
-                	//PORT1.7 tokens will be null - fixme
+                	//PORT1.7 -- token -- get token without using token cache in JPGPosition
                     makeAnnotation(prsStream.getIToken(prsStream.getNext(last_true_part_token.getTokenIndex())),
-                                   ((JPGPosition) else_part.position()).getRightIToken());
+                    		X10Util.getRightToken(else_part.position(), prsStream));
                 }
             }
             else if (n instanceof Try)
@@ -426,21 +369,25 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 List catch_blocks = ((Try) n).catchBlocks();
                 Block finally_block = ((Try) n).finallyBlock();
 
-                //PORT1.7 -- tokens will be null - fixme
-                IToken last_token = ((JPGPosition) try_block.position()).getRightIToken();
-                makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_token);
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                IToken last_token = X10Util.getRightToken(try_block.position(), prsStream);
+
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                makeAnnotation(X10Util.getLeftToken(n.position(),prsStream), last_token);
                 for (int i = 0; i < catch_blocks.size(); i++)
                 {
                     Catch catch_block = (Catch) catch_blocks.get(i);
                     IToken first_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
-                    last_token = ((JPGPosition) catch_block.position()).getRightIToken();
+                    //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                    last_token = X10Util.getRightToken(catch_block.position(), prsStream);
                     makeAnnotation(first_token, last_token);
                 }
 
                 if (finally_block != null)
                 {
                     IToken first_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
-                    last_token = ((JPGPosition) finally_block.position()).getRightIToken();
+                    //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                    last_token=X10Util.getRightToken(finally_block.position(), prsStream);
                     makeAnnotation(first_token, last_token);
                 }
             }
@@ -449,14 +396,16 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 Stmt stmt = ((When) n).stmt();
                 List stmts = ((When) n).stmts();
                 
-                //PORT1.7 -- tokens will be null - fixme
-                IToken last_token = ((JPGPosition) stmt.position()).getRightIToken();
-                makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_token);
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                IToken last_token=X10Util.getRightToken(stmt.position(), prsStream);
+                //PORT1.7 -- token -- get token without using token cache in JPGPosition
+                makeAnnotation(X10Util.getLeftToken(n.position(), prsStream), last_token);
                 for (int i = 0; i < stmts.size(); i++)
                 {
                     stmt = (Stmt) stmts.get(i);
                     IToken first_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
-                    last_token = ((JPGPosition) stmt.position()).getRightIToken();
+                    //PORT1.7 calculate token
+                    last_token=X10Util.getRightToken(stmt.position(), prsStream);
                     makeAnnotation(first_token, last_token);
                 }
             }
