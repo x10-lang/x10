@@ -7,14 +7,8 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
  *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.refactoring;
 
 import java.util.ArrayList;
@@ -56,6 +50,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Id_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -159,13 +154,13 @@ public class RenameRefactoring extends Refactoring {
             }
         } else if (n instanceof LocalDecl) {
             LocalDecl ld= (LocalDecl) n;
-            if (ld.name().equals(name))
+            if (ld.name().id().toString().equals(name))
                 return true;
         } else if (n instanceof MethodDecl) {
             MethodDecl md= (MethodDecl) n;
             List<Formal> formals= md.formals();
             for(Formal formal : formals) {
-                if (formal.name().equals(name))
+                if (formal.name().id().toString().equals(name))
                     return true;
             }
         }
@@ -189,7 +184,7 @@ public class RenameRefactoring extends Refactoring {
         for(ClassMember member : members) {
             if (member instanceof FieldDecl) {
                 FieldDecl fd= (FieldDecl) member;
-                if (fd.name().equals(fNewName))
+                if (fd.name().id().toString().equals(fNewName))
                     return RefactoringStatus.createFatalErrorStatus("Name collision: field '" + fNewName + "' already exists in parent type.");
             }
         }
@@ -214,7 +209,7 @@ public class RenameRefactoring extends Refactoring {
             if (member instanceof MethodDecl) {
                 MethodDecl md= (MethodDecl) member;
                 // TODO check method signatures as well
-                if (md.name().equals(fNewName))
+                if (md.name().id().toString().equals(fNewName))
                     return RefactoringStatus.createFatalErrorStatus("Name collision: method '" + fNewName + "' already exists in parent type.");
             }
         }
@@ -229,7 +224,7 @@ public class RenameRefactoring extends Refactoring {
         ProcedureDecl method= (ProcedureDecl) fDeclParent;
         List<Formal> formals= method.formals();
         for(Formal formal : formals) {
-            if (formal.name().equals(fNewName))
+            if (formal.name().id().toString().equals(fNewName))
                 return RefactoringStatus.createFatalErrorStatus("Name collision: formal parameter '" + fNewName + "' already exists in parent method.");
         }
         return new RefactoringStatus();
@@ -352,7 +347,7 @@ public class RenameRefactoring extends Refactoring {
             public NodeVisitor enter(Node n) {
                 if (n instanceof Local) {
                     Local l= (Local) n;
-                    if (l.localInstance().equals(fDef)) {
+                    if (l.localInstance().def().equals(fDef)) {
                         Position pos= n.position();
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, fNewName);
                         root.addChild(edit);
@@ -360,7 +355,7 @@ public class RenameRefactoring extends Refactoring {
                     }
                 } else if (n instanceof Field) {
                     Field f= (Field) n;
-                    if (f.fieldInstance().equals(fDef)) {
+                    if (f.fieldInstance().def().equals(fDef)) {
                         Position pos= n.position();
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, fNewName);
                         root.addChild(edit);
@@ -368,7 +363,7 @@ public class RenameRefactoring extends Refactoring {
                     }
                 } else if (n instanceof Call) {
                     Call c= (Call) n;
-                    if (c.methodInstance().equals(fDef)) {
+                    if (c.methodInstance().def().equals(fDef)) {
                         Position pos= n.position();
                         Call newCall= c.name(new Id_c(pos, Name.make(fNewName)));//PORT1.7 was c.name(fNewName);
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, newCall.toString());
@@ -397,42 +392,23 @@ public class RenameRefactoring extends Refactoring {
             pos= ld.name().position();//PORT1.7 was ld.id().position()
         } else if (fDeclNode instanceof FieldDecl) {
             FieldDecl fd= (FieldDecl) fDeclNode;
-            Position pos2 = fd.position();
-            FieldDecl newDecl= fd.name(new Id_c(pos2, Name.make(fNewName)));//PORT1.7 was fd.name(fNewName);
+//          Position pos2 = fd.position();
+//          FieldDecl newDecl= fd.name(new Id_c(pos2, Name.make(fNewName)));//PORT1.7 was fd.name(fNewName);
 
-            newText= newDecl.toString();
+            pos= fd.name().position();
+            newText= fNewName; // newDecl.toString();
         } else if (fDeclNode instanceof Formal) {
             Formal f= (Formal) fDeclNode;
-            Position pos3=f.position();
-            Formal newFormal= f.name(new Id_c(pos3,Name.make(fNewName)));//PORT1.7 was f.name(fNewName);
-            newText= newFormal.toString();
+//          Position pos3=f.position();
+//          Formal newFormal= f.name(new Id_c(pos3,Name.make(fNewName)));//PORT1.7 was f.name(fNewName);
+            pos= f.name().position();
+            newText= fNewName; // newFormal.toString();
         } else if (fDeclNode instanceof MethodDecl) {
             MethodDecl m= (MethodDecl) fDeclNode;
-            // RMF 1/30/2007 - If we knew the position of the name itself, we'd rewrite
-            // only that, but we don't (pending enhancement to polyglot AST's).
-            if (false)
-                ;
-            // pos= m.name().position();
-            else {
-                // The following is *BAD* - we have no way of knowing what extra info
-                // might be needed on a method signature, so we should *REALLY* stick
-                // to rewriting the method name.
-                // Just write out the whole signature. Oddly, modifiers aren't included
-                // in the method's textual extent as given by fDeclNode.position().
-                StringBuffer buff= new StringBuffer();
-                buff.append(m.returnType().nameString()).append(' ').append(fNewName).append('(');//PORT1.7 name()->nameString()
-                List<Formal> formals= m.formals();
+            Id name= m.name();
 
-                for(Iterator<Formal> iter= formals.iterator(); iter.hasNext();) {
-                    Formal formal= iter.next();
-
-                    buff.append(formal.flags()).append(formal.type().nameString()).append(' ').append(formal.name());//PORT1.7 name()->nameString()
-                    if (iter.hasNext())
-                        buff.append(", ");
-                }
-                buff.append(')');
-                newText= buff.toString();
-            }
+            pos= name.position();
+            newText= fNewName;
         } else
             newText= fNewName;
 
