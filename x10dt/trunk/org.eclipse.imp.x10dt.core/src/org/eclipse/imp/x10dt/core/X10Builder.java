@@ -16,9 +16,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -155,10 +157,11 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void createMarkers(final Collection errors) {
+	final IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 	for(Iterator iter= errors.iterator(); iter.hasNext(); ) {
 	    ErrorInfo errorInfo= (ErrorInfo) iter.next();
 	    Position errorPos= errorInfo.getPosition();
-	    IFile errorFile= fProject.getFile(errorPos.file());
+	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
 
 	    addMarkerTo(errorFile, errorInfo.getErrorString(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
 	}
