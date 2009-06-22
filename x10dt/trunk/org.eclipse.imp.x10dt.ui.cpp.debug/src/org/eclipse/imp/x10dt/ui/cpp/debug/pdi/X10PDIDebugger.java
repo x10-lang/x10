@@ -303,7 +303,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void suspend(final BitList tasks) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     if (this.fPDTTarget != null) {
       try {
         this.fPDTTarget.suspend();
@@ -314,9 +313,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void terminate(final BitList tasks) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     try {
-      this.fPDTTarget.disconnect();
+      this.fPDTTarget.terminate();
     } catch (DebugException except) {
       throw new PDIException(tasks, "Terminate action error: " + except.getMessage());
     }
@@ -325,17 +323,14 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   // --- IPDIVariableManagement's interface methods implementation
 
   public void dataEvaluateExpression(final BitList tasks, final String expression) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
   public void deleteVariable(final BitList tasks, final String variable) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
   public void evaluateExpression(final BitList tasks, final String expression) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
@@ -381,7 +376,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void retrieveAIF(final BitList tasks, final String expr) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
@@ -396,14 +390,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
         final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
         final ExpressionBase expression = thread.evaluateExpression(location, expr,  0 /* expansionLevel */,  0);
         
-        final String typeName = expression.getRootNode().getReferenceTypeName();
-        final String type;
-        if ("int".equals(typeName)) {
-          type = "ss"; //$NON-NLS-1$
-        } else {
-          type = AIFFactory.UNKNOWNTYPE.toString();
-        }
-        final ProxyDebugAIF aif = new ProxyDebugAIF(type, expression.getRootNode().getValueString(), expr);
+        final String type = getVariableType(expression.getRootNode().getReferenceTypeName());
+        final ProxyDebugAIF aif = new ProxyDebugAIF(type, getValue(type, expression.getRootNode().getValueString()), expr);
         this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
                                                                  aif, expr));
       } catch (DebugException except) {
@@ -415,19 +403,16 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void retrieveVariableType(final BitList tasks, final String variable) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
   // --- IPDISignalManagement's interface methods implementation
 
   public void listSignals(final BitList tasks, final String name) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
   public void retrieveSignalInfo(final BitList tasks, final String arg) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
@@ -449,7 +434,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void setCurrentStackFrame(final BitList tasks, final int level) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
@@ -480,7 +464,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void selectThread(final BitList tasks, final int tid) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
@@ -489,13 +472,11 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   public void createDataReadMemory(final BitList tasks, final long offset, final String address, final int wordFormat, 
                                    final int wordSize, final int rows, final int cols, 
                                    final Character asChar) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
 
   public void createDataWriteMemory(final BitList tasks, final long offset, final String address, final int wordFormat, 
                                     final int wordSize, final String value) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
@@ -547,6 +528,19 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   
   // --- Private code
   
+  private String toHexString(final int value, final int length) {
+    final String s = Integer.toHexString(value);
+    if (s.length() > length) {
+      // Returns rightmost length chars 
+      return s.substring(s.length() - length);
+    } else if (s.length() < length) {
+      // Pads on left with zeros. at most 7 will be prepended
+      return "0000000".substring(0, length - s.length()) + s;
+    } else {
+      return s;
+    }
+  }
+  
   private PICLLoadInfo createLoadInfo(final ILaunchConfiguration configuration) throws CoreException {
     final PICLLoadInfo loadInfo = new PICLLoadInfo();
     loadInfo.setLaunchConfig(configuration);
@@ -584,6 +578,17 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     return null;
   }
   
+  private String getValue(final String type, final String evaluatedExpression) {
+    switch (type.charAt(0)) {
+      case AIFFactory.FDS_INT:
+        return toHexString(Integer.parseInt(evaluatedExpression), 8);
+      case AIFFactory.FDS_STRING:
+        return evaluatedExpression;
+      default:
+        return evaluatedExpression;
+    }
+  }
+  
   private String[] getVariablesAsArrayString(final IStackFrame stackFrame) throws DebugException {
     final IVariable[] variables = stackFrame.getVariables();
     final String[] strVars = new String[variables.length];
@@ -592,6 +597,21 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       strVars[++i] = var.getName();
     }
     return strVars;
+  }
+  
+  private String getVariableType(final String typeName) {
+    final String type;
+    if ("int".equals(typeName)) { //$NON-NLS-1$
+      type = "is4"; //$NON-NLS-1$
+    } else if ("float".equals(typeName)) { //$NON-NLS-1$
+      type = "f4"; //$NON-NLS-1$
+    } else if ("unsigned char**".equals(typeName)) {
+      // This is wrong!!! It needs to be an array... But then this suite of tests is not generic enough... No good!
+      type = "s0";
+    } else {
+      type = AIFFactory.UNKNOWNTYPE.toString();
+    }
+    return type;
   }
   
   private void initBreakPointIdIfRequired(final IPDIBreakpoint breakpoint) {
