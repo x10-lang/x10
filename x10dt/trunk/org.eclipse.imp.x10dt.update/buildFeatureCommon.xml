@@ -36,11 +36,18 @@
 	<!-- ========================================================================================= -->
 
 	<target name="build.child">
-		<ant antfile="../${plugin.id}/exportPlugin.xml" inheritAll="false" dir="../${plugin.id}" target="build.update.jar"/>
+		<ant antfile="../${project.name}/exportPlugin.xml" inheritAll="false" dir="../${project.name}" target="build.update.jar"/>
 	</target>
 
 	<target name="copy.child">
-		<loadfile property="plugin.version" srcfile="../${plugin.id}/META-INF/MANIFEST.MF">
+        <loadfile property="plugin.id" srcfile="../${project.name}/META-INF/MANIFEST.MF">
+            <filterchain>
+                <containsregex pattern="Bundle-SymbolicName:"/>
+                <replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+		<loadfile property="plugin.version" srcfile="../${project.name}/META-INF/MANIFEST.MF">
 			<filterchain>
 				<containsregex pattern="Bundle-Version:"/>
 				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
@@ -48,7 +55,7 @@
 			</filterchain>
 		</loadfile>
 		<echo message="Copying ${plugin.id} version ${plugin.version}"/>
-		<copy todir="plugins" file="../${plugin.id}/${plugin.id}_${plugin.version}.jar"/>
+		<copy todir="plugins" file="../${project.name}/${plugin.id}_${plugin.version}.jar"/>
 	</target>
 	<!-- ========================================================================================= -->
 
