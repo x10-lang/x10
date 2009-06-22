@@ -44,6 +44,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -176,7 +177,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    marker.setAttribute(IMarker.SEVERITY, severity);
 	    marker.setAttribute(IMarker.LOCATION, loc);
 	    marker.setAttribute(IMarker.PRIORITY, priority);
-	    marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 0) ? lineNum : 0);
+	    marker.setAttribute(IMarker.LINE_NUMBER, (lineNum >= 1) ? lineNum : 1);
 	    if (startOffset >= 0) {
 		marker.setAttribute(IMarker.CHAR_START, startOffset);
 		marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
@@ -308,7 +309,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     /**
-     * @return a list of all project-relative CPE_SOURCE-type classpath entries.
+     * @return a list of all workspace-relative CPE_SOURCE-type classpath entries.
      * @throws JavaModelException
      */
     private List<IPath> getProjectSrcPath() throws JavaModelException {
@@ -321,6 +322,22 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	    if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
 		srcPath.add(e.getPath());
+	    else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+		// RMF 6/4/2008 - Don't add referenced projects to the source path:
+		// 1) doing so should be unnecessary, since the classpath will include
+		//    the project, and the class files should satisfy all references,
+		// 2) doing so will cause Polyglot to compile the source files found in
+		//    the other project to Java source files located in the *referencing*
+		//    project, causing duplication, which is not what we want.
+//		IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
+//		IJavaProject refJavaProject= JavaCore.create(refProject);
+//		IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+//		for(int j= 0; j < refJavaCPEntries.length; j++) {
+//		    if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+//			srcPath.add(refJavaCPEntries[j].getPath());
+//		    }
+//		}
+	    }
 	}
 	if (srcPath.size() == 0)
 	    srcPath.add(fProject.getLocation());
@@ -423,6 +440,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	StringBuffer buff= new StringBuffer();
 
 	try {
+	    IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
 	    IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
 
 	    for(int i= 0; i < classPath.length; i++) {
@@ -430,7 +448,23 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 		if (i > 0)
 		    buff.append(File.pathSeparatorChar);
-		buff.append(entry.getPath().toOSString());
+		if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
+		    buff.append(entry.getPath().toOSString());
+		else if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+		    // Add the output location of each CPE_SOURCE classpath entry in the referenced project
+		    IProject refProject= wsRoot.getProject(entry.getPath().toPortableString());
+		    IJavaProject refJavaProject= JavaCore.create(refProject);
+		    IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+		    for(int j= 0; j < refJavaCPEntries.length; j++) {
+			if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+			    IPath outputLoc= refJavaCPEntries[j].getOutputLocation();
+			    if (outputLoc == null) {
+				outputLoc= refJavaProject.getOutputLocation();
+			    }
+			    buff.append(wsRoot.getLocation().append(outputLoc).toOSString());
+			}
+		    }
+		}
 	    }
 //	    if (X10Preferences.autoAddRuntime) {
 //		String commonPath= X10Plugin.x10CommonPath;
