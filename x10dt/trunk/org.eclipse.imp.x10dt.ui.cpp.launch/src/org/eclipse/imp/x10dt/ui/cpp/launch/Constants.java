@@ -17,6 +17,10 @@ import org.eclipse.core.runtime.QualifiedName;
 @SuppressWarnings("all")
 public final class Constants {
 
+  // --- Constants for Launch Configuration
+  
+  public static final String ATTR_SHOULD_LINK_APP = LaunchCore.PLUGIN_ID + ".ShouldLinkApp"; //$NON-NLS-1$
+  
   // --- Constants for connection info for a build
   
   public static final QualifiedName RES_MANAGER_ID = new QualifiedName(LaunchCore.PLUGIN_ID, "resource.manager"); //$NON-NLS-1$
