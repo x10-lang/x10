@@ -6,7 +6,7 @@
 package org.eclipse.imp.x10dt.ui.refactoring.actions;
 
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.editor.UniversalEditor.IRefactoringContributor;
+import org.eclipse.imp.services.IRefactoringContributor;
 import org.eclipse.jface.action.IAction;
 
 

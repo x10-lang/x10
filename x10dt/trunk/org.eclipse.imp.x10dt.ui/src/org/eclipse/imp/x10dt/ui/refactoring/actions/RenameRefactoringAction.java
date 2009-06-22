@@ -13,7 +13,7 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.refactoring.RefactoringStarter;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
@@ -74,7 +74,7 @@ public class RenameRefactoringAction extends TextEditorAction {
     private Node findNode(UniversalEditor editor) {
         Point sel= editor.getSelection();
         IParseController parseController= editor.getParseController();
-        IASTNodeLocator locator= parseController.getNodeLocator();
+        ISourcePositionLocator locator= parseController.getNodeLocator();
 
         return (Node) locator.findNode(fRoot, sel.x);
     }

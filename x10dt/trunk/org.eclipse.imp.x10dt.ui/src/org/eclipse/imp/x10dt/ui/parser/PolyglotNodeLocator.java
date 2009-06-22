@@ -9,12 +9,13 @@
 package org.eclipse.imp.x10dt.ui.parser;
 
 import lpg.runtime.IPrsStream;
+import lpg.runtime.IToken;
 import lpg.runtime.LexStream;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -31,7 +32,7 @@ import polyglot.visit.NodeVisitor;
 // TODO This should really derive from the Java ASTNodeLocator impl in org.eclipse.safari.java.core...
 // Or better yet, this implementation shouldn't be necessary at all, since Polyglot nodes all behave
 // the same wrt position access and the visitor interface.
-public class PolyglotNodeLocator implements IASTNodeLocator {
+public class PolyglotNodeLocator implements ISourcePositionLocator {
     private final Node[] fNode= new Node[1];
 
     private int fOffset;
@@ -212,30 +213,34 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	return fNode[0];
     }
 
-    public int getStartOffset(Object node) {
+    public int getStartOffset(Object entity) {
 	Position pos;
 
-	if (node instanceof Declaration)
-	    pos= ((Declaration) node).position();
-	else if (node instanceof Node)
-	    pos= ((Node)node).position();
-	else if (node instanceof Position)
-	    pos= (Position) node;
+	if (entity instanceof Declaration)
+	    pos= ((Declaration) entity).position();
+	else if (entity instanceof Node)
+	    pos= ((Node)entity).position();
+	else if (entity instanceof Position)
+	    pos= (Position) entity;
+        else if (entity instanceof IToken)
+            return ((IToken) entity).getStartOffset();
 	else
 	    return -1;
 
 	return pos.offset();
     }
 
-    public int getEndOffset(Object node) {
+    public int getEndOffset(Object entity) {
 	Position pos;
 
-	if (node instanceof Declaration)
-	    pos= ((Declaration) node).position();
-	else if (node instanceof Node)
-	    pos= ((Node)node).position();
-	else if (node instanceof Position)
-	    pos= (Position) node;
+	if (entity instanceof Declaration)
+	    pos= ((Declaration) entity).position();
+	else if (entity instanceof Node)
+	    pos= ((Node)entity).position();
+	else if (entity instanceof Position)
+	    pos= (Position) entity;
+        else if (entity instanceof IToken)
+            return ((IToken) entity).getEndOffset();
 	else
 	    return -1;
 

@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.language.IAnnotationTypeInfo;
+import org.eclipse.imp.language.ILanguageSyntaxProperties;
 import org.eclipse.imp.parser.ILexer;
 import org.eclipse.imp.parser.IParser;
+import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 
 import polyglot.ast.Node;
@@ -21,6 +23,10 @@ import polyglot.frontend.FileSource;
 
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
+
+    public ParseController() {
+//      System.out.println("creating ParseController()");
+    }
 
     public IParser getParser() {
 	return new ParserDelegate(fCompiler.getParser());
@@ -30,12 +36,12 @@ public class ParseController extends SimpleLPGParseController {
 	return new LexerDelegate(fCompiler.getLexer());
     }
 
-    public IASTNodeLocator getNodeLocator() {
+    public ISourcePositionLocator getNodeLocator() {
 	return new PolyglotNodeLocator(fProject, getLexer().getLexStream());
     }
 
-    public ParseController() {
-	System.out.println("creating ParseController()");
+    public ILanguageSyntaxProperties getSyntaxProperties() {
+        return new X10SyntaxProperties();
     }
 
     public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor) {

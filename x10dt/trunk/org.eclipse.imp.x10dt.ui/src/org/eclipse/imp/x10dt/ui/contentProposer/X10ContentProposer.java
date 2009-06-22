@@ -13,6 +13,7 @@ import lpg.runtime.IToken;
 
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.jface.text.IDocument;
@@ -207,13 +208,14 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
             token_index = (index < 0 ? -(index - 1) : index);
         IToken token = prs_stream.getIToken(token_index),
                candidate = prs_stream.getIToken(prs_stream.getPrevious(token_index));
+        SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
         //
         // If we are at an offset position immediately following an "identifier"
         // candidate, then consider the candidate to be the token for which we need
         // assistance and chose its predecessor as the candidate for the lookup.
         //
         if ((candidate.getKind() == TK_IDENTIFIER ||
-             controller.isKeyword(candidate.getKind()))
+             lpgPC.isKeyword(candidate.getKind()))
             && offset == candidate.getEndOffset() + 1)
         {
             token = candidate;
@@ -223,7 +225,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         String prefix = "";
         if (token.getKind() == TK_IDENTIFIER ||
             token.getKind() == TK_ErrorId ||
-            controller.isKeyword(token.getKind()))
+            lpgPC.isKeyword(token.getKind()))
         {
             if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
             {

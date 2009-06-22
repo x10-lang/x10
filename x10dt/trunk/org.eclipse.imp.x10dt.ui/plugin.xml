@@ -123,10 +123,10 @@
       </proposer>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.outlineContentProvider">
+         point="org.eclipse.imp.runtime.modelTreeBuilder">
          <outlineContentProvider
-         		class="org.eclipse.imp.x10dt.ui.editor.X10ContentProvider"
-         		language="X10"/>
+             class="org.eclipse.imp.x10dt.ui.editor.X10TreeModelBuilder"
+             language="X10"/>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.labelProvider">

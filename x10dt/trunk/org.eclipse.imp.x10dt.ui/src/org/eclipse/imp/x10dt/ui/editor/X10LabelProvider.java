@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
@@ -25,12 +26,30 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.TreeItem;
 
+import polyglot.ast.Call;
+import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ext.x10.ast.ArrayConstructor;
+import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForEach;
+import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.ast.Next;
+import polyglot.ext.x10.ast.X10Loop;
+import polyglot.types.ClassType;
+import polyglot.types.Flags;
+import polyglot.types.MethodInstance;
+import x10.parser.X10Parser.JPGPosition;
 
 public class X10LabelProvider implements ILabelProvider, ILanguageService {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
@@ -78,32 +97,48 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 	COMPILATION_UNIT_ERROR_IMAGE= ir.get(COMPILATION_UNIT_ERROR);
     }
 
-    public Image getImage(Object node) {
-	if (node instanceof ClassDecl) {
+    public Image getImage(Object o) {
+        if (o instanceof IResource) {
+            return getErrorTicksFromMarkers((IResource) o);
+        }
+
+        Node node= (o instanceof ModelTreeNode) ?
+                (Node) ((ModelTreeNode) o).getASTNode() :
+                        (Node) o;
+
+        if (node instanceof PackageNode) {
+            return Outliner._DESC_OBJS_PACKDECL;
+        } else if (node instanceof ClassDecl) {
 	    ClassDecl cd= (ClassDecl) node;
 
 	    return cd.flags().isInterface() ? Outliner._DESC_OBJS_CFILEINT : Outliner._DESC_OBJS_CFILECLASS;
 	} else if (node instanceof FieldDecl) {
 	    FieldDecl fd= (FieldDecl) node;
 
-	    if (fd.flags().isPublic()) return Outliner._DESC_FIELD_PUBLIC;
-	    if (fd.flags().isPrivate()) return Outliner._DESC_FIELD_PRIVATE;
-	    if (fd.flags().isProtected()) return Outliner._DESC_FIELD_PROTECTED;
-	    return Outliner._DESC_FIELD_DEFAULT;
+	    return getImageFromQualifiers(fd.flags(), Outliner.FIELD_DESCS);
 	} else if (node instanceof ProcedureDecl) {
 	    ProcedureDecl pd= (ProcedureDecl) node;
 
-	    if (pd.flags().isPublic()) return Outliner._DESC_MISC_PUBLIC;
-	    if (pd.flags().isPrivate()) return Outliner._DESC_MISC_PRIVATE;
-	    if (pd.flags().isProtected()) return Outliner._DESC_MISC_PROTECTED;
-	    return Outliner._DESC_MISC_DEFAULT;
-	}
-	if (node instanceof IFile) {
-	    IFile file= (IFile) node;
-
-	    return getErrorTicksFromMarkers(file);
-	}
+	    return getImageFromQualifiers(pd.flags(), Outliner.MISC_DESCS);
+	} else if (node instanceof Async || node instanceof AtEach || node instanceof ForEach ||
+                node instanceof Future || node instanceof Finish || node instanceof Atomic ||
+                node instanceof Next) {
+            return Outliner._DESC_MISC_DEFAULT;
+        } else if (node instanceof ArrayConstructor) {
+            return Outliner._DESC_MISC_DEFAULT;
+        }
 	return DEFAULT_AST_IMAGE;
+    }
+
+    private Image getImageFromQualifiers(Flags flags, Image[] images) {
+        if (flags.isPrivate())
+            return images[1];
+        else if (flags.isProtected())
+            return images[2];
+        else if (flags.isPublic())
+            return images[3];
+        else
+            return images[0];
     }
 
     public static Image getErrorTicksFromMarkers(IResource res) {
@@ -118,14 +153,18 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     }
 
     public String getText(Object element) {
-	Node node= (Node) element;
+	Node node= (element instanceof ModelTreeNode) ?
+	        (Node) ((ModelTreeNode) element).getASTNode():
+                (Node) element;
 
-	if (node instanceof ClassDecl) {
+        if (node instanceof PackageNode) {
+            return ((PackageNode) node).package_().fullName();
+        } else if (node instanceof ClassDecl) {
 	    ClassDecl cd= (ClassDecl) node;
-	    return cd.name();
+	    return filter(cd.name());
 	} else if (node instanceof FieldDecl) {
 	    FieldDecl fd= (FieldDecl) node;
-	    return fd.name();
+	    return filter(fd.type() + " " + fd.name());
 	} else if (node instanceof ProcedureDecl) {
 	    ProcedureDecl pd= (ProcedureDecl) node;
 	    List/*<Formal>*/ formals= pd.formals();
@@ -139,9 +178,45 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 		    buff.append(", ");
 	    }
 	    buff.append(")");
-	    return buff.toString().replaceAll("\\{amb\\}", "");
-	}
+	    return filter(buff.toString());
+	} else if (node instanceof Async) {
+            Async a= (Async) node;
+	    return "async (" + filter(a.place().toString()) + ")";
+        } else if (node instanceof Finish) {
+            Finish f= (Finish) node;
+            return "finish";
+        } else if (node instanceof ForEach) {
+            ForEach fe= (ForEach) node;
+            return "foreach(" + sourceText(fe.domain()) + ")";
+        } else if (node instanceof AtEach) {
+            AtEach ae= (AtEach) node;
+            return "ateach (" + sourceText(ae.domain()) + ")";
+        } else if (node instanceof Future) {
+            Future f= (Future) node;
+            return "future " + f.body();
+        } else if (node instanceof X10Loop) {
+            X10Loop loop= (X10Loop) node;
+            String text = "for(" + sourceText(loop.formal()) +
+                          " : " + sourceText(loop.domain()) + ")";
+            return filter(text);
+        } else if (node instanceof Call) {
+            Call call = (Call) node;
+            if (call.name().equals("force") && call.arguments().size() == 0) {
+                return "force()";
+            }
+        } else if (node instanceof ArrayConstructor) {
+            ArrayConstructor ac= (ArrayConstructor) node;
+            return "new " + ac.arrayBaseType() + "[" + sourceText(ac.distribution()) + "]";
+        }
 	return "???";
+    }
+
+    private String sourceText(Node n) {
+        return ((JPGPosition) n.position()).toText();
+    }
+
+    private String filter(String name) {
+        return name.replaceAll("\n", "").replaceAll("\\{amb\\}", "");
     }
 
     public void addListener(ILabelProviderListener listener) {

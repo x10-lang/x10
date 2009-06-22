@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.imp.editor.OutlineContentProviderBase;
 import org.eclipse.imp.editor.OutlineInformationControl;
-import org.eclipse.imp.editor.OutlineInformationControl.OutlineContentProviderBase;
 import org.eclipse.imp.language.ILanguageService;
 
 import polyglot.ast.ClassDecl;

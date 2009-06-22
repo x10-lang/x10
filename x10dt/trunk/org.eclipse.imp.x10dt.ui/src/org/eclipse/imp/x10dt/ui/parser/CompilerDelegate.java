@@ -11,12 +11,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.parser.IMessageHandler;
+import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.builder.PolyglotFrontEnd;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
@@ -50,7 +51,7 @@ public class CompilerDelegate {
     CompilerDelegate(Monitor monitor, IMessageHandler handler, IProject project) {
 	this.x10Project= (project != null) ? JavaCore.create(project) : null;
 
-        extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, handler); // new ExtensionInfo(monitor);
+        extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler)); // new ExtensionInfo(monitor);
         buildOptions(extInfo);
         ErrorQueue eq= new SilentErrorQueue(100000, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);

@@ -8,8 +8,10 @@ package org.eclipse.imp.x10dt.ui.editor;
 import lpg.runtime.IToken;
 
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ITokenColorer;
 import org.eclipse.imp.services.base.TokenColorerBase;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -20,10 +22,10 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 
 	TextAttribute commentAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
-	public TextAttribute getColoring(IParseController controller, IToken token) {
-		switch (token.getKind())
-		{
-            case TK_DocComment: case TK_SlComment: case TK_MlComment:
+	public TextAttribute getColoring(IParseController controller, Object o) {
+            IToken token= (IToken) o;
+	    switch (token.getKind()) {
+	    case TK_DocComment: case TK_SlComment: case TK_MlComment:
                  return commentAttribute;
             case TK_IDENTIFIER:
                  return identifierAttribute;
@@ -35,13 +37,15 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
             case TK_CharacterLiteral:
             case TK_StringLiteral:
                  return characterAttribute;
-            default:
+            default: {
+                SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
         	// TODO Can the following either be removed altogether or folded into the base class impl?
         	// RMF 10/26/2006 - Avoid AIOOB that happens if we pass error tokens to isKeyword()
-                if (token.getKind() < TK_ERROR_TOKEN && controller.isKeyword(token.getKind()))
+                if (token.getKind() < TK_ERROR_TOKEN && lpgPC.isKeyword(token.getKind()))
                      return keywordAttribute;
                 else return null;
-		}
+            }
+	    }
 	}
 
 	public MyTokenColorer() {
@@ -54,4 +58,8 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 	}
 
 	public void setLanguage(String language) { }
+
+    public IRegion calculateDamageExtent(IRegion seed) {
+        return seed;
+    }
 }
