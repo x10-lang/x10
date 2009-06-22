@@ -32,6 +32,8 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
     public void createFieldEditors() {
 	addField(new DirectoryFieldEditor(PreferenceConstants.P_X10COMMON_PATH, "&X10 Common directory:", getFieldEditorParent()));
 	addField(new FileFieldEditor(PreferenceConstants.P_X10CONFIG_FILE, "&X10 configuration file:", getFieldEditorParent()));
+//	addField(new BooleanFieldEditor(PreferenceConstants.P_AUTO_ADD_RUNTIME, "Add X10 runtime library in x10.runtime to build path",
+//		getFieldEditorParent()));
 	addField(new BooleanFieldEditor(PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 		getFieldEditorParent()));
 
@@ -47,6 +49,8 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
 		    X10Preferences.x10CommonPath= (String) event.getNewValue();
 		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_FILE))
 		    X10Preferences.x10ConfigFile= (String) event.getNewValue();
+		else if (event.getProperty().equals(PreferenceConstants.P_AUTO_ADD_RUNTIME))
+		    X10Preferences.autoAddRuntime= ((Boolean) event.getNewValue()).booleanValue();
 	    }
 	});
     }

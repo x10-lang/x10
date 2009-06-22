@@ -9,4 +9,6 @@ public class PreferenceConstants {
     public static final String P_X10CONFIG_FILE= "configFile";
 
     public static final String P_EMIT_MESSAGES= "emitMessages";
+
+    public static final String P_AUTO_ADD_RUNTIME= "autoAddRuntimme";
 }
