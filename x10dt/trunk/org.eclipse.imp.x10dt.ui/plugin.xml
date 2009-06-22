@@ -317,6 +317,7 @@
          </action>
       </editorContribution>
    </extension>
+<!--
    <extension
          point="org.eclipse.debug.core.breakpoints">
       <breakpoint
@@ -345,6 +346,7 @@
             value="true">
       </persistent>
    </extension>
+-->
    <extension
          point="org.eclipse.imp.runtime.markOccurrences">
       <occurrenceIdentifier
