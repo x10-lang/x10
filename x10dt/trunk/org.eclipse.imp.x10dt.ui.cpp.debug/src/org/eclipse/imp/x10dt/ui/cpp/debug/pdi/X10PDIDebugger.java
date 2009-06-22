@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 
 import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.SAVED_THIS;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.VARIABLE_NOT_FOUND;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.NOT_IN_SCOPE;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.inClosure;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
@@ -25,6 +26,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
@@ -370,8 +372,9 @@ public final class X10PDIDebugger implements IPDIDebugger {
         if (count <= 0) {
           throw new PDIException(pair.fst(), "Step Into with count <= 0 is not supported.");
         }
+        Location start = thread.getLocation(thread.getViewInformation());
         for (int i = 0; i < count; i++) {
-          if (!stepInto(thread, pair.snd()))
+          if (!stepInto(thread, pair.snd(), start))
             throw new PDIException(tasks, "Step Into interrupted");
         }
         IStackFrame[] stackFrames = thread.getStackFrames();
@@ -389,17 +392,30 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
   }
 
+  private static final HashSet<String> STEP_THROUGH_FUNCTIONS = new HashSet<String>();
+  static {
+    STEP_THROUGH_FUNCTIONS.add("x10rt_alloc");
+    STEP_THROUGH_FUNCTIONS.add("malloc");
+    STEP_THROUGH_FUNCTIONS.add("pthread_rwlock_destroy");
+    STEP_THROUGH_FUNCTIONS.add("operator new(unsigned long,void*)");
+  }
+
   /**
    * Keep executing thread.stepInto() until we're in an X10 function.
+ * @param start TODO
    */
-  private boolean stepInto(final DebuggeeThread thread, final DebuggeeProcess process) throws DebugException {
+  private boolean stepInto(final DebuggeeThread thread, final DebuggeeProcess process, final Location start) throws DebugException {
     String function = null;
+    boolean stepOut = false;
     do {
       final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
       thread.addEventListener(stoppedEventListener);
       final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
       try {
-        thread.stepInto();
+        if (stepOut)
+          thread.stepReturn();
+        else
+          thread.stepInto();
         runnableThread.start();
         runnableThread.join();
       } catch (InterruptedException except) {
@@ -408,9 +424,13 @@ public final class X10PDIDebugger implements IPDIDebugger {
         thread.removeEventListener(stoppedEventListener);
         runnableThread.interrupt();
       }
+      if (!thread.isSuspended())
+        return false;
       Location location = thread.getLocation(thread.getViewInformation());
       String cppFunction = getFunction(location);
       System.out.println("Step into: stepping through "+cppFunction);
+      // TODO: skip system libraries more efficiently
+      stepOut = STEP_THROUGH_FUNCTIONS.contains(cppFunction);
       function = fTranslator.getX10Function(process, cppFunction, location);
     } while (function == null);
     return true;
@@ -1026,6 +1046,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
     String result = rootNode.getValueString();
     if (result.equals(VARIABLE_NOT_FOUND))
         return new ProxyDebugAIF("?0?", "00", expr);
+    if (result.equals(NOT_IN_SCOPE))
+    	return new ProxyDebugAIF("?0?", "00", desc == null ? getTypeString(exprType) : desc[0]);
     if (isReferenceType(exprType) && isRemoteRef(result)) {
       int len = REMOTE_REF_VALUE.length();
       byte[] bytes = REMOTE_REF_VALUE.getBytes();
