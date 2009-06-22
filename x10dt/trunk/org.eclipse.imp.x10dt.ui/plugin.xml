@@ -27,7 +27,9 @@
             id="x10.uide.launching.X10LaunchConfigurationType"
             modes="run,debug"
             name="X10 Application"
-            public="true"/>
+            public="true"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"/>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
