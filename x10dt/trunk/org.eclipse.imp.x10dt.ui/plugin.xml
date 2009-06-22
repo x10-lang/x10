@@ -249,15 +249,15 @@
             language="X10">
       </docProvider>
    </extension>
+<!--
    <extension
          id="menu:org.eclipse.ui.main.menu"
-         name="Sounds"
+         name="SourceSection"
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu">
          <menu
                label="Source"
-               tooltip="Entertain the young with barnyard atmosphere"
                id="org.eclipse.imp.x10dt.ui.menu.source">
             <command
                   commandId="org.eclipse.imp.x10dt.ui.formatCmd"
@@ -285,6 +285,7 @@
          </command>
       </menuContribution>
    </extension>
+   -->
    <extension
          point="org.eclipse.ui.commands">
       <command
