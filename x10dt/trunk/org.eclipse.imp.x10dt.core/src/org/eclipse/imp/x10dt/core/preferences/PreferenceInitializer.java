@@ -41,8 +41,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_AUTO_ADD_RUNTIME, false);
 		service.setStringPreference(
 			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_NAME, SafariPreferencesUtilities.comboDefaultName);	//"standard");
+
+		// RMF 2/26/2007 - DON'T use File.separator in the following; it's used to find a
+		// resource inside a bundle, and "etc\\standard.cfg" is incorrect.
 		service.setStringPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_FILE, "etc" + File.separator + "standard.cfg"); //"etc/standard.cfg");
+			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_FILE, "etc/standard.cfg");
 		service.setIntPreference(
 			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_SAMPLING_FREQ, 50);
 		service.setStringPreference(
