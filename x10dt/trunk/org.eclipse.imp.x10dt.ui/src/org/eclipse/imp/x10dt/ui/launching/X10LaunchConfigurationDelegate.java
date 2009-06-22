@@ -63,14 +63,15 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	realArgsArray[0]= mainTypeName;
 	System.arraycopy(explicitArgsArray, 0, realArgsArray, 1, explicitArgsArray.length);
 
-	String x10Loc= "e:\\rmf\\eclipse\\workspaces\\safari";
-	String commonLoc= x10Loc + "\\x10.common";
-	String runtimeLoc= x10Loc + "\\x10.runtime";
+	String x10RuntimeLoc= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
+
+//	String runtimeLoc= x10RuntimeLoc + File.separator + "x10.runtime";
+	String commonLoc= x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator + "x10.common";
 
 	String[] x10ExtraVMArgs= {
 		"-Djava.library.path=" + commonLoc + "\\lib",
 		"-ea",
-		"-classpath=" + runtimeLoc + "\\classes"
+		"-classpath=" + x10RuntimeLoc + "\\classes"
 	};
 
 	String[] explicitVMArgsArray= execArgs.getVMArgumentsArray();

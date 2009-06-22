@@ -20,4 +20,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jdt.core,
  org.eclipse.core.resources
 Bundle-Vendor: pcharles@us.ibm.com
-Bundle-Activator: X10UIPlugin
+Bundle-Activator: x10.uide.X10UIPlugin

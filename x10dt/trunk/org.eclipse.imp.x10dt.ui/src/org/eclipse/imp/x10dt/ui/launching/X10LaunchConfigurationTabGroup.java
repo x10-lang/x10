@@ -17,6 +17,7 @@ public class X10LaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 	ILaunchConfigurationTab[] tabs= new ILaunchConfigurationTab[] {
 		new JavaMainTab(),
 		new JavaArgumentsTab(),
+		new X10RETab(),
 		new JavaJRETab(),
 		new JavaClasspathTab(),
 		new SourceLookupTab(),

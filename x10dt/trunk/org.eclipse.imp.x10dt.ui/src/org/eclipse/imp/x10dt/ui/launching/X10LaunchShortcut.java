@@ -125,6 +125,8 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	List candidateConfigs= Collections.EMPTY_LIST;
 	try {
 	    ILaunchConfiguration[] configs= DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
+
+	    // TODO The following code that looks for a suitable configuration is Java-specific; rewrite it?
 	    candidateConfigs= new ArrayList(configs.length);
 	    for(int i= 0; i < configs.length; i++) {
 		ILaunchConfiguration config= configs[i];
@@ -135,7 +137,7 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 		}
 	    }
 	} catch (CoreException e) {
-	    X10UIPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, X10UIPlugin.PLUGIN_ID, 0, "", e));
+	    X10UIPlugin.log(e);
 	}
 
 	// If there are no existing configs associated with the IType, create one.
@@ -175,7 +177,7 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_NAME, EMPTY_STRING);
 	    config= wc.doSave();
 	} catch (CoreException ce) {
-	    X10UIPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, X10UIPlugin.PLUGIN_ID, 0, "", ce));
+	    X10UIPlugin.log(ce);
 	}
 	return config;
     }
