@@ -37,6 +37,11 @@ import polyglot.util.ErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
+/**
+ * Information about our extension of the polyglot compiler
+ * @author beth
+ *
+ */
 public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
 {
     X10Lexer x10_lexer;
@@ -48,6 +53,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
         this.monitor = monitor;
         this.handler = handler;
         x10_lexer = new X10Lexer();
+        x10_lexer.reset(new char[0], ""); // PORT1.7 BOB HACK to make sure lexer has a lexstream, needed by remapTerminalSymbols() (which probably shouldn't need it!)
         x10_parser = new X10Parser(x10_lexer.getILexStream()); // PORT1.7 Create this early
     }
     
