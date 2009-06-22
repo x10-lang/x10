@@ -7,14 +7,8 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
  *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.editor;
 
 import org.eclipse.imp.language.ILanguageService;
@@ -31,11 +25,9 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
-import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.visit.NodeVisitor;
 
@@ -43,7 +35,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
     /**
      * Get the target for a given referencing source node in the AST represented by a given ParseController.
      */
-	public Object getLinkTarget(Object node, IParseController parseController) {
+    public Object getLinkTarget(Object node, IParseController parseController) {
         if (node instanceof Ambiguous) {
             return null;
         }
@@ -51,12 +43,12 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             Id id= (Id) node;
             node= findParent(id, parseController);
         }
-        if(node instanceof TypeNode) {
-			Object grandparent = findParent((Node)node, parseController);
-			if(grandparent instanceof ConstructorDecl) {   
-				node=grandparent;
-			}
-		}
+        if (node instanceof TypeNode) {
+            Object grandparent = findParent((Node)node, parseController);
+            if (grandparent instanceof ConstructorDecl) {
+                node=grandparent;
+            }
+        }
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
             PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
@@ -71,7 +63,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             Call call= (Call) node;
             MethodInstance mi= call.methodInstance();
             if (mi != null) {
-            	return mi.def();  //PORT1.7mi.declaration() -> mi.def();
+                return mi.def();  //PORT1.7mi.declaration() -> mi.def();
             }
         } else if (node instanceof Field) {
             Field field= (Field) node;

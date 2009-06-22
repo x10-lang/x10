@@ -7,17 +7,8 @@
  *
  * Contributors:
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) -initial API and implementation
-
  *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
-/*
- * Created on Mar 8, 2007
- */
 package org.eclipse.imp.x10dt.ui.editor;
 
 import java.io.File;
@@ -28,13 +19,9 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 
-import lpg.runtime.IToken;
-
 import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.language.Language;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
-import org.eclipse.imp.utils.HTMLPrinter;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
@@ -45,10 +32,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavadocContentAccess;
 
-
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
@@ -60,13 +45,9 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.New;
 import polyglot.ast.Node;
-import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
-import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
-//import polyglot.types.Declaration; //PORT1.7 remove import
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
@@ -80,7 +61,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
-import x10.parser.X10Parser.JPGPosition;
 
 /**
  * Provide  info for Hover Help and context help
@@ -91,20 +71,20 @@ import x10.parser.X10Parser.JPGPosition;
  * Currently, queries by ContextHelper and HoverHelper process any html provided differently.
  */
 public class X10DocProvider implements IDocumentationProvider, ILanguageService {
-	private static final boolean traceOn = false;
+    private static final boolean traceOn = false;
 
-	/**
-	 * Get text documentation for an entity in the x10 source code
-	 * @param target the object for which we want text info
-	 * @param parseController
-	 * @returns a text string of javadoc-style info, or other, if available
-	 */
-	public String getDocumentation(Object target, IParseController parseController) {
-		if (traceOn)System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
-		String doc = getHelpForEntity(target, parseController);
-		if (traceOn) System.out.println("   " + doc);
-		return doc;
-	}
+    /**
+     * Get text documentation for an entity in the x10 source code
+     * @param target the object for which we want text info
+     * @param parseController
+     * @returns a text string of javadoc-style info, or other, if available
+     */
+    public String getDocumentation(Object target, IParseController parseController) {
+        if (traceOn) System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
+        String doc = getHelpForEntity(target, parseController);
+        if (traceOn) System.out.println("   " + doc);
+        return doc;
+    }
 
 	/**
 	 * Provides javadoc-like info (if available) and more for a variety of entities
