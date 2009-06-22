@@ -24,7 +24,7 @@ public class X10Initializer extends PreferencesInitializer {
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE, false);
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_NUMPLACES, 4);
-		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "");
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "-commandlineonly");
 	}
 
 	/*
