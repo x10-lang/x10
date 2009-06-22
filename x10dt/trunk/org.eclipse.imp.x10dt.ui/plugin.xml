@@ -28,13 +28,13 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
-            name="X10 Application"
-            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"
             delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
             modes="run,debug"
+            name="X10 Application"
             public="true"
-            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
       </launchConfigurationType>
    </extension>
    <extension
@@ -233,6 +233,9 @@
          <showInPart
                id="org.eclipse.ui.views.ResourceNavigator">
          </showInPart>
+         <actionSet
+               id="org.eclipse.imp.x10dt.ui.X10ElementCreation">
+         </actionSet>
       </perspectiveExtension>
    </extension>
    <extension
@@ -351,6 +354,49 @@
             class="org.eclipse.imp.x10dt.ui.editor.X10OccurrenceIdentifier"
             language="X10">
       </occurrenceIdentifier>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.eclipse.imp.x10dt.ui.X10ElementCreation"
+            label="%perspective.actionsets">
+         <action
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10InterfaceWizardToolbarAction"
+               icon="icons/newint_wiz.gif"
+               id="org.eclipse.imp.x10dt.ui.NewX10InterfaceToolbarAction"
+               label="%new.interface.label"
+               style="push"
+               toolbarPath="Normal/X10Wizards"
+               tooltip="%new.interface.tooltip">
+         </action>
+         <action
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ClassWizardToolbarAction"
+               icon="icons/newclass_wiz.gif"
+               id="org.eclipse.imp.x10dt.ui.NewX10ClassToolbarAction"
+               label="%new.class.label"
+               style="push"
+               toolbarPath="Normal/X10Wizards"
+               tooltip="%new.class.tooltip">
+         </action>
+         <action
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10PackageWizardToolbarAction"
+               icon="icons/newpack_wiz.gif"
+               id="org.eclipse.imp.x10dt.ui.NewX10PackageToolbarAction"
+               label="%new.package.label"
+               style="push"
+               toolbarPath="Normal/X10Wizards"
+               tooltip="%new.package.tooltip">
+         </action>
+         <action
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
+               icon="icons/newx10prj_java.gif"
+               id="org.eclipse.imp.x10dt.ui.NewX10ProjectJavaToolbarAction"
+               label="%new.project.java.label"
+               style="push"
+               toolbarPath="Normal/X10Wizards"
+               tooltip="%new.project.java.tooltip">
+         </action>
+      </actionSet>
    </extension>
 
 </plugin>
