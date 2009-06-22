@@ -14,7 +14,7 @@
     <category name="Language Meta-Tools"/>
   </feature>
 
-  <feature url="features/org.eclipse.imp.x10dt_0.1.79.jar" id="org.eclipse.imp.x10dt" version="0.1.79">
+  <feature url="features/org.eclipse.imp.x10dt_0.1.79.jar" id="org.eclipse.imp.x10dt" version="0.1.80">
     <category name="Language Meta-Tools"/>
   </feature>
 
