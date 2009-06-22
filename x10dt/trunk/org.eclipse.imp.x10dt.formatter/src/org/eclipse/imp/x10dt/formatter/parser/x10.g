@@ -101,6 +101,7 @@
     import polyglot.ext.x10.ast.RegionMaker;
     import polyglot.ext.x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
+    import polyglot.frontend.Source;
     import polyglot.frontend.Parser;
     import polyglot.lex.BooleanLiteral;
     import polyglot.lex.CharacterLiteral;
@@ -314,10 +315,10 @@
         private ErrorQueue eq;
         private X10TypeSystem ts;
         private X10NodeFactory nf;
-        private FileSource source;
+        private Source source;//BRT
         private boolean unrecoverableSyntaxError = false;
 
-        public void initialize(TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
+        public void initialize(TypeSystem t, NodeFactory n, Source source, ErrorQueue q)
         {
             this.ts = (X10TypeSystem) t;
             this.nf = (X10NodeFactory) n;
@@ -325,7 +326,7 @@
             this.eq = q;
         }
         
-        public $action_type(ILexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
+        public $action_type(ILexStream lexStream, TypeSystem t, NodeFactory n, Source source, ErrorQueue q)
         {
             this(lexStream);
             initialize((X10TypeSystem) t,
