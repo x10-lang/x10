@@ -1,11 +1,13 @@
 package com.ibm.watson.safari.x10;
 
 import java.io.File;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.uide.runtime.UIDEPluginBase;
 import org.osgi.framework.BundleContext;
+
 import com.ibm.watson.safari.x10.preferences.PreferenceConstants;
 import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
@@ -14,6 +16,15 @@ import com.ibm.watson.safari.x10.preferences.X10Preferences;
  */
 public class X10Plugin extends UIDEPluginBase {
     public static final String kPluginID= "com.ibm.watson.safari.x10";
+
+    /**
+     * The unique instance of this plugin class
+     */
+    protected static X10Plugin sPlugin;
+
+    public static X10Plugin getInstance() {
+        return sPlugin;
+    }
 
     public X10Plugin() {
 	sPlugin= this;
