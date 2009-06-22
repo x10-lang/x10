@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="0.2.1"
+      version="1.7.0"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
@@ -19,9 +19,9 @@
    </url>
 
    <requires>
-      <import feature="polyglot" version="2.9.0" match="greaterOrEqual"/>
-      <import feature="lpg.runtime" version="2.0.12" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="0.1.87" match="greaterOrEqual"/>
+      <import feature="polyglot" version="3.0.0" match="greaterOrEqual"/>
+      <import feature="lpg.runtime" version="2.0.16" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.90" match="greaterOrEqual"/>
    </requires>
 
    <plugin
