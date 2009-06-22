@@ -66,7 +66,10 @@ public class X10Plugin extends SAFARIPluginBase {
      */
     public void stop(BundleContext context) throws Exception {
 	super.stop(context);
-	sPlugin= null;
+	// For some reason, X10Builder.build() gets called with an AUTO build
+	// after stop() gets called, and it tries to use the plugin instance
+	// to get at the log... resulting in an NPE. So don't null it out.
+//	sPlugin= null;
     }
 
     /**
