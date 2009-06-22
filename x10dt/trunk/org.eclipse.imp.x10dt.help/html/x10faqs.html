@@ -26,7 +26,9 @@
 <a href="#faq19">possible deadlock using when</a><br>
 <a href="#faq20">remote atomic blocks not implemented correctly</a><br>
 <a href="#faq21">view javadoc with dynamic help</a><br>
-<a href="#faq20">changing x10 editor font and size</a><br>
+<a href="#faq22">changing x10 editor font and size</a><br>
+<a href="#faq23">debug breakpoints</a><br>
+<a href="#faq24">x10dt requires eclipse 3.3.2</a><br>
 
 
 <!-- ********************************************* -->
@@ -337,6 +339,27 @@ or javadoc in the Help view.
 <p>
 Rather than using Window->Preferences->General->Appearance->Colors and Fonts to set the font and size for the X10 editor, use the
 the Window->Preferences->X10 preferences. There is the Source font <b>Change</b> button to select a font, style and size.
+</p> 
+
+<h2><a name="faq23"><a>debug breakpoints</h2>
+<p>
+One additional discovery: you can still get yourself into trouble by deleting breakpoints using the breakpoints view.  Here's the trouble:
+When you create a new breakpoint by double-clicking in the margin of the code, it creates two new markers- one for x10 and one for .java.  
+But the .x10 one is not displayed in the breakpoints view until restart (known bug -- really, only one should be displayed for both files).  
+If the two markers (one invisible) are not in sync the debugger gets confused and won't let you toggle the breakpoint by double clicking in the margin.  
+But until you restart, you can't see both in the breakpoints view, so if you delete the visible one, the invisible one is left.  
+You can't get rid of it and you're hosed.  
+<b>Workaround</b>: This situation can be repaired by restarting X10DT and then removing the remaining (unmatched) breakpoint.
+
+<b>Moral</b>: for now toggle breakpoints only in the margin of the code and you will be safe.
+</p> 
+
+<h2><a name="faq24"><a>X10DT requires Java 1.5.0_x</h2>
+<p>
+The X10DT requires Java 1.5.0_x to work correctly. 
+If you run Eclipse and X10DT with JDK 1.4, you will get errors containing
+the message "Unsupported major.minor version 49.0". This seems to be a well known
+for using the wrong JDK.
 </p> 
  
 
