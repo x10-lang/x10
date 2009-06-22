@@ -5,6 +5,8 @@ package x10.uide.parser;
 
 import lpg.runtime.*;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import x10.parser.X10Parser.JPGPosition;		// SMS 14 Jun 2006
 
@@ -227,12 +229,12 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     	return getEndOffset(n) - getStartOffset(n);
     }
 
-    public String getPath(Object node) {
+    public IPath getPath(Object node) {
 	if (node instanceof Declaration)
-	    return ((Declaration) node).position().file();
+	    return new Path(((Declaration) node).position().file());
 	else if (node instanceof Node)
-	    return ((Node)node).position().path();
+	    return new Path(((Node)node).position().path());
 	else
-	    return "";
+	    return null;
     }
 }
