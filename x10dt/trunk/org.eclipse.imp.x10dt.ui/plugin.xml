@@ -25,18 +25,20 @@
             language="X10">
       </tokenColorer>
    </extension>
+ <!--
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
             name="X10 Application"
             sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"
-            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            delegate="org.eclipse.imp.x10dt.debug.ui.launching.X10LaunchConfigurationDelegate"
             modes="run,debug"
             public="true"
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
       </launchConfigurationType>
    </extension>
+   -->
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
