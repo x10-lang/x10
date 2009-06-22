@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -33,10 +32,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
-
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
@@ -45,13 +44,13 @@ import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
+import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
-
 import com.ibm.watson.safari.x10.X10Plugin;
 import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
@@ -191,7 +190,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		errors.add(error);
 	    }
 	});
-	// Report.addTopic(Report.verbose, 1);
+//	Report.addTopic(Report.verbose, 1);
 	try {
 	    compiler.compile(streams);
 	} catch (InternalCompilerError ice) {
@@ -212,6 +211,17 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 		if (errorFile != null)
 		    addMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0);
+	    }
+	} catch (final Error error) {
+	    String msg= error.getMessage();
+	    if (msg.startsWith("No translation for ")) {
+		final String type= msg.substring(19).substring(0, msg.lastIndexOf(' ')-19);
+		Display.getDefault().asyncExec(new Runnable() {
+		    public void run() {
+			Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+			MessageDialog.openError(shell, "X10 Compiler Configuration error", "Unable to locate compiler template for " + type + "; check X10 Preferences.");
+		    }
+		});
 	    }
 	} catch (Exception e) {
 	    X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + e.getMessage());
@@ -238,6 +248,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	}
 	X10Plugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
 	X10Plugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+	X10Plugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
 	X10Plugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
 
@@ -380,7 +391,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		buff.append(entry.getPath().toOSString());
 	    }
 	    if (X10Preferences.autoAddRuntime) {
-		String commonPath= X10Preferences.x10CommonPath;
+		String commonPath= X10Plugin.x10CommonPath;
 		String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separator) + 1) + "x10.runtime" + File.separator + "classes";
 
 		if (classPath.length > 0)
@@ -399,7 +410,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	for(Iterator iter= sources.iterator(); iter.hasNext(); ) {
 	    IFile file= (IFile) iter.next();
 
-	    buff.append(file.getFullPath());
+	    buff.append(file.getProjectRelativePath());
 	    if (iter.hasNext())
 		buff.append(',');
 	}
@@ -425,7 +436,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	sPlugin.refreshPrefs();
 
 	// TODO need better way of detecting whether configuration has been read yet.
-        if (X10Preferences.x10CommonPath.equals("???")) {
+        if (X10Plugin.x10CommonPath.equals("???")) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
                 public void run() {
                     MessageDialog.openInformation(new Shell(), "X10 Error", "X10 common directory location not yet set.");
@@ -433,7 +444,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             });
             return null;
         }
-	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
+//	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
             try {
                 Configuration.readConfiguration();
             } catch (Error e) {
