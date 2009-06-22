@@ -4,7 +4,17 @@
       This update site hosts the distribution for the X10 Development Toolkit (X10DT) for X10 1.7.
    </description>
    <feature url="features/org.eclipse.imp.x10dt_1.7.4.0.jar" id="org.eclipse.imp.x10dt" version="1.7.4.0">
-      <category name="X10 Development Tools"/>
+      <category name="x10dt"/>
    </feature>
-   <category-def name="X10 Development Tools" label="X10 Development Tools"/>
+   <feature url="features/lpg.runtime_2.0.17.jar" id="lpg.runtime" version="2.0.17">
+      <category name="other"/>
+   </feature>
+   <feature url="features/polyglot_3.0.2.jar" id="polyglot3" version="3.0.2">
+      <category name="other"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.runtime_0.1.99.1.jar" id="org.eclipse.imp.runtime" version="0.1.99.1">
+      <category name="other"/>
+   </feature>
+   <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
+   <category-def name="other" label="X10DT pre-requisities"/>
 </site>
