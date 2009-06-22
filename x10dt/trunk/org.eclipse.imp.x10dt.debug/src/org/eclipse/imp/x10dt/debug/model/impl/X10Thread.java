@@ -410,43 +410,74 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
  
  public String getThreadText() {
 	 
-	 if (isSuspended() && fActivity!=null){
-		 fState=X10ActivityState.Suspended;
-	 }
-	 if (fState!=X10ActivityState.Idle) {
-		    System.out.println("X10ModelPresentation: a!=null");	
-		    String name = this.getName();
-		    System.out.println("X10ModelPresentation: name ="+name);
-		    /*if (name.contains("terminated")) {
-		    	String place=t.name();
+		if (fActivity!=null){
+			System.out.println("X10Thread:getName() ");
+			String place = this.getUnderlyingThread().name();
+			if (place.contains("Main Activity"))
+                                               {  place = place.substring(4, 6);
+				return "ACTIVITY-" + uid + "@PLACE" +place +":" +fFileNameAndLineNo ;}
+			/*
+			else if (place.contains("Finished")){
 				place=place.replace("pool", "PLACE");
 				place=place.substring(0, 16);
 			    return place + "(Idle)";
-		    }*/
-		    //if (((X10Thread)element).isSuspended()){
-		    if (fState==IX10Activity.X10ActivityState.Suspended) {
-		    	//name=name.replace("true","Suspended");
-		    	name=name.concat(" Suspended");
-		    }
-		    else if (fState == IX10Activity.X10ActivityState.Blocked) {
-		        //name=name.replace("true","Running");
-		    	name=name.concat(" Blocked");
-		    }
-		    else name=name.concat(" Running"); 
-		    return name;
-		}	
-	 else{
-			
-			String place=this.getUnderlyingThread().name();
-			if (place.contains("pool")) {
-			  place=place.replace("pool", "PLACE");
-			  place=place.substring(0, 16);
-		      return place + "(Idle)";// need to call getActivity().toString() on PoolRunner (on VM Side)
+				//return "ACTIVITY: "+this.getUnderlyingThread().toString();
+			}*/
+			else {
+			String aname = ((X10DebugTargetAlt)getDebugTarget()).getActivityString(fActivity);
+			System.out.println("X10Thread:getName , aname = "+aname);
+			//if (aname.contains("false")) {
+				//return "terminated";
+			//}
+			if (aname==null) {
+				aname=" ";
 			}
-			return place;
-			//return "Activity:" + t.toString();
+                                    place = place.substring(4, 6);
+		            return "ACTIVITY-" + uid + "@PLACE" +place +":" +aname ;
+		       }
+		}  
+		else {
+			System.out.println("X10Thread:getName - fActivity is null");
+			return this.getUnderlyingThread().name();
+		    //return "ACTIVITY: "+this.getUnderlyingThread().toString();
 		}
-	 
+//	 if (isSuspended() && fActivity!=null){
+//		 fState=X10ActivityState.Suspended;
+//	 }
+//	 if (fState!=X10ActivityState.Idle) {
+//		    System.out.println("X10ModelPresentation: a!=null");	
+//		    String name = this.getName();
+//		    System.out.println("X10ModelPresentation: name ="+name);
+//		    /*if (name.contains("terminated")) {
+//		    	String place=t.name();
+//				place=place.replace("pool", "PLACE");
+//				place=place.substring(0, 16);
+//			    return place + "(Idle)";
+//		    }*/
+//		    //if (((X10Thread)element).isSuspended()){
+//		    if (fState==IX10Activity.X10ActivityState.Suspended) {
+//		    	//name=name.replace("true","Suspended");
+//		    	name=name.concat(" Suspended");
+//		    }
+//		    else if (fState == IX10Activity.X10ActivityState.Blocked) {
+//		        //name=name.replace("true","Running");
+//		    	name=name.concat(" Blocked");
+//		    }
+//		    else name=name.concat(" Running"); 
+//		    return name;
+//		}	
+//	 else{
+//			
+//			String place=this.getUnderlyingThread().name();
+//			if (place.contains("pool")) {
+//			  place=place.replace("pool", "PLACE");
+//			  place=place.substring(0, 16);
+//		      return place + "(Idle)";// need to call getActivity().toString() on PoolRunner (on VM Side)
+//			}
+//			return place;
+//			//return "Activity:" + t.toString();
+//		}
+//	 
  }
  
  //Should be moved to utils eventually
