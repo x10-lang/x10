@@ -20,6 +20,7 @@ public class CompilerOptionsValidator implements Validator {
         sources.add(".");
 
         String[] args = argString.split("\\s+");
+        // TODO need api to list the possible options?  to have field specific content assist here
         polyglot.ext.x10.X10CompilerOptions options = new polyglot.ext.x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
         try {
             for(int i=0; i<args.length; i++) {
