@@ -156,6 +156,10 @@ public class Outliner extends OutlinerBase implements IOutliner
         tree_item.setText(text);
     }
 
+    
+    // PORT1.7  dead code now but good calculation of method start/end here
+    //            IMP TreeModelBuilder... does this better now
+    //         this class can be deleted later....
     class OutlineVisitor extends NodeVisitor
     {
         public NodeVisitor enter(Node parent, Node n)
@@ -187,6 +191,7 @@ public class Outliner extends OutlinerBase implements IOutliner
                 }
 
                 tree_item_of.put(type, tree_item);
+                //PORT1.7 -- token work to be done here.. and throughout rest of file
                 IToken left_token = ((JPGPosition) type.position()).getLeftIToken();
                 IToken right_token;
                 // RMF 10/26/2006 - Avoid NPE when encountering a class with no body
