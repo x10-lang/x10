@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
@@ -97,7 +98,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     }
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		boolean debug= true;//mode.equals(ILaunchManager.DEBUG_MODE);
+		boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
