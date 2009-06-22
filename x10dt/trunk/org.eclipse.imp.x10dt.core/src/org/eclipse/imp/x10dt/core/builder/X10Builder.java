@@ -71,6 +71,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import polyglot.ast.Node;
@@ -536,7 +538,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 //          opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
             List<String> optsList = new ArrayList();
             String[] stdOptsArray = new String[] {
-//	            "-assert", // default preference (see below under P_ASSERT)
+//	            "-assert", // default preference (see below under P_PERMITASSERT)
                 "-noserial",
                 "-cp",
                 buildClassPathSpec(),
@@ -567,17 +569,10 @@ public class X10Builder extends IncrementalProjectBuilder {
                     }
                 }
             }
-
-            String[] optsArray = optsList.toArray(new String[optsList.size()]);
-
-            boolean echo = prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE);
-            if(echo){
-            	// FIXME echo this to the USER'S console, not this one
-            	System.out.print("Build options: "); // print one per line
-				for (String s : optsList) {
-					System.out.println("   "+s);
-				}
+            if(prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)){
+            	echoBuildOptions(optsList);
 			}
+            String[] optsArray = optsList.toArray(new String[optsList.size()]);
             opts.parseCommandLine(optsArray, new HashSet());
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file"))
@@ -590,6 +585,26 @@ public class X10Builder extends IncrementalProjectBuilder {
         X10Plugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
         X10Plugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
+
+	protected void echoBuildOptions(List<String> optsList) {
+		X10Plugin plugin = X10Plugin.getInstance();
+		MessageConsole console = plugin.getConsole();
+		MessageConsoleStream consoleOut = console.newMessageStream();
+		consoleOut.println(plugin.getTimeAndDate());
+		consoleOut.print("Build options: ");  
+		for (String s : optsList) {
+			consoleOut.println("   "+s);
+		}
+		try {
+			consoleOut.flush();
+			consoleOut.close();
+		} catch (IOException e1) {
+			//e1.printStackTrace();
+			plugin.logException("Exception writing build options to console", e1);
+			
+		}
+		plugin.showConsole();
+	}
 
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
