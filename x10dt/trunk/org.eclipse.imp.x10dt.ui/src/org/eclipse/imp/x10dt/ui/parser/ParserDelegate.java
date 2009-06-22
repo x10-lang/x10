@@ -33,7 +33,7 @@ public class ParserDelegate implements IParser
 		Compiler compiler= new Compiler(extInfo, eq);
 		extInfo.initCompiler(compiler);
 		try {
-	    	FileSource fileSource= new FileSource(new File("c:/"));
+	    	FileSource fileSource= new FileSource(new File("c:\\"));
 
 	    	myParser = new X10Parser(lexStream, extInfo.typeSystem(), extInfo.nodeFactory(), fileSource, extInfo.compiler().errorQueue());
 		} catch (IOException e) {

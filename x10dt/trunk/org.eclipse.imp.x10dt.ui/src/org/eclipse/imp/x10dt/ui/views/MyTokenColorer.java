@@ -1,4 +1,4 @@
-package x10.uide.parser;
+package x10.uide.views;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
@@ -40,11 +40,11 @@ public class MyTokenColorer extends DefaultTokenColorer implements X10Parsersym,
 	public MyTokenColorer() {
 		super();
         Display display = Display.getDefault();
-		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.ITALIC); 		
-		characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.BOLD); 		
-		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
+		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
+		characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
+		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL); 		
 		numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD); 		
-        keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_GREEN), null, SWT.BOLD); 		
+        keywordAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_MAGENTA), null, SWT.BOLD); 		
 	}
 
 	public void setLanguage(String language) {

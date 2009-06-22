@@ -19,8 +19,16 @@
    <extension
          point="org.eclipse.uide.runtime.tokenColorer">
       <tokenColorer
-            class="x10.uide.parser.MyTokenColorer"
+            class="x10.uide.views.MyTokenColorer"
             language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.outliner">
+      <outliner
+            class="x10.uide.views.Outliner"
+            id="outliner"
+            language="X10"
+            name="Outliner for X10"/>
    </extension>
 
 </plugin>
