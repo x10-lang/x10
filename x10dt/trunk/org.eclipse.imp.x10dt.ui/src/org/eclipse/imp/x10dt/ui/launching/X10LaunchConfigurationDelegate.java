@@ -7,11 +7,13 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
@@ -48,6 +50,21 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
         return vm;
     }
 
+    /**
+     * Returns the X10 runtime arguments specified by the given launch configuration,
+     * as a string. The returned string is empty if no program arguments are specified.
+     * 
+     * @param configuration launch configuration
+     * @return the runtime arguments specified by the given launch
+     *         configuration, possibly an empty string
+     * @exception CoreException if unable to retrieve the attribute
+     */
+    public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
+	String arguments= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
+
+	return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(arguments);
+    }
+
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 	// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
@@ -78,7 +95,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	// Program & VM args
 	String pgmArgs= getProgramArguments(configuration);
 	String vmArgs= getVMArguments(configuration);
-	ExecutionArguments execArgs= new ExecutionArguments(vmArgs, pgmArgs);
+	String rtArgs= getRuntimeArguments(configuration);
+	X10ExecutionArguments execArgs= new X10ExecutionArguments(vmArgs, rtArgs, pgmArgs);
 
 	// VM-specific attributes
 	Map vmAttributesMap= getVMSpecificAttributesMap(configuration);
@@ -109,19 +127,19 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 	// Create VM config
 	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classPathWithExplicitRuntime);
-	String[] explicitArgsArray= execArgs.getProgramArgumentsArray();
-	String[] realArgsArray= new String[explicitArgsArray.length + 1];
+	String[] explicitRuntimeArgsArray= execArgs.getRuntimeArgumentsArray();
+	String[] explicitProgArgsArray= execArgs.getProgramArgumentsArray();
+	String[] realArgsArray= new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
 
-	realArgsArray[0]= mainTypeName;
-	System.arraycopy(explicitArgsArray, 0, realArgsArray, 1, explicitArgsArray.length);
+	System.arraycopy(explicitRuntimeArgsArray, 0, realArgsArray, 0, explicitRuntimeArgsArray.length);
+	realArgsArray[explicitRuntimeArgsArray.length]= mainTypeName;
+	System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length+1, explicitProgArgsArray.length);
 
-	//	String runtimeLoc= x10RuntimeLoc + File.separator + "x10.runtime";
 	String commonLoc= x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator + "x10.common";
 
 	String[] x10ExtraVMArgs= {
 		"-Djava.library.path=" + commonLoc + "\\lib",
 		"-ea"
-//		"-classpath=" + x10RuntimeLoc + "\\classes"
 	};
 
 	String[] explicitVMArgsArray= execArgs.getVMArgumentsArray();
@@ -165,5 +183,4 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 	monitor.done();
     }
-
 }

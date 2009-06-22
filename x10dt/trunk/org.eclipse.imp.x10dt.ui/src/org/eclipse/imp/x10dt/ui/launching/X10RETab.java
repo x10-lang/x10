@@ -6,9 +6,13 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.jdt.internal.debug.ui.launcher.LauncherMessages;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
@@ -28,6 +32,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     protected Text fX10RuntimeText;
     protected Button fX10RuntimeFolderButton;
     protected Button fX10RuntimeJarButton;
+    protected Text fX10RuntimeArgumentsText;
 
     private WidgetListener fListener= new WidgetListener();
 
@@ -46,6 +51,45 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	topComp.setFont(font);
 
 	createRuntimeEditor(topComp);
+	createRuntimeArgumentsEditor(topComp);
+    }
+
+    private void createRuntimeArgumentsEditor(Composite parent) {
+	Font font = parent.getFont();
+	Group group = new Group(parent, SWT.NONE);
+	group.setFont(font);
+	GridLayout layout = new GridLayout();
+	group.setLayout(layout);
+	group.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+	String controlName = "Runtime arguments:";
+	group.setText(controlName);
+
+	fX10RuntimeArgumentsText = new Text(group, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
+	GridData gd = new GridData(GridData.FILL_BOTH);
+	gd.heightHint = 40;
+	gd.widthHint = 100;
+	fX10RuntimeArgumentsText.setLayoutData(gd);
+	fX10RuntimeArgumentsText.setFont(font);
+	fX10RuntimeArgumentsText.addModifyListener(new ModifyListener() {
+		public void modifyText(ModifyEvent evt) {
+			updateLaunchConfigurationDialog();
+		}
+	});
+
+	String buttonLabel = "Variables...";
+	Button runtimeArgVariableButton = createPushButton(group, buttonLabel, null); 
+	runtimeArgVariableButton.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
+	runtimeArgVariableButton.addSelectionListener(new SelectionAdapter() {
+	    public void widgetSelected(SelectionEvent e) {
+		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+		dialog.open();
+		String variable = dialog.getVariableExpression();
+		if (variable != null) {
+		    fX10RuntimeArgumentsText.insert(variable);
+		}
+	    }
+	});
     }
 
     /**
@@ -160,6 +204,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
 
 	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
+	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, (String)null);
     }
 
     public void initializeFrom(ILaunchConfiguration configuration) {
@@ -170,6 +215,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	String runtimeName= ""; //$NON-NLS-1$
 	try {
 	    runtimeName= config.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
+	    fX10RuntimeArgumentsText.setText(config.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, "")); //$NON-NLS-1$
 	} catch (CoreException ce) {
 	    X10UIPlugin.log(ce);
 	}
@@ -178,6 +224,20 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, fX10RuntimeText.getText().trim());
+	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, getAttributeValueFrom(fX10RuntimeArgumentsText));
+    }
+
+    /**
+     * Retuns the string in the text widget, or <code>null</code> if empty.
+     * 
+     * @return text or <code>null</code>
+     */
+    protected String getAttributeValueFrom(Text text) {
+	String content = text.getText().trim();
+	if (content.length() > 0) {
+	    return content;
+	}
+	return null;
     }
 
     public String getName() {
