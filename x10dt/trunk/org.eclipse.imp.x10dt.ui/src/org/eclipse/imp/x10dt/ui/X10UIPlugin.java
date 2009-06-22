@@ -48,7 +48,7 @@ public class X10UIPlugin extends AbstractUIPlugin {
     }
 
     private void initImageRegistry() {
-	fgIconBaseURL= X10UIPlugin.getInstance().getBundle().getEntry("/icons/"); //$NON-NLS-1$
+	fgIconBaseURL= getBundle().getEntry("/icons/"); //$NON-NLS-1$
 	RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
 	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
     }
@@ -64,12 +64,13 @@ public class X10UIPlugin extends AbstractUIPlugin {
 
     private static URL makeIconFileURL(String name) throws MalformedURLException {
 	if (fgIconBaseURL == null)
-	    throw new MalformedURLException();
+	    sInstance.initImageRegistry();
+//	    throw new MalformedURLException();
 
 	return new URL(fgIconBaseURL, name);
     }
 
-    private static ImageDescriptor create(String name) {
+    public static ImageDescriptor create(String name) {
 	try {
 	    return ImageDescriptor.createFromURL(makeIconFileURL(name));
 	} catch (MalformedURLException e) {
