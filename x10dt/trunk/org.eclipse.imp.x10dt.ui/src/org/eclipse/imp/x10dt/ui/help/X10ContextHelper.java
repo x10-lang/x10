@@ -63,10 +63,26 @@ public class X10ContextHelper implements IHelpService {
     private final static Map<String,String> sKeywordHelp= new HashMap<String, String>();
 
     {
-        sKeywordHelp.put("static", "static: Identifies the given member as a class member (cf. instance member).");
-        sKeywordHelp.put("private", "private: Specifies that the given member is only visible to members of the same class.");
-        sKeywordHelp.put("async", "async: runs the child statement block in parallel with the statement(s) following the async.");
-        sKeywordHelp.put("future", "future: arranges for the child expression to be lazily evaluated; see 'force'.");
+        sKeywordHelp.put("static", "<b>static</b> \n\nIdentifies the given member as a class member (cf. instance member).\n");
+        sKeywordHelp.put("private", "<b>private</b> \n\nSpecifies that the given member is only visible to members of the same class.\n");
+        sKeywordHelp.put("async", "<b>async</b> \n\nruns the child statement block in parallel with the statement(s) following the async.\n");
+        sKeywordHelp.put("final", "<b>final</b> variables whose value may not be changed after initialization. \n");
+        sKeywordHelp.put("future", "<b>future</b> \n\narranges for the child expression to be lazily evaluated; see 'force'.\n");
+        sKeywordHelp.put("finish", "<b>finish</b> \n\nruns the child statement block, but wait for all asyncs to terminate.\n");
+        sKeywordHelp.put("foreach", "<b>foreach</b> \n\nruns the child statement block asynchonously for each point in a region.\n");
+        sKeywordHelp.put("ateach", "<b>ateach</b> \n\nruns the child statement block asynchronously for each point in distribution in its place.\n");
+        sKeywordHelp.put("atomic", "<b>atomic</b> \n\nruns the child statement block atomically, executed in a single step while other activities are suspended.\n");
+        sKeywordHelp.put("next", "<b>next</b> \n\nsuspend till all clocks that the current activity is registered with can advance.\n");
+        sKeywordHelp.put("when", "<b>when</b> \n\nruns the child statement block atomically, executed in a single step while other activities are suspended.\n");
+        sKeywordHelp.put("region", "<b>region</b> \n\ncollection of index points.\n");
+        sKeywordHelp.put("dist", "<b>dist</b> \n\nmapping from region to places.\n");
+        sKeywordHelp.put("point", "<b>point</b> \n\nan element of an n-dimensional Cartesian space (n>=1) with integer-valued coordinates.\n");
+        sKeywordHelp.put("force", "<b>force</b> \n\nblock until future has been computed.\n");
+        sKeywordHelp.put("extern", "<b>extern</b> \n\nlightweight interface to native code.\n");
+        sKeywordHelp.put("clock", "<b>clock</b> \n\ndeterminate and deadlock-free between a dynamically varying number of activities.\n");
+        sKeywordHelp.put("clocked", "<b>clocked</b> \n\ntransmit clock to child b.\n");
+        sKeywordHelp.put("nullable", "<b>nullable</b> \n\nused to add null to a type and value types.\n");
+       
     }
 
     public IContext getContext(IWorkbenchPart part) {
