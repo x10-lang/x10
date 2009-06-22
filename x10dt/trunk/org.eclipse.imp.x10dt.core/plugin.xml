@@ -123,15 +123,16 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInitializer">
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Initializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="X10"
-            class="org.eclipse.imp.x10dt.core.preferences.specialized.X10PreferencesOneTab"
-            id="org.eclipse.imp.x10dt.core.preferences.specialized">
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencePage"
+            id="org.eclipse.imp.x10dt.core.preferences.generated.X10">
       </page>
    </extension>
+
 </plugin>
