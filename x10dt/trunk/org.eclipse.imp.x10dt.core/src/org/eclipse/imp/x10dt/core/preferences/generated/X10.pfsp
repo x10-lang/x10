@@ -19,7 +19,10 @@ page X10 {
             tooltip "The font to use in the source code editor";
             defvalue "courier" 10 normal; }
         directory DefaultRuntime {
-            emptyallowed true ""; }
+            emptyallowed true ""; 
+            label "Default runtime";
+            tooltip "Folder containing the default X10 runtime libraries";
+}
         boolean BadPlaceRuntimeCheck {
             tooltip "Enable the generation of code to check for direct accesses to data at another place";
             defvalue true; }
