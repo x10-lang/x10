@@ -38,7 +38,7 @@ import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
-import org.eclipse.imp.x10dt.ui.views.Outliner;
+//import org.eclipse.imp.x10dt.ui.views.Outliner;  //PORT1.7 remove Outliner
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
