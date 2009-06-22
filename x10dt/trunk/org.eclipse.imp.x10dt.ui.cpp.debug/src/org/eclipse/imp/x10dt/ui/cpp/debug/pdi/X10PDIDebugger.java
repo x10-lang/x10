@@ -10,12 +10,14 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_STOP_IN_MAIN;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -34,7 +36,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
 import org.eclipse.imp.x10dt.ui.cpp.debug.core.IDebuggerTranslator;
@@ -43,6 +47,7 @@ import org.eclipse.ptp.core.util.BitList;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.debug.core.pdi.IPDIDebugger;
 import org.eclipse.ptp.debug.core.pdi.IPDILocation;
+import org.eclipse.ptp.debug.core.pdi.IPDISession;
 import org.eclipse.ptp.debug.core.pdi.PDIException;
 import org.eclipse.ptp.debug.core.pdi.model.IPDIAddressBreakpoint;
 import org.eclipse.ptp.debug.core.pdi.model.IPDIExceptionpoint;
@@ -51,17 +56,50 @@ import org.eclipse.ptp.debug.core.pdi.model.IPDILineBreakpoint;
 import org.eclipse.ptp.debug.core.pdi.model.IPDISignal;
 import org.eclipse.ptp.debug.core.pdi.model.IPDIWatchpoint;
 import org.eclipse.ptp.debug.core.pdi.model.aif.IAIF;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugArgsEvent;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugEventFactory;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugOKEvent;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSuspendEvent;
+import org.eclipse.ptp.proxy.debug.client.ProxyDebugStackFrame;
+import org.eclipse.ptp.proxy.debug.event.IProxyDebugEvent;
+import org.eclipse.ptp.ui.model.IElementHandler;
 
 import com.ibm.debug.daemon.CoreDaemon;
 import com.ibm.debug.daemon.DaemonConnectionInfo;
 import com.ibm.debug.daemon.DaemonSocketConnection;
 import com.ibm.debug.internal.pdt.PICLDebugTarget;
+import com.ibm.debug.internal.pdt.model.BreakpointAddedEvent;
+import com.ibm.debug.internal.pdt.model.BreakpointChangedEvent;
+import com.ibm.debug.internal.pdt.model.BreakpointDeletedEvent;
+import com.ibm.debug.internal.pdt.model.DebugEngineCommandLogResponseEvent;
+import com.ibm.debug.internal.pdt.model.DebugEngineTerminatedEvent;
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
+import com.ibm.debug.internal.pdt.model.DebuggeeThread;
 import com.ibm.debug.internal.pdt.model.EngineRequestException;
+import com.ibm.debug.internal.pdt.model.ErrorOccurredEvent;
+import com.ibm.debug.internal.pdt.model.ExpressionAddedEvent;
 import com.ibm.debug.internal.pdt.model.Function;
+import com.ibm.debug.internal.pdt.model.IBreakpointEventListener;
+import com.ibm.debug.internal.pdt.model.IDebugEngineEventListener;
+import com.ibm.debug.internal.pdt.model.IProcessEventListener;
+import com.ibm.debug.internal.pdt.model.IThreadEventListener;
 import com.ibm.debug.internal.pdt.model.Location;
+import com.ibm.debug.internal.pdt.model.MessageReceivedEvent;
+import com.ibm.debug.internal.pdt.model.ModelStateReadyEvent;
 import com.ibm.debug.internal.pdt.model.Module;
+import com.ibm.debug.internal.pdt.model.ModuleAddedEvent;
 import com.ibm.debug.internal.pdt.model.Part;
+import com.ibm.debug.internal.pdt.model.ProcessAddedEvent;
+import com.ibm.debug.internal.pdt.model.ProcessDetachedEvent;
+import com.ibm.debug.internal.pdt.model.ProcessEndedEvent;
+import com.ibm.debug.internal.pdt.model.ProcessPgmError;
+import com.ibm.debug.internal.pdt.model.ProcessPgmOutput;
+import com.ibm.debug.internal.pdt.model.ProcessStoppedEvent;
+import com.ibm.debug.internal.pdt.model.StackAddedEvent;
+import com.ibm.debug.internal.pdt.model.ThreadAddedEvent;
+import com.ibm.debug.internal.pdt.model.ThreadChangedEvent;
+import com.ibm.debug.internal.pdt.model.ThreadEndedEvent;
+import com.ibm.debug.internal.pdt.model.ThreadStoppedEvent;
 import com.ibm.debug.internal.pdt.model.View;
 import com.ibm.debug.internal.pdt.model.ViewFile;
 import com.ibm.debug.pdt.launch.PICLLoadInfo;
@@ -74,7 +112,8 @@ import com.ibm.debug.pdt.launch.PICLLoadInfo;
  * @author egeay
  */
 @SuppressWarnings("all")
-public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListener {
+public final class X10PDIDebugger implements IPDIDebugger, IThreadEventListener, IBreakpointEventListener,
+                                             IProcessEventListener, IDebugEngineEventListener {
   
   public X10PDIDebugger(final IDebuggerTranslator translator, final int port) {
     this.fPort = port;
@@ -118,11 +157,11 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   }
 
   public void register(final Observer observer) {
-    // Nothing to do...
+    this.fProxyNotifier.addObserver(observer);
   }
 
   public void startDebugger(final String app, final String path, final String dir, final String[] args) throws PDIException {
-    // Nothing to do...
+    this.fProxyNotifier.notify(new ProxyDebugArgsEvent(-1, "1:1", args));
   }
 
   public void stopDebugger() throws PDIException {
@@ -136,7 +175,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     } catch (DebugException except) {
       throw new PDIException(null, NLS.bind(DebugMessages.PDID_PDTDisconnectError, except.getMessage()));
     } finally {
-      DebugPlugin.getDefault().removeDebugEventListener(this);
+//      DebugPlugin.getDefault().removeDebugEventListener(this);
     }
   }
   
@@ -357,41 +396,102 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     System.err.println("Passed in " + new Exception().getStackTrace()[0]);
   }
   
-  // --- IDebugEventSetListener
+  // --- IThreadEventListener's interface methods implementation
   
-  public void handleDebugEvents(final DebugEvent[] events) {
-    for (final DebugEvent debugEvent : events) {
-      System.out.println(debugEvent);
-      switch (debugEvent.getKind()) {
-        case DebugEvent.RESUME:
-          break;
-        case DebugEvent.SUSPEND:
-          if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
-          }
-          break;
-        case DebugEvent.CREATE:
-          if (debugEvent.getSource() instanceof IProcess) {
+  public void expressionLocalAdded(final ExpressionAddedEvent event) {
+    System.out.println("Expression added");
+  }
 
-          }
-          break;
-        case DebugEvent.TERMINATE:
-          if (debugEvent.getSource() instanceof IDebugTarget) {
-            if (this.fPDTTarget.equals(debugEvent.getSource())) {
-              
-            }
-          }
-          break;
-        case DebugEvent.CHANGE:
-          break;
-        case DebugEvent.MODEL_SPECIFIC:
-          // Do nothing
-        default:
-          throw new IllegalStateException("Unexpected debug event: " + debugEvent);
+  public void stackAdded(final StackAddedEvent event) {
+    System.out.println("Stack added");
+  }
+
+  public void threadChanged(final ThreadChangedEvent event) {
+    System.out.println("Thread changed");
+    if (event.getThread().isSuspended()) {
+      try {
+        System.out.println("Thread " + event.getThread().getName() + " is suspended");
+      } catch (DebugException except) {
+        except.printStackTrace();
       }
     }
   }
+
+  public void threadEnded(final ThreadEndedEvent event) {
+    System.out.println("Thread ended");
+  }
+
+  public void threadStopped(final ThreadStoppedEvent event) {
+    System.out.println("Thread stopped");
+  }
+  
+  // --- IBreakpointEvent's interface methods implementation
+
+  public void breakpointChanged(final BreakpointChangedEvent event) {
+    System.out.println("Breakpoint changed event");
+  }
+
+  public void breakpointDeleted(final BreakpointDeletedEvent event) {
+    System.out.println("Breakpoint deleted event");
+  }
+  
+  // --- IProcessEventListener's interface methods implementation
+
+  public void breakpointAdded(final BreakpointAddedEvent event) {
+    System.out.println("Breakpoint added");
+  }
+
+  public void expressionAdded(final ExpressionAddedEvent event) {
+  }
+
+  public void moduleAdded(final ModuleAddedEvent event) {
+  }
+
+  public void processDetached(final ProcessDetachedEvent event) {
+  }
+
+  public void processEnded(final ProcessEndedEvent event) {
+  }
+
+  public void processStopped(final ProcessStoppedEvent event) {
+  }
+
+  public void programError(final ProcessPgmError event) {
+  }
+
+  public void programOutput(final ProcessPgmOutput event) {
+  }
+
+  public void threadAdded(final ThreadAddedEvent event) {
+    event.getThread().addEventListener(this);
+  }
+  
+  // --- IDebugEngineEventListener's interface methods implementation
+  
+  public void commandLogResponse(final DebugEngineCommandLogResponseEvent event) {
+  }
+
+  public void debugEngineTerminated(final DebugEngineTerminatedEvent event) {
+  }
+
+  public void errorOccurred(final ErrorOccurredEvent event) {
+  }
+
+  public void messageReceived(final MessageReceivedEvent event) {
+  }
+
+  public void modelStateChanged(final ModelStateReadyEvent event) {
+  }
+
+  public void processAdded(final ProcessAddedEvent event) {
+    event.getProcess().addEventListener(this);
+  }
   
   // --- Public services
+  
+  public void setPDISession(final IPDISession pdiSession) {
+    this.fPDISession = pdiSession;
+  }
   
   public void setLaunch(final IPLaunch launch) {
     this.fWaitLock.lock();
@@ -412,8 +512,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     loadInfo.setProgramParms(configuration.getAttribute(ATTR_ARGUMENTS, EMPTY_STRING));
     loadInfo.setProject(getProjectResource(configuration.getAttribute(ATTR_PROJECT_NAME, EMPTY_STRING)));
    
-//    if (configuration.getAttribute(ATTR_STOP_IN_MAIN, false)) {
-      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_BREAKPOINT);
+ //   if (configuration.getAttribute(ATTR_STOP_IN_MAIN, false)) {
+      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_MAIN);
 //    } else {
 //      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_BREAKPOINT);
 //    }
@@ -432,6 +532,29 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
       }
     }
     return null;
+  }
+  
+  private String[] getVariablesAsArrayString(final IStackFrame stackFrame) throws DebugException {
+    final IVariable[] variables = stackFrame.getVariables();
+    final String[] strVars = new String[variables.length];
+    int i = -1;
+    for (final IVariable var : variables) {
+      strVars[++i] = var.getName();
+    }
+    return strVars;
+  }
+  
+  private void handleSuspendedThread(final DebuggeeThread thread) {
+    try {
+      if (thread.hasStackFrames()) {
+        final IStackFrame stackFrame = thread.getTopStackFrame();                  
+        this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transID */, this.fCurTasks.toString(), 
+                                                              toProxyStackFrame(thread, stackFrame), thread.getId(),
+                                                              0 /* depth */, getVariablesAsArrayString(stackFrame)));
+      }
+    } catch (DebugException except) {
+      DebugCore.log(IStatus.ERROR, "Unable to access thread stack frames info", except);
+    }
   }
   
   private ViewFile searchViewFile(final String fileName) {
@@ -504,10 +627,10 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
       final DaemonConnectionInfo connectionInfo = new DaemonConnectionInfo(input[0], input[1]);
       connectionInfo.setConnection(new DaemonSocketConnection(socket));
 
-      DebugPlugin.getDefault().addDebugEventListener(this);
-
       this.fPDTTarget = new PICLDebugTarget(this.fLaunch, loadInfo, connectionInfo);
+      this.fPDTTarget.fDebugEngineListener = this;
       this.fPDTTarget.engineIsWaiting(connectionInfo, true /* socketReuse */);
+      this.fPDTTarget.getEngineSession().setConnectionTimeout(0);
   
       this.fWaitLock.lock();
       try {
@@ -524,6 +647,13 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     } catch (CoreException except) {
       DebugCore.log(except.getStatus());
     }
+  }
+  
+  private ProxyDebugStackFrame toProxyStackFrame(final DebuggeeThread thread, final IStackFrame stackFrame) {
+    final Location location = thread.getLocation(this.fPDTTarget.getDebugEngine().getSourceViewInformation());
+    return ProxyDebugEventFactory.toFrame("0" /* level */, location.getViewFile().getBaseFileName(), 
+                                          location.getViewFile().getFunctions()[0].getName(), 
+                                          String.valueOf(location.getLineNumber()), (String) null /* address */);
   }
   
   // --- Private classes
@@ -545,6 +675,16 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     
   }
   
+  private class ProxyNotifier extends Observable {
+
+    // --- Internal services
+    
+    void notify(final IProxyDebugEvent event) {
+      setChanged();
+      notifyObservers(event);
+    }
+  }
+  
   private enum ESessionState {
     CONNECTED, RUNNING, DISCONNECTED
   }
@@ -555,11 +695,15 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   
   private ServerSocket fServerSocket;
   
-  private IPLaunch fLaunch;  
+  private IPLaunch fLaunch;
   
   private boolean fWaiting;
   
   private PICLDebugTarget fPDTTarget;
+  
+  private IPDISession fPDISession;
+  
+  private BitList fCurTasks;
   
   private final int fPort;
   
@@ -570,6 +714,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   private final Condition fRunningCondition = this.fWaitLock.newCondition();
   
   private final Condition fLaunchCondition = this.fWaitLock.newCondition();
+  
+  private final ProxyNotifier fProxyNotifier = new ProxyNotifier();
   
   private static final String EMPTY_STRING = ""; //$NON-NLS-1$
   
