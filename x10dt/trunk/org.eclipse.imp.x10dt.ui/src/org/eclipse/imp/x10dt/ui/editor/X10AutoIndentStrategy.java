@@ -283,8 +283,25 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    ITypedRegion region= TextUtilities.getPartition(d, fPartitioning, start, true);
 	    if (IJavaPartitions.JAVA_DOC.equals(region.getType()))
 		start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
-	    // insert closing brace on new line after an unclosed opening brace
-	    if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
+	    // process prefix for block comment lines
+	    if (c.offset > start && (d.getChar(contentStart-2) == '/' && d.getChar(contentStart-1) == '*' ||
+			    d.getChar(contentStart-3) == '/' && d.getChar(contentStart-2) == '*' && d.getChar(contentStart-1) == '*')) {
+			buf.append(" * ");
+			int where= buf.length();
+			buf.append(TextUtilities.getDefaultLineDelimiter(d));
+			StringBuffer reference= indenter.getReferenceIndentation(c.offset);
+			buf.append(reference.toString());
+			buf.append(" */");
+			buf.append(TextUtilities.getDefaultLineDelimiter(d));
+			// How to set c.caretOffset?
+			// If we set it to c.offset - where, the cursor ends up '2*where'
+			// characters before where we want it. If we set it to c.offset,
+			// it ends up 'where' characters after we want it. Huh?
+			c.caretOffset= c.offset;
+		 } else if (c.offset > start && insideBlockComment(d, c.offset)) {
+			buf.append("* ");
+		 } else if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
+		    // insert closing brace on new line after an unclosed opening brace
 		c.caretOffset= c.offset + buf.length();
 		c.shiftsCaret= false;
 		// copy old content of line behind insertion point to new line
@@ -324,23 +341,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 		}
 	    }
 	    // insert end of block or JavaDoc comment
-	    else if (c.offset > start && (d.getChar(contentStart-2) == '/' && d.getChar(contentStart-1) == '*' ||
-		    d.getChar(contentStart-3) == '/' && d.getChar(contentStart-2) == '*' && d.getChar(contentStart-1) == '*')) {
-		buf.append(" * ");
-		int where= buf.length();
-		buf.append(TextUtilities.getDefaultLineDelimiter(d));
-		StringBuffer reference= indenter.getReferenceIndentation(c.offset);
-		buf.append(reference.toString());
-		buf.append(" */");
-		// How to set c.caretOffset?
-		// If we set it to c.offset - where, the cursor ends up '2*where'
-		// characters before where we want it. If we set it to c.offset,
-		// it ends up 'where' characters after we want it. Huh?
-		c.caretOffset= c.offset;
-	    }
-	    else if (c.offset > start && insideBlockComment(d, c.offset)) {
-		buf.append("* ");
-	    }
 	    c.text= buf.toString();
 	} catch (BadLocationException e) {
 	    X10UIPlugin.log(e);
@@ -349,7 +349,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 
     private boolean insideBlockComment(IDocument d, int offset) throws BadLocationException {
 	int i= offset;
-	while (i > 1) {
+	while (i > 0) {
 	    if (d.getChar(i-1) == '*' && d.getChar(i) == '/') {
 		return false;
 	    }
