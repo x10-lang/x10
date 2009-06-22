@@ -147,25 +147,25 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
         if (node instanceof PackageNode) {
             return Outliner._DESC_OBJS_PACKDECL;
         } else if (node instanceof ClassDecl) {
-	    ClassDecl cd= (ClassDecl) node;
+            ClassDecl cd= (ClassDecl) node;
 
-	    return cd.flags().isInterface() ? Outliner._DESC_OBJS_CFILEINT : Outliner._DESC_OBJS_CFILECLASS;
-	} else if (node instanceof FieldDecl) {
-	    FieldDecl fd= (FieldDecl) node;
+            return cd.flags().isInterface() ? Outliner._DESC_OBJS_CFILEINT : Outliner._DESC_OBJS_CFILECLASS;
+        } else if (node instanceof FieldDecl) {
+            FieldDecl fd= (FieldDecl) node;
 
-	    return getImageFromQualifiers(fd.flags(), Outliner.FIELD_DESCS);
-	} else if (node instanceof ProcedureDecl) {
-	    ProcedureDecl pd= (ProcedureDecl) node;
+            return getImageFromQualifiers(fd.flags(), Outliner.FIELD_DESCS);
+        } else if (node instanceof ProcedureDecl) {
+            ProcedureDecl pd= (ProcedureDecl) node;
 
-	    return getImageFromQualifiers(pd.flags(), Outliner.MISC_DESCS);
-	} else if (node instanceof Async || node instanceof AtEach || node instanceof ForEach ||
+            return getImageFromQualifiers(pd.flags(), Outliner.MISC_DESCS);
+        } else if (node instanceof Async || node instanceof AtEach || node instanceof ForEach ||
                 node instanceof Future || node instanceof Finish || node instanceof Atomic ||
                 node instanceof Next) {
             return Outliner._DESC_MISC_DEFAULT;
         } else if (node instanceof ArrayConstructor) {
             return Outliner._DESC_MISC_DEFAULT;
         }
-	return DEFAULT_AST_IMAGE;
+        return DEFAULT_AST_IMAGE;
     }
 
     private Image getImageFromQualifiers(Flags flags, Image[] images) {
@@ -211,47 +211,52 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     }
 
     public String getText(Object element) {
-	Node node= (element instanceof ModelTreeNode) ?
+        Node node= (element instanceof ModelTreeNode) ?
 	        (Node) ((ModelTreeNode) element).getASTNode():
                 (Node) element;
 
         if (node instanceof PackageNode) {
             return ((PackageNode) node).package_().fullName();
         } else if (node instanceof ClassDecl) {
-	    ClassDecl cd= (ClassDecl) node;
-	    return filter(cd.name());
-	} else if (node instanceof FieldDecl) {
-	    FieldDecl fd= (FieldDecl) node;
-	    return filter(fd.type() + " " + fd.name());
-	} else if (node instanceof ProcedureDecl) {
-	    ProcedureDecl pd= (ProcedureDecl) node;
-	    List/*<Formal>*/ formals= pd.formals();
-	    StringBuffer buff= new StringBuffer();
-	    buff.append(pd.name());
-	    buff.append("(");
-	    for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
-		Formal formal= (Formal) iter.next();
-		buff.append(formal.type().toString());
-		if (iter.hasNext())
-		    buff.append(", ");
-	    }
-	    buff.append(")");
-	    return filter(buff.toString());
-	} else if (node instanceof Async) {
+            ClassDecl cd= (ClassDecl) node;
+            return filter(cd.name());
+        } else if (node instanceof FieldDecl) {
+            FieldDecl fd= (FieldDecl) node;
+            return filter(fd.type() + " " + fd.name());
+        } else if (node instanceof ProcedureDecl) {
+    	    ProcedureDecl pd= (ProcedureDecl) node;
+    	    List/*<Formal>*/ formals= pd.formals();
+    	    StringBuffer buff= new StringBuffer();
+    	    buff.append(pd.name());
+    	    buff.append("(");
+    	    for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
+    		Formal formal= (Formal) iter.next();
+    		buff.append(formal.type().toString());
+    		if (iter.hasNext())
+    		    buff.append(", ");
+    	    }
+    	    buff.append(")");
+    	    return filter(buff.toString());
+        } else if (node instanceof Async) {
             Async a= (Async) node;
-	    return "async (" + filter(a.place().toString()) + ")";
+            return "async (" + filter(a.place().toString()) + ")";
+        } else if (node instanceof AtEach) {
+            AtEach ae= (AtEach) node;
+            return "ateach (" + sourceText(ae.domain()) + ")";
+        } else if (node instanceof Atomic) {
+            Atomic at= (Atomic) node;
+            return "atomic {" + sourceText(at.body()) + "}";
         } else if (node instanceof Finish) {
             Finish f= (Finish) node;
             return "finish";
         } else if (node instanceof ForEach) {
             ForEach fe= (ForEach) node;
             return "foreach(" + sourceText(fe.domain()) + ")";
-        } else if (node instanceof AtEach) {
-            AtEach ae= (AtEach) node;
-            return "ateach (" + sourceText(ae.domain()) + ")";
         } else if (node instanceof Future) {
             Future f= (Future) node;
             return "future " + f.body();
+        } else if (node instanceof Next) {
+            return "next";
         } else if (node instanceof X10Loop) {
             X10Loop loop= (X10Loop) node;
             String text = "for(" + sourceText(loop.formal()) +
@@ -266,7 +271,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             ArrayConstructor ac= (ArrayConstructor) node;
             return "new " + ac.arrayBaseType() + "[" + sourceText(ac.distribution()) + "]";
         }
-	return "???";
+        return "???";
     }
 
     private String sourceText(Node n) {
@@ -278,16 +283,16 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     }
 
     public void addListener(ILabelProviderListener listener) {
-	fListeners.add(listener);
+        fListeners.add(listener);
     }
 
     public void dispose() { }
 
     public boolean isLabelProperty(Object element, String property) {
-	return false;
+        return false;
     }
 
     public void removeListener(ILabelProviderListener listener) {
-	fListeners.remove(listener);
+        fListeners.remove(listener);
     }
 }
