@@ -51,6 +51,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
@@ -179,8 +180,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			VarInstance var = (VarInstance) target;
 
 			// do we need something here? Or is it being taken care of elsewhere?		
-		}
-		else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
+		} else if (target instanceof MethodDef) {
+		    MethodDef methodDef = (MethodDef) target;
+		    return "Method " + methodDef.container().get() + "." + methodDef.signature();
+		} else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
 			if(traceOn)System.out.println("==>MethodInstance or ConstructorInstance");
 			//we get different info from different interfaces, so make them both for use here:
 			MemberInstance memi = (MemberInstance) target;
