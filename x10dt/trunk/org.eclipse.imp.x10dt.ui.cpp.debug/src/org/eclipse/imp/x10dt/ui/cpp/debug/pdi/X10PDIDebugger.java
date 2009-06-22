@@ -367,8 +367,11 @@ public final class X10PDIDebugger implements IPDIDebugger {
             thread.removeEventListener(stoppedEventListener);
           }
         }
+        IStackFrame[] stackFrames = thread.getStackFrames();
+        ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int topVisibleFrame = findSparseIndex(proxyStackFrames, 0);
+        final IStackFrame stackFrame = stackFrames[topVisibleFrame];
         // TODO: consolidate same stack frames into one event
-        final IStackFrame stackFrame = thread.getTopStackFrame();
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
@@ -407,7 +410,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
             thread.removeEventListener(stoppedEventListener);
           }
         }
-        final IStackFrame stackFrame = thread.getTopStackFrame();
+        IStackFrame[] stackFrames = thread.getStackFrames();
+        ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int topVisibleFrame = findSparseIndex(proxyStackFrames, 0);
+        final IStackFrame stackFrame = stackFrames[topVisibleFrame];
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
@@ -445,7 +451,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
           }
         }
         // TODO: consolidate same stack frames into one event
-        final IStackFrame stackFrame = thread.getTopStackFrame();
+        IStackFrame[] stackFrames = thread.getStackFrames();
+        ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int topVisibleFrame = findSparseIndex(proxyStackFrames, 0);
+        final IStackFrame stackFrame = stackFrames[topVisibleFrame];
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
@@ -486,7 +495,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
           thread.removeEventListener(stoppedEventListener);
         }
         // TODO: consolidate same stack frames into one event
-        final IStackFrame stackFrame = thread.getTopStackFrame();
+        IStackFrame[] stackFrames = thread.getStackFrames();
+        ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int topVisibleFrame = findSparseIndex(proxyStackFrames, 0);
+        final IStackFrame stackFrame = stackFrames[topVisibleFrame];
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
@@ -1306,6 +1318,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
     final StackFrame frame = thread.getStackFrameMonitored();
     if (frame == null) {
       return (StackFrame) thread.getTopStackFrame();
+      // This is ok, because we will always have a valid stop location if unselected
     } else {
       return frame;
     }
