@@ -821,6 +821,34 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     protected final int getFieldOffset(String name) {
       return findField(name).offset;
     }
+    public final MemoryObject getObject(int offset) throws MemoryException { // TODO: create an object of the right type(!)
+      long ptr = getPointer(offset);
+      return new MemoryObject(getProcess(), getThread(), getLocation(), ptr);
+    }
+    public final X10String getString(int offset) throws MemoryException {
+      long ptr = getPointer(offset);
+      return new X10String(getProcess(), getThread(), getLocation(), "0x"+toHexString(ptr, 16));
+    }
+    public final int getIntField(String name) throws MemoryException {
+      assert (findField(name).type == INT);
+      return getInt(getFieldOffset(name));
+    }
+    public final long getLongField(String name) throws MemoryException {
+      assert (findField(name).type == LONG);
+      return getLong(getFieldOffset(name));
+    }
+    public final long getPointerField(String name) throws MemoryException {
+      assert (findField(name).type == POINTER);
+      return getPointer(getFieldOffset(name));
+    }
+    public final MemoryObject getObjectField(String name) throws MemoryException { // TODO
+      assert (findField(name).type == STRING);
+      return getObject(getFieldOffset(name));
+    }
+    public final X10String getStringField(String name) throws MemoryException { // TODO
+      assert (findField(name).type == STRING);
+      return getString(getFieldOffset(name));
+    }
     public X10Object(DebuggeeProcess process, DebuggeeThread thread, Location location, long ptr) throws MemoryException {
       super(process, thread, location, ptr);
     }
@@ -932,12 +960,14 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       return getPointer(getContentOffset()+index*elementSize);
     }
     public final MemoryObject getObjectAt(int index) throws MemoryException { // TODO: create an object of the right type(!)
-      long ptr = getPointerAt(index);
-      return new MemoryObject(getProcess(), getThread(), getLocation(), ptr);
+      checkBounds(index);
+      assert (elementSize == PTR_SIZE);
+      return getObject(getContentOffset()+index*elementSize);
     }
     public final X10String getStringAt(int index) throws MemoryException {
-      long ptr = getPointerAt(index);
-      return new X10String(getProcess(), getThread(), getLocation(), "0x"+toHexString(ptr, 16));
+      checkBounds(index);
+      assert (elementSize == PTR_SIZE);
+      return getString(getContentOffset()+index*elementSize);
     }
     public final byte[] getRawContents() throws MemoryException {
       return getRawContents(0, getLength());
@@ -1240,6 +1270,70 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
 //      desc[2] = lengthNode.getValueString();
       desc[2] = Integer.toString(length);
       result = toHexString(length, 4)+toHexString(bytes);
+    }
+    if (exprType == EPDTVarExprType.STRUCT) {
+      // Compute the value
+      // TODO: factor out into an X10Class
+      final int numInterfaces = Integer.parseInt(desc[1]);
+      X10Object object = new X10Object(process, thread, location, result) {
+        {
+          int offset = 3*PTR_SIZE + 2*PTR_SIZE*numInterfaces;
+          for (int j = 2; j < desc.length; j++) {
+            String name = desc[j++];
+            String type = desc[j];
+		    EPDTVarExprType fet = getExprType(type);
+		    char ft = '\0';
+		    switch (fet) {
+		    case ADDRESS:
+		    case STRUCT: ft = X10Object.POINTER; break;
+		    case ARRAY:  ft = X10Object.RAIL; break;
+		    case STRING: ft = X10Object.STRING; break;
+		    case BOOL:
+		    case CHAR:
+		    case INT:
+		    case FLOAT:  ft = X10Object.INT; break;
+		    case LONG:
+		    case DOUBLE: ft = X10Object.LONG; break;
+		    }
+		    addField(name, offset, ft);
+		    int size = getExprSize(type);
+		    size = size + (PTR_SIZE-size)%PTR_SIZE; // pad
+			offset += size;
+          }
+		}
+      };
+      StringBuilder sb = new StringBuilder();
+      for (int j = 2; j < desc.length; j++) {
+        String n = desc[j++];
+        String t = desc[j];
+	    EPDTVarExprType et = getExprType(t);
+        switch (et) {
+        case INT:
+        case FLOAT: sb.append(toHexString(object.getIntField(n), 8)); break;
+        case LONG:
+        case DOUBLE: sb.append(toHexString(object.getLongField(n), 16)); break;
+        case STRING: {
+                       X10String str = object.getStringField(n);
+                       int len = (int) str.getLength();
+                       byte[] bytes = str.getContents().getBytes();
+                       sb.append(toHexString(len, 4)+toHexString(bytes));
+                       break;
+                     }
+        default: sb.append(toHexString(object.getPointerField(n), 16)); break;
+        }
+      }
+      if (listChildren) {
+        result = sb.toString();
+        desc[1] = "NOPTR";
+      } else {
+        if (result.startsWith("0x"))
+          result = result.substring(2);
+        // First encode the pointer
+        boolean isNull = result.equals(toHexString(0, 16));
+        result = isNull ? "00" : "01"+result;
+        // Now append the value
+        result = result + sb.toString();
+      }
     }
     final String value = getValue(exprType, result);
     final ProxyDebugAIF aif = new ProxyDebugAIF(getVariableType(exprType, desc), value, expr);
@@ -1571,11 +1665,15 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class x10aux::ref<x10::lang::Rail<")) {
       return EPDTVarExprType.ARRAY;
+    } else if (type.startsWith("x10aux::ref<x10::lang::Rail<")) {
+      return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class ref<x10__lang__ValRail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("x10aux__ref<x10__lang__ValRail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class x10aux::ref<x10::lang::ValRail<")) {
+      return EPDTVarExprType.ARRAY;
+    } else if (type.startsWith("x10aux::ref<x10::lang::ValRail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.equals("class ref<x10__lang__String>")) {
       return EPDTVarExprType.STRING;
@@ -1583,11 +1681,15 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       return EPDTVarExprType.STRING;
     } else if (type.equals("class x10aux::ref<x10::lang::String>")) {
       return EPDTVarExprType.STRING;
+    } else if (type.equals("x10aux::ref<x10::lang::String>")) {
+      return EPDTVarExprType.STRING;
     } else if (type.startsWith("class ref<")) {
       return EPDTVarExprType.STRUCT;
     } else if (type.startsWith("x10aux__ref<")) {
       return EPDTVarExprType.STRUCT;
     } else if (type.startsWith("class x10aux::ref<")) {
+      return EPDTVarExprType.STRUCT;
+    } else if (type.startsWith("x10aux::ref<")) {
       return EPDTVarExprType.STRUCT;
     } else {
       return EPDTVarExprType.UNKNOWN;
@@ -1634,6 +1736,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     } else if (type.startsWith("x10aux__ref<")) {
       return MemoryObject.PTR_SIZE;
     } else if (type.startsWith("class x10aux::ref<")) {
+      return MemoryObject.PTR_SIZE;
+    } else if (type.startsWith("x10aux::ref<")) {
       return MemoryObject.PTR_SIZE;
     } else {
       return -1;
@@ -1707,12 +1811,16 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       case ADDRESS:
         return "a8"; //$NON-NLS-1$
       case STRUCT: { //"{ID|FLD1=TYPE1,FLD2=TYPE2;;;}"
+        if (desc == null) // a struct field of a struct, or an unknown struct
+          return "a8";
         StringBuilder sb = new StringBuilder();
+        if (!desc[1].equals("NOPTR"))
+          sb.append("^a8");
         sb.append("{").append(desc[0]).append("|"); //$NON-NLS-1$//$NON-NLS-2$
         for (int i = 2; i < desc.length; i++) {
           sb.append(desc[i++]).append("="); //$NON-NLS-1$
           String t = desc[i];
-          sb.append(getVariableType(getExprType(t), fTranslator.getStructDescriptor(t))).append(","); //$NON-NLS-1$
+          sb.append(getVariableType(getExprType(t), null)).append(","); //$NON-NLS-1$
         }
         sb.append(";;;}"); //$NON-NLS-1$
         return sb.toString();
