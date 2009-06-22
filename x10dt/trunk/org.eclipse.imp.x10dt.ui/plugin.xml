@@ -80,5 +80,18 @@
             language="X10"
             name="X10 Auto-Edit Strategy"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="x10.uide.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+D X"/>
+      <key
+            commandId="x10.uide.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+X X"/>
+   </extension>
 
 </plugin>

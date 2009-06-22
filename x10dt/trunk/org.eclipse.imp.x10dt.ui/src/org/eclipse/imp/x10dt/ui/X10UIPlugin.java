@@ -2,7 +2,6 @@ package x10.uide;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -19,6 +18,12 @@ public class X10UIPlugin extends AbstractUIPlugin {
 	sInstance= this;
     }
 
+    private void initImageRegistry() {
+	fgIconBaseURL= X10UIPlugin.getInstance().getBundle().getEntry("/icons/"); //$NON-NLS-1$
+	RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
+	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
+    }
+
     public static X10UIPlugin getInstance() {
 	return sInstance;
     }
@@ -27,19 +32,14 @@ public class X10UIPlugin extends AbstractUIPlugin {
 	getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
     }
 
-    public static final String RUNTIME_IMG_NAME= "icons/runtime_obj.gif";
-    public static final ImageDescriptor RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
+    public static final String RUNTIME_IMG_NAME= "runtime_obj.gif";
+    public static ImageDescriptor RUNTIME_IMG_DESC;
 
     private static URL fgIconBaseURL= null;
 
     // RMF 11/30/2005 - Need to initialize the image registry, but for some reason getImage()
     //                  gets called before the plugin's activator gets instantiated...???
     //                  Partly culled from JavaPluginImages and friends...
-
-//  static {
-//	fgIconBaseURL= X10UIPlugin.getInstance().getBundle().getEntry("/icons/"); //$NON-NLS-1$
-//	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
-//  }
 
     private static URL makeIconFileURL(String name) throws MalformedURLException {
 	if (fgIconBaseURL == null)
@@ -62,8 +62,9 @@ public class X10UIPlugin extends AbstractUIPlugin {
      * @param key the image's key
      * @return the image managed under the given key
      */
-    public static Image getImage(String key) {
-	return null; // until I figure out how to initialize the image registry properly before needing it
-//	return getInstance().getImageRegistry().get(key);
+    public Image getImage(String key) {
+	if (fgIconBaseURL == null)
+	    initImageRegistry();
+	return getInstance().getImageRegistry().get(key);
     }
 }

@@ -151,6 +151,6 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public Image getImage() {
-	return X10UIPlugin.getImage(X10UIPlugin.RUNTIME_IMG_NAME);
+	return X10UIPlugin.getInstance().getImage(X10UIPlugin.RUNTIME_IMG_NAME);
     }
 }
