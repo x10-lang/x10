@@ -237,52 +237,48 @@ public class X10FoldingUpdater implements IFoldingUpdater
      *								represent the foldable elements in the source
      *								text
      */
-    public void updateFoldingStructure(IParseController parseController, ProjectionAnnotationModel annotationModel)
-    {
-        try
-        {
-            if (parseController.getCurrentAst() == null)
-            {
-                // note that the AST was invalid so that next time we
-                // won't worry about previous annotations
-                astWasInvalid = true;
-                return; // return since we can't create annotations without an AST
-            }
-            if (astWasInvalid)
-                astWasInvalid = false; // note that this time the AST was valid
+    public void updateFoldingStructure(IParseController parseController, ProjectionAnnotationModel annotationModel) {
+        if (parseController.getCurrentAst() == null) {
+            // note that the AST was invalid so that next time we
+            // won't worry about previous annotations
+            astWasInvalid = true;
+            return; // return since we can't create annotations without an AST
+        }
+        if (astWasInvalid)
+            astWasInvalid = false; // note that this time the AST was valid
 
-            //
-            // Map of annotations to positions; accumulates new annotations
-            // and is used in updating the annotation model
-            //
-            newAnnotations = new HashMap();
+        //
+        // Map of annotations to positions; accumulates new annotations
+        // and is used in updating the annotation model
+        //
+        newAnnotations = new HashMap();
 
-            //
-            // List of annotations; accumulates new annotations (disregarding
-            // positions); serves as a list of keys for newAnnotations and
-            // is used in comparing and listing annotations
-            //
-            annotations = new ArrayList();
+        //
+        // List of annotations; accumulates new annotations (disregarding
+        // positions); serves as a list of keys for newAnnotations and
+        // is used in comparing and listing annotations
+        //
+        annotations = new ArrayList();
 
-            makeAnnotations(parseController);
+        makeAnnotations(parseController);
             
-            //
-            // List the annotations in you're interested
-            // dumpAnnotations(annotations, newAnnotations);
-            //
+        //
+        // List the annotations in you're interested
+        // dumpAnnotations(annotations, newAnnotations);
+        //
 
-            //
-            // Update the annotation model if there have been changes
-            // but not otherwise (since update leads to redrawing of the
-            // source in the editor, which is likely to be unwelcome if
-            // there haven't been any changes relevant to folding)
-            //
-            // Need to curtail calls to modifyAnnotations() because these lead
-            // to calls to fireModelChanged(), which eventually lead to calls to
-            // updateFoldingStructure, which lead back here, which would lead to
-            // another call to modifyAnnotations() (unless those were curtailed)
-            //
-            if (oldAnnotationsList == null ||
+        //
+        // Update the annotation model if there have been changes
+        // but not otherwise (since update leads to redrawing of the
+        // source in the editor, which is likely to be unwelcome if
+        // there haven't been any changes relevant to folding)
+        //
+        // Need to curtail calls to modifyAnnotations() because these lead
+        // to calls to fireModelChanged(), which eventually lead to calls to
+        // updateFoldingStructure, which lead back here, which would lead to
+        // another call to modifyAnnotations() (unless those were curtailed)
+        //
+        if (oldAnnotationsList == null ||
                 //
                 // Check to see whether the current and previous annotations
                 // differ in any significant way; if not, then there's no
@@ -294,21 +290,16 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 // usually effective.)
                 //
                 differ(oldAnnotationsList, (ArrayList) annotations))
-            {
-                oldAnnotationsList = (ArrayList) annotations; // Save annotations to compare for changes next time through
-                annotationModel.modifyAnnotations(fOldAnnotations, newAnnotations, null);
-            }
-
-            //
-            // Capture the latest set of annotations in a form that can be used the next
-            // time that it is necessary to modify the annotations
-            //
-            fOldAnnotations = (Annotation[]) annotations.toArray(new Annotation[annotations.size()]);
-        }
-        catch (Exception e)
         {
-            ErrorHandler.reportError("X10FoldingUpdater.updateFoldingStructure:  EXCEPTION", e);
+            oldAnnotationsList = (ArrayList) annotations; // Save annotations to compare for changes next time through
+            annotationModel.modifyAnnotations(fOldAnnotations, newAnnotations, null);
         }
+
+        //
+        // Capture the latest set of annotations in a form that can be used the next
+        // time that it is necessary to modify the annotations
+        //
+        fOldAnnotations = (Annotation[]) annotations.toArray(new Annotation[annotations.size()]);
     }
 
 
