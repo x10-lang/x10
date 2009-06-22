@@ -25,6 +25,8 @@
 <a href="#faq18">public type Foo must be defined in its own file</a><br>
 <a href="#faq19">possible deadlock using when</a><br>
 <a href="#faq20">remote atomic blocks not implemented correctly</a><br>
+<a href="#faq21">view javadoc with dynamic help</a><br>
+<a href="#faq20">changing x10 editor font and size</a><br>
 
 
 <!-- ********************************************* -->
@@ -314,6 +316,27 @@ That is, the implementation permits remote access.
 However, remote atomic blocks are not implemented correctly. 
 (Implementation note: If the activity at place Q performs a remote atomic operation at place P, 
 it grabs the lock at place Q rather than place P. ) 
+<div>
+Example:
+//a[i] lives at place P.
+// current activity is running at place Q.
+int temp = a[i]; // this is permitted -- remote access.
+atomic { a[i]++;} // INCORRECT --  will not be implemented correctly.
+finish async (P) atomic { a[i]++;} // CORRECT.
+</div>
+</p> 
+
+<h2><a name="faq21">view javadoc with dynamic help<a></h2>
+<p>
+Open Help with the F1/Ctl-F1 key(s) which includes editor help and
+dynamic help views.  Select a keyword or method to see the definition
+or javadoc in the Help view.
+</p> 
+
+<h2><a name="faq22"><a>changing x10 editor font and size</h2>
+<p>
+Rather than using Window->Preferences->General->Appearance->Colors and Fonts to set the font and size for the X10 editor, use the
+the Window->Preferences->X10 preferences. There is the Source font <b>Change</b> button to select a font, style and size.
 </p> 
  
 
