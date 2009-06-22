@@ -25,7 +25,6 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,16 +48,21 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
@@ -406,7 +410,9 @@ public class X10Builder extends IncrementalProjectBuilder {
                 postMsgDialog("X10 Compiler Configuration error", "Unable to locate compiler template for " + type + "; check X10 Preferences.");
             }
         } catch (Exception e) {
-            X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + e.getMessage());
+            String msg= e.getMessage();
+            X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
+            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
         }
 //      fDependencyInfo.dump();
         createMarkers(errors);
@@ -696,12 +702,55 @@ public class X10Builder extends IncrementalProjectBuilder {
 
         fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
         collectSourcesToCompile();
+        cleanGeneratedFiles();
 
         Collection<IProject> dependents= doCompile();
 
 //      fDependencyInfo.dump();
         fMonitor.done();
         return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+    }
+
+    private void cleanGeneratedFiles() {
+        IWorkspace ws= ResourcesPlugin.getWorkspace();
+        IWorkspaceRoot wsRoot= ws.getRoot();
+        final List<IFile> genFiles= new ArrayList<IFile>();
+
+        for(IFile srcFile: fSourcesToCompile) {
+            IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+            IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
+
+            genFiles.add(wsRoot.getFile(genJavaFile));
+        }
+
+        IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
+            public void run(IProgressMonitor monitor) {
+                IStatus status= null;
+                monitor.beginTask("Clearing generated files", genFiles.size());
+                for(IFile file: genFiles) {
+                    try {
+                        file.delete(true, monitor);
+                    } catch (CoreException e) {
+                        if (status == null) {
+                            status= new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage());
+                        } else if (status instanceof MultiStatus) {
+                            MultiStatus ms= (MultiStatus) status;
+                            ms.add(new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage()));
+                        } else {
+                            IStatus newStat= new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage());
+                            status= new MultiStatus(X10Plugin.kPluginID, IStatus.ERROR, new IStatus[] { status, newStat }, "Multiple errors occurred", null);
+                        }
+                    }
+                    monitor.worked(1);
+                }
+                monitor.done();
+            }
+        };
+        try {
+            ws.run(runnable, new NullProgressMonitor());
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
     }
 
     private void readCompilerConfig() {
@@ -1056,8 +1105,25 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private Collection<IProject> computeDependentProjects() {
-        // TODO Compute set of dependent projects
-        return Collections.EMPTY_LIST;
+        Collection<IProject> dependentProjects= new ArrayList<IProject>();
+        try {
+
+            IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(false);
+            IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
+
+            for(int i= 0; i < cpEntries.length; i++) {
+                IClasspathEntry cpEntry= cpEntries[i];
+    
+                if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    IProject proj= wsRoot.getProject(cpEntry.getPath().segment(0));
+    
+                    dependentProjects.add(proj);
+                }
+            }
+        } catch (JavaModelException e) {
+            X10Plugin.getInstance().logException("Unable to resolve X10 project classpath", e);
+        }
+        return dependentProjects;
     }
 
     private void clearDependencyInfoForChangedFiles() {
