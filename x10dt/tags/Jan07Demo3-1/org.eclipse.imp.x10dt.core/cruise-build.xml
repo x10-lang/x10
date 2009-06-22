@@ -1,0 +1,15 @@
+<project name="com.ibm.watson.safari.x10" default="all">
+    <target name="all" depends="compile, test, publish"/>
+
+    <target name="compile">
+      <cvs command="update -d -P -A"/>
+      <ant antfile="exportPlugin.xml" target="build.jars"/>
+    </target>
+
+    <target name="test">
+    </target>
+
+    <target name="publish" depends="compile">
+        <ant antfile="exportPlugin.xml" target="publish"/>
+    </target>
+</project>
