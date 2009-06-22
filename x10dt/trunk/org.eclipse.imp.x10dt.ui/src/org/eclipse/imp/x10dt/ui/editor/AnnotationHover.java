@@ -19,6 +19,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.projection.AnnotationBag;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.uide.core.ILanguageService;
 
 public class AnnotationHover implements IAnnotationHover, ILanguageService {
@@ -88,7 +89,7 @@ public class AnnotationHover implements IAnnotationHover, ILanguageService {
      * @return
      */
     private static boolean includeAnnotation(Annotation annotation, Position position, HashMap messagesAtPosition) {
-	return true;
+	return !(annotation instanceof ProjectionAnnotation);
     }
 
     /**
