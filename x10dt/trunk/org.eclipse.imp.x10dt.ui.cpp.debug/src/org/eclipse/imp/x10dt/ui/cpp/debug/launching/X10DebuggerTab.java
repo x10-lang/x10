@@ -71,6 +71,7 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
     
     createDebugEngineDaemon(group);
     createLocalhostAddress(group);
+    createPortConfig(group);
     
     setControl(composite);
   }
@@ -84,7 +85,13 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
     configuration.setAttribute(ATTR_STOP_IN_MAIN, this.fStopInMain.getSelection());
     configuration.setAttribute(ATTR_DEBUGGER_HOST, this.fLocalhostAddressText.getText().trim());
     configuration.setAttribute(ATTR_REMOTE_DEBUGGER_PATH, this.fDbgEngineDaemonPathText.getText().trim());
-    configuration.setAttribute(Constants.ATTR_PORT, Constants.DEFAULT_PORT);
+    if (this.fRangePortBt.getSelection()) {
+      configuration.setAttribute(Constants.ATTR_RANGE_PORT, this.fRangePortText.getText().trim());
+      configuration.setAttribute(Constants.ATTR_SPECIFIC_PORT, (String) null);
+    } else {
+      configuration.setAttribute(Constants.ATTR_RANGE_PORT, (String) null);
+      configuration.setAttribute(Constants.ATTR_SPECIFIC_PORT, this.fSpecificPortText.getText().trim());
+    }
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
@@ -92,30 +99,44 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
     configuration.setAttribute(ATTR_STOP_IN_MAIN, true);
     configuration.setAttribute(ATTR_DEBUGGER_HOST, (String) null);
     configuration.setAttribute(ATTR_REMOTE_DEBUGGER_PATH, (String) null);
-    configuration.setAttribute(Constants.ATTR_PORT, Constants.DEFAULT_PORT);
+    final StringBuilder sb = new StringBuilder();
+    sb.append(Constants.DEFAULT_PORT_RANGE_MIN).append('-').append(Constants.DEFAULT_PORT_RANGE_MAX);
+    configuration.setAttribute(Constants.ATTR_RANGE_PORT, sb.toString());
+    configuration.setAttribute(Constants.ATTR_SPECIFIC_PORT, Constants.DEFAULT_PORT);
   }
   
   // --- Overridden methods
   
-  public void activated(final ILaunchConfigurationWorkingCopy workingCopy) {
+  public void initializeFrom(final ILaunchConfiguration config) {
+    setLaunchConfiguration(config);
     try {
-      this.fDbgEngineDaemonPathText.setText(workingCopy.getAttribute(ATTR_REMOTE_DEBUGGER_PATH, REMOTE_DEBUGGER_DEFAULT_PATH));
+      this.fDbgEngineDaemonPathText.setText(config.getAttribute(ATTR_REMOTE_DEBUGGER_PATH, REMOTE_DEBUGGER_DEFAULT_PATH));
     } catch (CoreException except) {
       this.fDbgEngineDaemonPathText.setText(REMOTE_DEBUGGER_DEFAULT_PATH);
     }
     String value = null;
     try {
-      value = workingCopy.getAttribute(ATTR_DEBUGGER_HOST, (String) null);
+      value = config.getAttribute(ATTR_DEBUGGER_HOST, (String) null);
     } catch (CoreException except) {
       // Simply forgets in that case. Handles with null value.
     }
     if ((value == null) || (value.length() == 0)) {
-      final String address = getDefaultHostAddress(workingCopy);
+      final String address = getDefaultHostAddress(config);
       if (address != null) {
         this.fLocalhostAddressText.setText(address);
       }
     } else {
       this.fLocalhostAddressText.setText(value);
+    }
+    final String portRange = this.fRangePortText.getText().trim();
+    if (portRange.length() == 0) {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(Constants.DEFAULT_PORT_RANGE_MIN).append('-').append(Constants.DEFAULT_PORT_RANGE_MAX);
+      this.fRangePortText.setText(sb.toString());
+    }
+    final String specificPort = this.fSpecificPortText.getText().trim();
+    if (specificPort.length() == 0) {
+      this.fSpecificPortText.setText(String.valueOf(Constants.DEFAULT_PORT));
     }
   }
   
@@ -200,6 +221,31 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
     this.fLocalhostAddressBt = createPushButton(composite, DebugMessages.DT_GetIPBt, null /* image */);
     this.fLocalhostAddressBt.setLayoutData(new GridData(SWT.NONE, SWT.NONE, false, false));
     this.fLocalhostAddressBt.addSelectionListener(new LocalhostAddressSelectionListener());
+  }
+  
+  private void createPortConfig(final Composite parent) {
+    final Composite composite = new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new GridLayout(2, false));
+    
+    final Label label = new Label(composite, SWT.NONE);
+    label.setText("Port:");
+    final GridData labelData = new GridData(SWT.FILL, SWT.NONE, true, false);
+    labelData.horizontalSpan = 2;
+    label.setLayoutData(labelData);
+    
+    this.fRangePortBt = createRadioButton(composite, "Random port in range");
+    final GridData btGridData = new GridData(SWT.NONE, SWT.CENTER, false, false);
+    btGridData.horizontalIndent = 8;
+    this.fRangePortBt.setLayoutData(btGridData);
+    this.fRangePortBt.setSelection(true);
+    this.fRangePortText = new Text(composite, SWT.SINGLE | SWT.BORDER);
+    this.fRangePortText.setLayoutData(new GridData(150, SWT.DEFAULT));
+    
+    this.fSpecificPortBt = createRadioButton(composite, "Specific port");
+    this.fSpecificPortBt.setLayoutData(btGridData);
+    this.fSpecificPortText = new Text(composite, SWT.SINGLE | SWT.BORDER);
+    this.fSpecificPortText.setLayoutData(new GridData(150, SWT.DEFAULT));
   }
   
   private void createStopInMain(final Composite parent) {
@@ -309,6 +355,14 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
   private Text fLocalhostAddressText;
   
   private Button fLocalhostAddressBt;
+  
+  private Button fRangePortBt;
+  
+  private Text fRangePortText;
+  
+  private Button fSpecificPortBt;
+  
+  private Text fSpecificPortText;
   
   private static final String DEBUGGER_ID = "org.eclipse.imp.x10dt.ui.cpp.debugger"; //$NON-NLS-1$
   

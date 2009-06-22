@@ -23,7 +23,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ptp.proxy.protocol,
  org.eclipse.ptp.ui,
  com.ibm.debug.pdt,
- com.ibm.debug.daemon,
- org.eclipse.ptp.debug.ui
+ com.ibm.debug.daemon
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

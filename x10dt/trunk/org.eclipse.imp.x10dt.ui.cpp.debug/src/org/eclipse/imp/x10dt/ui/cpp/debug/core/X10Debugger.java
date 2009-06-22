@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -90,8 +91,9 @@ public final class X10Debugger implements IPDebugger {
 
   public void initialize(final ILaunchConfiguration config, final AttributeManager attrMgr, 
                          final IProgressMonitor monitor) throws CoreException {
+    this.fPort = getPort(config);
     if (this.fPDIDebugger == null) {
-      this.fPDIDebugger = new X10PDIDebugger();
+      this.fPDIDebugger = new X10PDIDebugger(this.fPort);
     }
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
@@ -114,11 +116,36 @@ public final class X10Debugger implements IPDebugger {
     }
   }
   
+  private int getPort(final ILaunchConfiguration config) throws CoreException {
+    final String rangePort = config.getAttribute(Constants.ATTR_RANGE_PORT, (String) null);
+    if (rangePort == null) {
+      return Integer.parseInt(config.getAttribute(Constants.ATTR_SPECIFIC_PORT, String.valueOf(Constants.DEFAULT_PORT)));
+    } else {
+      return getRandomPort(rangePort);
+    }
+  }
+  
   private String getQHostOptionValue(final ILaunchConfiguration config) throws CoreException {
     final StringBuilder sb = new StringBuilder();
     sb.append("-qhost=").append(config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_DEBUGGER_HOST, (String) null)) //$NON-NLS-1$
-      .append(':').append(config.getAttribute(Constants.ATTR_PORT, 8002));
+      .append(':').append(this.fPort);
     return sb.toString();
+  }
+  
+  private int getRandomPort(final String range) {
+    final String[] split = range.split(PORT_RANGE_SEP);
+    final int min;
+    final int max;
+    if (split.length == 2) {
+      min = Integer.parseInt(split[0]);
+      max = Integer.parseInt(split[1]);
+    } else {
+      min = Constants.DEFAULT_PORT_RANGE_MIN;
+      max = Constants.DEFAULT_PORT_RANGE_MAX;
+    }
+    final int portRange = max - min + 1;
+    final int fraction = (int) (portRange * new Random(System.currentTimeMillis()).nextDouble());
+    return fraction + min;
   }
   
   private void initExecutableAttributes(final AttributeManager attrMgr, final String remoteDebuggerPath) {
@@ -146,6 +173,11 @@ public final class X10Debugger implements IPDebugger {
   private IPDIEventFactory fPDIEventFactory;
   
   private IPDIRequestFactory fPDIRequestFactory;
+  
+  private int fPort;
+  
+  
+  private static final String PORT_RANGE_SEP = "-"; //$NON-NLS-1$
 
   // USE_XLC=1 bin/x10c++ -commandlineonly -v -report postcompile=5 -o out/FSSimpleDist -d out samples/FSSimpleDist.x10
   
