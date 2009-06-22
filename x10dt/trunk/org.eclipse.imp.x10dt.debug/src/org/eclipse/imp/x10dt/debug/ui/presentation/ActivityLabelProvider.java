@@ -15,7 +15,7 @@ public class ActivityLabelProvider extends DebugElementLabelProvider implements 
 		if (elementPath.getLastSegment() instanceof X10Activity) {
 			X10Activity a = (X10Activity) elementPath.getLastSegment();
 			String name = a.getName();
-			return ((X10Activity)elementPath.getLastSegment()).uid +"/"+"UNSCHEDULED ACTIVITY: " + (name==null ? "" : name);
+			return "PENDING ACTIVITY "+((X10Activity)elementPath.getLastSegment()).uid +": " + (name==null ? "" : name);
 		}
 		return elementPath.getLastSegment().hashCode() +"/"+super.getLabel(elementPath, presentationContext, columnId);
 	}
