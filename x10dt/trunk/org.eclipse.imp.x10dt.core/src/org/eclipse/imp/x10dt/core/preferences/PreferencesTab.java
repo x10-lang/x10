@@ -36,35 +36,33 @@ public abstract class PreferencesTab extends org.eclipse.imp.preferences.Prefere
 	// subtypes of preferences tab, which generally represent
 	// the various levels on which preferences are set.
 	// However, most of the fields have language-dependent
-	// impementations, so they are not set here.
+	// implementations, so they are not set here.
 	
 	// The page on which this tab occurs
-	protected TabbedPreferencesPage fPrefPage = null;
+//	protected TabbedPreferencesPage fPrefPage = null;
 	
 	// Utilities for creating and managing preference fields
 	protected PreferencesUtilities fPrefUtils_x10;
 	
 	// The service for storing and accessing preference values
-	protected IPreferencesService fPrefService;
+//	protected IPreferencesService fPrefService;
 	
 	// The fields that occur on this tab
-	protected FieldEditor[] fFields = null;
+//	protected FieldEditor[] fFields = null;
 	
 	// The details links that are associated with the fields
 	// (to be in one-to-one correspondence)
-	protected List<Link> fDetailsLinks = new ArrayList();
+//	protected List<Link> fDetailsLinks = new ArrayList();
 	
 	// Whether this tab is valid, that is, whether
 	// all of its fields are valid
-	protected boolean fIsValid = true;
+//	protected boolean fIsValid = true;
 	
 	// The buttons on this tab
-	protected Control[] fButtons = null;
-	
-	
+//	protected Control[] fButtons = null;
 	
 	// SMS 17 Nov 2006
-	protected TabItem fTabItem = null;
+//	protected TabItem fTabItem = null;
 	
 	public TabItem getTabItem() {
 		return fTabItem;
