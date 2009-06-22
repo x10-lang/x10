@@ -126,12 +126,10 @@ import com.ibm.debug.pdt.launch.PICLLoadInfo;
 @SuppressWarnings("all")
 public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventListener {
   
-  public X10PDIDebugger(final int port) {
+  public X10PDIDebugger(final IDebuggerTranslator translator, final int port) {
     this.fPort = port;
-  }
-  
-  public void setDebuggerTranslator(IDebuggerTranslator translator) {
-	  this.fTranslator = translator;
+    this.fTranslator = translator;
+    translator.setDebugger(this);
   }
   
   // --- IPDIDebugger's interface methods implementation

@@ -39,9 +39,12 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
 
 	private HashMap<String, LineNumberMap> fX10ToCppMap = LineNumberMap.initMap();
 	private HashMap<String, LineNumberMap> fCppToX10Map = LineNumberMap.initMap();
-	private final X10PDIDebugger fPDIDebugger;
+	private X10PDIDebugger fPDIDebugger;
 
-	public X10DebuggerTranslator(X10PDIDebugger fPDIDebugger) {
+	public X10DebuggerTranslator() {
+	}
+
+	public void setDebugger(X10PDIDebugger fPDIDebugger) {
 		this.fPDIDebugger = fPDIDebugger;
 	}
 

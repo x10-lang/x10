@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.cpp.debug.core;
 
 
+import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10PDIDebugger;
 import org.eclipse.ptp.core.util.BitList;
 
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
@@ -28,5 +29,7 @@ public interface IDebuggerTranslator {
 	int getX10Line(Location cppLocation);
 
 	String getX10File(Location cppLocation);
+
+	void setDebugger(X10PDIDebugger fPDIDebugger);
 
 }
