@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.safari.x10dt.feature" default="build.feature.jar" basedir=".">
+<project name="org.eclipse.imp.x10dt.feature" default="build.feature.jar" basedir=".">
 	<import file="../org.eclipse.imp.x10dt.feature/buildCommon.xml"/>
-	<import file="../org.eclipse.imp.update/buildFeatureCommon.xml"/>
+	<import file="../org.eclipse.imp.x10dt.update/buildFeatureCommon.xml"/>
 
 	<target name="init">
 		<property name="feature.name"        value="org.eclipse.imp.x10dt"/>
