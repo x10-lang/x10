@@ -3,17 +3,59 @@
     <language>X10</language>
     <rules>
         <rule>
+            <box>HV hs=0 [ H hs=0 [ "&lt;Expression.1&gt;" "." ] I [ "&lt;Expression.2&gt;" ]]</box>
+        </rule>
+        <rule>
+            <box>HOV hs=0 [ "(" I [ HV [ "&lt;Expression&gt;" ] ] ")" ]
+</box>
+        </rule>
+        <rule>
+            <box>H hs=0 [ "!" "&lt;Expression&gt;" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "&amp;&amp;" "&lt;Expression.2&gt;" ]  ]
+
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "||" "&lt;Expression.2&gt;" ]  ]
+
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "/" "&lt;Expression.2&gt;" ]  ]
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "*" "&lt;Expression.2&gt;" ]  ]
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "-" "&lt;Expression.2&gt;" ]  ]
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Expression.1&gt;"  H [ "+" "&lt;Expression.2&gt;" ]  ]</box>
+        </rule>
+        <rule>
+            <box>G ["&lt;ArgumentList&gt;" "," "&lt;Expression&gt;" ]</box>
+        </rule>
+        <rule>
+            <box>H hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ] I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")" ";" ]
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]</box>
+        </rule>
+        <rule>
             <box>V [ H [ "private""class""&lt;id&gt;" ] "{"
  I [ V vs=2 [ "&lt;Decls&gt;" ] ]"}"]</box>
         </rule>
         <rule>
             <box>V [ H ["public"  "class"  "&lt;id&gt;" "{" ]
 I [ V vs=2 [ "&lt;Decls&gt;" ] ] "}"  ]
-</box>
-        </rule>
-        <rule>
-            <box>HV [ H [   "&lt;Type&gt;" "&lt;id&gt;" "=" ]
-  I [ H hs=0 [ "&lt;Expression&gt;" ";" ]] ]
 </box>
         </rule>
         <rule>
@@ -26,7 +68,7 @@ I [ V vs=2 [ "&lt;Decls&gt;" ] ] "}"  ]
 </box>
         </rule>
         <rule>
-            <box>G [ "&lt;BlockStatements&gt;" "&lt;BlockStatement&gt;" ]
+            <box>V [ "&lt;BlockStatements&gt;" "&lt;BlockStatement&gt;" ]
 </box>
         </rule>
         <rule>
@@ -41,36 +83,68 @@ I [ V [  "&lt;BlockStatements&gt;" ] ] "}" ]
         <rule>
             <box>G [ "&lt;Decls&gt;" "&lt;Decl&gt;" ]</box>
         </rule>
+        <rule>
+            <box>V [ H ["if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{"] "}"]</box>
+        </rule>
+        <rule>
+            <box>HV [H [ "&lt;Type&gt;""&lt;id&gt;""=" ]
+   I [ H hs=0 ["&lt;Expression&gt;"";"]]]</box>
+        </rule>
+        <rule>
+            <box>  V  [ H [ "finish""ateach" H hs=0 
+[ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;"":""&lt;Expression.2&gt;"] ")"] "{" ]
+I [ "&lt;BlockStatements&gt;" ]
+"}"] </box>
+        </rule>
+        <rule>
+            <box>HV [ H [ "finish""ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":"  "&lt;Expression.2&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]
+I [ V [ "&lt;BlockStatements&gt;" ] ] "}" ]
+</box>
+        </rule>
     </rules>
-    <example>public class A {
-  int a = 1;
-}
+    <example>public class BlockDistedArray1D {
+  public final static int SIZE = 5;
 
-private class A
-{
-  int b ;
-}
+  int N_PLACES = sr . ser . place.MAX_PLACESasfasddhglsdfjg;
 
-private class A
-{
-  public int a = 1 + 13;
+  int F =
+    super
+       .
+       x
+       (
+    );
 
-  public boolean b = 2 + 23;
+  public final static dist ALLPLACES = dist . factory . unique ( );
 
-  int c = 2 * 3 + 1;
-
- 
-  int
-  f ( )
-  {
-     return 4 * 9;
-     return 5 * 6;
-  }
-
-  public class Z {
-    int f = 2 + 3;
-
-    int x = 2;
+  int main( ) {
+    int a ;
+    int b ;
+    if (a
+        + (
+            1 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
+            + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
+          )
+        + (
+            1 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
+            + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
+          )) {
+      int a = 1 ;
+    }
+    finish ateach (point i : !(x &amp;&amp; y)) {
+      printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
+             "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh",
+             "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
+             "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff",
+             "gg", "hh", "ii");
+    }
+    if (java . lang . system . error . like . c . better . than . java.printf(x
+        ,y,z) + 1 + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3 + aap + 2 + 3 + 1
+        + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3) {
+      printf("a");
+    }
   }
 }
 </example>
