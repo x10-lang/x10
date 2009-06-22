@@ -18,8 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -44,15 +46,17 @@ import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
-import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.remotetools.core.RemoteToolsConnection;
+import org.eclipse.ptp.remote.ui.IRemoteUIServices;
+import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.ptp.remotetools.core.IRemoteCopyTools;
 import org.eclipse.ptp.remotetools.core.IRemoteExecutionManager;
 import org.eclipse.ptp.remotetools.core.IRemoteExecutionTools;
@@ -79,7 +83,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   // --- Overridden methods
   
   protected AttributeManager getAttributeManager(ILaunchConfiguration configuration, String mode) throws CoreException {
-    final IResourceManager resourceManager = getResourceManager(configuration);
+    final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
     if (resourceManager == null) {
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoResManagerError));
     }
@@ -124,7 +128,35 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     // PTP launched this job
     attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
 
+    if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+      
+      attrMgr.addAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition().create(getDebugHostAddress(resourceManager)));
+    }
+
     return attrMgr;
+  }
+
+  private String getDebugHostAddress(final IResourceManagerControl rm) {
+    final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
+    if (rmc.testOption(IRemoteProxyOptions.PORT_FORWARDING)) {
+      final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+      final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
+	      if (remServices != null && remUIServices != null) {
+        final IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
+        return rmConn.getAddress();
+      }
+    } else {
+      String localAddress = rmc.getLocalAddress();
+      if (localAddress != null)
+        return localAddress;
+      try {
+        final InetAddress ip = InetAddress.getLocalHost();
+        return ip.getHostAddress();
+      } catch (UnknownHostException except) {
+        // Simply forgets
+      }
+    }
+    return null;
   }
 
   protected void doCompleteJobLaunch(ILaunchConfiguration configuration,
