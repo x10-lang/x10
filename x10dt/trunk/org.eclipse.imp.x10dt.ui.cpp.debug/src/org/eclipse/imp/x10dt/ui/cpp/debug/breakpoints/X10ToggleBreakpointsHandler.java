@@ -25,7 +25,6 @@ public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
           final IPLineBreakpoint pLineBreakPoint = (IPLineBreakpoint) breakpoint;
           if (pLineBreakPoint.getMarker().getResource().equals(file) && pLineBreakPoint.getLineNumber() == lineNumber) {
             pLineBreakPoint.delete();
-            System.out.println("Deleted breakpoint at " + file.getLocation() + ":" + lineNumber);
           }
         }
       }
