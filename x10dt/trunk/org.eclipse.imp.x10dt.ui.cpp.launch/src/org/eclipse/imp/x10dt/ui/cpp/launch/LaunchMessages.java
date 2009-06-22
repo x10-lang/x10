@@ -15,7 +15,7 @@ import org.eclipse.osgi.util.NLS;
  * @author egeay
  */
 @SuppressWarnings("all")
-public class Messages extends NLS {
+public class LaunchMessages extends NLS {
   
   public static String AT_ConfigReadingError;
 
@@ -35,11 +35,15 @@ public class Messages extends NLS {
 
   public static String CAT_IllegalPrjName;
 
-  public static String CAT_MainClassGroupName;
+  public static String CAT_AppProgGroupName;
+
+  public static String CAT_LinkApp;
 
   public static String CAT_NoExistingProject;
 
   public static String CAT_NoMainMethod;
+
+  public static String CAT_NoRunningResManager;
 
   public static String CAT_PrjSelectionDialogMsg;
 
@@ -85,7 +89,13 @@ public class Messages extends NLS {
 
   public static String CLCD_LaunchCreationTaskName;
 
+  public static String CLCD_LinkCancellation;
+
   public static String CLCD_LinkCmdError;
+
+  public static String CLCD_LinkConnError;
+
+  public static String CLCD_LinkExecError;
 
   public static String CLCD_NoMainCPFileError;
 
@@ -201,9 +211,9 @@ public class Messages extends NLS {
 
   static {
     // initialize resource bundle
-    NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+    NLS.initializeMessages(BUNDLE_NAME, LaunchMessages.class);
   }
 
-  private Messages() {
+  private LaunchMessages() {
   }
 }
