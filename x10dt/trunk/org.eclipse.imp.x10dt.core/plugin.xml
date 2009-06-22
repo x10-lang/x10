@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         id="X10Builder"
+         name="X10 Compiler"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="com.ibm.watson.safari.x10.X10Builder"/>
+      </builder>
+   </extension>
+   <extension
+         id="x10nature"
+         name="X10 Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.ibm.watson.safari.x10.X10ProjectNature"/>
+      </runtime>
+      <builder id="com.ibm.watson.safari.x10.X10Builder"/>
+      <requires-nature id="org.eclipse.jdt.core.javanature"/>
+   </extension>
+   <extension
+         id="problemMarker"
+         name="X10 Problem Marker"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.problemmarker"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="com.ibm.watson.safari.x10"
+            name="X10"/>
+      <wizard
+            category="com.ibm.watson.safari.x10"
+            class="com.ibm.watson.safari.x10.wizards.NewX10SourceWizard"
+            hasPages="true"
+            icon="icons/sample.gif"
+            id="com.ibm.watson.safari.x10.wizards.NewX10SourceWizard"
+            name="X10 Source file"/>
+   </extension>
+
+</plugin>

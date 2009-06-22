@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 Language Support
+Bundle-SymbolicName: com.ibm.watson.safari.x10; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: com.ibm.watson.safari.x10.X10Plugin
+Bundle-Vendor: rfuhrer@watson.ibm.com
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.views
+Eclipse-AutoStart: true
+Export-Package: com.ibm.watson.safari.x10,
+ com.ibm.watson.safari.x10.wizards
+Bundle-ClassPath: safariX10.jar
