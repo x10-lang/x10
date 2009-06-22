@@ -34,7 +34,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
         if (vm instanceof IVMInstall2) {
 	    IVMInstall2 vm2= (IVMInstall2) vm;
-            if (!vm2.getJavaVersion().startsWith("1.5")) {
+            if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
     	    Display.getDefault().asyncExec(new Runnable() {
 		public void run() {
 		    Shell shell= X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
