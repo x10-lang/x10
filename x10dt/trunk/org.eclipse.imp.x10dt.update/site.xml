@@ -16,5 +16,5 @@
       <category name="other"/>
    </feature>
    <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
-   <category-def name="other" label="X10DT pre-requisities"/>
+   <category-def name="other" label="X10DT pre-requisites"/>
 </site>
