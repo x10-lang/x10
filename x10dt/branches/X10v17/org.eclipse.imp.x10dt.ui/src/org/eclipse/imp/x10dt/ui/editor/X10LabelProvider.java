@@ -98,7 +98,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     private static Image PROJECT_WARNING_IMAGE;
     private static Image PROJECT_ERROR_IMAGE;
     
-    //================== PORT1.7 begin yank of images from Outliner...
+    //================== PORT1.7 Images moved here from Outliner
     
     public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
 
