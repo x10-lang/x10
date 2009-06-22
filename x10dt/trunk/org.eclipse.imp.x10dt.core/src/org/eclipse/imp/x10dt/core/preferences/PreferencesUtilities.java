@@ -17,20 +17,19 @@ package org.eclipse.imp.x10dt.core.preferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
 import org.eclipse.imp.preferences.fields.ComboFieldEditor;
 import org.eclipse.imp.preferences.fields.DirectoryListFieldEditor;
-import org.eclipse.imp.preferences.fields.FieldEditor;
 import org.eclipse.imp.preferences.fields.FileFieldEditor;
-import org.eclipse.imp.preferences.fields.FontFieldEditor;
-import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
-import org.eclipse.imp.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.preferences.fields.details.DetailsDialogForBooleanFields;
 import org.eclipse.imp.preferences.fields.details.DetailsDialogForComboFields;
 import org.eclipse.imp.preferences.fields.details.DetailsDialogForRadioGroupFields;
 import org.eclipse.imp.preferences.fields.details.DetailsDialogForStringFields;
+import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.StringFieldEditor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
@@ -56,7 +55,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 
-public class PreferencesUtilities {
+public class PreferencesUtilities extends org.eclipse.imp.preferences.PreferencesUtilities {
 
 	
 	public static final Color colorWhite = new Color(null, 255, 255, 255);
@@ -71,6 +70,7 @@ public class PreferencesUtilities {
 	
 	public PreferencesUtilities(IPreferencesService service)
 	{
+		super(service);
 		this.service = service;
 	}
 	
@@ -519,10 +519,10 @@ public class PreferencesUtilities {
 		return levelFromWhichSet;
 	}
 	
-	
 
-	
-	public BooleanFieldEditor makeNewBooleanField(
+/*
+ * Inherit from original (superclass)
+ 	public BooleanFieldEditor makeNewBooleanField(
 	   		PreferencePage page, PreferencesTab tab,
 			IPreferencesService service,
 			String level, String key, String text,
@@ -610,6 +610,7 @@ public class PreferencesUtilities {
 		//System.err.println("SPU.makeNewRadioField() ending for key = " + key);
 		return field;
 	}
+*/	
 
 	// mmk -- based on makeNewComboBoxField
 	public FontFieldEditor makeNewFontField(
@@ -659,7 +660,9 @@ public class PreferencesUtilities {
 
 	}
 	
-	
+
+	/*
+	 * inherit from superclass
 	public DirectoryListFieldEditor makeNewDirectoryListField(
 			PreferencePage page,
 			PreferencesTab tab,
@@ -789,6 +792,7 @@ public class PreferencesUtilities {
 		
 		return field;
 	}
+	*/
 
 	
 	public IntegerFieldEditor makeNewIntegerField(
@@ -972,8 +976,8 @@ public class PreferencesUtilities {
 
 
 
-
-	
+/*
+ * inherit from superclass
 	private void addBooleanPropertyChangeListeners(
 		IPreferencesService service, String level, BooleanFieldEditor field, String key, Composite composite)
 	{	
@@ -988,6 +992,8 @@ public class PreferencesUtilities {
 			}
 		}		
 	}
+ */
+	
 
 	
 	public abstract class PreferenceChangeListener implements IEclipsePreferences.IPreferenceChangeListener
@@ -1030,6 +1036,8 @@ public class PreferencesUtilities {
 	}
 	
 	
+/*
+ * Inherit from original (superclass)
 	public class BooleanPreferenceChangeListener extends PreferenceChangeListener {
 		
 		public BooleanPreferenceChangeListener(FieldEditor field, String key, Composite composite) {
@@ -1066,6 +1074,7 @@ public class PreferencesUtilities {
 			setField((RadioGroupFieldEditor) field, composite);
 		}
 	}
+ */	
 	
 	
 	public class StringPreferenceChangeListener extends PreferenceChangeListener {
@@ -1266,7 +1275,8 @@ public class PreferencesUtilities {
 	}
 	
 	
-	
+/*
+ * Inherit from original (superclass)
 	public Link createDetailsLink(Composite parent, final BooleanFieldEditor field, final Composite fieldHolder, String text)
 	{
 		Composite detailsHolder = new Composite(parent, SWT.NONE);
@@ -1288,7 +1298,7 @@ public class PreferencesUtilities {
 				doDetailsLinkActivated((Link) e.widget, field, fieldHolder);
 			}
 		}
-		DetailsLinkListener detailsLinkListener = new DetailsLinkListener(/*detailsHolder*/);
+		DetailsLinkListener detailsLinkListener = new DetailsLinkListener();
 		
 		link.addSelectionListener(detailsLinkListener);
 	
@@ -1433,11 +1443,11 @@ public class PreferencesUtilities {
 		dialog.open();
 	}
 	
-	
 	void doDetailsLinkActivated(Link link, StringFieldEditor field, Composite fieldHolder) {
 		DetailsDialogForStringFields dialog = new DetailsDialogForStringFields(fieldHolder.getShell(), field, fieldHolder, service);
 		dialog.open();
 	}
+	*/
 	
 
 	
