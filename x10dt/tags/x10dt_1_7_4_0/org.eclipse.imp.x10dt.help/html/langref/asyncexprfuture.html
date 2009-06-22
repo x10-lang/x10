@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Asynchronous Expression and Futures</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Asynchronous Expression and Futures</h2><a name="XtenFutures">
+</a>
+
+<div class="p"><!----></div>
+ X10 provides syntactic support for <em>asynchronous expressions</em>, also
+known as futures:
+<pre>
+511   Primary ::= FutureExpression
+515   FutureExpression ::= 
+        future PlaceExpressionSingleListopt 
+            Expression 
+</pre>
+
+<div class="p"><!----></div>
+Intuitively such an expression evaluates its body asynchronously at
+the given place. The resulting value may be obtained from the future
+returned by this expression, by using the <tt>force</tt> operation.
+
+<div class="p"><!----></div>
+In more detail, in an expression <tt>future(Q)e</tt>, the place
+expression <tt>Q</tt> is treated as in an <tt>async</tt> statement. <tt>e</tt>
+is an expression of some type <tt>T</tt>. <tt>e</tt> may reference only
+those variables in the enclosing lexical environment which are
+declared to be <tt>final</tt>.
+
+<div class="p"><!----></div>
+If the type of <tt>e</tt> is <tt>T</tt> then the type of
+<tt>future (Q)e</tt> is <tt>future&lt;T&#62;</tt>.  This 
+type <tt>future&lt;T&#62;</tt> is defined as if by:
+<pre>
+public interface future&lt;T&#62; {
+  T force();
+  boolean forced();
+}
+</pre>
+
+<div class="p"><!----></div>
+(Here we use the syntax for generic classes.  X10 v1.01 does not support
+generic classes in their full generality. In particular, the user may
+not define generic classes. This is reserved for future extensions to the
+language.)
+
+<div class="p"><!----></div>
+Evaluation of <tt>future (Q)e</tt> terminates locally with the creation
+of a value <tt>f</tt> of type <tt>future&lt;T&#62;</tt>.  This value may be
+stored in objects, passed as arguments to methods, returned from
+method invocation etc. 
+
+<div class="p"><!----></div>
+At any point, the method <tt>forced</tt> may be invoked on <tt>f</tt>. This
+method returns without blocking, with the value <tt>true</tt> if the
+asynchronous evaluation of <tt>e</tt> has terminated globally and with
+the value <tt>false</tt> if it has not.
+
+<div class="p"><!----></div>
+The method invocation <tt>force</tt> on <tt>f</tt> blocks until the
+asynchronous evaluation of <tt>e</tt> has terminated globally. If the
+evaluation terminates successfully with value <tt>v</tt>, then the method
+invocation returns <tt>v</tt>. If the evaluation terminates abruptly with
+exception <tt>z</tt>, then the method throws exception <tt>z</tt>. Multiple
+invocations of <tt>force</tt> (by this or any other activity) do not
+result in multiple evaluations of <tt>e</tt>. The results of the first
+evaluation are stored in the future <tt>f</tt> and used to respond to all
+<tt>force</tt> queries.
+
+<div class="p"><!----></div>
+<pre>
+future&lt;T&#62; promise 
+     = future (a.distribution[3]) { a[3] };
+T value = promise.force();
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;Implementation notes</h3>
+Futures are provided in  X10 for convenience; they may be
+programmed using latches, <tt>async</tt> and <tt>finish</tt> as
+described in &#167;&nbsp;7.6.3.
+</body>
+</html>
