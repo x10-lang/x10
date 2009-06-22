@@ -17,9 +17,14 @@
  */
 package org.eclipse.imp.x10dt.ui.launching;
 
+/**
+ * These are keys to be used in accessing attributes of X10 launch configurations
+ * (e.g., x10.runtime is NOT the bundle ID)
+ *
+ */
 public interface X10LaunchConfigAttributes {
 
-    public static final String X10RuntimeAttributeID= "x10.runtime";
+    public static final String X10RuntimeAttributeID= "x10.runtime"; 
 
     public static final String X10RuntimeArgumentsID= "x10.runtime.arguments";
 }

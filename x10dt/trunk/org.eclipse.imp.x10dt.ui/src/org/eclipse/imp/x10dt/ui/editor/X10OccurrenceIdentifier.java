@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import polyglot.ast.*;
+import polyglot.types.CodeInstance;
+import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.VarInstance;
@@ -89,17 +91,24 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
     private VarInstance getVarInstance(Node n) {
         if (n instanceof NamedVariable) {
             return ((NamedVariable) n).varInstance();
-        } else if (n instanceof FieldDecl) {
-            return ((FieldDecl) n).varInstance();
+        } else if (n instanceof FieldDecl) {     	
+            FieldDecl fieldDecl = (FieldDecl) n;
+            FieldInstance fi = fieldDecl.fieldDef().asInstance();//PORT1.7 was fieldDecl.varInstance()
+			return fi;
         } else if (n instanceof VarDecl) {
-            return ((VarDecl) n).localInstance();
+            VarDecl varDecl = (VarDecl) n;
+            VarInstance vi = varDecl.localDef().asInstance();//PORT1.7 was varDecl.varInstance()
+			return vi;
         }
         return null;
     }
 
     private ProcedureInstance getProcInstance(Node n) {
-        if (n instanceof ProcedureDecl) {
-            return ((ProcedureDecl) n).procedureInstance();
+        if (n instanceof ProcedureDecl) {  	
+            ProcedureDecl pDecl = (ProcedureDecl) n;           
+            CodeInstance ci = pDecl.procedureInstance().asInstance();//PORT1.7 was procedureDecl.procedureInstance()
+            ProcedureInstance pi = (ProcedureInstance)ci; //PORT1.7  cast should succeed b/c ProcedureDef.asInstance() always returns a ProcedureInstance?
+			return pi;//PORT1.7 was procedureDecl.procedureInstance();
         } else if (n instanceof Call) {
             return ((Call) n).procedureInstance();
         } else if (n instanceof ConstructorCall) {

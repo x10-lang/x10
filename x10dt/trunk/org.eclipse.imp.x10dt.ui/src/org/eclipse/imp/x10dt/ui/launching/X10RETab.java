@@ -217,7 +217,8 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 	String commonPath= X10Plugin.x10CompilerPath;
-	if (commonPath.endsWith(File.separator)) {
+	// BRT seemed to assume path ending in slash, which it doesn't.  Fix that here.
+	if(commonPath.endsWith(File.separator)) {
 		commonPath=commonPath.substring(0,commonPath.length()-1);
 	}
 	String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";

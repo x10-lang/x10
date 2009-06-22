@@ -66,15 +66,18 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.Declaration;
+//import polyglot.types.Declaration; //PORT1.7 remove import
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
+import polyglot.types.ObjectType;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ReferenceType;
+import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
@@ -124,7 +127,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		else if (target instanceof FieldDecl) {
 			FieldDecl fieldDecl = (FieldDecl) target;
-			FieldInstance fi = fieldDecl.fieldInstance();
+			FieldInstance fi = fieldDecl.fieldDef().asInstance(); // PORT 1.7 was fieldDecl.fieldInstance();
 			target = fi;
 		}
 		if (target instanceof Local) { // field reference	
@@ -134,20 +137,19 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		else if (target instanceof LocalDecl) {
 			LocalDecl localDecl = (LocalDecl) target;
-			LocalInstance li = localDecl.localInstance();
+			LocalInstance li = localDecl.localDef().asInstance(); // PORT1.7   was localDecl.localInstance();
 			target = li;		
 		}
 		if (target instanceof FieldInstance) {
 			FieldInstance fi = (FieldInstance) target;
-			ReferenceType ownerType = fi.container();
+			ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
 
 			if (ownerType.isClass()) {
 				ClassType ownerClass = (ClassType) ownerType;
-				String ownerName = ownerClass.fullName();
-
+				String ownerName = ownerClass.fullName().toString(); // PORT1.7 was fullname();
 				if (isJavaType(ownerName)) {
 					IType javaType = findJavaType(ownerName, parseController);
-					IField javaField = javaType.getField(fi.name());
+					IField javaField = javaType.getField(fi.name().toString()); // PORT1.7  was fi.name();
 
 					return getJavaDocFor(javaField);
 				} else {
@@ -155,36 +157,38 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 					String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
 					type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
 					//sig= fi.declaration().toString();
-					String varName=fi.name();
+					String varName=fi.name().toString();  // PORT 1.7 was just name();
 					String sig = type+" "+ownerName+"."+varName;
-					return getX10DocFor(sig,fi);
+
+					return getX10DocFor(sig,fi);  // 2nd arg needs to be Node
 				}
 			}
 			return "Field '" + fi.name() + "' of type " + fi.type().toString();
 		} else if (target instanceof NamedVariable) {
 			NamedVariable var = (NamedVariable) target;
+			
 			Type type = var.type();
 
-			return "Variable '" + var.name() + "' of type " + type.toString();
+			return "Variable '" + var + "' of type " + type.toString(); //PORT1.7 var.name() changed to var (implicit toString())
 		} else if (target instanceof Call) {
 			if(traceOn)System.out.println("==>Call");
 			Call call = (Call) target;
-			MethodInstance mi = call.methodInstance();
-			ReferenceType ownerType = mi.container();
+			MethodInstance mi = call.methodInstance();    
+			ObjectType ownerType = (ObjectType)mi.container();//PORT1.7 ReferenceType->ObjectType.  We assume the cast will succeed.
 
 			if (ownerType.isClass()) {
 				ClassType ownerClass = (ClassType) ownerType;
-				String ownerName = ownerClass.fullName();
+				String ownerName = ownerClass.fullName().toString();//PORT1.7 fullName() no longer returns a string
 				//String fullName =ownerName+"."+mi.name();
 
 				if (isJavaType(ownerName)) {
 					IType javaType = findJavaType(ownerName, parseController);
 					String[] paramTypes = convertParamTypes(mi);
-					IMethod method = javaType.getMethod(mi.name(), paramTypes);
+					IMethod method = javaType.getMethod(mi.name().toString(), paramTypes);//PORT1.7 name() no longer returns String
 
 					return getJavaDocFor(method);
 				} else {
-					String sig = getSignature(mi);
+					String sig = getSignature(mi);               
 					return getX10DocFor(sig, mi);
 				}
 			}
@@ -204,18 +208,18 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			 
 			
 			if (isJavaMember(memi)) {   
-				ReferenceType rt = memi.container();
+				StructType rt=memi.container();//PORT1.7  ReferenceType -> StructType
 				// if java then we can omit the 'java.lang' prefix ... TBD
 				if (rt instanceof ClassType) {
 					ClassType ct = (ClassType) rt;
-					String fullname=ct.fullName(); // was "Object" when encountered polyglot error
+					String fullname=ct.fullName().toString(); //PORT1.7  fullName no longer returns a String
 					IType it = findJavaType(fullname, parseController);
 					String[] paramTypes = convertParamTypes(pi);
 					String mname = null;
 					if (pi instanceof ConstructorInstance) {
-						mname = ct.name();  // was "Object" when polyglot error
+						mname = ct.name().toString();  //PORT1.7 name() no longer returns a String
 					} else {
-						mname = ((MethodInstance) pi).name();  
+						mname = ((MethodInstance) pi).name().toString();  //PORT1.7 name() no longer returns a String
 					}
 					IMethod method = it.getMethod(mname, paramTypes);
 					fullname=fullname+"."+mname;  // add args?
@@ -247,11 +251,11 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 					ConstructorInstance ci = (ConstructorInstance)target;
 					String name="(name)";
 					String t=ci.toString();
-					ReferenceType rt = ci.container();
+					StructType rt = ci.container();//PORT1.7  ReferenceType -> StructType
 					if(rt instanceof Named) {
 						Named named = (Named) rt;
-						name=named.name();
-						name=named.fullName();
+						//name=named.name().toString();//PORT1.7 name() no longer returns a String
+						name=named.fullName().toString();//PORT1.7 fullName() no longer returns a String
 					}
 					String args=formatArgs(ci.formalTypes());
 					String sig=name+args;
@@ -264,7 +268,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} 
 		else if (target instanceof ClassType) {  
 			ClassType ct = (ClassType) target;
-			String qualifiedName =ct.fullName();
+			String qualifiedName =ct.fullName().toString();//PORT1.7 fullName() no longer returns a String
 
 			if (isJavaType(qualifiedName)) { 
 				IType javaType = findJavaType(qualifiedName, parseController);
@@ -276,35 +280,33 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			
 		} else if (target instanceof ClassDecl) {
 			ClassDecl cd = (ClassDecl)target;
-			String fullName = cd.type().toString(); // FIXME is there a better way than toString()? want full package name
-			//ReferenceType rt = cd.type().container();
-			//NO fullName=cd.type().name();
-			//String id = cd.id().toString();
-			
-			//String name = "?package?"+cd.name();
+			String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
+			String fullName = cd.classDef().fullName().toString(); ////PORT1.7 is this right?? ask Nate
 			String doc = getX10DocFor(fullName,cd);
 			return doc;
 		}
 		else if (target instanceof MethodDecl) {
 			MethodDecl md = (MethodDecl) target;
 			String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
-			MethodInstance mi = md.methodInstance();
+			//MethodInstance mi = md.methodInstance();
+			MethodInstance mi=md.methodDef().asInstance();//PORT1.7 was md.methodInstance();
 			String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
 			String name="";
-			
-			String sig = mi.signature();// doesn't include arg names, just types
+			MethodInstance test;
+			String sig = md.methodDef().signature();//PORT1.7 see what this returns.  arg names too???
+			//String sig = mi.signature();// doesn't include arg names, just types
 				 
-			ReferenceType rt = mi.container();
+			StructType rt = mi.container();//PORT1.7  ReferenceType -> StructType
 			if(rt instanceof ClassType) {
 				ClassType ct = (ClassType) rt;
-				name =ct.fullName();// includes package info		
+				name =ct.fullName().toString();// includes package info		//PORT1.7 fullName() no longer returns a String
 			}
 			name = getSignature(mi,md);	
-			String doc = getX10DocFor(name, md.methodInstance());
+			String doc = getX10DocFor(name, md);//PORT1.7 md is a Node; was md.methodInstance()
 			return doc;
 		} else if (target instanceof FieldDecl) {
 			FieldDecl fd = (FieldDecl) target;
-			FieldInstance fi = fd.fieldInstance();
+			FieldInstance fi = fd.fieldDef().asInstance();//PORT1.7 was fd.fieldInstance();
 			return getX10DocFor(fi);
 		}
 
@@ -322,20 +324,21 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				
 				// get Constructor args, if any
 				String sig=fullName+formatArgs(cd.formals()); 
-				return getX10DocFor(sig, cd.constructorInstance());
+				ConstructorInstance ci = cd.constructorDef().asInstance(); //PORT1.7 was cd.constructorInstance();
+				return getX10DocFor(sig, ci);  //PORT1.7 use local variable
 			} else if (parent instanceof New) {
-				New n = (New) parent;
+				New n = (New) parent;		
 				return getX10DocFor(n.constructorInstance());
 			} else {
 				Type type = typeNode.type();			
-				String qualifiedName = typeNode.qualifier().toString();
+				String qualifiedName = typeNode.qualifierRef().get().toString();//PORT1.7 was qualifier()->qualifierRef().get()
 				qualifiedName = stripArraySuffixes(qualifiedName);
 				return getJavaOrX10DocFor(qualifiedName, type, parseController); 
 			}
 		}
 		else if (target instanceof ClassType) {
 			ClassType type = (ClassType)target;
-			String qualifiedName = type.fullName();
+			String qualifiedName = type.fullName().toString();//PORT1.7 fullName()->fullName().toString()
 			qualifiedName = stripArraySuffixes(qualifiedName);			
 			return getJavaOrX10DocFor(qualifiedName, type, parseController);//BRT
 			
@@ -379,8 +382,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return result;
 	}
 
+	/**
+	 * unused?
+	 * @param md
+	 * @return
+	 */
 	private String getSignature(MethodDecl md) {
-		MethodInstance mi=md.methodInstance();
+		MethodInstance mi=md.methodDef().asInstance();//PORT1.7 md.methodInstance()->md.methodDef().asInstance()
 		String sig = getSignature(mi,md);
 		return sig;
 	}
@@ -390,12 +398,23 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		String sig = getSignature(mi,null);
 		return sig;
 	}
+	/**
+	 * Get the method signature, including argument types and argument names
+	 * @param mi the method instance
+	 * @param md the method decl - can be null, but if available, can get better info
+	 * @return
+	 */
 	private String getSignature(MethodInstance mi, MethodDecl md) {	
-		ReferenceType type = mi.container();
+		StructType type1 = mi.container(); //PORT1.7 ReferenceType changed to StructType
+
+		// We assume this is an ObjectType since we are dealing with Methods
+		assert(type1 instanceof ObjectType);
+		ObjectType type = (ObjectType) type1;
+
 		String containerName="(unspecified)";
 		if(type instanceof Named) {
 			Named ct = (Named) type;
-			containerName =ct.fullName();	
+			containerName =ct.fullName().toString();	//PORT1.7 ct.fullName()->ct.fullName().toString()
 		}
 
 		// find return value type
@@ -411,7 +430,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			argList=mi.formalTypes();
 		}else {
 			argList=md.formals(); // this includes arg names, mi.formalTypes() does not
-		}					// 
+		}
 		String argString=formatArgs(argList);
 		sig = sig+argString;
 		return sig;
@@ -444,7 +463,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * <p>That is, if the javadoc is empty, don't return anything
 	 */
 	@SuppressWarnings("restriction")
-	private String getX10DocFor(String qualifiedName, Declaration decl) {
+	private String getX10DocFor(String qualifiedName, TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
 		String doc = getX10DocFor(decl);
 		if(doc!=null) doc = addNameToDoc(qualifiedName, doc);
 		// if we return Null, HoverHelper will display something unless it's the decl. Uncomment this if you don't want it to.
@@ -452,7 +471,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		//if(doc==null) doc="";
 		return doc;
 	}
-	private String getX10DocFor(Declaration decl) {
+	private String getX10DocFor(TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
 		String doc = getNewRawX10DocFor(decl.position());
 		return doc;
 	}
@@ -474,7 +493,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
 	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
 	 * <p>
-	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08
+	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08 unused?
 	 */
 	private String getRawX10DocFor(Position pos) {
 		String path = pos.file();
@@ -784,10 +803,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	}
 	@SuppressWarnings("restriction")
 	private boolean isJavaMember(MemberInstance mem) {
-		ReferenceType rt = mem.container();
+		StructType rt = mem.container();//PORT1.7 ReferenceType->StructType
 		if(rt instanceof ClassType) {
 			ClassType ct = (ClassType) rt;
-			String fullname = ct.fullName();
+			String fullname = ct.fullName().toString(); //PORT1.7 fullName() no longer returns a string
 			return isJavaType(fullname);
 			
 		}

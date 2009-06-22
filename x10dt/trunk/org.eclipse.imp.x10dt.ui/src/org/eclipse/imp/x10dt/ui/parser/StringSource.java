@@ -28,7 +28,7 @@ public class StringSource extends polyglot.frontend.FileSource
     private CharBufferReader reader;
 
     public StringSource(String contents, File file, String filePath) throws IOException {
-        super(file);
+        super(null/*file*/);
         this.contents = contents;
         this.filePath = filePath;
     }
@@ -64,6 +64,6 @@ public class StringSource extends polyglot.frontend.FileSource
     }
 
     public String toString() {
-        return file.getPath();
+        return resource.file().getPath();// file.getPath();
     }
 }

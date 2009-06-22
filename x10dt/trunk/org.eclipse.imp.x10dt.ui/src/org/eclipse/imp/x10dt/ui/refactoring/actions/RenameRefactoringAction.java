@@ -52,7 +52,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
-import polyglot.types.Declaration;
+import polyglot.types.Def;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -101,7 +101,7 @@ public class RenameRefactoringAction extends TextEditorAction {
             return;
         }
 
-        Declaration decl;
+        Def decl;//PORT1.7 Declaration -> Def
         Node node= fNode;
 
         if (node instanceof Id) {
@@ -113,19 +113,23 @@ public class RenameRefactoringAction extends TextEditorAction {
             node= parent;
         }
         if (node instanceof Local) {
-            decl= ((Local) node).localInstance();
+			decl= ((Local) node).localInstance().def();    //PORT1.7  localInstance()->localInstance().def();
         } else if (node instanceof Field) {
-            decl= ((Field) node).fieldInstance();
+			decl= ((Field) node).fieldInstance().def();    //PORT1.7  fieldInstance()->fieldInstance().def();
         } else if (node instanceof Formal) {
-            decl= ((Formal) node).localInstance();
+            Formal formal = (Formal) node;
+            decl=formal.localDef();                        //PORT1.7   localInstance() returning Declaration -> localDef() returning Def
         } else if (node instanceof FieldDecl) {
-            decl= ((FieldDecl) node).fieldInstance();
+            FieldDecl fieldDecl = (FieldDecl) node;
+            decl = fieldDecl.fieldDef();                   //PORT1.7 fieldInstance()->fieldDef();
         } else if (node instanceof LocalDecl) {
-            decl= ((LocalDecl) node).localInstance();
+            LocalDecl localDecl = (LocalDecl) node;
+            decl = localDecl.localDef();                   //PORT1.7  localInstance()->localDef()
         } else if (node instanceof MethodDecl) {
-            decl= ((MethodDecl) node).methodInstance();
-        } else if (node instanceof Call) {
-            decl= ((Call) node).methodInstance();
+            MethodDecl methodDecl = (MethodDecl) node;
+            decl = methodDecl.methodDef();                 //PORT1.7  methodInstance()->methodDef();
+        } else if (node instanceof Call) {            
+			decl= ((Call) node).methodInstance().def();    //PORT methodInstance()->methodInstance().def();
 //      } else if (fNode instanceof TypeNode) {
         } else {
             MessageDialog.openError(shell, "Cannot rename", "Renaming of entities other than local variables, fields and methods not yet implemented.");
@@ -153,7 +157,7 @@ public class RenameRefactoringAction extends TextEditorAction {
     /**
      * @param decl
      */
-    private void findExternalDecl(Declaration decl) {
+    private void findExternalDecl(Def decl) {      //PORT1.7 Declaration -> Def
         final Position position= decl.position();
 
         System.out.println("declaration is located in " + position.file() + ": " + position);
@@ -188,7 +192,7 @@ public class RenameRefactoringAction extends TextEditorAction {
         }
     }
 
-    private boolean isBinary(Declaration decl) {
+    private boolean isBinary(Def decl) {    //PORT1.7   Declaration -> Def
         final String file= decl.position().file();
         return file.endsWith(".class") || file.endsWith(".jar");
     }
@@ -197,7 +201,7 @@ public class RenameRefactoringAction extends TextEditorAction {
      * @param decl
      * @return
      */
-    private void findDeclaration(Node root, final Declaration decl) {
+    private void findDeclaration(Node root, final Def decl) {     //PORT1.7 Declaration -> Def
         NodeVisitor visitor= new NodeVisitor() {
             /* (non-Javadoc)
              * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
@@ -205,22 +209,22 @@ public class RenameRefactoringAction extends TextEditorAction {
             @Override
             public NodeVisitor enter(Node parent, Node n) {
                 if (n instanceof LocalDecl) {
-                    if (((LocalDecl) n).localInstance().equals(decl)) {
+                    if (((LocalDecl) n).localDef().equals(decl)) {    //PORT1.7 localInstance() -> localDef()
                         fDeclaringNode= n;
                         fDeclaringParent= parent;
                     }
                 } else if (n instanceof FieldDecl) {
-                    if (((FieldDecl) n).fieldInstance().equals(decl)) {
+                    if (((FieldDecl) n).fieldDef().equals(decl)) {  //PORT1.7 fieldInstance()->fieldDef()
                         fDeclaringNode= n;
                         fDeclaringParent= parent;
                     }
                 } else if (n instanceof Formal) {
-                    if (((Formal) n).localInstance().equals(decl)) {
+                    if (((Formal) n).localDef() .equals(decl)) {   //PORT1.7 localInstance()->localDef()
                         fDeclaringNode= n;
                         fDeclaringParent= parent;
                     }
                 } else if (n instanceof MethodDecl) {
-                    if (((MethodDecl) n).methodInstance().equals(decl)) {
+                    if (((MethodDecl) n).methodDef().equals(decl)) {    //PORT1.7  methodInstance()->methodDef()
                         fDeclaringNode= n;
                         fDeclaringParent= parent;
                     }

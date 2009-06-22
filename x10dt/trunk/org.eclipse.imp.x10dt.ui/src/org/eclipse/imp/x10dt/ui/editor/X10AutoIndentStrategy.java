@@ -65,9 +65,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import com.sun.corba.se.pept.transport.InboundConnectionCache;
-
-import sun.security.action.GetLongAction;
 
 import java.util.Hashtable;
 

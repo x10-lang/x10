@@ -57,8 +57,10 @@ import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.ObjectType;
 import polyglot.types.Qualifier;
 import polyglot.types.ReferenceType;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
@@ -67,7 +69,8 @@ import x10.parser.X10Parsersym;
 public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix) {
         for(FieldInstance f: in_fields) {
-            String name= f.name();
+            String name= f.name().toString(); // PORT1.7 was f.name()
+            String tempName = f.toString();  // PORT1.7 or is this preferable?
             if (name.startsWith(prefix))
                 fields.add(f);
         }
@@ -75,43 +78,47 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
     private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix) {
         for(MethodInstance m: in_methods) {
-            String name= m.name();
+            String name= m.name().toString();   // PORT 1.7
             if (name.startsWith(prefix))
                 methods.add(m);
         }
     }
 
-    private void filterClasses(List<ClassType> classes, List<ReferenceType> in_classes, String prefix) {
+    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix) {//PORT1.7 2nd arg was List<ReferenceType>
         for(ReferenceType r: in_classes) {
             ClassType c= r.toClass();
-            String name= c.name();
+            String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
             if (name.startsWith(prefix)) {
                 classes.add(c);
             }
         }
     }
+    // PORT1.7  this should probably take a Type instead of a ReferenceType arg.  cast to StructType or ObjectType to get at what we need now
+    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix) {// PORT1.7 ReferenceType replaced with Type
+		if (container_type == null)
+			return;
 
-    private void getFieldCandidates(ReferenceType container_type, List<FieldInstance> fields, String prefix) {
-        if (container_type == null)
-            return;
+		if (container_type instanceof ObjectType) {
+			ObjectType oType = (ObjectType) container_type;
 
-        filterFields(fields, container_type.fields(), prefix);
+			filterFields(fields, oType.fields(), prefix); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
 
-        for(int i= 0; i < container_type.interfaces().size(); i++) {
-            ReferenceType interf= (ReferenceType) container_type.interfaces().get(i);
-            filterFields(fields, interf.fields(), prefix);
-        }
+			for (int i = 0; i < oType.interfaces().size(); i++) {
+				ObjectType interf = (ObjectType) oType.interfaces().get(i);
+				filterFields(fields, interf.fields(), prefix);
+			}
 
-        getFieldCandidates((ReferenceType) container_type.superType(), fields, prefix);
-    }
+			getFieldCandidates(oType.superClass(), fields, prefix);
+		}
+	}
 
-    private void getMethodCandidates(ReferenceType container_type, List<MethodInstance> methods, String prefix) {
+    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix) {//PORT1.7 ReferenceType->ObjectType
         if (container_type == null)
             return;
 
         filterMethods(methods, container_type.methods(), prefix);
 
-        getMethodCandidates((ReferenceType) container_type.superType(), methods, prefix);
+        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix);//PORT1.7 superType()->superClass()
     }
 
     private void getClassCandidates(Type type, List<ClassType> classes, String prefix) {
@@ -128,10 +135,10 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             filterClasses(classes, interf.memberClasses(), prefix);
         }
 
-        getClassCandidates(container_type.superType(), classes, prefix);
+        getClassCandidates(container_type.superClass(), classes, prefix);//PORT1.7 superType)_->superClass()
     }
 
-    private void getCandidates(ReferenceType container_type, List<ICompletionProposal> list, String prefix, int offset) {
+    private void getCandidates(ObjectType container_type, List<ICompletionProposal> list, String prefix, int offset) {//PORT1.7 RefType->ObjectType
         List<FieldInstance> fields= new ArrayList<FieldInstance>();
         List<MethodInstance> methods= new ArrayList<MethodInstance>();
         List<ClassType> classes= new ArrayList<ClassType>();
@@ -141,7 +148,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         getClassCandidates((Type) container_type, classes, prefix);
 
         for(FieldInstance field : fields) {
-            list.add(new SourceProposal(field.name(), prefix, offset));
+            list.add(new SourceProposal(field.name().toString(), prefix, offset)); //PORT1.7 name() replaced with name().toString()
         }
 
         for(MethodInstance method : methods) {
@@ -150,7 +157,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
         for(ClassType type : classes) {
             if (!type.isAnonymous())
-                list.add(new SourceProposal(type.name(), prefix, offset));
+                list.add(new SourceProposal(type.name().toString(), prefix, offset));//PORT1.7 name() replaced with name().toString()
         }
     }
 
@@ -190,6 +197,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         // the index of the token preceding the offset when the offset is not
         // the offset of a valid token.
         //
+        // PORT1.7 --  token use here, calculation OK for now (does not use getLeftToken() etc)
         IPrsStream prs_stream= ((SimpleLPGParseController) controller).getParser().getParseStream();
         int index= prs_stream.getTokenIndexAtCharacter(offset), token_index= (index < 0 ? -index : index);
         IToken tokenToComplete= prs_stream.getIToken(token_index), contextToken= prs_stream.getIToken(token_index - 1);
@@ -240,15 +248,17 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             // list.add(new SourceProposal("Field: " + node.getClass().toString(), " source proposal ", 0));
             Field field= (Field) node;
             if (contextToken.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
-                getCandidates((ReferenceType) field.target().type(), list, prefix, offset);
+                getCandidates((ObjectType) field.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
             else
                 list.add(new SourceProposal("no info available", " source proposal ", 0));
         } else if (node instanceof CanonicalTypeNode) {
-            Qualifier qualifier= ((CanonicalTypeNode) node).qualifier();
+        	CanonicalTypeNode ctNode=(CanonicalTypeNode)node;
+            Qualifier qualifier= ctNode.qualifierRef().get();//PORT1.7 qualifier()->qualifierRef().get();
+            Type qtype = ctNode.type();
             if (qualifier.isType()) {
                 Type qualType= (Type) qualifier;
                 if (qualType.isReference()) {
-                    getCandidates((ReferenceType) qualType, list, prefix, offset);
+                    getCandidates((ObjectType) qualType, list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
                 }
             }
         } else if (node instanceof Assign) {
@@ -271,7 +281,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         } else if (node instanceof Call) {
             Call call= (Call) node;
             if (contextToken.getKind() == TK_DOT && call.target().type() != null && call.target().type().isReference())
-                getCandidates((ReferenceType) call.target().type(), list, prefix, offset);
+                getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
         } else {
             // TODO: Any package, type, local variable and accessible class members
             if (node instanceof Binary) {
@@ -285,7 +295,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
                     if (parent instanceof Call) {
                         Call call= (Call) parent;
                         if (call.target().type() != null && call.target().type().isReference())
-                            getCandidates((ReferenceType) call.target().type(), list, prefix, offset);
+                            getCandidates((ObjectType) call.target().type(), list, prefix, offset);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
                     }
                 } else {
                     // Possibilities: prefix of a package, local variable, parameter, field, or type name
@@ -339,8 +349,9 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
                 MethodDecl md= (MethodDecl) node;
                 List<Formal> formals= md.formals();
                 for(Formal formal : formals) {
-                    if (formal.name().startsWith(prefix)) {
-                        proposals.add(new SourceProposal(formal.name(), formal.name(), prefix, offset));
+                	String fname = formal.name().id().toString(); //PORT1.7 name() changed to name().id().toString(); cached here for reuse
+                    if (fname.startsWith(prefix)) { //PORT1.7 name() changed to name().id().toString()
+                        proposals.add(new SourceProposal(fname, fname, prefix, offset)); //PORT1.7 use cached value
                     }
                 }
                 break; // Hack: don't bother including variables from surrounding types
@@ -355,8 +366,9 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
                     }
                     if (s instanceof LocalDecl) {
                         LocalDecl decl= (LocalDecl) s;
-                        if (decl.name().startsWith(prefix)) {
-                            proposals.add(new SourceProposal(decl.name(), decl.name(), prefix, offset));
+                        String ldname = decl.name().id().toString();// PORT1.7 changed name() to name().id().toString(); cached
+                        if (ldname.startsWith(prefix)) { // PORT1.7 changed name() to name().id().toString(); cached
+                            proposals.add(new SourceProposal(ldname, ldname, prefix, offset)); //PORT1.7 use cached value
                         }
                     }
                 }

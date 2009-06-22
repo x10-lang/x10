@@ -6,19 +6,14 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    @author Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*    @author pcharles@us.ibm.com
 *******************************************************************************/
-
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +28,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.core.builder.PolyglotFrontEnd;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -41,6 +35,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Bundle;
 
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
@@ -52,24 +47,28 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class CompilerDelegate {
-    private ExtensionInfo extInfo;
-    private PolyglotFrontEnd fe;
+    private ExtensionInfo fExtInfo;
+    private polyglot.frontend.Compiler fCompiler;
 
-    private final IJavaProject x10Project;
-
-    public X10Lexer getLexer() { return extInfo.getLexer(); }
-    public X10Parser getParser() { return extInfo.getParser(); }
-    public Job getJob(Source source) { return extInfo.getJob(source); }
-    public PolyglotFrontEnd getFrontEnd() { return fe; }
+    private final IJavaProject fX10Project;
 
     CompilerDelegate(Monitor monitor, IMessageHandler handler, IProject project) {
-	this.x10Project= (project != null) ? JavaCore.create(project) : null;
+        this.fX10Project= (project != null) ? JavaCore.create(project) : null;
 
-        extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler)); // new ExtensionInfo(monitor);
-        buildOptions(extInfo);
+        fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler));
+        buildOptions(fExtInfo);
         ErrorQueue eq= new SilentErrorQueue(100, "stderr");
-        fe = new PolyglotFrontEnd(extInfo, eq);
+        fCompiler = new polyglot.frontend.Compiler(fExtInfo, eq);
+    	Globals.initialize(fCompiler); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
         Report.setQueue(eq);
+    }
+
+    public X10Lexer getLexer() { return fExtInfo.getLexer(); }
+    public X10Parser getParser() { return fExtInfo.getParser(); }
+    public Job getJob(Source source) { return fExtInfo.getJob(source); }
+
+    public boolean compile(Collection<Source> sources) {
+    	return fCompiler.compile(sources);
     }
 
     /**
@@ -79,10 +78,10 @@ public class CompilerDelegate {
     private List<IPath> getProjectSrcPath() throws JavaModelException {
         List<IPath> srcPath= new ArrayList<IPath>();
 
-        if (this.x10Project == null)
+        if (this.fX10Project == null)
             return srcPath;
 
-        IClasspathEntry[] classPath= x10Project.getResolvedClasspath(true);
+        IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
 
         for(int i= 0; i < classPath.length; i++) {
             IClasspathEntry e= classPath[i];
@@ -91,14 +90,13 @@ public class CompilerDelegate {
                 srcPath.add(e.getPath());
         }
         if (srcPath.size() == 0)
-            srcPath.add(x10Project.getProject().getLocation());
+            srcPath.add(fX10Project.getProject().getLocation());
         return srcPath;
     }
 
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
         IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
-        IPath wsPath= wsRoot.getLocation();
 
         for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext(); ) {
             IPath path= iter.next();
@@ -109,8 +107,8 @@ public class CompilerDelegate {
                 // live inside the workspace, so use its actual location as the prefix
                 // for the rest of the specified path.
                 buff.append(projectRef.getLocation().append(path.removeFirstSegments(1)).toOSString());
-            } else if (x10Project.getProject().exists(path)) {
-                buff.append(x10Project.getProject().getLocation().append(path).toOSString());
+            } else if (fX10Project.getProject().exists(path)) {
+                buff.append(fX10Project.getProject().getLocation().append(path).toOSString());
             } else {
                 buff.append(path.toOSString());
             }
@@ -121,22 +119,28 @@ public class CompilerDelegate {
     }
 
     private void buildOptions(ExtensionInfo extInfo) {
-	Options opts= extInfo.getOptions();
+		Options opts = extInfo.getOptions();
 
-	Options.global= opts;
-	try {
-            List<IPath> projectSrcLoc= getProjectSrcPath();
-            String projectSrcPath= pathListToPathString(projectSrcLoc);
-	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath }, new HashSet());
-	} catch (UsageError e) {
-	    if (!e.getMessage().equals("must specify at least one source file"))
-		System.err.println(e.getMessage());
-	} catch (JavaModelException e) {
-            X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+		// Options.global= opts;//PORT1.7 Global options object no longer exists. 
+		//   instead, need to call Globals.initialize(compiler) prior to calling compiler
+		//    Note this is done in constructor
+
+		try {
+			List<IPath> projectSrcLoc = getProjectSrcPath();
+			String projectSrcPath = pathListToPathString(projectSrcLoc);
+			opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath",
+					projectSrcPath }, new HashSet<String>());
+		} catch (UsageError e) {
+			if (!e.getMessage().equals("must specify at least one source file"))
+				System.err.println(e.getMessage());
+		} catch (JavaModelException e) {
+			X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+		}
+		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
+		// opts.source_path);
+		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " +
+		// opts.classpath);
 	}
-//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
-//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
-    }
 
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();
@@ -147,7 +151,7 @@ public class CompilerDelegate {
         boolean runtimeValid= false;
 
         try {
-            IClasspathEntry[] classPath= (x10Project != null) ? x10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
+            IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
@@ -157,7 +161,7 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
 
-                if (entryPath.contains("x10.runtime")) {
+                if (entryPath.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
                     hasRuntime= true;
                     if (new File(entryPath).exists())
                         runtimeValid= true;
@@ -183,9 +187,9 @@ public class CompilerDelegate {
     }
 
     private String getRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 use constant for runtime bundle
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/x10.runtime_" + bundleVersion + ".jar";
+        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/"+X10Plugin.X10_RUNTIME_BUNDLE_ID+"_" + bundleVersion + ".jar";//PORT1.7 use constant
 
         return x10RuntimePath;
     }

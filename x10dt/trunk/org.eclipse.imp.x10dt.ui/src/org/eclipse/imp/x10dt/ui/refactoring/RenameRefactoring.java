@@ -56,13 +56,15 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Id_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
-import polyglot.types.Declaration;
+import polyglot.types.Def;
+import polyglot.types.Name;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -70,7 +72,7 @@ public class RenameRefactoring extends Refactoring {
     private final IFile fSourceFile;
     private final Node fDeclNode;
     private final Node fRoot;
-    private final Declaration fDecl;
+    private final Def fDef;//PORT1.7 Declaration->Def  and changed name from fDecl to fDef
     private final Node fDeclParent;
     private final String fCurName;
     private String fNewName;
@@ -84,22 +86,22 @@ public class RenameRefactoring extends Refactoring {
 
         if (fDeclNode instanceof LocalDecl) {
             LocalDecl localDecl= (LocalDecl) fDeclNode;
-            fDecl= localDecl.localInstance();
-            fCurName= localDecl.name();
+            fDef= localDecl.localDef();              //PORT1.7 was localDecl.localInstance();
+            fCurName= localDecl.name().toString();    // PORT1.7 was localDecl.name();
         } else if (fDeclNode instanceof FieldDecl) {
             FieldDecl fieldDecl= (FieldDecl) fDeclNode;
-            fDecl= fieldDecl.fieldInstance();
-            fCurName= fieldDecl.name();
+            fDef= fieldDecl.fieldDef();             //PORT1.7 was fieldDecl.fieldInstance();
+            fCurName= fieldDecl.name().toString();   //PORT1.7 was fieldDecl.name();
         } else if (fDeclNode instanceof Formal) {
             Formal f= (Formal) fDeclNode;
-            fDecl= f.localInstance();
-            fCurName= f.name();
+            fDef = f.localDef(); // PORT1.7 localInstance() -> localDef()
+            fCurName= f.name().toString();  //PORT1.7 name() no longer returns a String
         } else if (fDeclNode instanceof MethodDecl) {
             MethodDecl method= (MethodDecl) fDeclNode;
-            fDecl= method.methodInstance();
-            fCurName= method.name();
+            fDef= method.methodDef();//PORT1.7 methodInstance()->methodDef()
+            fCurName= method.name().toString();  //PORT1.7 name() no longer returns a String
         } else {
-            fDecl= null;
+            fDef= null;
             fCurName= "";
         }
 
@@ -250,13 +252,13 @@ public class RenameRefactoring extends Refactoring {
      * Class to collect references to a given <code>Declaration</code>. Ultimately, this really belongs in the search indexing mechanism.
      */
     private static class ReferenceVisitor extends NodeVisitor implements IFileVisitor {
-        private final Declaration fDecl;
+        private final Def fDecl; // PORT1.7 Declaration -> Def
 
         private final Set<SourceRangeGroup> fMatchGroups;
 
         private SourceRangeGroup fMatchGroup;
 
-        public ReferenceVisitor(Declaration decl, Set<SourceRangeGroup> matchGroups) {
+        public ReferenceVisitor(Def decl, Set<SourceRangeGroup> matchGroups) { // PORT1.7 Declaration -> Def
             fDecl= decl;
             fMatchGroups= matchGroups;
         }
@@ -309,7 +311,7 @@ public class RenameRefactoring extends Refactoring {
         System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
         final Set<SourceRangeGroup> allMatches= new HashSet<SourceRangeGroup>();
         try {
-            ReferenceVisitor refVisitor= new ReferenceVisitor(fDecl, allMatches);
+            ReferenceVisitor refVisitor= new ReferenceVisitor(fDef, allMatches);
             ISourceProject srcProject= ModelFactory.create(fSourceFile.getProject());
             fSourceFile.getProject().accept(
                     new PolyglotSourceFinder(new TextFileDocumentProvider(), srcProject, refVisitor, refVisitor, LanguageRegistry.findLanguage("X10")));
@@ -350,7 +352,7 @@ public class RenameRefactoring extends Refactoring {
             public NodeVisitor enter(Node n) {
                 if (n instanceof Local) {
                     Local l= (Local) n;
-                    if (l.localInstance().equals(fDecl)) {
+                    if (l.localInstance().equals(fDef)) {
                         Position pos= n.position();
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, fNewName);
                         root.addChild(edit);
@@ -358,7 +360,7 @@ public class RenameRefactoring extends Refactoring {
                     }
                 } else if (n instanceof Field) {
                     Field f= (Field) n;
-                    if (f.fieldInstance().equals(fDecl)) {
+                    if (f.fieldInstance().equals(fDef)) {
                         Position pos= n.position();
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, fNewName);
                         root.addChild(edit);
@@ -366,9 +368,9 @@ public class RenameRefactoring extends Refactoring {
                     }
                 } else if (n instanceof Call) {
                     Call c= (Call) n;
-                    if (c.methodInstance().equals(fDecl)) {
+                    if (c.methodInstance().equals(fDef)) {
                         Position pos= n.position();
-                        Call newCall= c.name(fNewName);
+                        Call newCall= c.name(new Id_c(pos, Name.make(fNewName)));//PORT1.7 was c.name(fNewName);
                         final ReplaceEdit edit= new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, newCall.toString());
                         root.addChild(edit);
                         group.addTextEdit(edit);
@@ -392,15 +394,17 @@ public class RenameRefactoring extends Refactoring {
 //          newText= newDecl.toString();
 
             newText= fNewName;
-            pos= ld.id().position();
+            pos= ld.name().position();//PORT1.7 was ld.id().position()
         } else if (fDeclNode instanceof FieldDecl) {
             FieldDecl fd= (FieldDecl) fDeclNode;
-            FieldDecl newDecl= fd.name(fNewName);
+            Position pos2 = fd.position();
+            FieldDecl newDecl= fd.name(new Id_c(pos2, Name.make(fNewName)));//PORT1.7 was fd.name(fNewName);
 
             newText= newDecl.toString();
         } else if (fDeclNode instanceof Formal) {
             Formal f= (Formal) fDeclNode;
-            Formal newFormal= f.name(fNewName);
+            Position pos3=f.position();
+            Formal newFormal= f.name(new Id_c(pos3,Name.make(fNewName)));//PORT1.7 was f.name(fNewName);
             newText= newFormal.toString();
         } else if (fDeclNode instanceof MethodDecl) {
             MethodDecl m= (MethodDecl) fDeclNode;
@@ -416,13 +420,13 @@ public class RenameRefactoring extends Refactoring {
                 // Just write out the whole signature. Oddly, modifiers aren't included
                 // in the method's textual extent as given by fDeclNode.position().
                 StringBuffer buff= new StringBuffer();
-                buff.append(m.returnType().name()).append(' ').append(fNewName).append('(');
+                buff.append(m.returnType().nameString()).append(' ').append(fNewName).append('(');//PORT1.7 name()->nameString()
                 List<Formal> formals= m.formals();
 
                 for(Iterator<Formal> iter= formals.iterator(); iter.hasNext();) {
                     Formal formal= iter.next();
 
-                    buff.append(formal.flags()).append(formal.type().name()).append(' ').append(formal.name());
+                    buff.append(formal.flags()).append(formal.type().nameString()).append(' ').append(formal.name());//PORT1.7 name()->nameString()
                     if (iter.hasNext())
                         buff.append(", ");
                 }
