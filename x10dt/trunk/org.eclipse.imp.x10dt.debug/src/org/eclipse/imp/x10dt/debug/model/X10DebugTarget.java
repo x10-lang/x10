@@ -6,6 +6,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jdi.hcr.ReferenceType;
 import org.eclipse.jdi.internal.ReferenceTypeImpl;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
@@ -13,15 +15,21 @@ import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIType;
-import org.eclipse.jdt.internal.debug.eval.ast.instructions.Value;
+import org.eclipse.jdt.internal.debug.core.model.JDIReferenceType;
 
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.ClassType;
+import com.sun.jdi.Type;
+import com.sun.jdi.Value;
+
 
 public class X10DebugTarget {
 
-	private IJavaDebugTarget fJDebugTarget;
+	private IDebugTarget fJDebugTarget;
 	private ClassObjectReference fX10RT;
 /*
 	public X10DebugTarget(ILaunch launch, VirtualMachine jvm, String name,
@@ -47,7 +55,7 @@ public class X10DebugTarget {
 	//******If for some reason this doesn't work, I'd say the place to do it would be in the constructor, where launch is provided as parameter
 	//******Or equivalently, pass launch as param from constructor to this method via initialize.
 	private void setJDIDebugTarget() {
-		IAdaptable context = getDebugContext();
+		IAdaptable context = DebugUITools.getDebugContext();
 		if  (context == null) {
 			ILaunch[] launches =
 				DebugPlugin.getDefault().getLaunchManager().getLaunches();
@@ -63,19 +71,29 @@ public class X10DebugTarget {
 	private void setX10RTObject() {
 		VirtualMachine vm = ((JDIDebugTarget) fJDebugTarget).getVM();
 		List classes = vm.classesByName("DefaultRuntime_c");
-		IJavaType type = newIJavaType; //a single instance of runtime so list of 
-		//classes contains only one element
-		type = JDIType.createType(this, (Type)classes.get(i));
-		if (type instanceof IJavaReferenceType) 
-			fX10RT =((ReferenceType)type.getUnderlyingType()).ClassObject();
+		IJavaType[] type = new IJavaType[classes.size()];
+		for (int i = 0; i < type.length; i++) {
+			type[i] = JDIType.createType((JDIDebugTarget) fJDebugTarget, (Type)classes.get(i));
+		}
+		if (type[0] instanceof IJavaReferenceType) 
+			fX10RT =((ClassType)((JDIReferenceType)type[0]).getUnderlyingType()).classObject();
 	}		
 
 
 	public int getNumberOfPlaces() {
 		ReferenceType type = (ReferenceType) fX10RT.referenceType();
-		Field place = type.fieldByName("places_");
-		Value v = fX10RT.getValue(place);
-		if (v instanceof ArrayReference)
-	          return getArrayReference().length();
+		Field place = ((ClassType)type).fieldByName("places_");
+		Value v = (ObjectReference)fX10RT.getValue(place);
+		if (v instanceof ArrayReference){
+	          return getArrayReference(v).length();
+		}
+		return -1;
+		
 	} 
+	protected ArrayReference getArrayReference(Value v) {
+		if (v instanceof ArrayReference) {
+			return (ArrayReference)v;
+		}
+		return null;
+	}
 }
