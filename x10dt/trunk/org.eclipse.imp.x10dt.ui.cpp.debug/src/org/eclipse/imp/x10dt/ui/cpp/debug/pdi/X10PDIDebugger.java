@@ -58,8 +58,10 @@ import org.eclipse.ptp.core.elements.attributes.ProcessAttributes;
 import org.eclipse.ptp.core.elements.events.IProcessChangeEvent;
 import org.eclipse.ptp.core.elements.listeners.IProcessListener;
 import org.eclipse.ptp.core.util.BitList;
+import org.eclipse.ptp.debug.core.IPSession;
 import org.eclipse.ptp.debug.core.PTPDebugCorePlugin;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
+import org.eclipse.ptp.debug.core.model.IPDebugTarget;
 import org.eclipse.ptp.debug.core.pdi.IPDIDebugger;
 import org.eclipse.ptp.debug.core.pdi.IPDIFileLocation;
 import org.eclipse.ptp.debug.core.pdi.IPDIFunctionLocation;
@@ -79,6 +81,7 @@ import org.eclipse.ptp.debug.core.pdi.model.IPDISignal;
 import org.eclipse.ptp.debug.core.pdi.model.IPDIWatchpoint;
 import org.eclipse.ptp.debug.core.pdi.model.aif.IAIF;
 import org.eclipse.ptp.debug.sdm.core.proxy.ProxyDebugClient;
+import org.eclipse.ptp.debug.ui.PTPDebugUIPlugin;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugArgsEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugDataEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugErrorEvent;
@@ -1711,6 +1714,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         } finally {
           this.fWaitLock.unlock();
         }
+        IPSession session = ((IPDebugTarget) fLaunch.getDebugTarget()).getSession();
+        PTPDebugUIPlugin.getUIDebugManager().registerTasks(session, session.getTasks());
       }
     } catch (IOException except) {
       DebugCore.log(IStatus.ERROR, "Unable to access socket input stream", except);
