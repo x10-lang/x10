@@ -34,8 +34,7 @@ public class X10SyntaxProperties implements ILanguageSyntaxProperties {
     }
 
     public String[][] getFences() {
-        // TODO Auto-generated method stub
-        return null;
+        return new String[][] { { "{", "}" }, { "(", ")"}, { "[", "]"}, {"<", ">"} };
     }
 
     public int[] getIdentifierComponents(String ident) {
