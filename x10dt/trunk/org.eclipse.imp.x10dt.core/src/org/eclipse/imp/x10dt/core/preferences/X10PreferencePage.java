@@ -10,7 +10,6 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.preferences.fields.ComboFieldEditor;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;

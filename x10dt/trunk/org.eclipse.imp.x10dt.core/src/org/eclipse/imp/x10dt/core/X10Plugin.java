@@ -5,7 +5,7 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.preferences.SafariPreferencesService;
+import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceInitializer;
@@ -126,12 +126,12 @@ public class X10Plugin extends PluginBase {
     
     
     // SMS 27 Oct 2006
-    protected static SafariPreferencesService preferencesService = 
+    protected static PreferencesService preferencesService = 
     	getPreferencesService();
     
-    public static SafariPreferencesService getPreferencesService() {
+    public static PreferencesService getPreferencesService() {
     	if (preferencesService == null) {
-    		preferencesService = new SafariPreferencesService();
+    		preferencesService = new PreferencesService();
         	preferencesService.setLanguageName("x10");
            	(new PreferenceInitializer()).initializeDefaultPreferences();
     	}

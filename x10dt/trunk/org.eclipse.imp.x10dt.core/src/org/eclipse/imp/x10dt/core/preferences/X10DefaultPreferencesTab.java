@@ -2,13 +2,13 @@ package org.eclipse.imp.x10dt.core.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.imp.preferences.DefaultPreferencesTab;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-import org.eclipse.imp.preferences.SafariPreferencesUtilities;
-import org.eclipse.imp.preferences.fields.SafariBooleanFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariComboFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariIntegerFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariRadioGroupFieldEditor;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.ComboFieldEditor;
+import org.eclipse.imp.preferences.fields.FieldEditor;
+import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Link;
 	
 public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 	
-	public X10DefaultPreferencesTab(ISafariPreferencesService prefService) {
+	public X10DefaultPreferencesTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 
@@ -42,13 +42,13 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite)
+	protected FieldEditor[] createFields(Composite composite)
 	{
 		// TODO:  Declare preference fields here ...
-		SafariComboFieldEditor compilerConfiguration = null;
-		SafariIntegerFieldEditor samplingFrequency = null;
-		SafariBooleanFieldEditor emitMessages = null;
-		SafariRadioGroupFieldEditor statsDisable = null;
+		ComboFieldEditor compilerConfiguration = null;
+		IntegerFieldEditor samplingFrequency = null;
+		BooleanFieldEditor emitMessages = null;
+		RadioGroupFieldEditor statsDisable = null;
 		
 		// TODO:  Construct the specific fields, including a "details" link
 		// for each field; also create "toggle" listeners between fields whose
@@ -70,24 +70,24 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 		 */
 
 		compilerConfiguration = prefUtils.makeNewComboField(
-				prefPage, this, prefService, ISafariPreferencesService.DEFAULT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.DEFAULT_LEVEL,
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
-				true, true, SafariPreferencesUtilities.comboDefaultName, false);
+				true, true, PreferencesUtilities.comboDefaultName, false);
 		Link compilerConfigurationDetails = prefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 	
 		samplingFrequency = prefUtils.makeNewIntegerField(
-				prefPage, this, prefService, ISafariPreferencesService.DEFAULT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.DEFAULT_LEVEL,
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, true, true, true, "50", false, "", false);
 		samplingFrequency.setValidRange(0, 99);
 		Link samplingFrequencyDetails = prefUtils.createDetailsLink(
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);			
+		PreferencesUtilities.fillGridPlace(composite, 2);			
 		
 		// SMS 12 Dec 2006
 		// get grid layout for composite in order to restore it after
@@ -95,7 +95,7 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 		// columns to be set to one)
 		Layout layout = composite.getLayout();
 		statsDisable = prefUtils.makeNewRadioGroupField(
-				prefPage, this, prefService, ISafariPreferencesService.DEFAULT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.DEFAULT_LEVEL,
 				PreferenceConstants.P_STATS_DISABLE, "Statistics disable", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite, true,
 				true, false);
@@ -104,22 +104,22 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 		// Reset layout to what it was before adding field	
 		composite.setLayout(layout);
 
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
 		// Boolean preference emitMessages
 		emitMessages = prefUtils.makeNewBooleanField(
-				prefPage, this, prefService, ISafariPreferencesService.DEFAULT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.DEFAULT_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, true, true, true, false, false, false, false);
 		Link emitMessagesDetails = prefUtils.createDetailsLink(
 				composite, emitMessages, emitMessages.getChangeControl().getParent(), "Details ...");
 		
 		// Example of more spacing
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[4];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[4];		// change length as appropriate
 		// 	Add fields here ...
 		fields[0] = compilerConfiguration;
 		fields[1] = samplingFrequency;

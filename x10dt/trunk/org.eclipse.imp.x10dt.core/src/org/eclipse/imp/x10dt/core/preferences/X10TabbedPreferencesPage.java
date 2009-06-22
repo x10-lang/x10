@@ -1,9 +1,9 @@
 package org.eclipse.imp.x10dt.core.preferences;
 
 
-import org.eclipse.imp.preferences.ISafariPreferencesService;
-import org.eclipse.imp.preferences.SafariPreferencesTab;
-import org.eclipse.imp.preferences.SafariTabbedPreferencesPage;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.swt.widgets.TabFolder;
 
@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.TabFolder;
  * for naming the language plugin class and the preference-tab classes.
  * 	
  */
-public class X10TabbedPreferencesPage extends SafariTabbedPreferencesPage {
+public class X10TabbedPreferencesPage extends TabbedPreferencesPage {
 	
 	public X10TabbedPreferencesPage() {
 		super();
@@ -23,10 +23,10 @@ public class X10TabbedPreferencesPage extends SafariTabbedPreferencesPage {
 	}
 	
 	
-	protected SafariPreferencesTab[] createTabs(
-			ISafariPreferencesService prefService, SafariTabbedPreferencesPage page, TabFolder tabFolder) 
+	protected PreferencesTab[] createTabs(
+			IPreferencesService prefService, TabbedPreferencesPage page, TabFolder tabFolder) 
 	{
-		SafariPreferencesTab[] tabs = new SafariPreferencesTab[4];
+		PreferencesTab[] tabs = new PreferencesTab[4];
 		
 		X10ProjectPreferencesTab projectTab = new X10ProjectPreferencesTab(prefService);
 		projectTab.createProjectPreferencesTab(page, tabFolder);

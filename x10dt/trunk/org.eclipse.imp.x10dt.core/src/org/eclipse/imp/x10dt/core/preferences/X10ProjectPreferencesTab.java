@@ -1,14 +1,14 @@
 package org.eclipse.imp.x10dt.core.preferences;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.imp.preferences.ISafariPreferencesService;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.ProjectPreferencesTab;
-import org.eclipse.imp.preferences.SafariPreferencesUtilities;
-import org.eclipse.imp.preferences.fields.SafariBooleanFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariComboFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariIntegerFieldEditor;
-import org.eclipse.imp.preferences.fields.SafariRadioGroupFieldEditor;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.ComboFieldEditor;
+import org.eclipse.imp.preferences.fields.FieldEditor;
+import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -24,14 +24,14 @@ public class X10ProjectPreferencesTab extends ProjectPreferencesTab {
 	 * field editors have to be shared between two methods, so
 	 * they are be declared outside of both.
 	 */
-	SafariComboFieldEditor compilerConfiguration = null;
-	SafariIntegerFieldEditor samplingFrequency = null;
-	SafariRadioGroupFieldEditor statsDisable = null;
-	SafariBooleanFieldEditor emitMessages = null;
+	ComboFieldEditor compilerConfiguration = null;
+	IntegerFieldEditor samplingFrequency = null;
+	RadioGroupFieldEditor statsDisable = null;
+	BooleanFieldEditor emitMessages = null;
 
 	
 	
-public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
+public X10ProjectPreferencesTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 
@@ -45,13 +45,13 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite) {
+	protected FieldEditor[] createFields(Composite composite) {
 		
 		// TODO:  Construct the specific fields, including a "details" link
 		// for each field; also create "toggle" listeners between fields whose
 		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
 		//
-		// SafariPreferencesUtilities has factory-like methods for creating
+		// PreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
 		// Among the various parameters that can be set for a Safari preferences
@@ -68,32 +68,32 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 		/*
 		 * Parameters for call to makeNewComboField(..):
 		 *  PreferencePage page, SafariPreferencesTab tab,
-		 *  ISafariPreferencesService service, String level,
+		 *  IPreferencesService service, String level,
 		 *  String name, String labelText, String[][] entryNamesAndValues, Composite parent,
 		 * 	boolean isEnabled, boolean hasSpecialValue, String specialValue, boolean isRemovable
 		*/
 		compilerConfiguration = prefUtils.makeNewComboField(
-				prefPage, this, prefService, ISafariPreferencesService.PROJECT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
-				false, true, SafariPreferencesUtilities.comboDefaultName, true);
+				false, true, PreferencesUtilities.comboDefaultName, true);
 		Link compilerConfigurationDetails = prefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		detailsLinks.add(compilerConfigurationDetails);
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 	
 		
 		/*
 		 * Parameters to call to makeNewIntegerField (similar to those for other subtypes of string field): 
 		 *  PreferencePage page, SafariPreferencesTab tab,
-		 *  ISafariPreferencesService service, String level, String key,
+		 *  IPreferencesService service, String level, String key,
 		 *  String text, Composite parent,
 		 *  boolean isEnabled, boolean isEditable, boolean hasSpecialValue, String specialValue,
 		 *  boolean emptyValueAllowed, String emptyValue,boolean isRemovable
 		 */
 		samplingFrequency = prefUtils.makeNewIntegerField(
-				prefPage, this, prefService, ISafariPreferencesService.PROJECT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, false, false, true, "50", false, "", true);
 		// Special implementation fields for this page field:
@@ -102,7 +102,7 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 		detailsLinks.add(samplingFrequencyDetails);
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);			
+		PreferencesUtilities.fillGridPlace(composite, 2);			
 		
 		
 		// The next field to be added is a radio group field.  Adding a radio
@@ -115,13 +115,13 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 		/*
 		 * Parameters for call to 	makeNewRadioGroupField(..):
 		 *  PreferencePage page, SafariPreferencesTab tab,
-		 *  ISafariPreferencesService service, String level,
+		 *  IPreferencesService service, String level,
 		 *  String name, String labelText, int numColumns,
 		 *  String[][] labelAndValues, Composite parent,
 		 *  boolean useGroup, boolean isEnabled, boolean isRemovable
 		 */
 		statsDisable = prefUtils.makeNewRadioGroupField(
-				prefPage, this, prefService, ISafariPreferencesService.PROJECT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_STATS_DISABLE, "Statistics Disable:	", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite,
 				true, false, true);
@@ -135,18 +135,18 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 		composite.setLayout(layoutForRestoration);
 			
 
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
    		/*
    		 * Parameters for makeNewBooleanField(..): 
    		 *  PreferencePage page, SafariPreferencesTab tab,
-   		 *  ISafariPreferencesService service, String level,
+   		 *  IPreferencesService service, String level,
    		 *  String key, String text, Composite parent, 
    		 *  boolean isEnabled, boolean isEditable, boolean hasSpecialValue, boolean specialValue,
    		 *  boolean emptyValueAllowed, boolean emptyValue, boolean isRemovable
    		 */
 		emitMessages = prefUtils.makeNewBooleanField(
-				prefPage, this, prefService, ISafariPreferencesService.PROJECT_LEVEL,
+				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, false, false, true, false, false, false, true);
 		Link emitMessagesDetails = prefUtils.createDetailsLink(
@@ -158,10 +158,10 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 		// represented by this tab (project level with no project selected)
 		// and disable the new fields accordingly
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);
+		PreferencesUtilities.fillGridPlace(composite, 2);
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[4];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[4];		// change length as appropriate
 		// 	Add fields here ...
 		fields[0] = compilerConfiguration;
 		fields[1] = samplingFrequency;
@@ -178,7 +178,7 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 	 * 
 	 * Overrides an unimplemented method in ProjectPreferencesTab.
 	 */
-	public void addressProjectSelection(ISafariPreferencesService.ProjectSelectionEvent event, Composite composite)
+	public void addressProjectSelection(IPreferencesService.ProjectSelectionEvent event, Composite composite)
 	{
 		// Check that at least one affected preference is non-null
 		Preferences oldeNode = event.getPrevious();
@@ -251,7 +251,7 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 				// TODO:  For each field
 				// 1) assign the parent to a local variable for handy reference (if you're using
 				//    these)
-				// 2) Call SafariPreferencesUtilities.setField(..) with the field (and it's parent)
+				// 2) Call PreferencesUtilities.setField(..) with the field (and it's parent)
 				//    to set a value in the field.  (setField(..) will obtain a value from the
 				//    preferences store, if there is one set there, or inherit one from a higher
 				//    preferences level, if not).
@@ -323,7 +323,7 @@ public X10ProjectPreferencesTab(ISafariPreferencesService prefService) {
 			selectedProjectName.setStringValue("none selected");
 			
 			// Clear the preferences from the store
-			prefService.clearPreferencesAtLevel(ISafariPreferencesService.PROJECT_LEVEL);
+			prefService.clearPreferencesAtLevel(IPreferencesService.PROJECT_LEVEL);
 			
 			// Disable fields and make them non-editable
 			if (!composite.isDisposed()) {
