@@ -53,4 +53,11 @@
          version="1.0.23"
          unpack="false"/>
 
+   <plugin
+         id="org.eclipse.safari.x10dt"
+         download-size="0"
+         install-size="0"
+         version="1.0.23"
+         unpack="false"/>
+
 </feature>
