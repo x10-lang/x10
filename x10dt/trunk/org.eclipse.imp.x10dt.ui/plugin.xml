@@ -12,9 +12,7 @@
          point="org.eclipse.uide.runtime.parser">
       <parser
             class="x10.uide.parser.ParseController"
-            id="x10.uide.parser"
-            language="X10"
-            name="X10 Parser"/>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.tokenColorer">
@@ -68,9 +66,7 @@
          point="org.eclipse.uide.runtime.autoEditStrategy">
       <autoEditStrategy
             class="x10.uide.editor.X10AutoIndentStrategy"
-            id="x10.uide.autoEditStrategy"
-            language="X10"
-            name="X10 Auto-Edit Strategy"/>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -102,59 +98,44 @@
          point="org.eclipse.uide.runtime.annotationHover">
       <annotationHover
             class="x10.uide.editor.AnnotationHover"
-            id="x10.uide.annotationHover"
-            language="X10"
-            name="X10 Annotation Hover"/>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.hyperLink">
       <hyperlinkDetector
             class="x10.uide.editor.HyperlinkDetector"
-            id="x10.uide.hyperlinkDetector"
-            language="X10"
-            name="X10 Hyperlink Detector"/>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.hoverHelper">
       <hoverhelper
             class="x10.uide.editor.HoverHelper"
-            id="x10.uide.hoverhelper"
-            language="X10"
-            name="X10 Hover Helper"/>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.outliner">
       <outliner
-            name="X10 Outliner"
             class="x10.uide.views.Outliner"
-            language="X10"
-            id="x10.uide.outliner">
-      </outliner>
+            language="X10"/>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.foldingUpdater">
       <foldingUpdater
-            name="X10 foldingUpdater"
             class="x10.uide.editor.X10FoldingUpdater"
-            language="X10"
-            id="x10.safari.foldingUpdater">
+            language="X10">
       </foldingUpdater>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.hyperLink">
       <hyperlinkDetector
-            name="X10 hyperLink"
             class="x10.uide.editor.HyperlinkDetector"
-            id="x10.safari.hyperLink"
             language="X10">
       </hyperlinkDetector>
    </extension>
    <extension
          point="org.eclipse.uide.runtime.contentProposer">
       <proposer
-            name="X10 contentProposer"
             class="x10.safari.contentProposer.X10ContentProposer"
-            id="x10.safari.contentProposer"
             language="X10">
       </proposer>
    </extension>
