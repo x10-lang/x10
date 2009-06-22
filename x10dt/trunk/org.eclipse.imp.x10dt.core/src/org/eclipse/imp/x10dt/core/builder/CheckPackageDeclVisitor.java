@@ -43,8 +43,6 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
         if (!actualPkg.equals(declaredPkg)) {
             fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pos));
-            System.out.println("===> actualPkg: "+actualPkg+"  declaredPkg: "+declaredPkg);
-            int stophere=1;
         }
     }
 
@@ -53,7 +51,7 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
         if (n instanceof PackageNode) {
             PackageNode pkg= (PackageNode) n;
             Source src= fJob.source();
-            String declaredPkg= pkg.package_().get().fullName().name().toString();
+            String declaredPkg= pkg.package_().get().fullName().toString();
             String actualPkg= determineActualPackage(src);
             if(actualPkg!=null) {
             	checkPackage(declaredPkg, actualPkg, pkg.position());    	
