@@ -22,4 +22,8 @@
     <category name="X10 Development Tools"/>
   </feature>
 
+  <feature url="features/org.eclipse.imp.x10dt_1.7.3.1.jar" id="org.eclipse.imp.x10dt" version="1.7.3.1">
+    <category name="X10 Development Tools"/>
+  </feature>
+
 </site>
