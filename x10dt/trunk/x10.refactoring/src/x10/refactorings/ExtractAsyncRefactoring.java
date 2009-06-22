@@ -36,6 +36,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
@@ -272,7 +273,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
      * 
      * @param editor Must be a UniversalEditor or cast to IASTFindReplaceTarget is unsafe.
      */
-    public ExtractAsyncRefactoring(TextEditor editor) {
+    public ExtractAsyncRefactoring(ITextEditor editor) {
         super();
 
         ed = (IASTFindReplaceTarget) editor;
