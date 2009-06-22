@@ -1,0 +1,105 @@
+\indexentry{whitespace}{7}
+\indexentry{comments}{7}
+\indexentry{identifier}{7}
+\indexentry{keyword}{7}
+\indexentry{literals}{7}
+\indexentry{types}{7}
+\indexentry{type constructors}{7}
+\indexentry{nullable@{\tt nullable}}{8}
+\indexentry{null@{\tt null}}{8}
+\indexentry{array types}{9}
+\indexentry{variables}{10}
+\indexentry{variable!final}{10}
+\indexentry{final variable}{10}
+\indexentry{nullary constructor}{10}
+\indexentry{Object}{10}
+\indexentry{place.location}{10}
+\indexentry{Object}{11}
+\indexentry{conversions}{12}
+\indexentry{promotions}{12}
+\indexentry{dependent types}{12}
+\indexentry{properties}{12}
+\indexentry{dependent type}{13}
+\indexentry{parameter}{14}
+\indexentry{where clauses}{14}
+\indexentry{Type Invariant}{14}
+\indexentry{deptype,consistency}{15}
+\indexentry{placetype}{20}
+\indexentry{implicit syntax}{21}
+\indexentry{names}{21}
+\indexentry{packages}{21}
+\indexentry{Upper case convention}{21}
+\indexentry{places}{21}
+\indexentry{here}{22}
+\indexentry{root activity}{22}
+\indexentry{finish}{23}
+\indexentry{clock!ClockUseException}{24}
+\indexentry{initial activity}{24}
+\indexentry{atomic blocks}{25}
+\indexentry{place!BadPlaceException}{25}
+\indexentry{foreach@{\tt foreach}}{27}
+\indexentry{for@{\tt for}}{27}
+\indexentry{ateach@{\tt ateach}}{27}
+\indexentry{clocks}{28}
+\indexentry{clock!creation}{28}
+\indexentry{clock!clocked statements}{29}
+\indexentry{clock!ClockUseException}{29}
+\indexentry{clock!resume}{29}
+\indexentry{clock!ClockUseException}{29}
+\indexentry{clock!next}{29}
+\indexentry{clock!drop}{29}
+\indexentry{interfaces}{29}
+\indexentry{class}{29}
+\indexentry{class!reference class}{30}
+\indexentry{class!value class}{30}
+\indexentry{arrays}{31}
+\indexentry{arrays!distribution@\tt distribution}{31}
+\indexentry{region}{31}
+\indexentry{region!upperTriangular}{31}
+\indexentry{region!lowerTriangular}{31}
+\indexentry{region!banded}{31}
+\indexentry{region!convex}{32}
+\indexentry{region!sub-region}{32}
+\indexentry{region!intersection}{32}
+\indexentry{region!union}{32}
+\indexentry{region!set difference}{32}
+\indexentry{region!==}{32}
+\indexentry{distribution}{32}
+\indexentry{distribution!unique}{32}
+\indexentry{distribution!constant}{32}
+\indexentry{distribution!block}{32}
+\indexentry{distribution!cyclic}{32}
+\indexentry{distribution!block cyclic}{32}
+\indexentry{distribution!arbitrary}{32}
+\indexentry{distribution!restriction!domain}{32}
+\indexentry{distribution!restriction!range}{33}
+\indexentry{distribution!user-defined}{33}
+\indexentry{sub-distribution}{33}
+\indexentry{distribution!intersection}{33}
+\indexentry{distribution!union!asymmetric}{33}
+\indexentry{distribution!union!disjoint}{33}
+\indexentry{distribution!difference}{33}
+\indexentry{array!access}{34}
+\indexentry{arrays!constant promotion}{34}
+\indexentry{array!restriction}{34}
+\indexentry{array!union!disjoint}{34}
+\indexentry{array!union!asymmetric}{34}
+\indexentry{array!pointwise operations}{34}
+\indexentry{array!reductions}{34}
+\indexentry{array!scans}{34}
+\indexentry{statements}{34}
+\indexentry{assignment}{35}
+\indexentry{[] syntax}{35}
+\indexentry{variable declarator!exploded}{35}
+\indexentry{expressions}{35}
+\indexentry{classcast}{35}
+\indexentry{instanceof@{\tt instanceof}}{36}
+\indexentry{==}{36}
+\indexentry{!=}{36}
+\indexentry{annotations}{36}
+\indexentry{plugins}{37}
+\indexentry{Polyglot}{37}
+\indexentry{CompilerPlugin}{37}
+\indexentry{Goal}{37}
+\indexentry{Node}{37}
+\indexentry{AnnotationNode}{37}

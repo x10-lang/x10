@@ -1,0 +1,120 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;;
+
+/**
+ * Sequential version of Edmiston's algorithm for Sequence Alignment.
+ * This code is an X10 port of the Edmiston_Sequential.c program written by
+ * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ * @author Kemal Ebcioglu (kemal@us.ibm.com)
+ */
+public class Edmiston_Sequential2 extends x10Test {
+	public const gapPen: int = 2;
+	public const match: int = 0;
+	public const misMatch: int = -1;
+	public const EXPECTED_CHECKSUM: int = 549;
+	public const aminoAcids: Array[char] = { 'A', 'C', 'G', 'T' };
+
+	/**
+	 * Edmiston's algorithm
+	 */
+	public def run(): boolean = {
+		final val N: int = 10;
+		final val M: int = 10;
+		final val c1: Array[char] = new Array[char](Dist.makeConstant([0..N], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(i); });
+		final val c2: Array[char] = new Array[char](Dist.makeConstant([0..M], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(N+i); });
+		final val D: dist = Dist.makeConstant([0..N, 0..M], here);
+		final val Dinner: dist{rank==D.rank} = D|[1..N, 1..M];
+		final val Dboundary: dist = D-Dinner;
+		//  Boundary of e is initialized to:
+		//  0     1*gapPen     2*gapPen     3*gapPen ...
+		//  1*gapPen ...
+		//  2*gapPen ...
+		//  3*gapPen ...
+		//  ...
+		final val e: Array[int] = new Array[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? gapPen*(i+j) : 0; });
+		for (val (i,j): point in Dinner) e(i, j) = min(e(i-1, j)+gapPen,
+					e(i, j-1)+gapPen,
+					e(i-1, j-1)+(c1(i) == c2(j) ? match : misMatch));
+		pr(c1, c2, e, "Edit distance matrix:");
+		return e.sum() == EXPECTED_CHECKSUM;
+	}
+
+	/**
+	 * returns the minimum of x y and z.
+	 */
+	static def min(var x: int, var y: int, var z: int): int = {
+		var t: int = (x < y) ? x : y;
+		return (t < z) ? t : z;
+	}
+
+	/**
+	 * Function to generate the i'th random character
+	 */
+	static def randomChar(var i: int): char = {
+		// Randomly select one of 'A', 'C', 'G', 'T'
+		var n: int = 0;
+		final val rand: Random = new Random(1L);
+		// find i'th random number.
+		// TODO: need to pre-compute random numbers and re-use
+		for (val (k): point in [1..i]) n = nextChoice(rand);
+		return aminoAcids(n);
+	}
+
+	static def nextChoice(var rand: Random): int = {
+		var k1: int = rand.nextBoolean() ? 0 : 1;
+		var k2: int = rand.nextBoolean() ? 0 : 1;
+		return k1*2+k2;
+	}
+
+	/**
+	 * Print the Edit Distance Matrix
+	 */
+	static def pr(var c1: Array[char], var c2: Array[char], var e: Array[int], var s: String): void = {
+		final val N: int = c1.region.high();
+		final val M: int = c2.region.high();
+		final val K: int = 4; // padding amount
+
+		System.out.println(s);
+
+		System.out.print(" "+pad(' ', K));
+		for (val (j): point in c2) System.out.print(" "+pad(c2(j), K));
+		System.out.println();
+
+		for (val (i): point in [0..N]) {
+			System.out.print(" "+pad(c1(i), K));
+			for (val (j): point in [0..M]) System.out.print(" "+pad(e(i, j), K));
+			System.out.println();
+		}
+	}
+
+	/**
+	 * right justify an integer in a field of n blanks
+	 */
+	static def pad(var x: int, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	/**
+	 * right justify a character in a field of n blanks
+	 */
+	static def pad(var x: char, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Edmiston_Sequential2().execute();
+	}
+}

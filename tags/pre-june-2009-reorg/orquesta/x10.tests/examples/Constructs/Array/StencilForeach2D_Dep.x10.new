@@ -1,0 +1,37 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import x10.lang.Object;
+import harness.x10Test;;
+
+/**
+*  Implementing a 5-point stencil operation using foreach loop
+* @author Tong
+  11/29/2006
+*/
+public class StencilForeach2D_Dep extends x10Test {
+	
+        public def run(): boolean = {
+        	val R: region{rank==2} = [-1..256, -1..256];
+                val r: region{rank==2} = [0..255, 0..255];
+        	val north: point = [0, 1];
+                val south: point = [0, -1];
+                val west: point = [-1, 0];
+                val east: point = [1, 0]; //rank is not a property of point!
+        	val A: Array[double]{rank==2} = (Array[double]{rank==2})new Array[double](R); //casting is not natrual here!
+        	val h: double = 0.1;
+        	
+        	finish foreach (val p: point in r) A(p)=(A(p+north)+A(p+south)+A(p+west)+A(p+east)-4*A(p))*h;
+        	
+	    return true;
+	}
+	
+	public static def main(var args: Rail[String]): void = {
+		new StencilForeach2D_Dep().execute();
+	}
+
+}

@@ -1,0 +1,62 @@
+\section{Performance Evaluation}\label{s:results}
+
+\subsection{C implementation}
+All the C implementations follow the SPMD programming style.  $P$
+threads are created, and each of them is assigned a piece of work .
+The DFS implemenation balances the workload through a simple, explicit
+work-stealing scheme as described in \cite{BL94}.  Both the BFS and SV
+implementaions simply distribute the input array evenly to each
+processor to work on.  Ajacency array are used for the input
+representation in BFS and DFS.  SV simulates the corresponding PRAM
+algorithm, and uses the edge list representation.  In DFS,
+mutual-exclusion through atomic instruction is used for
+synchronization.  BFS and SV employ only barriers, and the barrier
+implemenation is the usual $O(\log P)$ tree implemenation.
+
+DFS in Cilk use the same input represenation as the C implementation.
+Concurrency and synchronization are supported by Cilk runtime and Cilk
+lock ( an efficient implementation through atomic instructions).
+
+The performance numbers for handwritten C application and for the
+\XWS{} code are given below, for psuedo-depth-first search,
+breadth-first search and the Shiloach Vishkin algorithm for spanning
+tree (from top to bottom). Numbers are presented for two machines,
+altair (containing 4 dual-core Opterons) on the left and moxie, a
+32-processor Niagara on the right. The best numbers for ten
+consecutive runs are presented.
+
+The Java programs were run using the experimental Java 1.7 release on
+both machines. C programs were compiled with Sun cc v 5.8 and Cilk
+programs with the 5.3.2 compiler.
+
+The graphs show good scaling for the \XWS{} version of applications on
+both machines. In all cases the numbers for \XWS{} are better than
+that for the C code at higher processor counts.
+
+Cilk does not perform well for BFS. (We were unable to get a Cilk
+version of SV running in time for the submission.) 
+
+
+\begin{figure}
+ \begin{tabular}{ccc}
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/random/altair-bfs-random.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/random/altair-dfs-random.jpg}\\
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/kgraph/altair-bfs-kgraph.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/kgraph/altair-dfs-kgraph.jpg}\\
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/torus/altair-bfs-torus.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/torus/altair-dfs-torus.jpg} \\
+
+ \end{tabular}
+\caption{Psuedo-DFS and BFS for altair}\label{DFS-altair}\label{BFS-altair}
+\end{figure}
+
+\begin{figure}
+ \begin{tabular}{ccc}
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/SV/random/altair-sv-random.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/SV/kgraph/altair-sv-kgraph.jpg}\\
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/SV/torus/altair-sv-torus.jpg}\\
+ \end{tabular}
+\caption{SV for altair}\label{SV-altair}
+\end{figure}
+
+

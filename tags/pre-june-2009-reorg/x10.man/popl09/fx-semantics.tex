@@ -1,0 +1,124 @@
+
+\begin{figure*}
+
+{\bf \FX{} well-formedness rules:}\\[-12pt]
+\infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
+
+\infrule[And]
+	{\Gamma  \vdash {\tt c}_0: {\tt o} \andalso \Gamma \vdash {\tt c}_1: {\tt o}}
+	{\Gamma \vdash ({\tt c}_0,{\tt c}_1):{\tt o}}
+
+\infrule[Exists]
+	{\Gamma \vdash {\tt t}: {\tt T} \andalso \Gamma \vdash {\tt c}[{\tt t}/{\tt x}]:{\tt o}}
+	{\Gamma \vdash {\tt x}:{\tt T}.~{\tt c}: {\tt o}}
+
+\infrule[Class]
+	{\Gamma \vdash \klass({\tt C})}
+	{\Gamma \vdash {\tt C} : \type} 
+
+\infrule[Exist-T]
+	{\Gamma \vdash {\tt S}\ \type, {\tt T}: \type}
+	{\Gamma \vdash \exists {\tt x}:{\tt S}.~{\tt T}: \type} 
+
+\infrule[Dep]
+	{\Gamma \vdash {\tt T}: \type \andalso \Gamma, \self:{\tt T} \vdash {\tt c}:{\tt o}}
+	{\Gamma \vdash {\tt T}\{{\tt c}\}: {\tt type}} 
+\end{figure*}
+
+\begin{figure*}
+{\bf Type judgment rules:}\\[-12pt]
+
+\infax[T-Var]
+      {\Gamma, {\tt x}:{\tt T} \vdash {\tt x}:{\tt T\{\self==x\}}}
+
+\infrule[T-Cast]
+	{\Gamma \vdash {\tt e}:{\tt U} \andalso \Gamma \vdash {\tt T}: \type}
+	{\Gamma \vdash {\tt e}\ \as\ {\tt T}: {\tt T}}
+
+\infrule[T-Field]
+	{\Gamma \vdash {\tt e}: {\tt S} \andalso \Gamma,{\tt z}:{\tt S}\vdash {\tt z}\ \has\ {\tt f}:{\tt V} \andalso \mbox{({\tt z} fresh)} }
+	{\Gamma \vdash {\tt e}.{\tt f}:  \exists {\tt z}:{\tt S}.~{\tt V\{\self=z.f\}}}
+
+\infrule[T-Invk]
+	{\Gamma \vdash {\tt e}:{\tt T},\tbar{e}:\tbar{V} \andalso \\
+	  \Gamma,{\tt v}:{\tt T},\tbar{v}:\tbar{V} \vdash
+		{\tt v}\ \has\ ({\tt m}(\tbar{v}:\tbar{U})\{{\tt c}\}: {\tt S}), 
+		\tbar{V} \subtype \tbar{U},{\tt c} 
+	  \andalso \mbox{({\tt v},$\tbar{v}$ fresh)}}
+	{\Gamma \vdash {\tt e}.{\tt m}(\tbar{e}): \exists {\tt v}:{\tt T}.~\tbar{v}:\tbar{V};S)}
+
+\infrule[T-New]
+	{\Gamma \vdash \tbar{e}:\tbar{T} \andalso
+          \mbox{({\tt v},$\tbar{v}$\ fresh)}\\
+	  \Gamma, {\tt v}:{\tt C}, \tbar{v}:\tbar{T}, {\tt v}.\tbar{f}==\tbar{v} 
+	  \vdash \tbar{T} \subtype \tbar{V}, {\tt c}[{\tt v}/{\tt this}]
+           \\
+           {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
+	{\Gamma \vdash \new\ {\tt C}(\tbar{e}): \exists
+        \tbar{v}: \tbar{T}.~{\tt C}\{\new\ {\tt C}(\tbar{v})==\self, {\tt c}[{\tt v}/{\tt this}]\}}
+
+\infrule[Method OK]
+        {\this:{\tt C},\tbar{x}:\tbar{V} \vdash {\tt c}: {\tt o}
+        \andalso
+        \this:{\tt C},\tbar{x}:\tbar{V},{\tt c}
+        \vdash {\tt T}: \type, \tbar{V}: \type,
+        {\tt e}:{\tt S}, {\tt S} \subtype {\tt T}}
+	{{\tt def}\ {\tt m}(\tbar{x}:\tbar{V})\{{\tt c}\}:{\tt T}= {\tt e};\ \mbox{OK in}\ C}
+
+\infrule[Class OK]
+	{\tbar{M}\ \mbox{OK in}\ {\tt C}
+        \andalso
+        \this:{\tt C}\vdash {\tt c}:{\tt o}
+        \andalso
+        \this:{\tt C},{\tt c} \vdash \tbar{V}: \type, {\tt D}: \type
+        \andalso
+        \vdash \klass({\tt D})
+        }
+	{\mbox{\tt class}\ {\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}\ 
+	  \mbox{\tt extends}\ {\tt D}~\{~\tbar{M}~\} \ \mbox{OK}}
+\end{figure*}
+
+\begin{figure*}
+{\bf Transition rules:}\\[-12pt]
+
+\typicallabel{RC-Field}
+
+\infrule[\RField]
+	{\tt x:C \vdash \fields(\tt x)=\tbar{f}:\tbar{V}}
+	{(\new\ {\tt C}(\tbar{e})).{\tt f_i} \derives {\tt e_i}}
+
+\infrule[\RCField]%
+	{{\tt e} \derives {{\tt e}}'}
+	{{\tt e}.{\tt f}_i \derives {{\tt e}}'.{\tt f}_i}
+
+\infrule[\RCast]%
+	{\vdash {\tt C}\{\self==\new\ C(\tbar{d})\} \subtype {\tt T}}
+	{{\tt (\new\ C(\tbar{d}))} \derives \new\ C(\tbar{d})~{\tt as}~{\tt T}}
+
+\infrule[\RCCast]%
+	{{\tt e} \derives {{\tt e}}'}
+	{{\tt e}~{\tt as}~{\tt T} \derives {{\tt e}}'~{\tt as}~{\tt T}}
+
+	\typicallabel{R-Invk-Recv}
+	\infrule[\RInvk]
+		{{\tt x:C}\vdash {\tt x}\ \has\ {\tt
+                m}(\tbar{x}:\tbar{T}){\tt \{c\}:T=e}}
+		{(\new\ {\tt C}(\tbar{e})).{\tt m}(\tbar{d})
+                \derives {\tt e[\new\ {\tt
+                C}(\tbar{e}),\tbar{d}/\this,\tbar{x}]}}
+
+	\infrule[\RCInvkRecv]%
+		{{\tt e} \derives {{\tt e}}'}
+		{{\tt e}.{\tt m}(\tbar{e}) \derives {{\tt
+                e}}'.{\tt m}(\tbar{e})}
+
+	\infrule[\RCInvkArg]%
+		{{\tt e}_i \derives {{\tt e}_i}'}
+		{{\tt e}.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}}.{\tt m}(\ldots,{\tt e}_i',\ldots)} 
+
+	\infrule[\RCNewArg]%
+		{{\tt e}_i \derives {{\tt e}_i}'}
+		{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)}
+
+ \caption{Semantics of \FX}\label{fig:FX}
+\end{figure*}

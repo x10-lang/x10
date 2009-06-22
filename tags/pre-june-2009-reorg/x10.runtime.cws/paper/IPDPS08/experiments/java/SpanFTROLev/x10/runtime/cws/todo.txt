@@ -1,0 +1,5 @@
+-- Get rid of closures if the job is globally quiescent. (done)
+-- SpanF is leaving garbage behind. Prolly closure needs to be cleaned out?
+
+06/16/07
+-- Removed references to lock.unlock() from Worker. Should only call this.unlock().

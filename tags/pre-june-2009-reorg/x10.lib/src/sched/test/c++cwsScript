@@ -1,0 +1,54 @@
+#!/usr/bin/bash
+
+CWS_DIR="$HOME/RAJ/x10.lib/src/sched/"
+MAX_ITER=7
+
+
+convert() 
+{
+if [ "$2" = "s" ] 
+then 
+	a=`echo "scale=2;($1*1000)"|bc -l`
+	echo $a
+else 
+	echo $1
+fi
+}
+
+eachrun()
+{
+./$1  $2 1 $3  > TMP 2>&1 
+a=` cat TMP | grep "^C++CWS" | awk '{print $3}'`
+a1=` cat TMP | grep "^C++CWS" | awk '{print $4}'`
+r1=`convert $a $a1`
+echo $r1
+}
+
+if [ $# -eq 0 ]
+then
+	echo "WARNING::Name of the executable Please"
+	exit
+fi
+
+cd $CWS_DIR
+for j in `echo 8 16 32 64`
+#for j in `echo 64`
+do
+
+for i in `echo  30 35 40 45`
+do
+
+r=0
+for (( k = 0 ; k < $MAX_ITER ; k++ ))
+#for k in `echo 1 2 3 4 5 6 7`
+do
+r11=`eachrun $1 $j $i`
+r12=`echo "scale=2;($r+$r11)"|bc -l`
+r=$r12
+done
+
+res=`echo "scale=2;($r)/$MAX_ITER"|bc -l`
+echo  "C++CWS $1($i) $j $res ms"
+ 
+done
+done

@@ -1,0 +1,8 @@
+#scaling on moxie, for 1, 2, 4, 8, 16 processors
+# graph 5M nodes 20M edges
+# #processors		time(s)
+ 1			5.783180	
+ 2			3.000003	
+ 4			1.715843	
+ 8			1.268257      
+ 16                     1.549957                                                 32			1.502932

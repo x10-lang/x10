@@ -1,0 +1,245 @@
+% -*- LaTeX -*-
+%%% ====================================================================
+%%%  @LaTeX-style-file{
+%%%     author          = "Glenn Paulley",
+%%%     version         = "1.0",
+%%%     date            = "2002 April 16",
+%%%     time            = "17:18:41",
+%%%     filename        = "ieee.clo",
+%%%     address         = "iAnywhere Solutions
+%%%                        415 Phillip Street
+%%%                        Waterloo, Ontario, Canada
+%%%                        N2L 3X2",
+%%%     telephone       = "(519) 883-6244",
+%%%     FAX             = "(519) 747-4971",
+%%%     checksum        = "",
+%%%     email           = "paulley@ianywhere.com",
+%%%     codetable       = "ISO/ASCII",
+%%%     keywords        = "",
+%%%     supported       = "yes",
+%%%     abstract        = "Contains the LaTeX style command definitions
+%%%                        for typesetting details of the IEEE document class.",
+%%%     docstring       = "The checksum field above contains a CRC-16
+%%%                        checksum as the first value, followed by the
+%%%                        equivalent of the standard UNIX wc (word
+%%%                        count) utility output of lines, words, and
+%%%                        characters.  This is produced by Robert
+%%%                        Solovay's checksum utility.",
+%%%  }
+%%% ====================================================================
+%% 
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\ProvidesFile{ieee.clo}
+              [2002/04/16 v1.0 IEEE Document Class Options]
+%
+% list environments
+%
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize\@xpt\@xiipt%
+   \abovedisplayskip 9\p@ \@plus2\p@ \@minus4\p@%
+   \abovedisplayshortskip \z@ \@plus3\p@%
+   \belowdisplayshortskip 5.5\p@ \@plus2.5\p@ \@minus2\p@%
+   \belowdisplayskip \abovedisplayskip%
+   \jot 0.6pt% for closer math spacing
+   \setlength\parsep{0\p@ \@plus 1\p@}%
+   \listparindent 1pc%
+   \let\@listi\@listI%
+}%
+\normalsize%
+\renewcommand\small{%
+   \@setfontsize\small\@ixpt{11}%
+   \abovedisplayskip 7.5\p@ \@plus3\p@ \@minus4\p@%
+   \abovedisplayshortskip \z@ \@plus2\p@%
+   \belowdisplayshortskip 4\p@ \@plus2\p@ \@minus2\p@%
+   %% These settings are chosen primarly to typeset the bibliography;
+   %% With IEEE, references are set in 9pt
+   \def\@listi{\leftmargin\leftmargini%
+               \topsep 3\p@ \@plus2\p@ \@minus2\p@%
+               \parsep \z@ \@plus\p@%
+               \itemsep \p@ \@plus\p@ \@minus\p@%
+               \partopsep \z@ \@plus\z@ \@minus\p@%
+               \listparindent 1pc%
+    }%
+}%
+\renewcommand\footnotesize{%
+   \@setfontsize\footnotesize\@viiipt{9}%
+   \abovedisplayskip 6\p@ \@plus2\p@ \@minus3\p@%
+   \abovedisplayshortskip \z@ \@plus\p@%
+   \belowdisplayshortskip 3\p@ \@plus2\p@ \@minus2\p@%
+   \def\@listi{\leftmargin\leftmargini%
+               \topsep 3\p@ \@plus2\p@ \@minus\p@%
+               \partopsep \p@ \@plus\z@ \@minus\p@%
+               \listparindent 1pc%
+               \parsep \z@ \@plus\p@%
+               \itemsep \p@ \@plus\p@ \@minus\p@}%
+   \belowdisplayskip \abovedisplayskip%
+}%
+\def\@listI{\leftmargin\leftmargini%
+            \parsep \z@ \@plus2\p@%
+            \partopsep \p@ \@plus\z@ \@minus\p@%
+            \listparindent 1pc%
+            \topsep 5\p@   \@plus2\p@ \@minus\p@%
+            \itemsep 4\p@ \@plus\p@ \@minus\p@}%
+\let\@listi\@listI%
+\@listi%
+\def\@listii{\leftmargin\leftmarginii%
+              \labelwidth\leftmarginii%
+              \advance\labelwidth-\labelsep%
+              \listparindent 1pc%
+              \topsep    3\p@ \@plus2\p@ \@minus\p@%
+              \partopsep \p@ \@plus\z@ \@minus\p@%
+              \parsep    \z@ \@plus\p@%
+              \itemsep   3\p@ \@plus1\p@ \@minus\p@}%
+\def\@listiii{\leftmargin\leftmarginiii%
+              \labelwidth\leftmarginiii%
+              \advance\labelwidth-\labelsep%
+              \listparindent 1pc%
+              \topsep    3\p@ \@plus\p@\@minus\p@%
+              \parsep    \z@%
+              \partopsep \p@ \@plus\z@ \@minus\p@%
+              \itemsep   2\p@ \@plus\p@ \@minus\p@}%
+\def\@listiv {\leftmargin\leftmarginiv%
+              \labelwidth\leftmarginiv%
+              \advance\labelwidth-\labelsep}%
+\def\@listv  {\leftmargin\leftmarginv%
+              \labelwidth\leftmarginv%
+              \advance\labelwidth-\labelsep}%
+\def\@listvi {\leftmargin\leftmarginvi%
+              \labelwidth\leftmarginvi%
+              \advance\labelwidth-\labelsep}%
+%
+% Hyphenate more often, to avoid widely-spaced words.
+%
+\hyphenpenalty = -100%
+\pretolerance = 30%
+\tolerance = 650%
+\doublehyphendemerits=7000%
+\finalhyphendemerits=4000%
+%
+% Change latex's default penalties for widow and club lines (since
+% we're in twocolumn mode).
+%
+\clubpenalty=850%
+\widowpenalty=950%
+%
+% Establish better inter-word spacing for the OT1 Computer Modern (cm) fonts. 
+% We need to redefine \DeclareFontShape for each font series (see Latex 
+% Companion, pp. 202) in OT1cmr.fd, OT1cmdh.fd, etc. Note that TeX loads
+% the .tfm for each font only once, so this redeclaration will 
+% set the spacing for additional fonts in the same family. Thus
+% one cannot use \DeclareFontShape to affect a font temporarily;
+% it's impact is global, and once the definition is changed, it's changed
+% for each font in that family. To temporarily change wordspacing use
+% the tex commands \spaceskip and \xspaceskip.
+%
+% First turn on frenchspacing (no added space at the end of sentences)
+%
+% Alter font definitions from latex2e font def files
+%
+% from OT1cmr.fd
+%
+\DeclareFontShape{OT1}{cmr}{m}{n}%
+   {  <5> <6> <7> <8> <9> <10> <12> gen * cmr%
+      <10.95> cmr10%
+      <14.4>  cmr12%
+      <17.28><20.74><24.88>cmr17}%
+   {\fontdimen2\font=0.65\fontdimen2\font%
+    \fontdimen4\font=0.8\fontdimen4\font}%
+\DeclareFontShape{OT1}{cmr}{m}{sl}
+    {%
+      <5><6><7>cmsl8%
+      <8> <9> gen * cmsl%
+      <10><10.95>cmsl10%
+      <12><14.4><17.28><20.74><24.88>cmsl12%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+\DeclareFontShape{OT1}{cmr}{m}{it}%
+    {%
+      <5><6><7>cmti7%
+      <8>cmti8%
+      <9>cmti9%
+      <10><10.95>cmti10%
+      <12><14.4><17.28><20.74><24.88>cmti12%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+\DeclareFontShape{OT1}{cmr}{m}{sc}%
+    {%
+      <5><6><7><8><9><10><10.95><12>%
+      <14.4><17.28><20.74><24.88> cmcsc10%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+% Warning: please note that the upright shape below is
+%          used for the \pounds symbol of LaTeX. So this
+%          font definition shouldn't be removed.
+%
+\DeclareFontShape{OT1}{cmr}{m}{ui}%
+   {%
+      <5><6><7><8><9><10><10.95><12>%
+      <14.4><17.28><20.74><24.88>cmu10%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+%
+% From OT1cmss.fd
+%
+\DeclareFontShape{OT1}{cmss}{m}{n}%
+     {%
+      <5><6><7><8>cmss8%
+      <9>cmss9%
+      <10><10.95>cmss10%
+      <12><14.4>cmss12%
+      <17.28><20.74><24.88>cmss17%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+% Font undefined, therefore substituted
+\DeclareFontShape{OT1}{cmss}{m}{it}%
+      {<->sub*cmss/m/sl}%
+      {\fontdimen2\font=0.65\fontdimen2\font%
+       \fontdimen4\font=0.8\fontdimen4\font}%
+\DeclareFontShape{OT1}{cmss}{m}{sl}
+    {
+      <5><6><7><8>cmssi8 <9> cmssi9
+      <10><10.95>cmssi10
+      <12><14.4>cmssi12
+      <17.28><20.74><24.88>cmssi17
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+%%%%%%% Font/shape undefined, therefore substituted
+\DeclareFontShape{OT1}{cmss}{m}{sc}%
+       {<->sub*cmr/m/sc}%
+       {\fontdimen2\font=0.65\fontdimen2\font%
+         \fontdimen4\font=0.8\fontdimen4\font}%
+%%%%%%%% semibold condensed series
+\DeclareFontShape{OT1}{cmss}{sbc}{n}%
+     {%
+      <5> <6> <7> <8> <9> cmssdc10%
+       <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88>cmssdc10%
+       }{\fontdimen2\font=0.65\fontdimen2\font%
+         \fontdimen4\font=0.8\fontdimen4\font}%
+%
+%%%%%%%%% bold extended series
+\DeclareFontShape{OT1}{cmss}{bx}{n}%
+     {%
+      <5> <6> <7> <8> <9> cmssbx10%
+      <10> <10.95> <12> <14.4> <17.28> <20.74> <24.88> cmssbx10%
+      }{\fontdimen2\font=0.65\fontdimen2\font%
+        \fontdimen4\font=0.8\fontdimen4\font}%
+%
+% OT1cmtt (typewriter) we leave alone......
+%
+\endinput
+%% 
+%% End of file `ieee.clo'.

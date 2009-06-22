@@ -1,0 +1,22 @@
+
+\begin{abstract}
+
+Solving large, irregular graph problems efficiently is
+challenging. Current software systems and commodity multiprocessors do
+not support fine-grained, irregular parallelism well. We present
+\XWS{}, the \Xten{} Work Stealing framework, an open-source runtime
+for the parallel programming language \Xten{} and a library to be used
+directly by application writers. \XWS{} extends the Cilk work-stealing
+framework with several features necessary to efficiently implement
+graph algorithms, viz., support for improperly nested procedures,
+worker-specific data-structures, global termination detection, and
+phased computation. We also present a strategy to adaptively control
+the granularity of parallel tasks in the work-stealing scheme,
+depending on the instantaneous size of the work queue. We compare the
+performance of the \XWS{} implementations of spanning tree algorithms
+with that of the hand-written C and Cilk implementations using various
+graph inputs. We show that the \XWS{} programs (written in Java) scale
+and exhibit comparable or better performance.
+
+\end{abstract}
+

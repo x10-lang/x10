@@ -1,0 +1,97 @@
+Procedure to run nightly test cases on AIX, with a home directory on dce.
+
+(tested on rios2.watson.ibm.com)
+=========================================================================
+
+Ensure you have ant 1.6.x available.
+
+Ensure you are able to do cvs checkouts from the Purdue x10 cvs repository.
+
+Create the  file attached below as ~/X10_cronJob
+
+ chmod 700 ~/X10_cronJob #this makes the file unreadable by others
+
+Edit the file ~/X10_cronJob to enter
+your own dce password, userid fields in it.
+
+Allow the nightly "at" job to get access to your home directory
+on dce:
+
+ cd /u/<yourAIXUserId> 
+ dcecp -c acl modify /u/<yourAIXUserId> -add any_other:x -mask calc
+
+Now do the following when it is time to run the tests:
+
+ at now
+ dce_login <yourAIXUserId> <yourDcePassword> -e ksh -c "~/X10_cronJob ; /bin/kdestroy" 
+ control-D
+
+The script will reschedule itself run at the same time each day
+
+===============================================
+Contents of file ~/X10_cronJob (an example only)
+================================================
+
+checkRc() {
+# if return code is non-zero, mail error log and exit
+
+local rc="$1"
+local msg="$2"
+local logFile="$3"
+local logDir="$4"
+local MAILDEST="$5"
+if [[ $rc  -ne 0 ]]; then 
+  echo ""
+  echo ""
+  echo "+++ CVS changes in the last 24 hours (times below are in UTC):" >> $logFile
+  (cd $logDir; cvs -q log -d "24 hours ago < now" -S -b -N `cat x10.common/projectList.txt`|sed -n -e "/^RCS file:/p;/^date:/p;/^=/p"|awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logFile
+  mail -s "$msg" "$MAILDEST" < $logFile
+  exit $rc; 
+fi
+}
+
+findTimeLimit() {
+# allow extra time when load is high
+    local limit=600
+    local highLimit=900
+    local loadFactor=16
+    local load=`uptime | perl -ne 'if (/,\s*([0-9]+)\.[0-9]+\s*$/) {print "$1\n";}'`
+    local t2
+    let "t2 = $load * $loadFactor"
+    if [[ $t2 -gt $limit ]]; then  limit=$highLimit; fi
+    RESULT=$limit
+}
+
+USER=<yourAIXUserId>
+HOME=/u/<yourAIXUserId>
+QUILLBACKUSER=<yourQuillbackUserId>
+MAILDEST="x10-dev@cs.purdue.edu"
+
+export X10=$HOME/x10.common
+export ANT_HOME=$HOME/apache-ant-1.6.5
+export PATH=.:$X10/bin:$ANT_HOME/bin:$PATH
+export CVSROOT=:ext:$QUILLBACKUSER@quillback.cs.purdue.edu:/home/ibmcvs
+export CVS_RSH=ssh
+export CVSUMASK=770
+export X10_PLATFORM=aix_ppc
+testDir=$X10/examples
+echo 'dce_login $USER <yourDcePassword> -e ksh -c "$HOME/X10_cronJob ; /bin/kdestroy"' | at 5 am tomorrow
+cd $X10/..
+rm -f  logCvs logAnt
+cvs -q checkout -PA `cat $X10/projectList.txt` > logCvs 2>&1
+checkRc $? "X10 tests failed: cvs exit code=$? on `date`" "logCvs" "." "$MAILDEST"
+for p in `cat $X10/projectList.txt` ; do
+  if [[ ! -e $p/build.xml ]] ; then continue; fi
+  cd $p
+  echo "+++ building $p" >> ../logAnt
+  ant --noconfig >> ../logAnt 2>&1 
+  checkRc $? "X10 tests failed: ant build exit code=$? on `date`" "../logAnt" ".." "$MAILDEST"
+  cd ..
+done
+cd $testDir
+findTimeLimit
+timeLimit="$RESULT"
+testScript -t "$timeLimit" -shiftLog -m "$MAILDEST"
+sleep 600
+#Be sure not to leave any process running
+kill -9 -1

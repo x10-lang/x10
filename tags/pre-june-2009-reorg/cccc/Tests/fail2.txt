@@ -1,0 +1,8 @@
+# statements in order, bad variable names
+0.0 W A 1
+0.1 R b 0
+1.0 W b 1
+1.1 R a 0
+
+0.1 -> 1.0
+1.1 -> 0.0

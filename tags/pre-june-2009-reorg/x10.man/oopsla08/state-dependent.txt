@@ -1,0 +1,139 @@
+STATE-DEPENDENT CONSTRAINED TYPES
+06/29/07
+
+So far we have said that a deptype C(:c) may permit only final
+variables to occur in c. But this is not expressive enough for some
+applications.
+
+Consider graph types. I want to be able to say
+
+  class Node {
+    Node next;
+    ....
+  }
+
+  class Head {
+    Node first;
+    Node last;
+  }
+
+We want to specify the invariant that last points to the end of the
+list whose head is first. So one way to say this is
+
+  class Head {
+    Node first;
+    Node(: this.first.next*.next=self, next=null) last;
+  }
+
+The obvious interpretation is that last must be the same value that is
+obtained by following next links from first, and last's next field is
+null.
+
+Looks great. But of course the problem is that neither first nor next
+are final! We dont want them to be final!
+
+So this brings up the obvious idea -- lets permit them to be
+mutable. But now clearly for the validity of types we must require
+that any type C(:c) which is such that c contains a mutable variable v
+must be such that if the type of v is T then for all values a,b in
+[T]: c(a/v) <-> c(b/v). In other words the expression c cannot be
+sensitive to the actual value of v, only to its type. That is, c is
+intended to be an assertion not about some specific value in the
+denotation [T] of T, but an assertion that is true for all values in
+[T].
+
+Let us imagine that the user has defined in the constraint system the
+predicate
+
+  last(Node x) = y <-> x.next*.next=y, y.next=null
+
+(We will permit the user to use definite clauses to define new
+predicates over existing ones.)
+
+Now let us look at whether the type Node(:last(this.first)==self) is
+well-defined given that the type of next is Node. The answer is
+no. Consider two possible values for this.first.next --- null and a
+value a where a.next=null and a != first. (Such a value a must exist
+because the universe of interpretation is infinite.) In the first case
+we get first=self. In the second we get self=a. So we have a
+contradiction and this type is not valid.
+
+Is there a type for next which will permit the type for last to be
+valid? Certainly:
+
+=======================
+class Node(Node(:next=null) last) {
+   Node(:last(self)==last) next;
+   ....
+ }
+
+ class Head(Node(:next=null) last) {
+   Node(last) first;
+ }
+========================
+
+Now the field next and first can be mutated arbitrarily -- as long as
+the value written into these locations satisfies the static type of
+the location.
+
+GENERAL STATE-DEPENDENT TYPES
+
+The approach above will not be adequate for handling doubly-linked
+structures. For this we will need some form of atomic statement -- a
+statement that move the store from one state to another in a single
+step, while simultaneously changing the state of multiple variables.
+
+Let us see the details. First, how do we interprete types? Types are
+now state-dependent. We start with the notion of a rooted connected
+object reference graph, G: its nodes are objects and its edges are
+labeled with fields. Each field f has a type T(f). The root of G is a
+node with no incoming edges whose fields correspond to the stack
+variables (including this) in the current state of the computation.
+
+Given G, a type T specifies a set of values. We illustrate with an
+example. The denotation of the type
+
+  DList<T>(:self.prev=this | self=null) 
+
+is the set {null} union {o in G | o.prev=root(G).this)}.
+
+We say that a store is type-correct if the value contained in any
+field of any object in G
+
+Now to show an assignment statement is type correct we have to show
+that it takes type-correct stores to type-correct stores.
+
+The simplest atomic statement is the multiple assignment:
+
+   x1,...,xn = t1,..., tn
+
+Now here is  the class of doubly-linked lists:
+
+class DList<T> {
+
+ T datum;
+
+ DList<T>(: self.prev=this | self=null) next;
+
+ DList<T>(: self.next=this | self=null) prev;
+
+ DList(:next=null,prev=null)(T d) { datum=d; next,prev=null,null;}
+
+ void insertRight(T elem)  {
+
+     DList<T>(:next=null,prev=null) temp = new DList<T>(elem);
+
+     if (next != null) {
+
+        this.next,temp.prev,temp.next,next.prev=temp,this,next,temp;
+
+    } else {
+
+        this.next,temp.prev=temp,this;
+
+    }
+ }
+ // insertLeft is similar.
+
+}
+

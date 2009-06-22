@@ -1,0 +1,521 @@
+\documentclass{article}
+\usepackage{fullpage}
+
+\title{THE X10 CORE LIBRARY DESIGN }
+\author{Vijay Saraswat, IBM TJ Watson Research Center \\
+  Sriram Krishnamoorthy, Ohio State University }
+
+
+\begin{document}
+
+\maketitle
+
+\section{Design Goals}
+
+x10lib may be seen as adding a layer of abstraction on top of
+one-sided communication libraries such as LAPI and ARMCI. This layer
+supports the notion of a partitioned shared address space, and
+dynamically spawned activities that operate in that space, as realized
+in the X10 programming language. Our desire is to get an early
+implementation of the core X10 ideas as an API so that application
+programmers can start to experiment with these concepts today, without
+waiting for an efficient realization of the X10 programming language. 
+
+\section{Background}
+
+\subsection{X10}
+X10 language provides support for a non-SPMD style
+functional-parallelism  oriented programming. The unit of parallelism
+in an X10 program is an activity. The X10 computation starts with an
+activity. An activity can spawn other activities to be executed in
+parallel. All access to remote data is through activities and
+serialization of remote objects. 
+
+Shared arrays can be created by individual activities. In addition to
+the activity-based communication model, efficient communication
+support based on lower-level communication libraries is desirable. 
+
+Atomic blocks are supported, with implicit locking. 
+
+
+\subsection{Messaging Passing Interface (MPI)}
+MPI is a popular two-sided messaging passing communication
+support. One-sided extensions have been added to it in MPI-2, but it
+is still primarily used as a two-sided library due to the complex
+semantics. It is available on almost all high performance computing
+platforms. Inter-operability with MPI can ease user acceptance of
+x10lib. In addition, x10lib uses the process management framework from
+MPI, i.e., an x10lib program is started as an MPI program.
+
+\subsection{Aggregate Remote Memory Copy Interface (ARMCI)}
+ARMCI provided efficient remote memory access mechanisms (one-sided
+communication). It has been widely ported and usually achieves
+communication latency and bandwidth close to the native
+hardware/system software limit. x10lib leverages some of the
+functionality from ARMCI in its implementation. ARMCI provides an
+interface for pinned memory allocation, that supports efficient
+one-sided memory access. We intend to use this for shared array
+creation. The efficient one-sided access mechanisms are provided as
+intrinsics to perform efficient communication, whenever
+possible. 
+
+ARMCI supports the invocation of methods on remote
+nodes. Global Procedure Calls (GPC) are currently supported on
+Infiniband, Myrinet, and Quadrics. This functionality will be used to
+spawn activities on remote places. Global Procedure Calls are
+executed in the communicator thread. Since we require the communicator
+thread to be available to make communication progress, most of the
+activities spawned will be enqueued to be processed by the main thread
+in the remote place (the main MPI process). 
+
+Note that this could also be implemented using MPI. In such an
+implementation, an MPI recv is posted and the runtime executes the
+some activity. Whenever a runtime method is called, any incoming
+messages are probed for, enqueued and a new recv is posted. The
+performance might be a little worse using this approach. In addition,
+MPI recv probes (or some runtime method such as yield()) might have to
+be embedded in used code to make communication progress. The
+global procedure calls can execute short active messages, in
+particular buffer allocation for incoming activities, etc. that might
+benefit from quicker response. (This section would benefit from Jarek
+Nieplocha's inputs). 
+
+ARMCI provides support for acquire and release locks on remote
+nodes. The current interface supports only blocking acquire and
+release, which ensures quick acquire and release of locks. Extensions
+of ARMCI to provide non-blocking acquire and release can allow place
+to be executing an activity while another is waiting on a lock
+(without requiring one thread per activity). This can be used to
+implement atomic blocks in X10.
+
+
+\subsection{Design Goals}
+
+\begin{itemize}
+
+\item Enable people currently using MPI to have a more "dynamic"
+  programming environment with one-sided operations. (MPI-2 1.5 sided
+  considered too clunky.)
+
+\item Use the X10 conceptual framework: Each MPI node is thought of as a
+  place. Use asyncs, futures, clocks, finish operations.
+
+\item It should be possible to spawn activities on the current node or on
+  remote nodes, and detect quiescence and termination of these
+  activities.
+
+\item The library should be available in C and C++ and implemented on top
+  of ARMCI for portability.
+
+\item The intention here is to offer X10 functionality but within the
+  framework of usual C/C++ programming styles. In particular, there is
+  no desire to make the static guarantees of X10 be available in this
+  setting.
+
+\item Provide distributed global data-structures (e.g. arrays,
+  collections) as a separate follow-on.
+
+\item The implementation should not require a separate thread at the
+  node. Rather it should be possible to implement as a library that
+  is called by the main MPI thread at each node as needed.
+
+\item Scalability!
+
+\end{itemize}
+
+\subsection{Design non-goals}
+
+\begin{itemize}
+\item Garbage-collection -- let the user continue to manage lifetime of
+  objects and references.
+
+\item Dynamic creation of places.
+\end{itemize}
+
+\section{Summary of desired functionality}
+
+The X10 Core library provides functions to do the following:
+
+\begin{itemize}
+\item Get a remote (globally valid) reference for a local data structure.
+
+  Such references can be passed from place to place and still remain
+  valid. Two such references may be checked locally (without any
+  communication) to determine if they point to the same data structure.
+
+\item Create a clock, and perform clock operations (next, resume, drop).
+
+\item Spawn an async at a specified place, with a given function pointer
+  and arguments, and clocked on given clock set. (The place may be
+  specified either through a specific structure naming the place or
+  through a remote reference.)
+
+  The X10 model does not require that an async intended to be executed
+  at the current place (or another place in the current area) is in
+  fact executed by a different thread. It only requires that X10
+  progress guarantees be preserved. In particular, it is legal for an
+  X10 implementation to execute an async inline (and/or use a more
+  sophisticated work-stealing algorithm) if the async does not invoke
+  any externally blocking operation (e.g. a next operation on an old
+  clock, or a conditional atomic operation).
+
+\item Spawn a future at a given place, with a given function
+  pointer and arguments, and clocked on given clock set, and return
+  the future.
+
+  Futures can be inlined just as asyncs can.
+
+\item Force the future. (This causes the current thread to block until the
+  future value has been computed.)
+
+\item Spawn activities in parallel at a given vector of places.
+
+\item Terminate the current activity. (This does not terminate the current
+  thread, merely causes it to look for another activity to execute.)
+
+\item Call finish to suspend on the termination of all asynchronous
+  activities in the scope of the finish.
+
+\item Perform an atomic operation with a given piece of code.
+\item Throw an exception (to be caught by an enclosing finish).
+
+\item Initialize a global data structure by allocating local arrays at
+  given places.
+
+\item Free global or local data structure.
+\end{itemize}
+
+Additional intrinsics capturing common idioms of expression that can be
+efficiently executed on modern hardware will also be provided.
+
+The X10 Core library does not support distributed garbage
+collection. The user is responsible for allocating and deallocating
+storage, detecting global cycles and and recovering from
+them. 
+
+Distributed garbage collection may be provided as a service in
+subsequent versions of the X10 Core library.
+
+Initially bindings will be provided to C. Bindings for C++, Fortran
+and Java are also planned.
+
+\section{DESIGN OVERVIEW}
+
+\subsection{Execution Environment}
+
+One X10 place is instantiated for every MPI process. X10::Initialize()
+initializes the runtime system in each MPI process, and
+X10::finalize() performs any necessary clean-up. All invocations of
+X10 API must after initialization and before clean-up.
+
+In the first iteration, there will be one MPI process, and hence an
+X10 place, per processor core. A subsequent implementation can be
+optimized to create one place per SMP node. A place is identified by
+an integer. The number of places is fixed and does not change during
+the execution. Methods here() and maxPlaces() return the current place
+id and the number of places.
+
+The X10 runtime object at the current place is implemented as a
+singleton, and is accessible by the TheX10() method.
+
+\subsection{Activities}
+
+Activities (and futures) are the basic units of execution within the
+X10 framework. Activities define a run() method that is used to
+execute the activity object. The activities are required to be
+non-blocking. This enables execution of multiple activities on a
+single thread. The return value from the run() method is used to
+indicate whether it is done processing, or waiting on a clock, finish,
+or communication. 
+
+\paragraph{Functionality}
+
+\begin{itemize}
+\item Spawn activities (on same or new finish scope)
+\item Destroy activities
+\item Execute the run() method
+\item Maintain a list of activities.
+\item Enable blocking activities on relevant clock quiescence or finish
+  termination. 
+\item Clock operations - resume a clock, wait on all clocks, register a
+  new clock with the activity, deregister with an existing activity. 
+\end{itemize}
+
+Activities are not directly instantiated in other activities. A Maker
+object is created that can be serialized and deserialized. At the
+remote node, a make() method implemented by this object returns a
+constructed activity. This allows the activities themselves to be
+non-serializable. In addition, they allow construction of minimal
+objects to be serialized. This is especially useful in the context of
+an activity utilizing the blocking pre-processor macros to manipulate
+activities, as will be explained below.
+
+Activity* ActivityMaker::make()=0; //should be implemented for all activities 
+
+The X10 execution environment is entered when the process() method is
+collectively invoked by all the MPI processes. 
+
+A main() method is predefined for convenience, and the user defines a
+main activity maker (class MainActivityMaker) that will be processed
+until the activity and all its descendents terminate. This implies
+that all user code is organized in terms of activities, precluding
+SPMD code. Alternatively, the user can write a main() to execute X10
+execution within an MPI program, with SPMD and X10 phases. 
+
+The activities are required to be non-blocking in order to ensure X10
+progress guarantees without resorting to one thread per activity.
+Programmers can write code in a continuation-passing style, in which
+an activity once ready, always runs to completion. 
+
+Blocking macros (NEXT and FINISH) are provided as pre-proessing
+directives to block on quiescence clocks or termination of a
+registered finish scope, within the non-blocking framework. These are
+similar in spirit to protothreads (http://www.sics.se/~adam/pt/) and
+the implementation of co-routines in C
+(http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html). This
+requires the adherence to certain guidelines.
+
+\begin{itemize}
+\item The local variables in an activity's run() method are not
+  retained across calls to a blocking macro. If needed, users will
+  have to save (and restore) local variables before (and after)
+  blocking macros.  
+\item The method's body is enclosed within START and END.  
+\item Invocation of blocking macros cannot be enclosed in a switch
+  statement. 
+\item Invocation of blocking macros can be only at the "top-level",
+  i.e., lexically in the run() method.
+\end{itemize}
+
+Activities will be executed in the main thread of the process, not
+within the ARMCI communication thread. The spawning of activities
+requires a buffer at the remote node. This is supported by the Global
+Procedure Calls (GPCs) in ARMCI. Activities requiring larger buffers
+are implemented by remote memory allocation, contiguous transfer of
+data, and a GPC invocation.
+
+There is no decision yet on the need for priorities for activities.
+
+\subsection{Implementation of clock quiescence and finish termination
+      detection}
+
+\subsubsection{Data structure}
+
+A type, SemiCounter, implements the core ideas behind distributed
+quiescence and termination detection in X10. It is used by the
+implementation of finish and clock. In brief, here are the operations
+on it. Please see [PODC88] for more details.
+
+A SemiCounter manages a counter in a distributed way. This object can
+be referenced remotely. It has an associated int counter and has the
+property that this counter starts at one can increase and decrease but
+once it reaches zero it stays stuck at zero.  The operations are
+
+\begin{verbatim}
+  public SemiCounter(); // create and return a new SemiCounter, 
+                        // this is remotely addressable.
+  public void inc(int k);
+  public void dec(int k);
+  public SemiCounter split();
+  public void drop();
+\end{verbatim}
+
+Each client should respect the property that it does not invoke any
+method on the SemiCounter after it has called drop(). Further at all
+times its "account" -- the sum of k for each inc(k) it has called and
+-k for each dec(k) it has called -- is always non-negative.  p.split()
+returns a non-null SemiCounter q precisely when p.drop() has not yet
+been called. Internally, q contains a reference to p, and is called a
+child SemiCounter.  The counter associated with each SemiCounter is
+the number of children SemiCounter's that have been created so far
+which have not yet had drop() invoked on them.
+
+Each SemiCounter has an associated CallDescriptor. This CallDescriptor
+is invoked whenever the count reaches zero. The correct use of the
+SemiCounter by its clients will ensure that each SemiCounter will
+reach zero at most once, and once it reaches zero, will stay stuck at
+zero. Thus, "the SemiCounter has reached zero" is a stable
+property. All other stable properties in the system -- e.g. all the
+activities associated with a finish have terminated, all the activities
+associated with a clock have quiesced -- are implemented by
+translation into "the SemiCounter has reached zero" stable property.
+
+\subsubsection{Asyncs and futures}
+
+\textbf{FinishRecord:}
+ A FinishRecord keeps track of a set of activities "controlled" by the
+ finish through a SemiCounter. Each local activity launched under a
+ finish is given a reference to the SemiCounter, after an inc(1)
+ method has been invoked. Each activity to be invoked remotely is given
+ a child SemiCounter.  
+
+ Each FinishRecord also records a set of exceptions that may have been
+ thrown by its activities. It is the responsibility of the
+ CallDescriptor associated with the FinishRecord to check if there are
+ any exceptions and to process them appropriately.
+
+The code running in an async may invoke a terminate operation,
+optionally returning a value. This causes the parent FinishRecord to
+record that this activity has terminated (by decreasing the
+count). The value is recorded in the FinishRecord.
+
+The code running in an async may also invoke an exception
+operation. The exception is a value, and is recorded in the
+FinishRecord as discussed above.
+
+A future is implemented as a thin wrapper around a finish async and is
+used to mask latency of access.  It returns a handle immediately. 
+The forced() method may be invoked on the handle to determine if the
+future's value has been computed. If so, a call may be made to value()
+to get the value. It is also possible to register a CallDescriptor which
+should be invoked once the future's value has been determined.
+
+\subsubsection{Clocks}
+
+Operations are provided to create a clock, perform a next operation on
+a clock, resume a clock and drop a clock. A clock is implemented in a
+fashion very similar to a SemiCounter. See the implementation of clock
+in the X10 runtime.
+
+\subsection{Atomics}
+
+Each place will have a set of locks. An activity may request to be
+performed with a set of locks. These locks are globally ordered,
+precluding deadlocks. Obtained locks cannot be passed from one
+activity to another, and all locks required by an activity need to be
+obtained together. 
+
+Support for conditional atomics is provided. A special type of
+variable, a WatchedVariable, may be declared and allocated on the
+heap. An async may be attached to a WatchedVariable, together with
+a triggering CallRecord. The triggering CallRecord must be pure, that
+is it must have no side-effects. Typically it will simply check the
+value of the variable and return true or false. Triggers are evaluated
+whenever the value of the WatchedVariable is set. If the trigger
+evaluates to true, the trigger is removed and the associated
+async is executed (or scheduled for execution). 
+
+\subsection{Remote References}
+
+In shared memory systems where all accesses to data are through global
+pointers, all pointers are valid at all places. In such a scenario,
+the programmer can separate the problems of data distribution and
+computation partitioning. This greatly simplifies programming. In a
+distributed memory machine the shared memory abstraction incurs a
+performance penalty. This can be reduced by automatically translating
+global pointers to local pointers where possible.  In the context of
+X10, every pointer carries the place of residence in its type. The
+compiler can translate global reference to local references. Asyncs
+that are thus determined to operate on local pointers can be inlined.
+
+The runtime does not provide any such support and requires the user to
+explicitly distinguish local and remote references. In x10lib, remote
+references encapsulate global pointers, potentially making them
+safer. In a typical one-sided library, global pointers are identified
+by a place id and a pointer at that place. These two components are
+visible at all places, potentially allowing deference of a remote
+pointer at the current place, resulting in undefined behavior.
+
+x10lib allows access to the pointer encapsulated by a global pointer,
+only if that global pointer is local, i.e., points to a data structure
+at the current place. This prevents accidental dereference of the
+global pointer at an incorrect place.
+
+\subsection{Shared arrays}
+
+Shared arrays provide support for the creation and manipulation of
+distributed multi-dimensional arrays. Once created, any activity can
+arbitrary regions of the array, potentially through asyncs. 
+
+Different schemes are employed to allow addressing of remote regions
+of a shared array (region in a remote place). One approach would be
+for all the information, including the address ranges allocated on all
+the places, to be known only to the creating activity. Any other
+activity created to operate on the shared array is passed the array
+information by the creating activity. While being a natural
+implementation strategy, the repeated passing of shared array
+information can lead to high overhead.
+
+An extension of this approach is the storage of the shared array
+information in some identifiable handle in each place. This can be
+done during array creation. The knowledge of address ranges in all the
+places enables remote memory access, when supported. In addition, an
+activity spawned at a remote place can just be given the handle to the
+shared array at the remote node. 
+
+In the above approach, the state to be stored for each shared array is
+proportional to number of processors. The scalability of this approach
+can be improved by determining a handle that is unique at all the
+places, and storing only the local address range in each place. All
+data access to remote node happens through spawning of activities on
+the remote node, forgoing efficient remote memory access. 
+
+In architectures such as BlueGene/L, without native support for RDMA,
+identifying the local buffer base address at the remote node is
+efficient. This is how the implementation of shared value directories
+is done in UPC on BlueGene/L [PLDI06].  On architectures supporting
+zero-copy RDMA, x10lib combines the above approach with a cache of
+shared array information on remote nodes on which they were recently
+accessed. Thus the first communication is expensive, being implemented
+by a remote activity, but subsequent remote memory access is through
+optimized put/get operations.
+
+Prevalent runtime systems create shared arrays collectively.  Each
+process assign an index in a meta-data table for the shared array
+being created. Assuming all processes are involved in the shared array
+creation and they do so in the same order, all processes can decide on
+the same entry index in the local meta-data tables. This index is used
+as the globally unique handle.
+
+x10lib, supporting the non-collective shared array creation, uses a
+$\langle$place id,local counter$\rangle$ from the creating activity as
+the shared array handle. Unlike in typical implementations in which
+the shared arrays handles index into a table, they index into a hash
+table.
+
+
+\subsection{Additional intrinsics}
+
+Additional functionality provided for spawning of activities on all
+places, and efficient put/get operations using ARMCI.
+
+\section{Future Directions}
+
+
+\section{Hello World Example}
+
+\begin{verbatim}
+#include <iostream>
+#include <mpi.h>
+#include <x10.h>
+
+using namespace std;
+using namespace X10Runtime;
+
+class HelloWorldActivity : public Activity {
+public:
+  class Maker: public ActivityMaker {
+    public:
+      Activity* make() {
+        //scope - finish scope from ActivityMaker
+        return new HelloWorldActivity(scope); 
+      }
+  };
+  HelloWorldActivity(const FinishScope &scope) : Activity(scope) {}
+  ProbeStatus run() { 
+    cout<<"Hello World"<<endl; 
+    return acDone; 
+  }
+};
+
+int main(int argc, char *argv[]) {
+    MPI::Init(argc, argv);
+    X10::initialize();
+    TheX10().process(HelloWorldActivity::Maker());
+    X10::finalize();
+    MPI::Finalize();
+}
+\end{verbatim}
+
+\end{document}
+
