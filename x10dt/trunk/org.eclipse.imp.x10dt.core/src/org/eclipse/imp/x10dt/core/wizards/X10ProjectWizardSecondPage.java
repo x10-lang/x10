@@ -104,6 +104,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
          //IPath path= X10RuntimeUtils.guessRuntimeLocation(bundle);
          //String jarloc = X10Util.getJarLocationForBundle(bundleID);
          IPath jarlocPath=X10RuntimeUtils.guessJarLocation(bundle);
+         if(jarlocPath==null)System.out.println("Cannot find classpathentry (jar file) for "+bundleID+".  If you are a developer, have you copied jars to eclipse install?");
          
          //IPath p2=new Path(jarloc);
          if (jarlocPath == null) {
