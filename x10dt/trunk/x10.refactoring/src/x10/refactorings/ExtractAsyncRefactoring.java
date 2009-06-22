@@ -163,18 +163,25 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * A dummy Expr class for representing gamma(var), to be used in sets of
 	 * Expr's and gamma's, e.g. fPhi.
 	 */
-	// private class GammaExpr_c extends Local_c {
-	// private final VarDecl fVarDecl;
-	//
-	// public GammaExpr_c(VarDecl vd) {
-	// super(vd.position(), vd.name());
-	// fVarDecl= vd;
-	// }
-	//
-	// public VarDecl getVarDecl() {
-	// return fVarDecl;
-	// }
-	// }
+	private class GammaInstance implements InstanceKey {
+
+		private final VarWithFirstUse fVarDecl;
+
+		public GammaInstance(VarWithFirstUse vd) {
+//			super(vd.position(), vd.name());
+			fVarDecl= vd;
+		}
+
+		public VarWithFirstUse getVarDecl() {
+			return fVarDecl;
+		}
+
+		public IClass getConcreteType() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
 	private static class ThrowableStatus extends Exception {
 		public RefactoringStatus status;
 
@@ -209,7 +216,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	/**
 	 * Maps statements to sets of lvalues that flow into them
 	 */
-	private Map<Stmt, Set<Expr>> fPhi;
+	private Map<Assign, Set<InstanceKey>> fPhi;
 
 	/**
 	 * Maps lvalues onto a boolean that identifies whether the lvalue is a
@@ -365,7 +372,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //			JavaCAst2IRTranslator irTranslator = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension())
 //			.getJavaCAst2IRTranslator();
 //			CAstEntity rootEntity = irTranslator.sourceFileEntity();
-			String filepath = IFilePathtoCAstPath(fSourceFile.getFullPath().toString());
+//			String filepath = IFilePathtoCAstPath(fSourceFile.getFullPath().toString());
+			String filepath = fSourceFile.getRawLocation().toString();
 			CAstEntity rootEntity = ((X10IRTranslatorExtension)fEngine.getTranslatorExtension()).getCAstEntity(filepath);
 
 			// TODO Compute the var2PtrKey for the method, not the whole file
@@ -382,7 +390,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo = computeAliasInfo(pointerInfo);
 
 //			calculateInfoFlow(loop, aliasInfo); // saves phi and rho in fields
-			calculateInfoFlow(loop, pointerInfo); // saves phi and rho in fields
+			calculateInfoFlow(loop, pointerInfo, loopRefedLVals); // saves phi and rho in fields
 			calculateLoopCarriedStatements(loop, inductionVars); // saves
 			// delta in
 			// a field
@@ -616,12 +624,49 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * Analyzes the given loop and sets fPhi and fRho accordingly.
 	 * 
 	 * @param loop
+	 * @param loopRefedVars TODO
 	 */
 	private void calculateInfoFlow(Stmt loop,
 //			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
-			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo) {
-		fPhi = new HashMap<Stmt, Set<Expr>>();
+			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo, Set<VarWithFirstUse> loopRefedVars) {
+		fPhi = new HashMap<Assign, Set<InstanceKey>>();
+		Map<VarWithFirstUse, Collection<InstanceKey>> psi = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
 		fRho = new HashMap<Expr, Boolean>();
+		
+		psi.putAll(aliasInfo);
+		for(VarWithFirstUse v : aliasInfo.keySet()){
+			psi.get(v).add(new GammaInstance(v));
+		}
+		
+		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
+		loop.visit(acv);
+		List<Assign> assigns = acv.getResult();
+		
+		// initialize the phi map
+		for (Assign a : assigns) {
+			fPhi.put(a, new HashSet<InstanceKey>());
+		}
+		
+		int phiSize=-1;
+		while(phiSize < fPhi.size()) {
+			phiSize = fPhi.size();
+			// for every assignment statement in the loop
+			for (Assign a : assigns) {
+			//    extract the variables from the statement with an LValueFinder
+				LValueFinder statVarFinder = new LValueFinder();
+				a.right().visit(statVarFinder);
+
+			//    add the psi results from these LValueFinders to the phi map for the statement
+				for (Variable v : statVarFinder.getLValues()){
+					fPhi.get(a).addAll(psi.get(v));
+				}
+			//    determine if lhs gamma variable flows in from statement and that this is the
+			//        first time lhs is used in the loop --> updated rho if this is true
+			}
+		}
+		
+		// remove all InstanceKeys from fPhi except for GammaInstance
+		return;
 	}
 
 	/**
@@ -1060,7 +1105,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //		EclipseProjectSourceAnalysisEngine engine = new X10EclipseSourceAnalysisEngine(javaProject);
 //		JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine();
 
-//		populateScope(engine, sources, libs);
+//		populateScope(fEngine, sources, libs);
 
 		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor();
 
@@ -1112,7 +1157,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
 		}
-		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		fEngine.setExclusionsFile(exclusionsFile);
 	}
 
