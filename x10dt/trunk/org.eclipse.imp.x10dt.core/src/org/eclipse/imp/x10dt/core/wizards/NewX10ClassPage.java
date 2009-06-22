@@ -269,7 +269,8 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
 	final IFile file= container.getFile(new Path(typeName + ".x10"));
 	try {
-	    InputStream stream= createContentStream(file, typeName, pkgFrag, superClass, superIntfs, isCreateMain(), isCreateConstructors());
+		boolean doComments=isAddComments();
+	    InputStream stream= createContentStream(file, typeName, pkgFrag, superClass, superIntfs, isCreateMain(), isCreateConstructors(), isAddComments());
 
 	    if (file.exists()) {
 		file.setContents(stream, true, true, monitor);
@@ -283,16 +284,20 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     }
 
     /**
-     * Initialize the given file's contents with sample source code.
+     * Initialize the given file's contents with stub source code.
      * @param sourceFile 
      */
     protected static InputStream createContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag, String superClass,
-	    List<String> superIntfs, boolean createMain, boolean createConstructors) {
+	    List<String> superIntfs, boolean createMain, boolean createConstructors, boolean createComments) {
 	StringBuffer buff= new StringBuffer();
 
 	if (!pkgFrag.isDefaultPackage())
 	    buff.append("package " + pkgFrag.getElementName() + ";\n\n");
-	buff.append("import x10.io.Console;\n");
+	if (createComments) {
+		buff.append("/**   \n");
+		buff.append(" *  Class " + typeName  +"\n");
+		buff.append(" */  \n");
+	}
 	buff.append("public class " + typeName);
 	if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object"))
 	    buff.append(" extends " + superClass);
@@ -306,25 +311,30 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	    }
 	}
 	buff.append(" {\n");
-        if (createMain) {
-            buff.append("    public static def main(args:Rail[String]){\n");
-            buff.append("         if(args.length>0){\n");
-            buff.append("           Console.OUT.println(\"The first arg is: \"+args(0));\n");
-            buff.append("         }\n");
-            buff.append("         Console.OUT.println(\"Hello X10 world \");\n");
-            buff.append("         val h = new Hello();  // final, immutable value \n");
-            buff.append("         var result : Boolean = h.myMethod(); // mutable variable \n");
-            buff.append("         Console.OUT.println(\"The answer is: \"+result);\n");
-            buff.append("    }\n");
-        }
-        if (createConstructors) {
-        	buff.append("    /** x10doc comment for myMethod */;\n");
-            buff.append("    public def myMethod()=true;\n");
-        }
-        buff.append("}");
 
-	return new StringBufferInputStream(buff.toString());
-    }
+		if (createMain) {
+			if (createComments) {
+				buff.append("    /**   \n");
+				buff.append("     *  main method "  +"\n");
+				buff.append("     */  \n");
+			}
+			buff.append("    public static def main(args:Rail[String]): Void {\n");
+			buff.append("    \n");
+			buff.append("    }\n");
+		}
+		if (createConstructors) {
+			if (createComments) {
+				buff.append("    /**   \n");
+				buff.append("     *  Default constructor stub \n");
+				buff.append("     */  \n");
+			}
+			buff.append("    def this() {\n");
+			buff.append("    }\n");
+		}
+		buff.append("}");
+
+		return new StringBufferInputStream(buff.toString());
+	}
 
     /**
      * Returns the resource handle that corresponds to the compilation unit to was or
@@ -353,4 +363,48 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	}
 	return null;
     }
+
+	/**
+	 * Initialize the given file's contents with sample source code.  e.g. for "Hello World"
+	 * @param sourceFile 
+	 */
+	protected static InputStream createSampleContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag, String superClass,
+	    List<String> superIntfs, boolean createMain, boolean createConstructors) {
+	StringBuffer buff= new StringBuffer();
+	
+	if (!pkgFrag.isDefaultPackage())
+	    buff.append("package " + pkgFrag.getElementName() + ";\n\n");
+	buff.append("import x10.io.Console;\n");
+	buff.append("public class " + typeName);
+	if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object"))
+	    buff.append(" extends " + superClass);
+	if (superIntfs.size() > 0) {
+	    buff.append(" implements ");
+	    for(Iterator iter= superIntfs.iterator(); iter.hasNext();) {
+		String superIntf= (String) iter.next();
+		buff.append(superIntf);
+		if (iter.hasNext())
+		    buff.append(", ");
+	    }
+	}
+	buff.append(" {\n");
+	    if (createMain) {
+	        buff.append("    public static def main(args:Rail[String]){\n");
+	        buff.append("         if(args.length>0){\n");
+	        buff.append("           Console.OUT.println(\"The first arg is: \"+args(0));\n");
+	        buff.append("         }\n");
+	        buff.append("         Console.OUT.println(\"Hello X10 world \");\n");
+	        buff.append("         val h = new Hello();  // final, immutable value \n");
+	        buff.append("         var result : Boolean = h.myMethod(); // mutable variable \n");
+	        buff.append("         Console.OUT.println(\"The answer is: \"+result);\n");
+	        buff.append("    }\n");
+	    }
+	    if (createConstructors) {//??
+	    	buff.append("    /** x10doc comment for myMethod */;\n");
+	        buff.append("    public def myMethod()=true;\n");
+	    }
+	    buff.append("}");
+	
+	return new StringBufferInputStream(buff.toString());
+	}
 }
