@@ -158,7 +158,7 @@ public class RenameRefactoringAction extends TextEditorAction {
 		IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
 		Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
 
-		System.out.println(declRoot);
+		System.out.println("Root of AST containing declaration: " + declRoot);
 		findDeclaration(declRoot, decl);
 		System.out.println(fDeclaringNode);
 	    } catch (ModelException e) {
