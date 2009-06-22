@@ -36,7 +36,7 @@
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
 				<pathelement path="../lpg/lpg_${x10dt.version}.jar"/>
-				<pathelement path="../polyglot2/polyglot2_2.0.0.jar"/>
+				<pathelement path="../polyglot2/polyglot2_2.0.1.jar"/>
 				<pathelement path="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
 				<pathelement path="../x10.compiler/x10.compiler_${x10dt.version}.jar"/>
 				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${x10dt.version}.jar"/>
