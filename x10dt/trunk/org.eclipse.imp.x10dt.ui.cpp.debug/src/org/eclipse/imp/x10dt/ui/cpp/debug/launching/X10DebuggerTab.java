@@ -25,8 +25,8 @@ import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
-import org.eclipse.ptp.launch.internal.ui.LaunchImages;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
+import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.IRemoteServices;
@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-@SuppressWarnings("restriction")
+
 public final class X10DebuggerTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
 
   // --- Interface methods implementation
