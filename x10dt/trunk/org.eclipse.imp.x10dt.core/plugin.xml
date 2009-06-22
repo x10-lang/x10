@@ -58,7 +58,7 @@
             class="org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard"
             hasPages="true"
             icon="icons/newproject.gif"
-            id="org.eclipse.imp.x10dt.core.wizards.newProject"
+            id="org.eclipse.imp.x10dt.core.wizards.NewX10Project"
             name="X10 Project"
             project="true"/>
    </extension>
