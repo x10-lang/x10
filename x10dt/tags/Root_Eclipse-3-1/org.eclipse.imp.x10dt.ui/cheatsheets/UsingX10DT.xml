@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Using the X10 Development Toolkit">
+
+<intro>
+<description>
+This cheat sheet briefly describes how to use the X10 Development Toolkit to
+create X10 projects, create X10 classes, and use launch configurations to run
+and debug X10 programs.
+</description>
+</intro>
+
+<item title="Select an X10 Compiler Configuration">
+<action pluginId="x10.uide"
+        class="x10.uide.cheatsheet.actions.OpenX10PreferencesAction"/>
+<description>
+Before using the X10DT for the first time, you first need to make sure that
+you've selected the appropriate X10 compiler configuration.<br/>
+
+At the moment, there is only one supported compiler configuration: "standard",
+which builds X10 applications for a non-distributed single-VM platform.
+Thus, for now, you needn't do anything to configure the X10DT; the following
+is for future reference, when support is added for multiple-VM and distributed
+execution platforms.
+
+To select the appropriate compiler configuration, invoke "Window" -&gt; "Preferences"
+-&gt; "X10", and use the "Compiler Configuration" pull-down menu to select the
+appropriate configuration.<br/>
+
+The remaining options settings on this preference page are not critical; all
+X10 functionality should work reasonably with whatever values you enter.<br/>
+</description>
+</item>
+
+<item title="Switch to the Java Perspective">
+<description>
+If you're not currently in the Java Perspective, you should switch to that
+perspective now. If you don't, certain bits of functionality will not appear
+at all, or they might not appear in the "standard" location.<br/>
+
+To switch perspectives, invoke "Window" -&gt; "Open Perspective" and select
+"Java". Alternatively, you can click on the "Open Perspective" button in the
+perspective button bar and selecting "Java".
+(The perspective button bar usually appears in the upper right, the upper left, or
+the left-hand side of the Eclipse window, and contains 1 or more iconic buttons,
+each representing a perspective, e.g. "Java", "Resource", "Debug", "CVS".)
+</description>
+</item>
+
+<item title="Create an X10 project">
+<action pluginId="x10.uide"
+        class="x10.uide.cheatsheet.actions.NewX10ProjectAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "Project" -&gt; "X10 Project".<br/>
+
+[N.B.: If "X10 Project" doesn't appear in the "File" -&gt; "New" menu, you can
+access it via the "Other..." menu item at the bottom of that menu. To make it
+always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]<br/>
+
+In the "X10 Project" dialog, fill out the "Name" field with a unique non-existing
+project name.<br/>
+
+Most likely, you'll want to accept the default location for the project (i.e. in your
+workspace).<br/>
+
+We strongly recommend setting the "Create separate source and output folders" option.
+This will place the generated class files in a separate folder from the X10 source.
+You may encounter problems in the X10DT with compiling and debugging if you don't select
+this option.<br/>
+
+Hit "Finish" when done editing the various fields.<br/>
+</description>
+</item>
+
+<item title="Create a new X10 Class">
+<action pluginId="x10.uide"
+        class="x10.uide.cheatsheet.actions.NewX10TypeAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "X10" -&gt; "X10 Class".<br/>
+
+[N.B.: As with the above, if "X10 Class" doesn't appear in the "File" -&gt; "New"
+menu, you can access it via the "Other..." menu item at the bottom of that menu.
+To make it always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]<br/>
+
+In the "Source folder" field, you enter both the project in which you would like
+the new class to reside, and the source folder within that project that is to
+contain the X10 class.<br/>
+
+Usually, there is one source folder per project, as is the case when you follow
+the above instructions for creating your X10 project.<br/>
+
+You can type the project name and source folder into the text field, but a much
+easier way to do this is to click on the "Browse..." button next to the "Source folder"
+field. This will bring up a selection dialog that will allow you to quickly
+navigate to the project and source folder you want to use.<br/>
+
+If you want to place the X10 class in a non-default package, enter the package
+name into the "Package" field. Again, you can use the "Browse..." next to the
+"Package" field to show the list of existing packages in the given project.
+At this time, you cannot create a new package from within the "New X10 Class"
+dialog; it must already exist.<br/>
+
+Enter the name of the new X10 class in the "name" field, and use the modifier
+buttons and checkboxes to specify the visibility and other characteristics of
+your class.<br/>
+
+If you wish, enter in the "Superclass" field the fully-qualified name of the
+desired base class for your new X10 class, or use the "Browse..." button to
+the right to bring up the class selection dialog. Of course, if you leave
+x10.lang.Object as the superclass, you can always change the superclass later
+by editing the class definition in the source code.<br/>
+
+To add interfaces to the class, click on the "Add..." button to bring up an
+interface selection dialog. This will display the list of all interfaces on
+the build-time classpath for your project.<br/>
+
+Hit "Finish" when done editing. The source file for the new class will be
+open in the editor. You should see the structure of the X10 class source in the
+"Outline" view.<br/>
+</description>
+</item>
+
+<item title="Using the Editor and Outline View">
+<description>
+You should see keywords highlighted in the source editor, as well as an outline
+of the source file's contents in the "Outline" view on the right. The Outline
+view shows the types, members and anonymous instances defined in the source code.<br/>
+
+You can navigate to a given source code entity by simply clicking on the corresponding
+item in the Outline view. Click on the "+" or "-" controls next to a given item in the
+Outline view to expand or collapse the sub-tree rooted at that item.<br/>
+</description>
+</item>
+
+<item title="Launching your X10 program">
+<action pluginId="x10.uide"
+        class="x10.uide.cheatsheet.actions.LaunchX10ProgramAction"/>
+<description>
+There are several methods available to launch an X10 application:<br/>
+- From an X10 source editor containing the main class you wish to execute, type
+  "Alt-Shift-X", then "X"<br/>
+- Right-click on an X10 source file in the Package Explorer, and choose "Run As" -&gt;
+  "X10 Application"<br/>
+- Right-click within the X10 source editor, and choose "Run As" -&gt;
+  "X10 Application"<br/>
+- Click on the "Run" toolbar button's pull-down (the little downward-pointing triangle
+  next to the "Run" icon) and select "Run As" -&gt; "X10 Application"<br/>
+- Click on the "Run" toolbar button's pull-down (the little downward-pointing triangle
+  to the right of the "Run" icon) and select "Run..." and create an "X10 Application"
+  launch configuration. In the "Main" page, select the project containing the X10
+  application you wish to run, and the main class.<br/>
+
+  Note: you can have launch configurations for several X10 applications within a single
+  project, as well as multiple launch configurations for the same application.<br/>
+
+Arguments to be passed to your X10 application can be specified in the "Arguments" page
+in the "Program Arguments" pane. You can also set options to be passed to the X10 Runtime
+itself via the "X10 Runtime" page, in the "Runtime arguments" pane. This is useful to,
+for example, enable the collection of abstract execution statistics by setting the runtime
+option "ABSTRACT_EXECUTION_STATS" to "true" (place "ABSTRACT_EXECUTION_STATS=true" in the
+"Runtime arguments" pane).
+</description>
+</item>
+
+<item title="Debugging your X10 program">
+<action pluginId="x10.uide"
+        class="x10.uide.cheatsheet.actions.DebugX10ProgramAction"/>
+<description>
+If you instead wish to debug the X10 application (which is necessary if you wish to set
+breakpoints, explore the stack, and so on), the procedure is essentially the same as
+described above, substituting "Debug" for "Run", or "Debug As" for "Run As", and so on.
+
+As of this release, X10 debugging support provides the same set of views that you would
+get for Java programs, which display information about the generated Java program.
+
+To set a breakpoint in the X10 source code, type "Ctrl-Shift-B" at the desired line in
+the source editor. We have provided support for mapping line numbers from the X10 source
+code to the generated Java source code. As a result, when an exception is thrown by X10
+code or a breakpoint in X10 code is reached, the debugger should present the correct X10
+source line. [Of course, if an exception is thrown from within a Java method that does
+not correspond to an X10 method, the debugger will display the Java source for the method
+throwing the exception.]
+
+At the same time, you may see a somewhat different picture of your application than you
+might expect. In particular, details of the X10 implementation will be visible: the
+Java thread pool rather than the X10 activities, extra method calls corresponding to
+X10 array accesses, and so on. Moreover, performing a "Step Into" operation on an X10
+application can land you inside the X10 runtime (much like stepping into a string
+concatenation operation in Java can land you inside the StringBuffer class).
+
+In the future, we hope to provide a more X10-savvy debugging perspective.
+</description>
+</item>
+
+</cheatsheet>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         id="X10Builder"
+         name="X10 Compiler"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="org.eclipse.imp.x10dt.core.builder.X10Builder"/>
+      </builder>
+   </extension>
+   <extension
+         id="x10nature"
+         name="X10 Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="org.eclipse.imp.x10dt.core.builder.X10ProjectNature"/>
+      </runtime>
+      <builder id="org.eclipse.imp.x10dt.core.builder.X10Builder"/>
+      <requires-nature id="org.eclipse.jdt.core.javanature"/>
+   </extension>
+   <extension
+         id="problemMarker"
+         name="X10 Problem Marker"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.eclipse.core.resources.problemmarker"/>
+      <super type="org.eclipse.core.resources.textmarker"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.imp.x10dt.core"
+            name="X10"/>
+      <wizard
+            category="org.eclipse.imp.x10dt.core"
+            class="org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard"
+            hasPages="true"
+            icon="icons/newclass.gif"
+            id="org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard"
+            name="X10 Class"/>
+      <wizard
+            canFinishEarly="false"
+            category="org.eclipse.imp.x10dt.core"
+            class="org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard"
+            hasPages="true"
+            icon="icons/newproject.gif"
+            id="org.eclipse.imp.x10dt.core.newProject"
+            name="X10 Project"
+            project="true"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.imp.x10dt.core.preferences.X10PreferencePage"
+            id="org.eclipse.imp.x10dt.core.preferences.X10PreferencePage"
+            name="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.eclipse.imp.x10dt.core.preferences.PreferenceInitializerOriginal"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.imp.x10dt.core.preferences.X10TabbedPreferencesPage"
+            id="org.eclipse.imp.x10dt.core.preferences.X10TabbedPreferencesPage"
+            name="X10 Page in Revision"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="org.eclipse.imp.x10dt.core.preferences.PreferenceInitializer"/>
+   </extension>
+   
+<!--<extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.eclipse.imp.x10dt.core.actionSet"
+            label="X10 Actions"
+            visible="true">
+         <menu
+               id="x10Menu"
+               label="X10">
+            <separator name="x10Group"/>
+         </menu>
+         <action
+               class="org.eclipse.imp.x10dt.core.actions.BuilderEnable"
+               icon="icons/builderEnable.gif"
+               id="org.eclipse.imp.x10dt.core.actions.BuilderEnable"
+               label="&amp;Enable Builder"
+               menubarPath="x10Menu/x10Group"
+               toolbarPath="x10Group"
+               tooltip="Enable the X10 Compiler for this project"/>
+      </actionSet>
+   </extension>
+ -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="org.eclipse.imp.x10dt.core.projectContextMenu"
+            nameFilter="*"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+         <menu
+               id="org.eclipse.imp.x10dt.core.menu1"
+               label="X10"
+               path="additions">
+            <separator name="group1"/>
+         </menu>
+         <action
+               class="org.eclipse.imp.x10dt.core.actions.ProjectBuilderEnable"
+               enablesFor="1"
+               icon="icons/builderEnable.gif"
+               id="org.eclipse.imp.x10dt.core.newAction"
+               label="Enable Builder"
+               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
+               tooltip="Enable the X10 Compiler for this project"/>
+      </objectContribution>
+   </extension>
+</plugin>
