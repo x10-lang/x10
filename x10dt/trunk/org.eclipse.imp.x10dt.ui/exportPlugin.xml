@@ -37,6 +37,7 @@
 				<pathelement location="../lpg.runtime.java/lpg.runtime_2.0.3.jar"/>
 				<pathelement location="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${x10dt.version}.jar"/>
 				<pathelement location="../polyglot/lib/polyglot-epl.jar"/>
+				<pathelement location="../org.eclipse.safari.analysis/org.eclipse.safari.analysis_${x10dt.version}.jar"/>
 				<pathelement location="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
 				<pathelement location="../x10.compiler/x10.compiler_${x10dt.version}.jar"/>
 				<pathelement location="../com.ibm.watson.safari.x10/com.ibm.watson.safari.x10_${x10dt.version}.jar"/>
