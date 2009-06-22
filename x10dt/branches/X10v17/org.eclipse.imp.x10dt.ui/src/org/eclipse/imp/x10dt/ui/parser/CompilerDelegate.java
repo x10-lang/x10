@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Bundle;
 
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
@@ -69,6 +70,7 @@ public class CompilerDelegate {
         buildOptions(extInfo);
         ErrorQueue eq= new SilentErrorQueue(100, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);
+    	Globals.initialize(fe); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
         Report.setQueue(eq);
     }
 
@@ -121,23 +123,28 @@ public class CompilerDelegate {
     }
 
     private void buildOptions(ExtensionInfo extInfo) {
-	Options opts= extInfo.getOptions();
+		Options opts = extInfo.getOptions();
 
-	//Options.global= opts;//PORT1.7 probably no longer needed???
+		// Options.global= opts;//PORT1.7 Global options object no longer exists. 
+		//   instead, need to call Globals.initialize(compiler) prior to calling compiler
+		//    Note this is done in constructor
 
-	try {
-            List<IPath> projectSrcLoc= getProjectSrcPath();
-            String projectSrcPath= pathListToPathString(projectSrcLoc);
-	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath }, new HashSet());
-	} catch (UsageError e) {
-	    if (!e.getMessage().equals("must specify at least one source file"))
-		System.err.println(e.getMessage());
-	} catch (JavaModelException e) {
-            X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+		try {
+			List<IPath> projectSrcLoc = getProjectSrcPath();
+			String projectSrcPath = pathListToPathString(projectSrcLoc);
+			opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath",
+					projectSrcPath }, new HashSet());
+		} catch (UsageError e) {
+			if (!e.getMessage().equals("must specify at least one source file"))
+				System.err.println(e.getMessage());
+		} catch (JavaModelException e) {
+			X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+		}
+		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
+		// opts.source_path);
+		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " +
+		// opts.classpath);
 	}
-//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
-//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
-    }
 
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();

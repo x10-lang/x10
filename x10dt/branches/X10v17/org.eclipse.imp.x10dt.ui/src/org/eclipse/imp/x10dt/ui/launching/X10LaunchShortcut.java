@@ -53,7 +53,6 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
     public static final String X10LaunchConfigTypeID= "org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType";
-//PORT1.7 -- foo //replace all x10.runtime  also x10.compiler, .common, etc  remember: disable/remove all 1.5 stuff before launching
     private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
     public void launch(ISelection selection, String mode) {

@@ -48,7 +48,6 @@ import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
-//import polyglot.ext.x10.ast.ArrayConstructor_c;   //PORT1.7 --- remove this, probably
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
@@ -231,9 +230,9 @@ public class Outliner extends OutlinerBase implements IOutliner
                 setImageFromAccessQualifiers(cons.flags(), X10LabelProvider.MISC_DESCS, tree_item);  
                 tree_item.setText(text);
             }
-            //else if (n instanceof ArrayConstructor_c) // PORT1.7 --- ask Bob   New??
+            //else if (n instanceof ArrayConstructor_c) // PORT1.7 use New instead? or ignore (Outliner is no longer used)
             /* PORT 1.7 --- begin ignore
-            else if (n instanceof New) // PORT1.7 --- ask Bob   New??note next 'else if' clause does 'New'; or can we ignore all this b/c Outliner not used?
+            else if (n instanceof New) // PORT1.7 New??note next 'else if' clause does 'New'; or can we ignore all this b/c Outliner not used?
             {
                 New cons = (New) n;
                 if (cons.initializer() != null)
