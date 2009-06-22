@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.IToken;
+import lpg.runtime.ParseErrorCodes;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -440,7 +441,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 //
 //                	x10_lexer.initialize(contents.toCharArray(), name);
 //                }
-                x10_lexer.setMessageHandler(new IMessageHandler() {
+                x10_lexer.getILexStream().setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
                        //PORT1.7 -- need to get info (e.g. is this zipfile?) 
                     	// need file and entry name from sourceLoader$ZipSource
@@ -454,11 +455,11 @@ public class X10Builder extends IncrementalProjectBuilder {
                                 msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
                                 msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
                                 msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
-                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + x10_lexer.errorMsgText[errorCode], p);
+                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + ParseErrorCodes.errorMsgText[errorCode], p);
                     }
                 });
-                X10Parser x10_parser= new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-                x10_lexer.lexer(x10_parser);
+                X10Parser x10_parser= new X10Parser(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+                x10_lexer.lexer(x10_parser.getIPrsStream());
                 return x10_parser; // Parse the token stream to produce an AST
             } catch (IOException e) {
                 e.printStackTrace();
