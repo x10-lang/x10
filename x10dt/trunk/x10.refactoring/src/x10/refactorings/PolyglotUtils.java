@@ -11,6 +11,7 @@ import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Variable;
+import polyglot.types.ArrayType;
 import polyglot.visit.NodeVisitor;
 
 public abstract class PolyglotUtils {
@@ -88,7 +89,7 @@ public abstract class PolyglotUtils {
 					@Override
 					public NodeVisitor enter(Node parent, Node n) {
 						// TODO Auto-generated method stub
-						if (n instanceof Variable) {
+						if (n instanceof Variable && ((Variable)n).type() instanceof ArrayType) {
 							NamedVariable extractedName = extractArrayName((Variable)n);
 							if (extractedName != null)
 								arrayName = extractedName;

@@ -59,6 +59,7 @@ import polyglot.ast.Local_c;
 import polyglot.ast.Loop;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Node_c;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
@@ -74,6 +75,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.ExtractVarsVisitor.VarUseType;
@@ -304,8 +306,27 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// Node_c retNode = (Node_c) locator.findNode(root, sel.x);
 		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x + sel.y
 				- 1);
-		Expr_c innerExprNode = (retNode instanceof Expr_c) ? (Expr_c) retNode
-				: null;
+		NodeVisitor nodeVisitor = new NodeVisitor() {
+			Node targetExpr;
+			boolean finished=false;
+		    public void finish() { finished=true; }
+		    public Node override(Node n) {
+		    	if (finished)
+		    		return targetExpr;
+		    	return null;
+		    }
+		    
+		    public Node leave(Node old, Node n, NodeVisitor v) {
+		    	System.out.println(n);
+		    	if (targetExpr != null && n instanceof Expr)
+		    		targetExpr = n;
+		    	return n;
+		    }
+		};
+		retNode.visit(nodeVisitor);
+		Expr_c innerExprNode = (Expr_c)nodeVisitor.override(null);
+//		Expr_c innerExprNode = (retNode instanceof Expr_c) ? (Expr_c) retNode
+//				: null;
 		System.out.println(retNode);
 		Node_c tmp;
 		Node_c last = null;
@@ -474,7 +495,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		System.out.println();
 		System.out.println("** Rho **");
 		for(VarWithFirstUse v: fRho.keySet()) {
-			System.out.println("Variable " + v.fVarInstance.name() + " => " + fRho.get(v));
+			System.out.println("Variable " + (v.fVarInstance==null?"unknown":v.fVarInstance.name()) + " => " + fRho.get(v));
 		}
 	}
 
@@ -485,7 +506,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			System.out.print(a.left().toString() + " => {");
 			Set<InstanceKey> keys= fPhi.get(a);
 			for (InstanceKey key : keys) {
-				System.out.print(key);
+				System.out.print(" "+key);
 			}
 			System.out.println(" }");
 		}
@@ -509,10 +530,23 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 */
 	private static class LValueFinder extends NodeVisitor {
 		private final Set<Variable> fLValues = new HashSet<Variable>();
+		private boolean refsOnly = true;
 
+		public void setRefsOnly() {
+			refsOnly = true;
+		}
+		
+		public void setAnyVariable() {
+			refsOnly = false;
+		}
+		
+		private boolean onlyRefs(Type t){
+			return !refsOnly || t.isReference();
+		}
+		
 		@Override
 		public NodeVisitor enter(Node n) {
-			if (n instanceof Variable && ((Variable) n).type().isReference()) {
+			if (n instanceof Variable && onlyRefs(((Variable) n).type())) {
 				if (n instanceof Field) {
 					Field f = (Field) n;
 					if (f.target() instanceof Variable) {
@@ -597,6 +631,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private Set<VarWithFirstUse> findLoopRefedLVals(Stmt loop) {
 		Set<VarWithFirstUse> result = new HashSet<VarWithFirstUse>();
 		LValueFinder lvalFinder = new LValueFinder();
+		lvalFinder.setAnyVariable();
 		loop.visit(lvalFinder);
 		Set<Variable> lvals = lvalFinder.getLValues();
 
@@ -613,7 +648,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			VarWithFirstUse vwfu = new VarWithFirstUse(vi, var, ptrKey);
 			if (!result.contains(vwfu)) {
 				result.add(vwfu);
-				System.out.println("Creating VarWithFirstUse for " + vi.name() + " with pointer key = " + ptrKey);
+				System.out.println("Creating VarWithFirstUse for " + (vi==null?"unknown":vi.name()) + " with pointer key = " + ptrKey);
 			}
 		}
 		return result;
@@ -831,6 +866,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				Assign a = (Assign) e.expr();
 				// extract the variables from the statement with an LValueFinder
 				LValueFinder statVarFinder = new LValueFinder();
+				statVarFinder.setAnyVariable();
 				a.right().visit(statVarFinder);
 
 				// add the psi results from these LValueFinders to the phi map
@@ -958,7 +994,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		// Initialize variable set
 		Set<VarWithFirstUse> relevantVars = findLoopRefedLVals(block2);
-		relevantVars.add(getVarWithFirstUse(fRho.keySet(), i));
+		if (i != null)
+			relevantVars.add(getVarWithFirstUse(fRho.keySet(), i));
 
 		// Initialize slice set
 		Set<Stmt> sliceSet = new HashSet<Stmt>(relevantVars.size());
@@ -1794,19 +1831,33 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		Variable indexVariable = null;
 		Block stmtBody = null;
 		String loopType;
+		
+		NodeFactory nodeFactory = ((X10IRTranslatorExtension)fEngine.getTranslatorExtension()).nodeFactory();
 		if ((fLoop instanceof For) && (((For)fLoop).inits().get(0) instanceof LocalDecl)) {
 			LocalDecl indexDecl = (LocalDecl) ((For)fLoop).inits().get(0);
-			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
-			stmtBody = (Block)((For)fLoop).body();
+			indexVariable = nodeFactory.Local(indexDecl.position(),indexDecl.id()).localInstance(indexDecl.localInstance());
+			Stmt bodyStmt = ((For)fLoop).body();
+			if (bodyStmt instanceof Block)
+				stmtBody= (Block) bodyStmt;
+			else
+				stmtBody=nodeFactory.Block(bodyStmt.position(), bodyStmt);
 			loopType = "for";
 		} else if (fLoop instanceof X10Loop) {
 			Formal indexDecl = ((X10Loop)fLoop).formal();
-			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
-			stmtBody = (Block)((X10Loop)fLoop).body();
+			indexVariable = nodeFactory.Local(indexDecl.position(),indexDecl.id()).localInstance(indexDecl.localInstance());
+			Stmt bodyStmt = ((X10Loop)fLoop).body();
+			if (bodyStmt instanceof Block)
+				stmtBody= (Block) bodyStmt;
+			else
+				stmtBody=nodeFactory.Block(bodyStmt.position(), bodyStmt);
 			loopType = "x10for";
 		} else if (fLoop instanceof While) {
 			indexVariable= null;
-			stmtBody= (Block) ((While) fLoop).body();
+			Stmt bodyStmt = ((While)fLoop).body();
+			if (bodyStmt instanceof Block)
+				stmtBody= (Block) bodyStmt;
+			else
+				stmtBody=nodeFactory.Block(bodyStmt.position(), bodyStmt);
 			loopType= "while";
 		}
 		List<Stmt> firstLoop = PolyglotUtils.splitBlockBeforeNode(stmtBody, fPivot);
@@ -1823,8 +1874,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		String futureArrayInit = futureArrayType+"[.] "+futureArray+"= new " + futureArrayType+"["+arrayName+".distribution.region->here];";
 //		Stmt futureSpawn = new 
 
-		Set<Stmt> firstLoopSlice = slice(indexVariable, new Block_c(fLoop.position(), firstLoop));
-		Set<Stmt> secondLoopslice = slice(indexVariable, new Block_c(fLoop.position(), secondLoop));
+		Set<Stmt> firstLoopSlice = slice(indexVariable, nodeFactory.Block(fLoop.position(), firstLoop));
+		Set<Stmt> secondLoopslice = slice(indexVariable, nodeFactory.Block(fLoop.position(), secondLoop));
+		
+		
 		
 		return finalChange = tfc;
 	}

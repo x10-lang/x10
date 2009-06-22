@@ -12,7 +12,7 @@ public class ExtractAsyncRefactoringAction extends TextEditorAction {
 	static ResourceBundle ResBundle= ResourceBundle.getBundle("x10.refactorings.RefactoringMessages");
 	
     public ExtractAsyncRefactoringAction(UniversalEditor editor) {
-	super(ResBundle, "extractAsync.", editor);
+	super(ResBundle, "extractConcurrent.", editor);
 //	fEditor= editor;
     }
 
@@ -20,6 +20,6 @@ public class ExtractAsyncRefactoringAction extends TextEditorAction {
 	final ExtractAsyncRefactoring refactoring= new ExtractAsyncRefactoring((UniversalEditor) this.getTextEditor());
 
 	if (refactoring != null)
-		new RefactoringStarter().activate(refactoring, new ExtractAsyncWizard(refactoring, "Extract Async"), this.getTextEditor().getSite().getShell(), "Extract Async", false);
+		new RefactoringStarter().activate(refactoring, new ExtractAsyncWizard(refactoring, "Extract Concurrent"), this.getTextEditor().getSite().getShell(), "Extract Concurrent", false);
     }
 }
