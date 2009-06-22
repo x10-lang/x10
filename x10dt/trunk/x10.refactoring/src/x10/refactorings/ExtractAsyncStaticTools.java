@@ -82,9 +82,10 @@ public class ExtractAsyncStaticTools {
 
 	public static Collection<String> singleTestSrc(IFile grammarFile) {
 		IWorkspace myWorkspace = ResourcesPlugin.getWorkspace();
-		return Collections.singletonList(myWorkspace.getRoot().getLocation()
-				.toString()
-				+ grammarFile.getFullPath().toString());
+		return Collections.singletonList(grammarFile.getLocation().toString());
+//		return Collections.singletonList(myWorkspace.getRoot().getLocation()
+//				.toString()
+//				+ grammarFile.getFullPath().toString());
 	}
 
 	/*
@@ -277,6 +278,6 @@ public class ExtractAsyncStaticTools {
 	
 	public static String IFilePathtoCAstPath(String path){
 		String retval = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + path;
-		return retval.replace('/', '\\');
+		return retval;//.replace('/', '\\');
 	}
 }
