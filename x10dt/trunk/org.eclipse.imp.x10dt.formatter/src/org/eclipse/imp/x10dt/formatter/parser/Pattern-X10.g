@@ -29,7 +29,7 @@
     --
     -- Definition of macros used in the parser template
     --
-    $ast_class /.IAst./
+    $ast_class /.Object./
     $additional_interfaces /. , IParser ./
 %End
 
