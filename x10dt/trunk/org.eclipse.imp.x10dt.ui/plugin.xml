@@ -101,12 +101,6 @@
             language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.hyperLink">
-      <hyperlinkDetector
-            class="x10.uide.editor.HyperlinkDetector"
-            language="X10"/>
-   </extension>
-   <extension
          point="org.eclipse.uide.runtime.hoverHelper">
       <hoverhelper
             class="x10.uide.editor.HoverHelper"
@@ -125,13 +119,14 @@
             language="X10">
       </foldingUpdater>
    </extension>
-   <extension
+<!-- <extension
          point="org.eclipse.uide.runtime.hyperLink">
       <hyperlinkDetector
             class="x10.uide.editor.HyperlinkDetector"
             language="X10">
       </hyperlinkDetector>
    </extension>
+  -->
    <extension
          point="org.eclipse.uide.runtime.contentProposer">
       <proposer
@@ -168,5 +163,11 @@
            A brief introduction to using the X10 Development Toolkit.
          </description>
       </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.referenceResolvers">
+         <referenceResolver
+             language="X10"
+             class="x10.uide.editor.X10ReferenceResolver"/>
    </extension>
 </plugin>
