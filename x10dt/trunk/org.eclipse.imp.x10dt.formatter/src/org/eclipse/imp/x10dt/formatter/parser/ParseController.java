@@ -25,6 +25,7 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.formatter.parser.ast.ASTNode;
 
 public class ParseController extends SimpleLPGParseController implements
@@ -55,7 +56,7 @@ public class ParseController extends SimpleLPGParseController implements
 	}
 	
 	public ParseController() {
-	    super("X10");
+		super(X10Plugin.kLanguageName);
 	}
 
 	/**
