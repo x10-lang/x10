@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Using the X10 Development Toolkit">
+<intro>
+<description>
+This cheat sheet briefly describes how to use the X10 Development Toolkit to
+configure the X10DT, create X10 projects, create X10 classes, and use launch
+configurations to run and debug X10 programs.
+</description>
+</intro>
+<item title="Configure the X10DT">
+<action pluginId="com.ibm.watson.safari.x10"
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.OpenX10PreferencesAction"/>
+<description>
+Before using the X10DT for the first time, you first need to make sure the X10DT
+can find certain critical resources that it needs to run.<br/>
+
+Invoke "Window" -&gt; "Preferences" -&gt; "X10", and make sure that the "Common
+directory" field points to an existing folder "x10.common" on your hard drive.
+Click on the "Browse..." button to bring up a folder selection dialog if not (or
+just type in the path directly if you know it).<br/>
+
+Likewise, make sure that the "Configuration file" field points at an existing
+X10 configuration file (e.g. "standard.cfg"). This file will typically reside in
+the "etc" sub-directory of the "Common directory" that you specified above. If
+you installed X10 manually from a .zip file, you should have run "ant" in the
+"x10.common" directory, which creates a "standard.cfg" file from the settings of
+various environment variables (e.g. "JAVA_HOME" and "X10_PLATFORM").<br/>
+
+If you installed X10DT using the Eclipse Update Manager, the default settings
+should already be correct. If they aren't, you're screwed.<br/>
+</description>
+</item>
+<item title="Create an X10 project">
+<action pluginId="com.ibm.watson.safari.x10"
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.NewX10ProjectAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "Project" -&gt; "X10 Project".<br/>
+
+Fill out the "Name" field with a unique non-existing project name.<br/>
+
+Most likely, you'll want to accept the default location for the project (i.e. in your
+workspace).<br/>
+
+We strongly recommend setting the "Create separate source and output folders" option.
+This will place the generated class files in a separate folder from the X10 source.
+You may encounter problems in the X10DT with compiling and debugging if you don't select
+this option.<br/>
+
+Hit "Finish" when done editing the various fields.<br/>
+</description>
+</item>
+<item title="Create a new X10 Class">
+<action pluginId="com.ibm.watson.safari.x10"
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.NewX10TypeAction"/>
+<description>
+Invoke "File" -&gt; "New" -&gt; "X10" -&gt; "X10 Class".<br/>
+
+In the "Source folder" field, you enter both the project in which you would like
+the new class to reside, and the source folder within that project that is to
+contain the X10 class.<br/>
+
+Usually, there is one source folder per project, as is the case when you follow
+the above instructions for creating your X10 project.<br/>
+
+You can type the project name and source folder into the text field, but a much
+easier way to do this is to click on the "Browse..." button next to the "Source folder"
+field. This will bring up a selection dialog that will allow you to quickly
+navigate to the project and source folder you want to use.<br/>
+
+If you want to place the X10 class in a non-default package, enter the package
+name into the "Package" field. Again, you can use the "Browse..." next to the
+"Package" field to show the list of existing packages in the given project.
+At this time, you cannot create a new package from within the "New X10 Class"
+dialog; it must already exist.<br/>
+
+Enter the name of the new X10 class in the "name" field, and use the modifier
+buttons and checkboxes to specify the visibility and other characteristics of
+your class.<br/>
+
+If you wish, enter in the "Superclass" field the fully-qualified name of the
+desired base class for your new X10 class, or use the "Browse..." button to
+the right to bring up the class selection dialog. Of course, if you leave
+x10.lang.Object as the superclass, you can always change the superclass later
+by editing the class definition in the source code.<br/>
+
+To add interfaces to the class, click on the "Add..." button to bring up an
+interface selection dialog. This will display the list of all interfaces on
+the build-time classpath for your project.<br/>
+
+Hit "Finish" when done editing. The source file for the new class will be
+open in the editor. You should see the structure of the X10 class source in the
+"Outline" view.<br/>
+</description>
+</item>
+<item title="Using the Editor and Outline View">
+<description>
+You should see keywords highlighted in the source editor, as well as an outline
+of the source file's contents in the "Outline" view on the right. The Outline
+view shows the types, members and anonymous instances defined in the source code.<br/>
+
+You can navigate to a given source code entity by simply clicking on the corresponding
+item in the Outline view. Click on the "+" or "-" controls next to a given item in the
+Outline view to expand or collapse the sub-tree rooted at that item.<br/>
+</description>
+</item>
+<item title="Launching your X10 program">
+<action pluginId="com.ibm.watson.safari.x10"
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.LaunchProgramAction"/>
+<description>
+</description>
+</item>
+<item title="Debugging your X10 program">
+<action pluginId="com.ibm.watson.safari.x10"
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.DebugProgramAction"/>
+<description>
+</description>
+</item>
+</cheatsheet>
