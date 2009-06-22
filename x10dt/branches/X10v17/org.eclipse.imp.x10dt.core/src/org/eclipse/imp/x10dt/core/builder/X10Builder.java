@@ -56,6 +56,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
@@ -545,7 +546,10 @@ public class X10Builder extends IncrementalProjectBuilder {
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
+            // get the same PreferencesService (from RuntimePlugin) that the pref. page uses.  
+            // getting it from X10Plugin returns a different one.
+            IPreferencesService prefService = RuntimePlugin.getInstance().getPreferencesService();
+            
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));
             optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)));
@@ -559,7 +563,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 int extraOptionsPos=0;
                 for (String s: options) {
                     if (s!=null) {
-                        optsList.add(extraOptionsPos++, s);
+                        optsList.add(extraOptionsPos++, s);  // FIXME refactor this and do stuff in the order it belongs in the first place
                     }
                 }
             }
