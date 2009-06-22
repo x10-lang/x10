@@ -27,6 +27,7 @@ import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.ptp.rm.remote.core.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -142,6 +143,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     locationComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fWorkspaceLocText = createLabelAndText(locationComp, Messages.CPWSP_LocationLabel, null);
     this.fWorkspaceLocText.setEnabled(false);
+    this.fWorkspaceLocText.addModifyListener(new WorkspaceLocModifyListener());
     
     final Composite browseComp = new Composite(composite, SWT.NONE);
     browseComp.setLayout(new GridLayout(1, false));
@@ -218,6 +220,16 @@ final class CppProjectWizardSecondPage extends WizardPage {
 
     public void widgetSelected(final SelectionEvent event) {
       updateDisablingPart();
+      updateMessage();
+    }
+    
+  }
+  
+  private final class WorkspaceLocModifyListener implements ModifyListener {
+
+    // --- Interface methods implementation
+    
+    public void modifyText(final ModifyEvent event) {
       updateMessage();
     }
     
