@@ -21,10 +21,16 @@
 package org.eclipse.imp.x10dt.core.builder;
 
 import java.util.Iterator;
+
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.internal.corext.callhierarchy.MethodCall;
+
+import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
@@ -34,6 +40,8 @@ import polyglot.ext.x10.types.NullableType;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.ParsedClassType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -65,12 +73,12 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         }
         if (type.isClass()) {
             if (type instanceof NullableType)
-        	type = ((NullableType) type).base();
+                type = ((NullableType) type).base();
             ClassType classType= (ClassType) type;
             if (!isBinary(classType) && !fFromType.equals(type)) {
-        	if (DEBUG)
-        	    System.out.println("  Reference to type: " + classType.fullName());
-        	fDependencyInfo.addDependency(fFromType, type);
+                if (DEBUG)
+                    System.out.println("  Reference to type: " + classType.fullName());
+                fDependencyInfo.addDependency(fFromType, type);
             }
         }
     }
@@ -94,6 +102,16 @@ class ComputeDependenciesVisitor extends NodeVisitor {
             Type type= rcvr.type();
 
             recordTypeDependency(type);
+        } else if (n instanceof Call) {
+            Call call= (Call) n;
+            MethodInstance mi= call.methodInstance();
+
+            recordTypeDependency(mi.container());
+        } else if (n instanceof New) {
+            New nw= (New) n;
+            ConstructorInstance ci= nw.constructorInstance();
+
+            recordTypeDependency(ci.container());
         } else if (n instanceof ClassDecl) {
             ClassDecl classDecl= (ClassDecl) n;
 
