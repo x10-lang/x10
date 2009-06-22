@@ -1,6 +1,8 @@
-package x10.refactorings;
+package x10.refactorings.wizards;
 
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
+
+import x10.refactorings.ExtractAsyncRefactoring;
 
 public class ExtractAsyncWizard extends RefactoringWizard {
     public ExtractAsyncWizard(ExtractAsyncRefactoring refactoring, String pageTitle) {
