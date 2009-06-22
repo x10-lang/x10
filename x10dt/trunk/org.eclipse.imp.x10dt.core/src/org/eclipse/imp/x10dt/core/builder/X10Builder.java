@@ -462,6 +462,10 @@ public class X10Builder extends IncrementalProjectBuilder {
         	if (fnf.getMessage().startsWith("???\\standard.cfg")) {
         	    postMsgDialog("X10 Error", "X10 configuration file location not yet set.");
         	}
+            } else if (e.getCause() instanceof IOException) {
+		IOException io= (IOException) e.getCause();
+        	if (io.getMessage().endsWith("non-existent"))
+        	    postMsgDialog("X10 Error", "X10 compiler configuration invalid; please re-set in the X10 Preferences page.");
             }
         }
 
