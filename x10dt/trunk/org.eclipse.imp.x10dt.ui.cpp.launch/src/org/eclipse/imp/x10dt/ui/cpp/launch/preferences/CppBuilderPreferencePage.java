@@ -70,10 +70,6 @@ public final class CppBuilderPreferencePage extends PreferencePage implements IW
   
   // --- Overridden methods
   
-  protected IPreferenceStore doGetPreferenceStore() {
-    return LaunchCore.getInstance().getPreferenceStore();
-  }
-  
   protected void performDefaults() {
     initializeDefaultValues();    
     super.performDefaults();
