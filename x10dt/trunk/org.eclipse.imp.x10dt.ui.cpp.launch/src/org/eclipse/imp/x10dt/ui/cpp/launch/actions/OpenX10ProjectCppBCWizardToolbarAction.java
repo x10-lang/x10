@@ -8,7 +8,7 @@
 package org.eclipse.imp.x10dt.ui.cpp.launch.actions;
 
 import org.eclipse.imp.x10dt.ui.cpp.launch.wizards.CppProjectWizard;
-import org.eclipse.imp.x10dt.ui.perspective.actions.AbstractWizardToolbarAction;
+import org.eclipse.imp.x10dt.ui.perspective.action.AbstractWizardToolbarAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.INewWizard;
