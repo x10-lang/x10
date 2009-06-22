@@ -22,7 +22,7 @@
 An  X10 program is intended to run on a wide range of computers,
 from uniprocessors to large clusters of parallel processors supporting
 millions of concurrent operations. To support this scale,  X10
-introduces the central concept of <em>place</em> (&#167;&nbsp;).
+introduces the central concept of <em>place</em> (&#167;&nbsp;6).
 Conceptually, a place is a "virtual shared-memory multi-processor":
 a computational unit with a finite (though perhaps changing) number of
 hardware threads and a bounded amount of shared memory, uniformly
@@ -30,8 +30,8 @@ accessible by all threads.
 
 <div class="p"><!----></div>
 An  X10 computation acts on <em>data
-objects</em>(&#167;&nbsp;) through the execution of lightweight
-threads called <em>activities</em>(&#167;&nbsp;).  Objects are
+objects</em>(&#167;&nbsp;3.6) through the execution of lightweight
+threads called <em>activities</em>(&#167;&nbsp;7).  Objects are
 of two kinds. A <em>scalar</em> object has a small, statically fixed set
 of fields, each of which has a distinct name. A scalar object is
 located at a single place and stays at that place throughout its
@@ -53,9 +53,9 @@ However, an activity may synchronously access data items only in the
 current place (the place in which the activity is running). It may
 atomically update one or more data items, but only in the current
 place.  To read a remote location, an activity must spawn another
-activitiy <em>asynchronously</em> (&#167;&nbsp;). This
+activitiy <em>asynchronously</em> (&#167;&nbsp;7.2). This
 operation returns immediately, leaving the spawning activity with a
-<em>future</em> (&#167;&nbsp;) for the result. Similarly, remote
+<em>future</em> (&#167;&nbsp;7.5) for the result. Similarly, remote
 location can be written into only by asynchronously spawning an
 activity to run at that location.
 

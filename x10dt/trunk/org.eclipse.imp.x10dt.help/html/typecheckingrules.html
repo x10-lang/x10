@@ -53,7 +53,7 @@ Each of the following static semantics rules must be satisfied:
 <div class="p"><!----></div>
 A constructor for a class <tt>C</tt> is guaranteed to return an object of the
 class on successful termination. This object must satisfy i(C), the
-class invariant associated with <tt>C</tt> (&#167;&nbsp;<a href="#DepType:TypeInvariant">5</a>). However,
+class invariant associated with <tt>C</tt> (&#167;&nbsp;4.5</a>). However,
 often the objects returned by a constructor may satisfy <em>stronger</em>
 properties than the class invariant.  X10's dependent type system
 permits these extra properties to be asserted with the constructor in
@@ -72,7 +72,7 @@ may specify a where clause that is to be satisfied by the parameters
 to the list.
 
 <div class="p"><!----></div>
-Here is another example.
+<b>Example 8.1</b> Here is another example.
 <pre>
 public class List(int(:n &#62;=0) n) {
  protected nullable&lt;Object&#62;   value;
@@ -115,9 +115,9 @@ constructor.
 <tt>D(:d1) (T1 x1,..., Tk xk : c)</tt>
    then it must be the case that 
    <pre>
-S1 x1, ..., Si xi  - - Ti xi  (for i in 1:k)
-S1 x1, ..., Sk xk  - - c  
-d1[a/self] &amp;&amp; S1 x1 ... &amp;&amp; Sk xk  - - d[a/self]      
+S1 x1, ..., Si xi  | - Ti xi  (for i in 1:k)
+S1 x1, ..., Sk xk  | - c  
+d1[a/self] &amp;&amp; S1 x1 ... &amp;&amp; Sk xk  | - d[a/self]      
    </pre>
 
 <div class="p"><!----></div>
@@ -133,12 +133,12 @@ d1[a/self] &amp;&amp; S1 x1 ... &amp;&amp; Sk xk  - - d[a/self]
    compiler checks that the static types <tt>Ti</tt> of the expressions <tt>ei</tt>
    assigned to pi are such that the following is true
    <pre>
-    T1 p1, ...., Tn pn  - - t(C) &amp;&amp; c'     
+    T1 p1, ...., Tn pn  | - t(C) &amp;&amp; c'     
 </pre>   
 
 <div class="p"><!----></div>
 </blockquote>(Note that for the assignment of ei to pi to be type-correct it must be the
-    case that Ti pi  - - Pi pi.) 
+    case that Ti pi  -- Pi pi.) 
 
 <div class="p"><!----></div>
 

@@ -31,11 +31,11 @@ permitted and its location.
 <div class="p"><!----></div>
 <pre>
 509   Type ::=  DataType  PlaceTypeSpecifieropt
-510      -  nullable  Type
-511      -  future &lt;  Type &#62; 
+510      |  nullable  Type
+511      |  future &lt;  Type &#62; 
 512   DataType ::=  PrimitiveType
 513   DataType ::=  ClassOrInterfaceType
-514      -   ArrayType
+514      |   ArrayType
 </pre>
 
 <div class="p"><!----></div>
@@ -65,7 +65,7 @@ interface. A class implements an interface if it says it does and if
 it implements all the methods defined in the interface.
 
 <div class="p"><!----></div>
-The <em>interface declaration</em> (&#167;&nbsp;) takes as
+The <em>interface declaration</em> (&#167;&nbsp;9) takes as
 argument one or more interfaces (the <em>extended</em> interfaces), one
 or more type parameters and the definition of constants and method
 signatures and the name of the defined interface.  Each such
@@ -77,25 +77,25 @@ declaration introduces a data type.
 433   ClassOrInterfaceType ::= TypeName 
 13    ClassType ::= TypeName
 15    TypeName ::= identifier
-16      -  TypeName . identifier
+16      |  TypeName . identifier
 </pre>
 
 <div class="p"><!----></div>
 
 <b>Reference class declarations.&nbsp;&nbsp;</b><a name="ReferenceTypes">
 </a>
-The <em>reference class declaration</em> (&#167;&nbsp;) takes
+The <em>reference class declaration</em> (&#167;&nbsp;10.1) takes
 as argument a reference class (the <em>extended class</em>), one or more
 interfaces (the <em>implemented interfaces</em>), the definition of
 fields, methods and inner types, and returns a class of the named type
-(&#167;&nbsp;). Each such declaration introduces a data
+(&#167;&nbsp;10.1). Each such declaration introduces a data
 type. Semantically, the data type is the set of all objects which are
 instances of (subclasses of) the class.
 
 <div class="p"><!----></div>
 
 <b>Value class declarations.&nbsp;&nbsp;</b>
-The <em>value class declaration</em> (&#167;&nbsp;) is
+The <em>value class declaration</em> (&#167;&nbsp;10.2) is
 similar to the reference class declaration except that it must extend
 either a value class or a reference class that has no mutable fields.
 It may be used to construct a value type in the same way as a

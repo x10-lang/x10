@@ -23,9 +23,9 @@
 <div class="p"><!----></div>
 <pre>
     ArrayType ::= Type [  ] 
-      -  Type value  [  ]
-      -  Type [ DepParameterExpr ]
-      -  Type  value [ DepParameterExpr ]  
+      |  Type value  [  ]
+      |  Type [ DepParameterExpr ]
+      |  Type  value [ DepParameterExpr ]  
 </pre>
 
 <div class="p"><!----></div>
@@ -91,7 +91,7 @@ region has the type <tt>R(:c)!self.dist[p]</tt>. (Recall that in  X10 a
 distribution is itself a value array that maps a point to a place.)
 
 <div class="p"><!----></div>
-  The type <tt>double[:rail]</tt> is the Java type <tt>double[]</tt>.
+<b>Example 12.1</b>   The type <tt>double[:rail]</tt> is the Java type <tt>double[]</tt>.
   The type <tt>double[:rail][:rail]</tt> is the Java type <tt>double[][]</tt>.
 
 <div class="p"><!----></div>

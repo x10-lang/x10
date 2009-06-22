@@ -30,7 +30,7 @@ Two dependent types <tt>C(:c)</tt> and <tt>C(:d)</tt> are said to be <em>equival
 <div class="p"><!----></div>
 Note that two deptypes that are syntactically different may be
 equivalent. For instance, <tt>int(:self &#62;= 0)</tt> and <tt>int(:self ==
-0  -  -  self &#62; 0)</tt> are equivalent though they are syntactically
+0 || self &#62; 0)</tt> are equivalent though they are syntactically
 distinct. The Java type system is essentially a nominal system - two
 types are the same if and only if they have the same name. The  X10
 type system extends the nominal type system of Java to permit
