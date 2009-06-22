@@ -28,6 +28,7 @@
          </view>
       </perspectiveExtension>
    </extension>
+   <!--
       <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
@@ -40,6 +41,7 @@
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
       </launchConfigurationType>
    </extension>
+   -->
       <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
