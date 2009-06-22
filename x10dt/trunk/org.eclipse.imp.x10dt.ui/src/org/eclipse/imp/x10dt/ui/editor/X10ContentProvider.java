@@ -14,6 +14,7 @@ import org.eclipse.uide.editor.OutlineInformationControl.OutlineContentProviderB
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
+import polyglot.visit.HaltingVisitor;
 import polyglot.visit.NodeVisitor;
 
 public class X10ContentProvider extends OutlineContentProviderBase implements ILanguageService {
@@ -47,7 +48,7 @@ public class X10ContentProvider extends OutlineContentProviderBase implements IL
     }
 }
 
-class OutlineVisitor extends NodeVisitor {
+class OutlineVisitor extends HaltingVisitor {
     private final List<Node> fChildren= new ArrayList<Node>();
 
     public List<Node> getChildren() { return fChildren; }
@@ -57,10 +58,12 @@ class OutlineVisitor extends NodeVisitor {
 	    SourceFile file= (SourceFile) n;
 
 	    fChildren.addAll(file.decls());
+	    return bypassChildren(n);
 	} else if (n instanceof ClassDecl) {
 	    ClassDecl cd= (ClassDecl) n;
 
 	    fChildren.addAll(cd.body().members());
+	    return bypassChildren(n);
 	}
 	return this;
     }
