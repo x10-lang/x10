@@ -1,11 +1,17 @@
 package org.eclipse.imp.x10dt.core;
 
+import java.io.IOException;
+import java.net.URL;
+
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.jface.text.IRegion;
+import org.osgi.framework.Bundle;
 
 import polyglot.util.Position;
 
@@ -98,6 +104,40 @@ public class X10Util {
 	 */
 	public static IToken getToken(int offset, IPrsStream prs) {
 		return prs.getTokenAtCharacter(offset);
+	}
+	/**
+	 * get the jar file location (fully qualified path) for the given bundle ID
+	 * @param bundleID
+	 * @return
+	 */
+	public static String getJarLocationForBundle(String bundleID) {
+		Bundle b1 = Platform.getBundle(bundleID);
+		URL b1u = b1.getResource("");
+		String jarFileName = null;
+		try {
+			// FileLocator is normally used for finding files IN bundles.
+			URL jarFileURL = FileLocator.resolve(b1u);
+			jarFileName = jarFileURL.getFile(); 
+			if (jarFileName.endsWith("!/")) {
+				jarFileName = jarFileName
+						.substring(0, jarFileName.length() - 2);
+			} else {
+				X10Plugin.getInstance().writeInfoMsg(
+						"X10RETab did not find jar file for " + bundleID
+								+ " ending with '!/'");
+			}
+			if (jarFileName.startsWith("file:")) {
+				jarFileName = jarFileName.substring(5);
+			} else {
+				X10Plugin.getInstance().writeInfoMsg(
+						"X10RETab did not find jar file for " + bundleID
+								+ " beginning with 'file:'");
+			}
+		} catch (IOException e) {
+			X10Plugin.getInstance().logException(
+					"Error getting jar file for " + bundleID, e);
+		}
+		return jarFileName;
 	}
 
 }
