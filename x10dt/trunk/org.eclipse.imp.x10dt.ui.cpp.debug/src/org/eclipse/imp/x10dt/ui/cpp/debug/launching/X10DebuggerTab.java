@@ -255,7 +255,6 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
     
     this.fStopInMain = createCheckButton(composite, DebugMessages.DT_StopInMainBt);
     this.fStopInMain.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    this.fStopInMain.setSelection(true);
     this.fStopInMain.addSelectionListener(new UpdateConfigurationDialogSelectionListener());
   }
   
