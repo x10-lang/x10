@@ -51,6 +51,7 @@ import polyglot.ast.LocalClassDecl;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10cpp.debug.ClosureVariableMap;
 import polyglot.ext.x10cpp.debug.LineNumberMap;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.Emitter;
@@ -167,6 +168,9 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     final LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(process, cppFile);
     String x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
     if (x10Function == null) { // now try alternate forms of primitives
+      if (inClosure(process, cppFunction)) {
+        return "closure in "+getX10File(process, cppLocation)+" (possibly an async)";
+      }
       cppFunction = cppFunction.replaceAll("\\b(int|short|double|float)\\b", "x10_$1");
       x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
       if (x10Function == null) { // now try adding spaces before closing type arg braces
@@ -557,6 +561,76 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
       LineNumberMap.mergeMap(fX10ToCppMap, x2cMap);
     }
   }
+  
+  public static boolean inClosure(DebuggeeProcess p, String function) {
+    return function.matches(".*__closure__\\d+::apply\\(\\)");
+  }
+  
+  public static final String SAVED_THIS = "saved_this";
+  public String[] getClosureVars(DebuggeeProcess process, Location location, String function) {
+    assert (function.matches(".*__closure__\\d+::apply\\(\\)"));
+    String closure = function.substring(0, function.indexOf("::apply()"));
+    final ClosureVariableMap map = getClosureInfoMap(process, location, closure);
+    String[] variables = map.getVariables();
+    for (int i = 0; i < variables.length; i++) {
+	  if (variables[i].equals(SAVED_THIS))
+	    variables[i] = "this";
+	}
+	return variables;
+  }
+  
+  public String getClosureVariableType(DebuggeeProcess process, Location location, String function, String name) {
+    assert (function.matches("__closure__\\d\\+::apply()$"));
+    String closure = function.substring(0, function.indexOf("::apply()"));
+    final ClosureVariableMap map = getClosureInfoMap(process, location, closure);
+    return map.get(name);
+  }
+	  
+  private static final ClosureVariableMap EMPTY_CLOSURE_MAP = new ClosureVariableMap();
+  private ClosureVariableMap getClosureInfoMap(final DebuggeeProcess process, Location location, final String closure) {
+    ClosureVariableMap map = fClosureInfoMap.get(closure);
+    if (map == null) {
+      readClosureInfo(process, location, closure);
+      map = fClosureInfoMap.get(closure);
+      if (map == null)
+        fClosureInfoMap.put(closure, map = EMPTY_CLOSURE_MAP);
+    }
+    assert (map != null);
+    return map;
+  }
+
+  private void readClosureInfo(final DebuggeeProcess p, Location location, final String closure) {
+    System.err.println("Reading closure mapping info for " + closure);
+    String val = null;
+    try {
+      DebuggeeThread t = p.getStoppingThread();
+      // The code below doesn't create the right kind of monitor.
+      // ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
+      ExpressionBase b = p.monitorExpression(location.getEStdView(), t.getId(),
+                                             closure+"::"+ClosureVariableMap.VARIABLE_NAME, IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram,
+                                             null, null, null, null);
+      // TODO
+      // Address addr = p.convertToAddress(v.getExpression(), t.getLocation(t.getViewInformation()), t);
+      if (b != null) {
+        ExprNodeBase n = b.getRootNode();
+        if (n != null)
+          val = n.getValueString();
+        b.remove();
+      }
+    } catch (EngineRequestException except) {
+      DebugCore.log(IStatus.ERROR, "Monitor expression failed by engine", except);
+    }
+    System.out.println("\tValue = '" + val + "'");
+    if (val == null)
+      return;
+    if (val.equals("Variable was not found."))
+      val = "\"" + EMPTY_CLOSURE_MAP.exportMap() + "\"";
+    if (val.endsWith("..."))
+      val = val.substring(0, val.lastIndexOf(',') + 1) + "}\""; // FIXME: damage control
+    assert (val.startsWith("\"") && val.endsWith("\""));
+    ClosureVariableMap map = ClosureVariableMap.importMap(val.substring(1, val.length() - 1));
+    fClosureInfoMap.put(closure, map);
+  }
 
   private String stripPrefixes(String type, String[] prefixes) {
     for (int i = 0; i < prefixes.length; i++) {
@@ -578,6 +652,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
   private X10CPPTypeSystem_c fTypeSystem;
   private final HashMap<String, LineNumberMap> fX10ToCppMap = LineNumberMap.initMap();
   private final HashMap<String, LineNumberMap> fCppToX10Map = LineNumberMap.initMap();
+  private final HashMap<String, ClosureVariableMap> fClosureInfoMap = new HashMap<String, ClosureVariableMap>();
   private final HashMap<String, String[]> fX10ClassMap = new HashMap<String, String[]>();
   private Compiler fCompiler;
 }

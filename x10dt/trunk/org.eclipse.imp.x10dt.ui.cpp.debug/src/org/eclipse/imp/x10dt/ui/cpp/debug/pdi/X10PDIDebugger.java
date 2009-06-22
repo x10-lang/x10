@@ -12,6 +12,8 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTA
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.inClosure;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.SAVED_THIS;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -369,7 +371,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
-                                                           getVariablesAsStringArray(stackFrame)));
+                                                           getVariablesAsStringArray(stackFrame, getTranslator(pair.fst()))));
       }
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Step Into operation: " + except.getMessage());
@@ -408,7 +410,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
-                                                           getVariablesAsStringArray(stackFrame)));
+                                                           getVariablesAsStringArray(stackFrame, getTranslator(pair.fst()))));
       }
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Step Over operation: " + except.getMessage());
@@ -446,7 +448,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
-                                                           getVariablesAsStringArray(stackFrame)));
+                                                           getVariablesAsStringArray(stackFrame, getTranslator(pair.fst()))));
       }
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Step Return operation: " + except.getMessage());
@@ -487,7 +489,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
                                                            thread.getId(), getDepth(thread),
-                                                           getVariablesAsStringArray(stackFrame)));
+                                                           getVariablesAsStringArray(stackFrame, getTranslator(pair.fst()))));
       }
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Step Until operation: " + except.getMessage());
@@ -598,7 +600,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
         final StackFrame stackFrame = getCurrentStackFrame(thread);
         this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                           getVariablesAsStringArray(stackFrame)));
+                                                           getVariablesAsStringArray(stackFrame, getTranslator(pair.fst()))));
       }
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during List Local Vars operation: " + except.getMessage());
@@ -759,7 +761,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
           thread.getLocals(frame);
           // TODO: consolidate the events
           this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                             getVariablesAsStringArray(frame)));
+                                                             getVariablesAsStringArray(frame, getTranslator(pair.fst()))));
         } else {
           DebugCore.log(IStatus.ERROR, "Stack frame level selected is out of bounds");
         }
@@ -882,6 +884,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
     return proxyStackFrames;
   }
   
+  private static final String REMOTE_REF_VALUE = "REMOTE REFERENCE";
   private ProxyDebugAIF createDebugProxyAIF(final DebuggeeProcess process, final DebuggeeThread thread,
                                             final Location location, final String expr, final BitList task,
                                             boolean listChildren) throws EngineRequestException, DebugException,
@@ -900,7 +903,14 @@ public final class X10PDIDebugger implements IPDIDebugger {
       }
       base = ptr + "->" + FMGL(fld); // FIXME: HACK!
     }
+    if (inClosure(process, getFunction(location)) && base.startsWith("this")) {
+      base = "this->"+SAVED_THIS+base.substring("this".length());
+    }
     ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
+    if (rootNode == null && inClosure(process, getFunction(location))) {
+      // May have been a captured variable.  Try again, this time via the closure object.
+      rootNode = evaluateExpression("this->"+expr, process, thread, location);
+    }
     if (rootNode == null)
       return new ProxyDebugAIF("?0?", "00", expr);
     final EPDTVarExprType exprType = getExprType(rootNode);
@@ -922,6 +932,12 @@ public final class X10PDIDebugger implements IPDIDebugger {
       }
     }
     String result = rootNode.getValueString();
+    if (isReferenceType(exprType) && isRemoteRef(result)) {
+      int len = REMOTE_REF_VALUE.length();
+      byte[] bytes = REMOTE_REF_VALUE.getBytes();
+      String remoteVar = PDTUtils.toHexString(len, 4) + PDTUtils.toHexString(bytes);
+      return new ProxyDebugAIF("s", remoteVar, expr);
+    }
     if (exprType == EPDTVarExprType.ARRAY) {
       // GlobalVariable[] globals = process.getDebugEngine().getGlobalVariables();
       // for (GlobalVariable v : globals) {
@@ -1153,6 +1169,22 @@ public final class X10PDIDebugger implements IPDIDebugger {
     final String value = getValue(exprType, result);
     final ProxyDebugAIF aif = new ProxyDebugAIF(getVariableType(exprType, task, desc), value, desc == null ? exprType.toString() : desc[0]);
     return aif;
+  }
+  
+  private boolean isRemoteRef(String result) {
+    assert (result.startsWith("0x"));
+    long p = Long.parseLong(result.substring(2), 16);
+    return (p & 0x1L) != 0;
+  }
+
+  private boolean isReferenceType(EPDTVarExprType exprType) {
+    switch (exprType) {
+    case ADDRESS:
+    case ARRAY:
+    case STRUCT:
+      return true;
+    }
+    return false;
   }
   
   private PICLLoadInfo createLoadInfo(final ILaunchConfiguration configuration) throws CoreException {
@@ -1402,6 +1434,14 @@ public final class X10PDIDebugger implements IPDIDebugger {
       return EPDTVarExprType.STRING;
     } else if (type.equals("x10aux::ref<x10::lang::String>")) {
       return EPDTVarExprType.STRING;
+    } else if (type.startsWith("class ref<") && type.contains("__closure__")) {
+    	return EPDTVarExprType.CLOSURE;
+    } else if (type.startsWith("x10aux__ref<") && type.contains("__closure__")) {
+    	return EPDTVarExprType.CLOSURE;
+    } else if (type.startsWith("class x10aux::ref<") && type.contains("__closure__")) {
+    	return EPDTVarExprType.CLOSURE;
+    } else if (type.startsWith("x10aux::ref<") && type.contains("__closure__")) {
+    	return EPDTVarExprType.CLOSURE;
     } else if (type.startsWith("class ref<")) {
       return EPDTVarExprType.STRUCT;
     } else if (type.startsWith("x10aux__ref<")) {
@@ -1466,12 +1506,28 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
   }
   
-  private String[] getVariablesAsStringArray(final IStackFrame stackFrame) throws DebugException {
+  private String[] getVariablesAsStringArray(final IStackFrame stackFrame, IDebuggerTranslator translator) throws DebugException, PDIException {
+    final StackFrame frame = (StackFrame) stackFrame;
+    final Location location = frame.getLocation(frame.getViewInformation());
+    if (location == null) {
+      throw new PDIException(null, "Unable to access location info for stack frame");
+    }
+    final String function = getFunction(location);
+    DebuggeeProcess process = (DebuggeeProcess) frame.getDebugTarget().getProcess();
     final IVariable[] variables = stackFrame.getVariables();
     final ArrayList<String> strVars = new ArrayList<String>();
     for (final IVariable var : variables) {
-      if (!var.getName().equals("no local variables are available for the selected stackframe"))
+      if (var.getName().equals("no local variables are available for the selected stackframe"))
+        continue;
+      if (var.getName().equals("this") && inClosure(process, function)) {
+        final String[] vars = translator.getClosureVars(process, location, function);
+        // FIXME: filter out the duplicates if any vars in the frame shadow the captured variables
+        for (int i = 0; i < vars.length; i++) {
+		  strVars.add(vars[i]);
+		}
+      } else {
         strVars.add(var.getName());
+      }
     }
     return strVars.toArray(new String[strVars.size()]);
   }
@@ -1495,6 +1551,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
       case ADDRESS:
         return "a8"; //$NON-NLS-1$
       case STRUCT: { //"{ID|FLD1=TYPE1,FLD2=TYPE2;;;}"
+        // desc is null, or contains [ typestr, flag, ( name, type )* ]
         if (desc == null) // a field of a struct, or an unknown struct
           return "^a8v0";
         if (!desc[1].equals("NOPTR"))
@@ -1509,7 +1566,11 @@ public final class X10PDIDebugger implements IPDIDebugger {
         sb.append(";;;}"); //$NON-NLS-1$
         return sb.toString();
       }
-      case ARRAY: {
+      case CLOSURE: { //"{captured variables|VAR1=TYPE1,VAR2=TYPE2;;;}"
+        throw new PDIException(task, "Unexpected closure type encountered");
+      }
+      case ARRAY: { //"[rLOW..HIGHis4]TYPE"
+        // desc is null or contains [ typestr, elemtype, "LOW..HIGH" ] 
         if (desc == null) // a field of a struct, or an unknown rail
           return "^a8v0";
         if (desc[2] == null) // 0-length rail
@@ -1642,8 +1703,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
     String cppFile = location.getViewFile().getBaseFileName();
     int cppLine = location.getLineNumber();
-    Function[] functions = location.getFunctionsAtThisLocation();
-    String cppFunction = functions.length == 0 ? "UNKNOWN" : functions[0].getName();
+    String cppFunction = getFunction(location);
     final IDebuggerTranslator translator = this.fTaskToTranslator.get(task);
     if (translator == null) {
       throw new PDIException(task, "Unable to get translator for task " + task);
@@ -1660,6 +1720,12 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
     return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, function, String.valueOf(lineNumber),
                                           (String) null /* address */);
+  }
+
+  private String getFunction(final Location location) {
+    Function[] functions = location.getFunctionsAtThisLocation();
+    String cppFunction = functions.length == 0 ? "UNKNOWN" : functions[0].getName();
+    return cppFunction;
   }
   
   // --- Private classes
@@ -1704,6 +1770,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
     STRING,
     STRUCT,
     ARRAY,
+    CLOSURE,
     UNKNOWN
   }
   
