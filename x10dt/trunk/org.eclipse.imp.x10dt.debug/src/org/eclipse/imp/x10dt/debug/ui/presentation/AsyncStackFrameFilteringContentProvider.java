@@ -29,18 +29,14 @@ public class AsyncStackFrameFilteringContentProvider
 			List<IStackFrame> userFrames = new ArrayList();
 			for (Object f: stackFrames) {
 				// Need to consider whether this may eliminate any legitimate stack frames, but seems ok
-				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
+//				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
 					String reftype=((JDIStackFrame)f).getReferenceType().getName();
 		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent") || reftype.contains("java.lang.Thread")) {
 		    			
 		    			continue;
 		    		}
-		    	}
+//		    	}
 				userFrames.add((IStackFrame)f);
-				// This worked for async invocation based on simple cases.  Would it work for future? Finish?
-//				if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
-//					return userFrames.toArray(new IStackFrame[0]);
-//				}
 			}	
 			return userFrames.toArray(new IStackFrame[0]);
 		}
