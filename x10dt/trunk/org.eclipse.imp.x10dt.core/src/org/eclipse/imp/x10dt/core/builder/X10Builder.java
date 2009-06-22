@@ -1,5 +1,6 @@
 package com.ibm.watson.safari.x10.builder;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,15 +27,21 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
+import org.osgi.framework.Bundle;
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
@@ -60,6 +67,8 @@ public class X10Builder extends IncrementalProjectBuilder {
      * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
      */
     public static final String PROBLEMMARKER_ID= X10Plugin.kPluginID + ".problemMarker";
+
+    private static final String ClasspathError= "Classpath error in project: ";
 
     private final class X10DeltaVisitor implements IResourceDeltaVisitor {
 	public boolean visit(IResourceDelta delta) throws CoreException {
@@ -470,7 +479,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             } else
         	postMsgDialog("X10 Error", e.getMessage());
         }
-
+        checkClasspathForRuntime();
 	if (kind == CLEAN_BUILD || kind == FULL_BUILD)
 	    fDependencyInfo.clearAllDependencies();
 	fSourcesToCompile.clear();
@@ -482,6 +491,116 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	fMonitor.done();
 	return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+    }
+
+    private final class OpenProjectPropertiesHelper implements Runnable {
+        public void run() {
+            // Open the project properties dialog and go to the "Java Build Path" page
+            PreferenceDialog d= PreferencesUtil.createPropertyDialogOn(null, getProject(), BuildPathsPropertyPage.PROP_ID, null, null);
+
+            d.open();
+        }
+    }
+
+    private boolean fSuppressClasspathWarnings= false;
+
+    private class MaybeSuppressFutureClasspathWarnings implements Runnable {
+        public void run() {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    postQuestionDialog("Classpath error", "Suppress future classpath warnings",
+                            new Runnable() {
+                                public void run() {
+                                    fSuppressClasspathWarnings= true;
+                                }
+                            }, null);
+                }
+            });
+        }
+    }
+
+    private class UpdateProjectClasspathHelper implements Runnable {
+        public void run() {
+            updateProjectClasspath();
+        }
+    }
+
+    protected IPath getLanguageRuntimePath() {
+        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
+        IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
+
+        return x10RuntimePath;
+    }
+
+    private int findX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
+        for(int i= 0; i < entries.length; i++) {
+            IClasspathEntry entry= entries[i];
+
+            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+                IPath entryPath= entry.getPath();
+
+                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private void updateProjectClasspath() {
+        try {
+            IClasspathEntry[] entries= fX10Project.getRawClasspath();
+            int runtimeIdx= findX10RuntimeClasspathEntry(entries);
+            IPath languageRuntimePath= getLanguageRuntimePath();
+            IClasspathEntry newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
+            IClasspathEntry[] newEntries;
+
+            if (runtimeIdx < 0) { // no entry, broken or otherwise
+                newEntries= new IClasspathEntry[entries.length + 1];
+                System.arraycopy(entries, 0, newEntries, 0, entries.length);
+                newEntries[entries.length]= newEntry;
+            } else {
+                newEntries= entries;
+                newEntries[runtimeIdx]= newEntry;
+            }
+            fX10Project.setRawClasspath(newEntries, new NullProgressMonitor());
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Checks the project's classpath to make sure that an X10 runtime is available,
+     * and warns the user if not.
+     */
+    private void checkClasspathForRuntime() {
+        if (fSuppressClasspathWarnings)
+            return;
+        try {
+            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(false);
+            int runtimeIdx= findX10RuntimeClasspathEntry(entries);
+
+            if (runtimeIdx >= 0) {
+                IPath entryPath= entries[runtimeIdx].getPath();
+                File jarFile= new File(entryPath.makeAbsolute().toOSString());
+
+                if (!jarFile.exists()) {
+                    postQuestionDialog(ClasspathError + fProject.getName(),
+                            "X10 runtime entry in classpath does not exist: " + entryPath.toOSString() + "; update project classpath with default runtime?",
+                            new UpdateProjectClasspathHelper(),
+                            new MaybeSuppressFutureClasspathWarnings());
+                    return; // found a runtime entry but it is/was broken
+                }
+                return; // found the runtime
+            }
+        } catch (JavaModelException e) {
+            e.printStackTrace();
+        }
+        postQuestionDialog(ClasspathError + fProject.getName(),
+                "No X10 runtime entry in classpath of project '" + fProject.getName() + "'; update project classpath with default runtime?",
+                new UpdateProjectClasspathHelper(),
+                new MaybeSuppressFutureClasspathWarnings());
     }
 
     /**
@@ -498,6 +617,26 @@ public class X10Builder extends IncrementalProjectBuilder {
 		MessageDialog.openInformation(shell, title, msg);
 	    }
 	});
+    }
+
+    /**
+     * Posts a dialog displaying the given message as soon as "conveniently possible".
+     * This is not a synchronous call, since this method will get called from a
+     * different thread than the UI thread, which is the only thread that can
+     * post the dialog box.
+     */
+    private void postQuestionDialog(final String title, final String query, final Runnable runIfYes, final Runnable runIfNo) {
+        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+            public void run() {
+                Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+                boolean response= MessageDialog.openQuestion(shell, title, query);
+
+                if (response)
+                    runIfYes.run();
+                else if (runIfNo != null)
+                    runIfNo.run();
+            }
+        });
     }
 
     private Collection doCompile() throws CoreException {
