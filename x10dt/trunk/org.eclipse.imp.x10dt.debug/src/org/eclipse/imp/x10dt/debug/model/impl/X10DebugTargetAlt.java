@@ -642,7 +642,9 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		
 		fActivities = new HashSet<IX10Activity>();
 		String name = "queued";
-		List<Method> m= (List<Method>)getX10RTObject().referenceType().methodsByName("getWorkerPool");
+		ObjectReference rtor = getX10RTObject();
+		if (rtor==null) return; // hack for fix at demo
+		List<Method> m= (List<Method>)rtor.referenceType().methodsByName("getWorkerPool");
 		System.out.println("Shivali: Method found "+m.size());
 		Method meth=null;
 		for (Method m1: m) {
@@ -712,6 +714,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 				try {
 					Thread.sleep(1000);
 					typeForRT = getX10RuntimeType();
+					if (typeForRT==null) return;
 				} catch (InterruptedException e) {
 				}
 			}
