@@ -12,8 +12,10 @@ import org.eclipse.uide.editor.OutlineInformationControl;
 import org.eclipse.uide.editor.OutlineInformationControl.OutlineContentProviderBase;
 
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
+import polyglot.util.Position;
 import polyglot.visit.HaltingVisitor;
 import polyglot.visit.NodeVisitor;
 
@@ -62,7 +64,12 @@ class OutlineVisitor extends HaltingVisitor {
 	} else if (n instanceof ClassDecl) {
 	    ClassDecl cd= (ClassDecl) n;
 
-	    fChildren.addAll(cd.body().members());
+	    for(Iterator iter= cd.body().members().iterator(); iter.hasNext(); ) {
+		ClassMember member= (ClassMember) iter.next();
+		Position p= member.position();
+		if (p.offset() != p.endOffset()) // crude way of detecting compiler-generated members
+		    fChildren.add(member);
+	    }
 	    return bypassChildren(n);
 	}
 	return this;
