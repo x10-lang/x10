@@ -134,17 +134,17 @@ public class X10InstanceTab extends InstancePreferencesTab {
 		fields.add(NumPlaces);
 
 
-//		StringFieldEditor AdditionalCompilerOptions = fPrefUtils.makeNewStringField(
-//			page, this, fPrefService,
-//			"instance", "AdditionalCompilerOptions", "Additional compiler options",
-//			"",
-//			parent,
-//			true, true,
-//			false, "Unspecified",
-//			true, "",
-//			true);
-//		AdditionalCompilerOptions.setValidator(new org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator());
-//		fields.add(AdditionalCompilerOptions);
+		StringFieldEditor AdditionalCompilerOptions = fPrefUtils.makeNewStringField(
+			page, this, fPrefService,
+			"instance", "AdditionalCompilerOptions", "Additional compiler options",
+			"",
+			parent,
+			true, true,
+			false, "Unspecified",
+			true, "",
+			true);
+		AdditionalCompilerOptions.setValidator(new org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator());
+		fields.add(AdditionalCompilerOptions);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}
