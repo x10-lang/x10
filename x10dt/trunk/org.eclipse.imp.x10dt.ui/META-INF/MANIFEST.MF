@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.ide,
  com.ibm.watson.safari.x10,
  org.eclipse.ui.cheatsheets,
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ polyglot
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: x10.uide.X10UIPlugin
