@@ -438,6 +438,13 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	public EventDispatcher getEventDispatcher() {
 		return fEventDispatcher;
 	}
+	
+	public ThreadReference getThreadForInvokeMethod() {
+		if (fThreadForInvokingRTMethods==null) {
+			initializeThreadForInvokeMethod();
+		}
+		return fThreadForInvokingRTMethods;
+	}
 	private void initializeThreadForInvokeMethod() {
 	    Thread th = new Thread(new Runnable(){
 	    	public void run() {
@@ -641,7 +648,17 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	
 	public IThread[] getThreads() {
 		synchronized (fThreads) {
-			return (IThread[])fThreads.toArray(new IThread[0]);
+			List<IThread> activeThreads = new ArrayList();
+			try {
+				for (IThread t: (List<IThread>)fThreads) {
+					if (!(t instanceof SampleX10ActivityAsJDIThread) || ((SampleX10ActivityAsJDIThread)t).getStackFrames().length>0) {
+						activeThreads.add(t);
+					}
+				}
+				return activeThreads.toArray(new IThread[0]);
+			} catch (DebugException e) {
+				return (IThread[])fThreads.toArray(new IThread[0]);
+			}
 		}
 	}
 	
