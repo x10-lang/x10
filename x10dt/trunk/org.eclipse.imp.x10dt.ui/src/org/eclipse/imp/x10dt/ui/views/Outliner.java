@@ -23,6 +23,7 @@ import org.eclipse.uide.defaults.DefaultOutliner;
 import org.eclipse.uide.editor.IOutliner;
 import org.eclipse.uide.parser.IParseController;
 
+import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
@@ -376,8 +377,16 @@ public class Outliner extends DefaultOutliner implements IOutliner
 
                 tree_item_of.put(type, tree_item);
                 IToken left_token = ((JPGPosition) type.position()).getLeftIToken();
-                int right_token_index = ((JPGPosition) type.body().position()).getLeftIToken().getTokenIndex() - 1;
-                tree_item.setData(pos(left_token, left_token.getPrsStream().getIToken(right_token_index)));
+                IToken right_token;
+                // RMF 10/26/2006 - Avoid NPE when encountering a class with no body
+                // (can happen when part way through typing in a new class declaration).
+                ClassBody body= type.body();
+                if (body != null)
+                    right_token= ((JPGPosition) body.position()).getLeftIToken().getPrsStream().getTokenAt(((JPGPosition) body.position()).getLeftIToken().getTokenIndex() - 1);
+                else
+                    right_token= ((JPGPosition) type.position()).getRightIToken();
+//              int right_token_index = ((JPGPosition) type.body().position()).getLeftIToken().getTokenIndex() - 1;
+                tree_item.setData(pos(left_token, right_token));
                 tree_item.setText(type.name());
                 fields_of.put(tree_item, new ArrayList());
             }
