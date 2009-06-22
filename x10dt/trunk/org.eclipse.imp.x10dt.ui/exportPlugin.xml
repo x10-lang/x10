@@ -8,7 +8,6 @@
 			<filterchain>
 				<containsregex pattern="Bundle-SymbolicName:"/>
 				<replaceregex pattern="Bundle-SymbolicName: ([^;]*)(;.*)?" replace="\1"/>
-				<!-- Don't know why we need striplinebreaks here and not in defining javacSource (see below) -->
 				<striplinebreaks/>
 			</filterchain>
 		</loadfile>
@@ -18,11 +17,30 @@
 			<filterchain>
 				<containsregex pattern="Bundle-Version:"/>
 				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
-				<!-- Don't know why we need striplinebreaks here and not in defining javacSource (see below) -->
 				<striplinebreaks/>
 			</filterchain>
 		</loadfile>
 		<!-- <echo message="Plugin version = ${plugin.version}"/> -->
+
+		<loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs">
+			<filterchain>
+				<containsregex pattern="org.eclipse.jdt.core.compiler.source"/>
+				<replaceregex pattern="org.eclipse.jdt.core.compiler.source=(.*)" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<echo message="Java source compatibility = ${javacSource}"/>
+
+		<loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs">
+			<filterchain>
+				<containsregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform"/>
+				<replaceregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform=(.*)" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<echo message="Java target compatibility = ${javacTarget}"/>
+
+		<property name="compilerArg" value=""/>
 
 		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.id}_${plugin.version}.zip"/>
