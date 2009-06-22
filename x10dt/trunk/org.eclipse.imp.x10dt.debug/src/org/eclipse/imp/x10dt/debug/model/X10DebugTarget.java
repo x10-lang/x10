@@ -5,26 +5,24 @@ import java.util.List;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jdi.hcr.ReferenceType;
-import org.eclipse.jdi.internal.ReferenceTypeImpl;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
-import org.eclipse.jdt.internal.debug.core.model.JDIType;
 import org.eclipse.jdt.internal.debug.core.model.JDIReferenceType;
+import org.eclipse.jdt.internal.debug.core.model.JDIType;
 
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ClassObjectReference;
-import com.sun.jdi.Field;
-import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import com.sun.jdi.VirtualMachine;
 
 
 public class X10DebugTarget {

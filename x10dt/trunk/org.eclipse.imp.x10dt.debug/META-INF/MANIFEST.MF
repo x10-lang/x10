@@ -9,5 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.debug,
  org.eclipse.debug.core,
  org.eclipse.jdt.launching,
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ org.eclipse.debug.ui
 Eclipse-LazyStart: true
