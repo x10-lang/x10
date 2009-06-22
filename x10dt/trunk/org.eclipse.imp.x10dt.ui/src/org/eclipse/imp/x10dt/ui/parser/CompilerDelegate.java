@@ -14,6 +14,8 @@ import java.util.List;
 import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
@@ -62,8 +64,8 @@ public class CompilerDelegate {
      * @return a list of all project-relative CPE_SOURCE-type classpath entries.
      * @throws JavaModelException
      */
-    private List/*<IPath>*/ getProjectSrcPath() throws JavaModelException {
-        List/* <IPath> */srcPath= new ArrayList();
+    private List<IPath> getProjectSrcPath() throws JavaModelException {
+        List<IPath> srcPath= new ArrayList<IPath>();
 
         if (this.x10Project == null)
             return srcPath;
@@ -81,15 +83,27 @@ public class CompilerDelegate {
         return srcPath;
     }
 
-    private String pathListToPathString(List/*<IPath>*/ pathList) {
+    private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
+        IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
+        IPath wsPath= wsRoot.getLocation();
 
-        for(Iterator iter= pathList.iterator(); iter.hasNext(); ) {
-            IPath path= (IPath) iter.next();
+        for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext(); ) {
+            IPath path= iter.next();
+            IProject projectRef= wsRoot.getProject(path.segment(0));
 
-            buff.append(x10Project.getProject().getWorkspace().getRoot().getLocation().append(path).toOSString());
+            if (projectRef != null && projectRef.exists()) {
+                // This is a workspace-relative path, but the project may not actually
+                // live inside the workspace, so use its actual location as the prefix
+                // for the rest of the specified path.
+                buff.append(projectRef.getLocation().append(path.removeFirstSegments(1)).toOSString());
+            } else if (x10Project.getProject().exists(path)) {
+                buff.append(x10Project.getProject().getLocation().append(path).toOSString());
+            } else {
+                buff.append(path.toOSString());
+            }
             if (iter.hasNext())
-                buff.append(';');
+                buff.append(File.pathSeparatorChar);
         }
         return buff.toString();
     }
@@ -99,7 +113,7 @@ public class CompilerDelegate {
 
 	Options.global= opts;
 	try {
-            List/*<IPath>*/ projectSrcLoc= getProjectSrcPath();
+            List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
 	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath }, new HashSet());
 	} catch (UsageError e) {
@@ -128,7 +142,7 @@ public class CompilerDelegate {
                 final String entryPath= entry.getPath().toOSString();
 
                 if (i > 0)
-                    buff.append(";");
+                    buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
 
                 if (entryPath.contains("x10.runtime")) {
@@ -139,7 +153,7 @@ public class CompilerDelegate {
             }
             if (!hasRuntime || !runtimeValid) {
                 if (buff.length() > 0)
-                    buff.append(";");
+                    buff.append(File.pathSeparatorChar);
                 buff.append(getRuntimePath());
             }
             // if (X10Preferences.autoAddRuntime) {
