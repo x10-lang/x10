@@ -22,6 +22,8 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
+import polyglot.util.ErrorQueue;
+import polyglot.util.SilentErrorQueue;
 import polyglot.util.StdErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -43,11 +45,11 @@ public class CompilerDelegate {
     public PolyglotFrontEnd getFrontEnd() { return fe; }
 
     CompilerDelegate(Monitor monitor, IProject project) {
-        this.x10Project= JavaCore.create(project);
+	this.x10Project= (project != null) ? JavaCore.create(project) : null;
 
         extInfo= new x10.uide.parser.ExtensionInfo(monitor); // new ExtensionInfo(monitor);
         buildOptions(extInfo);
-        StdErrorQueue eq= new StdErrorQueue(System.err, 100000, "stderr");// TODO replace me
+        ErrorQueue eq= new SilentErrorQueue(100000, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);
     }
 
@@ -57,6 +59,10 @@ public class CompilerDelegate {
      */
     private List/*<IPath>*/ getProjectSrcPath() throws JavaModelException {
         List/* <IPath> */srcPath= new ArrayList();
+
+        if (this.x10Project == null)
+            return srcPath;
+
         IClasspathEntry[] classPath= x10Project.getResolvedClasspath(true);
 
         for(int i= 0; i < classPath.length; i++) {
@@ -101,46 +107,6 @@ public class CompilerDelegate {
 	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
     }
 
-/*
-    private String buildClassPathSpec() throws JavaModelException {
-	StringBuffer buff= new StringBuffer();
-
-	IClasspathEntry[] classpath= x10Project.getResolvedClasspath(true);
-	IPath projectPath= x10Project.getProject().getLocation();
-        IPath wsPath= x10Project.getProject().getWorkspace().getRoot().getLocation();
-
-        for(int i= 0; i < classpath.length; i++) {
-            IClasspathEntry entry= classpath[i];
-            String entryPath;
-
-            if (buff.length() > 0) buff.append(";");
-            switch(entry.getEntryKind()) {
-                case IClasspathEntry.CPE_CONTAINER: {
-                    entryPath= projectPath.append(entry.getPath()).toString();
-                    break;
-                }
-                case IClasspathEntry.CPE_LIBRARY:
-                    if (entry.getPath().isAbsolute())
-                        entryPath= entry.getPath().toString();
-                    else
-                        entryPath= projectPath.append(entry.getPath()).toString();
-                    break;
-                case IClasspathEntry.CPE_PROJECT:
-                    entryPath= wsPath.append(entry.getPath()).toString();
-                    break;
-                case IClasspathEntry.CPE_SOURCE:
-                    entryPath= wsPath.append(entry.getPath()).toString();
-                    break;
-                default: // IClasspathEntry.CPE_VARIABLE:
-                    entryPath= "";
-                    break;
-            }
-            buff.append(entryPath);
-        }
-	return buff.toString();
-    }
-    */
-    
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();
         // RMF 8/2/2006 - Determine whether an X10 runtime is on the project classpath,
@@ -150,7 +116,7 @@ public class CompilerDelegate {
         boolean runtimeValid= false;
 
         try {
-            IClasspathEntry[] classPath= x10Project.getResolvedClasspath(true);
+            IClasspathEntry[] classPath= (x10Project != null) ? x10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
