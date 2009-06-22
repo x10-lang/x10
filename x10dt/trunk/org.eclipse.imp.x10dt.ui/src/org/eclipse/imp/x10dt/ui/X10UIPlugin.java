@@ -18,14 +18,14 @@ public class X10UIPlugin extends AbstractUIPlugin {
 	sInstance= this;
     }
 
+    public static X10UIPlugin getInstance() {
+	return sInstance;
+    }
+
     private void initImageRegistry() {
 	fgIconBaseURL= X10UIPlugin.getInstance().getBundle().getEntry("/icons/"); //$NON-NLS-1$
 	RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
 	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
-    }
-
-    public static X10UIPlugin getInstance() {
-	return sInstance;
     }
 
     public static void log(Exception e) {
@@ -36,10 +36,6 @@ public class X10UIPlugin extends AbstractUIPlugin {
     public static ImageDescriptor RUNTIME_IMG_DESC;
 
     private static URL fgIconBaseURL= null;
-
-    // RMF 11/30/2005 - Need to initialize the image registry, but for some reason getImage()
-    //                  gets called before the plugin's activator gets instantiated...???
-    //                  Partly culled from JavaPluginImages and friends...
 
     private static URL makeIconFileURL(String name) throws MalformedURLException {
 	if (fgIconBaseURL == null)
