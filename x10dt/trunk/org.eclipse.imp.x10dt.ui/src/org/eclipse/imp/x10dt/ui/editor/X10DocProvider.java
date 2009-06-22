@@ -74,10 +74,9 @@ import x10.parser.X10Parser.JPGPosition;
  * to document whether it provides info with HTML or not.
  */
 public class X10DocProvider implements IDocumentationProvider, ILanguageService {
-	private static final boolean traceOn = true;
+	private static final boolean traceOn = false;
 
-	public String getDocumentation(Object target,
-			IParseController parseController) {
+	public String getDocumentation(Object target, IParseController parseController) {
 		// 1. try to find help info the way context help did
 		String doc = getHelpForEntity(target, parseController);
 		// if (doc == null || doc.length() == 0) {
@@ -86,26 +85,14 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		// doc = getDocumentationOld(target, parseController);
 		// }
 		if (traceOn) {
-			System.out
-					.println("\nX10DocProvider.getDocumentation(), target is :"
+			System.out.println("\nX10DocProvider.getDocumentation(), target is :"
 							+ target.toString());
 			System.out.println("   " + doc);
 		}
 		return doc;
-		/*
-		 * System.out.println("X10dp"); String doc=getDocumentationOld(target,
-		 * parseController); System.out.println("X10DocProvider: "+doc);
-		 * 
-		 * //Language lang = parseController.getLanguage(); //IHelpService
-		 * contextHelper = ServiceFactory.getInstance().getContextHelper(lang);
-		 * 
-		 * return doc;
-		 */
 	}
 
-	@SuppressWarnings(value = { "restriction" })
-	public String getDocumentationOld(Object target,
-			IParseController parseController) {
+	public String getDocumentationOld(Object target, IParseController parseController) {
 
 		Language lang = parseController.getLanguage();
 		StringBuffer buff = new StringBuffer();
@@ -149,21 +136,17 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	}
 
 	/**
-	 * from X10ContextHelper originally, moved here. Provides javadoc-like info
+	 * From X10ContextHelper originally, moved here. Provides javadoc-like info
 	 * and more
 	 */
-	// @SuppressWarnings("restriction")  //no, this is masking a JDT bug    sez Bob
 	public String getHelpForEntity(Object target, IParseController parseController) {
 		Node root = (Node) parseController.getCurrentAst();
 
 		if (target instanceof Id) {
 			Id id = (Id) target;
-			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController
-					.getNodeLocator();
+			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getNodeLocator();
 			Node parent = (Node) locator.getParentNodeOf(id, root);
 			target = parent;
-			
-
 		}
 
 		if (target instanceof Field) {
@@ -223,11 +206,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof FieldDecl) {
 			FieldDecl fd = (FieldDecl) target;
 			FieldInstance fi = fd.fieldInstance();
-
 			return getX10DocFor(fi);
 		}
-		// return id.id();
-		// }
+
 		else if (target instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode) target;
 			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController
@@ -236,11 +217,9 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 			if (parent instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) parent;
-
 				return getX10DocFor(cd.constructorInstance());
 			} else if (parent instanceof New) {
 				New n = (New) parent;
-
 				return getX10DocFor(n.constructorInstance());
 			} else {
 				Type type = typeNode.type();
@@ -248,9 +227,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				qualifiedName = stripArraySuffixes(qualifiedName);
 
 				if (isJavaType(qualifiedName)) {
-					IType javaType = findJavaType(qualifiedName,
-							parseController);
-
+					IType javaType = findJavaType(qualifiedName, parseController);
 					return (javaType != null) ? getJavaDocFor(javaType) : "";
 				} else {
 					return type.isClass() ? getX10DocFor((ClassType) type) : "";
@@ -496,7 +473,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return buf.toString();
 	}
 
-	// =======================end BRT muck
 	private String collectBackwardTo(String fileSrc, int idx, String string) {
 		return fileSrc.substring(fileSrc.lastIndexOf(string, idx), idx);
 	}
