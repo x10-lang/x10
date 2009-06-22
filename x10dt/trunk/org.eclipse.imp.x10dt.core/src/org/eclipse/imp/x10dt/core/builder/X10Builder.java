@@ -815,7 +815,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         return bundleVersion;
     }
 
-    private int findX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
+    private int findValidX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
         for(int i= 0; i < entries.length; i++) {
             IClasspathEntry entry= entries[i];
 
@@ -849,10 +849,31 @@ public class X10Builder extends IncrementalProjectBuilder {
         return -1;
     }
 
+    /**
+     * Finds and returns the index of all classpath entries in the argument that
+     * look like an X10 Runtime entry, including those that may be invalid, so
+     * that they can be removed.
+     */
+    private List<Integer> findAllX10RuntimeClasspathEntries(IClasspathEntry[] entries) throws JavaModelException {
+        List<Integer> runtimeIndexes= new ArrayList<Integer>();
+        for(int i= 0; i < entries.length; i++) {
+            IClasspathEntry entry= entries[i];
+
+            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+                IPath entryPath= entry.getPath();
+
+                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
+                    runtimeIndexes.add(i);
+                }
+            }
+        }
+        return runtimeIndexes;
+    }
+
     private void updateProjectClasspath() {
         try {
             IClasspathEntry[] entries= fX10Project.getRawClasspath();
-            int runtimeIdx= findX10RuntimeClasspathEntry(entries);
+            List<Integer> runtimeIndexes= findAllX10RuntimeClasspathEntries(entries);
             IPath languageRuntimePath= getLanguageRuntimePath();
             IClasspathEntry newEntry;
             if (languageRuntimePath == null) {
@@ -865,13 +886,19 @@ public class X10Builder extends IncrementalProjectBuilder {
             }
             IClasspathEntry[] newEntries;
 
-            if (runtimeIdx < 0) { // no entry, broken or otherwise
+            if (runtimeIndexes.size() == 0) { // no entry, broken or otherwise
                 newEntries= new IClasspathEntry[entries.length + 1];
                 System.arraycopy(entries, 0, newEntries, 0, entries.length);
                 newEntries[entries.length]= newEntry;
             } else {
-                newEntries= entries;
-                newEntries[runtimeIdx]= newEntry;
+                newEntries= new IClasspathEntry[entries.length - runtimeIndexes.size() + 1];
+                int idx= 0;
+                for(int i=0; i < entries.length; i++) {
+                    if (!runtimeIndexes.contains(i)) {
+                        newEntries[idx++]= entries[i];
+                    }
+                }
+                newEntries[idx]= newEntry;
             }
             fX10Project.setRawClasspath(newEntries, new NullProgressMonitor());
         } catch (JavaModelException e) {
@@ -888,7 +915,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             return;
         try {
             IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true);
-            int runtimeIdx= findX10RuntimeClasspathEntry(entries);
+            int runtimeIdx= findValidX10RuntimeClasspathEntry(entries);
 
             if (runtimeIdx >= 0) {
                 IPath entryPath= entries[runtimeIdx].getPath();
@@ -907,7 +934,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 // Jar files whose names don't embed a version number won't be checked.
                 if (entryFile.getPath().endsWith(".jar") && entryFile.getAbsolutePath().indexOf(currentVersion) < 0) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
-                            "The X10 runtime entry " + entryPath.toOSString() + " in the classpath of project '" + fProject.getName() + "' is an old runtime version; shall I update the project's classpath with the runtime installed as part of the X10DT?",
+                            "The X10 runtime entry " + entryPath.toOSString() + " in the classpath of project '" + fProject.getName() + "' is an old runtime version; shall I update the project's classpath with the runtime installed as part of the X10DT (version " + currentVersion + ")?",
                             new UpdateProjectClasspathHelper(),
                             new MaybeSuppressFutureClasspathWarnings());
                 }
@@ -1071,5 +1098,9 @@ public class X10Builder extends IncrementalProjectBuilder {
                 fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
             }
         }
+    }
+
+    public String toString() {
+        return "X10 Builder for project " + fProject.getName();
     }
 }
