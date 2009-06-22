@@ -270,4 +270,33 @@
              language="X10"
              class="org.eclipse.imp.x10dt.ui.help.X10ContextHelper"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="org.eclipse.imp.runtime.impEditor"
+            id="imp.rulerActions">
+         <action
+               label="SelectRulerAction"
+               class="org.eclipse.imp.x10dt.ui.editor.actions.X10SelectRulerAction"
+               actionID="RulerClick"
+               id="org.eclipse.imp.x10dt.ui.editor.actions.X10SelectRulerAction">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.breakpoints">
+      <breakpoint
+            markerType="org.eclipse.imp.x10dt.ui.x10LineBreakpointMarker"
+            class="org.eclipse.imp.x10dt.ui.debug.X10LineBreakpoint"
+            id="x10LineBreakpoint"
+            name="org.eclipse.imp.X10LineBreakpoint">
+      </breakpoint>
+   </extension>
+   <extension
+		id="x10LineBreakpointMarker"
+		point="org.eclipse.core.resources.markers"
+		name="X10 Line breakpoint marker" >
+		<super type="org.eclipse.debug.core.lineBreakpointMarker"/>
+		<persistent value="true"/>
+   </extension>
 </plugin>
