@@ -124,7 +124,9 @@ public class X10ContextHelper implements IHelpService {
 
     public String getHelp(IRegion target, IParseController parseController) {
         ParseController pc= (ParseController) parseController;
-        IToken token= pc.getLexer().getLexStream().getPrsStream().getTokenAtCharacter(target.getOffset());
+        // BRT -- token
+        // PORT1.7 --   token is (better) calculated from parseController and IRegion's offset
+        IToken token= pc.getParser().getParseStream().getTokenAtCharacter(target.getOffset());
 
         if (token != null) {
             String tokenStr= token.toString();
