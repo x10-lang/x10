@@ -55,7 +55,7 @@ public class X10PreferencesOneTab extends X10Preferences implements IPropertyCha
 		PreferencesTab[] tabs = new PreferencesTab[1];
 
 		X10PreferencesInstanceTab instanceTab = new X10PreferencesInstanceTabNoDetails(prefService);
-		instanceTab.createInstancePreferencesTab(page, tabFolder);
+		instanceTab.createTabContents(page, tabFolder);
 		tabs[0] = instanceTab;
 
 		return tabs;
