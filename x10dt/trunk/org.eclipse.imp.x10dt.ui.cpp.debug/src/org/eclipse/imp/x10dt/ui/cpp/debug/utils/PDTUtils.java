@@ -119,7 +119,7 @@ public final class PDTUtils {
     }
     int count = 1;
     int incr = forward ? 1 : -1;
-    int limit = forward ? str.length() - 1 : 0;
+    int limit = forward ? str.length() : -1;
     for (pos += incr; pos != limit; pos += incr) {
       c = str.charAt(pos);
       if (c == orig)
@@ -142,7 +142,7 @@ public final class PDTUtils {
    * @return the position of the character, or -1 if none (or if the character is a brace).
    */
   public static int indexOfSkipBraces(final String str, final char ch, int pos) {
-    return findSkippingBraces(str, ch, pos, 1, str.length()-1);
+    return findSkippingBraces(str, ch, pos, 1, str.length());
   }
   
   /**
@@ -154,7 +154,7 @@ public final class PDTUtils {
    * @return the position of the character, or -1 if none (or if the character is a brace).
    */
   public static int lastIndexOfSkipBraces(final String str, final char ch, int pos) {
-    return findSkippingBraces(str, ch, pos, -1, 0);
+    return findSkippingBraces(str, ch, pos, -1, -1);
   }
   
   private static int findSkippingBraces(final String str, final char ch, int pos, final int incr, final int limit) {
