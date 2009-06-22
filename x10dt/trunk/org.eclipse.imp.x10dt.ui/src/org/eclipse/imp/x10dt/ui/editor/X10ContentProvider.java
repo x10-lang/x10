@@ -9,14 +9,14 @@ import java.util.List;
 
 import org.eclipse.uide.core.ILanguageService;
 import org.eclipse.uide.editor.OutlineInformationControl;
-import org.eclipse.uide.editor.OutlineInformationControl.OutlineContentProvider;
+import org.eclipse.uide.editor.OutlineInformationControl.OutlineContentProviderBase;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 import polyglot.visit.NodeVisitor;
 
-public class X10ContentProvider extends OutlineContentProvider implements ILanguageService {
+public class X10ContentProvider extends OutlineContentProviderBase implements ILanguageService {
     public X10ContentProvider() {
 	this(null, false);
     }
