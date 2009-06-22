@@ -9,18 +9,6 @@
 *    Matthew Kaplan (mmk@us.ibm.com) - initial implementation
 *******************************************************************************/
 
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-*    Matthew Kaplan (mmk@us.ibm.com) - specialization to minimize fields/eliminate details
-*******************************************************************************/
-
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import java.util.ArrayList;
@@ -55,6 +43,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.PlatformUI;
 
 public class X10PreferencesInstanceTabNoDetails extends
@@ -111,18 +101,17 @@ public class X10PreferencesInstanceTabNoDetails extends
 				true, false,
 				null, true);
 		fields.add(fontField);
-		
+
 		page.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 		    public void propertyChange(PropertyChangeEvent event) {
-			IPreferenceStore prefStore= RuntimePlugin.getInstance().getPreferenceStore();
-			// Hack: Forward the property change to the global IMP preference store, until
-			// it supports language-specific settings for editor characteristics like font,
-			// tab size, etc.
-			if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
-			    prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, Integer.parseInt((String) event.getNewValue()));
-			} else if (event.getProperty().equals("x10Font")) {
-			    PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
-			}
+		    	IPreferenceStore prefStore= RuntimePlugin.getInstance().getPreferenceStore();
+		    	// Hack: Forward property change to global IMP preference store
+			    if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
+		              prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, (Integer)event.getNewValue());
+			    } else if (event.getProperty().equals("x10Font")) {
+		              PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
+
+				}
 		    }
 		});
 

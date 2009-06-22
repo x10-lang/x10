@@ -3,6 +3,18 @@
 <plugin>
 
    <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="X10 Editor"
+            icon="icons/IMP-editor.gif"
+            extensions="txt"
+            contributorClass="org.eclipse.imp.x10dt.editor.X10TextEditorActionContributor"
+            class="org.eclipse.imp.x10dt.editor.X10Editor"
+            id="org.eclipse.imp.runtime.impEditor"
+            symbolicFontName="x10Font">
+      </editor>
+   </extension>
+   <extension
          id="X10Builder"
          name="X10 Compiler"
          point="org.eclipse.core.resources.builders">

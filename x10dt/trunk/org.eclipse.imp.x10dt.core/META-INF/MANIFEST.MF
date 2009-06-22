@@ -19,9 +19,11 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.runtime,
  polyglot,
  lpg.runtime,
- org.eclipse.imp.runtime,
  org.eclipse.imp.smapifier,
- org.eclipse.pde.ui
+ org.eclipse.pde.ui,
+ org.eclipse.imp.runtime,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
