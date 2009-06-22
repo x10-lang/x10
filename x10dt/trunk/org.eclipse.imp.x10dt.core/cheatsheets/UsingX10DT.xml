@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet title="Using the X10 Development Toolkit">
+
 <intro>
 <description>
 This cheat sheet briefly describes how to use the X10 Development Toolkit to
@@ -7,6 +8,7 @@ configure the X10DT, create X10 projects, create X10 classes, and use launch
 configurations to run and debug X10 programs.
 </description>
 </intro>
+
 <item title="Configure the X10DT">
 <action pluginId="com.ibm.watson.safari.x10"
         class="com.ibm.watson.safari.x10.cheatsheets.actions.OpenX10PreferencesAction"/>
@@ -21,15 +23,16 @@ just type in the path directly if you know it).<br/>
 
 Likewise, make sure that the "Configuration file" field points at an existing
 X10 configuration file (e.g. "standard.cfg"). This file will typically reside in
-the "etc" sub-directory of the "Common directory" that you specified above. If
+the "etc" sub-directory of the "Common directory" that you specified above. (If
 you installed X10 manually from a .zip file, you should have run "ant" in the
 "x10.common" directory, which creates a "standard.cfg" file from the settings of
-various environment variables (e.g. "JAVA_HOME" and "X10_PLATFORM").<br/>
+various environment variables (e.g. "JAVA_HOME" and "X10_PLATFORM").)<br/>
 
 If you installed X10DT using the Eclipse Update Manager, the default settings
 should already be correct. If they aren't, you're screwed.<br/>
 </description>
 </item>
+
 <item title="Create an X10 project">
 <action pluginId="com.ibm.watson.safari.x10"
         class="com.ibm.watson.safari.x10.cheatsheets.actions.NewX10ProjectAction"/>
@@ -49,6 +52,7 @@ this option.<br/>
 Hit "Finish" when done editing the various fields.<br/>
 </description>
 </item>
+
 <item title="Create a new X10 Class">
 <action pluginId="com.ibm.watson.safari.x10"
         class="com.ibm.watson.safari.x10.cheatsheets.actions.NewX10TypeAction"/>
@@ -92,6 +96,7 @@ open in the editor. You should see the structure of the X10 class source in the
 "Outline" view.<br/>
 </description>
 </item>
+
 <item title="Using the Editor and Outline View">
 <description>
 You should see keywords highlighted in the source editor, as well as an outline
@@ -103,16 +108,19 @@ item in the Outline view. Click on the "+" or "-" controls next to a given item 
 Outline view to expand or collapse the sub-tree rooted at that item.<br/>
 </description>
 </item>
+
 <item title="Launching your X10 program">
 <action pluginId="com.ibm.watson.safari.x10"
         class="com.ibm.watson.safari.x10.cheatsheets.actions.LaunchProgramAction"/>
 <description>
 </description>
 </item>
+
 <item title="Debugging your X10 program">
 <action pluginId="com.ibm.watson.safari.x10"
         class="com.ibm.watson.safari.x10.cheatsheets.actions.DebugProgramAction"/>
 <description>
 </description>
 </item>
+
 </cheatsheet>
