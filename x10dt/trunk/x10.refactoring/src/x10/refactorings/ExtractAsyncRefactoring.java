@@ -290,7 +290,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		ISourcePositionLocator locator = parseController.getNodeLocator();
 
 //		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
-		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x+sel.y);
+		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x+sel.y - 1);
 		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
 		System.out.println(retNode);
 		Node_c tmp;
@@ -399,7 +399,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //			.getJavaCAst2IRTranslator();
 //			CAstEntity rootEntity = irTranslator.sourceFileEntity();
 //			String filepath = IFilePathtoCAstPath(fSourceFile.getFullPath().toString());
-			String filepath = fSourceFile.getRawLocation().toString();
+			String filepath = fSourceFile.getRawLocation().toOSString();
 			CAstEntity rootEntity = ((X10IRTranslatorExtension)fEngine.getTranslatorExtension()).getCAstEntity(filepath);
 
 			// TODO Compute the var2PtrKey for the method, not the whole file
