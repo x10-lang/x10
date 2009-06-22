@@ -25,7 +25,7 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public IASTNodeLocator getNodeLocator() {
-	return new PolyglotNodeLocator(getLexer().getLexStream());
+	return new PolyglotNodeLocator(fProject, getLexer().getLexStream());
     }
 
     public ParseController() {
