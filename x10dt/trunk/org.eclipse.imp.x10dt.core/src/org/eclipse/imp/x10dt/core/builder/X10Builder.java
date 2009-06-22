@@ -287,7 +287,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	    buff.append(fProject.getWorkspace().getRoot().getLocation().append(path).toOSString());
 	    if (iter.hasNext())
-		buff.append(';');
+		buff.append(File.pathSeparatorChar);
 	}
 	return buff.toString();
     }
@@ -414,7 +414,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		IClasspathEntry entry= classPath[i];
 
 		if (i > 0)
-		    buff.append(";");
+		    buff.append(File.pathSeparatorChar);
 		buff.append(entry.getPath().toOSString());
 	    }
 //	    if (X10Preferences.autoAddRuntime) {
