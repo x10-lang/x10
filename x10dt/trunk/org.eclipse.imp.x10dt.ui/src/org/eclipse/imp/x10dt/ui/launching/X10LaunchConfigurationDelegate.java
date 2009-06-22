@@ -26,6 +26,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
+import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -161,16 +162,14 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		// X10Plugin.X10_CONSTRAINTS_BUNDLE_ID;
 
 		String locnDir = getDir(x10RuntimeLoc);
-		// PORT1.7 -- x10common.jar and x10constraints.jar assumed to be found
-		// in same dir as runtime jar; names hardcoded here too for now
-		// (temporary)
-		String jar1 = locnDir + "x10common.jar";
-		String jar2 = locnDir + "x10constraints.jar";
-		classpathList.add(jar1);
-		classpathList.add(jar2);
-		// PORT1.7 -- we might also want a third jar, the pre-built X10 classes;
-		// for now I am using hand-built runtime jar that combines
-		// runtime+prebuilt
+		// PORT1.7 -- common and constraints jars also need to be added to classpath
+
+		String commonJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMMON_BUNDLE_ID);
+		String constraintsJar=X10Util.getJarLocationForBundle(X10Plugin.X10_CONSTRAINTS_BUNDLE_ID);
+
+		classpathList.add(commonJar);
+		classpathList.add(constraintsJar);
+		// PORT1.7 -- we might also want a third jar, the pre-built X10 classes
 
 		// test that each exists (be paranoid)
 		for (int i = 0; i < classpathList.size(); i++) {
