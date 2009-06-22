@@ -273,6 +273,9 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
         return rmConn.getAddress();
       }
     } else {
+      String localAddress = rmc.getLocalAddress();
+      if (localAddress != null)
+        return localAddress;
       try {
         final InetAddress ip = InetAddress.getLocalHost();
         return ip.getHostAddress();
