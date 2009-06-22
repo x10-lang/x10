@@ -20,6 +20,7 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,8 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
+
+import lpg.runtime.IMessageHandler;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -67,18 +70,26 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.osgi.framework.Bundle;
 
 import polyglot.ext.x10.Configuration;
+import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.dom.DomParser;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.frontend.Parser;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.parser.X10Lexer;
+import x10.parser.X10Parser;
 import x10.parser.X10Parser.JPGPosition;
 
 public class X10Builder extends IncrementalProjectBuilder {
@@ -220,6 +231,51 @@ public class X10Builder extends IncrementalProjectBuilder {
 			new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
 		return null;
 	    }
+	}
+	/**
+	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
+	 */
+	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
+	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+	    }
+
+	    try {
+	        //
+	        // X10Lexer may be invoked using one of two constructors.
+	        // One constructor takes as argument a string representing
+	        // a (fully-qualified) filename; the other constructor takes
+	        // as arguments a (file) Reader and a string representing the
+	        // name of the file in question. Invoking the first
+	        // constructor is more efficient because a buffered File is created
+	        // from that string and read with one (read) operation. However,
+	        // we depend on Polyglot to provide us with a fully qualified
+	        // name for the file. In Version 1.3.0, source.name() yielded a
+	        // fully-qualified name. In 1.3.2, source.path() yields a fully-
+	        // qualified name. If this assumption still holds then the 
+	        // first constructor will work.
+	        // The advantage of using the Reader constructor is that it
+	        // will always work, though not as efficiently.
+	        //
+	        // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+	        //
+	        final X10Lexer x10_lexer = new X10Lexer(source.path());
+	        x10_lexer.setMessageHandler(new IMessageHandler() {
+	            public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
+	                Position p= new Position(null, filename,
+	                        msgLocation[IMessageHandler.START_LINE_INDEX], msgLocation[IMessageHandler.START_COLUMN_INDEX],
+	                        msgLocation[IMessageHandler.END_LINE_INDEX], msgLocation[IMessageHandler.END_COLUMN_INDEX],
+	                        msgLocation[IMessageHandler.OFFSET_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
+	                eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + x10_lexer.errorMsgText[errorCode], p);
+	            }
+	        });
+	        X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+	        x10_lexer.lexer(x10_parser);
+	        return x10_parser; // Parse the token stream to produce an AST
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    throw new IllegalStateException("Could not parse " + source.path());
 	}
     }
 
@@ -363,11 +419,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	    if (errorPos == Position.COMPILER_GENERATED)
 		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
-	    else if (errorPos instanceof JPGPosition)
-		addMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(),
-			((JPGPosition) errorPos).getLeftIToken().getStartOffset(), ((JPGPosition) errorPos).getRightIToken().getEndOffset());
 	    else
-		addMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), -1, -1);
+		addMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL,
+		        errorPos.line(), errorPos.offset(), errorPos.endOffset());
 	}
     }
 
