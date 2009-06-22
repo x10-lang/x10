@@ -58,8 +58,6 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
         createSpacer();
         addField(new BooleanFieldEditor(PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic &messages from the builder", getFieldEditorParent()));
 
-//	addField(new StringFieldEditor(PreferenceConstants.P_STRING, "A &text preference:", getFieldEditorParent()));
-
 	getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 	    public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(PreferenceConstants.P_EMIT_MESSAGES))
@@ -104,9 +102,10 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
     }
 
     private void createSpacer() {
-        Label label = new Label(getFieldEditorParent(), SWT.NONE);
-        GridData gd = new GridData();
-        gd.horizontalSpan = 3;
+        Label label= new Label(getFieldEditorParent(), SWT.NONE);
+        GridData gd= new GridData();
+
+        gd.horizontalSpan= 3;
         label.setLayoutData(gd);
     }
 
