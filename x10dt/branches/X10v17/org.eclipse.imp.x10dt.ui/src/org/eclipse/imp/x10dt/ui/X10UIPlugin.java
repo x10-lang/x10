@@ -44,7 +44,8 @@ public class X10UIPlugin extends AbstractUIPlugin {
     }
 
     public void maybeWriteInfoMsg(String msg) {
-//        if (!fEmitInfoMessages)
+    	// BRT fEmitInfoMessages not read here, always write info msg for now, until can determine how to read/write correctly
+//        if (!fEmitInfoMessages) 
 //            return;
 
         Status status= new Status(Status.INFO, PLUGIN_ID, 0, msg, null);
