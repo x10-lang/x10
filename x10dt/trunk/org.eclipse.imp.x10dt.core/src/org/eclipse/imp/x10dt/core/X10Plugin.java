@@ -6,13 +6,15 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import com.ibm.watson.safari.x10.preferences.X10Preferences;
+
 /**
  * The main plugin class to be used in the desktop.
  */
 public class X10Plugin extends AbstractUIPlugin {
     public static final String kPluginID= "com.ibm.watson.safari.x10";
 
-    private static boolean sWriteInfoMsgs= true;
+//    private static boolean sWriteInfoMsgs= false;
     private static ILog sLog= null;
 
     /**
@@ -55,7 +57,7 @@ public class X10Plugin extends AbstractUIPlugin {
     }
 
     public static void maybeWriteInfoMsg(String msg, String componentID) {
-	if (!sWriteInfoMsgs)
+	if (!X10Preferences.builderEmitMessages)
 	    return;
 
 	Status status= new Status(Status.INFO, componentID, 0, msg, null);
