@@ -33,6 +33,7 @@ public class X10Plugin extends UIDEPluginBase {
 	IPreferenceStore prefStore= getPreferenceStore();
 
 	X10Preferences.builderEmitMessages= prefStore.getBoolean(PreferenceConstants.P_EMIT_MESSAGES);
+	X10Preferences.autoAddRuntime= prefStore.getBoolean(PreferenceConstants.P_AUTO_ADD_RUNTIME);
 	X10Preferences.x10CommonPath= prefStore.getString(PreferenceConstants.P_X10COMMON_PATH);
 	X10Preferences.x10ConfigFile= prefStore.getString(PreferenceConstants.P_X10CONFIG_FILE);
     }
