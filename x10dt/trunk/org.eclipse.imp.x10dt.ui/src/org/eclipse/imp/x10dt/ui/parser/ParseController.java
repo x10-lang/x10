@@ -61,7 +61,11 @@ public class ParseController extends SimpleLPGParseController {
 		return fLexer;
 	}
 
-    public ISourcePositionLocator getNodeLocator() {
+    /**
+     * was getNodeLocator
+     */
+    @Override
+    public ISourcePositionLocator getSourcePositionLocator() {
     	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
     }
 
