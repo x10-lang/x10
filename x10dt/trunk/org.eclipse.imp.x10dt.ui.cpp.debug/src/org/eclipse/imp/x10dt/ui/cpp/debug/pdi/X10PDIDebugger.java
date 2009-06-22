@@ -10,6 +10,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
 
 import java.io.DataInputStream;
@@ -555,8 +556,13 @@ public final class X10PDIDebugger implements IPDIDebugger {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
         final IStackFrame[] stackFrames = thread.getStackFrames();
+        final ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int l = findSparseIndex(proxyStackFrames, low);
+        int h = findSparseIndex(proxyStackFrames, high);
         final Collection<String> args = new ArrayList<String>();
-        for (int i = low; i <= high; ++i) {
+        for (int i = l; i <= h; ++i) {
+          if (proxyStackFrames[i] == null)
+            continue;
           final int nbParams = ((StackFrame) stackFrames[i]).getNumOfParms();
           final IVariable[] variables = stackFrames[i].getVariables();
           for (int j = 0; j < nbParams; ++j) {
@@ -678,10 +684,9 @@ public final class X10PDIDebugger implements IPDIDebugger {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
         final IStackFrame[] stackFrames = thread.getStackFrames();
-        final ProxyDebugStackFrame[] proxyStackFrames = new ProxyDebugStackFrame[stackFrames.length];
-        for (int i = low; i < depth; ++i) {
-          proxyStackFrames[i] = toProxyStackFrame(pair.fst(), pair.snd(), stackFrames[i], i);
-        }
+        final ProxyDebugStackFrame[] proxyStackFrames =
+          copySparseSubarray(getProxyStackFrames(stackFrames, pair.fst(), pair.snd()),
+                             low, depth-1, new ProxyDebugStackFrame[depth-low]);
         // TODO: consolidate same stack frame sets into one event
         this.fProxyNotifier.notify(new ProxyDebugStackframeEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                                  proxyStackFrames));
@@ -691,13 +696,66 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
   }
 
+  /**
+   * Finds the location of index in a sparse array.
+   * @return the real position of index in the array, or -1 if not found.
+   */
+  private <T> int findSparseIndex(final T[] array, final int index) {
+    // Iterate over the array, skipping nulls
+    int lvl = 0;
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] != null) {
+        if (lvl == index)
+          return i;
+        lvl++;
+      }
+    }
+    return -1; // too few elements in the array
+  }
+
+  /**
+   * Computes the length of a sparse array.
+   * @return the length of the sparse array.
+   */
+  private <T> int getSparseLength(final T[] array) {
+    // Iterate over the array, skipping nulls
+    int lvl = 0;
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] != null)
+        lvl++;
+    }
+    return lvl;
+  }
+
+  /**
+   * Copies out the elements of a sparse array from low to high inclusive into a dense array dest.
+   * @return the dest parameter, or null if not successful.
+   */
+  private <T> T[] copySparseSubarray(final T[] array, final int low, final int high, final T[] dest) {
+    assert (dest.length == high-low+1);
+    final int start = findSparseIndex(array, low);
+    if (start == -1) // too few elements in the array
+      return null;
+    // Iterate over the array, skipping nulls
+    int p = 0;
+    for (int i = start; i < array.length; i++) {
+      if (array[i] != null)
+        dest[p++] = array[i];
+      if (p > high)
+        return dest;
+    }
+    return null; // not enough elements to copy
+  }
+
   public void setCurrentStackFrame(final BitList tasks, final int level) throws PDIException {
     try {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
         final IStackFrame[] stackFrames = thread.getStackFrames();
-        if (level < stackFrames.length) {
-          StackFrame frame = (StackFrame) stackFrames[level];
+        final ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.fst(), pair.snd());
+        int lvl = findSparseIndex(proxyStackFrames, level);
+        if (lvl != -1) {
+          StackFrame frame = (StackFrame) stackFrames[lvl];
           thread.getLocals(frame);
           // TODO: consolidate the events
           this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
@@ -732,7 +790,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
     // send one event per unique depth value...
     try {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
-        final int depth = pair.snd().getStoppingThread().getStackFrames().length;
+        final IStackFrame[] stackFrames = pair.snd().getStoppingThread().getStackFrames();
+        int depth = getSparseLength(getProxyStackFrames(stackFrames, pair.fst(), pair.snd()));
         // TODO: consolidate the events
         this.fProxyNotifier.notify(new ProxyDebugStackInfoDepthEvent(-1 /* transId */,
                                                                      ProxyDebugClient.encodeBitSet(pair.fst()), depth));
@@ -807,6 +866,22 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   // --- Private code
   
+  private ProxyDebugStackFrame[] getProxyStackFrames(final IStackFrame[] stackFrames,
+                                                     BitList task, DebuggeeProcess process)
+                                 throws PDIException
+  {
+    final ProxyDebugStackFrame[] proxyStackFrames = new ProxyDebugStackFrame[stackFrames.length];
+    int count = 0;
+    for (int i = 0; i < stackFrames.length; ++i) {
+      ProxyDebugStackFrame frame = toProxyStackFrame(task, process, stackFrames[i], count);
+      if (frame == null)
+        continue;
+      proxyStackFrames[i] = frame;
+      count++;
+    }
+    return proxyStackFrames;
+  }
+  
   private ProxyDebugAIF createDebugProxyAIF(final DebuggeeProcess process, final DebuggeeThread thread,
                                             final Location location, final String expr, final BitList task,
                                             boolean listChildren) throws EngineRequestException, DebugException,
@@ -823,7 +898,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
       if (ptr.startsWith("(") && ptr.endsWith(")")) {
         ptr = ptr.substring(1, ptr.length()-1);
       }
-      base = ptr + "->" + fld;
+      base = ptr + "->" + FMGL(fld); // FIXME: HACK!
     }
     ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
     if (rootNode == null)
@@ -991,7 +1066,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
           {
             int offset = 3 * PTR_SIZE + 2 * PTR_SIZE * numInterfaces;
             for (int j = 2; j < desc.length; j++) {
-              String name = desc[j++];
+              String name = FMGL(desc[j++]);
               String type = desc[j];
               EPDTVarExprType fet = getExprType(type);
               char ft = '\0';
@@ -1026,7 +1101,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         };
         StringBuilder sb = new StringBuilder();
         for (int j = 2; j < desc.length; j++) {
-          String n = desc[j++];
+          String n = FMGL(desc[j++]);
           String t = desc[j];
           EPDTVarExprType et = getExprType(t);
           switch (et) {
@@ -1076,7 +1151,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
       }
     }
     final String value = getValue(exprType, result);
-    final ProxyDebugAIF aif = new ProxyDebugAIF(getVariableType(exprType, task, desc), value, expr);
+    final ProxyDebugAIF aif = new ProxyDebugAIF(getVariableType(exprType, task, desc), value, desc == null ? exprType.toString() : desc[0]);
     return aif;
   }
   
@@ -1576,6 +1651,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
     String file = translator.getX10File(process, location);
     int lineNumber = translator.getX10Line(process, location);
     String function = translator.getX10Function(process, cppFunction, location);
+    if (file == null && lineNumber == -1 && function == null)
+        return null;
     if (file == null || lineNumber == -1 || function == null) {
       file = cppFile;
       lineNumber = cppLine;
