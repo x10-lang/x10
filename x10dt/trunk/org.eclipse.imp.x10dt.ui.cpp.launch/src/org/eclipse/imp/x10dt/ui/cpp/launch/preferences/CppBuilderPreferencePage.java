@@ -9,7 +9,7 @@ package org.eclipse.imp.x10dt.ui.cpp.launch.preferences;
 
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -48,20 +48,20 @@ public final class CppBuilderPreferencePage extends PreferencePage implements IW
     environmentGroup.setFont(composite.getFont());
     environmentGroup.setLayout(new GridLayout(1, false));
     environmentGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    environmentGroup.setText(Messages.CBPP_EnvVarGroupName);
+    environmentGroup.setText(LaunchMessages.CBPP_EnvVarGroupName);
     
-    this.fX10DistEnvText = createSingleTextWithLabel(environmentGroup, Messages.CBPP_X10DistLocVarLabel);
-    this.fPGASEnvText = createSingleTextWithLabel(environmentGroup, Messages.CBPP_PGasLocVarLabel);
+    this.fX10DistEnvText = createSingleTextWithLabel(environmentGroup, LaunchMessages.CBPP_X10DistLocVarLabel);
+    this.fPGASEnvText = createSingleTextWithLabel(environmentGroup, LaunchMessages.CBPP_PGasLocVarLabel);
     
     final Group commandsGroup = new Group(composite, SWT.NONE);
     commandsGroup.setFont(composite.getFont());
     commandsGroup.setLayout(new GridLayout(1, false));
     commandsGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    commandsGroup.setText(Messages.CBPP_RemoteCommandsGroupName);
+    commandsGroup.setText(LaunchMessages.CBPP_RemoteCommandsGroupName);
       
-    this.fCompilationText = createMultiTextWithLabel(commandsGroup, Messages.CBPP_CompilationCmdLabel);
-    this.fArchivingText = createMultiTextWithLabel(commandsGroup, Messages.CBPP_ArchivingCmdLabel);
-    this.fLinkingText = createMultiTextWithLabel(commandsGroup, Messages.CBPP_LinkingCmdLabel);
+    this.fCompilationText = createMultiTextWithLabel(commandsGroup, LaunchMessages.CBPP_CompilationCmdLabel);
+    this.fArchivingText = createMultiTextWithLabel(commandsGroup, LaunchMessages.CBPP_ArchivingCmdLabel);
+    this.fLinkingText = createMultiTextWithLabel(commandsGroup, LaunchMessages.CBPP_LinkingCmdLabel);
     
     initializeValues();
     

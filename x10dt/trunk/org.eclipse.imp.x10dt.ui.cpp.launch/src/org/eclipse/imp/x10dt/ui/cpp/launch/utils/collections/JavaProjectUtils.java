@@ -16,7 +16,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -74,7 +74,7 @@ public final class JavaProjectUtils {
       case IClasspathEntry.CPE_PROJECT:
         final IResource resource = root.findMember(cpEntry.getPath());
         if (resource == null) {
-          LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.JPU_ResourceErrorMsg, cpEntry.getPath()));
+          LaunchCore.log(IStatus.WARNING, NLS.bind(LaunchMessages.JPU_ResourceErrorMsg, cpEntry.getPath()));
         } else {
           final IJavaProject refProject = JavaCore.create((IProject) resource);
           for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
@@ -84,7 +84,7 @@ public final class JavaProjectUtils {
         break;
         
       default:
-        throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
+        throw new IllegalArgumentException(NLS.bind(LaunchMessages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
     }
   }
   
