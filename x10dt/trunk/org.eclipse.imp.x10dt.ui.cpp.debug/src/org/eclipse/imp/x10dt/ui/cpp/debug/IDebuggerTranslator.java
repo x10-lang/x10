@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug;
 
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
 import com.ibm.debug.internal.pdt.model.Location;
+import com.ibm.debug.internal.pdt.model.StackFrame;
 
 /**
  * Responsible for translating X10 data to their C++ counterparts according to the context, and vice-versa.
@@ -35,8 +36,8 @@ public interface IDebuggerTranslator {
   
   public int getX10Line(final DebuggeeProcess process, final Location cppLocation);
   
-  public String getClosureVariableType(DebuggeeProcess process, Location location, String function, String name);
+  public String getClosureVariableType(DebuggeeProcess process, StackFrame frame, Location location, String function, String name);
   
-  public String[] getClosureVars(DebuggeeProcess process, Location location, String function);
+  public String[] getClosureVars(DebuggeeProcess process, StackFrame frame, Location location, String function);
 
 }
