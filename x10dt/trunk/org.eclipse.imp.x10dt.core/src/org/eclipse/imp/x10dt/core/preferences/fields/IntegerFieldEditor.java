@@ -180,33 +180,6 @@ public class IntegerFieldEditor extends StringFieldEditor {
         }
     }
 
-    /* (non-Javadoc)
-     * Method declared on FieldEditor.
-     */
-    protected void doLoad()
-    {
-        if (getTextControl(parent) != null) {
-        	String value = null;
-        	if (preferencesLevel != null) {
-        		// The "normal" case, in which field corresponds to a preferences level
-        		value = preferencesService.getRawStringPreference(preferencesLevel, getPreferenceName());
-        		levelFromWhichLoaded = preferencesLevel;
-        		setInherited(false);
-        	}
-        	else {
-        		// Not normal, exactly, but possible if loading is being done into a
-        		// field that is not associated with a specific level
-        		value = preferencesService.getRawStringPreference(getPreferenceName());
-        		levelFromWhichLoaded = preferencesService.getApplicableLevel(getPreferenceName(), preferencesLevel);
-    			setInherited(!levelFromWhichLoaded.equals(preferencesLevel));
-        	}
-        	
-//        	if (value==null || value.equals("")) value = "0";
-           	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
-            setStringValue(value);
-        }
-    
-    }
     protected void doStore() {
     	String newStringValue = (String)getTextControl(parent).getText();
     	boolean isEmpty = newStringValue.equals(emptyValue);	
