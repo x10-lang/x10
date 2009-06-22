@@ -19,10 +19,16 @@ public final class Constants {
   
   public static final String ATTR_REMOTE_DEBUGGER_PATH = DebugCore.PLUGIN_ID + ".debug.engine.daemon.path"; //$NON-NLS-1$
   
-  public static final String ATTR_PORT = DebugCore.PLUGIN_ID + ".debug.port"; //$NON-NLS-1$
+  public static final String ATTR_RANGE_PORT = DebugCore.PLUGIN_ID + ".debug.range_port"; //$NON-NLS-1$
+  
+  public static final String ATTR_SPECIFIC_PORT = DebugCore.PLUGIN_ID + ".debug.specific_port"; //$NON-NLS-1$
   
   // --- Default values
   
-  public static int DEFAULT_PORT = 8002;
+  public static int DEFAULT_PORT = 8001;
+  
+  public static int DEFAULT_PORT_RANGE_MIN = 8001;
+  
+  public static int DEFAULT_PORT_RANGE_MAX = 10000;
 
 }
