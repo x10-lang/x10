@@ -8,8 +8,10 @@ package org.eclipse.imp.x10dt.core;
 import java.io.File;
 import java.net.URL;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
@@ -22,8 +24,9 @@ import org.osgi.framework.BundleContext;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class X10Plugin extends PluginBase {
+public class X10PluginB extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.x10dt.core";
+    public static final String kLanguageName = "X10";
 
     /**
      * The unique instance of this plugin class
@@ -41,15 +44,19 @@ public class X10Plugin extends PluginBase {
     public static String x10CompilerPath;
 
     public static X10Plugin	 getInstance() {
-        return sPlugin;
+    	// mmk: Creation if not auto-starated adapted from generated preferences Activator
+    	if (sPlugin == null)
+			new X10Plugin();
+		return sPlugin;
     }
 
-    public X10Plugin() {
-	sPlugin= this;
+    public X10PluginB() {
+    	super();
+    	sPlugin= this;
     }
 
     public String getID() {
-	return kPluginID;
+    	return kPluginID;
     }
 
     /**
@@ -101,45 +108,64 @@ public class X10Plugin extends PluginBase {
     public static ImageDescriptor getImageDescriptor(String path) {
 	return AbstractUIPlugin.imageDescriptorFromPlugin(kPluginID, path);
     }	
+//  mmk 5/20/2008: replaced prefs code with generated prefs code (below)
+//    // SMS 30 Oct 2006
+//    // X10 actually has more preferences than the ones that are refreshed
+//    // here, but these may be the only ones for which fresh values were
+//    // a concern.  	If fEmitInfoMessages is obviated by direct references
+//    // to the preferences service, then it can be deleted here.  The need
+//    // to refresh the configuration file as is done here may remain since
+//    // the value is not based solely on what is in the store (the "default"
+//    // value computed here depends on x10CompilerPath, which is not a	
+//    // preference value).			
+//    public void refreshPrefs() {
+//        super.refreshPrefs();
+//        // SMS 27 Oct 2006:  ref to replace
+//        //fEmitInfoMessages= X10Preferences.builderEmitMessages;
+//        fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
+//        // Set the "x10.configuration" System property from the corresponding preference
+//        // value, since polyglot.ext.x10.Configuration relies on its being set, and a
+//        // static initializer there throws an exception if it can't find the config file.
+//        // SMS 27 Oct 2006:  refs to replace
+//        //final String configFile= (X10Preferences.x10ConfigFile!= null ? X10Preferences.x10ConfigFile : x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
+//        final String configFile= (
+//        		getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) != null ?
+//        				getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) :
+//        				x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
+//
+//        System.setProperty("x10.configuration", configFile);
+//    }
+//    
+//    
+//    // SMS 27 Oct 2006
+//    protected static PreferencesService preferencesService = 
+//    	getPreferencesService();
+//    
+//    public static PreferencesService getPreferencesService() {
+//    	if (preferencesService == null) {
+//    		preferencesService = new PreferencesService();
+//        	preferencesService.setLanguageName("x10");
+//           	(new PreferenceInitializer()).initializeDefaultPreferences();
+//    	}
+//    	return preferencesService;
+//    }
+	protected static PreferencesService preferencesService = null;
 
-    // SMS 30 Oct 2006
-    // X10 actually has more preferences than the ones that are refreshed
-    // here, but these may be the only ones for which fresh values were
-    // a concern.  	If fEmitInfoMessages is obviated by direct references
-    // to the preferences service, then it can be deleted here.  The need
-    // to refresh the configuration file as is done here may remain since
-    // the value is not based solely on what is in the store (the "default"
-    // value computed here depends on x10CompilerPath, which is not a	
-    // preference value).			
-    public void refreshPrefs() {
-        super.refreshPrefs();
-        // SMS 27 Oct 2006:  ref to replace
-        //fEmitInfoMessages= X10Preferences.builderEmitMessages;
-        fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
-        // Set the "x10.configuration" System property from the corresponding preference
-        // value, since polyglot.ext.x10.Configuration relies on its being set, and a
-        // static initializer there throws an exception if it can't find the config file.
-        // SMS 27 Oct 2006:  refs to replace
-        //final String configFile= (X10Preferences.x10ConfigFile!= null ? X10Preferences.x10ConfigFile : x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
-        final String configFile= (
-        		getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) != null ?
-        				getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) :
-        				x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
-
-        System.setProperty("x10.configuration", configFile);
-    }
-    
-    
-    // SMS 27 Oct 2006
-    protected static PreferencesService preferencesService = 
-    	getPreferencesService();
-    
-    public static PreferencesService getPreferencesService() {
-    	if (preferencesService == null) {
-    		preferencesService = new PreferencesService();
-        	preferencesService.setLanguageName("x10");
-           	(new PreferenceInitializer()).initializeDefaultPreferences();
-    	}
-    	return preferencesService;
-    }
+	public static PreferencesService getPreferencesService() {
+		if (preferencesService == null) {
+			preferencesService = new PreferencesService(ResourcesPlugin
+					.getWorkspace().getRoot().getProject());
+			preferencesService.setLanguageName(kLanguageName);
+			// To trigger the invocation of the preferences initializer:
+			try {
+				new DefaultScope().getNode(kPluginID);
+			} catch (Exception e) {
+				// If this ever happens, it will probably be because the preferences
+				// and their initializer haven't been defined yet.  In that situation
+				// there's not really anything to do--you can't initialize preferences
+				// that don't exist.  So swallow the exception and continue ...
+			}
+		}
+		return preferencesService;
+	}
 }
