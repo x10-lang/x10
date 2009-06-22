@@ -21,7 +21,8 @@
    <requires>
       <import feature="polyglot3" version="3.0.0" match="greaterOrEqual"/>
       <import feature="lpg.runtime" version="2.0.16" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="0.1.91" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.97" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.formatting" version="0.1.2"/>
    </requires>
 
    <plugin
