@@ -63,6 +63,8 @@ public final class PolyglotFrontEnd extends Compiler {
 		Scheduler scheduler= sourceExtension().scheduler();
 		List<Job> jobs= new ArrayList<Job>();
 
+		//PORT1.7 --- Nate says this should do what polyglot.frontend.Compiler.compile() does:
+
 		// First, create a goal to compile every source file.
 		for(Iterator<Source> i= sources.iterator(); i.hasNext(); ) {
 		    Source source= (Source) i.next();
@@ -74,14 +76,15 @@ public final class PolyglotFrontEnd extends Compiler {
 		    // already exists, then we will be given the existing job.
 		    Job job= scheduler.addJob(source);
 		    jobs.add(job);
-
-		    // Now, add a goal for completing the job.
-		    scheduler.addDependenciesForJob(job, false); //PORT1.7 --- Nate says this should do what polyglot.frontend.Compiler.compile() does:
 //		    scheduler.addGoal(sourceExtension().getCompileGoal(job));  
 		}
 
 		scheduler.setCommandLineJobs(jobs);
 
+		for(Job job: jobs) {
+		    // Now, add a goal for completing the job.
+		    scheduler.addDependenciesForJob(job, false);
+		}
 		// Then, compile the files to completion.
 
 		okay= scheduler.runToCompletion();
