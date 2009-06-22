@@ -8,7 +8,7 @@
 package org.eclipse.imp.x10dt.ui.cpp.launch.builder;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.ext.x10cpp.ExtensionInfo;
@@ -37,7 +37,7 @@ final class ExtendedX10Scheduler extends X10CPPScheduler {
   }
   
   public Goal Parsed(final Job job) {
-    this.fMonitor.subTask(NLS.bind(Messages.ES_CompileTaskName, job.source().name()));
+    this.fMonitor.subTask(NLS.bind(LaunchMessages.ES_CompileTaskName, job.source().name()));
     return super.Parsed(job);
   }
 
@@ -47,7 +47,7 @@ final class ExtendedX10Scheduler extends X10CPPScheduler {
       // --- Overridden methods
 
       protected boolean invokePostCompiler(final Options options, final Compiler compiler, final ErrorQueue eq) {
-        ExtendedX10Scheduler.this.fMonitor.subTask(Messages.ES_LinkingTaskName);
+        ExtendedX10Scheduler.this.fMonitor.subTask(LaunchMessages.ES_LinkingTaskName);
         return X10CPPTranslator.postCompile(options, compiler, eq);
       }
     
