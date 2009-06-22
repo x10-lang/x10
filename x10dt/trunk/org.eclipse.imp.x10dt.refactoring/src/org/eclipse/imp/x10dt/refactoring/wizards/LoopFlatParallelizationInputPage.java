@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
-
 public class LoopFlatParallelizationInputPage extends UserInputWizardPage implements Listener {
     private Text fText;
 

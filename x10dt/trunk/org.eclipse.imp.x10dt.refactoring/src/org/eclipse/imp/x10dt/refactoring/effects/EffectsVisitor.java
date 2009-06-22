@@ -108,6 +108,14 @@ public class EffectsVisitor extends NodeVisitor {
         return fEffects.get(n);
     }
 
+    public Effect accumulateEffectsFor(List<Node> nodes) throws XFailure {
+        Effect result= null;
+        for(Node node: nodes) {
+            result= followedBy(result, fEffects.get(node));
+        }
+        return result;
+    }
+
     // ====================================================
     // Wrappers for effects/constraint ops (for debugging)
     // ====================================================
