@@ -361,6 +361,7 @@ public class EffectsVisitor extends NodeVisitor {
     }
 
     private Effect computeEffect(ForEach n) {
+        // TODO return "bottom"
         throw new UnsupportedOperationException("Can't handle ForEach loops!");
     }
 
