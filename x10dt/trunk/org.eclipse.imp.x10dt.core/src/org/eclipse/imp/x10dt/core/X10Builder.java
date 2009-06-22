@@ -35,6 +35,7 @@ import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
+import x10.parser.X10Parser.JPGPosition;
 
 import com.ibm.domo.ast.java.translator.polyglot.PolyglotFrontEnd;
 import com.ibm.domo.ast.java.translator.polyglot.StreamSource;
@@ -104,15 +105,19 @@ public class X10Builder extends IncrementalProjectBuilder {
 	}
     }
 
-    protected void addMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum) {
+    protected void addMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
 	try {
-	    IMarker grammarMarker= sourceFile.createMarker(PROBLEMMARKER_ID);
+	    IMarker marker= sourceFile.createMarker(PROBLEMMARKER_ID);
 
-	    grammarMarker.setAttribute(IMarker.MESSAGE, msg);
-	    grammarMarker.setAttribute(IMarker.SEVERITY, severity);
-	    grammarMarker.setAttribute(IMarker.LOCATION, loc);
-	    grammarMarker.setAttribute(IMarker.PRIORITY, priority);
-	    grammarMarker.setAttribute(IMarker.LINE_NUMBER, lineNum);
+	    marker.setAttribute(IMarker.MESSAGE, msg);
+	    marker.setAttribute(IMarker.SEVERITY, severity);
+	    marker.setAttribute(IMarker.LOCATION, loc);
+	    marker.setAttribute(IMarker.PRIORITY, priority);
+	    marker.setAttribute(IMarker.LINE_NUMBER, lineNum);
+	    if (startOffset >= 0) {
+		marker.setAttribute(IMarker.CHAR_START, startOffset);
+		marker.setAttribute(IMarker.CHAR_END, endOffset+1);
+	    }
 	} catch (CoreException e) {
 	    X10Plugin.writeErrorMsg("Couldn't add marker to file " + sourceFile, BUILDER_ID);
 	}
@@ -177,8 +182,13 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	    if (errorPos == Position.COMPILER_GENERATED)
 		X10Plugin.writeErrorMsg(errorInfo.getMessage(), BUILDER_ID);
+	    else if (errorPos instanceof JPGPosition)
+		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
+			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(),
+			((JPGPosition) errorPos).getStartOffset(), ((JPGPosition) errorPos).getEndOffset());
 	    else
-		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
+		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
+			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), -1, -1);
 	}
     }
 
