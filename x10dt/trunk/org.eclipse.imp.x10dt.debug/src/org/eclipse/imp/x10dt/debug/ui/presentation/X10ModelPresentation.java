@@ -389,39 +389,5 @@ public class X10ModelPresentation extends JDIModelPresentation implements IDebug
 		return names;
 	}
 	
-	public void setAttribute(String attribute, Object value) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void addListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void dispose() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean isLabelProperty(Object element, String property) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void removeListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public String getEditorId(IEditorInput input, Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public IEditorInput getEditorInput(Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
 
