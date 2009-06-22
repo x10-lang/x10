@@ -17,7 +17,7 @@ page X10 {
     	    defvalue 4; }
     	font SourceFont {
     	    tooltip "The font to use in the source code editor";
-    	    defvalue "courier" 10 normal }
+    	    defvalue "courier" 10 normal; }
     	boolean BadPlaceRuntimeCheck {
     	    tooltip "Enable the generation of code to check for direct accesses to data at another place";
     	    defvalue true; }
