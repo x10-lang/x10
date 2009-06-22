@@ -63,6 +63,9 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
     //private Location fOriginalStepLocation;
     private boolean fRefreshChildren = true;
     private X10ActivityState fState;
+    
+    private static int seq=0;
+    public int uid;
 	
 	/**
 	 * Constructs a new thread group in the given target based on the underlying
@@ -91,6 +94,9 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 		 * @see org.eclipse.debug.core.model.IDebugElement#getModelIdentifier()
 		 */
 
+		synchronized(this) {
+			uid = seq++;
+		}
 	}
 	public String getModelIdentifier() {
 		return Activator.getUniqueIdentifier();
@@ -257,7 +263,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 			System.out.println("X10Thread:getName() ");
 			String place = this.getUnderlyingThread().name();
 			if (place.contains("Main Activity"))
-				return "ACTIVITY" + "@PLACE 0" + ": Main Activity";
+				return ""+uid+"/"+"ACTIVITY" + "@PLACE 0" + ": Main Activity";
 			/*
 			else if (place.contains("Finished")){
 				place=place.replace("pool", "PLACE");�
@@ -276,7 +282,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				aname=" ";
 			}
 			place = place.substring(4, 6);
-		    return "ACTIVITY" + "@PLACE" +place +":" +aname ;
+		    return ""+uid+"/"+"ACTIVITY" + "@PLACE" +place +":" +aname ;
 			}
 		}  
 		else {
