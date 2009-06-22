@@ -266,6 +266,12 @@ list.add(new SourceProposal("Candidate: " + candidate, "", offset));
             }
             else list.add(new SourceProposal("no info available", " source proposal ", 0));
         }
+        else if (node instanceof Call)
+        {
+            Call call= (Call) node;
+            if (candidate.getKind() == TK_DOT && call.target().type().isReference())
+        	getCandidates((ReferenceType) call.target().type(), list, prefix, offset);
+        }
         else 
         {
             // TODO: Any package, type, local variable and accessible class members
