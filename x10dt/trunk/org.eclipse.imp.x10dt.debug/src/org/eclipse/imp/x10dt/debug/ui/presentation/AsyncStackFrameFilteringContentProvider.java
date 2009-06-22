@@ -43,6 +43,9 @@ public class AsyncStackFrameFilteringContentProvider
         return EMPTY;
 	}
 	
+	protected Object[] getChildren(Object parent, int index, int length, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
+		return getElements(getAllChildren(parent, context, monitor), index, length);
+	}
 	protected boolean hasChildren(Object element, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
 		String id = context.getId();
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW))

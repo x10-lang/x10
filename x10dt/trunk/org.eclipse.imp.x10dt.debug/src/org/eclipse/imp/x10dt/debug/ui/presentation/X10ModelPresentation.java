@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
@@ -16,6 +17,7 @@ import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
 import org.eclipse.jdt.debug.core.IJavaStackFrame;
+import org.eclipse.jdt.internal.debug.core.breakpoints.JavaExceptionBreakpoint;
 import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import org.eclipse.jdt.internal.debug.ui.DebugUIMessages;
@@ -51,8 +53,14 @@ public class X10ModelPresentation extends JDIModelPresentation implements IDebug
 					}
 				}*/
 
-			    IX10Activity.X10ActivityState st = ((X10Thread)element).getRunState();
-			    String s = ((X10Thread)element).getThreadText();
+				X10Thread xt = (X10Thread)element;
+				String s = xt.getThreadText();
+				IX10Activity.X10ActivityState st = ((X10Thread)element).getRunState();
+			    for (IBreakpoint b: xt.getBreakpoints()) {
+			    	if ( b instanceof JavaExceptionBreakpoint) {
+			    		s += " ["+((JavaExceptionBreakpoint)b).getExceptionTypeName()+"]";
+			    	}
+			    }
 			    return s;
 			    //if (a!=null) {
 			    /*if (st!=IX10Activity.X10ActivityState.Idle) {
