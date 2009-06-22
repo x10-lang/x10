@@ -448,14 +448,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointerInfo = findPointsToSets(loopRefedLVals);
 			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo = computeAliasInfo(pointerInfo);
 
-			// calculateInfoFlow(loop, aliasInfo); // saves phi and rho in
-			// fields
-			calculateInfoFlow(fLoop, pointerInfo, loopRefedLVals); // saves phi
-																	// and rho
-																	// in fields
-			calculateLoopCarriedStatements(fLoop, inductionVars); // saves
-			// delta in
-			// a field
+			// calculateInfoFlow(loop, aliasInfo); // saves phi and rho in fields
+			calculateInfoFlow(fLoop, pointerInfo, loopRefedLVals); // saves phi and rho in fields
+			calculateLoopCarriedStatements(fLoop, inductionVars); // saves delta in a field
+
+			dumpPhi();
+			dumpRho();
 
 			if (!preconditionsHold(fLoop, fPivot, fNodeMethod))
 				return RefactoringStatus
@@ -470,6 +468,28 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return ts.status;
 		}
 		return new RefactoringStatus();
+	}
+
+	private void dumpRho() {
+		System.out.println();
+		System.out.println("** Rho **");
+		for(VarWithFirstUse v: fRho.keySet()) {
+			System.out.println("Variable " + v.fVarInstance.name() + " => " + fRho.get(v));
+		}
+	}
+
+	private void dumpPhi() {
+		System.out.println();
+		System.out.println("** Phi **");
+		for(Assign a: fPhi.keySet()) {
+			System.out.print(a.left().toString() + " => {");
+			Set<InstanceKey> keys= fPhi.get(a);
+			for (InstanceKey key : keys) {
+				System.out.print(key);
+			}
+			System.out.println(" }");
+		}
+		
 	}
 
 	private Set<VarDecl> findInductionVars(CompoundStmt loop) {
@@ -591,8 +611,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			PointerKey ptrKey = fVar2PtrKeyMap.get(var);
 			VarWithFirstUse vwfu = new VarWithFirstUse(vi, var, ptrKey);
-			if (!result.contains(vwfu))
+			if (!result.contains(vwfu)) {
 				result.add(vwfu);
+				System.out.println("Creating VarWithFirstUse for " + vi.name() + " with pointer key = " + ptrKey);
+			}
 		}
 		return result;
 	}
