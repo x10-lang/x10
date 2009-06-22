@@ -178,7 +178,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
     {
-	ArrayList<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
+        ArrayList<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
         //
         // When the offset is in between two tokens (for example, on a white space or comment)
         // the getTokenIndexAtCharacter in parse stream returns the negative index
