@@ -65,8 +65,6 @@ import polyglot.ast.Variable;
 import polyglot.ast.While;
 import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.Next;
-import polyglot.ext.x10.ast.X10ArrayAccess;
-import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
@@ -77,9 +75,11 @@ import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.ExtractVarsVisitor.VarUseType;
+import x10.refactorings.utils.EclipseProjectUtils;
 import x10.refactorings.utils.NodePathComputer;
 import x10.refactorings.utils.NodeTypeFindingVisitor;
 import x10.refactorings.utils.PolyglotUtils;
+import x10.refactorings.utils.WALAUtils;
 
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.loader.AstMethod;
@@ -553,15 +553,23 @@ public class ExtractAsyncRefactoring extends Refactoring {
                     // we check that all loop array accesses of an array are indexed
                     // using the induction variable (otherwise there are loop-carried
                     // dependencies).
-                } else if (n instanceof X10ArrayAccess1) {
-                    X10ArrayAccess1 aa = (X10ArrayAccess1) n;
-
-                    if (aa.array() instanceof Variable)
-                        if (!containsLVal(null, PolyglotUtils.extractArrayName((Variable) aa.array())))
-                            fLValues.add(aa);
+                } else if (isArrayAccess(n)) {
+                    processArrayAccess(n);
                 }
             }
             return this;
+        }
+
+        private boolean isArrayAccess(Node n) {
+            // TODO look for calls to x10.lang.Array.apply() and set()
+            return false;
+        }
+
+        private void processArrayAccess(Node n) {
+//            if (aa.array() instanceof Variable)
+//                if (!containsLVal(null, PolyglotUtils.extractArrayName((Variable) aa.array())))
+//                    fLValues.add(aa);
+            throw new UnsupportedOperationException("Unimplemented: processArrayAccess()");
         }
 
         private boolean containsLVal(VarInstance vi, NamedVariable par) {
@@ -572,7 +580,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
                     if (fi.equals(vi)) {
                         if ((par == null) ||
                                 !((((Field) var).target() instanceof NamedVariable) ||
-                                        (((Field) var).target() instanceof ArrayAccess) || (((Field) var).target() instanceof X10ArrayAccess1)))
+                                        (((Field) var).target() instanceof ArrayAccess) || isArrayAccess(((Field) var).target())))
                             return true;
                         else {
                             NamedVariable rcv = PolyglotUtils.extractArrayName((Variable) ((Field) var).target());
@@ -663,12 +671,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
             } else if (field.getFirstUse() instanceof ArrayAccess) {
                 ArrayAccess arrayVar = (ArrayAccess) field.getFirstUse();
                 fieldTarget = (Variable) arrayVar.array();
-            } else if (field.getFirstUse() instanceof X10ArrayAccess) {
-                X10ArrayAccess arrayVar = (X10ArrayAccess) field.getFirstUse();
-                fieldTarget = (Variable) arrayVar.array();
+            } else if (isArrayAccess(field.getFirstUse())) {
+                throw new UnsupportedOperationException("???");
+//                X10ArrayAccess arrayVar = (X10ArrayAccess) field.getFirstUse();
+//                fieldTarget = (Variable) arrayVar.array();
             } else {
-                X10ArrayAccess1 arrayVar = (X10ArrayAccess1) field.getFirstUse();
-                fieldTarget = (Variable) arrayVar.array();
+                throw new UnsupportedOperationException("???");
+//                X10ArrayAccess1 arrayVar = (X10ArrayAccess1) field.getFirstUse();
+//                fieldTarget = (Variable) arrayVar.array();
             }
             // TODO distinguish between an array variable and its elements?
             VarWithFirstUse target = getVarWithFirstUse(vars, fieldTarget);
@@ -696,7 +706,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
     }
 
     private boolean isArrayAccess(Expr e) {
-        return ((e instanceof ArrayAccess) || (e instanceof X10ArrayAccess) || (e instanceof X10ArrayAccess1));
+        throw new UnsupportedOperationException("isArrayAccess() needs to look for calls to x10.lang.Array.set()/apply()");
+//        return ((e instanceof ArrayAccess) || (e instanceof X10ArrayAccess) || (e instanceof X10ArrayAccess1));
     }
 
     /**
@@ -711,7 +722,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
      */
     private VarWithFirstUse getVarWithFirstUse(Set<VarWithFirstUse> vars, Variable var) {
 
-        HACK HACK RMF - probably need to use something other than Variables, since array accesses are now represented by method calls...
+        // TODO RMF - probably need to use something other than Variables, since array accesses are now represented by method calls...
+        if (true)
+            throw new UnsupportedOperationException("getVarWithFirstUse()");
 
         boolean arrayMode = isArrayAccess(var) ? true : false;
 
@@ -799,7 +812,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
             fRho.put(v, false);
         }
 
-        AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
+        AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor(fNodeFactory);
         loop.visit(acv);
         List<Eval> assigns = acv.getResult();
         // Use of this map will NOT be robust! Alias issues are being elided
@@ -869,7 +882,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
         fDelta = new ArrayList<Stmt>();
 
         /* Collect the statements from the loop (now, we deal with assigns) */
-        AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
+        AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor(fNodeFactory);
         loop.visit(acv);
         Collection<Eval> stmts = acv.getResult();
 
@@ -1103,8 +1116,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
         // Collect the necessary CAstEntities to access all of the necessary CAstNodes
 
-        Collection<CAstEntity> procEntities = extractProcEntities(rootEntity);
-        procEntities.addAll(extractAsyncEntities(procEntities));
+        Collection<CAstEntity> procEntities = WALAUtils.extractProcEntities(rootEntity);
+        procEntities.addAll(WALAUtils.extractAsyncEntities(procEntities));
 
         // A multi-map from positions to variable CAstNodes
         RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap = new RefactoringMap<RefactoringPosition, CAstNode>();
@@ -1477,7 +1490,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
         // If we've gotten this far, IR has been produced.
 
-        dumpIR(fCallGraph);
+//      dumpIR(fCallGraph);
 
         com.ibm.wala.cast.ipa.callgraph.Util.dumpCG(builder, fCallGraph);
 
@@ -1586,7 +1599,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
         if (fNodeMethod == null)
             return RefactoringStatus.createFatalErrorStatus("Unable to find method containing selected code");
 
-        String javaHomePath = ExtractAsyncStaticTools.javaHomePath;
+        String javaHomePath = EclipseProjectUtils.javaHomePath;
 
         // Only valid if it's equivalent to a statement: async, atomic, assign,
         // method call, etc.
@@ -1603,7 +1616,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
         }
         List<String> x10RTJars = new ArrayList<String>();
         // x10RTJars.addAll(rtJar);
-        x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
+        x10RTJars.add(EclipseProjectUtils.getLanguageRuntimePath(javaProject).toString());
 
         if (!(fNode instanceof Expr))
             return RefactoringStatus.createFatalErrorStatus("Extract Async is only valid for expressions, not "
@@ -1618,7 +1631,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
             return RefactoringStatus.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
 
         try {
-            return analyzeSource(ExtractAsyncStaticTools.allSources(fSourceFile.getProject()), // singleTestSrc(fSourceFile),
+            return analyzeSource(WALAUtils.allSources(fSourceFile.getProject()), // singleTestSrc(fSourceFile),
                     x10RTJars, javaRTJars, javaProject);
         } catch (CancelException e) {
             return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
