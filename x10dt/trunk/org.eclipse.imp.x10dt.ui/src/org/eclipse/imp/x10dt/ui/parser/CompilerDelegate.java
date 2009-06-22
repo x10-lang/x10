@@ -67,7 +67,7 @@ public class CompilerDelegate {
 
         extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler)); // new ExtensionInfo(monitor);
         buildOptions(extInfo);
-        ErrorQueue eq= new SilentErrorQueue(100000, "stderr");
+        ErrorQueue eq= new SilentErrorQueue(100, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);
         Report.setQueue(eq);
     }
