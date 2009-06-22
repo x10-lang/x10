@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
 import org.eclipse.jdt.internal.corext.dom.NodeFinder;
 import org.eclipse.jdt.internal.corext.util.CodeFormatterUtil;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -63,6 +64,8 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
+
+import com.sun.corba.se.pept.transport.InboundConnectionCache;
 
 import sun.security.action.GetLongAction;
 
@@ -280,6 +283,17 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    IRegion reg= d.getLineInformation(line);
 	    int lineEnd= reg.getOffset() + reg.getLength();
 	    int contentStart= findEndOfWhiteSpace(d, c.offset, lineEnd);
+	    boolean endOfComment=false;
+	    if (afterStartOfBlockComment(d, c.offset)) {
+	    	if (contentStart < d.getLength() && d.getChar(contentStart)=='*') {
+	    		contentStart++;
+	    		if (contentStart < d.getLength() && d.getChar(contentStart)==' ') {
+	    			contentStart++;
+	    		} else if (contentStart<d.getLength() && d.getChar(contentStart)=='/') {
+	    			endOfComment=true;
+	    		}
+	    	}
+	    }
 	    c.length= Math.max(contentStart - c.offset, 0);
 	    int start= reg.getOffset();
 	    ITypedRegion region= TextUtilities.getPartition(d, fPartitioning, start, true);
@@ -318,7 +332,8 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 				 if (!foundNonWhite) buf.append(" ");
 			 }
 			
-			buf.append("* ");
+			buf.append("*");
+			if (!endOfComment) buf.append(" ");
 		 } else if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
 		    // insert closing brace on new line after an unclosed opening brace
 		c.caretOffset= c.offset + buf.length();
@@ -1027,7 +1042,13 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     }
 
     private void smartIndentAfterTab(IDocument document, DocumentCommand command) {
+    // if user typed tab after start of line, push offset back to start of line (we assume we're in white space at start)
+    try {
+    	int line = document.getLineOfOffset(command.offset);
+        command.offset = document.getLineOffset(line);
+    } catch (BadLocationException e) {}
 	// First delete whitespace since previous newline, and then call smartIndentAfterNewline()
+    // Since smartIndentAfterNewline inserts "* " inside block comments, need to include leading "* ?", if present, this in "whitespace" for block comments
 	deleteLeadingWhiteSpace(document, command);
 	command.text= "";
 	smartIndentAfterNewLine(document, command);
@@ -1044,7 +1065,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    }
 	    while ((off + len) < doc.getLength() && Character.isWhitespace(doc.getChar(off+len)) &&
 		    !isLineDelimiter(doc, doc.get(off+len, 1)))
-		len++;
+	    	len++;
 	    cmd.offset= off;
 	    cmd.length= len;
 	} catch (BadLocationException e) {
