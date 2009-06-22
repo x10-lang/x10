@@ -9,10 +9,10 @@
 		<property name="feature.temp.folder" value="${basedir}/feature.temp.folder"/>
 		<property name="feature.destination" value="${basedir}"/>
 
-		<loadfile property="plugins.list" srcfile="feature.xml">
-                        <filterchain>
-                                <!-- Sometimes the PDE splits <plugin> elements into several lines, but the
-                                     subsequent filters assume the entire <plugin> element is all on one line. -->
+        <loadfile property="projects.names" srcfile="feature.xml">
+            <filterchain>
+                <!-- Sometimes the PDE splits <plugin> elements into several lines, but the
+                     subsequent filters assume the entire <plugin> element is all on one line. -->
                                 <tokenfilter>
                                         <filetokenizer/>
                                         <replaceregex pattern="[ \t]*(&lt;plugin)[ \t\r\n]*" replace="\1 " flags="gs"/>
@@ -26,17 +26,17 @@
                                 <tokenfilter>
                                         <filetokenizer/>
                                         <replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
-                                        <replaceregex pattern="org.eclipse.imp.analysis.p3,?" replace="org.eclipse.imp.analysis,"/>
+                                        <replaceregex pattern="org.eclipse.imp.analysis.p3" replace="org.eclipse.imp.analysis" flags="gs"/>
                                 </tokenfilter>
                         </filterchain>
 		</loadfile>
-		<echo message="Feature contains the following plugins: ${plugins.list}"/>
+		<echo message="Feature contains the following plugin projects: ${projects.list}"/>
 	</target>
 
 	<target name="build.all.plugins" depends="init">
-		<for param="plugin.id" values="${plugins.list}">
+		<for param="project.name" values="${projects.names}">
 			<antcall target="build.child">
-				<param name="plugin.id" value="${plugin.id}"/>
+				<param name="project.name" value="${project.name}"/>
 			</antcall>
 		</for>
 	</target>
@@ -51,9 +51,9 @@
 			<fileset dir="plugins" includes="*.jar"/>
 		</delete>
 		<mkdir dir="plugins"/>
-		<for param="plugin.id" values="${plugins.list}">
+		<for param="project.name" values="${projects.names}">
 			<antcall target="copy.child">
-				<param name="plugin.id" value="${plugin.id}"/>
+                <param name="project.name" value="${project.name}"/>
 			</antcall>
 		</for>
 	</target>
