@@ -34,7 +34,7 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="1.5" target="1.5">
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement location="../lpg/lpg_${x10dt.version}.jar"/>
+				<pathelement location="../lpg.runtime.java/lpg.runtime_2.0.0.jar"/>
 				<pathelement location="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${x10dt.version}.jar"/>
 				<pathelement location="../polyglot/lib/polyglot-epl.jar"/>
 				<pathelement location="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
