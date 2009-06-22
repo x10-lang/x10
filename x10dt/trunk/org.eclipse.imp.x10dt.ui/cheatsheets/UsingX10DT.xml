@@ -21,15 +21,27 @@ directory" field points to an existing folder "x10.common" on your hard drive.
 Click on the "Browse..." button to bring up a folder selection dialog if not (or
 just type in the path directly if you know it).<br/>
 
-Likewise, make sure that the "Configuration file" field points at an existing
-X10 configuration file (e.g. "standard.cfg"). This file will typically reside in
+Next, make sure that the "Configuration file" field specifies an existing X10
+configuration file (e.g. "standard.cfg"). This file will typically reside in
 the "etc" sub-directory of the "Common directory" that you specified above. (If
 you installed X10 manually from a .zip file, you should have run "ant" in the
 "x10.common" directory, which creates a "standard.cfg" file from the settings of
 various environment variables (e.g. "JAVA_HOME" and "X10_PLATFORM").)<br/>
 
+Likewise, ensure that the "Compiler template" field specifies an existing folder
+(probably named "data") containing the compiler templates. This folder typically
+resides within the "x10.compiler" plugin/project. If you manually installed from
+a .zip file, type in or browse to the location of the installation directory's
+"x10.compiler/data" folder.<br/><br/>
+
 If you installed X10DT using the Eclipse Update Manager, the default settings
 should already be correct. If they aren't, you're screwed.<br/>
+
+The remaining options settings on this preference page are not critical; all
+X10 functionality should work reasonably with whatever values you enter.<br/>
+
+Note that the configuration file is automatically written by the X10 Preferences
+page when a field (such as the "statistics disable") is changed.<br/>
 </description>
 </item>
 
@@ -111,14 +123,14 @@ Outline view to expand or collapse the sub-tree rooted at that item.<br/>
 
 <item title="Launching your X10 program">
 <action pluginId="com.ibm.watson.safari.x10"
-        class="com.ibm.watson.safari.x10.cheatsheets.actions.LaunchProgramAction"/>
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.LaunchX10ProgramAction"/>
 <description>
 </description>
 </item>
 
 <item title="Debugging your X10 program">
 <action pluginId="com.ibm.watson.safari.x10"
-        class="com.ibm.watson.safari.x10.cheatsheets.actions.DebugProgramAction"/>
+        class="com.ibm.watson.safari.x10.cheatsheets.actions.DebugX10ProgramAction"/>
 <description>
 </description>
 </item>
