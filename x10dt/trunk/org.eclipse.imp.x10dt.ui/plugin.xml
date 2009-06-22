@@ -149,5 +149,16 @@
             language="X10">
       </hyperlinkDetector>
    </extension>
-
+   <extension
+         point="org.eclipse.uide.runtime.outlineContentProvider">
+         <outlineContentProvider
+         		class="x10.uide.editor.X10ContentProvider"
+         		language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.labelProvider">
+         <labelProvider
+               class="x10.uide.editor.X10LabelProvider"
+               language="X10"/>
+   </extension>
 </plugin>
