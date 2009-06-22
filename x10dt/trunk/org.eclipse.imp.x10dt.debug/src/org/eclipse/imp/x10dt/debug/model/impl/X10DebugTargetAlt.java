@@ -602,6 +602,8 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		int flags = ClassType.INVOKE_SINGLE_THREADED;
 		//List args=Collections.EMPTY_LIST;
 		try {
+			if (fThreadForInvokingRTMethods.isSuspended())
+				System.out.println("Shivali: InvokeMethods is suspended");
 			System.out.println("Shivali : Invoking Method with Thread status "+ fThreadForInvokingRTMethods.status());
 		    result=obj.invokeMethod(fThreadForInvokingRTMethods, meth, args, flags);
 		    System.out.println("Invocation complete");
@@ -732,9 +734,15 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			if (reference.name().compareTo("InvokeMethods")==0){
 				System.out.println("Shivali: Found the thread");
 				fThreadForInvokingRTMethods=reference;
+				X10Thread invThread= new X10Thread(this,reference);
+				//fireSuspendEvent(DebugEvent.BREAKPOINT);
 				if (fThreadForInvokingRTMethods.isSuspended())
 					System.out.println("Shivali: InvokeMethods is suspended");
+				while (!fThreadForInvokingRTMethods.isSuspended()) {
+					System.out.println("Shivali: InvokeMethods is not suspended");
+				}
 				System.out.println("Thread status "+ fThreadForInvokingRTMethods.status());
+				return invThread;
 			}
 				
 			//IX10Activity[] activities = _application.getActivities();
