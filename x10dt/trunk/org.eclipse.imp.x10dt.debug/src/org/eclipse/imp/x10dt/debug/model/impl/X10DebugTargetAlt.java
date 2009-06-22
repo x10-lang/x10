@@ -128,6 +128,28 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 				}
 				thread.terminated();
 			}
+			// bug fix start: InvokeMethods was leading to non-termination
+			IThread[] threads = getThreads();
+			boolean found = false;
+			for (int i = 0; i < threads.length; i++) {
+				JDIThread th = (JDIThread)threads[i];
+				// Works for 1.5, may not work properly for future runtimes
+				if (th.getUnderlyingThread().name().contains("pool")) {
+					found=true;
+					break;
+					//System.out.println("ThreadDeath :Name is "+ th.getUnderlyingThread().name());
+				}
+			}
+			if (!found) {
+				fThreadForInvokingRTMethods.resume();
+				/*try{
+					System.out.println("DISCONNECTING");
+				    disconnect();
+				} catch (DebugException e){
+					
+				}*/
+			}
+			// bug fix end.
 			return true;
 		}
 		
