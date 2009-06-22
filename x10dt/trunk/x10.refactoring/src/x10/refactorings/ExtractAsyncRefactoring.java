@@ -244,9 +244,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private Map<VarWithFirstUse, Boolean> fRho;
 
 	/**
-	 * The set of statements bearing loop-carried dependencies.
+	 * The list of statements bearing loop-carried dependencies.
 	 */
-	private Set<Stmt> fDelta;
+	private List<Stmt> fDelta;
 
 	private X10EclipseSourceAnalysisEngine fEngine;
 
@@ -552,6 +552,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return result;
 	}
 
+	/**
+	 * findPointsToSets creates a mapping between the WALA points-to analysis
+	 * information and our internal representation of Polyglot variables.
+	 * 
+	 * @param vars A set of Polyglot variables marked with their first-use information
+	 * @return A mapping from variables to their WALA points-to sets.
+	 */
 	private Map<VarWithFirstUse, Collection<InstanceKey>> findPointsToSets(
 			Set<VarWithFirstUse> vars) {
 		Map<VarWithFirstUse, Collection<InstanceKey>> result = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
@@ -611,6 +618,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return result;
 	}
 
+	/**
+	 * getVarWithFirstUse takes as arguments a set of variables that are marked with their first-
+	 * use locations within a block of code and a variable reference. It returns the variable
+	 * with first-use location that matches the variable instance of the variable reference.
+	 *  
+	 * @param vars A set of variables that are marked with first-use locations
+	 * @param var A variable reference
+	 * @return A variable marked with first-use location
+	 */
 	private VarWithFirstUse getVarWithFirstUse(Set<VarWithFirstUse> vars, Variable var){
 		boolean arrayMode = ((var instanceof ArrayAccess)||(var instanceof X10ArrayAccess)||(var instanceof X10ArrayAccess1))?true:false;
 		for (VarWithFirstUse v : vars){
@@ -639,6 +655,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return null;
 	}
 	
+	/**
+	 * computeAliasInfo creates an alias-information set for our internal
+	 * representation of Polyglot variables based on the WALA points-to sets.
+	 * NOTE: The method findPointsToSets will create the mapping from
+	 * Polyglot variables to WALA points-to sets.
+	 * 
+	 * @param pointsToInfo
+	 * @return A mapping from Polyglot variables to their alias sets 
+	 */
 	private Map<VarWithFirstUse, Set<VarWithFirstUse>> computeAliasInfo(
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointsToInfo) {
 		Map<VarWithFirstUse, Set<VarWithFirstUse>> resultMap = new HashMap<VarWithFirstUse, Set<VarWithFirstUse>>();
@@ -653,7 +678,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Analyzes the given loop and sets fPhi and fRho accordingly.
+	 * Analyzes the given loop and sets fPhi and fRho accordingly, based on algorithm
+	 * from spec.
 	 * 
 	 * @param loop
 	 * @param loopRefedVars TODO
@@ -744,9 +770,24 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 */
 	private void calculateLoopCarriedStatements(Stmt loop,
 			Set<VarDecl> inductionVars) {
-		fDelta = new HashSet<Stmt>();
+		fDelta = new ArrayList<Stmt>();
 	}
 
+	/**
+	 * Returns the subset of statements from the first block that
+	 * utilize the variable i and affect the values of statements
+	 * in the second block of statements.
+	 * 
+	 * @param block1
+	 * @param i
+	 * @param block2
+	 * @return
+	 */
+	
+	private Stmt slice(Stmt block1, VarDecl i, Stmt block2) {
+		return block1;
+	}
+	
 	private boolean inAtomic(Node node, Node methodParent) {
 		NodePathComputer pathSaver = new NodePathComputer(methodParent, node);
 		List<Node> path = pathSaver.getPath();
@@ -1371,6 +1412,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// Replace hand-written transform code with usage of SAFARI AST
 		// rewriter.
 
+		// Do code transformation using the slice method, replacing the
+		// original loop with the two transformed loops.
+		
 		IParseController parseController = ed.getParseController();
 		ISourcePositionLocator locator = parseController.getNodeLocator();
 		int startOffset = locator.getStartOffset(fPivot);
