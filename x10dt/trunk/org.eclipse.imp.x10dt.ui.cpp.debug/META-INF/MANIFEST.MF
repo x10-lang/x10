@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore
 Require-Bundle: org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
  org.eclipse.core.runtime,
  org.eclipse.core.filesystem,
  org.eclipse.debug.core,

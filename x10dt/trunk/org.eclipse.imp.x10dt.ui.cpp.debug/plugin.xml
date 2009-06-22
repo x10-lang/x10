@@ -25,5 +25,30 @@
             language="X10">
       </toggleBreakpointHandler>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="org.eclipse.debug.ui"
+            class="org.eclipse.imp.x10dt.ui.cpp.debug.view.ClocksView"
+            icon="icons/obj/clock.png"
+            id="org.eclipse.imp.x10dt.ui.cpp.debug.view.clocks"
+            name="%clocks.view.name"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ptp.debug.ui.PTPDebugPerspective">
+         <view
+               closeable="true"
+               id="org.eclipse.imp.x10dt.ui.cpp.debug.view.clocks"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.debug.ui.VariableView"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
 
 </plugin>
