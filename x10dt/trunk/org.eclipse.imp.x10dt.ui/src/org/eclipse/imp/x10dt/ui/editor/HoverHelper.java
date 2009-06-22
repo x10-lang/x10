@@ -38,7 +38,7 @@ public class HoverHelper implements IHoverHelper {
         Object selNode = nodeLocator.findNode(root, offset);
 
         if (selNode == null) return null;
-        System.out.println("Selected node: " + selNode);
+//      System.out.println("Selected node: " + selNode);
 
        	final Object target = linkMapper.getLinkTarget(selNode, parseController);
 
