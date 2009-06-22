@@ -14,7 +14,6 @@ package org.eclipse.imp.x10dt.core.preferences.fields;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.jface.preference.PreferencePage;
@@ -28,7 +27,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.internal.Workbench;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 
 
@@ -442,7 +441,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
     }
     
 //   public static final org.eclipse.swt.graphics.FontData changedFontData = new org.eclipse.swt.graphics.FontData("Monaco", 11, 2);
-    private static final FontData[] arialFonts = Workbench.getInstance().getDisplay().getFontList("Arial", true);
+    private static final FontData[] arialFonts = PlatformUI.getWorkbench().getDisplay().getFontList("Arial", true);
     private static FontData[] labelFonts;
     
     /**
@@ -496,7 +495,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         	// mmk replace changed mark by color to eliminate text-box overflow bug
 			checkBox.setForeground(PreferencesUtilities.colorRed); // this doesn't work on MacOSX: use font if possible
 	    	if (getLabelFonts()==false) return;
-	    	checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), labelFonts[1]));
+	    	checkBox.setFont(new Font(getPage().getShell().getDisplay(), labelFonts[1]));
     	}
     }
 
@@ -511,7 +510,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         	// mmk replace changed mark by color to eliminate text-box overflow bug
 	        checkBox.setForeground(PreferencesUtilities.colorBlack); // this doesn't work on MacOSX: use font if possible
 	    	if (getLabelFonts()==false) return;
-	    	checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), labelFonts[0]));
+	    	checkBox.setFont(new Font(getPage().getShell().getDisplay(), labelFonts[0]));
 
     	}
     }
@@ -520,7 +519,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
      
     /*
      * Returns the change button for this field editor.
-     * This overrides the corresopnding superclass method so that we can set
+     * This overrides the corresponding superclass method so that we can set
      * a listener on the control for our purposes.
      * 
      */
