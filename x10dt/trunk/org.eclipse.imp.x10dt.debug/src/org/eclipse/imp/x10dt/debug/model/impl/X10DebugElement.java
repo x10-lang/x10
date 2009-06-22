@@ -14,7 +14,7 @@ public abstract class X10DebugElement extends DebugElement {
 	 * @see org.eclipse.debug.core.model.IDebugElement#getModelIdentifier()
 	 */
 	public String getModelIdentifier() {
-		return Activator.PLUGIN_ID;
+		return Activator.PLUGIN_ID+".model";
 	}
 
 	
