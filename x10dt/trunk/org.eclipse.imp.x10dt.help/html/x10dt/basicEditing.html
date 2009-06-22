@@ -23,6 +23,7 @@
 <li><a href="#basic">Basic parts of X10DT</a></li>
 <li><a href="#newproj">New Project</a></li>
 <li><a href="#edit">Editing the X10 source code</a></li>
+<li><a href="#error">Dealing with Errors in your code</a></li>
 <li><a href="#building">Building</a></li>
 <li><a href="#running">Running</a></li>
 </ul>
@@ -31,8 +32,9 @@
 
 In the X10 Perspective, you will see the X10 projects in the Package Explorer, the editor, the Outline view,
 a Console to show output, etc., and other views.
-When you launch (run your X10 application), you will see the Launch Dialog where you specify how you want
-to run the program.  This information is saved in a <i>Launch Configuration</i>.
+When you set up how you run your program, you will see the Launch Dialog where you specify how you want
+to run the program (see below).
+FIXME link to that section.
 
 <img src="images/x10dtAnnotated.png">
 
@@ -47,6 +49,7 @@ Window > Open Perspective > Other ...   and select X10.
 <p>
 <br><img src="images/newproj.png">
 <br>Give your project a name, e.g. "Hello," accept the defaults, which includes generating a sample X10 "Hello World" application.
+Hit Finish.
 <p>The X10DT creates your new project, including the source file and edits the main source file.
 It also builds (compiles) it before showing you the new file, so it may take a few seconds to show you the 
 new source file.
@@ -71,6 +74,19 @@ at the left editor the editor and select "Show Line Numbers."
 <br><img src="images/lineNum1.png">
 <p>You'll see the line numbers at the left edge of the editor.
 <br><img src="images/lineNum2.png">
+
+<h2 id="error">Errors in your code</h2>
+<p>If there are errors in your code, you will see red error markers at the left edge of the offending line.
+For example, remove the semicolon from the end of the last line in main().
+<br><img src="images/errorMarker.png">
+<p>Even before you save the file to re-compile it, you will see the error appear.
+Hover over the error marker with your cursor to see the reason for the error.
+<br><img src="images/errorMarkerHover.png">
+<p>If you save the file to cause a compile, or otherwise build your application,
+any compile errors will also show up in the Problems view.
+<br><img src="images/errorMarkerProblems.png">
+<p>You can double-click on any item in the Problems view and the editor will
+highlight that line in the source file.
 
 <h2 id = "building">Building</h2>
 <p>Each time you save the file, the X10 compiler builds it.  To turn off this behavior, you
