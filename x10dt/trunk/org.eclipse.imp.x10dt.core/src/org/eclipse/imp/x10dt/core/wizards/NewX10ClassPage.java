@@ -17,7 +17,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
@@ -152,6 +154,12 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     private void doCreateType(String typeName, IPackageFragment pkgFrag, String superClass, List/*<String>*/superIntfs,
 	    IProgressMonitor monitor) throws CoreException {
 	monitor.beginTask("Creating " + typeName, 2);
+	if (!pkgFrag.exists()) {
+	    String pkgName= pkgFrag.getElementName();
+	    IPackageFragmentRoot root= this.getPackageFragmentRoot();
+
+	    pkgFrag= root.createPackageFragment(pkgName, true, null);
+	}
 	IResource resource= pkgFrag.getCorrespondingResource();
 	IContainer container= (IContainer) resource;
 
