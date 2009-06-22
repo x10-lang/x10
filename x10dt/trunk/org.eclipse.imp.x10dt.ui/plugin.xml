@@ -239,13 +239,6 @@
       </perspectiveExtension>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.refactoringContributions">
-      <refactoringContributor
-            class="org.eclipse.imp.x10dt.ui.refactoring.actions.RefactoringContributor"
-            language="X10">
-      </refactoringContributor>
-   </extension>
-   <extension
          point="org.eclipse.imp.runtime.documentationProvider">
       <docProvider
             class="org.eclipse.imp.x10dt.ui.editor.X10DocProvider"
