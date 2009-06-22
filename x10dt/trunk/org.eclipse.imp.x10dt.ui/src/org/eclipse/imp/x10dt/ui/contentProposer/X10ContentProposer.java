@@ -301,7 +301,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private void addTemplateProposals(int offset, ITextViewer viewer, ArrayList<ICompletionProposal> list, String prefix) {
         IDocument doc= viewer.getDocument();
         Region r= new Region(offset, prefix.length());
-        TemplateContext tc= new DocumentTemplateContext(fContextType, doc, offset, prefix.length());
+        TemplateContext tc= new DocumentTemplateContext(fContextType, doc, offset - prefix.length(), prefix.length());
 
         for(int i= 0; i < fTemplates.length; i++) {
             addTemplateProposalIfMatch(list, fTemplates[i], tc, r, prefix);
