@@ -284,6 +284,13 @@
       </editorContribution>
    </extension>
    <extension
+   		point="org.eclipse.debug.core.breakpoints">
+   		<breakpoint
+   			markerType="org.eclipse.debug.core.lineBreakpointMarker"
+   			class="org.eclipse.imp.x10dt.ui.debug.X10LineBreakpoint"
+   			id="genericImpLineBreakpoint"/>
+   </extension>
+   <extension
          point="org.eclipse.debug.core.breakpoints">
       <breakpoint
             markerType="org.eclipse.imp.x10dt.ui.x10LineBreakpointMarker"
