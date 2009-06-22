@@ -43,6 +43,8 @@ import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.X10Loop_c;
 import polyglot.visit.NodeVisitor;
+import x10.parser.X10Lexersym;
+import x10.parser.X10Parsersym;
 import x10.parser.X10Parser.JPGPosition;
 
 public class Outliner extends DefaultOutliner implements IOutliner
@@ -195,10 +197,15 @@ public class Outliner extends DefaultOutliner implements IOutliner
     		return true;
     	}
     	
+        //
     	// Are any of the individual tokens different?
-    	for (int i = 0; i < previousTokens.size()-1; i++) {
+        // NOTE that the loop has to terminate at size() - 2 to avoid
+        // processing the EOF token.
+        //
+    	for (int i = 0; i < previousTokens.size()-2; i++) {
     		IToken previousToken = (IToken)previousTokens.get(i);
     		IToken token = (IToken)tokens.get(i);
+                
     		if (previousToken.getKind() != token.getKind()) {
     			//System.out.println("Previous and current tokens differ at token # = " + i);
     			return true;
@@ -211,7 +218,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
 				System.out.println("Previous and current tokens have different extents at token # = " + i);
 				return true;
     		}
-    		for (int j = 0; j < (previousEnd - previousStart + 1); j++) {
+    		for (int j = 0; j < (previousEnd - previousStart /* + 1 */); j++) {
     			if (previousChars[previousStart+j] != chars[start+j]) {
     				System.out.println("Previous and current tokens have different characters at token # = " + i +
     						", character # = " + j);
