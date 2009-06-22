@@ -64,7 +64,8 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     /**
      * Get the installed language runtime path
      */
-    protected IClasspathEntry getLanguageRuntimePath() { 
+    @Override
+    protected IClasspathEntry createLanguageRuntimeEntry() { 
 
         Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 was x10.runtime hardcoded
         //PORT1.7 use common algorithm now in X10RuntimeUtils instead of looking in ECLIPSE_HOME/plugins/x10.runtime. ... etc
