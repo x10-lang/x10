@@ -10,7 +10,7 @@
 	</target>
 
 	<target name="all.plugins"
-		depends="build.x10.runtime,build.x10.compiler,build.x10.uide,build.safari.x10">
+		depends="build.x10.runtime,build.x10.compiler,build.x10.uide,build.safari.x10,build.safari.x10dt">
 	</target>
 
 	<target name="build.feature.jar" depends="init" description="Build the feature jar for SAFARI for an update site.">
@@ -47,6 +47,7 @@
 		<copy todir="plugins" file="../x10.compiler/x10.compiler_${feature.version}.jar"/>
 		<copy todir="plugins" file="../x10.runtime/x10.runtime_${feature.version}.jar"/>
 		<copy todir="plugins" file="../x10.uide/x10.uide_${feature.version}.jar"/>
+		<copy todir="plugins" file="../org.eclipse.safari.x10dt/org.eclipse.safari.x10dt_${feature.version}.jar"/>
 	</target>
 
 	<!-- ========================================================================================= -->
@@ -72,6 +73,12 @@
 	<target name="build.safari.x10" depends="build.x10.compiler">
 		<antcall target="build.child">
 			<param name="plugin.id" value="com.ibm.watson.safari.x10"/>
+		</antcall>
+	</target>
+
+	<target name="build.safari.x10dt" depends="build.safari.x10,build.x10.uide">
+		<antcall target="build.child">
+			<param name="plugin.id" value="org.eclipse.safari.x10dt"/>
 		</antcall>
 	</target>
 
