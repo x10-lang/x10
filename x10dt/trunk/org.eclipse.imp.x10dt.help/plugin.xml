@@ -11,5 +11,12 @@
             plugin="org.eclipse.imp.x10dt.ui">
       </contexts>
    </extension>
+      <extension
+         point="org.eclipse.ui.intro.configExtension">
+      <configExtension
+            content="intro/x10dt-intro.xml"
+            configId="org.eclipse.ui.intro.universalConfig">
+      </configExtension>
+   </extension>
 
 </plugin>
