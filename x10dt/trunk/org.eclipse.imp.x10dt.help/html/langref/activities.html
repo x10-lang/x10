@@ -22,12 +22,12 @@ Chapter 1 </a><br />Activities</h1><a name="XtenActivities">
 </a>
 
 <div class="p"><!----></div>
-An  X10 computation may have many concurrent <em>activities</em> "in
+An  computation may have many concurrent <em>activities</em> "in
 flight" at any give time. We use the term activity to denote a
 dynamic execution instance of a piece of code (with references to
 data). An activity is intended to execute in parallel with other
 activities. An activity may be thought of as a very light-weight
-thread.  In  X10 v1.01, an activity may not be interrupted,
+thread.  In  X10 v1.7, an activity may not be interrupted,
 suspended or resumed as the result of actions taken by any other
 activity.
 
@@ -37,7 +37,7 @@ its lifetime.  An activity may be <em>running</em>, <em>blocked</em> on some
 condition or <em>terminated</em>. When the statement associated with an
 activity terminates normally, the activity terminates normally; when
 it terminates abruptly with some reason R, the activity terminates
-with the same reason (&#167;&nbsp;7.1).
+with the same reason ().
 
 <div class="p"><!----></div>
 An activity may be long-running and may invoke recursive methods (thus
@@ -46,8 +46,6 @@ may be short-running, involving a fine-grained operation such as a
 single read or write.
 
 <div class="p"><!----></div>
-An activity may have an <em>activitylocal</em> heap accessible only
-to the activity. 
 
 <div class="p"><!----></div>
 An activity may asynchronously and in parallel launch activities at
@@ -68,8 +66,10 @@ An  X10 computation is initiated as a single activity from the
 command line. This activity is the <em>root activity</em> for the entire computation. The entire computation
 terminates when (and only when) this activity globally
 terminates. Thus  X10 does not permit the creation of so called
-"daemon threads" - threads that outlive the lifetime of the root
+"daemon threads"-threads that outlive the lifetime of the root
 activity. We say that an  X10 computation is <em>rooted</em>
-(&#167;&nbsp;7.4).
+().
+
+<div class="p"><!----></div>
 </body>
 </html>
