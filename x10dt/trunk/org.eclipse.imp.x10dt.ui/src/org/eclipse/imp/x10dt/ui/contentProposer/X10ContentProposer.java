@@ -6,30 +6,31 @@ import java.util.List;
 import lpg.lpgjavaruntime.IToken;
 import lpg.lpgjavaruntime.PrsStream;
 
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.uide.editor.IContentProposer;
 import org.eclipse.uide.editor.SourceProposal;
-import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.IParseController;
 
-import polyglot.ast.*;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
+import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.Node;
+import polyglot.ast.Unary;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
-
 import x10.parser.X10Parsersym;
 import x10.uide.parser.PolyglotNodeLocator;
 
@@ -177,7 +178,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
     private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
     private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { }.force()", false);
 
-    public ICompletionProposal[] getContentProposals(IParseController controller, int offset /*, ITextViewer viewer*/)
+    public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
     {
 	ArrayList list = new ArrayList();
         //
