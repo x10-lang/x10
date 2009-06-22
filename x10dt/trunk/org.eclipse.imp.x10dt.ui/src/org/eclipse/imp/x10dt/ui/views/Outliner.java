@@ -76,16 +76,17 @@ public class Outliner extends DefaultOutliner implements IOutliner
     		    tree.setRedraw(false);
     		    tree.removeAll();
     		    SourceFile ast = (SourceFile) controller.getCurrentAst();
-                if (ast.package_() != null)
-                {
-                    TreeItem parent = new TreeItem(tree, SWT.NONE);
-                    parent.setData(ast.package_());
-            	    parent.setImage(JavaPluginImages.DESC_OBJS_PACKDECL.createImage());
-                    parent.setText(ast.package_().toString());
-                }
                 if (ast != null)
+                {
+                    if (ast.package_() != null)
+                    {
+                        TreeItem parent = new TreeItem(tree, SWT.NONE);
+                        parent.setData(ast.package_());
+                	    parent.setImage(JavaPluginImages.DESC_OBJS_PACKDECL.createImage());
+                        parent.setText(ast.package_().toString());
+                    }
                     createOutlinePresentation(ast.decls());
-        		tree.setSelection(new TreeItem[] { tree.getItem(new Point(0, 0)) });
+                }
     		}
 //    	    selectTreeItemAtTextOffset(offset);
     	}
