@@ -1,6 +1,6 @@
 package org.eclipse.imp.x10dt.ui.parser;
 
-import org.eclipse.imp.language.ILanguageSyntaxProperties;
+import org.eclipse.imp.services.ILanguageSyntaxProperties;
 
 public class X10SyntaxProperties implements ILanguageSyntaxProperties {
 

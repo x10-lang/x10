@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.language.IAnnotationTypeInfo;
-import org.eclipse.imp.language.ILanguageSyntaxProperties;
 import org.eclipse.imp.parser.ILexer;
 import org.eclipse.imp.parser.IParser;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
+import org.eclipse.imp.services.IAnnotationTypeInfo;
+import org.eclipse.imp.services.ILanguageSyntaxProperties;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;

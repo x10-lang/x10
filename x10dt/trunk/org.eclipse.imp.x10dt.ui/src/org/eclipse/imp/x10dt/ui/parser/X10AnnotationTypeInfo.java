@@ -2,7 +2,7 @@ package org.eclipse.imp.x10dt.ui.parser;
 
 import java.util.List;
 
-import org.eclipse.imp.language.IAnnotationTypeInfo;
+import org.eclipse.imp.services.IAnnotationTypeInfo;
 
 public class X10AnnotationTypeInfo implements IAnnotationTypeInfo {
 
