@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.debug.internal.ui.model.elements.DebugElementLabelProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProvider;
+import org.eclipse.debug.internal.ui.views.launch.DebugElementAdapterFactory;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Activity;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame;
@@ -15,7 +16,7 @@ import org.eclipse.imp.x10dt.debug.ui.presentation.AsyncStackFrameFilteringConte
 import org.eclipse.imp.x10dt.debug.ui.presentation.QuiescentThreadFilteringContentProvider;
 import org.eclipse.jdt.internal.debug.core.model.JDIVariable;
 
-public class X10AdapterFactory extends DebugElementLabelProvider implements IAdapterFactory {
+public class X10AdapterFactory extends DebugElementAdapterFactory implements IAdapterFactory {
 
 	private static IElementContentProvider fgTargetAdapter = new QuiescentThreadFilteringContentProvider();
 	private static IElementContentProvider fgThreadAdapter = new AsyncStackFrameFilteringContentProvider();
@@ -43,7 +44,7 @@ public class X10AdapterFactory extends DebugElementLabelProvider implements IAda
 				return fgActivityLabelAdapter;
 			}
 		}
-		return null;
+		return super.getAdapter(adaptableObject, adapterType);
 	}
 
 	public Class[] getAdapterList() {
