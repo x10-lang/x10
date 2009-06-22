@@ -12,6 +12,10 @@
 
 package org.eclipse.imp.x10dt.ui.parser;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 
 public class X10SyntaxProperties implements ILanguageSyntaxProperties {
@@ -29,21 +33,32 @@ public class X10SyntaxProperties implements ILanguageSyntaxProperties {
     }
 
     public String getBlockCommentContinuation() {
-        // TODO Auto-generated method stub
-        return null;
+        return "*";
     }
 
     public String[][] getFences() {
-        return new String[][] { { "{", "}" }, { "(", ")"}, { "[", "]"}, {"<", ">"} };
+        return new String[][] { { "{", "}" }, { "(", ")"}, { "[", "]"}, {"<", ">"}, { "\"", "\"" } };
     }
 
     public int[] getIdentifierComponents(String ident) {
-        // TODO Auto-generated method stub
-        return null;
+        List<Integer> wordStarts= new ArrayList<Integer>();
+
+        wordStarts.add(new Integer(0));
+        for(int i=1; i < ident.length(); i++) {
+            if (Character.isLowerCase(ident.charAt(i-1)) && Character.isUpperCase(ident.charAt(i))) {
+                wordStarts.add(new Integer(i));
+            }
+        }
+
+        int[] result= new int[wordStarts.size()];
+        int idx= 0;
+        for(Iterator<Integer> iterator= wordStarts.iterator(); iterator.hasNext(); idx++) {
+            result[idx]= iterator.next();
+        }
+        return result;
     }
 
     public String getIdentifierConstituentChars() {
-        // TODO Auto-generated method stub
-        return null;
+        return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";
     }
 }
