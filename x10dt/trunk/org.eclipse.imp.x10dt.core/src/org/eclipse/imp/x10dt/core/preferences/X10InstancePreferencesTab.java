@@ -62,23 +62,23 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		 * concepts not applying to those field types)
 		 */
 
-		compilerConfiguration = prefUtils.makeNewComboField(
-				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
+		compilerConfiguration = fPrefUtils.makeNewComboField(
+				fPrefPage, this, fPrefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
 				true, true, PreferencesUtilities.comboDefaultName, true);
-		Link compilerConfigurationDetails = prefUtils.createDetailsLink(
+		Link compilerConfigurationDetails = fPrefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		
 		PreferencesUtilities.fillGridPlace(composite, 2);	
 	
-		samplingFrequency = prefUtils.makeNewIntegerField(
-				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
+		samplingFrequency = fPrefUtils.makeNewIntegerField(
+				fPrefPage, this, fPrefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, true, true, true, "50", false, "", true);
 		// Special implementation fields for this page field:
 		samplingFrequency.setValidRange(0, 99);
-		Link samplingFrequencyDetails = prefUtils.createDetailsLink(
+		Link samplingFrequencyDetails = fPrefUtils.createDetailsLink(
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 
 		PreferencesUtilities.fillGridPlace(composite, 2);			
@@ -88,12 +88,12 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		// adding RadioGroupField (which seems to cause the number of
 		// columns to be set to one)
 		Layout layout = composite.getLayout();
-		statsDisable = prefUtils.makeNewRadioGroupField(
-				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
+		statsDisable = fPrefUtils.makeNewRadioGroupField(
+				fPrefPage, this, fPrefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_STATS_DISABLE, "Statistics Disable:", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite, true,
 				true, true);
-		Link statsDisableDetails = prefUtils.createDetailsLink(
+		Link statsDisableDetails = fPrefUtils.createDetailsLink(
 				composite, statsDisable, statsDisable.getRadioBoxControl(composite), "Details ...");
 		// Reset layout to what it was before adding field	
 		composite.setLayout(layout);
@@ -101,11 +101,11 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
 		// Boolean preference emitMessages
-		emitMessages = prefUtils.makeNewBooleanField(
-				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
+		emitMessages = fPrefUtils.makeNewBooleanField(
+				fPrefPage, this, fPrefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, true, true, true, false, false, false, true);
-		Link emitMessagesDetails = prefUtils.createDetailsLink(
+		Link emitMessagesDetails = fPrefUtils.createDetailsLink(
 				composite, emitMessages, emitMessages.getChangeControl().getParent(), "Details ...");
 
 

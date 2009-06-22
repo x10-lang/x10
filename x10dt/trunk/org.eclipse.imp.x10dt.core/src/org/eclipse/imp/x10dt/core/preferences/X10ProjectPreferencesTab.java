@@ -77,12 +77,12 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 		 *  String name, String labelText, String[][] entryNamesAndValues, Composite parent,
 		 * 	boolean isEnabled, boolean hasSpecialValue, String specialValue, boolean isRemovable
 		*/
-		compilerConfiguration = prefUtils.makeNewComboField(
-				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
+		compilerConfiguration = fPrefUtils.makeNewComboField(
+				fPrefPage, this, fPrefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
 				false, true, PreferencesUtilities.comboDefaultName, true);
-		Link compilerConfigurationDetails = prefUtils.createDetailsLink(
+		Link compilerConfigurationDetails = fPrefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		detailsLinks.add(compilerConfigurationDetails);
 		
@@ -97,13 +97,13 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 		 *  boolean isEnabled, boolean isEditable, boolean hasSpecialValue, String specialValue,
 		 *  boolean emptyValueAllowed, String emptyValue,boolean isRemovable
 		 */
-		samplingFrequency = prefUtils.makeNewIntegerField(
-				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
+		samplingFrequency = fPrefUtils.makeNewIntegerField(
+				fPrefPage, this, fPrefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, false, false, true, "50", false, "", true);
 		// Special implementation fields for this page field:
 		samplingFrequency.setValidRange(0, 99);
-		Link samplingFrequencyDetails = prefUtils.createDetailsLink(
+		Link samplingFrequencyDetails = fPrefUtils.createDetailsLink(
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 		detailsLinks.add(samplingFrequencyDetails);
 		
@@ -125,12 +125,12 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 		 *  String[][] labelAndValues, Composite parent,
 		 *  boolean useGroup, boolean isEnabled, boolean isRemovable
 		 */
-		statsDisable = prefUtils.makeNewRadioGroupField(
-				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
+		statsDisable = fPrefUtils.makeNewRadioGroupField(
+				fPrefPage, this, fPrefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_STATS_DISABLE, "Statistics Disable:	", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite,
 				true, false, true);
-		Link statsDisableDetails = prefUtils.createDetailsLink(
+		Link statsDisableDetails = fPrefUtils.createDetailsLink(
 				composite, statsDisable, statsDisable.getRadioBoxControl(composite), "Details ...");
 		detailsLinks.add(statsDisableDetails);
 		
@@ -150,11 +150,11 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
    		 *  boolean isEnabled, boolean isEditable, boolean hasSpecialValue, boolean specialValue,
    		 *  boolean emptyValueAllowed, boolean emptyValue, boolean isRemovable
    		 */
-		emitMessages = prefUtils.makeNewBooleanField(
-				prefPage, this, prefService, IPreferencesService.PROJECT_LEVEL,
+		emitMessages = fPrefUtils.makeNewBooleanField(
+				fPrefPage, this, fPrefService, IPreferencesService.PROJECT_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, false, false, true, false, false, false, true);
-		Link emitMessagesDetails = prefUtils.createDetailsLink(
+		Link emitMessagesDetails = fPrefUtils.createDetailsLink(
 				composite, emitMessages, emitMessages.getChangeControl().getParent(), "Details ...");
 		detailsLinks.add(emitMessagesDetails);	
 
@@ -267,17 +267,17 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 				//    with their enabled state.
 				
 				emitMessagesHolder = emitMessages.getChangeControl().getParent();
-				prefUtils.setField(emitMessages, emitMessagesHolder);
+				fPrefUtils.setField(emitMessages, emitMessagesHolder);
 				emitMessages.getChangeControl().setEnabled(true);
 
 				samplingFrequencyHolder = samplingFrequency.getTextControl().getParent();
-				prefUtils.setField(samplingFrequency, samplingFrequencyHolder);
+				fPrefUtils.setField(samplingFrequency, samplingFrequencyHolder);
 				samplingFrequency.getTextControl(samplingFrequencyHolder).setEditable(true);
 				samplingFrequency.getTextControl(samplingFrequencyHolder).setEnabled(true);
 				samplingFrequency.setEnabled(true, samplingFrequency.getParent());
 
 				compilerConfigurationHolder = compilerConfiguration.getComboBoxControl(compilerConfigurationHolder).getParent();
-				prefUtils.setField(compilerConfiguration, compilerConfigurationHolder);
+				fPrefUtils.setField(compilerConfiguration, compilerConfigurationHolder);
 				compilerConfiguration.setEnabled(true, compilerConfiguration.getParent());
 				compilerConfiguration.getComboBoxControl(compilerConfigurationHolder).setEnabled(true);
 
@@ -285,7 +285,7 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 				// (I had to figure this out in the debugger; it may make sense if you
 				// analyze the layout of the preference page properly)
 				statsDisableHolder = composite.getParent().getParent();
-				prefUtils.setField(statsDisable, statsDisableHolder);
+				fPrefUtils.setField(statsDisable, statsDisableHolder);
 				statsDisable.getRadioBoxControl(statsDisableHolder).setEnabled(true);
 				Button[] buttons = statsDisable.getRadioButtons();
 				for (int i = 0; i < buttons.length; i++) {
@@ -328,7 +328,7 @@ public X10ProjectPreferencesTab(IPreferencesService prefService) {
 			selectedProjectName.setStringValue("none selected");
 			
 			// Clear the preferences from the store
-			prefService.clearPreferencesAtLevel(IPreferencesService.PROJECT_LEVEL);
+			fPrefService.clearPreferencesAtLevel(IPreferencesService.PROJECT_LEVEL);
 			
 			// Disable fields and make them non-editable
 			if (!composite.isDisposed()) {
