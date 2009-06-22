@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +19,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
+import org.eclipse.safari.analysis.search.PolyglotSourceFinder;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
@@ -27,6 +28,11 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.uide.core.LanguageRegistry;
+import org.eclipse.uide.refactoring.IFileVisitor;
+import org.eclipse.uide.refactoring.SourceRange;
+import org.eclipse.uide.refactoring.SourceRangeGroup;
+
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.model.ISourceProject;
 import org.eclipse.uide.model.ModelFactory;
@@ -235,112 +241,35 @@ public class RenameRefactoring extends Refactoring {
 	return new RefactoringStatus();
     }
 
-    private static abstract class FileVisitor extends NodeVisitor {
-	public abstract void enterFile(IFile file);
-    }
-
-    private static final class SourceFileVisitor implements IResourceVisitor {
-	private final TextFileDocumentProvider fProvider;
-
-	private final IProject fProject;
-
-	private final FileVisitor fVisitor;
-
-	private SourceFileVisitor(TextFileDocumentProvider provider, IProject project, FileVisitor visitor) {
-	    super();
-	    fProvider= provider;
-	    fProject= project;
-	    fVisitor= visitor;
-	}
-
-	public boolean visit(IResource resource) throws CoreException {
-	    if (resource instanceof IFile) {
-		IFile file= (IFile) resource;
-		if (file.getFileExtension().equals("x10")) {
-		    doVisit(file);
-		}
-		return false;
-	    }
-	    return true;
-	}
-
-	private void doVisit(IFile file) {
-	    System.out.println("Visiting file " + file.getName() + ".");
-	    IParseController parseCtrlr= new ParseController();
-	    IPath declFilePath= file.getLocation().removeFirstSegments(fProject.getLocation().segmentCount());
-	    IFileEditorInput fileInput= new FileEditorInput(file);
-	    try {
-		ISourceProject srcProject= ModelFactory.create(fProject);
-
-		parseCtrlr.initialize(declFilePath, srcProject, null);
-		fProvider.connect(fileInput);
-	    } catch (CoreException e) {
-		ErrorHandler.reportError(e.getMessage(), e);
-		return;
-	    } catch (ModelException e) {
-		ErrorHandler.reportError(e.getMessage(), e);
-		return;
-	    }
-
-	    IDocument document= fProvider.getDocument(fileInput);
-	    Node srcFileRoot= (Node) parseCtrlr.parse(document.get(), false, null);
-
-	    fVisitor.enterFile(file);
-	    srcFileRoot.visit(fVisitor);
-	}
-    }
-
-    static class SourceRange {
-	private int fOffset;
-	private int fLength;
-	public SourceRange(int off, int len) {
-	    fOffset= off;
-	    fLength= len;
-	}
-	public int getLength() {
-	    return fLength;
-	}
-	public int getOffset() {
-	    return fOffset;
-	}
-	public String toString() {
-	    return "[" + fOffset + ":" + fLength + "]";
-	}
-    }
-
-    static class SourceMatchGroup {
-	public IFile fFile;
-	public List<SourceRange> fRanges= new ArrayList<SourceRange>();
-	public SourceMatchGroup(IFile file) {
-	    fFile= file;
-	}
-	public void addReference(SourceRange range) {
-	    fRanges.add(range);
-	}
-	public List<SourceRange> getRanges() {
-	    return fRanges;
-	}
-    }
-
-    private static class ReferenceVisitor extends FileVisitor {
+    /**
+     * Class to collect references to a given <code>Declaration</code>.
+     * Ultimately, this really belongs in the search indexing mechanism.
+     */
+    private static class ReferenceVisitor extends NodeVisitor implements IFileVisitor {
 	private final Declaration fDecl;
 
-	private final Set<SourceMatchGroup> fMatchGroups;
+	private final Set<SourceRangeGroup> fMatchGroups;
 
-	private SourceMatchGroup fMatchGroup;
+	private SourceRangeGroup fMatchGroup;
 
-	public ReferenceVisitor(Declaration decl, Set<SourceMatchGroup> matchGroups) {
+	public ReferenceVisitor(Declaration decl, Set<SourceRangeGroup> matchGroups) {
 	    fDecl= decl;
 	    fMatchGroups= matchGroups;
 	}
 
-	@Override
 	public void enterFile(IFile file) {
-	    fMatchGroup= new SourceMatchGroup(file);
+	    fMatchGroup= new SourceRangeGroup(file);
 	    fMatchGroups.add(fMatchGroup);
 	}
 
-	/* (non-Javadoc)
+        /* (non-Javadoc)
+         * @see safari.X10.refactoring.RenameRefactoring.FileVisitor#leaveFile(org.eclipse.core.resources.IFile)
+         */
+        public void leaveFile(IFile file) {
+            // do nothing
+        }
+
+        /* (non-Javadoc)
 	 * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
 	 */
 	@Override
@@ -370,13 +299,17 @@ public class RenameRefactoring extends Refactoring {
 
     private void findAllReferences() {
 	System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
-	final Set<SourceMatchGroup> allMatches= new HashSet<SourceMatchGroup>();
+	final Set<SourceRangeGroup> allMatches= new HashSet<SourceRangeGroup>();
 	try {
-	    fSourceFile.getProject().accept(new SourceFileVisitor(new TextFileDocumentProvider(), fSourceFile.getProject(), new ReferenceVisitor(fDecl, allMatches)));
+            ReferenceVisitor refVisitor= new ReferenceVisitor(fDecl, allMatches);
+            ISourceProject srcProject= ModelFactory.create(fSourceFile.getProject());
+	    fSourceFile.getProject().accept(new PolyglotSourceFinder(new TextFileDocumentProvider(), srcProject, refVisitor, refVisitor, LanguageRegistry.findLanguage("X10")));
 	} catch (CoreException e) {
 	    e.printStackTrace();
+	} catch (ModelException e) {
+	    e.printStackTrace();
 	}
-	for(SourceMatchGroup group : allMatches) {
+	for(SourceRangeGroup group : allMatches) {
 	    System.out.println("Matches in " + group.fFile.getName() + ": ");
 	    for(SourceRange range : group.fRanges) {
 		System.out.print(range);
