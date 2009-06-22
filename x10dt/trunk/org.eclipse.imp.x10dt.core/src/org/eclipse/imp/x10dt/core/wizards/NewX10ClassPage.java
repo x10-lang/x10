@@ -24,15 +24,18 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogFieldGroup;
 import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.swt.widgets.Control;
 
 /**
  * The "New X10 Class" wizard page allows setting the package for the new class
@@ -47,10 +50,19 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
     private static final String PAGE_NAME= "wizardPage";
 
+    private SelectionButtonDialogFieldGroup fMethodStubsButtons;
+        
     public NewX10ClassPage(ISelection selection) {
 	super(true, PAGE_NAME);
 	setTitle("X10 Class");
 	setDescription("This wizard creates a new X10 class in a user-specified package.");
+        String[] buttonNames= new String[] {
+                NewWizardMessages.NewClassWizardPage_methods_main,
+                NewWizardMessages.NewClassWizardPage_methods_constructors
+//              NewWizardMessages.NewClassWizardPage_methods_inherited
+        };              
+        fMethodStubsButtons= new SelectionButtonDialogFieldGroup(SWT.CHECK, buttonNames, 1);
+        fMethodStubsButtons.setLabelText(NewWizardMessages.NewClassWizardPage_methods_label);
     }
 
     /**
@@ -68,18 +80,21 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	doStatusUpdate();
 
 	// TODO RMF 2/7/2005 - re-enable the following to remember dialog settings across invocations
-	//	boolean createMain= false;
-	//	boolean createConstructors= false;
-	//	boolean createUnimplemented= true;
-	//	IDialogSettings section= getDialogSettings().getSection(PAGE_NAME);
-	//
-	//	if (section != null) {
-	//	    createMain= section.getBoolean(SETTINGS_CREATEMAIN);
-	//	    createConstructors= section.getBoolean(SETTINGS_CREATECONSTR);
-	//	    createUnimplemented= section.getBoolean(SETTINGS_CREATEUNIMPLEMENTED);
-	//	}
+	IDialogSettings dialogSettings= getDialogSettings();
+        if (dialogSettings != null) {
+            IDialogSettings section= dialogSettings.getSection(PAGE_NAME);
 
-	//	setMethodStubSelection(createMain, createConstructors, createUnimplemented, true);
+            boolean createMain= false;
+            boolean createConstructors= false;
+            boolean createUnimplemented= true;
+
+            if (section != null) {
+                createMain= section.getBoolean(SETTINGS_CREATEMAIN);
+                createConstructors= section.getBoolean(SETTINGS_CREATECONSTR);
+                createUnimplemented= section.getBoolean(SETTINGS_CREATEUNIMPLEMENTED);
+            }
+            setMethodStubSelection(createMain, createConstructors, false, true);
+	}
     }
 
     // ------ validation --------
@@ -118,7 +133,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	createSuperClassControls(composite, nColumns);
 	createSuperInterfacesControls(composite, nColumns);
 
-	// createMethodStubSelectionControls(composite, nColumns);
+	createMethodStubSelectionControls(composite, nColumns);
 
 	createCommentControls(composite, nColumns);
 	enableCommentControl(true);
@@ -126,7 +141,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	setControl(composite);
 
 	Dialog.applyDialogFont(composite);
-	PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.NEW_CLASS_WIZARD_PAGE);
+//	PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.NEW_CLASS_WIZARD_PAGE);
 	setFocus(); // For some reason, the type name doesn't get focus by the time the dialog is fully up... force it
     }
 
@@ -137,6 +152,82 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	super.handleFieldChanged(fieldName);
 
 	doStatusUpdate();
+    }
+
+    /**
+     * Sets the selection state of the method stub checkboxes.
+     * 
+     * @param createMain initial selection state of the 'Create Main' checkbox.
+     * @param createConstructors initial selection state of the 'Create Constructors' checkbox.
+     * @param createInherited initial selection state of the 'Create inherited abstract methods' checkbox.
+     * @param canBeModified if <code>true</code> the method stub checkboxes can be changed by 
+     * the user. If <code>false</code> the buttons are "read-only"
+     */
+    public void setMethodStubSelection(boolean createMain, boolean createConstructors, boolean createInherited, boolean canBeModified) {
+        fMethodStubsButtons.setSelection(0, createMain);
+        fMethodStubsButtons.setSelection(1, createConstructors);
+        fMethodStubsButtons.setSelection(2, createInherited);
+
+        fMethodStubsButtons.setEnabled(canBeModified);
+    }       
+
+    /*
+     * @see WizardPage#becomesVisible
+     */
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (visible) {
+            setFocus();
+        } else {
+            IDialogSettings dialogSettings= getDialogSettings();
+            if (dialogSettings != null) {
+                IDialogSettings section= dialogSettings.getSection(PAGE_NAME);
+                if (section == null) {
+                    section= dialogSettings.addNewSection(PAGE_NAME);
+                }
+                section.put(SETTINGS_CREATEMAIN, isCreateMain());
+                section.put(SETTINGS_CREATECONSTR, isCreateConstructors());
+                section.put(SETTINGS_CREATEUNIMPLEMENTED, isCreateInherited());
+            }
+        }
+    }       
+
+    private void createMethodStubSelectionControls(Composite composite, int nColumns) {
+        Control labelControl= fMethodStubsButtons.getLabelControl(composite);
+        LayoutUtil.setHorizontalSpan(labelControl, nColumns);
+
+        DialogField.createEmptySpace(composite);
+
+        Control buttonGroup= fMethodStubsButtons.getSelectionButtonsGroup(composite);
+        LayoutUtil.setHorizontalSpan(buttonGroup, nColumns - 1);        
+    }
+
+    /**
+     * Returns the current selection state of the 'Create Main' checkbox.
+     * 
+     * @return the selection state of the 'Create Main' checkbox
+     */
+    public boolean isCreateMain() {
+        return fMethodStubsButtons.isSelected(0);
+    }
+
+    /**
+     * Returns the current selection state of the 'Create Constructors' checkbox.
+     * 
+     * @return the selection state of the 'Create Constructors' checkbox
+     */
+    public boolean isCreateConstructors() {
+        return fMethodStubsButtons.isSelected(1);
+    }
+
+    /**
+     * Returns the current selection state of the 'Create inherited abstract methods' 
+     * checkbox.
+     * 
+     * @return the selection state of the 'Create inherited abstract methods' checkbox
+     */
+    public boolean isCreateInherited() {
+        return fMethodStubsButtons.isSelected(2);
     }
 
     public void createType(IProgressMonitor monitor) throws CoreException, InterruptedException {
@@ -201,7 +292,16 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		    buff.append(", ");
 	    }
 	}
-	buff.append(" {\n" + "}");
+	buff.append(" {\n");
+        if (isCreateMain()) {
+            buff.append("    public static void main(String[] args) {\n");
+            buff.append("    }\n");
+        }
+        if (isCreateConstructors()) {
+            buff.append("    public " + typeName + "() {\n");
+            buff.append("    }\n");
+        }
+        buff.append("}");
 
 	return new StringBufferInputStream(buff.toString());
     }
