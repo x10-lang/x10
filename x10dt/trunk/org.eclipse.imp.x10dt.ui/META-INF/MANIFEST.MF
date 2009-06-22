@@ -35,4 +35,5 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-Vendor: tibbitts@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10DTUIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui.launching,
- org.eclipse.imp.x10dt.ui.parser
+ org.eclipse.imp.x10dt.ui.parser,
+ org.eclipse.imp.x10dt.ui.perspective.actions
