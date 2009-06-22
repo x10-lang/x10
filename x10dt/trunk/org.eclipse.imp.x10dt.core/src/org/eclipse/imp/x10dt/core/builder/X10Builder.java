@@ -8,7 +8,6 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +48,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -99,12 +97,12 @@ public class X10Builder extends IncrementalProjectBuilder {
     private IProgressMonitor fMonitor;
     private X10ResourceVisitor fResourceVisitor= new X10ResourceVisitor();
     private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
-    private Collection/* <IFile> */fSourcesToCompile= new ArrayList();
+    private Collection<IFile> fSourcesToCompile= new ArrayList<IFile>();
     private ExtensionInfo fExtInfo;
     private static PluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
 
-    private Collection/*<IPath>*/ fSrcFolderPaths; // project-relative paths
+    private Collection<IPath> fSrcFolderPaths; // project-relative paths
 
     public X10Builder() {}
 
@@ -132,8 +130,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 	IContainer parent= (IContainer) file.getParent();
 	boolean isInSrc= false;
 
-	for(Iterator iter= fSrcFolderPaths.iterator(); iter.hasNext(); ) {
-	    IPath srcFolderPath= (IPath) iter.next();
+	for(Iterator<IPath> iter= fSrcFolderPaths.iterator(); iter.hasNext(); ) {
+	    IPath srcFolderPath= iter.next();
 
 	    if (srcFolderPath.isPrefixOf(parent.getProjectRelativePath()))
 		isInSrc= true;
@@ -147,9 +145,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return resource.getFullPath().lastSegment().equals("bin");
     }
 
-    protected void clearMarkersOn(Collection/* <IFile> */sources) {
-	for(Iterator iter= sources.iterator(); iter.hasNext(); ) {
-	    IFile file= (IFile) iter.next();
+    protected void clearMarkersOn(Collection<IFile> sources) {
+	for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
+	    IFile file= iter.next();
 
 	    try {
 		file.deleteMarkers(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE);
@@ -183,7 +181,7 @@ public class X10Builder extends IncrementalProjectBuilder {
      * Run the X10 compiler on the given Collection of source IFile's.
      * @param sources
      */
-    private void invokeX10C(Collection/* <IFile> */sources) {
+    private void invokeX10C(Collection<IFile> sources) {
 	X10Plugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
 	clearMarkersOn(sources);
 	compileAllSources(sources);
@@ -212,11 +210,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 	}
     }
 
-    private void compileAllSources(Collection/* <IFile> */sourceFiles) {
+    private void compileAllSources(Collection<IFile> sourceFiles) {
 	fExtInfo= new BuilderExtensionInfo();
 
-	List/* <SourceStream> */streams= collectStreamSources(sourceFiles);
-	final Collection/* <ErrorInfo> */errors= new ArrayList();
+	List<StreamSource> streams= collectStreamSources(sourceFiles);
+	final Collection<ErrorInfo> errors= new ArrayList<ErrorInfo>();
 
 	buildOptions();
 
@@ -266,7 +264,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	Options.global= opts;
 	try {
-	    List/*<IPath>*/ projectSrcLoc= getProjectSrcPath();
+	    List<IPath> projectSrcLoc= getProjectSrcPath();
 	    String projectSrcPath= pathListToPathString(projectSrcLoc);
 	    String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
 
@@ -284,11 +282,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 	X10Plugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
 
-    private String pathListToPathString(List/*<IPath>*/ pathList) {
+    private String pathListToPathString(List<IPath> pathList) {
 	StringBuffer buff= new StringBuffer();
 
-	for(Iterator iter= pathList.iterator(); iter.hasNext(); ) {
-	    IPath path= (IPath) iter.next();
+	for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext(); ) {
+	    IPath path= iter.next();
 
 	    buff.append(fProject.getWorkspace().getRoot().getLocation().append(path).toOSString());
 	    if (iter.hasNext())
@@ -301,8 +299,8 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @return a list of all project-relative CPE_SOURCE-type classpath entries.
      * @throws JavaModelException
      */
-    private List/*<IPath>*/ getProjectSrcPath() throws JavaModelException {
-	List/* <IPath> */srcPath= new ArrayList();
+    private List<IPath> getProjectSrcPath() throws JavaModelException {
+	List<IPath> srcPath= new ArrayList<IPath>();
 	IJavaProject javaProject= JavaCore.create(fProject);
 	IClasspathEntry[] classPath= javaProject.getResolvedClasspath(true);
 
@@ -317,10 +315,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return srcPath;
     }
 
-    private void createMarkers(final Collection/* <ErrorInfo> */errors) {
+    private void createMarkers(final Collection<ErrorInfo> errors) {
 	final IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 
-	for(Iterator iter= errors.iterator(); iter.hasNext(); ) {
+	for(Iterator<ErrorInfo> iter= errors.iterator(); iter.hasNext(); ) {
 	    ErrorInfo errorInfo= (ErrorInfo) iter.next();
 	    Position errorPos= errorInfo.getPosition();
 
@@ -389,11 +387,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return entryFile;
     }
 
-    private List/*<SourceStream>*/ collectStreamSources(Collection/* <IFile> */sourceFiles) {
-	List/*<SourceStream>*/ streams= new ArrayList();
+    private List<StreamSource> collectStreamSources(Collection<IFile> sourceFiles) {
+	List<StreamSource> streams= new ArrayList<StreamSource>();
 
-	for(Iterator/*<IFile>*/ it= sourceFiles.iterator(); it.hasNext(); ) {
-	    IFile sourceFile= (IFile) it.next();
+	for(Iterator<IFile> it= sourceFiles.iterator(); it.hasNext(); ) {
+	    IFile sourceFile= it.next();
 
 	    try {
 		final String filePath= sourceFile.getLocation().toOSString();
@@ -436,11 +434,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return buff.toString();
     }
 
-    private String fileSetToString(Collection/*<IFile>*/ sources) {
+    private String fileSetToString(Collection<IFile> sources) {
 	StringBuffer buff= new StringBuffer();
 
-	for(Iterator iter= sources.iterator(); iter.hasNext(); ) {
-	    IFile file= (IFile) iter.next();
+	for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
+	    IFile file= iter.next();
 
 	    buff.append(file.getProjectRelativePath());
 	    if (iter.hasNext())
@@ -500,7 +498,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
 	collectSourcesToCompile();
 
-	Collection/* <IProject> */dependents= doCompile();
+	Collection<IProject> dependents= doCompile();
 
 	fMonitor.done();
 	return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
@@ -698,16 +696,16 @@ public class X10Builder extends IncrementalProjectBuilder {
         });
     }
 
-    private Collection doCompile() throws CoreException {
+    private Collection<IProject> doCompile() throws CoreException {
 	if (!fSourcesToCompile.isEmpty()) {
 	    clearDependencyInfoForChangedFiles();
 	    invokeX10C(fSourcesToCompile);
 	    // Now do a refresh to make sure the Java compiler sees the Java
 	    // source files that Polyglot just created.
-	    List/*<IPath>*/ projectSrcPath= getProjectSrcPath();
+	    List<IPath> projectSrcPath= getProjectSrcPath();
 
-	    for(Iterator iter= projectSrcPath.iterator(); iter.hasNext(); ) {
-		IPath pathEntry= (IPath) iter.next();
+	    for(Iterator<IPath> iter= projectSrcPath.iterator(); iter.hasNext(); ) {
+		IPath pathEntry= iter.next();
 		
 		if (pathEntry.segmentCount() == 1)
 		    // Work around Eclipse 3.1.0 bug 101733: gives spurious exception
@@ -724,34 +722,34 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void clearDependencyInfoForChangedFiles() {
-	for(Iterator iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
-	    IFile srcFile= (IFile) iter.next();
+	for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= iter.next();
 
 	    fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
 	}
     }
 
-    private void dumpSourceList(Collection/* <IFile> */sourcesToCompile) {
-	for(Iterator iter= sourcesToCompile.iterator(); iter.hasNext(); ) {
-	    IFile srcFile= (IFile) iter.next();
+    private void dumpSourceList(Collection<IFile> sourcesToCompile) {
+	for(Iterator<IFile> iter= sourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= iter.next();
 
 	    System.out.println("  " + srcFile.getFullPath());
 	}
     }
 
     private void collectChangeDependents() {
-	Collection changeDependents= new ArrayList();
+	Collection<IFile> changeDependents= new ArrayList<IFile>();
 	IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 
 	System.out.println("Changed files:");
 	dumpSourceList(fSourcesToCompile);
-	for(Iterator iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
-	    IFile srcFile= (IFile) iter.next();
-	    Set/* <String path> */fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
+	for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= iter.next();
+	    Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
 
 	    if (fileDependents != null) {
-		for(Iterator iterator= fileDependents.iterator(); iterator.hasNext(); ) {
-		    String depPath= (String) iterator.next();
+		for(Iterator<String> iterator= fileDependents.iterator(); iterator.hasNext(); ) {
+		    String depPath= iterator.next();
 		    IFile depFile= wsRoot.getFile(new Path(depPath));
 
 		    changeDependents.add(depFile);
@@ -786,7 +784,7 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @see isSourceFile()
      */
     private void collectSourceFolders() throws JavaModelException {
-	fSrcFolderPaths= new HashSet();
+	fSrcFolderPaths= new HashSet<IPath>();
 	IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
 
 	for(int i= 0; i < cpEntries.length; i++) {
