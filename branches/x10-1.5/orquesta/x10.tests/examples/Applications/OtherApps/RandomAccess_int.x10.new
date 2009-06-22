@@ -1,0 +1,215 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * GUPS - RandomAccess_int benchmark.
+ *
+ * version using "int" instead of ranNum
+ * This is not a meaningful program since the original
+ * algorithm was for 64 bit long integers, it is just
+ * for staging the testing.
+ *
+ * @author kemal
+ * @author vj approx 7/2004
+ * New version, 11/2004
+ */
+public class RandomAccess_int extends x10Test {
+	// Set places.MAX_PLACES to 128 to match original
+	// Set LOG2_TABLE_SIZE to 25 to match original
+
+	private const MAX_PLACES: int = place.MAX_PLACES;
+	private const LOG2_TABLE_SIZE: int = 5;
+	private const LOG2_SMALL_TABLE_SIZE: int = 4;
+	private const TABLE_SIZE: int = (1 << LOG2_TABLE_SIZE);
+	private const SMALL_TABLE_SIZE: int = (1 << LOG2_SMALL_TABLE_SIZE);
+	private const N_UPDATES: int = (4*TABLE_SIZE);
+	private const N_UPDATES_PER_PLACE: int = (N_UPDATES/MAX_PLACES);
+	private const WORD_SIZE: int = 64;
+	private const POLY: int = 7;
+	private const SMALL_TABLE_INIT: int = 123456789; // (int)0x0123456789abcdefL;
+	// expected result with LOG2_SMALL_TABLE_SIZE = 10, MAX_PLACES = 4
+	private const EXPECTED_RESULT: int = -1068434730;
+
+	/**
+	 * Get the value as a table index.
+	 */
+	private static def f(var val: int): int = {
+		return (int) (val & (TABLE_SIZE-1));
+	}
+
+	/**
+	 * Get the value as an index into the small table.
+	 */
+	private static def g(var val: int): int = {
+		return (int)(val >>>
+				(WORD_SIZE-LOG2_SMALL_TABLE_SIZE)); }
+
+	/**
+	 * Return the next number following this one.
+	 * Actually the next item in the sequence generated
+	 * by a primitive polynomial over GF(2).)
+	 */
+	private static def nextRandom(var val: int): int = {
+		return
+			((val<<1) ^ (val < 0 ? POLY : 0)); }
+
+	/**
+	 * Return a new int exclusively-oring this value with k.
+	 */
+	private static def update(var val: int, var k: int): int = {
+		return val^k;
+	}
+
+	/*
+	 * Utility routines for common functions on integers and points
+	 * Should be placed in a library class
+	 */
+
+	/**
+	 * Convert an integer to a 1D point
+	 */
+	private static def Pt(var i: int): point = {
+		return point.factory.point(new Array[int] { i });
+	}
+
+	/*
+	 * Utility routines to create simple common dists
+	 * should be placed in a library class
+	 */
+
+	/**
+	 * create a simple 1D blocked dist
+	 */
+	private static def block(var arraySize: int): dist = {
+		final val r: region = region.factory.region(0, arraySize-1);
+		return distmakeBlock(r);
+	}
+
+	/**
+	 * create a unique dist (mapping each i to place i)
+	 */
+	private static def unique(): dist = {
+		return distmakeUnique(place.places);
+	}
+
+	/**
+	 * main GUPS routine
+	 */
+	public def run(): boolean = {
+		// distributed histogram table
+		final val d: dist = block(TABLE_SIZE);
+		final val table: Array[int] = new Array[int](d);
+		finish ateach (val p: point in d) { table(p) = p(0); }
+
+		// random number starting seeds for each place
+		final val d2: dist = unique();
+		final val ranStarts: Array[int] = new Array[int](d2);
+		finish ateach (val p: point in d2) { ranStarts(p) = C.starts(N_UPDATES_PER_PLACE*p(0)); }
+
+		// A small value table that will be copied to all processors
+		// Used in generating the update value
+		final val d3: dist = Dist.makeConstant([0..(SMALL_TABLE_SIZE-1)], here);
+		final val smallTable: Array[int] = new Array[int](d3, (var p: point): int => { return p(0)*SMALL_TABLE_INIT; });
+		// for (point p: d3) { smallTable[p] = i0(p)*SMALL_TABLE_INIT; }
+
+		// In all places in parallel,
+		// repeatedly generate random table indices
+		// and do remote atomic updates on corresponding table elements
+		finish
+			ateach (val p: point in d2) {
+				var ran: int = nextRandom(ranStarts(p));
+				for (var count: int = 1; count <= N_UPDATES_PER_PLACE; count++) {
+					final val j: int = f(ran);
+					final val k: int = smallTable(g(ran));
+					final val q: point = Pt(j);
+					async(table.dist(q)) { atomic { table(q) = update(table(q), k); } }
+					ran = nextRandom(ran);
+				}
+			}
+
+		var sum: int = table.reduce(intArray.add, 0);
+		System.out.println(sum);
+		return sum == EXPECTED_RESULT;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new RandomAccess_int().execute();
+	}
+
+	/**
+	 * C routines to be linked with X10, written in X10 for now
+	 */
+	static class C {
+		// self contained constants for C routines
+
+		private const POLY: int = 7; //(int)0x0000000000000007L;
+		private const PERIOD: int = 13176245;      // (int)1317624576693539401L;
+
+		private static def nextRandom(var temp: int): int = {
+			return (temp << 1) ^ (temp < 0 ? POLY : 0);
+		}
+
+		private static def getBit(var n: int, var i: int): boolean = {
+			return ((n>>>i)&1) != 0;
+		}
+
+		/**
+		 * Utility routine to start random number generator at Nth step
+		 * (original "starts" routine from RandomAccess).
+		 * <code>
+		 Functional synopsis:
+		 long starts(long n) : =
+		 long n1 = for (long t = n; t < 0 return t; next t = t+PERIOD) { };
+		 long n2 = for (long t = n1; t > PERIOD return t; next t = t-PERIOD) { };
+		 if (n2 == 0) return 0x1;
+		 long m2[] = new long[0..63](i) { i == 0 ? 1 : (nextRandom**2)(m2[i-1]); }
+		 int lastSetBit = findFirstSatisfying(int j: 62..0)(getBit(n2, j));
+		 mutable long ran = 2;
+		 for (int i = lastSetBit..1) {
+			 long ranXor = Xor(int j: 0..63 where getBit(ran, j))(m2[j]);
+			 ran = getBit(n2, i-1) ? nextRandom(ranXor) : ranXor; }
+		 return ran;
+		 * </code>
+		 */
+		public static def starts(var n: int): int = {
+			var i: intvar j: int;
+			var m2: Array[int] = new Array[int](64);
+			var temp: intvar ran: int;
+
+			while (n < 0) n += PERIOD;
+			while (n > PERIOD) n -= PERIOD;
+			if (n == 0) return 1;
+
+			temp = 1;
+			for (i = 0; i < 64; i++) {
+				m2(i) = temp;
+				temp = nextRandom(temp);
+				temp = nextRandom(temp);
+			}
+
+			for (i = 62; i >= 0; i--)
+				if (getBit(n, i))
+					break;
+
+			ran = 2;
+			while (i > 0) {
+				temp = 0;
+				for (j = 0; j < 64; j++)
+					if (getBit(ran, j))
+						temp ^= m2(j);
+				ran = temp;
+				i -= 1;
+				if (getBit(n, i))
+					ran = nextRandom(ran);
+			}
+
+			return ran;
+		}
+	} // end C
+}

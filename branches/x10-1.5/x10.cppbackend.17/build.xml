@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10.cppbackend.17" default="dist" basedir=".">
+    &buildfile;
+    <!-- get the environment variables -->
+    <property environment="env"/>
+    <condition property="x10.dist.location" value="${env.X10REL}" else="../x10.dist">
+        <isset property="env.X10REL"/>
+    </condition>
+    <!--<property name="x10.home" value=".."/>-->
+    <!--<property name="x10.dist.location" value="${x10.home}/x10.dist"/>-->
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="bin" location="${x10.dist.location}/bin"/>
+    <property name="jar" value="x10cpp.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="x10.dist.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="x10.dist.classpath">
+        <pathelement location="${lib}/x10c.jar"/>
+        <pathelement location="${lib}/polyglot3.jar"/>
+        <pathelement location="${lib}/lpg.jar"/>
+        <pathelement location="${lib}/x10.jar"/>
+    </path>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="x10c/**,polyglot/ext/x10*/**,data/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="build" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <!-- <javac destdir="${build}" debug="on"> -->
+            <!-- <compilerarg value="-Xlint:unchecked"/> -->
+            <compilerarg line="-Xmaxerrs 10000"/>
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+</project>

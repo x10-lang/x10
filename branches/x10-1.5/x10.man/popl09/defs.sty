@@ -1,0 +1,196 @@
+\newif\iflongproof
+\longprooffalse
+\newif\ifdraft
+\newif\ifpreprint
+\@ifclasswith{article}{draft}{\drafttrue}{\draftfalse}
+\@ifclasswith{sigplanconf}{preprint}{\preprinttrue}{\preprintfalse}
+
+\newcommand\trlabel[1]{\label{#1}\ifpreprint\textbf{(#1)}\fi}
+\newcommand\trref[1]{\ifpreprint\textbf{\ref{#1} (#1)}\else\ref{#1}\fi}
+
+\newcounter{thm}
+\setcounter{thm}{1}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{dem}[thm]{Definition}
+
+\newcommand\loc[1]{\ell_{#1}}
+
+\newcommand\join{\sqcup}
+\newcommand\meet{\sqcap}
+\newcommand\sqlt{\sqsubset}
+\newcommand\sqle{\sqsubseteq}
+\newcommand\sqgt{\sqsupset}
+\newcommand\sqge{\sqsupseteq}
+
+% alignment to be used in array{rl} environment when align* is not allowed
+\newcommand\backup{\!\!\!\!\!\!\!}
+
+\newcommand\ljoin{\mathbin{\rtimes}}
+\newcommand\rjoin{\mathbin{\ltimes}}
+
+\newcommand\subsetapprox{\mathbin{\raisebox{2pt}{$\subset$}\!\!\!\!\!\!\!\raisebox{-2pt}{$\sim$}}}
+
+\newcommand\ttamp{\ensuremath{\mbox{\normalfont\texttt \&}}}
+\newcommand\intersect{\mathbin{\ttamp}}
+\newcommand\bigttamp{\ensuremath{\mbox{\large \texttt \&}}}
+
+\newcommand\all[2]{{#2}^{\forall#1}}
+\newcommand\range[2]{#1..#2}
+%\newcommand\all[2]{\forall#1.~#2}
+%\newcommand\range[2]{#1,\dots,#2}
+
+\newcommand\nop{\emph{no-op}}
+
+\newcommand\fixspacing{\vspace{-5pt}\quad{}}
+
+\newcommand\eat[1]{}
+
+\renewcommand\bar[1]{\overline{#1}}
+
+% define \textlt and \textgt
+\let\angle@lt=<%
+\let\angle@gt=>%
+\catcode`\<=\active%
+\catcode`\>=\active%
+\def\textlt{\angle@lt}
+\def\textgt{\angle@gt}
+\catcode`\<=12
+\catcode`\>=12
+
+\newcommand{\starderives}{\derives^*}
+
+% \newcommand\rn[1]{\textsc{#1}}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{\rn{#1})}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
+\def\derives{\rightarrow}
+\newcommand\subclass{\ensuremath{\preceq}}
+\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
+\newcommand\notsubtype{\ensuremath{\,\Xcdmath{$\not$<}\Xcd{:}\,}}
+%\newcommand\subtype{\ensuremath{\le}}
+%\newcommand\notsubtype{\ensuremath{\not\le}}
+\newcommand\equals{\ensuremath{\,\Xcd{==}\,}}
+\newcommand\equalsC{\ensuremath{\,\Xcd{==}\,}}
+\newcommand\dotclass[2]{\Xcd{class(}#1,#2\Xcd{)}}
+\newcommand\dotcons[2]{\Xcd{cons(}#1,#2\Xcd{)}}
+\newcommand\class[2]{\ensuremath{\mathit{class}(#1)}}
+\newcommand\cons[2]{\ensuremath{\mathit{cons}(#1, #2)}}
+
+\newcommand\vdashC{\vdash_{\cal C}}
+\newcommand\vdashX{\vdash_{\cal X}}
+\newcommand\vdashG{\vdash_{\cal G}}
+\newcommand\vdashD{\vdash_{\cal D}}
+\newcommand\vdashO{\vdash_{\cal O}}
+
+% typeset a number in tiny italic exactly 15pts wide
+\newdimen\nw
+\newbox\bx
+\newcommand\num[1]{\setbox\bx=\hbox{\it\footnotesize{#1}}%
+\dimen\nw=15pt
+\advance\dimen\nw by -\wd\bx
+\unhbox\bx\hskip\dimen\nw}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Programming language macros
+
+\newcommand{\bnf}{\ensuremath{\ \ | \ \ }}
+\newcommand\sqleq{\ensuremath\sqsubseteq}
+
+%\newcommand{\cd}[1]{\mbox{\upshape\ttfamily\frenchspacing #1}}
+
+%%% MACROS for typesetting configurations
+\newcommand{\stepsto}{\Downarrow} % large-step
+\newcommand{\stepsone}{\longrightarrow} % small-step
+\newcommand\sub[1]{\ensuremath{_{\mbox{\scriptsize #1}}}}
+\newcommand\fn{\ensuremath\lambda}
+
+%%% function arrows
+\newcommand{\fnarrow}{\rightarrow}
+
+%%% Some things useful for denotational-style semantics
+%\newcommand\Lb{\left\llbracket}
+%\newcommand\Rb{\right\rrbracket}
+\newcommand\Lb{\llbracket}
+\newcommand\Rb{\rrbracket}
+\newcommand\SB[1]{\Lb#1\Rb} % put double brackets around the argument
+\newenvironment{SBE}{\left\Lb\begin{array}{c}}%
+{\end{array}\right\Rb}
+    % put big double brackets around the argument
+\newcommand\Tr[2]{\ensuremath{{\cal #1}\SB{#2}}}
+\newcommand\ini[1]{\nm{in}_{\mbox{\scriptsize{#1}}}}
+\newcommand\inj[2]{\nm{in}_{\mbox{\scriptsize\nm{#1}$\leftarrow$\nm{#2}}}}
+%\newcommand\nm[1]{\mbox{\sl #1}}
+    % use \nm{name} for specially-named mathematical values
+    % use "name" instead for term-level operators
+\newcommand\Set[1]{\mbox{\bf #1}}
+    % use \Set{name} for sets like Expr, Var, Aexp
+    % use \mathbb{name} for sets like Z, U, B
+\newcommand\lm[3]{\lambda#1\in#2\,.\,#3}
+\newcommand\fnm[1]{\fbox{\sl #1}\,}
+%\newcommand\join{\ensuremath\bigsqcup}
+\newcommand\dq[1]{\mbox{``}#1\mbox{''}}
+\newcommand\sidecond[1]{\qquad\mbox{(#1)}}
+\newcommand\lift[1]{\ensuremath{\lfloor #1 \rfloor}}
+%\newcommand{\rname}[1]{\mbox{\textsc{#1}}}
+
+\newcommand\defines{\triangleq}
+%\newcommand\defines{=}
+\newcommand\eqdef{\defines}
+
+\newcommand\emptylist{\mathsf{nil}}
+%\newcommand\emptylist{[\,]}
+\newcommand\many[1]{\overline{#1}}
+%\newcommand\append{\mathbin{@}}
+\newcommand\append{\,,\,}
+%\newcommand\cons{,}
+\newcommand\singleton[1]{[#1]}
+
+%%% macros for types
+\newcommand\lam[2]{\lambda#1.\,#2}
+\newcommand\Lam[2]{\Lambda#1.\,#2}
+\newcommand\arrow{\ensuremath\rightarrow}
+\newcommand{\ty}{\ensuremath{\!:\!}}
+\newcommand{\proves}{\ensuremath{\vdash}}
+\newcommand\subst[3]{#1[#3\mapsto#2]}
+%\newcommand\subst[3]{#1\{#2/#3\}}
+
+%\newenvironment{code}{
+%\medskip
+%\begingroup
+%\leftskip\@totalleftmargin\rightskip\z@%
+%\parindent\z@\parfillskip\@flushglue\parskip\z@%
+%\sf%
+%\@tempswafalse \def\par{\@@par\if@tempswa~\!\!\fi\@tempswatrue}%
+%\obeylines\obeyspaces%
+%}{\endgroup\medskip}
+
+% blank line in code environment
+\newcommand\cdblank\quad{}
+
+\def\dom{\mathop{\operator@font dom}}
+\newcommand\ds{{\tt\$}}
+\newcommand\hole{[\cdot]}
+
+% such that
+\newcommand\st{\mathbin{|}}
+
+% _
+\newcommand\noname{\ensuremath{\_\!\_}}
+
+\newcommand\xstepsone[1]{\xrightarrow{#1}}
+\newcommand\xstepsmany[1]{\xrightarrow{#1}{\!\!}^*\;}
+\newcommand\stepsmany{\rightarrow^*}
+
+% Grammar environment
+
+\newenvironment{grammar}{
+  \def\:{& ::= &}
+  \def\|{& $\vert$& }
+  \def\opt{$^?$\ }
+  \def\star{$^*$\ }
+  \def\plus{$^+$\ }
+  \em
+  \begin{tabular}{rcl}
+  }{\unskip\end{tabular}}

@@ -1,0 +1,196 @@
+Instructions
+
+0. Make sure your ~/.cshrc file contains the following lines:
+
+	setenv MPI mpich
+	setenv MPICHHOME /fs/mpich
+	setenv MPIHOME $MPICHHOME
+
+	# setenv MPI lam
+	# setenv LAMHOME /fs/lam
+	# setenv MPIHOME $LAMHOME
+
+	# setenv MPI chimp
+	# setenv CHIMPHOME /fs/CHIMP
+	# setenv MPIHOME $CHIMPHOME
+
+	set path = ($path $MPIHOME/bin )
+
+1. Unpack the gzipped-tar file:
+
+	% gzcat simple-XXX.tar.gz | tar xvf -
+
+2. Change directory into the simple directory:
+
+	% cd simple-XXX
+
+3. [OPTIONAL] Install the SPRNG 2.0 library from
+	      http://sprng.cs.fsu.edu/RNG
+        In "make.CHOICES", set the proper "PLAT",
+	Comment out PMLCGDEF and GMPLIB.
+
+4. Edit the file "Makefile.common"
+   A.) Uncomment your platform (TARGET_ARCH).
+   B.) Select UMD or MPI as the message passing method (_MP_METHOD).
+   C.) Set the thread-safe pseudo-random number generator to
+       _RAND = SPRNG   (or to NONE)
+
+5. Edit the file "src/Makefile.var"
+   A.) Locate the section for the (TARGET_ARCH) selected above.
+   B.) Set the following variables properly:
+       MPI:      MPI implementation
+       CC:       C compiler
+       CXX:      C++ compiler
+       CFLAGS:   C compiler flags
+       MPI_DIR:	 MPI top level directory
+       MPI_INC:  MPI Include directory
+       MPI_LIB:  MPI library directory
+       THR_INC:  Pthreads Include directory
+       THR_LIB:  Pthreads Libraries
+       O_LEVEL:  Optimization level
+       ARZ:      Set to "Z" if 'ar' can compress library
+   C.) [OPTIONAL] Set the proper paths for SPRNG
+
+6. Build the SIMPLE library:
+
+	% gmake
+
+7. [OPTIONAL] Test a sample program:
+	% gmake testprog
+
+8. [OPTIONAL] Test a sample SMP-only program:
+	% gmake testsmp
+
+7. [OPTIONAL] Test a sample program with SPRNG:
+	% gmake testsprng
+
+8. [OPTIONAL] Test a sample SMP-only SPRNG program:
+	% gmake testsprng_SMP
+
+--------------------------------------------------------------------
+The subdirectory "testprog" contains the skeleton of a test program.
+The subdirectory "testsmp" contains the skeleton of an SMP-only test program.
+The subdirectory "testsprng" contains a test program for using SPRNG.
+The subdirectory "testsprng_SMP" contains an SMP-only test program for using
+    SPRNG.
+The subdirectory "examples" contains SIMPLE example code.
+These programs can be built from the current directory with
+	% gmake testprog
+	% gmake testsmp
+	% gmake examples
+or directly from the subdirectory:
+	% cd testprog; gmake -f Makefile.orig
+	% cd testsmp;  gmake -f Makefile.orig
+	% cd examples; gmake -f Makefile.orig
+
+RUNNING A CODE:
+**************
+Edit the appropriate "mrun" and "machines" files from the
+subdirectory "run" and insert your executable's name.
+	% cd run ; ls
+
+HELPFUL HINTS:
+*************
+- Use "gmake clean" from either the main directory or a program
+  subdirectory to remove everything but source code and Makefiles.
+- For user code, use "gmake -f Makefile.orig" to first time to create
+  a Makefile with dependencies. After this, "gmake" is sufficient. If
+  dependencies change, use "gmake depend".
+
+
+HISTORY
+*******
+
+16426 1997 Jan 28 15:24 simple-2.0B.tar.gz
+	Initial distribution release
+17038 1997 Feb  4 14:26 simple-2.1B.tar.gz
+	Fixed problems with communication when $r < p$
+17413 1997 Feb  7 09:17 simple-2.1.tar.gz
+	Added Simple communication primitives Broadcast and Allreduce
+22469 1997 Feb 13 09:52 simple-2.2.tar.gz
+	Added thread-safe BSD4.3 fast RNG.
+	Change "SIMPLE_done()" to "Simple_done(TH)"
+22863 1997 Feb 18 13:01 simple-2.3.tar.gz
+	Ported to SGI PowerChallenge (IRIX 6.2)
+	Changed semantics of SIMPLE_done(); added SIMPLE_Cleanup()
+	Fixed return values from functions in umd.c and simple.c
+	Added mach_def.h
+23489 1997 Feb 24 12:06 simple-2.4.tar.gz
+	Modified umd.c to allows multiple users to share a node.
+24152 1997 Mar  7 11:39 simple-2.5B.tar.gz
+	Modified simple.c thread attributes, sched policy and priority
+24152 1997 Mar  7 11:39 simple-2.5B.tar.gz
+	Modified simple.c thread attributes, sched policy and priority
+24963 1997 May 14 10:56 simple-2.6.tar.gz
+27484 1997 May 14 10:56 simple-2.6A.tar.gz
+	Added non-blocking ISend and IRecv
+79659 1997 May 14 10:56 simple-2.7.tar.gz
+	Improved Installation process, includes examples
+81119 1997 Jun  5 13:40 simple-2.8.tar.gz
+	Remapped UMD port assignments;
+	allows multiple MPI processes per node
+      1997 Jun 17 17:18 simple-2.9.tar.gz
+	Added imagery application
+92203 1998 Jan 28 11:08 dist/simple-3.0A.tar.gz
+        Moved to University of New Mexico
+92189 1998 Mar 25 06:41 dist/simple-3.1A.tar.gz
+        Added Solaris support
+91198 1998 Mar 29 15:19 dist/simple-3.1B.tar.gz
+        Added AIX IBM SP-2 support
+91492 1998 Jun 12 11:36 dist/simple-3.1C.tar.gz
+        Added Linux_mpich support
+91795 1998 Jul  2 16:01 dist/simple-3.1D.tar.gz
+        Added Linux support, fixed smp_reduce
+92664 1998 Aug  2 17:34 dist/simple-3.1E.tar.gz
+	Added smp_node scan routines, MP_METHOD
+93168 1998 Aug  5 14:44 dist/simple-3.2A.tar.gz
+        Added a flag in Makefile.common to switch between UMD or MPI
+        for message passing.
+	Updated these README instructions.
+      
+ 94218 1999 Feb  5  simple-3.2B.tar.gz
+ 94577 1999 Feb 19  simple-3.2C.tar.gz
+ 98312 1999 Oct 25  simple-4.0A.tar.gz
+       Added Sun HPC 10K support
+ 98273 1999 Nov 10  simple-4.0B.tar.gz
+ 98358 2000 Jan 13  simple-4.0C.tar.gz
+ 98382 2000 Jan 14  simple-4.0D.tar.gz
+ 98419 2000 Jan 19  simple-4.0E.tar.gz
+108420 2000 Feb  2  simple-4.0F.tar.gz
+       Stable Sun HPC 10K release
+108607 2000 Mar 26  simple-4.0G.tar.gz
+       Added mutual exclusion locks (node_mutex calls)
+108976 2000 Mar 26  simple-4.1A.tar.gz
+       Integrated the Scalable Pseudo-Random Number Generator
+       (SPRNG2.0) with SIMPLE for a thread-safe RNG.
+109511 2000 Apr 21  simple-4.1B.tar.gz
+       Fixed a bug in pardo() when ((inc) > 1)
+       Added -xprefetch to the Sun native compilation
+109578 2000 Apr 22  simple-4.1C.tar.gz
+       Added "NOSHARE" macro to easily handle false sharing
+xxxxxx 2000 Jun 10  simple-4.2A.tar.gz
+       Added automatic C++ capability. User source code, if .C,
+       will automatically use C++ compilers
+       simple-4.3A.tar.gz
+       Added automatic Fortran capability.
+       simple-4.3B.tar.gz
+       Improved Makefile handling of subdirectories
+xxxxxx 2001 Jan 28  simple-4.3D.tar.gz
+       Added TARGET_ARCH for TCS
+xxxxxx 2001 Feb 5 simple-4.4A.tar.gz
+       Added prefixTree_SMP and prefixBlock_SMP subdirectories       
+xxxxxx 2001 Mar 7 simple-4.4B.tar.gz
+       Added GPL
+xxxxxx 2001 Jun 20 simple-4.4C.tar.gz
+       Fixed launching of Solaris POSIX threads
+xxxxxx 2001 Jun 25 simple-4.4D.tar.gz
+       Changed Solaris RRANDOM to use nrand48()
+xxxxxx 2001 Jun 26 simple-4.4E.tar.gz
+       Added Solaris THREADMAP option to print out thread-to-processor
+       mappings. Add "-DTHREADMAP" to CFLAGS_GEN in Makefile.var
+xxxxxx 2001 Jul 12 simple-4.4F.tar.gz
+       Added node_partition_loop_across_threads() == pardo
+xxxxxx 2001 Jul 25 simple-4.4G.tar.gz
+       Added randomBit_th() call for random bits
+xxxxxx 2002 Oct 14 simple-4.4H.tar.gz
+       Created "-DSUNMMAP" alternative node_malloc() for < Solaris 8

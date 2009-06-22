@@ -1,0 +1,86 @@
+\begin{tightcode}
+\quad\num{1}package x10.lang;
+\quad\num{2}
+\quad\num{3}/** The class of all  multidimensional, distributed arrays in X10.
+\quad\num{4}
+\quad\num{5}    <p> I dont yet know how to handle B@current base type for the
+\quad\num{6}    array.
+\quad\num{7}
+\quad\num{8} * @author vj 12/24/2004
+\quad\num{9} */
+\quad\num{10}
+\quad\num{11}public final value class array ( distribution dist )<B@P> \{
+\quad\num{12}    parameter int dimension = dist.dimension;
+\quad\num{13}    parameter region(dimension) region = dist.region;
+\quad\num{14}
+\quad\num{15}    /** Return an array initialized with the given function which
+\quad\num{16}        maps each point in region to a value in B.
+\quad\num{17}     */
+\quad\num{18}    extern public array( Fun<point(region),B@P> init);
+\quad\num{19}
+\quad\num{20}    /** Return the value of the array at the given point in the
+\quad\num{21}     * region.
+\quad\num{22}     */
+\quad\num{23}    extern public B@P valueAt(point(region) p);
+\quad\num{24}
+\quad\num{25}    /** Return the value obtained by reducing the given array with the
+\quad\num{26}        function fun, which is assumed to be associative and
+\quad\num{27}        commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
+\quad\num{28}     */
+\quad\num{29}    extern public B reduce(Fun<B@?,Fun<B@?,B@?>> fun, B@? unit);
+\quad\num{30}
+\quad\num{31}
+\quad\num{32}    /** Return an array of B with the same distribution as this, by
+\quad\num{33}        scanning this with the function fun, and unit unit.
+\quad\num{34}     */
+\quad\num{35}    extern public array(dist)<B> scan(Fun<B@?,Fun<B@?,B@?>> fun, B@? unit);
+\quad\num{36}
+\quad\num{37}    /** Return an array of B@P defined on the intersection of the
+\quad\num{38}        region underlying the array and the parameter region R.
+\quad\num{39}     */
+\quad\num{40}    extern public (region(dimension) R)
+\quad\num{41}        array(dist.restriction(R)())<B@P>  restriction();
+\quad\num{42}
+\quad\num{43}    /** Return an array of B@P defined on the intersection of
+\quad\num{44}        the region underlying this and the parametric distribution.
+\quad\num{45}     */
+\quad\num{46}    public  (distribution(:dimension=this.dimension) D)
+\quad\num{47}        array(dist.restriction(D.region)())<B@P> restriction();
+\quad\num{48}
+\quad\num{49}    /** Take as parameter a distribution D of the same dimension as *
+\quad\num{50}     * this, and defined over a disjoint region. Take as argument an *
+\quad\num{51}     * array other over D. Return an array whose distribution is the
+\quad\num{52}     * union of this and D and which takes on the value
+\quad\num{53}     * this.atValue(p) for p in this.region and other.atValue(p) for p
+\quad\num{54}     * in other.region.
+\quad\num{55}     */
+\quad\num{56}    extern public (distribution(:region.disjoint(this.region) &&
+\quad\num{57}                                dimension=this.dimension) D)
+\quad\num{58}        array(dist.union(D))<B@P> compose( array(D)<B@P> other);
+\quad\num{59}
+\quad\num{60}    /** Return the array obtained by overlaying this array on top of
+\quad\num{61}        other. The method takes as parameter a distribution D over the
+\quad\num{62}        same dimension. It returns an array over the distribution
+\quad\num{63}        dist.asymmetricUnion(D).
+\quad\num{64}     */
+\quad\num{65}    extern public (distribution(:dimension=this.dimension) D)
+\quad\num{66}        array(dist.asymmetricUnion(D))<B@P> overlay( array(D)<B@P> other);
+\quad\num{67}
+\quad\num{68}    extern public array<B> overlay(array<B> other);
+\quad\num{69}
+\quad\num{70}    /** Assume given an array a over distribution dist, but with
+\quad\num{71}     * basetype C@P. Assume given a function f: B@P -> C@P -> D@P.
+\quad\num{72}     * Return an array with distribution dist over the type D@P
+\quad\num{73}     * containing fun(this.atValue(p),a.atValue(p)) for each p in
+\quad\num{74}     * dist.region.
+\quad\num{75}     */
+\quad\num{76}    extern public <C@P, D>
+\quad\num{77}        array(dist)<D@P> lift(Fun<B@P, Fun<C@P, D@P>> fun, array(dist)<C@P> a);
+\quad\num{78}
+\quad\num{79}    /**  Return an array of B with distribution d initialized
+\quad\num{80}         with the value b at every point in d.
+\quad\num{81}     */
+\quad\num{82}    extern public static (distribution D) <B@P> array(D)<B@P> constant(B@? b);
+\quad\num{83}
+\quad\num{84}\}
+\end{tightcode}

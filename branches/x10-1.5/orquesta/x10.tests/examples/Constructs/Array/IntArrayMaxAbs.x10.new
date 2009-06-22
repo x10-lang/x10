@@ -1,0 +1,27 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Testing the maxAbs function on arrays.
+ */
+public class IntArrayMaxAbs extends x10Test {
+
+	public def run(): boolean = {
+		final val D: dist = Dist.makeConstant([1..10, 1..10], here);
+		final val ia: Array[int] = new Array[int](D);
+
+		finish ateach (val p: point[i,j] in D) { ia(p) = -i; }
+
+		return ia.maxAbs() == 10;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new IntArrayMaxAbs().execute();
+	}
+}

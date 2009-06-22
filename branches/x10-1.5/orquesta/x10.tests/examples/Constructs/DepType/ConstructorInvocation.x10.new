@@ -1,0 +1,237 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int j) {
+		def this(val i: int, val j: int)i == j: Test{i == j} = {
+		    property(i,j);
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int j) {
+		Test (: i == j) (final int i, final int j : i == j) {
+		    property(i,j);
+		}
+	}
+		
+	class Test2(public val k: int, ) extends Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int j) {
+		Test (: i == j) (final int i, final int j : i == j) {
+		    property(i,j);
+		}
+	}
+		
+	class Test2(int k) extends Test{
+		def this(var k: int): Test2 = {
+			super(k,k);
+			property(k);
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int j) {
+		Test (: i == j) (final int i, final int j : i == j) {
+		    property(i,j);
+		}
+	}
+		
+	class Test2(int kint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ *@author pvarma
+ *
+ */
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
+// depclauses in parameter lists of methods and constructors are not currently implemented.
+// Work-around: add the depclause to the deptypes of the formal arguments.
+
+import harness.x10Test;
+
+public class ConstructorInvocation extends x10Test { 
+
+	class Test(int i, int j) {
+		Test (: i == j) (final int i, final int j : i == j) {
+		    property(i,j);
+		}
+	}
+		
+	class Test2(int k) extends Test{
+		Test2(int k) {
+			super(k,k);
+			property(k);
+		}
+	}
+	public def run(): boolean = {
+	   return true;
+	}  
+	
+    public static def main(var args: Rail[String]): void = {
+        new ConstructorInvocation().execute();
+    }
+   
+
+		
+}

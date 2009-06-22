@@ -1,0 +1,60 @@
+--- Test03: tri
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0>=2 && x1<=7 && x0-x1<=1)
+  poly
+    2  . 2 4 6 8 0 2 4 . . 
+    3  . . 6 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . . 0 5 0 5 . . 
+    6  . . . . . 0 6 2 . . 
+    7  . . . . . . 2 9 . . 
+    8  . . . . . . . 6 . . 
+  iterator
+    2  . 2 4 6 8 0 2 4 . . 
+    3  . . 6 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . . 0 5 0 5 . . 
+    6  . . . . . 0 6 2 . . 
+    7  . . . . . . 2 9 . . 
+    8  . . . . . . . 6 . . 
+--- Test03: rect
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 20
+region: [3..6,3..7]
+  poly
+    3  . . . 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . 5 0 5 0 5 . . 
+    6  . . . 8 4 0 6 2 . . 
+  iterator
+    3  . . . 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . 5 0 5 0 5 . . 
+    6  . . . 8 4 0 6 2 . . 
+--- Test03: intersection
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0>=3 && x1>=3 && x1<=7 && x0-x1<=1 && x0<=6)
+  poly
+    3  . . . 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . . 0 5 0 5 . . 
+    6  . . . . . 0 6 2 . . 
+  iterator
+    3  . . . 9 2 5 8 1 . . 
+    4  . . . 2 6 0 4 8 . . 
+    5  . . . . 0 5 0 5 . . 
+    6  . . . . . 0 6 2 . . 

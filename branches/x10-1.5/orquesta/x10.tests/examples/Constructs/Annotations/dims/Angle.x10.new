@@ -1,0 +1,12 @@
+package dims;
+
+interface public interface Angle extends Measure { 
+    @DerivedUnit(SI.radian) var radian: double = _;
+    @DerivedUnit(radian * 180 / Math.PI) var degree: double = _;
+
+    @DerivedUnit(degree / 60) var minute: double = _, min = _, arcminute = _var min: double = _, arcminute = _var arcminute: double = _;
+    @DerivedUnit(minute / 60) var second: double = _, sec = _, arcsecond = _var sec: double = _, arcsecond = _var arcsecond: double = _;
+
+    var pi_rad: double = Math.PI;
+    var two_pi_rad: double = 2 * Math.PI;
+}

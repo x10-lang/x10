@@ -1,0 +1,192 @@
+\section{\Xten{} work stealing}\label{sec:XWS}
+\subsection{The \CWS{} API}
+
+We give a brief overview of Cilk work-stealing, as implemented as part of \XWS.
+An application programmer may directly write fine-grained concurrent
+code in \Java, using this API.
+
+The programmer initiates computation by creating a {\em pool} of $N$
+{\em workers} ({\tt new Pool(N)}). Each worker is a thread in Java
+that participates in the \XWS{} work-stealing protocol.  Asynchronous
+activities are represented by subclasses of {\tt Frame} -- a frame represents
+a continuation (values for local variables in the current activation frame, and a 
+program counter representing the next instruction to be executed). 
+
+Computation is initiated by submitting a job (containing a reference
+to a frame $F$) to the pool; the thread submitting the job suspends
+until $F$ is executed to completion. The programmer must define a {\tt
+void} method {\tt compute} on subclasses of {\tt Frame}, which takes a
+{\tt Worker w} as argument. The body of the method will be executed by
+the worker {\tt w} when this task is scheduled for execution.
+
+Each worker {\tt w} maintains an internal deque of frames. The
+programmer creates a new task by allocating a new frame; the task can
+be added to the deque of the current worker by invoking {\tt
+w.pushFrame(v)}. The programmer may pop the task of the deque by
+invoking {\tt w.popFrame()}.
+
+\XWS{} implements the basic CWS strategy. Per this strategy, when a
+worker $W$'s deque is empty, it randomly chooses another worker $V$
+and attempts to steal the topmost frame from $V$'s deque. If
+successful, the frame is transferred to $W$'s deque and
+executed. Otherwise the worker continues trying to steal with the next
+worker after $V$.\footnote{Due to lack of space we do not discuss the
+CWS mechanism (``closures'') that permits values to be returned from
+asynchronous tasks.}
+
+
+CWS maintains a tight (one-to-one) linkage between activation frames
+on the call stack and frames on the deque. This is possible because
+Cilk implements ``fully strict'' computations: Cilk requires that all
+tasks spawned within an activation frame must terminate before the
+activation frame returns. Further, Cilk requires that a task spawn is
+treated as a procedure call (that is, when a worker spawns a task $T$ it
+enters the body of $T$ to execute it, after pushing a new frame on
+its deque representing the continuation of $T$). Hence, on
+return from a procedure that may have spawned an async (Cilk marks
+such procedures as {\tt cilk} procedures), the worker {\tt w} must
+call {\tt w.abortOnSteal(x)} (these calls must be introduced
+explicitly by the application compiler; they are introduced
+automatically by the Cilk/\Xten{} compiler). This API call checks
+whether the current frame has been stolen, if so an exception is
+thrown which causes the activation call stack to unwind all the way to
+the top, thereby returning control to the scheduler (which made the
+original call). At this point the worker recognizes that its deque is
+empty and commences stealing.
+
+We note in passing that in contrast to the Cilk (or \Xten{}) programmer,
+the \XWS{} application programmer may choose to push newly created
+tasks onto the deque directly (instead of treating them as method
+calls). Such a strategy does not posses the ``busy leaves'' property
+\cite{cilk} -- and hence may not achieve the space bounds guaranteed
+by Cilk -- but may sometimes be faster. In particular, this strategy
+is used in the manual code for DFS and BFS using \XWS{} (see below).
+
+
+\subsection{Support for improperly nested tasks}
+\XWS{} supports {\em strict} ({improperly nested}) computations, in
+which an ancestor task need not wait for its descendant tasks to be
+completed.  (Consider, e.g.{} the body of {\tt compute} in
+Example~\ref{example:dfs}.  it may spawn many asyncs, but does not
+wait for any of them to terminate.)
+
+Properly nested tasks $t$ satisfy the property that at the moment when
+the slow version terminates (method:{\java compute()}) the frame at
+the bottom of the worker's dequeue is $t$. Hence the task can be
+completed (i.e., removed from the dequeue) by including a {\java
+w.popFrame()} call at the end of the compute method. In essence, if a
+worker is executing only properly nested tasks, there is a one-to-one
+correspondence between the frame stack and the tasks being processed.
+
+Such a task may add a task $r$ to the deque of its worker (say
+$w$) without necessarily transferring control to $r$. This has two
+consequences. Firstly, recall that as soon as a worker's dequeue
+contains more than one task the worker may be the target of a
+theft. Therefore as soon as $q$ pushes $r$ onto $w$'s dequeue, $q$ is
+available to be stolen.  Therefore $q$'s compute method must first pop
+$q$ off the deque before spawning new asynchronous tasks. (Hence the {\java
+w.popAndReturnFrame()} in the body of {\tt compute} in
+Example~\ref{example:dfs}.)
+
+Secondly, with improperly nested tasks, a worker no long enjoys the property
+that when control returns to it from the invocation of a {\tt compute}
+method on the top-level task, the deque is empty. Indeed, control may
+return to the scheduler leaving several tasks on the deque, including
+the task whose {\tt compute} method has just returned. The scheduler must
+now enter a phase in which it executes the task at the bottom of the
+deque until it is empty.
+
+\begin{example}[Psuedo-DFS] \label{example:dfs-xws}
+The parallel exploration of a graph may be implemented quite simply by the following program:
+{\footnotesize
+\begin{verbatim}
+class V  extends VertexFrame {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor(V n) { ... }
+   void compute(Worker w) throws StealAbort {
+     w.popAndReturnFrame();
+     for (V e : neighbors) 
+       if (e.tryColor()) {
+         e.parent = this;
+         w.pushFrame(e);
+       }}}}
+\end{verbatim}}
+\end{example}
+
+
+\subsection{Global quiescence}
+
+In fully-strict computations completion of the first task and the
+return of the corresponding {\em closure} indicates termination. A closure is implemented as an object describing the current state of a task and used to return values in the occurrence of stealing. There is a one-to-one correspondence between a frame and a task, but there may be multiple closures associated with a task. Each time a task is stolen, a closure is created. 
+Improperly-nested tasks that do not require a return call chain can do
+away with the closures. We have implemented a mechanism to efficiently
+identify termination without closures; in essence the mechanism detects
+the stable property ``all deques are empty.'' 
+
+The workers share a barrier with count {\tt checkCount} -- this will
+measure the number of workers with non-empty deques.  Initially the
+count is $0$. Whenever a worker checks out a job from the submission
+queue, it increments the count. Whenever a worker finds its deque is
+empty and starts stealing, it decrements the count. Whenever it
+successfully steals, it increments the count before releasing the lock
+on the victim (thus ensuring that the count remains positive).
+
+Note an important property of this mechanism. Suppose a worker $W_0$
+checks out a task from the submission queue. Its execution generates
+very few tasks which end up being executed by $W_0$. In this case the
+count will go up to $1$ and then down to $0$ when $W_0$'s queue is
+empty, and the job will be considered completed. This is the case even
+though $P-1$ workers have not participated in the barrier. Thus this
+mechanism does not require all workers to participate, only those that
+actually steal work.
+
+\subsection{Phased computations}
+We also added support for phased computations in which tasks in this
+phase create tasks to be executed in the next phase (cf BFS search).
+Phased computations are supported as a generalization of global
+quiescence. Each worker maintains two dequeues (the now deque and the
+next deque).  Depending on the phase specified when spawning
+tasks, a task can be added to the now deque or the next deque.
+
+When global quiescence is detected for the current phase, the barrier
+action steps the computation to the next phase. Each worker keeps
+track of the phase number it thinks it is in. After each round of
+stealing, it checks to see if the barrier's phase is the same as its
+phase; if not, it advances the phase and swaps its next and now
+deques. When checking into the barrier, each worker specifies whether
+it has work to do in the next phase. When the barrier is advanced {\tt
+checkCount} is initialized with the number of workers with work to do in this phase, thus maintaining the
+invariant associated with the barrier.  If this count is $0$, the job
+is terminated.
+
+Note that this design permits workers to {\em jump phases}. A worker
+$W_i$ may finish computation in phase $k$ and start searching for
+work. Meanwhile other workers may check into the barrier causing it to
+move to phase $k+1$. This phase may contain very little work, and the
+barrier may trip repeatedly reaching phase $k+m$, before $W_i$
+discovers the phase has advanced and updates its phase to $k+m$. (The
+algorithm design ensures that $W_i$ may skip phases only if its next
+deque is empty.) 
+
+
+\begin{example}[BFS] \label{example:bfs-xws}
+The breadth-first parallel exploration of a graph may be implemented
+as follows:
+{\footnotesize
+\begin{verbatim}
+class V  extends VertexFrame {
+   V [] neighbors;
+   V parent;
+   V(int i){super(i);}
+   boolean tryColor() { ...}
+   void compute(Worker w) throws StealAbort {
+     w.popAndReturnFrame();
+     for (V e : neighbors) 
+       if (e.tryColor()) {
+         e.parent = this;
+         w.pushFrameNext(e);
+       }}}}
+\end{verbatim}}
+\end{example}

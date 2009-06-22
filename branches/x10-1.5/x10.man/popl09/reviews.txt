@@ -1,0 +1,332 @@
+===========================================================================
+                            POPL09 Review #17A
+                 Updated Tuesday 19 Aug 2008 5:56:29pm EDT
+---------------------------------------------------------------------------
+              Paper #17: Genericity through Constrained Types
+---------------------------------------------------------------------------
+
+                         Evaluation: B. Good paper; I don't mind having it
+                                        in POPL.
+                         Confidence: X. I am an expert in the subject area
+                                        of this paper and have understood
+                                        it thoroughly.
+
+                            ===== Summary =====
+
+This paper represents an extension of work to be presented at OOPSLA 2008 on a constraint-based type system.  The previous paper focused on dependent types.  This one focuses on type constraints used for representing genericity and a system similar to virtual types.  They present examples, a formal type system (parameterized over the kinds of type constraints), and a correctness result (proof omitted).
+
+                       ===== Detailed Comments =====
+
+Aside from the occasional lack of explanation of notation, the authors do a good job of motivating this system and explaining its expressiveness.  In particular, they present a careful comparison with other proposed typing systems, showing that the constructs in the other systems can be easily expressed using their approach.  It looks to be a very good expressive extension of many existing systems that isn't too complex, yet is proved sound.  I'd definitely like to see this in POPL.
+
+Complaints:
+1.  Explain notation for existential types before Figure 3 (or better yet, use existential symbol to make it clearer!).  It is explained in section 4.3 on semantics, but should be in 4.1.
+
+2.  It's not completely clear what the difference is between triangular less than and <:.  By rule SUB-X, the first implies the second.  You don't have interfaces, so is there a place where the second holds, but not the first?  It's not obvious from your rules (perhaps only the second is allowed for bounds in existential types?)
+
+3.  I couldn't find what ": o" is supposed to mean in rule (TRUE), and two others.  Is it to indicate what is a legal constraint?  If so, "o" is a particularly bad choice as it generally means "object".
+
+4.  I couldn't figure out the rules at the top of 2nd column on page 8.  Little t's appear in the hypotheses, but not the conclusions.  Either there are some sort of typos here or you need to explain it better (probably both?).  The more I look at this, the more confused I get -- add explanations for what is going on!  In particular rules PRED and FUN seem to have exactly the same constraints since in each case o, T are just constrained to be in C (i.e., constraints).
+
+Typos:
+
+Pg 2, col 2, 1st para of section 1.3:  Add "be" between "to sound".
+pg 4, 3rd line of col 2:  "Interchangeable" should be "interchangeably"
+pg 6, S-EXISTS-R rule: conclusion should have "x:U; T"
+pg 7: l. 5 of text: "inFJ" needs space in middle.
+pg 8:  Add return after productions at top of page to get rid of "The con-"
+pg 8, col 2: Subst rule, replace "A" by "V"
+pg 11, 2nd line: Add "s" to "value".
+
+===========================================================================
+                            POPL09 Review #17B
+                 Updated Tuesday 19 Aug 2008 9:43:51pm EDT
+---------------------------------------------------------------------------
+              Paper #17: Genericity through Constrained Types
+---------------------------------------------------------------------------
+
+                         Evaluation: C. Weak paper, but it will not be an
+                                        embarrassment to have it in POPL.
+                         Confidence: Z. I am an informed outsider and tried
+                                        my best to understand the paper.
+
+                            ===== Summary =====
+
+The paper adds a limited notion of dependent types to an FJ-like
+framework by adding "constrained types", which consist of a class name
+and a set of "constraints".  The resulting system is claimed to be
+flexible enough to handle FJ, FGJ, and languages with more complex
+dependent type systems, including X10.
+
+This seems like a promising idea, but the presentation in the paper
+seems needlessly obscure.  The paper spends way too much space
+discussing X10.  The presentation also obscures the dependence of the
+various sublanguages, so it is hard to see exactly what the grammar is
+at many points in the paper.
+
+It is not clear whether the resulting system or systems are decidable.
+
+The authors make some interesting claims about how various
+instantiations of their framework are equivalent to FJ, FGJ, etc., but
+these claims are not substantiated.
+
+                       ===== Detailed Comments =====
+
+Way too much time explaining the design philosophy of X10.  This is
+interesting material, but not obviously relevant to the rest of the
+paper.
+
+Example 1.1 is interesting, but can it be expressed as a constraint
+system?  None of the systems in the paper seem to have a constraint of
+the form "e in e".  The paper could have been much stronger if it had
+demonstrated how close this circle.
+
+p 3 sec 2 para 2 line 2: "but *has* constraints"
+
+Sec 2: Is all the discussion of variance necessary in this paper?
+
+Sec 3 didn't help me at all, but I understand how it might be helpful
+for other readers.
+
+Sec 4, first para.  "Given a program P, we now show how to build a
+larger constraint system O(X) on top of X."  "We should think of X and
+O as being defined simultaneously and recursively."  "The static and
+dynamic semantics of L uses O(X)".  I don't think the second sentence
+is consistent with the other two.  The paper would be much clearer if
+it owns up to the fact that O, X (or O, G, A...) are all defined
+mutually recursively, and stated their dependencies explicitly.
+
+Sec 4.1, first display.  What's constant here and what's variable?
+(Though this inherited from the original FJ paper).  I assume that T,
+e, V, etc. are metavariables that range over something, but what?
+Owning up to the mutual recursion would clarify things here.
+
+And please tell us what (Const.) is an abbreviation for.  I at first
+thought it stood for "(Constants)."  There's plenty of room.  Ditto
+for Figure 4.
+
+"Note that some rules (viz. S-Exists) use |-".  What is the
+significance of this?  It certainly means that the type judgements and
+the constraint system judgements are mutually recursive.  
+
+Is the combined system even decidable, in light of the unconstrained
+metavariable t in S-Exists-R???
+
+Sec 4.1, last 2 paras: "We assume that the rules given are
+complete..."  Is this assumption used anywhere in the paper?
+
+Sec 4.2.  Why do you need "constraint projection"?  And on line 3 of
+page 6, a notation that eventually turns out to denote existential
+quantification is introduced without explanation.
+
+Footnotes 7-8 are symptomatic of the writing problems in this paper.
+Say what you mean!
+
+c[o/self] Is it obvious that o is something that can be substituted in
+a constraint?  If I knew what the grammar was, I wouldn't have found
+this worrisome. 
+
+Figure 4.  Numerous typos: "==" vs "=".  Wrong fonts in grammar for
+(Type), (C Term), rule (T-Var).  "FX productions" still doesn't
+distinguish terminals from non-terminals.
+
+Is the rule for T-field strong enough to be useful?
+
+How does FX (or the constraint system O) model the restrictions on
+subtyping in FJ (metafunction "override"), which according to Sec 2.2
+are used in X10 as well?
+
+Why do you need both <: and \triangleleft?  Sec 4.1 says \triangleleft
+holds "for instance if S is a class that extends T", but in O (figure
+3), if we have class C{...} extends D{...}, we have C<:D but not C
+\triangleleft D.
+
+p 8, top left:  "The con-"  Texo.
+
+===========================================================================
+                            POPL09 Review #17C
+                 Updated Friday 29 Aug 2008 2:56:17am EDT
+---------------------------------------------------------------------------
+              Paper #17: Genericity through Constrained Types
+---------------------------------------------------------------------------
+
+                         Evaluation: C. Weak paper, but it will not be an
+                                        embarrassment to have it in POPL.
+                         Confidence: X. I am an expert in the subject area
+                                        of this paper and have understood
+                                        it thoroughly.
+
+                            ===== Summary =====
+
+This paper presents a type system (or rather a family of type systems)
+for class-based object-oriented languages with both dependent types
+and generics.  It is based on (some of) the authors' earlier work on a
+constraint-based type system and genericity is added simply by
+permitting (immutable) type fields for classes as well as value
+fields, on which types can depend.  It subsumes many recent type
+systems for class-based languages in one framework.  The type system
+is formalized as an extension of FJ and proven type sound; an
+implementation for X10 is briefly described.
+
+                       ===== Detailed Comments =====
+
+The present type system can be though as an integration of many of the
+existing ideas, found in the recent type system research (for OO
+languages).  I'm impressed by the fact that the formalization is still
+not messy, even though many mechanisms are modeled in one.  I think
+there are two main reasons for this.  One is the use of a constraint
+system; this integrates the number of auxiliary functions, found in
+FJ-like languages, into a single definition of the entailment
+relation.  The power of constraint systems is well demonstrated here.
+Another reason is probably the lack of imperative features.  Many
+presentations of dependent type systems (especially for OO languages)
+come with imperative features like field updates, since these side
+effecting features interact badly with dependent types.  This choice
+is good for the purpose for understanding but not very good since
+tricky bits might be overlooked.
+
+It is a bit disappointing that the framework FX is not really generic
+in the sense that some work other than designing the constraint system
+is required to extend the basic system to handle generics.  So, giving
+the name FX(C) is a little misleading.
+
+As long as I checked, the technical work seems mostly correct, except
+a few points, which should be easily fixable.  
+
+- The rule SEL in Figure 3 does not check that f_i is really the i-th
+  field of the object.  I suppose field definitions of D should be
+  looked up here.
+
+- The rule Method-B in Figure 3: the third premise says the method m
+  is in P, but I thought it should be in class C (there may be more
+  than one method of the same name, right?).
+
+- The rule Method-C,E in Figure 3: I don't understand why the
+  constraint {d[x/self]} is attached to the return type, which may
+  have nothing to do with the receiver.  Probably, it should be
+  combined with c?
+
+- The definition of inv(C,x) seems informal.
+
+- The rule Exist-T in Figure 4 requires T to be a type under Gamma, but T should
+  have occurrences of x, so it should be Gamma, x:S |- T type, instead.
+
+- There seems no rule to check correct method overriding.
+
+Finally, some important related work are missing.  The work by
+Gasiunas, Mezini, and Ostermann on "Dependent Classes", presented at
+last OOPSLA is highly relavant to this work.  Ancona and Zucca
+presented the paper "Principal Typings for Java-like Languages" at
+POPL'04; they use constraints similar to those used here to discuss
+separate compilation for Java.  Also, the papers by Kamina and Tamai
+on "Lightweight Scalable Components" (in GPCE'07) and its continuation
+"Lightweight Dependent Classes", though maybe less related, are worth
+taking a look at.
+
+
+My overall evaluation is that many ideas are existing ones and the
+work is incremental over their previous work on the constraint type
+system.  Although I appreciate the concise presentation of a
+inherently complex type system having both generics and dependent
+types, thanks to the use of constraints and the paper's value as a
+report on some aspect of X10, I don't think it warrants publication at
+POPL.
+
+
+More detailed comments:
+
+- Abstract: "for. X10."
+
+- Sec. 2.3: "the the"
+
+- The function type in the definition of map in Fig. 2: 
+  Why not simply writing T => S?  Does it make difference?
+
+- parametrized -> parameterized (throughout the paper)
+
+- In the definition of constraint projection, \sigma is not bound.
+  Which do you mean "for any \sigma" or "for some \sigma"?
+
+- Figure 3 should be mentioned after notations there are introduced.
+  It was not impossible to guess what "x:U; S" would mean by the name
+  of the rule, but I almost got lost.
+
+- "We assume that the rules given are complete ..."  I don't
+  understand what it really means.  Do you consider some semantics of
+  the constraint and completeness with respect to it?  Definition by
+  rules means that a relation expressed by some judgment holds if the
+  judgment is derived by a given set of rules.  So, there is no
+  completeness argument for well definedness.
+
+- I think you should provide a separate syntactic category for user
+  constraints.  Indeed, FX(G) misses what are user constraints.
+
+- FX well-formedness rules:  It's not clear what the judgment "X : o"
+  means.  Does it mean "X is true" or "X is a formula"?  I thought 
+  the former meaning, but ": o" is often used to mean "is a formula"
+  (especially in type theory).
+
+- left col., page 7: "inFJ" (insert a space)
+
+- Section 5.1: A spurious period in "Virtual classes [34,35,17]. are".
+
+===========================================================================
+                            POPL09 Review #17D
+                 Updated Thursday 4 Sep 2008 2:36:04pm EDT
+---------------------------------------------------------------------------
+              Paper #17: Genericity through Constrained Types
+---------------------------------------------------------------------------
+
+                         Evaluation: B. Good paper; I don't mind having it
+                                        in POPL.
+                         Confidence: Z. I am an informed outsider and tried
+                                        my best to understand the paper.
+
+                            ===== Summary =====
+
+Defines and studies a core OO calculus enriching FJ with a notion of
+"constrained types" -- types annotated with constraints from some constraint
+system -- combined with GJ-style genericity.  Constrained types have already
+been presented; the novelty here is the combination.
+
+                       ===== Detailed Comments =====
+
+An elegant design.  
+
+The paper would be strengthened by a deeper discussion, in the intro, of
+where are the main technical challenges.
+
+There are a lot of typos and distracting grammar booboos.  The whole thing
+could really use a careful pass by a native english speaker.
+
+===========================================================================
+                            POPL09 Review #17E
+                 Updated Monday 15 Sep 2008 3:33:19pm EDT
+---------------------------------------------------------------------------
+              Paper #17: Genericity through Constrained Types
+---------------------------------------------------------------------------
+
+                         Evaluation: B. Good paper; I don't mind having it
+                                        in POPL.
+                         Confidence: Y. I am knowledgeable in the area,
+                                        though not an expert, and have
+                                        understood the paper pretty well.
+
+                            ===== Summary =====
+
+Earlier work presented a system of constrained types, in which types can be annotated with predicates to further restrict their membership.  A general-purpose constraint solver can then be used to find feasible solutions to the total set of constraints.  This paper addresses the problem of genericity by making the constraints second-order in some sense, allowing the programmer to specify relationships among types rather than only among members of those types.
+
+                       ===== Detailed Comments =====
+
+Page 2, unkown => unknown
+
+Page 2, "shown to sound" => "shown to be sound"
+
+Page 4: "The latter type system lead" => "The latter type system led"
+
+Page 4, "can be used interchangeable" => can be used interchangeably"
+
+Section 6 makes the claim that the design admits an efficient implementation.  While this may well be true, I saw little evidence for this claim in this particular paper.  Do you have evidence that you can present in the final paper?
+
+
+

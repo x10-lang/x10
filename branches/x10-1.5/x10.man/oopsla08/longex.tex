@@ -1,0 +1,734 @@
+{\footnotesize
+\begin{verbatim}
+/**
+   A distributed binary tree.
+   @author Satish Chandra 4/6/2006
+   @author vj
+ */
+//                             ____P0
+//                            |     |
+//                            |     |
+//                          _P2  __P0
+//                         |  | |   |
+//                         |  | |   |
+//                        P3 P2 P1 P0
+//                         *  *  *  *
+// Right child is always on the same place as its parent;
+// left child is at a different place at the top few levels of the tree,
+// but at the same place as its parent at the lower levels.
+
+class Tree(localLeft: boolean,
+           left: nullable Tree(& localLeft => loc=here),
+           right: nullable Tree(& loc=here),
+           next: nullable Tree) extends Object {
+    def postOrder:Tree = {
+        val result:Tree = this;
+        if (right != null) {
+            val result:Tree = right.postOrder();
+            right.next = this;
+            if (left != null) return left.postOrder(tt);
+        } else if (left != null) return left.postOrder(tt);
+        this
+    }
+    def postOrder(rest: Tree):Tree = {
+        this.next = rest;
+        postOrder
+    }
+    def sum:int = size + (right==null => 0 : right.sum()) + (left==null => 0 : left.sum)
+}
+value TreeMaker {
+    // Create a binary tree on span places.
+    def build(count:int, span:int): nullable Tree(& localLeft==(span/2==0)) = {
+        if (count == 0) return null;
+        {val ll:boolean = (span/2==0);
+         new Tree(ll,  eval(ll => here : place.places(here.id+span/2)){build(count/2, span/2)},
+           build(count/2, span/2),count)}
+    }
+}
+\end{verbatim}}
+
+\subsection{Places}
+{\footnotesize
+\begin{verbatim}
+/**
+
+ * This class implements the notion of places in X10. The maximum
+ * number of places is determined by a configuration parameter
+ * (MAX_PLACES). Each place is indexed by a nat, from 0 to MAX_PLACES;
+ * thus there are MAX_PLACES+1 places. This ensures that there is
+ * always at least 1 place, the 0'th place.
+
+ * We use a dependent parameter to ensure that the compiler can track
+ * indices for places.
+ *
+ * Note that place(i), for i <= MAX_PLACES, can now be used as a non-empty type.
+ * Thus it is possible to run an async at another place, without using arays---
+ * just use async(place(i)) {...} for an appropriate i.
+
+ * @author Christoph von Praun
+ * @author vj
+ */
+
+package x10.lang;
+
+import x10.util.List;
+import x10.util.Set;
+
+public value class place (nat i : i <= MAX_PLACES){
+
+    /** The number of places in this run of the system. Set on
+     * initialization, through the command line/init parameters file.
+     */
+    config nat MAX_PLACES;
+
+    // Create this array at the very beginning.
+    private constant place value [] myPlaces = new place[MAX_PLACES+1] fun place (int i) {
+	return new place( i )(); };
+
+    /** The last place in this program execution.
+     */
+    public static final place LAST_PLACE = myPlaces[MAX_PLACES];
+
+    /** The first place in this program execution.
+     */
+    public static final place FIRST_PLACE = myPlaces[0];
+    public static final Set<place> places = makeSet( MAX_PLACES );
+
+    /** Returns the set of places from first place to last place.
+     */
+    public static Set<place> makeSet( nat lastPlace ) {
+	Set<place> result = new Set<place>();
+	for ( int i : 0 .. lastPlace ) {
+	    result.add( myPlaces[i] );
+	}
+	return result;
+    }
+
+    /**  Return the current place for this activity.
+     */
+    public static place here() {
+	return activity.currentActivity().place();
+    }
+
+    /** Returns the next place, using modular arithmetic. Thus the
+     * next place for the last place is the first place.
+     */
+    public place(i+1 % MAX_PLACES) next()  { return next( 1 ); }
+
+    /** Returns the previous place, using modular arithmetic. Thus the
+     * previous place for the first place is the last place.
+     */
+    public place(i-1 % MAX_PLACES) prev()  { return next( -1 ); }
+
+    /** Returns the k'th next place, using modular arithmetic. k may
+     * be negative.
+     */
+    public place(i+k % MAX_PLACES) next( int k ) {
+	return places[ (i + k) % MAX_PLACES];
+    }
+
+    /**  Is this the first place?
+     */
+    public boolean isFirst() { return i==0; }
+
+    /** Is this the last place?
+     */
+    public boolean isLast() { return i==MAX_PLACES; }
+}
+\end{verbatim}}
+\subsection{$k$-dimensional regions}
+{\footnotesize
+\begin{verbatim}
+package x10.lang;
+
+/** A region represents a k-dimensional space of points. A region is a
+ * dependent class, with the value parameter specifying the dimension
+ * of the region.
+ * @author vj
+ * @date 12/24/2004
+ */
+
+public final value class region( int dimension : dimension >= 0 )  {
+
+    /** Construct a 1-dimensional region, if low <= high. Otherwise
+     * through a MalformedRegionException.
+     */
+    extern public region (: dimension==1) (int low, int high)
+        throws MalformedRegionException;
+
+    /** Construct a region, using the list of region(1)'s passed as
+     * arguments to the constructor.
+     */
+    extern public region( List(dimension)<region(1)> regions );
+
+    /** Throws IndexOutOfBoundException if i > dimension. Returns the
+        region(1) associated with the i'th dimension of this otherwise.
+     */
+    extern public region(1) dimension( int i )
+        throws IndexOutOfBoundException;
+
+
+    /** Returns true iff the region contains every point between two
+     * points in the region.
+     */
+    extern public boolean isConvex();
+
+    /** Return the low bound for a 1-dimensional region.
+     */
+    extern public (:dimension=1) int low();
+
+    /** Return the high bound for a 1-dimensional region.
+     */
+    extern public (:dimension=1) int high();
+
+    /** Return the next element for a 1-dimensional region, if any.
+     */
+    extern public (:dimension=1) int next( int current )
+        throws IndexOutOfBoundException;
+
+    extern public region(dimension) union( region(dimension) r);
+    extern public region(dimension) intersection( region(dimension) r);
+    extern public region(dimension) difference( region(dimension) r);
+    extern public region(dimension) convexHull();
+
+    /**
+       Returns true iff this is a superset of r.
+     */
+    extern public boolean contains( region(dimension) r);
+    /**
+       Returns true iff this is disjoint from r.
+     */
+    extern public boolean disjoint( region(dimension) r);
+
+    /** Returns true iff the set of points in r and this are equal.
+     */
+    public boolean equal( region(dimension) r) {
+        return this.contains(r) && r.contains(this);
+    }
+
+    // Static methods follow.
+
+    public static region(2) upperTriangular(int size) {
+        return upperTriangular(2)( size );
+    }
+    public static region(2) lowerTriangular(int size) {
+        return lowerTriangular(2)( size );
+    }
+    public static region(2) banded(int size, int width) {
+        return banded(2)( size );
+    }
+
+    /** Return an \code{upperTriangular} region for a dim-dimensional
+     * space of size \code{size} in each dimension.
+     */
+    extern public static (int dim) region(dim) upperTriangular(int size);
+
+    /** Return a lowerTriangular region for a dim-dimensional space of
+     * size \code{size} in each dimension.
+     */
+    extern public static (int dim) region(dim) lowerTriangular(int size);
+
+    /** Return a banded region of width {\code width} for a
+     * dim-dimensional space of size {\code size} in each dimension.
+     */
+    extern public static (int dim) region(dim) banded(int size, int width);
+
+
+}
+
+\end{verbatim}}
+
+\subsection{Point}
+{\footnotesize
+\begin{verbatim}
+package x10.lang;
+
+public final class point( region region ) {
+    parameter int dimension = region.dimension;
+    // an array of the given size.
+    int[dimension] val;
+
+    /** Create a point with the given values in each dimension.
+     */
+    public point( int[dimension] val ) {
+        this.val = val;
+    }
+
+    /** Return the value of this point on the i'th dimension.
+     */
+    public int valAt( int i) throws IndexOutOfBoundException {
+        if (i < 1 || i > dimension) throw new IndexOutOfBoundException();
+        return val[i];
+    }
+
+    /** Return the next point in the given region on this given
+     * dimension, if any.
+     */
+    public void inc( int i )
+        throws IndexOutOfBoundException, MalformedRegionException {
+        int val = valAt(i);
+        val[i] = region.dimension(i).next( val );
+    }
+
+    /** Return true iff the point is on the upper boundary of the i'th
+     * dimension.
+     */
+    public boolean onUpperBoundary(int i)
+        throws IndexOutOfBoundException {
+        int val = valAt(i);
+        return val == region.dimension(i).high();
+    }
+
+    /** Return true iff the point is on the lower boundary of the i'th
+     * dimension.
+     */
+    public boolean onLowerBoundary(int i)
+        throws IndexOutOfBoundException {
+        int val = valAt(i);
+        return val == region.dimension(i).low();
+    }
+}
+\end{verbatim}}
+
+\subsection{Distribution}
+{\footnotesize
+\begin{verbatim}
+package x10.lang;
+
+/** A distribution is a mapping from a given region to a set of
+ * places. It takes as parameter the region over which the mapping is
+ * defined. The dimensionality of the distribution is the same as the
+ * dimensionality of the underlying region.
+
+   @author vj
+   @date 12/24/2004
+ */
+
+public final value class distribution( region region ) {
+    /** The parameter dimension may be used in constructing types derived
+     * from the class distribution. For instance,
+     * distribution(dimension=k) is the type of all k-dimensional
+     * distributions.
+     */
+    parameter int dimension = region.dimension;
+
+    /** places is the range of the distribution. Guranteed that if a
+     * place P is in this set then for some point p in region,
+     * this.valueAt(p)==P.
+     */
+    public final Set<place> places; // consider making this a parameter?
+
+    /** Returns the place to which the point p in region is mapped.
+     */
+    extern public place valueAt(point(region) p);
+
+    /** Returns the region mapped by this distribution to the place P.
+        The value returned is a subset of this.region.
+     */
+    extern public region(dimension) restriction( place P );
+
+    /** Returns the distribution obtained by range-restricting this to Ps.
+        The region of the distribution returned is contained in this.region.
+     */
+    extern public distribution(:this.region.contains(region))
+        restriction( Set<place> Ps );
+
+    /** Returns a new distribution obtained by restricting this to the
+     * domain region.intersection(R), where parameter R is a region
+     * with the same dimension.
+     */
+    extern public (region(dimension) R) distribution(region.intersection(R))
+        restriction();
+
+    /** Returns the restriction of this to the domain region.difference(R),
+        where parameter R is a region with the same dimension.
+     */
+    extern public (region(dimension) R) distribution(region.difference(R))
+        difference();
+
+    /** Takes as parameter a distribution D defined over a region
+        disjoint from this. Returns a distribution defined over a
+        region which is the union of this.region and D.region.
+        This distribution must assume the value of D over D.region
+        and this over this.region.
+
+        @seealso distribution.asymmetricUnion.
+     */
+    extern public (distribution(:region.disjoint(this.region) &&
+                                dimension=this.dimension) D)
+        distribution(region.union(D.region)) union();
+
+    /** Returns a distribution defined on region.union(R): it takes on
+        this.valueAt(p) for all points p in region, and D.valueAt(p) for all
+        points in R.difference(region).
+     */
+    extern public (region(dimension) R) distribution(region.union(R))
+        asymmetricUnion( distribution(R) D);
+
+    /** Return a distribution on region.setMinus(R) which takes on the
+     * same value at each point in its domain as this. R is passed as
+     * a parameter; this allows the type of the return value to be
+     * parametric in R.
+     */
+    extern public (region(dimension) R) distribution(region.setMinus(R))
+        setMinus();
+
+    /** Return true iff the given distribution D, which must be over a
+     * region of the same dimension as this, is defined over a subset
+     * of this.region and agrees with it at each point.
+     */
+    extern public (region(dimension) r)
+        boolean subDistribution( distribution(r) D);
+
+    /** Returns true iff this and d map each point in their common
+     * domain to the same place.
+     */
+    public boolean equal( distribution( region ) d ) {
+        return this.subDistribution(region)(d)
+            && d.subDistribution(region)(this);
+    }
+
+    /** Returns the unique 1-dimensional distribution U over the region 1..k,
+     * (where k is the cardinality of Q) which maps the point [i] to the
+     * i'th element in Q in canonical place-order.
+     */
+    extern public static distribution(:dimension=1) unique( Set<place> Q );
+
+    /** Returns the constant distribution which maps every point in its
+        region to the given place P.
+    */
+    extern public static (region R) distribution(R) constant( place P );
+
+    /** Returns the block distribution over the given region, and over
+     * place.MAX_PLACES places.
+     */
+    public static (region R) distribution(R) block() {
+        return this.block(R)(place.places);
+    }
+
+    /** Returns the block distribution over the given region and the
+     * given set of places. Chunks of the region are distributed over
+     * s, in canonical order.
+     */
+    extern public static (region R) distribution(R) block( Set<place> s);
+
+
+    /** Returns the cyclic distribution over the given region, and over
+     * all places.
+     */
+    public static (region R) distribution(R) cyclic() {
+        return this.cyclic(R)(place.places);
+    }
+
+    extern public static (region R) distribution(R) cyclic( Set<place> s);
+
+    /** Returns the block-cyclic distribution over the given region, and over
+     * place.MAX_PLACES places. Exception thrown if blockSize < 1.
+     */
+    extern public static (region R)
+        distribution(R) blockCyclic( int blockSize)
+        throws MalformedRegionException;
+
+    /** Returns a distribution which assigns a random place in the
+     * given set of places to each point in the region.
+     */
+    extern public static (region R) distribution(R) random();
+
+    /** Returns a distribution which assigns some arbitrary place in
+     * the given set of places to each point in the region. There are
+     * no guarantees on this assignment, e.g. all points may be
+     * assigned to the same place.
+     */
+    extern public static (region R) distribution(R) arbitrary();
+
+}
+\end{verbatim}}
+
+\subsection{Arrays}
+Finally we can now define arrays. An array is built over a
+distribution and a base type.
+
+{\footnotesize
+\begin{verbatim}
+package x10.lang;
+
+/** The class of all  multidimensional, distributed arrays in X10.
+
+    <p> I dont yet know how to handle B@current base type for the
+    array.
+
+ * @author vj 12/24/2004
+ */
+
+public final value class array ( distribution dist )<B@P> {
+    parameter int dimension = dist.dimension;
+    parameter region(dimension) region = dist.region;
+
+    /** Return an array initialized with the given function which
+        maps each point in region to a value in B.
+     */
+    extern public array( Fun<point(region),B@P> init);
+
+    /** Return the value of the array at the given point in the
+     * region.
+     */
+    extern public B@P valueAt(point(region) p);
+
+    /** Return the value obtained by reducing the given array with the
+        function fun, which is assumed to be associative and
+        commutative. unit should satisfy fun(unit,x)=x=fun(x,unit).
+     */
+    extern public B reduce(Fun<B@?,Fun<B@?,B@?>> fun, B@? unit);
+
+
+    /** Return an array of B with the same distribution as this, by
+        scanning this with the function fun, and unit unit.
+     */
+    extern public array(dist)<B> scan(Fun<B@?,Fun<B@?,B@?>> fun, B@? unit);
+
+    /** Return an array of B@P defined on the intersection of the
+        region underlying the array and the parameter region R.
+     */
+    extern public (region(dimension) R)
+        array(dist.restriction(R)())<B@P>  restriction();
+
+    /** Return an array of B@P defined on the intersection of
+        the region underlying this and the parametric distribution.
+     */
+    public  (distribution(:dimension=this.dimension) D)
+        array(dist.restriction(D.region)())<B@P> restriction();
+
+    /** Take as parameter a distribution D of the same dimension as *
+     * this, and defined over a disjoint region. Take as argument an *
+     * array other over D. Return an array whose distribution is the
+     * union of this and D and which takes on the value
+     * this.atValue(p) for p in this.region and other.atValue(p) for p
+     * in other.region.
+     */
+    extern public (distribution(:region.disjoint(this.region) &&
+                                dimension=this.dimension) D)
+        array(dist.union(D))<B@P> compose( array(D)<B@P> other);
+
+    /** Return the array obtained by overlaying this array on top of
+        other. The method takes as parameter a distribution D over the
+        same dimension. It returns an array over the distribution
+        dist.asymmetricUnion(D).
+     */
+    extern public (distribution(:dimension=this.dimension) D)
+        array(dist.asymmetricUnion(D))<B@P> overlay( array(D)<B@P> other);
+
+    extern public array<B> overlay(array<B> other);
+
+    /** Assume given an array a over distribution dist, but with
+     * basetype C@P. Assume given a function f: B@P -> C@P -> D@P.
+     * Return an array with distribution dist over the type D@P
+     * containing fun(this.atValue(p),a.atValue(p)) for each p in
+     * dist.region.
+     */
+    extern public <C@P, D>
+        array(dist)<D@P> lift(Fun<B@P, Fun<C@P, D@P>> fun, array(dist)<C@P> a);
+
+    /**  Return an array of B with distribution d initialized
+         with the value b at every point in d.
+     */
+    extern public static (distribution D) <B@P> array(D)<B@P> constant(B@? b);
+
+}
+\end{verbatim}}
+
+
+\begin{example}
+ The code for {\tt List} translates as given in Table~\ref{List-translation}.
+\end{example}
+
+\begin{figure*}
+{\footnotesize
+\begin{verbatim}
+  public value class List <Node> {
+    public final nat n;   // is a parameter
+    nullable Node node = null;
+    nullable List<Node> rest = null;  // All assignments must check n = this.n-1.
+
+    /** Returns the empty list. Defined only when the parameter n
+        has the value 0. Invocation: new List(0)<Node>().
+     */
+    public List ( final nat n ) {
+      assume n==0;
+      this.n = n;
+    }
+
+    /** Returns a list of length 1 containing the given node.
+        Invocation: new List(1)<Node>( node ).
+     */
+    public List ( final nat n, Node node ) {
+      assume n==1;                         // From the constructor precondition.
+      assert 0==0 : "DependentTypeError"; // For the constructor call.
+      assert n>=1 : "DependentTypeError"; // For the this call.
+      this(n, node, new List<Node>(0));
+    }
+
+    public List ( final nat n, Node node, List<Node> rest ) {
+      assume n>=1;                               // From the constructor precondition
+      assume rest.n==n-1 : "DependentTypeError"; // From the argument type.
+      this.n = n;
+      this.node = node;
+      assert rest.n==n-1 : "DependentTypeError"; // For the field assignment.
+      this.rest = rest;
+    }
+
+    public  List<Node> append( List<Node> arg ) {
+      if (n == 0) {
+          final List<Node> result = arg;
+          assert n+arg.n == result.n : "DependentTypeError"; // For the return value
+          return result;
+      } else {
+          assume rest.n == n-1;
+          final List<Node> argval = rest.append(arg);
+          assume argval.n == rest.n+arg.n;
+          assert n+arg.n-1== argval.n : "DependentTypeError"; // For the constructor call.
+          final List<Node> result = new List<Node>(n+arg.n, node, argval);
+          assume result.n == n+arg.n;
+          assert n+arg.n == result.n : "DependentTypeError"; // For the return value
+          return result;
+      }
+    }
+
+\end{verbatim}}
+\caption{Translation of {\tt List} (contd in Table~\ref{List-translation-2}).}\label{List-translation}
+\end{figure*}
+\begin{figure*}
+{\footnotesize
+\begin{verbatim}
+    public  List<Node> rev() {
+      final List<Node> arg = new List<Node>(0);
+      assume arg.n = 0;                           // From the constructor call.
+      final List<Node> result = rev( arg );
+      assume result.n == n+arg.n;                  // From the method signature
+      assert n == result.n : "DependentTypeError"; // For the return value.
+      return result;
+    }
+
+    public  List(n+arg.n)<Node> rev( final List<Node> arg) {
+      if (n==0) {
+         assert n+arg.n == arg.n : "DependentTypeError"; // For the return value.
+         return arg;
+      } else {
+        assert 1+arg.n-1=arg.n : "DependentTypeError"; // For the argument to the constructor
+        final List<Node> arg2 = new List<Node>(1+arg.n,node, arg));
+        assume arg2.n==1+arg.n;                      // From the constructor invocation
+        final List<Node> restval = rest;             // Read from a mutable field of parametric type
+        assume restval.n == n-1;                     // From the field read.
+        final List(restval.n+arg2.n)<Node> result = restval.rev( arg2 );
+        assume result.n=restval.n+arg2.n
+        assert n+arg.n == result.n                   // For the return value
+        return result;
+    }
+
+    /** Return a list of compile-time unknown length, obtained by filtering
+        this with f. */
+    public List<Node> filter(fun<Node, boolean> f) {
+         if (n==0) return this;
+         if (f(node)) {
+           final List<Node> l = rest.filter(f);
+           assert l.n+1-1==l.n : "DependentTypeError"; // For the constructor call
+           return new List<Node>(l.n+1,node, l);
+         } else {
+           return rest.filter(f);
+         }
+    }
+
+    /** Return a list of m numbers from o..m-1. */
+    public static  List<nat> gen( final nat m ) {
+         assert 0 <= m : "DependentTypeError";        // Precondition for method call.
+         final List<nat> result = gen(0,m);
+         assume result.n=m-0 : "DependentTypeError";  // From the method signature
+         assert m == result.n : "DependentTypeError"; // For the return value
+         return result;
+    }
+
+    /** Return a list of (m-i) elements, from i to m-1. */
+    public static List<nat> gen(final nat i, final nat m) {
+      assume i <= m;                                   // Method precondition.
+      if (i==m) {
+        assert m-i == 0 : "DependentTypeError";        // For the constructor call
+        final List result = new List<nat>(m-i);
+        assume result.n == 0;                          // From the constructor call.
+        assert m-i == result.n : "DependentTypeError"; // For the return value.
+        return result;
+      } else {
+        assert i+1 <= m : "DependentTypeError";        // For the method call.
+        final List<nat> arg = gen(i+1,m);
+        assume arg.n = m-(i+1);                        // From the method call.
+        assert m-i-1 = arg.n;                          // For the constructor invocation.
+        final List result = new List<nat>(m-i, i, arg);
+        assume result.n = m-i;                         // From the constructor invocation.
+        assert m-i == result.n : "DependentTypeError"; // For the return value
+        return result;
+    }
+  }
+\end{verbatim}}
+\caption{Translation of {\tt List} (continued).}\label{List-translation-2}
+\end{figure*}
+
+\section{Type-checking dependent classes}
+
+Each programming language---such as \Xten{}---will specify the base
+underlying classes (and the operations on them) which can occur as
+types in parameter lists. For instance, in the code for {\tt List}
+above, the only type that appears in parameter lists is {\tt int}, and
+the only operations on {\tt int} are addition, subtraction, {\tt >=},
+{\tt ==}, and the only constants are {\tt 0} and {\tt 1}.  (This
+language falls within Presburger arithmetic, a decidable fragment of
+arithmetic.)  The compiler must come equipped with a constraint solver
+(decision procedure) that can answer questions of the form: does one
+constraint entail another?  Constraints are atomic formulas built up
+from these operations, using variables. For instance, the compiler
+must answer each one of:
+{\footnotesize
+\begin{verbatim}
+  n >= 2 |- n-1 >= 0
+  n >= 0, m >= 0 |- m+n >= 0
+\end{verbatim}}
+
+Ultimately, the only variables that will occur in constraints are
+those that correspond to {\tt config} parameters and those that are
+defined by implicit parameter definitions. We need to establish that
+the verification of any class will generate only a finite number of
+constraints, hence only a finite constraint problem for the constraint
+solver.
+
+Second, it should be possible for instances of user-defined classes
+(and operations on them) to occur as type parameters. For the compiler
+to check conditions involving such values, it is necessary that the
+underlying constraint solver be extended.
+
+There are two general ways in which the constraint solver may be
+extended.  Both require that the programmer single out some classes
+and methods on those classes as {\em pure}. (We shall think of
+constants as corresponding to zero-ary methods.) Only instances of
+pure classes and expressions involving pure methods on these instances
+are allowed in parameter expressions.
+
+How shall constraints be generated for such pure methods? First, the
+programmer may explicitly supply with each pure method {\tt T m(T1 x1,
+..., Tn xn)} a constraint on {\tt n+2} variables in the constraint
+system of the underlying solver that is entailed by {\tt y =
+o.m(x1,..., xn)}. Whenever the compiler has to perform reasoning on an
+expression involving this method invocation, it uses the constraint
+supplied by the programmer. A second more ambitious possibility is
+that a symbolic evaluator of the language may be run on the body of
+the method to automatically generate the corresponding constraint.
+
+Finally an additional possibility is that the constraint solver itself
+be made extensible. In this case, when a user writes a class which is
+intended to be used in specifying parameters, he also supplies an
+additional program which is used to extend the underlying constraint
+solver used by the compiler. This program adds more primitive
+constraints and knows how to perform reasoning using these
+constraints. This is how I expect we will initially implement the
+\Xten{} language. As language designers and implementers we will
+provide constraint solvers for finite functions and {\tt Herbrand}
+terms on top of arithmetic.
+
+
+

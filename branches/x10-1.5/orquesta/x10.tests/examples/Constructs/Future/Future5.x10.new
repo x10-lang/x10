@@ -1,0 +1,23 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Future test.
+ */
+public class Future5 extends x10Test {
+	public def run(): boolean = {
+		var x: future<int> = future { 41 };
+		var val: int = x.force();
+		return x.forced();
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Future5().execute();
+	}
+}
