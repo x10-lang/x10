@@ -31,7 +31,8 @@ public class MyTokenColorer extends DefaultTokenColorer implements X10Parsersym,
             case TK_StringLiteral:
                  return characterAttribute;
             default:
-                if (controller.isKeyword(token.getKind()))
+        	// RMF 10/26/2006 - Avoid AIOOB that happens if we pass error tokens to isKeyword()
+                if (token.getKind() < TK_ERROR_TOKEN && controller.isKeyword(token.getKind()))
                      return keywordAttribute;
                else return null;
 		}
