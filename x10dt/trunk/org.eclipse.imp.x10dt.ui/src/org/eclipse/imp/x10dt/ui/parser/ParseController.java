@@ -48,7 +48,7 @@ public class ParseController implements IParseController
     public IToken getTokenAtCharacter(int offset) {
     	return parser.getParseStream().getTokenAtCharacter(offset);
     }
-    public IASTNodeLocator getNodeLocator() { return new AstLocator(); }
+    public IASTNodeLocator getNodeLocator() { return new PolyglotNodeLocator(lexer.getLexStream()); }
 
     public boolean hasErrors() { return currentAst == null; }
     public List getErrors() { return Collections.singletonList(new ParseError("parse error", null)); }
