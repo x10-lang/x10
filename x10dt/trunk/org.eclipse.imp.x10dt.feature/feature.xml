@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.eclipse.safari.x10dt"
-      label="X10 Development Toolkit"
+      label="%featureName"
       version="1.0.52"
-      provider-name="rfuhrer@watson.ibm.com">
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
 
-   <description url="http://x10web.watson.ibm.com/">
-      This feature provides IDE support for the X10 programming language.
+   <description url="http://x10.sourceforge.net/">
+      %description
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      You are free to not copy anything contained in this archive.
-Except in the sense that none of us are completely free, as freedom
-implies responsibility, and therefore, a lack of freedom.
-   </copyright>
-
-   <license url="http://www.example.com/license">
-      You may use this software, but not use it, for any purpose whatsoever,
-except any specific purpose.
+   <license url="%licenseURL">
+      %license
    </license>
 
    <url>
-      <update label="SAFARI Update Site" url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"/>
+      <update url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"
+              label="%updateSiteName"/>
    </url>
 
    <requires>
