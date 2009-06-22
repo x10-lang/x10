@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10dt.pluginCommon" basedir=".">
-	<!-- Deprecated: no plugin should be picking up their version #'s from here -->
-	<property name="plugin.version.prefix31" value="1.0"/>
-	<property name="plugin.version.prefix32" value="3.2"/>
-	<property name="plugin.version.suffix" value="70"/>
-	<property name="plugins.version.31" value="${plugin.version.prefix31}.${plugin.version.suffix}"/>
-	<property name="plugins.version.32" value="${plugin.version.prefix32}.${plugin.version.suffix}"/>
-
 	<target name="properties" if="eclipse.running">
 		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
 	</target>
