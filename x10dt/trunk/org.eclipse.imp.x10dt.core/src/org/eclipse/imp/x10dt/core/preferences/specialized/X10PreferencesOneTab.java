@@ -87,9 +87,9 @@ public class X10PreferencesOneTab extends X10Preferences implements IPropertyCha
     protected void checkState() {
     	// Valid if all fields, on all tabs, are valid.  Delegate to each tab and remember first offending field, if any.
         invalidFieldEditor = null;
-        X10PreferencesInstanceTabNoDetails tabs[] = (X10PreferencesInstanceTabNoDetails[])getTabs();
+        PreferencesTab tabs[] = getTabs();
         for (int i=0; i<tabs.length; i++) {
-        	FieldEditor fe = tabs[i].doCheckState();
+        	FieldEditor fe = ((X10PreferencesInstanceTabNoDetails)tabs[i]).doCheckState();
         	if (fe!=null) {
         		invalidFieldEditor = fe;
         		setValid(false);
