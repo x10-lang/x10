@@ -64,6 +64,7 @@ import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Next;
+import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.X10Loop;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -85,10 +86,12 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public static final String COMPILATION_UNIT_NORMAL_IMAGE_NAME= "compilationUnitNormal";
     public static final String COMPILATION_UNIT_WARNING_IMAGE_NAME= "compilationUnitWarning";
     public static final String COMPILATION_UNIT_ERROR_IMAGE_NAME= "compilationUnitError";
+    public static final String ALIAS_IMAGE_NAME="alias";
 
     private static Image COMPILATION_UNIT_NORMAL_IMAGE;
     private static Image COMPILATION_UNIT_WARNING_IMAGE;
     private static Image COMPILATION_UNIT_ERROR_IMAGE;
+    private static Image ALIAS_IMAGE;
 
     public static final String PROJECT_NORMAL_IMAGE_NAME= "projectNormal";
     public static final String PROJECT_WARNING_IMAGE_NAME= "projectWarning";
@@ -107,14 +110,10 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
     public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
 
-
-
     public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
     public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
     public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
     public static Image _DESC_MISC_PUBLIC = JavaPluginImages.DESC_MISC_PUBLIC.createImage();
-
-
 
     public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
     public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
@@ -220,6 +219,8 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return _DESC_MISC_DEFAULT;
         } else if (node instanceof New) {//PORT1.7 ArrayConstructor->New (Nate: "with a Closure as an argument")
             return _DESC_MISC_DEFAULT;
+        } else if (node instanceof TypeDecl_c){
+        	return ALIAS_IMAGE;
         }
         return DEFAULT_AST_IMAGE;
     }
@@ -330,7 +331,11 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             }
             String temp = node.getClass().getName()+": "+node.toString();//PORT1.7 what is this thing? find out later
             return temp;
-        } 
+        } else if (node instanceof TypeDecl_c){
+        	TypeDecl_c td=(TypeDecl_c)node;
+        	String tdName= td.name().toString();
+        	return tdName;
+        }
 //        else if (node instanceof New) {//PORT1.7 ArrayConstructor -> New w/ Closure arg
 //        	New newThing = (New)node;//PORT1.7 ArrayConstruct vs New
 //        	if(newThing.type().isArray() && newThing.body()!=null ) {
@@ -340,6 +345,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 //            
 //            
 //        }
+        
         return "???";
     }
 
