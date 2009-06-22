@@ -5,6 +5,7 @@ package x10.uide.editor;
 
 import java.util.List;
 import lpg.lpgjavaruntime.LexStream;
+import org.eclipse.jdt.internal.ui.text.HTMLPrinter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.uide.editor.IHoverHelper;
@@ -41,6 +42,10 @@ public class HoverHelper implements IHoverHelper {
 
        	if (target == null) return null;
 
-       	return target.toString();
+	StringBuffer buffer= new StringBuffer();
+
+	// This is what the JDT hover helper does, essentially; looks nice
+	HTMLPrinter.addSmallHeader(buffer, target.toString());
+       	return buffer.toString();
     }
 }
