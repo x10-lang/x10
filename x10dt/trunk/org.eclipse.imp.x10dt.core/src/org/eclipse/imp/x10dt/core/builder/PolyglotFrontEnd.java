@@ -59,10 +59,10 @@ public final class PolyglotFrontEnd extends Compiler {
 	try {
 	    try {
 		Scheduler scheduler= sourceExtension().scheduler();
-		List jobs= new ArrayList();
+		List<Job> jobs= new ArrayList<Job>();
 
 		// First, create a goal to compile every source file.
-		for(Iterator i= sources.iterator(); i.hasNext(); ) {
+		for(Iterator<Source> i= sources.iterator(); i.hasNext(); ) {
 		    Source source= (Source) i.next();
 
 		    // mark this source as being explicitly specified by the user.
@@ -99,7 +99,7 @@ public final class PolyglotFrontEnd extends Compiler {
 	}
 	errorQueue().flush();
 
-	for(Iterator i= allExtensions().iterator(); i.hasNext(); ) {
+	for(Iterator<ExtensionInfo> i= allExtensions().iterator(); i.hasNext(); ) {
 	    ExtensionInfo ext= (ExtensionInfo) i.next();
 	    ext.getStats().report();
 	}
