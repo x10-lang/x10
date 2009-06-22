@@ -1157,7 +1157,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
 		}
-		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+//		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		fEngine.setExclusionsFile(exclusionsFile);
 	}
 
@@ -1275,7 +1276,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		
 		try {
-		  return analyzeSource(ExtractAsyncStaticTools.singleTestSrc(fSourceFile),
+		  return analyzeSource(ExtractAsyncStaticTools.allSources(fSourceFile.getProject()), // singleTestSrc(fSourceFile),
 			  x10RTJars, javaRTJars, javaProject);
 		} catch (CancelException e) {
 			return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
