@@ -100,10 +100,9 @@ public class X10PreferencesInstanceTabNoDetails extends
 		fields.add(TabSize);
 
 
-//		PreferenceConverter.setValue(page.getPreferenceStore(), PreferenceConstants.P_SOURCE_FONT, new org.eclipse.swt.graphics.FontData("Lucida Sans Typewriter", 11, 0));
 		fontField= fPrefUtils_x10.makeNewFontField(
 				page, tab, fPrefService,
-				"instance", X10PreferenceConstants.P_X10_FONT, "Source font:",
+				"instance", PreferenceConstants.P_SOURCE_FONT, "Source font:",
 				null,
 				parent,
 				true, false,
@@ -169,7 +168,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 					// preference store
 					if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
 						prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, (Integer) event.getNewValue());
-					} else if (event.getProperty().equals("x10Font")) {
+					} else if (event.getProperty().equals(PreferenceConstants.P_SOURCE_FONT)) {
 						PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
 					} else if (event.getProperty().equals(X10PreferenceConstants.P_NUM_PLACES)) {
 						prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, (Integer) event.getNewValue());
