@@ -88,7 +88,14 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     @Override
     public NodeVisitor begin() {
         String wsPath= ResourcesPlugin.getWorkspace().getRoot().getLocation().toPortableString();
+
         String path= fJob.source().path();
+        // BRT don't bother looking for dependencies if we're in jar/zip
+        //PORT1.7
+        if(path.endsWith(".jar")|| path.endsWith(".zip")) {
+        	System.out.println("looking for resource in zip/jar???");
+        	return null;
+        }
         if (path.startsWith(wsPath)) {
             path= path.substring(wsPath.length());
         }

@@ -35,6 +35,8 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     }
 
     // BRT -- HACK don't try to chop off wsPath if it's not there, e.g. an x10 source like Ref.x10  
+    // BRT todo: if inside jar/zip then .. don't need??  see ComputeDependenciesVisitor
+    //  don't forget the case when resource is outside the WS
     protected String typeToPath(Type type) {
         final String filePath= type.position().file().replace(File.separatorChar, '/');
         String result=null;
@@ -53,8 +55,12 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     public void addDependency(Type fromType, Type uponType) {
         String fromPath= typeToPath(fromType);
         String uponPath= typeToPath(uponType);
+        // BRT PORT1.7  ...
+        if(!(uponPath.contains(".zip") || uponPath.contains(".jar"))) {
+        	addDependency(fromPath, uponPath);
+        }
 
-        addDependency(fromPath, uponPath);
+        
     }
 
     public void clearDependenciesOf(Type type) {

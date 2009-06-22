@@ -280,7 +280,17 @@ public class X10Builder extends IncrementalProjectBuilder {
         public CheckPackageDeclVisitor(Job job) {
             fJob= job;
         }
-
+        @Override
+        public NodeVisitor begin() {
+            String path= fJob.source().path();
+            // BRT don't bother looking for dependencies if we're in jar/zip
+            //PORT1.7
+            if(path.endsWith(".jar")|| path.endsWith(".zip")) {
+            	System.out.println("looking for resource in zip/jar???");
+            	return null;
+            }
+            return super.begin();
+        }
         private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
             if (!actualPkg.equals(declaredPkg)) {
                 fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pos));
@@ -356,8 +366,21 @@ public class X10Builder extends IncrementalProjectBuilder {
             Job job= this.job();
             Node ast= job.ast();
             String path= job.source().path();
+            // PORT1.7 if in a zip or jar then we don't need to...
+            if(path.contains("*.zip")||path.contains("*.jar")) {
+            	return true;
+            }
             X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
-            List<IToken> adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
+            
+            List<IToken> adjuncts=null;
+            try {
+            	adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
+            }
+            catch(Exception e) {
+            	//PORT1.7 -- Hack to postpone JPGPosition.getLeftIToken() problem (always null now, need general method to recompute)
+            	X10Plugin.getInstance().logException("Error while collecting bookmarks during build: probably JPGPosition token problem", e);
+            	adjuncts=new ArrayList<IToken>();
+            }
             IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
 
             try {
@@ -524,7 +547,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
             String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
-
+            //BRT note: probably won't work if > 1 src folder
             // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
 //          opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
             List<String> optsList = new ArrayList();
@@ -536,7 +559,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                "-commandlineonly"
+                //"-commandlineonly"  FIXME temp only  BRT
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
@@ -840,10 +863,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
         IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
-
+		boolean traceOn=true;
         for(IFile srcFile: fSourcesToCompile) {
+        	if(traceOn)System.out.println("srcFile: "+srcFile);
             IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
+            if(traceOn)System.out.println("genJavaFile: "+genJavaFile);
             IPath genFileFolder= srcFile.getFullPath().removeLastSegments(1);
+            if(traceOn)System.out.println("genFileFolder: "+genFileFolder);
 
             genFiles.add(wsRoot.getFile(genJavaFile));
         }
@@ -887,7 +913,8 @@ public class X10Builder extends IncrementalProjectBuilder {
             // The X10 configuration file's location is given by the value of the System
             // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
             // and by a preference store listener in X10PreferencePage.
-            Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
+        	String x10Config=System.getProperty("x10.configuration");
+            Configuration.readConfiguration(Configuration.class, x10Config);
         } catch (x10.config.ConfigurationError e) {
             if (e.getCause() instanceof FileNotFoundException) {
                 FileNotFoundException fnf= (FileNotFoundException) e.getCause();
@@ -1062,6 +1089,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection<IProject> doCompile() throws CoreException {
         if (!fSourcesToCompile.isEmpty()) {
+        	System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
             // RMF 8/5/2008 - Don't clear the dependency info right away - if Polyglot fails to
             // get to some source file on the list, it'll end up with no dependency info. Better
             // to just leave the dependency info untouched. So, instead: clear a file's dependency
@@ -1161,6 +1189,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         collectSourceFolders();
 
         IResourceDelta delta= getDelta(fProject);
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
         if (delta != null) {
             X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
@@ -1171,6 +1200,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             fProject.accept(fResourceVisitor);
             X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
         }
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);// OK here
         collectChangeDependents();
         collectFilesWithErrors();
     }
