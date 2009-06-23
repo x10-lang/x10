@@ -99,19 +99,10 @@ namespace x10aux {
             x10aux::ref<x10::lang::Throwable> &e_ =
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
-            fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                                (int)x10_here(), e_->_type()->name());
-            fprintf(stderr, "%s\n", e_->toString()->c_str());
+            fprintf(stderr, "Uncaught exception at place %d: %s\n", (int)x10_here(),
+                                                                    e_->toString()->c_str());
 
-            x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > trace =
-                e_->getStackTrace();
-
-            x10aux::ref<x10::lang::Iterator<x10aux::ref<x10::lang::String> > > it =
-                trace->iterator();
-
-            while (it->hasNext()) {
-                fprintf(stderr, "        at %s\n", it->next()->c_str());
-            }
+            e_->printStackTrace();
 
             x10aux::exitCode = 1;
 

@@ -13,6 +13,6 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.io.FileNotFoundException", null, null)
 public value FileNotFoundException extends IOException {
-    public native def this(): FileNotFoundException;
-    public native def this(message: String): FileNotFoundException;
+    public def this() { super(); }
+    public def this(message: String) { super(message); }
 }

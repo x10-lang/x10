@@ -51,14 +51,13 @@ class FinishState {
 		latch.await();
 		if (null != exceptions) {
 			if (exceptions.size() == 1) {
-				val t = exceptions.pop();
+				val t = exceptions.peek();
 				if (t instanceof Error) {
 					throw t as Error;
 				}
 				if (t instanceof RuntimeException) {		
 					throw t as RuntimeException;
 				}
-				assert false as boolean;
 			}
 			throw new MultipleExceptions(exceptions);
 		}

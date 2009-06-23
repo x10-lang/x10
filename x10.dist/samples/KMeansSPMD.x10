@@ -3,7 +3,6 @@ import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
 import x10.util.Random;
-import x10.array.FastArray;
 
 public class KMeansSPMD {
 
@@ -21,7 +20,7 @@ public class KMeansSPMD {
     public static def main (args : Rail[String]) {
 
         var fname_:String = "points.dat";
-        var DIM_:Int=3, CLUSTERS_:Int=8, POINTS_:Int=1000000, ITERATIONS_:Int=500;
+        var DIM_:Int=3, CLUSTERS_:Int=8, POINTS_:Int=10000, ITERATIONS_:Int=500;
         switch (args.length) {
             case 5: ITERATIONS_ = Int.parseInt(args(4));
             case 4: DIM_        = Int.parseInt(args(3));
@@ -44,7 +43,7 @@ public class KMeansSPMD {
             val m = Marshal.INT;
             val init_points = (Int) => Float.fromIntBits(m.read(fr).reverseBytes());
             val points_cache = ValRail.make[Float](POINTS*DIM, init_points);
-            val points = Array.makeFast[Float](points_dist, (p:Point)=>points_cache(p(0)*DIM+p(1)));
+            val points = Array.make[Float](points_dist, (p:Point)=>points_cache(p(0)*DIM+p(1)));
 
             val central_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => points_cache(i));
             // used to measure convergence at each iteration:
@@ -76,7 +75,7 @@ public class KMeansSPMD {
             finish {
                 for (d in points_dist.places()) async (d) clocked(clk) {
 
-                    val local_points = points.restriction(here) as FastArray[Float]{rank==2};
+                    val local_points = points.restriction(here) as Array[Float](2);
 
                     val clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
                     val new_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
