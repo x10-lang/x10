@@ -27,7 +27,9 @@ import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.SettableAssign;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Type;
@@ -121,12 +123,13 @@ public class TermCreator {
                     Local local = (Local) old;
                     Type localType= local.type();
                     X10TypeSystem ts= (X10TypeSystem) localType.typeSystem();
-
-                    if (local.type().isArray() || local.type().descendsFrom(ts.Array())) {
+                    Type t = X10TypeMixin.baseType(local.type());
+                    if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {
                         fTermMap.put(old, XTerms.makeArray(new XVarDefWrapper(local)));
                     } else {
                         fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
                     }
+                    
                 } else if (old instanceof Binary) {
                     Binary binary = (Binary) old;
                     Binary.Operator op= binary.operator();

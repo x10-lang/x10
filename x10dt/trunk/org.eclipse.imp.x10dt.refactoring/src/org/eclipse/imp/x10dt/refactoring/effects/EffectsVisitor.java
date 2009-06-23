@@ -89,7 +89,7 @@ public class EffectsVisitor extends NodeVisitor {
         XConstraint result= null;
         DepParameterExpr methodGuard= method.guard();
         if (methodGuard != null) {
-            result= conjunction(result, methodGuard.xconstraint().get());
+            result= conjunction(result, methodGuard.valueConstraint().get());
         }
         List<Formal> formals= method.formals();
         for(Formal formal: formals) {
