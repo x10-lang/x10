@@ -10,14 +10,6 @@
 
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
-/**
- * 
- */
 package org.eclipse.imp.x10dt.core.builder;
 
 import java.util.Iterator;
@@ -46,8 +38,10 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ParsedClassType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 /**
@@ -55,20 +49,20 @@ import polyglot.visit.NodeVisitor;
  * build a map of compilation unit-level dependencies to be used in compilation.
  * @author rfuhrer
  */
-class ComputeDependenciesVisitor extends NodeVisitor {
+class ComputeDependenciesVisitor extends ContextVisitor {
     private final Job fJob;
-    private final TypeSystem fTypeSystem;
+    //private final TypeSystem fTypeSystem;
     private SourceFile fFromFile;
     private Type fFromType;
     private final PolyglotDependencyInfo fDependencyInfo;
 
     private static boolean DEBUG= false;
-    private static boolean printOnce=true;
 
     public ComputeDependenciesVisitor(Job job, TypeSystem ts, PolyglotDependencyInfo di) {
+    	super(job, ts, ts.extensionInfo().nodeFactory());
         fJob= job;
-        fTypeSystem= ts;
         fDependencyInfo= di;
+        
     }
     private void recordTypeDependency(Type type) {
         if (type.isArray()) {
@@ -78,11 +72,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         if (type.isClass()) {
             if (type instanceof NullableType)
                 type = ((NullableType) type).base();
-            // PORT1.7 From Nate 3/5/09: One should  do '(ClassType) X10TypeMixin.baseType(t)' rather than '(ClassType) t' for the cast to succeed. 
             ClassType classType= (ClassType) X10TypeMixin.baseType(type);
-            if (!isBinary(classType) && !fFromType.typeEquals(type)) { //PORT1.7 Type.equals() -> Type.typeEquals()
-                if (DEBUG)
-                    System.out.println("  Reference to type: " + classType.fullName());
+            if (!isBinary(classType) && !fFromType.typeEquals(type,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
             }
         }
@@ -115,7 +106,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         fDependencyInfo.clearDependenciesOf(path);
         return super.begin();
     }
-    public NodeVisitor enter(Node n) {
+    @Override
+    public NodeVisitor enterCall(Node n) throws SemanticException {
         if (n instanceof SourceFile) {
             fFromFile= (SourceFile) n;
             if (DEBUG)
@@ -142,14 +134,15 @@ class ComputeDependenciesVisitor extends NodeVisitor {
 
             recordTypeDependency(ci.container());
         } else if (n instanceof ClassDecl) {
-            ClassDecl classDecl= (ClassDecl) n;
-            fFromType = classDecl.classDef().asType();   //PORT1.7  classDecl.type()->classDecl.classDef().asType()  
-            if (classDecl.superClass() != null) // interfaces have no superclass
-        	recordTypeDependency(classDecl.superClass().type());
-            for(Iterator intfs= classDecl.interfaces().iterator(); intfs.hasNext(); ) {
-        	TypeNode typeNode= (TypeNode) intfs.next();
+            ClassDecl classDecl = (ClassDecl) n;
+			fFromType = classDecl.classDef().asType(); // PORT1.7 classDecl.type()->classDecl.classDef().asType()
+			if (classDecl.superClass() != null) // interfaces have no superclass
+				recordTypeDependency(classDecl.superClass().type());
+			for (Iterator intfs = classDecl.interfaces().iterator(); intfs
+					.hasNext();) {
+				TypeNode typeNode = (TypeNode) intfs.next();
 
-        	recordTypeDependency(typeNode.type());
+				recordTypeDependency(typeNode.type());
             }
         } else if (n instanceof FieldDecl) {
             FieldDecl fieldDecl= (FieldDecl) n;
@@ -164,6 +157,6 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         	recordTypeDependency(formal.type().type());
             }
         }
-        return super.enter(n);
+        return super.enterCall(n);
     }
 }
