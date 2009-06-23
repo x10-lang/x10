@@ -1,0 +1,12 @@
+// SYNOPSIS: #0=region_expr #1=region_var #2=rect_for_header #3=rect_for_body #4=regular_for_iterator
+{
+x10.lang.region #1 = (x10.lang.region) #0;
+if (#1.size() > 0 && (#1 instanceof x10.array.MultiDimRegion || #1 instanceof x10.array.ContiguousRange)) {
+	#2 {
+		#3
+	}
+} else {
+	#4
+}
+}
+

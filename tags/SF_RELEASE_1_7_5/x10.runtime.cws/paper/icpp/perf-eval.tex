@@ -1,0 +1,271 @@
+\section{Performance Evaluation}\label{s:results}
+
+\subsection{C implementation}
+All the C implementations follow the SPMD programming style.  $P$
+threads are created, and each of them is assigned a piece of work .
+The DFS implemenation balances the workload through a simple, explicit
+work-stealing scheme as described in \cite{BL94}.  Both the BFS and SV
+implementaions simply distribute the input array evenly to each
+processor to work on.  Ajacency array are used for the input
+representation in BFS and DFS.  SV simulates the corresponding PRAM
+algorithm, and uses the edge list representation.  In DFS,
+mutual-exclusion through atomic instruction is used for
+synchronization.  BFS and SV employ only barriers, and the barrier
+implemenation is the usual $O(\log P)$ tree implemenation.
+
+DFS in Cilk use the same input represenation as the C implementation.
+Concurrency and synchronization are supported by Cilk runtime and Cilk
+lock ( an efficient implementation through atomic instructions).
+
+The performance numbers for handwritten C application and for the
+\XWS{} code are given below, for psuedo-depth-first search,
+breadth-first search and the Shiloach Vishkin algorithm for spanning
+tree (from top to bottom). Numbers are presented for two machines,
+altair (containing 4 dual-core Opterons) on the left and moxie, a
+32-processor Niagara on the right. The best numbers for ten
+consecutive runs are presented.
+
+The Java programs were run using the experimental Java 1.7 release on
+both machines. C programs were compiled with Sun cc v 5.8 and Cilk
+programs with the 5.3.2 compiler.
+
+\onecolumn
+\begin{figure}
+ \begin{tabular}{ccc}
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/random/altair-bfs-random.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/random/altair-dfs-random.jpg}\\
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/kgraph/altair-bfs-kgraph.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/kgraph/altair-dfs-kgraph.jpg}\\
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/BFS/torus/altair-bfs-torus.jpg}&
+ \pdfimage width 9cm {../IPDPS08/plotdata/altair/DFS/torus/altair-dfs-torus.jpg} \\
+
+ \end{tabular}
+\caption{Psuedo-DFS and BFS for altair}\label{DFS-altair}\label{BFS-altair}
+\end{figure}
+
+\twocolumn
+While classic graph traversals such as DFS and BFS can be supported by
+XWS, they do not take advantage of some of the algorithm design
+techniques that exploit work-stealing to provide performance superior
+to that of other approaches to parallel programming.
+
+Work-stealing schemes are natural fits for many classic parallel
+divide-and-conquer algorithms. (In fact, for some problems and
+criteria, work-stealing provides optimizal solutions.) For example, to
+process all of the elements of an array of size $N$, a root task
+represents {array, 0, N} which is then subdivided into two tasks
+{array, 0, n/2} and {array, n/2, n}, and so on until the size of each
+task is less than an empirically-guided sequential threshold
+indicating that further subdivision is not profitable because the task
+overhead would be greater than the amount of work to process the task
+sequentially. Notice that in a shared memory environment, the memory
+needed for task descriptions themselves is small and constant.
+
+Algorithms for irregular graph problems are in general not directly
+amenable to divide and conquer recursive decomposition. However, we
+can still approximate the properties that make work-stealing perform
+well for these problems.
+
+To do this, we first require compact task descriptions.  The size of a
+task description representing exploration starting at each of $k$ nodes
+should be constant, and independent of $k$. Otherwise, the communication
+overhead of pushing and stealing nodes would overwhelm processing,
+especially in algorithms such as spanning trees, where the per-node
+costs merely amount to marking nodes and labelling their parents.  We
+address this by building up lists of work via simple linking: Each
+node enqueued in the work-stealing queue is the head of a singly
+linked list possibling containing other nodes as well. The ordering of
+this list matters only in terms of memory locality and interference
+with other threads, which favors simple stack-based linking.
+
+We next ask, what value of $k$ should be used to batch a set of
+unprocessed nodes. For any given node in an arbitrary graph, we cannot
+know the value that will maximize aggregate throughput.
+One choice is to empirically choose some fixed value. However,
+the use of any fixed value would be too large during start up
+(stalling all but the initial thread), and/or too small during
+steady state. We can do better by first characterizing the
+best values to use at boundary points:
+\begin{itemize}
+  \item A queued root node represents all of the work in the graph, so
+    requires $k == 1$.
+  \item If processing has nearly completed, and all remaining nodes are
+    dead-ends (i.e., leading to no further expansion) choosing the
+    best value of $k$ is the counterpart to choosing the sequential
+    threshold of a divide and conquer algorithm.  This value, $S$, is an
+    empirical threshold relating algorithmic work versus framework
+    overhead.  
+\end{itemize}
+
+Unless the per-node costs of an application are high enough to dictate
+that $S==1$ (which is not the case for spanning tree algorithms), a rule
+that causes $k$ to vary from $1$ at roots to $S$ at collections of dead-ends
+will provide better load balance and throughput than would use of a
+fixed value. For some special graph types, it is possible to determine
+a fixed function of this form. For example, If the graph were actually
+a balanced tree, $k$ should increase exponentially from the root to the
+leaves. However, in an arbitrary graph, any approach based on distance
+from roots would be prone to arbitarily poor estimates.  Intead, each
+task may use its current work-stealing queue depth to help estimate
+global progress properties: If the queue is empty, then even a single
+node placed on it is potentially valuable to some other thread trying
+to steal it and further expand.  Conversely, if the queue is very
+large, then other threads must be busy processing other nodes, and any
+newly discovered node is less likely to lead to further expansion.
+Using a simple bounded exponential growth function (here, powers of
+two) across these points maintains scaling proprties: Each of the of
+$2^j$ nodes in a batch of a size-$j$ queue (for $j \leq log_2(S)$) should have
+$2^{-j}$ of the expected expansions as does the single node in a size $1$
+queue. The choice of base two exponents is not entirely forced here,
+and different constants might be better for some graph types.
+However, the choice does coincide with the scaling and throughput
+properties of work-stealing in the case of divide-and-conquer over
+balanced binary trees, and adaptively approximates this case by
+dynamically varying batch sizes based on differential steal rates.
+
+The resulting basic algorithm is a simple variant of the DFS algorithm
+presented in sec ??.: Each task accepts a list headed by one of its
+nodes.  For each node, it labels and expands the edges into a new
+list, pushing that list onto to work-stealing queue when its size
+exceeds $min(2^{Q}, S)$, where $Q$ is the queue-size. Notice that in
+the case of $S==1$ (which might be used for algorithms with high
+per-node processing costs), this is identical to plain DFS.
+
+Our adaptive DFS improves on the implementation of this idea by
+incorporating another common work-stealing programming technique. In
+classic divide-and-conquer programs, co-execution of two tasks $a$ and $b$
+is best implemented by forking $a$, then directly running $b$, and then
+joining $a$.  This saves the overhead of pushing and then immediately
+popping and running $b$.  We adapt this idea here via some bookkeeping
+to swap lists rather than pushing and then immediately popping a new
+list when the original list is exhausted. The performance improvements
+stemming from this technique are always worthwhile, because they
+decrease overhead without changing any other algorithmic
+properties. However, as shown below, the extent of the improvement may
+vary dramatically across different graph topologies.
+
+As is the case with any work-stealing algorithm, the value of $S$ must
+be empirically derived. Thresholds are functions of per-node
+application costs (here, marking and setting spanning tree parents),
+as well as underlying per-task framework costs (mainly, work-stealing
+queue operations), as well as platform-level costs (processor
+communication, memory locality effects, garbage collection), along
+with interactions among these, and so resist simple analytic
+derivation.  However, each of these component factors are properties
+of the program, and not, in general, its inputs (i.e., the actual
+graphs).  As is the case for all work-stealing algorithms, choosing
+values of S larger than necessary will increase the variance of
+expected throughput: In some executions this may actually increase
+throughput due to less queue overhead, but in others, a too-large
+value will cause load imbalances, decreasing throughput.  But
+sensitivity curves across these values are shallow within broadly
+acceptable ranges. We find that restricting values to powers of two
+suffices.
+
+\paragraph{Results}
+
+The main results, with threshold value $S==128$, are presented in 
+fig ??.  This choice of threshold was empirically guided by comparing
+performance across powers of two. The impact of this choice varies
+across graph types. Normalizing to $1.0$ for $S$ of $128$,
+Table~\ref{table:rel-perf} shows throughput differences for graphs of
+$4$ million nodes.  The best value of $S$ indicates that XWS framework
+overhead is low enough that is profitable to parallelize even batches
+of only a $100$ or so dead-end nodes. The drop-off beyond $128$ is
+very shallow, so larger values could have been used with almost no
+loss.  However, choosing thresholds nearer the lower range of
+estimated maxima reduces run-to-run variability.
+
+\begin{table}
+{\footnotesize
+\begin{verbatim}
+     Relative performance across thresholds
+          Niagara             Opteron
+S       T     K   E       T      K    E
+1      0.58 0.79 0.81    0.18  0.54  0.55
+2      0.68 0.85 0.85    0 33  0.78  0.81
+8      0.88 0.93 0.94    0.75  0.97  0.93
+32     0.97 1.00 0.99    0.82  0.98  0.94
+128    1.00 1.00 1.00    1.00  1.00  1.00
+512    0.98 0.92 1.00    0.89  1.00  0.99
+2048   0.96 0.92 0.91    0.86  0.97  0.97
+\end{verbatim}}
+\caption{Relative perofrmance across thresholds}\label{table:rel-perf}
+\end{table}
+While adaptive batching improves performance over DFS (equivalent to
+$S==1$) across graph types, the extent of the improvement varies
+considerably across graph types. This is due to two main factors,
+locality and connectivity.
+
+\paragraph{Locality.} The graphs used in these experiments are too large to fit
+into processor caches. Thus, cache misses have a huge impact on
+performance. The Torus graph is laid out such that each node's rowwise
+neighbors will normally be adjacent to it in memory, and column-wise
+neighbors a constant stride away. Thus, traversals of a torus that
+improve search locality will improve throughput.  This effect can be
+quantified by comparing the performance of simply accessing all of the
+nodes of the graph via all of its edges in some predefined
+locality-sensitive versus locality-insensitive order.  As a
+demonstration, table ?? shows the relative improvement of a full scan
+of each edge of each node when performed in stride-1 index order of
+nodes versus a (wrapped around) stride of 7919 -- chosen as a prime
+large enough to minimize cache hits.  The effects on the (4Xdual)
+Opteron, especially for the Torus graph, are much larger than on the
+(single multicore) Niagara. This is due to the higher relative value
+of hardware prefetching across processors on the Opteron when locality
+prevails.  These results independently indicate that the ability of
+adaptive batching to better preserve locality of access can be either
+a major or minor source of improvement, depending on graph layout.
+And for torus graphs, spanning tree construction throughput exceeds
+that of simple locality-insensitive traversal.
+
+{\footnotesize
+\begin{verbatim}
+        opteron niagara
+T       7.4     2.2
+K       1.3     1.2
+E       1.4     1.2
+\end{verbatim}}
+
+\paragraph{Connectivity.}  For densely or regularly connected graphs, the
+ability of a task to swap in a partially created batch when its
+initial batch is exhuasted increases the actual nodes processed per
+task, up from its nominal value of less than S, to the average number
+of nodes that may be traversed, with backup partial buffer size of at
+most S, before hitting a dead end. This value varies signifcantly
+across the three graph types we have investigated. For $S==128$, the
+average values on the Niagara ranges from $150$ for random graph, to $270$
+for k-graphs, to $2400$ for Torus. (Opteron results are similar). As the
+numbers of nodes per task increases, so does throughput: Bypassing the
+work-stealing queue reduces per-node overhead.  Lower queue access
+rates in turn lead to lower contention for threads attempting to steal
+work. While these effects are secondary to others described above,
+they appear to account for the remaining throughput differences across
+graph types.
+
+
+\paragraph{Related work}
+Adaptive batching bears some similarities to the steal-half algorithm
+of Shavit et al, and its variants. Both approaches attempt to cope
+with non-hierarchical workloads for graph problems. In the steal-half
+algorithm, each node is queued as its own task; and thieves take half
+(or some other percentage) of the nodes available per steal
+attempt. In contrast, in our approach, the tasks are pre-batched, so
+only one batch is stolen at a time. This can substantially reduce
+queue overhead, contention and data movement costs, but comes with
+potential disadvantages because nodes cannot be stolen while they are
+being batched, and batches cannot be re-split.  For example, our
+approach does not allow for a subset of the nodes from a stolen batch
+to themselves be re-stolen by other threads (as does
+steal-half). However, queue-sensing adaptation makes consequent
+impediments to global progress highly unlikely.  Because we adaptively
+choose batch sizes so that there are always (during steady state
+processing) some nodes available to be stolen from each active thread,
+imbalanced progress by any one of them has little impact on the
+ability of others to find and steal new work.  Additionally, by
+relating batching rules to sequential processing thresholds needed for
+any work-stealing program, our approach supports simpler empirically
+guided performance tuning.
+
+
+

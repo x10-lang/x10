@@ -1,0 +1,2638 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/17/2008 - 05:31:06
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../span.sparcv9 -t 1 -- 2 250000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0: getting out, time is 0.250615 s
+time used is 0.250707 s
+thread 0: getting out, time is 0.251010 s
+time used is 0.251050 s
+Best time used on DFS is 0.250707 s
+Best time used on BFS is 0.173062 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:4
+number of iterations:7
+Time used on SV is 1.039842 s
+
+### nproc: 2
+../../../../span.sparcv9 -t 2 -- 2 250000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 1 : steal 623 elements from 0
+thread 1: getting out, time is 0.125172 s
+thread 0: getting out, time is 0.125710 s
+time used is 0.125787 s
+thread 1 : steal 500 elements from 0
+thread 1: getting out, time is 0.125279 s
+thread 0: getting out, time is 0.125699 s
+time used is 0.125771 s
+Best time used on DFS is 0.125771 s
+Best time used on BFS is 0.088724 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.474062 s
+
+### nproc: 4
+../../../../span.sparcv9 -t 4 -- 2 250000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 2 : steal 15 elements from 0
+thread 2: getting out, time is 0.065636 s
+thread 3 : steal 341 elements from 0
+thread 3: getting out, time is 0.065793 s
+thread 0 : steal 3 elements from 1
+thread 0: getting out, time is 0.066289 s
+thread 1: getting out, time is 0.066283 s
+time used is 0.066386 s
+thread 3 : steal 536 elements from 0
+thread 3: getting out, time is 0.063408 s
+thread 2 : steal 787 elements from 1
+thread 2: getting out, time is 0.064560 s
+thread 1 : steal 85 elements from 0
+thread 1: getting out, time is 0.065255 s
+thread 0: getting out, time is 0.065487 s
+time used is 0.065607 s
+Best time used on DFS is 0.065607 s
+Best time used on BFS is 0.051774 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.253769 s
+
+### nproc: 8
+../../../../span.sparcv9 -t 8 -- 2 250000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 2 : steal 1080 elements from 1
+thread 5 : steal 1073 elements from 1
+thread 5: getting out, time is 0.035097 s
+thread 2: getting out, time is 0.035064 s
+thread 3 : steal 228 elements from 7
+thread 3: getting out, time is 0.035337 s
+thread 0 : steal 194 elements from 7
+thread 0: getting out, time is 0.035370 s
+thread 6 : steal 133 elements from 4
+thread 6: getting out, time is 0.035686 s
+thread 1 : steal 78 elements from 7
+thread 1: getting out, time is 0.036126 s
+thread 4 : steal 169 elements from 7
+thread 4: getting out, time is 0.036358 s
+thread 7: getting out, time is 0.036530 s
+time used is 0.036661 s
+thread 7 : steal 74 elements from 0
+thread 7: getting out, time is 0.035396 s
+thread 6 : steal 19 elements from 0
+thread 6: getting out, time is 0.035931 s
+thread 5 : steal 111 elements from 0
+thread 5: getting out, time is 0.036109 s
+thread 1 : steal 78 elements from 0
+thread 1: getting out, time is 0.036433 s
+thread 3 : steal 66 elements from 0
+thread 3: getting out, time is 0.036590 s
+thread 4 : steal 534 elements from 0
+thread 4: getting out, time is 0.037319 s
+thread 2 : steal 968 elements from 0
+thread 2: getting out, time is 0.038523 s
+thread 0: getting out, time is 0.039496 s
+time used is 0.039915 s
+Best time used on DFS is 0.036661 s
+Best time used on BFS is 0.034123 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.143371 s
+
+### nproc: 16
+../../../../span.sparcv9 -t 16 -- 2 250000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 1 : steal 860 elements from 4
+thread 1: getting out, time is 0.029306 s
+thread 6 : steal 753 elements from 8
+thread 6: getting out, time is 0.029503 s
+thread 14 : steal 723 elements from 9
+thread 14: getting out, time is 0.029590 s
+thread 5 : steal 492 elements from 0
+thread 5: getting out, time is 0.029911 s
+thread 12 : steal 316 elements from 15
+thread 12: getting out, time is 0.030279 s
+thread 7 : steal 129 elements from 4
+thread 7: getting out, time is 0.030239 s
+thread 8 : steal 10 elements from 4
+thread 13 : steal 84 elements from 4
+thread 8: getting out, time is 0.030297 s
+thread 13: getting out, time is 0.030410 s
+thread 9 : steal 8 elements from 4
+thread 9: getting out, time is 0.030349 s
+thread 3 : steal 3 elements from 4
+thread 3: getting out, time is 0.030474 s
+thread 0 : steal 2 elements from 4
+thread 0: getting out, time is 0.030557 s
+thread 15 : steal 1 elements from 4
+thread 15: getting out, time is 0.030488 s
+thread 11 : steal 6 elements from 4
+thread 11: getting out, time is 0.030517 s
+thread 10 : steal 56 elements from 4
+thread 10: getting out, time is 0.030607 s
+thread 2 : steal 398 elements from 4
+thread 2: getting out, time is 0.030692 s
+thread 4: getting out, time is 0.031072 s
+time used is 0.031495 s
+thread 12 : steal 216 elements from 3
+thread 12: getting out, time is 0.028376 s
+thread 15 : steal 450 elements from 2
+thread 15: getting out, time is 0.028852 s
+thread 1 : steal 301 elements from 3
+thread 1: getting out, time is 0.029101 s
+thread 6 : steal 235 elements from 3
+thread 6: getting out, time is 0.029282 s
+thread 13 : steal 14 elements from 3
+thread 13: getting out, time is 0.029568 s
+thread 5 : steal 12 elements from 3
+thread 5: getting out, time is 0.029791 s
+thread 14 : steal 312 elements from 3
+thread 14: getting out, time is 0.029857 s
+thread 9 : steal 249 elements from 3
+thread 9: getting out, time is 0.030001 s
+thread 8 : steal 23 elements from 3
+thread 8: getting out, time is 0.029997 s
+thread 10 : steal 11 elements from 3
+thread 4 : steal 10 elements from 3
+thread 10: getting out, time is 0.030205 s
+thread 4: getting out, time is 0.030181 s
+thread 2 : steal 3 elements from 3
+thread 2: getting out, time is 0.030291 s
+thread 11 : steal 1 elements from 3
+thread 11: getting out, time is 0.030442 s
+thread 7 : steal 76 elements from 3
+thread 7: getting out, time is 0.030406 s
+thread 0 : steal 19 elements from 3
+thread 0: getting out, time is 0.030563 s
+thread 3: getting out, time is 0.030726 s
+time used is 0.031158 s
+Best time used on DFS is 0.031158 s
+Best time used on BFS is 0.031305 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.093007 s
+
+### nproc: 20
+../../../../span.sparcv9 -t 20 -- 2 250000 4
+THREADS: 20
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 9 : steal 337 elements from 3
+thread 1 : steal 336 elements from 3
+thread 9: getting out, time is 0.037748 s
+thread 11 : steal 272 elements from 17
+thread 1: getting out, time is 0.037725 s
+thread 2 : steal 261 elements from 10
+thread 11: getting out, time is 0.037763 s
+thread 16 : steal 264 elements from 10
+thread 7 : steal 253 elements from 17
+thread 2: getting out, time is 0.037845 s
+thread 16: getting out, time is 0.037863 s
+thread 7: getting out, time is 0.037800 s
+thread 12 : steal 207 elements from 17
+thread 5 : steal 203 elements from 17
+thread 12: getting out, time is 0.037935 s
+thread 5: getting out, time is 0.037940 s
+thread 8 : steal 169 elements from 17
+thread 8: getting out, time is 0.038003 s
+thread 13 : steal 149 elements from 17
+thread 13: getting out, time is 0.038020 s
+thread 15 : steal 6 elements from 17
+thread 15: getting out, time is 0.038208 s
+thread 6 : steal 50 elements from 17
+thread 4 : steal 4 elements from 17
+thread 6: getting out, time is 0.038270 s
+thread 4: getting out, time is 0.038270 s
+thread 18 : steal 39 elements from 17
+thread 18: getting out, time is 0.038359 s
+thread 0 : steal 2 elements from 17
+thread 0: getting out, time is 0.038351 s
+thread 14 : steal 19 elements from 17
+thread 14: getting out, time is 0.038328 s
+thread 19 : steal 230 elements from 17
+thread 19: getting out, time is 0.038460 s
+thread 10 : steal 8 elements from 17
+thread 10: getting out, time is 0.038508 s
+thread 3 : steal 3 elements from 17
+thread 3: getting out, time is 0.038520 s
+thread 17: getting out, time is 0.038702 s
+time used is 0.039001 s
+thread 5 : steal 227 elements from 17
+thread 18 : steal 220 elements from 17
+thread 5: getting out, time is 0.036784 s
+thread 18: getting out, time is 0.036778 s
+thread 11 : steal 105 elements from 17
+thread 11: getting out, time is 0.037038 s
+thread 14 : steal 83 elements from 17
+thread 14: getting out, time is 0.037041 s
+thread 6 : steal 68 elements from 17
+thread 6: getting out, time is 0.037195 s
+thread 0 : steal 4 elements from 17
+thread 0: getting out, time is 0.037150 s
+thread 10 : steal 24 elements from 17
+thread 10: getting out, time is 0.037167 s
+thread 3 : steal 9 elements from 17
+thread 3: getting out, time is 0.037242 s
+thread 19 : steal 718 elements from 17
+thread 19: getting out, time is 0.037410 s
+thread 15: getting out, time is 0.037398 s
+thread 4: getting out, time is 0.037520 s
+thread 9: getting out, time is 0.037634 s
+thread 12: getting out, time is 0.037711 s
+thread 7: getting out, time is 0.037719 s
+thread 13: getting out, time is 0.037755 s
+thread 2: getting out, time is 0.037769 s
+thread 16: getting out, time is 0.038072 s
+thread 17 : steal 1 elements from 1
+thread 17: getting out, time is 0.037899 s
+thread 8 : steal 2 elements from 1
+thread 8: getting out, time is 0.037960 s
+thread 1: getting out, time is 0.038055 s
+time used is 0.038402 s
+Best time used on DFS is 0.038402 s
+Best time used on BFS is 0.033341 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.072282 s
+
+### nproc: 24
+../../../../span.sparcv9 -t 24 -- 2 250000 4
+THREADS: 24
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 16 : steal 322 elements from 15
+thread 16: getting out, time is 0.043280 s
+thread 3 : steal 170 elements from 10
+thread 1 : steal 162 elements from 0
+thread 3: getting out, time is 0.043540 s
+thread 1: getting out, time is 0.043535 s
+thread 18 : steal 132 elements from 13
+thread 18: getting out, time is 0.043741 s
+thread 4 : steal 110 elements from 10
+thread 4: getting out, time is 0.043648 s
+thread 5 : steal 89 elements from 10
+thread 5: getting out, time is 0.043719 s
+thread 17 : steal 78 elements from 10
+thread 17: getting out, time is 0.043672 s
+thread 9 : steal 5 elements from 10
+thread 8 : steal 4 elements from 10
+thread 9: getting out, time is 0.043827 s
+thread 8: getting out, time is 0.043867 s
+thread 23 : steal 106 elements from 10
+thread 23: getting out, time is 0.043965 s
+thread 20 : steal 68 elements from 10
+thread 20: getting out, time is 0.044039 s
+thread 21 : steal 59 elements from 10
+thread 21: getting out, time is 0.044086 s
+thread 2 : steal 8 elements from 10
+thread 2: getting out, time is 0.044046 s
+thread 12 : steal 2 elements from 10
+thread 22 : steal 106 elements from 10
+thread 12: getting out, time is 0.044079 s
+thread 22: getting out, time is 0.044249 s
+thread 6 : steal 94 elements from 10
+thread 11 : steal 7 elements from 10
+thread 6: getting out, time is 0.044181 s
+thread 11: getting out, time is 0.044192 s
+thread 7 : steal 64 elements from 10
+thread 7: getting out, time is 0.044151 s
+thread 19 : steal 3 elements from 10
+thread 19: getting out, time is 0.044440 s
+thread 10: getting out, time is 0.044311 s
+thread 13: getting out, time is 0.044354 s
+thread 14 : steal 2 elements from 0
+thread 15 : steal 0 elements from 0
+thread 0: getting out, time is 0.044470 s
+thread 15: getting out, time is 0.044366 s
+thread 14: getting out, time is 0.044348 s
+time used is 0.045007 s
+thread 2 : steal 223 elements from 5
+thread 2: getting out, time is 0.042711 s
+thread 20 : steal 144 elements from 0
+thread 20: getting out, time is 0.042952 s
+thread 16 : steal 113 elements from 8
+thread 16: getting out, time is 0.043153 s
+thread 12 : steal 63 elements from 5
+thread 12: getting out, time is 0.043065 s
+thread 3 : steal 37 elements from 5
+thread 3: getting out, time is 0.043086 s
+thread 9 : steal 184 elements from 5
+thread 23 : steal 15 elements from 5
+thread 23: getting out, time is 0.043344 s
+thread 9: getting out, time is 0.043276 s
+thread 10 : steal 171 elements from 5
+thread 10: getting out, time is 0.043240 s
+thread 19 : steal 96 elements from 5
+thread 17 : steal 94 elements from 5
+thread 21 : steal 7 elements from 5
+thread 17: getting out, time is 0.043330 s
+thread 19: getting out, time is 0.043339 s
+thread 21: getting out, time is 0.043333 s
+thread 6 : steal 75 elements from 5
+thread 1 : steal 78 elements from 5
+thread 6: getting out, time is 0.043474 s
+thread 1: getting out, time is 0.043405 s
+thread 7 : steal 28 elements from 5
+thread 7: getting out, time is 0.043616 s
+thread 22 : steal 6 elements from 5
+thread 22: getting out, time is 0.043513 s
+thread 18 : steal 112 elements from 5
+thread 11 : steal 8 elements from 5
+thread 18: getting out, time is 0.043584 s
+thread 11: getting out, time is 0.043674 s
+thread 13 : steal 66 elements from 5
+thread 13: getting out, time is 0.043737 s
+thread 14 : steal 44 elements from 5
+thread 14: getting out, time is 0.043647 s
+thread 15 : steal 43 elements from 5
+thread 0 : steal 3 elements from 5
+thread 15: getting out, time is 0.043822 s
+thread 4 : steal 37 elements from 5
+thread 0: getting out, time is 0.043922 s
+thread 4: getting out, time is 0.043880 s
+thread 8 : steal 32 elements from 5
+thread 8: getting out, time is 0.043875 s
+thread 5: getting out, time is 0.043998 s
+time used is 0.044369 s
+Best time used on DFS is 0.044369 s
+Best time used on BFS is 0.036222 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.067587 s
+
+### nproc: 30
+../../../../span.sparcv9 -t 30 -- 2 250000 4
+THREADS: 30
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 27 : steal 476 elements from 0
+thread 27: getting out, time is 0.063546 s
+thread 23 : steal 363 elements from 8
+thread 13 : steal 354 elements from 2
+thread 26 : steal 348 elements from 2
+thread 15 : steal 346 elements from 2
+thread 23: getting out, time is 0.063901 s
+thread 13: getting out, time is 0.063884 s
+thread 26: getting out, time is 0.063907 s
+thread 15: getting out, time is 0.063842 s
+thread 20 : steal 261 elements from 3
+thread 20: getting out, time is 0.064010 s
+thread 19 : steal 162 elements from 0
+thread 19: getting out, time is 0.064166 s
+thread 16 : steal 75 elements from 0
+thread 16: getting out, time is 0.064540 s
+thread 12 : steal 59 elements from 0
+thread 12: getting out, time is 0.064440 s
+thread 28 : steal 46 elements from 0
+thread 25 : steal 40 elements from 0
+thread 28: getting out, time is 0.064434 s
+thread 25: getting out, time is 0.064479 s
+thread 10 : steal 6 elements from 0
+thread 10: getting out, time is 0.064667 s
+thread 29 : steal 175 elements from 0
+thread 29: getting out, time is 0.064671 s
+thread 22 : steal 161 elements from 0
+thread 22: getting out, time is 0.064534 s
+thread 21 : steal 148 elements from 0
+thread 21: getting out, time is 0.064571 s
+thread 17 : steal 120 elements from 0
+thread 17: getting out, time is 0.064659 s
+thread 24 : steal 297 elements from 0
+thread 24: getting out, time is 0.064867 s
+thread 11 : steal 38 elements from 0
+thread 11: getting out, time is 0.065263 s
+thread 6 : steal 35 elements from 0
+thread 6: getting out, time is 0.065343 s
+thread 18 : steal 1 elements from 0
+thread 18: getting out, time is 0.065589 s
+thread 14 : steal 5 elements from 0
+thread 14: getting out, time is 0.065637 s
+thread 7 : steal 71 elements from 0
+thread 7: getting out, time is 0.065496 s
+thread 3 : steal 0 elements from 0
+thread 3: getting out, time is 0.065768 s
+thread 9 : steal 67 elements from 0
+thread 9: getting out, time is 0.065679 s
+thread 5 : steal 49 elements from 0
+thread 5: getting out, time is 0.065803 s
+thread 4 : steal 39 elements from 0
+thread 4: getting out, time is 0.065680 s
+thread 1 : steal 0 elements from 0
+thread 8 : steal 0 elements from 0
+thread 2 : steal 7 elements from 0
+thread 1: getting out, time is 0.065904 s
+thread 2: getting out, time is 0.065891 s
+thread 8: getting out, time is 0.065837 s
+thread 0: getting out, time is 0.066001 s
+time used is 0.066431 s
+thread 12 : steal 670 elements from 7
+thread 12: getting out, time is 0.062122 s
+thread 25 : steal 549 elements from 0
+thread 21 : steal 529 elements from 9
+thread 25: getting out, time is 0.062380 s
+thread 21: getting out, time is 0.062446 s
+thread 17 : steal 502 elements from 1
+thread 17: getting out, time is 0.062520 s
+thread 14 : steal 413 elements from 5
+thread 14: getting out, time is 0.062639 s
+thread 18 : steal 366 elements from 4
+thread 10 : steal 359 elements from 4
+thread 18: getting out, time is 0.062862 s
+thread 10: getting out, time is 0.062775 s
+thread 23 : steal 232 elements from 3
+thread 23: getting out, time is 0.063010 s
+thread 16 : steal 212 elements from 0
+thread 16: getting out, time is 0.063030 s
+thread 20 : steal 186 elements from 0
+thread 20: getting out, time is 0.063215 s
+thread 24 : steal 174 elements from 0
+thread 11 : steal 173 elements from 0
+thread 24: getting out, time is 0.063309 s
+thread 11: getting out, time is 0.063206 s
+thread 28 : steal 159 elements from 0
+thread 22 : steal 157 elements from 0
+thread 28: getting out, time is 0.063194 s
+thread 22: getting out, time is 0.063270 s
+thread 26 : steal 143 elements from 0
+thread 27 : steal 134 elements from 0
+thread 26: getting out, time is 0.063232 s
+thread 27: getting out, time is 0.063349 s
+thread 13 : steal 39 elements from 0
+thread 15 : steal 39 elements from 0
+thread 13: getting out, time is 0.063517 s
+thread 15: getting out, time is 0.063481 s
+thread 29 : steal 254 elements from 0
+thread 29: getting out, time is 0.063591 s
+thread 2 : steal 241 elements from 0
+thread 2: getting out, time is 0.063572 s
+thread 5 : steal 19 elements from 0
+thread 5: getting out, time is 0.063986 s
+thread 4 : steal 75 elements from 0
+thread 19 : steal 10 elements from 0
+thread 1 : steal 9 elements from 0
+thread 19: getting out, time is 0.064120 s
+thread 4: getting out, time is 0.064129 s
+thread 1: getting out, time is 0.064139 s
+thread 3 : steal 49 elements from 0
+thread 3: getting out, time is 0.064242 s
+thread 8 : steal 3 elements from 0
+thread 8: getting out, time is 0.064280 s
+thread 6 : steal 24 elements from 0
+thread 6: getting out, time is 0.064110 s
+thread 9 : steal 1 elements from 0
+thread 7 : steal 1 elements from 0
+thread 9: getting out, time is 0.064168 s
+thread 7: getting out, time is 0.064155 s
+thread 0: getting out, time is 0.064222 s
+time used is 0.064629 s
+Best time used on DFS is 0.064629 s
+Best time used on BFS is 0.041736 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.071132 s
+
+### nproc: 32
+../../../../span.sparcv9 -t 32 -- 2 250000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 24 : steal 787 elements from 0
+thread 24: getting out, time is 0.066668 s
+thread 10 : steal 657 elements from 4
+thread 10: getting out, time is 0.066708 s
+thread 12 : steal 607 elements from 6
+thread 16 : steal 594 elements from 0
+thread 12: getting out, time is 0.067114 s
+thread 16: getting out, time is 0.066807 s
+thread 19 : steal 544 elements from 0
+thread 13 : steal 524 elements from 0
+thread 19: getting out, time is 0.066950 s
+thread 13: getting out, time is 0.067250 s
+thread 11 : steal 500 elements from 0
+thread 11: getting out, time is 0.067071 s
+thread 26 : steal 462 elements from 0
+thread 26: getting out, time is 0.067335 s
+thread 21 : steal 410 elements from 0
+thread 15 : steal 401 elements from 0
+thread 21: getting out, time is 0.067481 s
+thread 15: getting out, time is 0.067386 s
+thread 27 : steal 382 elements from 0
+thread 27: getting out, time is 0.067276 s
+thread 29 : steal 335 elements from 0
+thread 29: getting out, time is 0.067427 s
+thread 28 : steal 163 elements from 0
+thread 28: getting out, time is 0.067683 s
+thread 18 : steal 81 elements from 0
+thread 18: getting out, time is 0.067756 s
+thread 23 : steal 242 elements from 0
+thread 23: getting out, time is 0.067718 s
+thread 30 : steal 10 elements from 0
+thread 25 : steal 146 elements from 0
+thread 30: getting out, time is 0.067895 s
+thread 25: getting out, time is 0.068013 s
+thread 20 : steal 141 elements from 0
+thread 17 : steal 54 elements from 0
+thread 22 : steal 132 elements from 0
+thread 17: getting out, time is 0.067869 s
+thread 20: getting out, time is 0.068049 s
+thread 22: getting out, time is 0.067859 s
+thread 9 : steal 4 elements from 0
+thread 9: getting out, time is 0.067904 s
+thread 31 : steal 2 elements from 0
+thread 31: getting out, time is 0.068201 s
+thread 2 : steal 30 elements from 0
+thread 2: getting out, time is 0.068198 s
+thread 14 : steal 11 elements from 0
+thread 14: getting out, time is 0.068127 s
+thread 1 : steal 15 elements from 0
+thread 1: getting out, time is 0.068497 s
+thread 8 : steal 7 elements from 0
+thread 8: getting out, time is 0.068566 s
+thread 6 : steal 7 elements from 0
+thread 6: getting out, time is 0.068556 s
+thread 4 : steal 4 elements from 0
+thread 4: getting out, time is 0.068585 s
+thread 3 : steal 50 elements from 0
+thread 3: getting out, time is 0.068865 s
+thread 5 : steal 1 elements from 0
+thread 5: getting out, time is 0.068872 s
+thread 7 : steal 36 elements from 0
+thread 7: getting out, time is 0.068769 s
+thread 0: getting out, time is 0.069720 s
+time used is 0.070190 s
+thread 20 : steal 479 elements from 0
+thread 20: getting out, time is 0.062580 s
+thread 28 : steal 447 elements from 2
+thread 30 : steal 440 elements from 2
+thread 28: getting out, time is 0.062639 s
+thread 30: getting out, time is 0.062686 s
+thread 29 : steal 405 elements from 5
+thread 27 : steal 396 elements from 0
+thread 29: getting out, time is 0.062896 s
+thread 27: getting out, time is 0.062762 s
+thread 24 : steal 315 elements from 0
+thread 15 : steal 310 elements from 0
+thread 24: getting out, time is 0.063040 s
+thread 15: getting out, time is 0.062974 s
+thread 12 : steal 257 elements from 0
+thread 12: getting out, time is 0.063197 s
+thread 19 : steal 246 elements from 0
+thread 19: getting out, time is 0.063122 s
+thread 13 : steal 182 elements from 0
+thread 13: getting out, time is 0.063252 s
+thread 18 : steal 119 elements from 0
+thread 18: getting out, time is 0.063430 s
+thread 9 : steal 94 elements from 0
+thread 9: getting out, time is 0.063615 s
+thread 14 : steal 67 elements from 0
+thread 21 : steal 60 elements from 0
+thread 14: getting out, time is 0.063635 s
+thread 21: getting out, time is 0.063517 s
+thread 26 : steal 16 elements from 0
+thread 26: getting out, time is 0.063593 s
+thread 31 : steal 93 elements from 0
+thread 17 : steal 89 elements from 0
+thread 11 : steal 86 elements from 0
+thread 31: getting out, time is 0.063665 s
+thread 17: getting out, time is 0.063649 s
+thread 11: getting out, time is 0.063594 s
+thread 10 : steal 64 elements from 0
+thread 10: getting out, time is 0.063629 s
+thread 16 : steal 16 elements from 0
+thread 16: getting out, time is 0.063906 s
+thread 25 : steal 83 elements from 0
+thread 25: getting out, time is 0.063798 s
+thread 22 : steal 30 elements from 0
+thread 22: getting out, time is 0.064089 s
+thread 23 : steal 547 elements from 0
+thread 23: getting out, time is 0.064075 s
+thread 1 : steal 491 elements from 2
+thread 1: getting out, time is 0.064067 s
+thread 3 : steal 130 elements from 0
+thread 3: getting out, time is 0.064566 s
+thread 5 : steal 5 elements from 0
+thread 5: getting out, time is 0.064741 s
+thread 8 : steal 4 elements from 0
+thread 8: getting out, time is 0.064803 s
+thread 6 : steal 2 elements from 0
+thread 6: getting out, time is 0.064798 s
+thread 4 : steal 2 elements from 0
+thread 4: getting out, time is 0.064946 s
+thread 2 : steal 1 elements from 0
+thread 2: getting out, time is 0.064834 s
+thread 7 : steal 16 elements from 0
+thread 7: getting out, time is 0.065058 s
+thread 0: getting out, time is 0.065627 s
+time used is 0.066356 s
+Best time used on DFS is 0.066356 s
+Best time used on BFS is 0.044193 s
+init edge list done, n_edge = 1063736, n_vertices=250000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.061853 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../span.sparcv9 -t 1 -- 2 1000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0: getting out, time is 1.489811 s
+time used is 1.489899 s
+thread 0: getting out, time is 1.486719 s
+time used is 1.486756 s
+Best time used on DFS is 1.486756 s
+Best time used on BFS is 1.151807 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 5.064636 s
+
+### nproc: 2
+../../../../span.sparcv9 -t 2 -- 2 1000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 1235 elements from 1
+thread 0: getting out, time is 0.745314 s
+thread 1: getting out, time is 0.746870 s
+time used is 0.746955 s
+thread 1 : steal 94 elements from 0
+thread 1: getting out, time is 0.742749 s
+thread 0: getting out, time is 0.742871 s
+time used is 0.742948 s
+Best time used on DFS is 0.742948 s
+Best time used on BFS is 0.578750 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:9
+Time used on SV is 3.853724 s
+
+### nproc: 4
+../../../../span.sparcv9 -t 4 -- 2 1000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 2 : steal 494 elements from 1
+thread 2: getting out, time is 0.375331 s
+thread 3 : steal 620 elements from 1
+thread 3: getting out, time is 0.376633 s
+thread 0 : steal 382 elements from 1
+thread 0: getting out, time is 0.378092 s
+thread 1: getting out, time is 0.378556 s
+time used is 0.378713 s
+thread 3 : steal 471 elements from 1
+thread 3: getting out, time is 0.373394 s
+thread 0 : steal 213 elements from 1
+thread 0: getting out, time is 0.374045 s
+thread 2 : steal 231 elements from 1
+thread 2: getting out, time is 0.374649 s
+thread 1: getting out, time is 0.375583 s
+time used is 0.375668 s
+Best time used on DFS is 0.375668 s
+Best time used on BFS is 0.298623 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:7
+Time used on SV is 1.681901 s
+
+### nproc: 8
+../../../../span.sparcv9 -t 8 -- 2 1000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 4 : steal 836 elements from 2
+thread 4: getting out, time is 0.194516 s
+thread 3 : steal 753 elements from 2
+thread 3: getting out, time is 0.194760 s
+thread 7 : steal 149 elements from 2
+thread 7: getting out, time is 0.196951 s
+thread 6 : steal 332 elements from 2
+thread 6: getting out, time is 0.197359 s
+thread 1 : steal 12 elements from 2
+thread 1: getting out, time is 0.198094 s
+thread 5 : steal 217 elements from 2
+thread 5: getting out, time is 0.198259 s
+thread 0 : steal 173 elements from 2
+thread 0: getting out, time is 0.198428 s
+thread 2: getting out, time is 0.200049 s
+time used is 0.200262 s
+thread 2 : steal 1031 elements from 3
+thread 2: getting out, time is 0.193950 s
+thread 5 : steal 203 elements from 3
+thread 5: getting out, time is 0.194476 s
+thread 4 : steal 174 elements from 3
+thread 4: getting out, time is 0.194742 s
+thread 1 : steal 169 elements from 3
+thread 1: getting out, time is 0.194794 s
+thread 0 : steal 542 elements from 3
+thread 0: getting out, time is 0.195158 s
+thread 6 : steal 327 elements from 3
+thread 6: getting out, time is 0.195817 s
+thread 7 : steal 353 elements from 3
+thread 7: getting out, time is 0.196642 s
+thread 3: getting out, time is 0.199997 s
+time used is 0.200195 s
+Best time used on DFS is 0.200195 s
+Best time used on BFS is 0.169019 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.941550 s
+
+### nproc: 16
+../../../../span.sparcv9 -t 16 -- 2 1000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 510 elements from 14
+thread 0: getting out, time is 0.120669 s
+thread 2 : steal 3696 elements from 14
+thread 10 : steal 3648 elements from 9
+thread 2: getting out, time is 0.122018 s
+thread 8 : steal 3565 elements from 11
+thread 10: getting out, time is 0.122013 s
+thread 8: getting out, time is 0.122243 s
+thread 12 : steal 2401 elements from 15
+thread 12: getting out, time is 0.125351 s
+thread 1 : steal 1110 elements from 5
+thread 6 : steal 1110 elements from 5
+thread 6: getting out, time is 0.125480 s
+thread 1: getting out, time is 0.125488 s
+thread 4: getting out, time is 0.125755 s
+thread 5 : steal 95 elements from 13
+thread 5: getting out, time is 0.126404 s
+thread 13: getting out, time is 0.126352 s
+thread 11: getting out, time is 0.126934 s
+thread 9: getting out, time is 0.127646 s
+thread 15: getting out, time is 0.128525 s
+thread 14 : steal 23 elements from 3
+thread 14: getting out, time is 0.128769 s
+thread 7 : steal 167 elements from 3
+thread 7: getting out, time is 0.129405 s
+thread 3: getting out, time is 0.129564 s
+time used is 0.129943 s
+thread 8 : steal 4733 elements from 15
+thread 8: getting out, time is 0.116527 s
+thread 13 : steal 1248 elements from 11
+thread 13: getting out, time is 0.119782 s
+thread 12 : steal 1158 elements from 10
+thread 12: getting out, time is 0.120173 s
+thread 14: getting out, time is 0.120056 s
+thread 1: getting out, time is 0.120216 s
+thread 6: getting out, time is 0.120264 s
+thread 10: getting out, time is 0.120325 s
+thread 11: getting out, time is 0.120663 s
+thread 2: getting out, time is 0.121493 s
+thread 5: getting out, time is 0.121894 s
+thread 0: getting out, time is 0.122096 s
+thread 15 : steal 0 elements from 7
+thread 15: getting out, time is 0.123510 s
+thread 9 : steal 1280 elements from 7
+thread 9: getting out, time is 0.123540 s
+thread 7 : steal 30 elements from 3
+thread 7: getting out, time is 0.125190 s
+thread 4 : steal 84 elements from 3
+thread 4: getting out, time is 0.126033 s
+thread 3: getting out, time is 0.126139 s
+time used is 0.126571 s
+Best time used on DFS is 0.126571 s
+Best time used on BFS is 0.110944 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.480576 s
+
+### nproc: 20
+../../../../span.sparcv9 -t 20 -- 2 1000000 4
+THREADS: 20
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 164 elements from 1
+thread 0: getting out, time is 0.117578 s
+thread 4 : steal 1147 elements from 1
+thread 4: getting out, time is 0.119224 s
+thread 6 : steal 1018 elements from 7
+thread 6: getting out, time is 0.119657 s
+thread 13 : steal 895 elements from 1
+thread 13: getting out, time is 0.120094 s
+thread 16 : steal 473 elements from 1
+thread 16: getting out, time is 0.121611 s
+thread 17 : steal 346 elements from 1
+thread 17: getting out, time is 0.122007 s
+thread 8 : steal 311 elements from 1
+thread 8: getting out, time is 0.122136 s
+thread 10 : steal 299 elements from 1
+thread 10: getting out, time is 0.122108 s
+thread 5 : steal 283 elements from 1
+thread 5: getting out, time is 0.122326 s
+thread 15 : steal 265 elements from 1
+thread 15: getting out, time is 0.122243 s
+thread 3 : steal 242 elements from 1
+thread 3: getting out, time is 0.122331 s
+thread 14 : steal 176 elements from 1
+thread 14: getting out, time is 0.122597 s
+thread 11 : steal 8 elements from 1
+thread 11: getting out, time is 0.123365 s
+thread 19 : steal 240 elements from 1
+thread 19: getting out, time is 0.123248 s
+thread 2 : steal 209 elements from 1
+thread 2: getting out, time is 0.123489 s
+thread 18 : steal 948 elements from 1
+thread 18: getting out, time is 0.124041 s
+thread 7 : steal 20 elements from 1
+thread 7: getting out, time is 0.126074 s
+thread 9 : steal 8 elements from 1
+thread 9: getting out, time is 0.126565 s
+thread 12 : steal 79 elements from 1
+thread 12: getting out, time is 0.126806 s
+thread 1: getting out, time is 0.128813 s
+time used is 0.129262 s
+thread 12 : steal 1104 elements from 16
+thread 12: getting out, time is 0.112364 s
+thread 3 : steal 1023 elements from 16
+thread 3: getting out, time is 0.112573 s
+thread 6 : steal 964 elements from 16
+thread 6: getting out, time is 0.112694 s
+thread 5 : steal 937 elements from 16
+thread 5: getting out, time is 0.112800 s
+thread 18 : steal 901 elements from 16
+thread 18: getting out, time is 0.112875 s
+thread 11 : steal 806 elements from 16
+thread 11: getting out, time is 0.113226 s
+thread 17 : steal 774 elements from 16
+thread 17: getting out, time is 0.113379 s
+thread 9 : steal 65 elements from 16
+thread 9: getting out, time is 0.113525 s
+thread 14 : steal 380 elements from 16
+thread 14: getting out, time is 0.114324 s
+thread 0 : steal 22 elements from 16
+thread 0: getting out, time is 0.114785 s
+thread 15 : steal 183 elements from 16
+thread 15: getting out, time is 0.114911 s
+thread 19 : steal 134 elements from 16
+thread 19: getting out, time is 0.115446 s
+thread 8 : steal 119 elements from 16
+thread 8: getting out, time is 0.115749 s
+thread 13 : steal 93 elements from 16
+thread 13: getting out, time is 0.116321 s
+thread 4 : steal 86 elements from 16
+thread 4: getting out, time is 0.116508 s
+thread 10 : steal 72 elements from 16
+thread 10: getting out, time is 0.116819 s
+thread 2 : steal 57 elements from 16
+thread 2: getting out, time is 0.117128 s
+thread 1 : steal 349 elements from 16
+thread 1: getting out, time is 0.117668 s
+thread 7 : steal 130 elements from 16
+thread 7: getting out, time is 0.117801 s
+thread 16: getting out, time is 0.117892 s
+time used is 0.118386 s
+Best time used on DFS is 0.118386 s
+Best time used on BFS is 0.100802 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.455842 s
+
+### nproc: 24
+../../../../span.sparcv9 -t 24 -- 2 1000000 4
+THREADS: 24
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 22 : steal 141 elements from 9
+thread 16 : steal 141 elements from 9
+thread 22: getting out, time is 0.122122 s
+thread 17 : steal 110 elements from 11
+thread 17: getting out, time is 0.122216 s
+thread 16: getting out, time is 0.122207 s
+thread 3 : steal 51 elements from 10
+thread 5 : steal 51 elements from 10
+thread 3: getting out, time is 0.122421 s
+thread 5: getting out, time is 0.122427 s
+thread 19 : steal 33 elements from 10
+thread 4 : steal 30 elements from 10
+thread 19: getting out, time is 0.122588 s
+thread 4: getting out, time is 0.122518 s
+thread 23 : steal 7 elements from 10
+thread 23: getting out, time is 0.122598 s
+thread 21 : steal 16 elements from 10
+thread 21: getting out, time is 0.122705 s
+thread 14 : steal 2 elements from 10
+thread 14: getting out, time is 0.122725 s
+thread 20 : steal 270 elements from 10
+thread 0 : steal 22 elements from 11
+thread 0: getting out, time is 0.122684 s
+thread 20: getting out, time is 0.122693 s
+thread 1 : steal 197 elements from 11
+thread 1: getting out, time is 0.123016 s
+thread 8 : steal 192 elements from 9
+thread 2 : steal 188 elements from 9
+thread 8: getting out, time is 0.122942 s
+thread 2: getting out, time is 0.123024 s
+thread 7 : steal 11 elements from 12
+thread 7: getting out, time is 0.123275 s
+thread 6 : steal 61 elements from 12
+thread 6: getting out, time is 0.123529 s
+thread 18 : steal 23 elements from 9
+thread 18: getting out, time is 0.123560 s
+thread 13 : steal 0 elements from 9
+thread 13: getting out, time is 0.124428 s
+thread 15 : steal 13 elements from 9
+thread 15: getting out, time is 0.124487 s
+thread 10 : steal 8 elements from 9
+thread 10: getting out, time is 0.124596 s
+thread 11 : steal 1 elements from 9
+thread 11: getting out, time is 0.124936 s
+thread 12 : steal 3 elements from 9
+thread 12: getting out, time is 0.125078 s
+thread 9: getting out, time is 0.125196 s
+time used is 0.125601 s
+thread 21 : steal 1848 elements from 0
+thread 21: getting out, time is 0.112194 s
+thread 15 : steal 1689 elements from 11
+thread 15: getting out, time is 0.112774 s
+thread 6 : steal 1566 elements from 13
+thread 6: getting out, time is 0.113173 s
+thread 20 : steal 42 elements from 12
+thread 9 : steal 42 elements from 12
+thread 20: getting out, time is 0.116656 s
+thread 9: getting out, time is 0.116795 s
+thread 1 : steal 340 elements from 12
+thread 1: getting out, time is 0.117412 s
+thread 3 : steal 261 elements from 0
+thread 10 : steal 254 elements from 0
+thread 3: getting out, time is 0.117606 s
+thread 10: getting out, time is 0.117583 s
+thread 19 : steal 225 elements from 0
+thread 19: getting out, time is 0.117887 s
+thread 14 : steal 178 elements from 0
+thread 14: getting out, time is 0.117919 s
+thread 22 : steal 96 elements from 0
+thread 22: getting out, time is 0.118201 s
+thread 2 : steal 45 elements from 0
+thread 2: getting out, time is 0.118251 s
+thread 23 : steal 476 elements from 0
+thread 23: getting out, time is 0.118414 s
+thread 4 : steal 395 elements from 0
+thread 4: getting out, time is 0.118749 s
+thread 13 : steal 30 elements from 0
+thread 13: getting out, time is 0.118868 s
+thread 5 : steal 284 elements from 0
+thread 5: getting out, time is 0.119196 s
+thread 11 : steal 21 elements from 0
+thread 11: getting out, time is 0.119252 s
+thread 17 : steal 73 elements from 0
+thread 17: getting out, time is 0.119944 s
+thread 18 : steal 360 elements from 0
+thread 18: getting out, time is 0.120181 s
+thread 7 : steal 25 elements from 0
+thread 7: getting out, time is 0.120353 s
+thread 8 : steal 198 elements from 0
+thread 8: getting out, time is 0.120662 s
+thread 12 : steal 1 elements from 0
+thread 12: getting out, time is 0.121271 s
+thread 16 : steal 267 elements from 0
+thread 16: getting out, time is 0.121235 s
+thread 0: getting out, time is 0.123548 s
+time used is 0.123941 s
+Best time used on DFS is 0.123941 s
+Best time used on BFS is 0.096578 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:6
+number of iterations:6
+Time used on SV is 0.350241 s
+
+### nproc: 30
+../../../../span.sparcv9 -t 30 -- 2 1000000 4
+THREADS: 30
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 18 : steal 422 elements from 1
+thread 18: getting out, time is 0.145341 s
+thread 9 : steal 256 elements from 1
+thread 9: getting out, time is 0.145970 s
+thread 15 : steal 177 elements from 1
+thread 15: getting out, time is 0.146246 s
+thread 16 : steal 171 elements from 1
+thread 16: getting out, time is 0.146347 s
+thread 13 : steal 153 elements from 1
+thread 13: getting out, time is 0.146442 s
+thread 28 : steal 131 elements from 1
+thread 28: getting out, time is 0.146390 s
+thread 27 : steal 121 elements from 1
+thread 27: getting out, time is 0.146491 s
+thread 5 : steal 107 elements from 1
+thread 5: getting out, time is 0.146643 s
+thread 8 : steal 77 elements from 1
+thread 8: getting out, time is 0.146576 s
+thread 6 : steal 60 elements from 1
+thread 6: getting out, time is 0.146658 s
+thread 29 : steal 509 elements from 1
+thread 29: getting out, time is 0.147063 s
+thread 3 : steal 447 elements from 14
+thread 3: getting out, time is 0.147278 s
+thread 23 : steal 432 elements from 1
+thread 11 : steal 430 elements from 1
+thread 0 : steal 28 elements from 1
+thread 0: getting out, time is 0.147118 s
+thread 11: getting out, time is 0.147083 s
+thread 23: getting out, time is 0.147095 s
+thread 20 : steal 409 elements from 1
+thread 20: getting out, time is 0.147281 s
+thread 2 : steal 390 elements from 1
+thread 2: getting out, time is 0.147383 s
+thread 19 : steal 376 elements from 1
+thread 19: getting out, time is 0.147304 s
+thread 12 : steal 354 elements from 1
+thread 12: getting out, time is 0.147369 s
+thread 10 : steal 332 elements from 1
+thread 7 : steal 327 elements from 1
+thread 10: getting out, time is 0.147604 s
+thread 7: getting out, time is 0.147481 s
+thread 24 : steal 20 elements from 1
+thread 24: getting out, time is 0.147547 s
+thread 4 : steal 305 elements from 1
+thread 4: getting out, time is 0.147704 s
+thread 21 : steal 280 elements from 1
+thread 25 : steal 277 elements from 1
+thread 21: getting out, time is 0.147743 s
+thread 25: getting out, time is 0.147724 s
+thread 14 : steal 13 elements from 1
+thread 14: getting out, time is 0.147851 s
+thread 17 : steal 5 elements from 1
+thread 17: getting out, time is 0.148244 s
+thread 22 : steal 5 elements from 1
+thread 22: getting out, time is 0.148306 s
+thread 26 : steal 18 elements from 1
+thread 26: getting out, time is 0.148555 s
+thread 1: getting out, time is 0.149274 s
+time used is 0.149687 s
+thread 28 : steal 917 elements from 17
+thread 28: getting out, time is 0.138986 s
+thread 8 : steal 854 elements from 11
+thread 8: getting out, time is 0.139081 s
+thread 15 : steal 777 elements from 17
+thread 0 : steal 54 elements from 17
+thread 0: getting out, time is 0.139190 s
+thread 15: getting out, time is 0.139352 s
+thread 10 : steal 486 elements from 17
+thread 10: getting out, time is 0.139403 s
+thread 1 : steal 742 elements from 17
+thread 1: getting out, time is 0.139552 s
+thread 21 : steal 587 elements from 17
+thread 21: getting out, time is 0.140128 s
+thread 25 : steal 546 elements from 17
+thread 25: getting out, time is 0.140395 s
+thread 24 : steal 524 elements from 17
+thread 24: getting out, time is 0.140265 s
+thread 5 : steal 463 elements from 17
+thread 5: getting out, time is 0.140535 s
+thread 7 : steal 428 elements from 17
+thread 7: getting out, time is 0.140627 s
+thread 14 : steal 388 elements from 17
+thread 14: getting out, time is 0.140798 s
+thread 19 : steal 288 elements from 17
+thread 19: getting out, time is 0.141250 s
+thread 13 : steal 280 elements from 17
+thread 13: getting out, time is 0.141154 s
+thread 18 : steal 269 elements from 17
+thread 18: getting out, time is 0.141363 s
+thread 2 : steal 258 elements from 17
+thread 2: getting out, time is 0.141220 s
+thread 27 : steal 246 elements from 17
+thread 27: getting out, time is 0.141251 s
+thread 6 : steal 231 elements from 17
+thread 6: getting out, time is 0.141559 s
+thread 3 : steal 153 elements from 17
+thread 3: getting out, time is 0.141682 s
+thread 9 : steal 126 elements from 17
+thread 20 : steal 8 elements from 17
+thread 9: getting out, time is 0.141699 s
+thread 20: getting out, time is 0.141827 s
+thread 12 : steal 111 elements from 17
+thread 26 : steal 115 elements from 17
+thread 12: getting out, time is 0.141747 s
+thread 26: getting out, time is 0.141797 s
+thread 4 : steal 34 elements from 17
+thread 4: getting out, time is 0.142168 s
+thread 29 : steal 192 elements from 17
+thread 29: getting out, time is 0.142265 s
+thread 16 : steal 84 elements from 17
+thread 22 : steal 80 elements from 17
+thread 16: getting out, time is 0.142507 s
+thread 22: getting out, time is 0.142635 s
+thread 11 : steal 4 elements from 17
+thread 11: getting out, time is 0.142566 s
+thread 23 : steal 593 elements from 17
+thread 23: getting out, time is 0.142751 s
+thread 17: getting out, time is 0.143608 s
+time used is 0.144151 s
+Best time used on DFS is 0.144151 s
+Best time used on BFS is 0.093575 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:9
+Time used on SV is 0.415894 s
+
+### nproc: 32
+../../../../span.sparcv9 -t 32 -- 2 1000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 19 : steal 290 elements from 0
+thread 19: getting out, time is 0.153434 s
+thread 11 : steal 262 elements from 0
+thread 25 : steal 237 elements from 0
+thread 11: getting out, time is 0.153487 s
+thread 25: getting out, time is 0.153590 s
+thread 7 : steal 220 elements from 0
+thread 4 : steal 273 elements from 0
+thread 7: getting out, time is 0.153575 s
+thread 4: getting out, time is 0.153494 s
+thread 3 : steal 203 elements from 0
+thread 13 : steal 200 elements from 0
+thread 3: getting out, time is 0.153585 s
+thread 13: getting out, time is 0.153619 s
+thread 12 : steal 176 elements from 0
+thread 8 : steal 176 elements from 0
+thread 12: getting out, time is 0.153734 s
+thread 8: getting out, time is 0.153790 s
+thread 9 : steal 167 elements from 0
+thread 9: getting out, time is 0.153792 s
+thread 27 : steal 130 elements from 0
+thread 27: getting out, time is 0.153811 s
+thread 18 : steal 74 elements from 0
+thread 10 : steal 70 elements from 0
+thread 18: getting out, time is 0.154056 s
+thread 10: getting out, time is 0.154104 s
+thread 30 : steal 54 elements from 0
+thread 30: getting out, time is 0.154345 s
+thread 17 : steal 22 elements from 0
+thread 17: getting out, time is 0.154256 s
+thread 22 : steal 19 elements from 0
+thread 14 : steal 18 elements from 0
+thread 22: getting out, time is 0.154290 s
+thread 14: getting out, time is 0.154498 s
+thread 24 : steal 2 elements from 0
+thread 24: getting out, time is 0.154351 s
+thread 31 : steal 0 elements from 0
+thread 16 : steal 177 elements from 0
+thread 29 : steal 178 elements from 0
+thread 31: getting out, time is 0.154347 s
+thread 16: getting out, time is 0.154547 s
+thread 29: getting out, time is 0.154559 s
+thread 20 : steal 161 elements from 0
+thread 20: getting out, time is 0.154459 s
+thread 21 : steal 85 elements from 0
+thread 21: getting out, time is 0.154782 s
+thread 23 : steal 73 elements from 0
+thread 23: getting out, time is 0.154761 s
+thread 6 : steal 60 elements from 0
+thread 2 : steal 60 elements from 0
+thread 6: getting out, time is 0.154758 s
+thread 2: getting out, time is 0.154906 s
+thread 1 : steal 45 elements from 0
+thread 1: getting out, time is 0.154931 s
+thread 5 : steal 9 elements from 0
+thread 5: getting out, time is 0.155031 s
+thread 28 : steal 153 elements from 0
+thread 28: getting out, time is 0.154982 s
+thread 15 : steal 117 elements from 0
+thread 15: getting out, time is 0.155224 s
+thread 26 : steal 277 elements from 0
+thread 26: getting out, time is 0.155458 s
+thread 0: getting out, time is 0.155836 s
+time used is 0.156280 s
+thread 4 : steal 896 elements from 31
+thread 4: getting out, time is 0.153578 s
+thread 19 : steal 410 elements from 0
+thread 25 : steal 407 elements from 0
+thread 16: getting out, time is 0.153727 s
+thread 19: getting out, time is 0.153827 s
+thread 25: getting out, time is 0.153823 s
+thread 8: getting out, time is 0.153812 s
+thread 6: getting out, time is 0.154024 s
+thread 18: getting out, time is 0.153901 s
+thread 23: getting out, time is 0.153973 s
+thread 0: getting out, time is 0.154202 s
+thread 28: getting out, time is 0.154192 s
+thread 27: getting out, time is 0.154399 s
+thread 2: getting out, time is 0.154380 s
+thread 26: getting out, time is 0.154467 s
+thread 1: getting out, time is 0.154671 s
+thread 21: getting out, time is 0.154767 s
+thread 9: getting out, time is 0.154611 s
+thread 24: getting out, time is 0.154712 s
+thread 12: getting out, time is 0.154700 s
+thread 14: getting out, time is 0.154746 s
+thread 15: getting out, time is 0.154644 s
+thread 7: getting out, time is 0.154763 s
+thread 22: getting out, time is 0.155080 s
+thread 30: getting out, time is 0.155064 s
+thread 3: getting out, time is 0.154893 s
+thread 20: getting out, time is 0.155046 s
+thread 31 : steal 95 elements from 5
+thread 31: getting out, time is 0.155192 s
+thread 10 : steal 74 elements from 5
+thread 10: getting out, time is 0.155130 s
+thread 13 : steal 48 elements from 5
+thread 11 : steal 48 elements from 5
+thread 13: getting out, time is 0.155157 s
+thread 11: getting out, time is 0.155267 s
+thread 17 : steal 10 elements from 5
+thread 17: getting out, time is 0.155243 s
+thread 29 : steal 66 elements from 5
+thread 29: getting out, time is 0.155455 s
+thread 5: getting out, time is 0.155406 s
+time used is 0.156198 s
+Best time used on DFS is 0.156198 s
+Best time used on BFS is 0.093665 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.330976 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../span.sparcv9 -t 1 -- 2 4000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0: getting out, time is 8.379572 s
+time used is 8.379679 s
+thread 0: getting out, time is 8.361634 s
+time used is 8.361690 s
+Best time used on DFS is 8.361690 s
+Best time used on BFS is 6.807028 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:4
+number of iterations:7
+Time used on SV is 42.780806 s
+
+### nproc: 2
+../../../../span.sparcv9 -t 2 -- 2 4000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 1 : steal 1743 elements from 0
+thread 1: getting out, time is 4.011397 s
+thread 0: getting out, time is 4.014799 s
+time used is 4.014900 s
+thread 0 : steal 492 elements from 1
+thread 0: getting out, time is 4.004795 s
+thread 1: getting out, time is 4.005652 s
+time used is 4.005733 s
+Best time used on DFS is 4.005733 s
+Best time used on BFS is 3.380182 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 22.701044 s
+
+### nproc: 4
+../../../../span.sparcv9 -t 4 -- 2 4000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 10951 elements from 3
+thread 0: getting out, time is 2.047293 s
+thread 2: getting out, time is 2.068000 s
+thread 3 : steal 110 elements from 1
+thread 3: getting out, time is 2.073790 s
+thread 1: getting out, time is 2.074397 s
+time used is 2.074531 s
+thread 3 : steal 163 elements from 1
+thread 3: getting out, time is 2.008983 s
+thread 2 : steal 1775 elements from 1
+thread 2: getting out, time is 2.009634 s
+thread 0 : steal 1298 elements from 1
+thread 0: getting out, time is 2.013298 s
+thread 1: getting out, time is 2.017139 s
+time used is 2.017243 s
+Best time used on DFS is 2.017243 s
+Best time used on BFS is 1.510985 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 12.222714 s
+
+### nproc: 8
+../../../../span.sparcv9 -t 8 -- 2 4000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 7 : steal 7397 elements from 5
+thread 7: getting out, time is 1.034660 s
+thread 4 : steal 2748 elements from 1
+thread 4: getting out, time is 1.051543 s
+thread 6 : steal 3280 elements from 1
+thread 6: getting out, time is 1.061907 s
+thread 1 : steal 481 elements from 5
+thread 1: getting out, time is 1.066736 s
+thread 0 : steal 408 elements from 5
+thread 0: getting out, time is 1.066861 s
+thread 3 : steal 1351 elements from 5
+thread 3: getting out, time is 1.067219 s
+thread 2 : steal 97 elements from 5
+thread 2: getting out, time is 1.069301 s
+thread 5: getting out, time is 1.069475 s
+time used is 1.069705 s
+thread 3 : steal 13502 elements from 5
+thread 3: getting out, time is 1.030503 s
+thread 4 : steal 7071 elements from 5
+thread 4: getting out, time is 1.041313 s
+thread 0 : steal 6288 elements from 5
+thread 0: getting out, time is 1.058634 s
+thread 6 : steal 971 elements from 5
+thread 6: getting out, time is 1.079030 s
+thread 7 : steal 3003 elements from 5
+thread 7: getting out, time is 1.082758 s
+thread 2 : steal 9660 elements from 5
+thread 2: getting out, time is 1.083804 s
+thread 1 : steal 1024 elements from 5
+thread 1: getting out, time is 1.088478 s
+thread 5: getting out, time is 1.101705 s
+time used is 1.101970 s
+Best time used on DFS is 1.069705 s
+Best time used on BFS is 0.828942 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 6.910755 s
+
+### nproc: 16
+../../../../span.sparcv9 -t 16 -- 2 4000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 8 : steal 2628 elements from 5
+thread 8: getting out, time is 0.509106 s
+thread 15 : steal 8962 elements from 3
+thread 15: getting out, time is 0.520715 s
+thread 10 : steal 8630 elements from 5
+thread 10: getting out, time is 0.521890 s
+thread 9 : steal 7616 elements from 0
+thread 4 : steal 7579 elements from 5
+thread 9: getting out, time is 0.525781 s
+thread 4: getting out, time is 0.525878 s
+thread 13 : steal 5643 elements from 5
+thread 13: getting out, time is 0.533629 s
+thread 7 : steal 4633 elements from 5
+thread 7: getting out, time is 0.537740 s
+thread 12 : steal 4552 elements from 5
+thread 12: getting out, time is 0.538119 s
+thread 0 : steal 430 elements from 5
+thread 0: getting out, time is 0.542156 s
+thread 2 : steal 427 elements from 5
+thread 2: getting out, time is 0.542262 s
+thread 6 : steal 1717 elements from 5
+thread 6: getting out, time is 0.547996 s
+thread 3 : steal 97 elements from 5
+thread 3: getting out, time is 0.551170 s
+thread 11 : steal 90 elements from 5
+thread 11: getting out, time is 0.551209 s
+thread 14 : steal 536 elements from 5
+thread 14: getting out, time is 0.553785 s
+thread 1 : steal 496 elements from 5
+thread 1: getting out, time is 0.553987 s
+thread 5: getting out, time is 0.566428 s
+time used is 0.566880 s
+thread 8 : steal 5756 elements from 6
+thread 8: getting out, time is 0.515848 s
+thread 1 : steal 4428 elements from 2
+thread 1: getting out, time is 0.520574 s
+thread 11 : steal 3972 elements from 2
+thread 11: getting out, time is 0.522269 s
+thread 3 : steal 3363 elements from 2
+thread 3: getting out, time is 0.524273 s
+thread 0 : steal 2040 elements from 2
+thread 0: getting out, time is 0.528642 s
+thread 7 : steal 217 elements from 2
+thread 7: getting out, time is 0.529478 s
+thread 10 : steal 1656 elements from 2
+thread 10: getting out, time is 0.529896 s
+thread 15 : steal 421 elements from 2
+thread 15: getting out, time is 0.535551 s
+thread 12 : steal 332 elements from 2
+thread 12: getting out, time is 0.538102 s
+thread 5 : steal 169 elements from 2
+thread 5: getting out, time is 0.542409 s
+thread 4 : steal 108 elements from 2
+thread 4: getting out, time is 0.544104 s
+thread 14 : steal 3728 elements from 2
+thread 14: getting out, time is 0.547273 s
+thread 9 : steal 310 elements from 2
+thread 9: getting out, time is 0.551879 s
+thread 13: getting out, time is 0.560705 s
+thread 6 : steal 326 elements from 2
+thread 6: getting out, time is 0.560866 s
+thread 2: getting out, time is 0.569159 s
+time used is 0.569576 s
+Best time used on DFS is 0.566880 s
+Best time used on BFS is 0.480571 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:9
+Time used on SV is 4.821326 s
+
+### nproc: 20
+../../../../span.sparcv9 -t 20 -- 2 4000000 4
+THREADS: 20
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 1 : steal 4452 elements from 14
+thread 1: getting out, time is 0.457699 s
+thread 7 : steal 4027 elements from 8
+thread 7: getting out, time is 0.459534 s
+thread 17 : steal 3035 elements from 14
+thread 17: getting out, time is 0.463702 s
+thread 12 : steal 2700 elements from 14
+thread 12: getting out, time is 0.464915 s
+thread 0 : steal 125 elements from 14
+thread 0: getting out, time is 0.470464 s
+thread 6 : steal 1200 elements from 14
+thread 6: getting out, time is 0.470702 s
+thread 2 : steal 1172 elements from 14
+thread 2: getting out, time is 0.470851 s
+thread 18 : steal 1077 elements from 14
+thread 18: getting out, time is 0.471092 s
+thread 4 : steal 403 elements from 14
+thread 4: getting out, time is 0.473515 s
+thread 11 : steal 353 elements from 14
+thread 11: getting out, time is 0.473714 s
+thread 10 : steal 202 elements from 14
+thread 10: getting out, time is 0.474297 s
+thread 19 : steal 6484 elements from 14
+thread 19: getting out, time is 0.475488 s
+thread 3 : steal 489 elements from 9
+thread 3: getting out, time is 0.480806 s
+thread 13 : steal 487 elements from 9
+thread 13: getting out, time is 0.480916 s
+thread 5 : steal 346 elements from 9
+thread 5: getting out, time is 0.485626 s
+thread 16 : steal 37 elements from 9
+thread 16: getting out, time is 0.497518 s
+thread 14 : steal 19 elements from 9
+thread 14: getting out, time is 0.498026 s
+thread 8 : steal 7 elements from 9
+thread 8: getting out, time is 0.498483 s
+thread 15 : steal 62 elements from 9
+thread 15: getting out, time is 0.498859 s
+thread 9: getting out, time is 0.501025 s
+time used is 0.501361 s
+thread 9 : steal 3849 elements from 5
+thread 9: getting out, time is 0.449820 s
+thread 11 : steal 2904 elements from 19
+thread 11: getting out, time is 0.449828 s
+thread 13 : steal 4810 elements from 4
+thread 13: getting out, time is 0.450964 s
+thread 8 : steal 4353 elements from 16
+thread 8: getting out, time is 0.451991 s
+thread 0 : steal 411 elements from 5
+thread 15 : steal 4099 elements from 5
+thread 0: getting out, time is 0.453377 s
+thread 15: getting out, time is 0.453421 s
+thread 18 : steal 3990 elements from 2
+thread 18: getting out, time is 0.453816 s
+thread 14 : steal 3578 elements from 3
+thread 14: getting out, time is 0.455194 s
+thread 3 : steal 319 elements from 19
+thread 3: getting out, time is 0.456410 s
+thread 2 : steal 2784 elements from 19
+thread 2: getting out, time is 0.457311 s
+thread 17: getting out, time is 0.457735 s
+thread 16: getting out, time is 0.458201 s
+thread 4: getting out, time is 0.459264 s
+thread 19 : steal 71 elements from 6
+thread 19: getting out, time is 0.461826 s
+thread 5 : steal 16 elements from 6
+thread 5: getting out, time is 0.463884 s
+thread 12 : steal 126 elements from 6
+thread 12: getting out, time is 0.464522 s
+thread 10 : steal 26 elements from 6
+thread 10: getting out, time is 0.465130 s
+thread 1 : steal 20 elements from 6
+thread 1: getting out, time is 0.465267 s
+thread 7 : steal 207 elements from 6
+thread 7: getting out, time is 0.466100 s
+thread 6: getting out, time is 0.466449 s
+time used is 0.467045 s
+Best time used on DFS is 0.467045 s
+Best time used on BFS is 0.421089 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:6
+number of iterations:9
+Time used on SV is 3.968760 s
+
+### nproc: 24
+../../../../span.sparcv9 -t 24 -- 2 4000000 4
+THREADS: 24
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 14 : steal 3959 elements from 5
+thread 14: getting out, time is 0.421086 s
+thread 9 : steal 8420 elements from 23
+thread 9: getting out, time is 0.427383 s
+thread 7 : steal 5088 elements from 10
+thread 7: getting out, time is 0.429331 s
+thread 17 : steal 4925 elements from 21
+thread 3 : steal 4833 elements from 5
+thread 17: getting out, time is 0.429886 s
+thread 3: getting out, time is 0.430226 s
+thread 15 : steal 2096 elements from 23
+thread 15: getting out, time is 0.431526 s
+thread 19 : steal 2625 elements from 23
+thread 19: getting out, time is 0.434544 s
+thread 16: getting out, time is 0.434956 s
+thread 20: getting out, time is 0.435255 s
+thread 2: getting out, time is 0.435823 s
+thread 6: getting out, time is 0.435912 s
+thread 0: getting out, time is 0.436552 s
+thread 22: getting out, time is 0.437013 s
+thread 18: getting out, time is 0.437318 s
+thread 10: getting out, time is 0.437545 s
+thread 21: getting out, time is 0.437597 s
+thread 4: getting out, time is 0.437861 s
+thread 11: getting out, time is 0.437970 s
+thread 8: getting out, time is 0.438173 s
+thread 13: getting out, time is 0.439018 s
+thread 23 : steal 25 elements from 12
+thread 23: getting out, time is 0.439176 s
+thread 5 : steal 13 elements from 12
+thread 5: getting out, time is 0.439703 s
+thread 1 : steal 103 elements from 12
+thread 1: getting out, time is 0.439954 s
+thread 12: getting out, time is 0.440117 s
+time used is 0.440487 s
+thread 9 : steal 4976 elements from 19
+thread 9: getting out, time is 0.397512 s
+thread 0 : steal 291 elements from 15
+thread 0: getting out, time is 0.402672 s
+thread 2 : steal 3411 elements from 15
+thread 2: getting out, time is 0.403105 s
+thread 6 : steal 3233 elements from 1
+thread 6: getting out, time is 0.403661 s
+thread 22 : steal 2013 elements from 14
+thread 22: getting out, time is 0.407900 s
+thread 18 : steal 508 elements from 13
+thread 18: getting out, time is 0.413015 s
+thread 11 : steal 436 elements from 7
+thread 11: getting out, time is 0.413177 s
+thread 10 : steal 230 elements from 16
+thread 10: getting out, time is 0.414127 s
+thread 23 : steal 275 elements from 13
+thread 23: getting out, time is 0.414982 s
+thread 17 : steal 3255 elements from 13
+thread 17: getting out, time is 0.415256 s
+thread 12 : steal 564 elements from 7
+thread 12: getting out, time is 0.415769 s
+thread 20 : steal 174 elements from 7
+thread 20: getting out, time is 0.419562 s
+thread 8 : steal 162 elements from 7
+thread 8: getting out, time is 0.419954 s
+thread 4 : steal 62 elements from 7
+thread 4: getting out, time is 0.424759 s
+thread 1 : steal 55 elements from 7
+thread 1: getting out, time is 0.424964 s
+thread 19 : steal 27 elements from 7
+thread 19: getting out, time is 0.426286 s
+thread 5 : steal 22 elements from 7
+thread 5: getting out, time is 0.426568 s
+thread 13 : steal 18 elements from 7
+thread 13: getting out, time is 0.426691 s
+thread 15 : steal 10 elements from 7
+thread 15: getting out, time is 0.427036 s
+thread 21 : steal 44 elements from 7
+thread 21: getting out, time is 0.427569 s
+thread 16: getting out, time is 0.429604 s
+thread 14 : steal 40 elements from 7
+thread 14: getting out, time is 0.429597 s
+thread 3 : steal 4 elements from 7
+thread 3: getting out, time is 0.431168 s
+thread 7: getting out, time is 0.431322 s
+time used is 0.431886 s
+Best time used on DFS is 0.431886 s
+Best time used on BFS is 0.371560 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 2.435637 s
+
+### nproc: 30
+../../../../span.sparcv9 -t 30 -- 2 4000000 4
+THREADS: 30
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 29 : steal 1046 elements from 9
+thread 29: getting out, time is 0.417458 s
+thread 26 : steal 777 elements from 9
+thread 5 : steal 772 elements from 9
+thread 26: getting out, time is 0.418676 s
+thread 5: getting out, time is 0.418633 s
+thread 19 : steal 601 elements from 9
+thread 19: getting out, time is 0.419436 s
+thread 2 : steal 397 elements from 9
+thread 2: getting out, time is 0.420035 s
+thread 1 : steal 359 elements from 9
+thread 1: getting out, time is 0.420428 s
+thread 15 : steal 320 elements from 9
+thread 15: getting out, time is 0.420514 s
+thread 13 : steal 242 elements from 9
+thread 13: getting out, time is 0.420963 s
+thread 24 : steal 180 elements from 9
+thread 24: getting out, time is 0.421136 s
+thread 11 : steal 168 elements from 9
+thread 11: getting out, time is 0.421256 s
+thread 14 : steal 161 elements from 9
+thread 14: getting out, time is 0.421215 s
+thread 23 : steal 154 elements from 9
+thread 23: getting out, time is 0.421227 s
+thread 4 : steal 146 elements from 9
+thread 4: getting out, time is 0.421235 s
+thread 16 : steal 110 elements from 9
+thread 18 : steal 110 elements from 9
+thread 16: getting out, time is 0.421486 s
+thread 18: getting out, time is 0.421504 s
+thread 12 : steal 85 elements from 9
+thread 12: getting out, time is 0.421485 s
+thread 7 : steal 2 elements from 9
+thread 7: getting out, time is 0.421883 s
+thread 28 : steal 816 elements from 9
+thread 0 : steal 54 elements from 9
+thread 0: getting out, time is 0.421932 s
+thread 6 : steal 804 elements from 9
+thread 28: getting out, time is 0.422135 s
+thread 6: getting out, time is 0.422155 s
+thread 20 : steal 766 elements from 9
+thread 20: getting out, time is 0.422176 s
+thread 22 : steal 718 elements from 9
+thread 22: getting out, time is 0.422357 s
+thread 10 : steal 692 elements from 9
+thread 3 : steal 686 elements from 9
+thread 10: getting out, time is 0.422596 s
+thread 3: getting out, time is 0.422462 s
+thread 17 : steal 671 elements from 9
+thread 17: getting out, time is 0.422437 s
+thread 8 : steal 555 elements from 9
+thread 8: getting out, time is 0.423046 s
+thread 25 : steal 480 elements from 9
+thread 25: getting out, time is 0.423350 s
+thread 27 : steal 2554 elements from 9
+thread 27: getting out, time is 0.425216 s
+thread 9 : steal 22 elements from 21
+thread 9: getting out, time is 0.436626 s
+thread 21: getting out, time is 0.437777 s
+time used is 0.438525 s
+thread 8 : steal 2342 elements from 9
+thread 8: getting out, time is 0.394972 s
+thread 28 : steal 2037 elements from 7
+thread 28: getting out, time is 0.396242 s
+thread 1 : steal 913 elements from 10
+thread 1: getting out, time is 0.400376 s
+thread 13 : steal 885 elements from 16
+thread 13: getting out, time is 0.400513 s
+thread 6 : steal 678 elements from 17
+thread 6: getting out, time is 0.401701 s
+thread 11 : steal 453 elements from 14
+thread 11: getting out, time is 0.402555 s
+thread 27 : steal 423 elements from 12
+thread 27: getting out, time is 0.402550 s
+thread 0 : steal 23 elements from 4
+thread 0: getting out, time is 0.402751 s
+thread 21 : steal 350 elements from 4
+thread 21: getting out, time is 0.402860 s
+thread 23 : steal 339 elements from 14
+thread 23: getting out, time is 0.402956 s
+thread 5 : steal 167 elements from 14
+thread 5: getting out, time is 0.403749 s
+thread 19 : steal 124 elements from 14
+thread 19: getting out, time is 0.403886 s
+thread 9 : steal 6 elements from 14
+thread 9: getting out, time is 0.403890 s
+thread 29 : steal 300 elements from 14
+thread 29: getting out, time is 0.404463 s
+thread 3 : steal 280 elements from 14
+thread 3: getting out, time is 0.404430 s
+thread 22 : steal 215 elements from 14
+thread 7 : steal 14 elements from 14
+thread 7: getting out, time is 0.404798 s
+thread 22: getting out, time is 0.404894 s
+thread 25 : steal 154 elements from 14
+thread 25: getting out, time is 0.405173 s
+thread 2 : steal 5 elements from 14
+thread 2: getting out, time is 0.405484 s
+thread 24 : steal 43 elements from 14
+thread 24: getting out, time is 0.405554 s
+thread 15 : steal 7 elements from 14
+thread 15: getting out, time is 0.405664 s
+thread 26 : steal 4 elements from 14
+thread 26: getting out, time is 0.405622 s
+thread 16 : steal 4 elements from 14
+thread 16: getting out, time is 0.405611 s
+thread 18 : steal 47 elements from 14
+thread 18: getting out, time is 0.405714 s
+thread 10 : steal 5 elements from 14
+thread 10: getting out, time is 0.405931 s
+thread 20: getting out, time is 0.406042 s
+thread 17 : steal 19 elements from 14
+thread 4 : steal 288 elements from 14
+thread 17: getting out, time is 0.406049 s
+thread 4: getting out, time is 0.406014 s
+thread 12 : steal 54 elements from 14
+thread 12: getting out, time is 0.406348 s
+thread 14: getting out, time is 0.406431 s
+time used is 0.406896 s
+Best time used on DFS is 0.406896 s
+Best time used on BFS is 0.317450 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 2.588326 s
+
+### nproc: 32
+../../../../span.sparcv9 -t 32 -- 2 4000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 7 : steal 1053 elements from 17
+thread 7: getting out, time is 0.420261 s
+thread 5 : steal 1013 elements from 0
+thread 11 : steal 992 elements from 0
+thread 28 : steal 978 elements from 31
+thread 5: getting out, time is 0.420477 s
+thread 11: getting out, time is 0.420439 s
+thread 27 : steal 477 elements from 17
+thread 28: getting out, time is 0.420424 s
+thread 27: getting out, time is 0.420483 s
+thread 6: getting out, time is 0.421005 s
+thread 30: getting out, time is 0.421081 s
+thread 1: getting out, time is 0.421149 s
+thread 4: getting out, time is 0.421008 s
+thread 15: getting out, time is 0.421108 s
+thread 22: getting out, time is 0.421426 s
+thread 21: getting out, time is 0.421479 s
+thread 19: getting out, time is 0.421451 s
+thread 20: getting out, time is 0.421673 s
+thread 14: getting out, time is 0.421676 s
+thread 3: getting out, time is 0.421987 s
+thread 2: getting out, time is 0.422195 s
+thread 9: getting out, time is 0.422069 s
+thread 26: getting out, time is 0.422162 s
+thread 25: getting out, time is 0.422260 s
+thread 23: getting out, time is 0.422603 s
+thread 10: getting out, time is 0.422494 s
+thread 13: getting out, time is 0.422504 s
+thread 24: getting out, time is 0.422636 s
+thread 29: getting out, time is 0.422731 s
+thread 8: getting out, time is 0.422787 s
+thread 0: getting out, time is 0.422730 s
+thread 31 : steal 122 elements from 18
+thread 31: getting out, time is 0.422913 s
+thread 12 : steal 182 elements from 17
+thread 12: getting out, time is 0.422834 s
+thread 16 : steal 91 elements from 17
+thread 16: getting out, time is 0.423178 s
+thread 18 : steal 641 elements from 17
+thread 18: getting out, time is 0.423701 s
+thread 17: getting out, time is 0.424787 s
+time used is 0.425271 s
+thread 23 : steal 2356 elements from 18
+thread 23: getting out, time is 0.394595 s
+thread 17 : steal 1510 elements from 0
+thread 17: getting out, time is 0.398077 s
+thread 8 : steal 763 elements from 26
+thread 8: getting out, time is 0.401361 s
+thread 18 : steal 609 elements from 5
+thread 18: getting out, time is 0.401965 s
+thread 21 : steal 424 elements from 25
+thread 21: getting out, time is 0.402794 s
+thread 28 : steal 390 elements from 27
+thread 28: getting out, time is 0.402852 s
+thread 30 : steal 368 elements from 12
+thread 30: getting out, time is 0.403130 s
+thread 10 : steal 339 elements from 4
+thread 10: getting out, time is 0.403201 s
+thread 13 : steal 304 elements from 22
+thread 0 : steal 18 elements from 22
+thread 0: getting out, time is 0.403234 s
+thread 13: getting out, time is 0.403230 s
+thread 1 : steal 288 elements from 22
+thread 1: getting out, time is 0.403319 s
+thread 11 : steal 267 elements from 2
+thread 11: getting out, time is 0.403580 s
+thread 15 : steal 235 elements from 27
+thread 15: getting out, time is 0.403507 s
+thread 29 : steal 181 elements from 27
+thread 29: getting out, time is 0.403860 s
+thread 24 : steal 8 elements from 27
+thread 2 : steal 6 elements from 27
+thread 22 : steal 6 elements from 27
+thread 2: getting out, time is 0.404416 s
+thread 24: getting out, time is 0.404422 s
+thread 16 : steal 0 elements from 27
+thread 22: getting out, time is 0.404375 s
+thread 16: getting out, time is 0.404525 s
+thread 31 : steal 302 elements from 27
+thread 6 : steal 139 elements from 27
+thread 31: getting out, time is 0.404674 s
+thread 6: getting out, time is 0.404470 s
+thread 12: getting out, time is 0.404663 s
+thread 20: getting out, time is 0.404842 s
+thread 9: getting out, time is 0.404589 s
+thread 7: getting out, time is 0.404722 s
+thread 4: getting out, time is 0.404708 s
+thread 5: getting out, time is 0.404924 s
+thread 3 : steal 0 elements from 26
+thread 3: getting out, time is 0.404814 s
+thread 27 : steal 10 elements from 26
+thread 14 : steal 10 elements from 26
+thread 27: getting out, time is 0.404902 s
+thread 14: getting out, time is 0.404769 s
+thread 25 : steal 156 elements from 26
+thread 19 : steal 155 elements from 26
+thread 25: getting out, time is 0.404822 s
+thread 19: getting out, time is 0.404945 s
+thread 26: getting out, time is 0.405159 s
+time used is 0.405761 s
+Best time used on DFS is 0.405761 s
+Best time used on BFS is 0.323461 s
+init edge list done, n_edge = 17018062, n_vertices=4000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 2.266634 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../span.sparcv9 -t 1 -- 2 9000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0: getting out, time is 20.983020 s
+time used is 20.983117 s
+thread 0: getting out, time is 20.970353 s
+time used is 20.970391 s
+Best time used on DFS is 20.970391 s
+Best time used on BFS is 16.508068 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:4
+number of iterations:7
+Time used on SV is 107.990261 s
+
+### nproc: 2
+../../../../span.sparcv9 -t 2 -- 2 9000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 488 elements from 1
+thread 0: getting out, time is 10.360869 s
+thread 1: getting out, time is 10.361817 s
+time used is 10.361901 s
+thread 0 : steal 3172 elements from 1
+thread 0: getting out, time is 10.336786 s
+thread 1: getting out, time is 10.343151 s
+time used is 10.343245 s
+Best time used on DFS is 10.343245 s
+Best time used on BFS is 8.217166 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 57.198421 s
+
+### nproc: 4
+../../../../span.sparcv9 -t 4 -- 2 9000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 1 : steal 346 elements from 3
+thread 1: getting out, time is 5.094216 s
+thread 0 : steal 259 elements from 3
+thread 0: getting out, time is 5.094434 s
+thread 3 : steal 24 elements from 2
+thread 3: getting out, time is 5.094954 s
+thread 2: getting out, time is 5.095101 s
+time used is 5.095226 s
+thread 3 : steal 397 elements from 1
+thread 3: getting out, time is 5.075571 s
+thread 2 : steal 2137 elements from 1
+thread 2: getting out, time is 5.078991 s
+thread 0 : steal 414 elements from 1
+thread 0: getting out, time is 5.088619 s
+thread 1: getting out, time is 5.091170 s
+time used is 5.091241 s
+Best time used on DFS is 5.091241 s
+Best time used on BFS is 4.042038 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 30.646193 s
+
+### nproc: 8
+../../../../span.sparcv9 -t 8 -- 2 9000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 4 : steal 936 elements from 3
+thread 4: getting out, time is 2.467024 s
+thread 7 : steal 2569 elements from 3
+thread 7: getting out, time is 2.472897 s
+thread 1 : steal 9686 elements from 3
+thread 1: getting out, time is 2.475646 s
+thread 5 : steal 951 elements from 0
+thread 5: getting out, time is 2.498795 s
+thread 6: getting out, time is 2.514108 s
+thread 3 : steal 49 elements from 0
+thread 3: getting out, time is 2.537572 s
+thread 2 : steal 193 elements from 0
+thread 2: getting out, time is 2.538404 s
+thread 0: getting out, time is 2.541142 s
+time used is 2.541353 s
+thread 6 : steal 32494 elements from 4
+thread 6: getting out, time is 2.441446 s
+thread 2 : steal 13178 elements from 7
+thread 2: getting out, time is 2.503703 s
+thread 1 : steal 6611 elements from 7
+thread 1: getting out, time is 2.519201 s
+thread 4: getting out, time is 2.520780 s
+thread 7 : steal 420 elements from 0
+thread 7: getting out, time is 2.532394 s
+thread 5 : steal 83 elements from 0
+thread 5: getting out, time is 2.534041 s
+thread 3 : steal 1056 elements from 0
+thread 3: getting out, time is 2.535546 s
+thread 0: getting out, time is 2.537585 s
+time used is 2.537788 s
+Best time used on DFS is 2.537788 s
+Best time used on BFS is 2.272240 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 17.088142 s
+
+### nproc: 16
+../../../../span.sparcv9 -t 16 -- 2 9000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 7 : steal 4015 elements from 2
+thread 7: getting out, time is 1.486637 s
+thread 12 : steal 2253 elements from 10
+thread 12: getting out, time is 1.493939 s
+thread 15 : steal 1466 elements from 10
+thread 15: getting out, time is 1.503631 s
+thread 14 : steal 13199 elements from 10
+thread 14: getting out, time is 1.510896 s
+thread 3 : steal 8261 elements from 2
+thread 3: getting out, time is 1.536108 s
+thread 11 : steal 843 elements from 4
+thread 11: getting out, time is 1.542947 s
+thread 6 : steal 791 elements from 4
+thread 6: getting out, time is 1.544951 s
+thread 5 : steal 419 elements from 2
+thread 5: getting out, time is 1.558153 s
+thread 0 : steal 276 elements from 2
+thread 0: getting out, time is 1.563206 s
+thread 1 : steal 2187 elements from 2
+thread 1: getting out, time is 1.563405 s
+thread 9 : steal 22 elements from 2
+thread 9: getting out, time is 1.571987 s
+thread 8 : steal 2 elements from 2
+thread 8: getting out, time is 1.572717 s
+thread 13: getting out, time is 1.572804 s
+thread 10 : steal 217 elements from 2
+thread 10: getting out, time is 1.574959 s
+thread 4 : steal 512 elements from 2
+thread 4: getting out, time is 1.582103 s
+thread 2: getting out, time is 1.598263 s
+time used is 1.598722 s
+thread 6 : steal 19308 elements from 15
+thread 6: getting out, time is 1.474945 s
+thread 14 : steal 19138 elements from 8
+thread 14: getting out, time is 1.501333 s
+thread 7 : steal 18352 elements from 15
+thread 7: getting out, time is 1.504766 s
+thread 0: getting out, time is 1.512817 s
+thread 2: getting out, time is 1.514370 s
+thread 8: getting out, time is 1.527054 s
+thread 5: getting out, time is 1.529662 s
+thread 1: getting out, time is 1.529837 s
+thread 15 : steal 506 elements from 9
+thread 15: getting out, time is 1.544174 s
+thread 10 : steal 217 elements from 9
+thread 10: getting out, time is 1.554256 s
+thread 12 : steal 184 elements from 9
+thread 12: getting out, time is 1.555307 s
+thread 3 : steal 1334 elements from 9
+thread 3: getting out, time is 1.556094 s
+thread 11 : steal 908 elements from 4
+thread 11: getting out, time is 1.557838 s
+thread 4 : steal 7 elements from 9
+thread 4: getting out, time is 1.561575 s
+thread 13 : steal 106 elements from 9
+thread 13: getting out, time is 1.561923 s
+thread 9: getting out, time is 1.565411 s
+time used is 1.565802 s
+Best time used on DFS is 1.565802 s
+Best time used on BFS is 1.301018 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:11
+Time used on SV is 14.227211 s
+
+### nproc: 20
+../../../../span.sparcv9 -t 20 -- 2 9000000 4
+THREADS: 20
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 10 : steal 17534 elements from 17
+thread 10: getting out, time is 1.125607 s
+thread 14 : steal 9086 elements from 1
+thread 14: getting out, time is 1.161561 s
+thread 2 : steal 9260 elements from 12
+thread 2: getting out, time is 1.164055 s
+thread 9 : steal 8254 elements from 18
+thread 9: getting out, time is 1.168800 s
+thread 13 : steal 7101 elements from 1
+thread 13: getting out, time is 1.173908 s
+thread 6 : steal 489 elements from 1
+thread 6: getting out, time is 1.183000 s
+thread 11 : steal 4612 elements from 1
+thread 11: getting out, time is 1.184596 s
+thread 4 : steal 3574 elements from 1
+thread 4: getting out, time is 1.189210 s
+thread 8 : steal 2455 elements from 1
+thread 8: getting out, time is 1.193709 s
+thread 7 : steal 144 elements from 1
+thread 7: getting out, time is 1.197968 s
+thread 15 : steal 604 elements from 1
+thread 15: getting out, time is 1.201640 s
+thread 19 : steal 399 elements from 1
+thread 19: getting out, time is 1.204408 s
+thread 17 : steal 219 elements from 1
+thread 17: getting out, time is 1.211907 s
+thread 16 : steal 131 elements from 1
+thread 16: getting out, time is 1.215609 s
+thread 0 : steal 93 elements from 1
+thread 0: getting out, time is 1.217194 s
+thread 5 : steal 88 elements from 1
+thread 5: getting out, time is 1.217419 s
+thread 3 : steal 55 elements from 1
+thread 3: getting out, time is 1.218704 s
+thread 18 : steal 144 elements from 1
+thread 18: getting out, time is 1.220891 s
+thread 12 : steal 109 elements from 1
+thread 12: getting out, time is 1.227287 s
+thread 1: getting out, time is 1.231577 s
+time used is 1.232017 s
+thread 12 : steal 12114 elements from 8
+thread 12: getting out, time is 1.137621 s
+thread 17 : steal 9592 elements from 18
+thread 17: getting out, time is 1.149767 s
+thread 3 : steal 9163 elements from 8
+thread 3: getting out, time is 1.151631 s
+thread 4 : steal 7907 elements from 8
+thread 4: getting out, time is 1.157651 s
+thread 16 : steal 6654 elements from 8
+thread 16: getting out, time is 1.163317 s
+thread 1 : steal 5801 elements from 8
+thread 1: getting out, time is 1.166963 s
+thread 6 : steal 4182 elements from 8
+thread 6: getting out, time is 1.167460 s
+thread 5 : steal 5391 elements from 8
+thread 5: getting out, time is 1.168632 s
+thread 2 : steal 4370 elements from 8
+thread 2: getting out, time is 1.173199 s
+thread 7 : steal 224 elements from 8
+thread 7: getting out, time is 1.182582 s
+thread 19 : steal 4024 elements from 8
+thread 19: getting out, time is 1.193523 s
+thread 9 : steal 347 elements from 13
+thread 9: getting out, time is 1.195569 s
+thread 15 : steal 279 elements from 8
+thread 15: getting out, time is 1.198524 s
+thread 10 : steal 1630 elements from 8
+thread 10: getting out, time is 1.203520 s
+thread 11 : steal 69 elements from 8
+thread 11: getting out, time is 1.207256 s
+thread 14 : steal 16 elements from 8
+thread 14: getting out, time is 1.209369 s
+thread 18 : steal 5 elements from 8
+thread 18: getting out, time is 1.210146 s
+thread 13 : steal 3667 elements from 8
+thread 13: getting out, time is 1.210571 s
+thread 0 : steal 254 elements from 8
+thread 0: getting out, time is 1.216853 s
+thread 8: getting out, time is 1.226900 s
+time used is 1.227338 s
+Best time used on DFS is 1.227338 s
+Best time used on BFS is 1.071346 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 7.077659 s
+
+### nproc: 24
+../../../../span.sparcv9 -t 24 -- 2 9000000 4
+THREADS: 24
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 7 : steal 4116 elements from 22
+thread 7: getting out, time is 1.065820 s
+thread 1 : steal 285 elements from 22
+thread 1: getting out, time is 1.069030 s
+thread 10 : steal 3139 elements from 22
+thread 10: getting out, time is 1.070618 s
+thread 17 : steal 2891 elements from 22
+thread 17: getting out, time is 1.071921 s
+thread 15 : steal 216 elements from 22
+thread 15: getting out, time is 1.073240 s
+thread 11 : steal 2573 elements from 22
+thread 11: getting out, time is 1.073333 s
+thread 6 : steal 2215 elements from 22
+thread 6: getting out, time is 1.075206 s
+thread 21 : steal 1763 elements from 22
+thread 21: getting out, time is 1.077250 s
+thread 4 : steal 131 elements from 22
+thread 4: getting out, time is 1.077933 s
+thread 18 : steal 793 elements from 22
+thread 18: getting out, time is 1.081463 s
+thread 8 : steal 61 elements from 22
+thread 8: getting out, time is 1.081665 s
+thread 16 : steal 715 elements from 22
+thread 16: getting out, time is 1.081857 s
+thread 12 : steal 421 elements from 22
+thread 12: getting out, time is 1.083195 s
+thread 20 : steal 23 elements from 22
+thread 20: getting out, time is 1.083820 s
+thread 13 : steal 6 elements from 22
+thread 13: getting out, time is 1.084798 s
+thread 9 : steal 3 elements from 22
+thread 9: getting out, time is 1.084981 s
+thread 19 : steal 8 elements from 22
+thread 19: getting out, time is 1.085214 s
+thread 23 : steal 6178 elements from 22
+thread 23: getting out, time is 1.085645 s
+thread 3: getting out, time is 1.091112 s
+thread 14: getting out, time is 1.094525 s
+thread 5: getting out, time is 1.097325 s
+thread 22 : steal 45 elements from 2
+thread 22: getting out, time is 1.097597 s
+thread 0 : steal 2 elements from 2
+thread 0: getting out, time is 1.099601 s
+thread 2: getting out, time is 1.099648 s
+time used is 1.100297 s
+thread 22 : steal 4396 elements from 20
+thread 1 : steal 4396 elements from 20
+thread 22: getting out, time is 1.123879 s
+thread 1: getting out, time is 1.123752 s
+thread 14 : steal 3732 elements from 20
+thread 14: getting out, time is 1.126802 s
+thread 7 : steal 1223 elements from 20
+thread 7: getting out, time is 1.137669 s
+thread 12 : steal 853 elements from 20
+thread 12: getting out, time is 1.139090 s
+thread 0 : steal 59 elements from 20
+thread 0: getting out, time is 1.139755 s
+thread 23 : steal 449 elements from 20
+thread 23: getting out, time is 1.143169 s
+thread 6 : steal 4639 elements from 20
+thread 6: getting out, time is 1.147457 s
+thread 19 : steal 365 elements from 20
+thread 19: getting out, time is 1.148572 s
+thread 3 : steal 988 elements from 20
+thread 3: getting out, time is 1.150049 s
+thread 2 : steal 3352 elements from 20
+thread 18 : steal 3340 elements from 20
+thread 18: getting out, time is 1.154102 s
+thread 2: getting out, time is 1.154285 s
+thread 17 : steal 241 elements from 20
+thread 17: getting out, time is 1.156044 s
+thread 15 : steal 240 elements from 20
+thread 15: getting out, time is 1.156211 s
+thread 11 : steal 194 elements from 20
+thread 11: getting out, time is 1.158727 s
+thread 9 : steal 173 elements from 20
+thread 9: getting out, time is 1.159799 s
+thread 13 : steal 1691 elements from 20
+thread 13: getting out, time is 1.161702 s
+thread 4 : steal 108 elements from 20
+thread 4: getting out, time is 1.163260 s
+thread 21 : steal 365 elements from 20
+thread 21: getting out, time is 1.169321 s
+thread 16 : steal 339 elements from 20
+thread 16: getting out, time is 1.169877 s
+thread 8 : steal 3471 elements from 20
+thread 8: getting out, time is 1.170441 s
+thread 5: getting out, time is 1.176007 s
+thread 20 : steal 22 elements from 10
+thread 20: getting out, time is 1.180030 s
+thread 10: getting out, time is 1.180980 s
+time used is 1.181615 s
+Best time used on DFS is 1.100297 s
+Best time used on BFS is 0.941427 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 6.140351 s
+
+### nproc: 30
+../../../../span.sparcv9 -t 30 -- 2 9000000 4
+THREADS: 30
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 25 : steal 1603 elements from 14
+thread 25: getting out, time is 1.062326 s
+thread 8 : steal 1445 elements from 14
+thread 8: getting out, time is 1.063063 s
+thread 13 : steal 1292 elements from 14
+thread 13: getting out, time is 1.063823 s
+thread 0 : steal 54 elements from 14
+thread 0: getting out, time is 1.066292 s
+thread 16 : steal 685 elements from 14
+thread 9 : steal 678 elements from 14
+thread 16: getting out, time is 1.067222 s
+thread 9: getting out, time is 1.067211 s
+thread 5 : steal 611 elements from 14
+thread 5: getting out, time is 1.067682 s
+thread 22 : steal 590 elements from 14
+thread 22: getting out, time is 1.067602 s
+thread 15 : steal 576 elements from 14
+thread 15: getting out, time is 1.067740 s
+thread 7 : steal 462 elements from 14
+thread 7: getting out, time is 1.068297 s
+thread 1 : steal 440 elements from 14
+thread 1: getting out, time is 1.068392 s
+thread 2 : steal 413 elements from 14
+thread 2: getting out, time is 1.068586 s
+thread 10 : steal 33 elements from 14
+thread 10: getting out, time is 1.069060 s
+thread 19 : steal 293 elements from 14
+thread 19: getting out, time is 1.069335 s
+thread 21 : steal 278 elements from 14
+thread 21: getting out, time is 1.069449 s
+thread 3 : steal 61 elements from 14
+thread 3: getting out, time is 1.070316 s
+thread 29 : steal 390 elements from 14
+thread 29: getting out, time is 1.070663 s
+thread 6 : steal 243 elements from 14
+thread 6: getting out, time is 1.071540 s
+thread 4 : steal 115 elements from 14
+thread 4: getting out, time is 1.072071 s
+thread 17 : steal 40 elements from 14
+thread 17: getting out, time is 1.072326 s
+thread 28 : steal 90 elements from 14
+thread 28: getting out, time is 1.072622 s
+thread 27 : steal 302 elements from 14
+thread 27: getting out, time is 1.072986 s
+thread 11 : steal 32 elements from 14
+thread 11: getting out, time is 1.074241 s
+thread 26 : steal 2561 elements from 14
+thread 26: getting out, time is 1.074402 s
+thread 18 : steal 1861 elements from 24
+thread 18: getting out, time is 1.074735 s
+thread 20 : steal 364 elements from 14
+thread 20: getting out, time is 1.075343 s
+thread 12 : steal 449 elements from 14
+thread 12: getting out, time is 1.075881 s
+thread 23 : steal 248 elements from 14
+thread 23: getting out, time is 1.082616 s
+thread 24 : steal 79 elements from 14
+thread 24: getting out, time is 1.098539 s
+thread 14: getting out, time is 1.103352 s
+time used is 1.103810 s
+thread 11 : steal 3277 elements from 27
+thread 11: getting out, time is 1.027939 s
+thread 24 : steal 1475 elements from 7
+thread 24: getting out, time is 1.036682 s
+thread 6 : steal 679 elements from 7
+thread 6: getting out, time is 1.040368 s
+thread 9 : steal 345 elements from 7
+thread 9: getting out, time is 1.042306 s
+thread 14 : steal 275 elements from 7
+thread 14: getting out, time is 1.042582 s
+thread 21 : steal 244 elements from 7
+thread 21: getting out, time is 1.042806 s
+thread 4 : steal 152 elements from 7
+thread 4: getting out, time is 1.043361 s
+thread 8 : steal 21 elements from 7
+thread 8: getting out, time is 1.044028 s
+thread 29 : steal 1909 elements from 7
+thread 29: getting out, time is 1.044660 s
+thread 19 : steal 1675 elements from 26
+thread 19: getting out, time is 1.045638 s
+thread 3 : steal 105 elements from 7
+thread 3: getting out, time is 1.045801 s
+thread 16 : steal 87 elements from 7
+thread 16: getting out, time is 1.046793 s
+thread 15 : steal 1301 elements from 7
+thread 15: getting out, time is 1.046975 s
+thread 13 : steal 1265 elements from 7
+thread 13: getting out, time is 1.047245 s
+thread 5 : steal 1036 elements from 7
+thread 5: getting out, time is 1.048068 s
+thread 0 : steal 65 elements from 7
+thread 0: getting out, time is 1.048192 s
+thread 20 : steal 58 elements from 7
+thread 20: getting out, time is 1.048598 s
+thread 23 : steal 28 elements from 7
+thread 23: getting out, time is 1.050838 s
+thread 18 : steal 331 elements from 7
+thread 18: getting out, time is 1.051288 s
+thread 27 : steal 18 elements from 7
+thread 27: getting out, time is 1.051611 s
+thread 10 : steal 6 elements from 7
+thread 10: getting out, time is 1.052351 s
+thread 28 : steal 112 elements from 7
+thread 28: getting out, time is 1.053110 s
+thread 1: getting out, time is 1.053554 s
+thread 26 : steal 19 elements from 2
+thread 26: getting out, time is 1.053700 s
+thread 22 : steal 11 elements from 2
+thread 12 : steal 11 elements from 2
+thread 22: getting out, time is 1.054022 s
+thread 12: getting out, time is 1.054198 s
+thread 7 : steal 1 elements from 2
+thread 7: getting out, time is 1.054841 s
+thread 25 : steal 5 elements from 2
+thread 25: getting out, time is 1.054929 s
+thread 17 : steal 140 elements from 2
+thread 17: getting out, time is 1.055157 s
+thread 2: getting out, time is 1.055608 s
+time used is 1.056209 s
+Best time used on DFS is 1.056209 s
+Best time used on BFS is 0.803422 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 5.121922 s
+
+### nproc: 32
+../../../../span.sparcv9 -t 32 -- 2 9000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+thread 0 : steal 70 elements from 29
+thread 0: getting out, time is 1.034353 s
+thread 23 : steal 945 elements from 29
+thread 23: getting out, time is 1.035180 s
+thread 16 : steal 845 elements from 7
+thread 16: getting out, time is 1.035842 s
+thread 9 : steal 810 elements from 1
+thread 9: getting out, time is 1.035985 s
+thread 22 : steal 664 elements from 19
+thread 22: getting out, time is 1.036824 s
+thread 6 : steal 38 elements from 26
+thread 6: getting out, time is 1.037077 s
+thread 13 : steal 33 elements from 28
+thread 13: getting out, time is 1.037620 s
+thread 17 : steal 409 elements from 26
+thread 17: getting out, time is 1.038261 s
+thread 5 : steal 379 elements from 28
+thread 27 : steal 23 elements from 28
+thread 27: getting out, time is 1.038360 s
+thread 5: getting out, time is 1.038500 s
+thread 25 : steal 355 elements from 28
+thread 25: getting out, time is 1.038692 s
+thread 30 : steal 278 elements from 20
+thread 30: getting out, time is 1.038906 s
+thread 1 : steal 256 elements from 10
+thread 1: getting out, time is 1.039006 s
+thread 7 : steal 13 elements from 3
+thread 7: getting out, time is 1.039243 s
+thread 18 : steal 198 elements from 8
+thread 18: getting out, time is 1.039316 s
+thread 4 : steal 163 elements from 3
+thread 12 : steal 10 elements from 3
+thread 15 : steal 10 elements from 2
+thread 4: getting out, time is 1.039478 s
+thread 15: getting out, time is 1.039659 s
+thread 12: getting out, time is 1.039521 s
+thread 29 : steal 8 elements from 3
+thread 19 : steal 86 elements from 3
+thread 29: getting out, time is 1.039595 s
+thread 19: getting out, time is 1.039681 s
+thread 14 : steal 112 elements from 3
+thread 14: getting out, time is 1.039720 s
+thread 10 : steal 4 elements from 2
+thread 10: getting out, time is 1.039861 s
+thread 11 : steal 51 elements from 2
+thread 28 : steal 3 elements from 2
+thread 26 : steal 51 elements from 2
+thread 28: getting out, time is 1.040083 s
+thread 26: getting out, time is 1.040170 s
+thread 11: getting out, time is 1.040126 s
+thread 8 : steal 40 elements from 21
+thread 8: getting out, time is 1.040151 s
+thread 24 : steal 23 elements from 3
+thread 24: getting out, time is 1.040342 s
+thread 20 : steal 17 elements from 3
+thread 20: getting out, time is 1.040230 s
+thread 2 : steal 0 elements from 3
+thread 2: getting out, time is 1.040202 s
+thread 21 : steal 0 elements from 3
+thread 21: getting out, time is 1.040290 s
+thread 31 : steal 4 elements from 3
+thread 31: getting out, time is 1.040439 s
+thread 3: getting out, time is 1.040691 s
+time used is 1.041263 s
+thread 21 : steal 1353 elements from 15
+thread 21: getting out, time is 1.004342 s
+thread 0 : steal 61 elements from 31
+thread 0: getting out, time is 1.006234 s
+thread 29 : steal 57 elements from 11
+thread 29: getting out, time is 1.006251 s
+thread 12 : steal 872 elements from 24
+thread 12: getting out, time is 1.006705 s
+thread 3 : steal 756 elements from 1
+thread 3: getting out, time is 1.007063 s
+thread 16 : steal 38 elements from 31
+thread 16: getting out, time is 1.008035 s
+thread 19 : steal 550 elements from 31
+thread 19: getting out, time is 1.007986 s
+thread 5 : steal 13 elements from 11
+thread 5: getting out, time is 1.008271 s
+thread 26 : steal 196 elements from 22
+thread 17: getting out, time is 1.008322 s
+thread 26: getting out, time is 1.008518 s
+thread 15 : steal 11 elements from 10
+thread 15: getting out, time is 1.008436 s
+thread 2 : steal 10 elements from 8
+thread 2: getting out, time is 1.008430 s
+thread 4: getting out, time is 1.008607 s
+thread 22: getting out, time is 1.008663 s
+thread 24: getting out, time is 1.008595 s
+thread 20 : steal 7 elements from 23
+thread 20: getting out, time is 1.008719 s
+thread 8 : steal 6 elements from 25
+thread 10: getting out, time is 1.008744 s
+thread 8: getting out, time is 1.008799 s
+thread 25: getting out, time is 1.008872 s
+thread 23: getting out, time is 1.008776 s
+thread 13: getting out, time is 1.008912 s
+thread 18: getting out, time is 1.008925 s
+thread 1: getting out, time is 1.008870 s
+thread 31 : steal 2 elements from 6
+thread 31: getting out, time is 1.009460 s
+thread 9 : steal 34 elements from 6
+thread 9: getting out, time is 1.009445 s
+thread 11 : steal 29 elements from 27
+thread 11: getting out, time is 1.009320 s
+thread 30 : steal 11 elements from 6
+thread 30: getting out, time is 1.009585 s
+thread 28 : steal 6 elements from 6
+thread 28: getting out, time is 1.009588 s
+thread 7 : steal 6 elements from 6
+thread 7: getting out, time is 1.009505 s
+thread 14 : steal 2 elements from 6
+thread 14: getting out, time is 1.009767 s
+thread 27 : steal 0 elements from 6
+thread 27: getting out, time is 1.009974 s
+thread 6: getting out, time is 1.010054 s
+time used is 1.010679 s
+Best time used on DFS is 1.010679 s
+Best time used on BFS is 0.801451 s
+init edge list done, n_edge = 38293760, n_vertices=9000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 5.133860 s
+
+############################################################
+# End Time: 02/17/2008 - 06:24:57
+############################################################

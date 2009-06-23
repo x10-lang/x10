@@ -1,0 +1,174 @@
+Following are cilk numbers (best of 5 runs)
+
+moxie - vijay - fib > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=25855.050 us
+n=25     Result: 75025   Time=286593.815 us
+n=30     Result: 832040  Time=3176734.375 us
+n=35     Result: 9227465         Time=35228975.997 us
+n=20     Result: 6765    Time=13456.569 us
+n=25     Result: 75025   Time=144531.982 us
+n=30     Result: 832040  Time=1590315.954 us
+n=35     Result: 9227465         Time=17685227.001 us
+n=20     Result: 6765    Time=19825.484 us
+n=25     Result: 75025   Time=77446.139 us
+n=30     Result: 832040  Time=813791.965 us
+n=35     Result: 9227465         Time=8837060.980 us
+n=20     Result: 6765    Time=22330.576 us
+n=25     Result: 75025   Time=62895.617 us
+n=30     Result: 832040  Time=557391.560 us
+n=35     Result: 9227465         Time=5937545.938 us
+n=20     Result: 6765    Time=16014.476 us
+n=25     Result: 75025   Time=50253.100 us
+n=30     Result: 832040  Time=429683.149 us
+n=35     Result: 9227465         Time=4458502.433 us
+
+
+moxie - vijay - fib > foreach p ( 12 16 20 24 28 32 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=20     Result: 6765    Time=16197.141 us
+n=25     Result: 75025   Time=66185.680 us
+n=30     Result: 832040  Time=307085.086 us
+n=35     Result: 9227465         Time=3135774.778 us
+n=20     Result: 6765    Time=17718.347 us
+n=25     Result: 75025   Time=73652.696 us
+n=30     Result: 832040  Time=258272.257 us
+n=35     Result: 9227465         Time=2401594.159 us
+n=20     Result: 6765    Time=18256.923 us
+n=25     Result: 75025   Time=54144.360 us
+n=30     Result: 832040  Time=204714.886 us
+n=35     Result: 9227465         Time=1972575.311 us
+n=20     Result: 6765    Time=16005.624 us
+n=25     Result: 75025   Time=71882.262 us
+n=30     Result: 832040  Time=201596.025 us
+n=35     Result: 9227465         Time=1718351.303 us
+n=20     Result: 6765    Time=20016.847 us
+n=25     Result: 75025   Time=53830.733 us
+n=30     Result: 832040  Time=185521.141 us
+n=35     Result: 9227465         Time=1545332.270 us
+n=20     Result: 6765    Time=14532.936 us
+n=25     Result: 75025   Time=70359.260 us
+n=30     Result: 832040  Time=157559.699 us
+n=35     Result: 9227465         Time=1407542.602 us
+moxie - vijay - fib >
+moxie - vijay - fib > foreach p ( 12 16 20 24 28 32 )
+foreach? foreach n ( 40 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+foreach? end
+n=40     Result: 102334155       Time=34174688.093 us
+^C
+moxie - vijay - fib > foreach p ( 32 28 24 20 16 )
+foreach? ./fib -nproc $p 5 $n
+foreach? end
+n=40     Result: 102334155       Time=15242141.242 us
+n=40     Result: 102334155       Time=16557109.218 us
+n=40     Result: 102334155       Time=18586875.870 us
+n=40     Result: 102334155       Time=21620747.451 us
+n=40     Result: 102334155       Time=26282286.504 us
+moxie - vijay - fib > date
+Sun Aug 19 10:08:46 EDT 2007
+
+
+moxie - vijay - fib > foreach p ( 12 8 6 4 2 1 )
+foreach? ./fib -nproc $p 5 40
+foreach? end
+n=40     Result: 102334155       Time=34097066.290 us
+n=40     Result: 102334155       Time=49595622.932 us
+n=40     Result: 102334155       Time=65484975.683 us
+n=40     Result: 102334155       Time=98027435.206 us
+n=40     Result: 102334155       Time=195540847.694 us
+n=40     Result: 102334155       Time=390939920.763 us
+moxie - vijay - fib > date
+Sun Aug 19 12:57:47 EDT 2007
+
+____________________________________________________________________________
+
+Following results are for C++ cws
+
+moxie - vijay - sched > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./FibStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=1 FibStack(20)   4760 us ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(25)   52634 us        ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(30)   583638 us       ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(35)   6473914 us      ok       steals=0       stealAttemps=0
+nprocs=2 FibStack(20)   2491 us ok       steals=6       stealAttemps=26
+nprocs=2 FibStack(25)   26526 us        ok       steals=11      stealAttemps=51
+nprocs=2 FibStack(30)   292501 us       ok       steals=18      stealAttemps=67
+nprocs=2 FibStack(35)   3248630 us      ok       steals=18      stealAttemps=70
+nprocs=4 FibStack(20)   1454 us ok       steals=22      stealAttemps=225
+nprocs=4 FibStack(25)   13557 us        ok       steals=33      stealAttemps=272
+nprocs=4 FibStack(30)   146449 us       ok       steals=49      stealAttemps=344
+nprocs=4 FibStack(35)   1622369 us      ok       steals=73      stealAttemps=472
+nprocs=6 FibStack(20)   1133 us ok       steals=40      stealAttemps=630
+nprocs=6 FibStack(25)   9239 us ok       steals=64      stealAttemps=708
+nprocs=6 FibStack(30)   98071 us        ok       steals=61      stealAttemps=609
+nprocs=6 FibStack(35)   1081853 us      ok       steals=138     stealAttemps=1053
+nprocs=8 FibStack(20)   990 us  ok       steals=59      stealAttemps=913
+nprocs=8 FibStack(25)   7160 us ok       steals=81      stealAttemps=1030
+nprocs=8 FibStack(30)   75946 us        ok       steals=156     stealAttemps=1408
+nprocs=8 FibStack(35)   845041 us       ok       steals=207     stealAttemps=1741
+
+
+moxie - vijay - sched > foreach p ( 12 16 20 24 28 32 )
+foreach? foreach n ( 20 25 30 35 )
+foreach? ./FibStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=12 FibStack(20)  910 us  ok       steals=60      stealAttemps=2169
+nprocs=12 FibStack(25)  5448 us ok       steals=126     stealAttemps=2719
+nprocs=12 FibStack(30)  54198 us        ok       steals=240     stealAttemps=3035
+nprocs=12 FibStack(35)  600024 us       ok       steals=294     stealAttemps=3377
+nprocs=16 FibStack(20)  907 us  ok       steals=85      stealAttemps=3230
+nprocs=16 FibStack(25)  4759 us ok       steals=171     stealAttemps=4088
+nprocs=16 FibStack(30)  44216 us        ok       steals=369     stealAttemps=5709
+nprocs=16 FibStack(35)  483973 us       ok       steals=427     stealAttemps=6636
+nprocs=20 FibStack(20)  1059 us ok       steals=106     stealAttemps=4534
+nprocs=20 FibStack(25)  4536 us ok       steals=228     stealAttemps=5319
+nprocs=20 FibStack(30)  39474 us        ok       steals=367     stealAttemps=6758
+nprocs=20 FibStack(35)  437308 us       ok       steals=570     stealAttemps=8457
+nprocs=24 FibStack(20)  1134 us ok       steals=95      stealAttemps=5630
+nprocs=24 FibStack(25)  4365 us ok       steals=225     stealAttemps=9018
+nprocs=24 FibStack(30)  37421 us        ok       steals=482     stealAttemps=9905
+nprocs=24 FibStack(35)  396931 us       ok       steals=635     stealAttemps=11832
+nprocs=28 FibStack(20)  1252 us ok       steals=97      stealAttemps=8304
+nprocs=28 FibStack(25)  4439 us ok       steals=267     stealAttemps=9674
+nprocs=28 FibStack(30)  36663 us        ok       steals=581     stealAttemps=12803
+nprocs=28 FibStack(35)  386483 us       ok       steals=607     stealAttemps=11391
+nprocs=32 FibStack(20)  1422 us ok       steals=107     stealAttemps=10514
+nprocs=32 FibStack(25)  4490 us ok       steals=306     stealAttemps=12070
+nprocs=32 FibStack(30)  35376 us        ok       steals=623     stealAttemps=16792
+nprocs=32 FibStack(35)  379966 us       ok       steals=923     stealAttemps=20255
+moxie - vijay - sched >
+
+
+moxie - vijay - sched > foreach p ( 32 28 24 20 16 12 )
+foreach? ./FibStack.x $p 5 40
+foreach? end
+nprocs=32 FibStack(40)  4166623 us      ok       steals=1150    stealAttemps=17943
+nprocs=28 FibStack(40)  4256796 us      ok       steals=1133    stealAttemps=16099
+nprocs=24 FibStack(40)  4416312 us      ok       steals=815     stealAttemps=11851
+nprocs=20 FibStack(40)  4851112 us      ok       steals=740     stealAttemps=9086
+nprocs=16 FibStack(40)  5455316 us      ok       steals=567     stealAttemps=5602
+nprocs=12 FibStack(40)  6731798 us      ok       steals=423     stealAttemps=5459
+
+moxie - vijay - sched > foreach p ( 8 6 4 2 1 )
+foreach? ./FibStack.x $p 5 40
+foreach? end
+nprocs=8 FibStack(40)   9282351 us      ok       steals=258     stealAttemps=2152
+nprocs=6 FibStack(40)   12124726 us     ok       steals=181     stealAttemps=1190
+nprocs=4 FibStack(40)   17985496 us     ok       steals=90      stealAttemps=597
+nprocs=2 FibStack(40)   35919579 us     ok       steals=21      stealAttemps=91
+nprocs=1 FibStack(40)   71803459 us     ok       steals=0       stealAttemps=0
+moxie - vijay - sched > date
+Sun Aug 19 11:46:03 EDT 2007
+

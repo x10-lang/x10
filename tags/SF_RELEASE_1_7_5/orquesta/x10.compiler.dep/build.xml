@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10.compiler" default="dist" basedir=".">
+    &buildfile;
+    <property name="x10.home" value=".."/>
+    <property name="lpg.location" value="${x10.home}/org.eclipse.imp.lpg.metatooling"/>
+    <property name="lpg.executable.location" location="${x10.home}/lpg.runtime.java/lpgexe"/>
+    <property name="x10.common.location" value="${x10.home}/x10.common"/>
+    <property name="x10.runtime.location" value="${x10.home}/x10.runtime"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.common.location}/lib"/>
+    <property name="jar" value="x10c.jar"/>
+    <property name="etc" location="${x10.common.location}/etc"/>
+    <property name="config" value="*.cfg"/>
+    <property name="lpg.jar" value="lpg.jar"/>
+    <property name="polyglot.jar" value="polyglot2.jar"/>
+    <property name="runtime.jar" value="x10.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="lpg.classpath"/>
+        <path refid="polyglot.classpath"/>
+        <path refid="x10.common.classpath"/>
+        <path refid="x10.runtime.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="lpg.classpath">
+        <pathelement location="${lib}/${lpg.jar}"/>
+    </path>
+    <path id="polyglot.classpath">
+        <pathelement location="${lib}/${polyglot.jar}"/>
+    </path>
+    <path id="x10.common.classpath"/>
+    <path id="x10.runtime.classpath">
+        <pathelement location="${lib}/${runtime.jar}"/>
+    </path>
+    <!-- vj: get the environment variables. -->
+    <!-- vj: This works on Windows/cygwin. -->
+    <property environment="env"/>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="cleanall" depends="clean">
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+    <target name="dist" depends="jar" description="generate part of the distribution">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+        <mkdir dir="${etc}"/>
+        <copy todir="${etc}">
+            <fileset dir="${basedir}/etc" includes="${config}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="org/**,polyglot/ext/x10/**,x10/parser/**,data/**" excludes="${jar}"/>
+        </jar>
+    </target>
+    <target name="buildall" depends="init">
+        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="build" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="runtime-jar" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+    <target name="prereq-jars" depends="init,runtime-jar">
+        <ant antfile="${x10.common.location}/build.xml" target="dist" inheritAll="false" dir="${x10.common.location}"/>
+    </target>
+    <target name="build" depends="init,prereq-jars">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <!-- <javac destdir="${build}" debug="on"> -->
+            <src path="${src}"/>
+            <include name ="polyglot/ext/x10/ExtensionInfo.java"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+    <target name="grammar" depends="init">
+        <property name="grammar.file" location="${src}/x10/parser/x10.g"/>
+        <property name="include.dir" location="${lpg.location}/templates"/>
+        <condition property="platform" value="win32"><os family="windows"/></condition>
+        <condition property="platform" value="linux"><os name="Linux"/></condition>
+        <condition property="platform" value="macosx"><os family="mac"/></condition>
+        <property name="lpg.executable" location="${lpg.executable.location}/lpg-${platform}_${os.arch}"/>
+        <!--
+        <echo message="OS: ${os.name} ${os.arch}"/>
+        <echo message="Platform: ${platform}"/>
+        <echo message="LPG: ${lpg.executable}"/>
+        <echo>
+            dir="${src}/x10/parser" executable="${lpg.executable}"
+            "-include-directory=${include.dir}"
+            "${grammar.file}"
+        </echo>
+        -->
+        <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
+            <arg value="-include-directory=${include.dir}"/>
+            <arg value="${grammar.file}"/>
+        </exec>
+    </target>
+    <target name="rebuild" depends="grammar,build"/>
+    <target name="set-version" depends="init" unless="zip.version">
+        <property name="zip.version" value="${DSTAMP}-${TSTAMP}"/>
+    </target>
+    <target name="zip" depends="set-version,dist">
+        <zip destfile="${x10.home}/x10-${zip.version}.zip">
+            <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html,RELEASE.NOTES"/>
+            <zipfileset prefix="bin" dir="${x10.common.location}/bin" includes="setupX10,newpgrp,x10,x10c,testScript*"/>
+            <zipfileset prefix="doc" dir="${x10.common.location}/doc" excludes="**/CVS/**"/>
+            <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
+            <zipfileset prefix="examples" dir="${x10.common.location}/examples" includes="README,**/*.x10,**/.ThisIsAnX10TestDirectory" excludes="**/CVS/**"/>
+            <zipfileset prefix="lib" dir="${lib}" includes="*.jar" excludes="${polyglot.jar},${lpg.jar}"/>
+        </zip>
+    </target>
+    <target name="src-zip" depends="srczip"/>
+    <target name="srczip" depends="set-version,build">
+        <zip destfile="${x10.home}/x10-${zip.version}-src.zip">
+            <zipfileset prefix="" dir="${x10.common.location}" includes="epl-v10.html,RELEASE.NOTES"/>
+            <zipfileset prefix="x10.common" dir="${x10.common.location}" excludes="**/CVS/**,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="x10.compiler" dir="${basedir}" excludes="**/CVS/**,classes/**"/>
+            <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="**/CVS/**,classes/**"/>
+        </zip>
+    </target>
+    <!--
+      To build a zip with a specific version (VER), invoke the target below as
+         ant -Dzip.version=VER zips
+    -->
+    <target name="zips" depends="zip,srczip"/>
+    <target name="tags" depends="init">
+      <!-- create a blank tags file -->
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="."/>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-f-"/>
+        <arg value="--langdef=xcd"/>
+        <arg value="--langmap=xcd:.xcd"/>
+        <arg value="--languages=xcd"/>
+        <arg value="--extra=+f"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="x10.compiler"/>
+        <redirector output="${x10.home}/tags" logError="true" append="true">
+          <outputfilterchain>
+            <replaceregex pattern="^(\S+)\.xcd" replace="\1"/>
+            <replaceregex pattern="(;.\t)F$" replace="\1t"/>
+            <replaceregex pattern="(;.\t)file$" replace="\1template"/>
+          </outputfilterchain>
+        </redirector>
+      </exec>
+      <exec dir="${x10.home}" executable="ctags" failonerror="true">
+        <arg value="-ftags"/>
+        <arg value="--append=yes"/>
+        <arg value="--languages=java"/>
+        <arg value="-R"/>
+        <arg value="--exclude=classes"/>
+        <arg value="lpg.runtime.java"/>
+        <arg value="polyglot"/>
+        <arg value="x10.compiler"/>
+        <arg value="x10.runtime"/>
+      </exec>
+    </target>
+</project>

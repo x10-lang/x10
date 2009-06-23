@@ -1,0 +1,18 @@
+class V  extends Vertex {
+   V[] neighbors;
+   V parent;
+   V(int i){super(i);}
+   void compute(Worker w) throws StealAbort {
+     w.popAndReturnFrame();
+     for (int k = 0; k < neighbors.length; ++k) {
+       V e = neighbors[k];
+       if (e.level == 0 &&
+           UPDATER.compareAndSet(e,0,1)) {
+         e.parent = this;
+         w.pushFrame(e);
+       }
+     }
+   }
+}
+    
+
