@@ -442,21 +442,21 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
+	public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
+	public static final String MANIFEST = "libx10.mft";
+	public static final String[] MANIFEST_LOCATIONS = new String[] {
+	    X10LANG,
+	    X10LANG+"/lib",
+	};
     private static class CXXCommandBuilder {
         public static final String DUMMY = "-U___DUMMY___";
 
-        public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
         public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
         public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
         public static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
         public static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
-        public static final String MANIFEST = "libx10.mft";
-        public static final String[] MANIFEST_LOCATIONS = new String[] {
-            X10LANG,
-            X10LANG+"/lib",
-        };
         /** These go before the files */
         public static final String[] preArgs = new String[] {
             "-g",
@@ -577,7 +577,7 @@ public class X10CPPTranslator extends Translator {
 
             HashSet<String> exclude = new HashSet<String>();
             try {
-                String manifest = Configuration.MANIFEST;
+                String manifest = polyglot.ext.x10.Configuration.MANIFEST;
                 if (manifest == null) {
                     for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
                         File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+MANIFEST);

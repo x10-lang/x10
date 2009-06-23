@@ -6,9 +6,14 @@
 
 package polyglot.ext.x10cpp;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
@@ -28,6 +33,7 @@ import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
+import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -64,6 +70,28 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
     protected void initTypeSystem() {
         // Inline from superclass, replacing SourceClassResolver
         try {
+            if (Configuration.MANIFEST == null) {
+                String[] MANIFEST_LOCATIONS = X10CPPTranslator.MANIFEST_LOCATIONS;
+                for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
+                    File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+X10CPPTranslator.MANIFEST);
+                    if (!x10lang_m.exists())
+                        continue;
+                    Configuration.MANIFEST = x10lang_m.getPath();
+                }
+            }
+            // FIXME: [IP] HACK
+            if (Report.should_report("manifest", 1))
+                Report.report(1, "Manifest is "+Configuration.MANIFEST);
+            if (Configuration.MANIFEST != null) {
+                try {
+                    FileReader fr = new FileReader(Configuration.MANIFEST);
+                    BufferedReader br = new BufferedReader(fr);
+                    String file = "";
+                    while ((file = br.readLine()) != null)
+                        if (file.endsWith(".x10") || file.endsWith(".jar")) // FIXME: hard-codes the source extension.
+                            manifest.add(file);
+                } catch (IOException e) { }
+            }
             TopLevelResolver r =
                 new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
                                               getOptions().compile_command_line_only,
@@ -129,18 +157,19 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		}
 		public Goal NewCodeGenBarrier() {
 		    if (Globals.Options().compile_command_line_only) {
-		        return new BarrierGoal(commandLineJobs()) {
+		        return new BarrierGoal("NewCodeGenBarrier", commandLineJobs()) {
 		            @Override
 		            public Goal prereqForJob(Job job) {
 		                return StaticNestedClassesRemoved(job);
 		            }
-		            public String name() { return "CodeGenBarrier"; }
 		        };
 		    }
 		    else {
-		        return new AllBarrierGoal("CodeGenBarrier", this) {
+		        return new AllBarrierGoal("NewCodeGenBarrier", this) {
 		            @Override
 		            public Goal prereqForJob(Job job) {
+		                if (((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+		                    return null;
 		                return StaticNestedClassesRemoved(job);
 		            }
 		        };
