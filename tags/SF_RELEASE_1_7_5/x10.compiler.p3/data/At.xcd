@@ -1,7 +1,0 @@
-// SYNOPSIS: at(#0) #1    #2=unique_id
-x10.runtime.Runtime.runAt(#0,
-	new x10.core.fun.VoidFun_0_0() {
-		public void apply() {
-			#1
-		}
-	});

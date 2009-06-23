@@ -1,3 +1,0 @@
-// SYNOPSIS: clocked(#0)    #1=unique_id
-x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(
-	new x10.lang.Clock[] { #0 })
