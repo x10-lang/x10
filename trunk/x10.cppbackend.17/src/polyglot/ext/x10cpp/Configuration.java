@@ -41,9 +41,6 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean DISABLE_GC = false;
     private static final String DISABLE_GC_desc = "Disable the linking in of the BDW conservative garbage collector";
 
-    public static String MANIFEST = null;
-    private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
-
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the

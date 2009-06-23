@@ -69,4 +69,15 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         return null;
     }
 
+    protected void handleUpToDateTarget(QName name, Resource file) {
+        // FIXME: [IP] HACK
+        // Add this file to outputFiles even if it won't be compiled
+        if (!isOutput(name))
+            return;
+        String path = file.name();
+        String out = ext.getOptions().output_directory.getPath();
+        assert (path.startsWith(out)) : "Unknown path: "+path;
+        path = path.substring(out.length()+1);
+        compiler.outputFiles().add(path);
+    }
 }

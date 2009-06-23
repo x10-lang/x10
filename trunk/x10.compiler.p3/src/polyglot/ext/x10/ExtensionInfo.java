@@ -8,11 +8,15 @@
 package polyglot.ext.x10;
 
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -160,25 +164,51 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         throw new IllegalStateException("Could not parse " + source.path());
     }
 
+    protected HashSet<String> manifest = new HashSet<String>();
+    public boolean manifestContains(String path) {
+        path = path.replace(File.separatorChar, '/');
+        // FIXME: HACK! Try all prefixes
+        int s = 0;
+        while ((s = path.indexOf('/')) != -1) {
+            if (manifest.contains(path))
+                return true;
+            path = path.substring(s+1);
+        }
+        if (manifest.contains(path))
+            return true;
+        return false;
+    }
+
     protected void initTypeSystem() {
-	        try {
-	            TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-	                                                            getOptions().compile_command_line_only,
-	                                                            getOptions().ignore_mod_times);
+        try {
+            TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+                                                            getOptions().compile_command_line_only,
+                                                            getOptions().ignore_mod_times);
+            // FIXME: [IP] HACK
+            if (Configuration.MANIFEST != null) {
+                try {
+                    FileReader fr = new FileReader(Configuration.MANIFEST);
+                    BufferedReader br = new BufferedReader(fr);
+                    String file = "";
+                    while ((file = br.readLine()) != null)
+                        if (file.endsWith(".x10") || file.endsWith(".jar")) // FIXME: hard-codes the source extension.
+                            manifest.add(file);
+                } catch (IOException e) { }
+            } else { // TODO: read manifest from x10.jar
+            }
+            // Resolver to handle lookups of member classes.
+            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+                r = mcr;
+            }
 
-	            // Resolver to handle lookups of member classes.
-	            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-	                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-	                r = mcr;
-	            }
-
-	            ts.initialize(r, this);
-	        }
-	        catch (SemanticException e) {
-	            throw new InternalCompilerError(
-	                "Unable to initialize type system: " + e.getMessage(), e);
-	        }
-	    }
+            ts.initialize(r, this);
+        }
+        catch (SemanticException e) {
+            throw new InternalCompilerError(
+                    "Unable to initialize type system: " + e.getMessage(), e);
+        }
+    }
 
     protected NodeFactory createNodeFactory() {
         return new X10NodeFactory_c(this);
@@ -264,19 +294,20 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        
        public Goal CodeGenBarrier() {
     	   if (Globals.Options().compile_command_line_only) {
-    		   return new BarrierGoal(commandLineJobs()) {
+    		   return new BarrierGoal("CodeGenBarrier", commandLineJobs()) {
     			   @Override
     			   public Goal prereqForJob(Job job) {
     				   return Serialized(job);
     			   }
-    			   public String name() { return "CodeGenBarrier"; }
     		   };
     	   }
     	   else {
     		    return new AllBarrierGoal("CodeGenBarrier", this) {
     		    	@Override
     		    	public Goal prereqForJob(Job job) {
-    		    		return Serialized(job);
+    		    	    if (((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+    		    	        return null;
+    		    	    return Serialized(job);
     		    	}
     		    };
     	    }

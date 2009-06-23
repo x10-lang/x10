@@ -67,6 +67,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static boolean EXTERNALIZE_ASTS = false;
 	private static final String EXTERNALIZE_ASTS_desc = "Externalize ASTs to XML";
 
+	public static String MANIFEST = null;
+	private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
+
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the

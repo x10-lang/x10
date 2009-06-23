@@ -112,6 +112,25 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return null;
     }
 
+    /**
+     * Manifest support.
+     * @param name
+     * @return whether the given class should be considered part of the final executable
+     */
+    protected boolean isOutput(QName name) {
+        String fname = name.toString().replace('.', '/')+".x10"; // FIXME: hard-codes the source extension.
+        return !((polyglot.ext.x10.ExtensionInfo) ext).manifestContains(fname);
+    }
+
+    /**
+     * Manifest support.
+     * @param name
+     * @return whether the given class should be compiled
+     */
+    private boolean shouldCompile(QName name) {
+        return !compileCommandLineOnly && isOutput(name);
+    }
+
     public Named find(QName name) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) this.ts;
 
@@ -133,7 +152,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // Check if a job for the source already exists.
         if (source != null && ext.scheduler().sourceHasJob(source)) {
             // the source has already been compiled; what are we doing here?
-            return getTypeFromSource(source, name, !compileCommandLineOnly);
+            return getTypeFromSource(source, name, shouldCompile(name));
         }
         
         if (source == null) {
@@ -150,6 +169,8 @@ public class X10SourceClassResolver implements TopLevelResolver {
                 if (Report.should_report(report_topics, 3))
                     Report.report(3, "Source file version is newer than compiled for " + name + ".");
                 clazz = null;
+            } else {
+                handleUpToDateTarget(name, clazz);
             }
         }
 
@@ -158,7 +179,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         if (source != null) {
             if (Report.should_report(report_topics, 4))
                 Report.report(4, "Using source file for " + name);
-            result = getTypeFromSource(source, name, !compileCommandLineOnly && clazz == null);
+            result = getTypeFromSource(source, name, shouldCompile(name) && clazz == null);
         }
 
         // Verify that the type we loaded has the right name. This prevents,
@@ -170,6 +191,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
         throw new NoClassException(name.toString());
     }
     
+    protected void handleUpToDateTarget(QName name, Resource file) {
+    }
+
     public boolean packageExists(QName name) {
         if (ext.sourceLoader().packageExists(name)) {
             return true;
