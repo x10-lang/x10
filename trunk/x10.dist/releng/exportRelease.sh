@@ -57,7 +57,7 @@ mkdir -p $workdir/x10-$X10_VERSION
 echo
 echo getting polyglot
 cd $workdir/x10-$X10_VERSION
-svn co http://polyglot-compiler.googlecode.com/svn/tags/$POLYGLOT_TAG/polyglot
+svn export http://polyglot-compiler.googlecode.com/svn/tags/$POLYGLOT_TAG/polyglot
 )
 
 (
