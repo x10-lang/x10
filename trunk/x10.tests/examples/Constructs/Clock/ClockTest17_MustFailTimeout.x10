@@ -39,7 +39,7 @@ import harness.x10Test;
  *
  * @author kemal 5/2005
  */
-public class ClockTest17_MustFailRun extends x10Test {
+public class ClockTest17_MustFailTimeout extends x10Test {
 
 	public def run(): boolean = {
 		/*A0*/
@@ -88,7 +88,7 @@ public class ClockTest17_MustFailRun extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new ClockTest17_MustFailRun().execute();
+		new ClockTest17_MustFailTimeout().execute();
 	}
 
 	/**

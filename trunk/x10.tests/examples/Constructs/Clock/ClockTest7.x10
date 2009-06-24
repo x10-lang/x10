@@ -39,12 +39,13 @@ import harness.x10Test;
  *
  * @author kemal 3/2005
  */
-public class ClockTest7_MustFailRun extends x10Test {
+public class ClockTest7 extends x10Test {
 
 	var val: int = 0;
 	const N: int = 16;
 
 	public def run(): boolean = {
+		try {
 		val c: Clock = Clock.make();
 
 		finish foreach (val (i): Point in 0..(N-1)) {
@@ -63,10 +64,18 @@ public class ClockTest7_MustFailRun extends x10Test {
 
 		atomic chk(val == 2*N);
 
-		return true;
+		} catch (e: MultipleExceptions) {
+			x10.io.Console.OUT.println("MultipleExceptions");
+			return e.exceptions(0) instanceof Error;
+		} catch (e: Error) {
+			x10.io.Console.OUT.println("Error");
+			return true;
+		}
+
+		return false;
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new ClockTest7_MustFailRun().executeAsync();
+		new ClockTest7().executeAsync();
 	}
 }

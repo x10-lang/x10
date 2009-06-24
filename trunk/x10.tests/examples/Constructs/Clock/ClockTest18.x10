@@ -16,9 +16,11 @@ import harness.x10Test;
  *
  * @author kemal, 6/2005
  */
-public class ClockTest18_MustFailRun extends x10Test {
+public class ClockTest18 extends x10Test {
 
 	public def run(): boolean = {
+		try {
+		finish{
 		/*A0*/
 		val c0: Clock = Clock.make();
 		var x: X = new X();
@@ -57,12 +59,16 @@ public class ClockTest18_MustFailRun extends x10Test {
 		x10.io.Console.OUT.println("#A0 before next");
 		next;
 		x10.io.Console.OUT.println("#A0 after next");
-
-		return true;
+		}
+		} catch (e: ClockUseException) {
+			x10.io.Console.OUT.println("ClockUseException");
+			return true;
+		}
+		return false;
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new ClockTest18_MustFailRun().execute();
+		new ClockTest18().execute();
 	}
 
 	/**

@@ -35,9 +35,10 @@ import harness.x10Test;
  *
  * @author kemal 5/2005
  */
-public class ClockTest16a_MustFailRun extends x10Test {
+public class ClockTest16a extends x10Test {
 
 	public def run(): boolean = {
+		try {
 		val x: X = new X();
 		finish async {
 			val c0 = Clock.make();
@@ -116,12 +117,14 @@ public class ClockTest16a_MustFailRun extends x10Test {
 				}
 			}
 		}
-
-		return true;
+		} catch (e: ClockUseException) {
+			return true;
+		}
+		return false;
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new ClockTest16a_MustFailRun().execute();
+		new ClockTest16a().execute();
 	}
 
 	/**
