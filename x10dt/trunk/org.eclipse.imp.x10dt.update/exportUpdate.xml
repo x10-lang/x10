@@ -77,17 +77,15 @@
 	    </target>
 
 	    <target name="get.polyglot.artifacts">
-	    	<echo message="start get.polyglot.artifacts"/>
-	        <!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
 	    	<property name="polyglotPluginId"        value="polyglot3"/>
 	    	<property name="polyglotFeatureId"        value="polyglot3"/>
+	    	<!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
 	    	<property name="polyglotProjectName"   value="polyglot3"/>
 	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
 	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="*.jar"/>
 
 	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
 	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
-	    	 <echo message="continue get.polyglot.artifacts copy to ${update.temp.folder} "/>
 	    
 	        <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
 	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
@@ -95,7 +93,6 @@
 	        <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
 	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
 	        </copy>
-	    	 <echo message="end get.polyglot.artifacts - copy done"/>
 	    </target>
 	
 	 <target name="get.imp.artifacts">
