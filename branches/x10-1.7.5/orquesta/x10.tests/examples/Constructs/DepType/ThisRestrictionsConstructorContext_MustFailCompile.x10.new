@@ -1,0 +1,125 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(int i, int j) {
+       public def this(var i: int, var j: int): Test = { this.i=i; this.j=j;}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that the use of this, violating constructor context restrictions fails to compile.
+ *
+ * @author pvarma
+ */
+
+
+public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test {
+    class Test(int i, int j) {
+       public Test(int i, int j) { this.i=i; this.j=j;}
+    }
+   public val a: Test = new Test(4, 4);
+   public var b: Test;
+   
+   // this is not allowed in argument deptypes of a constructor
+   def this(var arg: Test{self == this.a}): ThisRestrictionsConstructorContext_MustFailCompile = {
+   	b = arg;
+   }
+   
+   def this(): ThisRestrictionsConstructorContext_MustFailCompile = {
+   	b = new Test (4, 4);
+   }
+    
+	public def run(): boolean = { 
+	   return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new ThisRestrictionsConstructorContext_MustFailCompile().execute();
+	}
+}

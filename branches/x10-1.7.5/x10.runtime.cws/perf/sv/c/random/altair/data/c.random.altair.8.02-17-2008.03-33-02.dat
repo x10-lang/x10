@@ -1,0 +1,1124 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/17/2008 - 03:33:03
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 250000 1000000
+THREADS: 1
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:3
+Best time used on CRCW is 0.220565 s
+Best time used on TRAVERSE is 0.108882 s
+Best time used on BFS is 0.109855 s
+Best time used on BFS_localq is 0.105965 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 250000 1000000
+THREADS: 2
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.181172 s
+Best time used on TRAVERSE is 0.064719 s
+Best time used on BFS is 0.072925 s
+Best time used on BFS_localq is 0.071644 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 250000 1000000
+THREADS: 4
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.126712 s
+Best time used on TRAVERSE is 0.039493 s
+Best time used on BFS is 0.047628 s
+Best time used on BFS_localq is 0.050256 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 250000 1000000
+THREADS: 6
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 0.127494 s
+Best time used on TRAVERSE is 0.031926 s
+Best time used on BFS is 0.041049 s
+Best time used on BFS_localq is 0.044934 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 250000 1000000
+THREADS: 8
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:5
+Best time used on CRCW is 0.127126 s
+Best time used on TRAVERSE is 0.028471 s
+Best time used on BFS is 0.038569 s
+Best time used on BFS_localq is 0.044535 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 1000000 4000000
+THREADS: 1
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:6
+number of iterations:4
+Best time used on CRCW is 1.649738 s
+Best time used on TRAVERSE is 0.595675 s
+Best time used on BFS is 0.604229 s
+Best time used on BFS_localq is 0.576369 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 1000000 4000000
+THREADS: 2
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 1.333185 s
+Best time used on TRAVERSE is 0.369299 s
+Best time used on BFS is 0.410305 s
+Best time used on BFS_localq is 0.382112 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 1000000 4000000
+THREADS: 4
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 1.214872 s
+Best time used on TRAVERSE is 0.205962 s
+Best time used on BFS is 0.238520 s
+Best time used on BFS_localq is 0.243361 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 1000000 4000000
+THREADS: 6
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 1.196738 s
+Best time used on TRAVERSE is 0.145920 s
+Best time used on BFS is 0.182595 s
+Best time used on BFS_localq is 0.195405 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 1000000 4000000
+THREADS: 8
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 1.261144 s
+Best time used on TRAVERSE is 0.163964 s
+Best time used on BFS is 0.212694 s
+Best time used on BFS_localq is 0.218766 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 4000000 16000000
+THREADS: 1
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 7.710203 s
+Best time used on TRAVERSE is 3.238342 s
+Best time used on BFS is 3.440890 s
+Best time used on BFS_localq is 2.952809 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 4000000 16000000
+THREADS: 2
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 6.293199 s
+Best time used on TRAVERSE is 1.818833 s
+Best time used on BFS is 1.984260 s
+Best time used on BFS_localq is 1.790236 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 4000000 16000000
+THREADS: 4
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.434227 s
+Best time used on TRAVERSE is 1.009820 s
+Best time used on BFS is 1.167179 s
+Best time used on BFS_localq is 1.178791 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 4000000 16000000
+THREADS: 6
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.447371 s
+Best time used on TRAVERSE is 0.787900 s
+Best time used on BFS is 0.969369 s
+Best time used on BFS_localq is 1.047731 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 4000000 16000000
+THREADS: 8
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.177159 s
+Best time used on TRAVERSE is 0.740836 s
+Best time used on BFS is 0.933168 s
+Best time used on BFS_localq is 1.072755 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 9000000 36000000
+THREADS: 1
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 19.466407 s
+Best time used on TRAVERSE is 9.837041 s
+Best time used on BFS is 10.693855 s
+Best time used on BFS_localq is 9.400110 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 9000000 36000000
+THREADS: 2
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 18.388054 s
+Best time used on TRAVERSE is 5.080767 s
+Best time used on BFS is 5.828431 s
+Best time used on BFS_localq is 4.980557 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 9000000 36000000
+THREADS: 4
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 13.591114 s
+Best time used on TRAVERSE is 3.091033 s
+Best time used on BFS is 3.583582 s
+Best time used on BFS_localq is 3.404587 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 9000000 36000000
+THREADS: 6
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 9.913275 s
+Best time used on TRAVERSE is 2.335068 s
+Best time used on BFS is 2.804365 s
+Best time used on BFS_localq is 2.465086 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 9000000 36000000
+THREADS: 8
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 15.890531 s
+Best time used on TRAVERSE is 2.909182 s
+Best time used on BFS is 3.569226 s
+Best time used on BFS_localq is 2.383077 s
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 250000 1000000
+THREADS: 1
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:3
+Best time used on CRCW is 0.220653 s
+Best time used on TRAVERSE is 0.108856 s
+Best time used on BFS is 0.110584 s
+Best time used on BFS_localq is 0.104903 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 250000 1000000
+THREADS: 2
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.184245 s
+Best time used on TRAVERSE is 0.065843 s
+Best time used on BFS is 0.074790 s
+Best time used on BFS_localq is 0.064921 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 250000 1000000
+THREADS: 4
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.123460 s
+Best time used on TRAVERSE is 0.037991 s
+Best time used on BFS is 0.049432 s
+Best time used on BFS_localq is 0.048735 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 250000 1000000
+THREADS: 6
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.108731 s
+Best time used on TRAVERSE is 0.029143 s
+Best time used on BFS is 0.040016 s
+Best time used on BFS_localq is 0.043318 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 250000 1000000
+THREADS: 8
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.150323 s
+Best time used on TRAVERSE is 0.029058 s
+Best time used on BFS is 0.042133 s
+Best time used on BFS_localq is 0.046515 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 1000000 4000000
+THREADS: 1
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:6
+number of iterations:4
+Best time used on CRCW is 1.663056 s
+Best time used on TRAVERSE is 0.592829 s
+Best time used on BFS is 0.602958 s
+Best time used on BFS_localq is 0.571367 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 1000000 4000000
+THREADS: 2
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 1.309239 s
+Best time used on TRAVERSE is 0.368432 s
+Best time used on BFS is 0.402861 s
+Best time used on BFS_localq is 0.364953 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 1000000 4000000
+THREADS: 4
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 1.208105 s
+Best time used on TRAVERSE is 0.213711 s
+Best time used on BFS is 0.328211 s
+Best time used on BFS_localq is 0.254613 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 1000000 4000000
+THREADS: 6
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 1.489007 s
+Best time used on TRAVERSE is 0.183357 s
+Best time used on BFS is 0.217153 s
+Best time used on BFS_localq is 0.217183 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 1000000 4000000
+THREADS: 8
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:6
+Best time used on CRCW is 1.537692 s
+Best time used on TRAVERSE is 0.169122 s
+Best time used on BFS is 0.216028 s
+Best time used on BFS_localq is 0.216574 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 4000000 16000000
+THREADS: 1
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 7.707179 s
+Best time used on TRAVERSE is 3.245714 s
+Best time used on BFS is 3.446182 s
+Best time used on BFS_localq is 2.946376 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 4000000 16000000
+THREADS: 2
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 6.774757 s
+Best time used on TRAVERSE is 1.925613 s
+Best time used on BFS is 2.279035 s
+Best time used on BFS_localq is 2.055005 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 4000000 16000000
+THREADS: 4
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.671833 s
+Best time used on TRAVERSE is 0.976167 s
+Best time used on BFS is 1.172227 s
+Best time used on BFS_localq is 1.169065 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 4000000 16000000
+THREADS: 6
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.566658 s
+Best time used on TRAVERSE is 0.723591 s
+Best time used on BFS is 0.897847 s
+Best time used on BFS_localq is 0.926750 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 4000000 16000000
+THREADS: 8
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 6.073199 s
+Best time used on TRAVERSE is 0.830840 s
+Best time used on BFS is 1.094457 s
+Best time used on BFS_localq is 1.009503 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 9000000 36000000
+THREADS: 1
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 19.346299 s
+Best time used on TRAVERSE is 8.914404 s
+Best time used on BFS is 9.668482 s
+Best time used on BFS_localq is 8.059046 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 9000000 36000000
+THREADS: 2
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 18.872057 s
+Best time used on TRAVERSE is 4.691082 s
+Best time used on BFS is 5.356677 s
+Best time used on BFS_localq is 4.744647 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 9000000 36000000
+THREADS: 4
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 11.163354 s
+Best time used on TRAVERSE is 3.292197 s
+Best time used on BFS is 3.128273 s
+Best time used on BFS_localq is 3.407454 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 9000000 36000000
+THREADS: 6
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 14.914521 s
+Best time used on TRAVERSE is 2.141153 s
+Best time used on BFS is 2.546127 s
+Best time used on BFS_localq is 2.593072 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 9000000 36000000
+THREADS: 8
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 14.063410 s
+Best time used on TRAVERSE is 2.079006 s
+Best time used on BFS is 2.574242 s
+Best time used on BFS_localq is 2.382473 s
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 250000 1000000
+THREADS: 1
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:3
+Best time used on CRCW is 0.256371 s
+Best time used on TRAVERSE is 0.130740 s
+Best time used on BFS is 0.129814 s
+Best time used on BFS_localq is 0.119530 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 250000 1000000
+THREADS: 2
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.183354 s
+Best time used on TRAVERSE is 0.065605 s
+Best time used on BFS is 0.074814 s
+Best time used on BFS_localq is 0.070701 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 250000 1000000
+THREADS: 4
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.126424 s
+Best time used on TRAVERSE is 0.039494 s
+Best time used on BFS is 0.049369 s
+Best time used on BFS_localq is 0.050250 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 250000 1000000
+THREADS: 6
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:6
+number of iterations:4
+Best time used on CRCW is 0.152394 s
+Best time used on TRAVERSE is 0.033422 s
+Best time used on BFS is 0.042426 s
+Best time used on BFS_localq is 0.044546 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 250000 1000000
+THREADS: 8
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+making connected done
+init edge list done, n_edge = 2000136, n_vertices=250000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 0.168335 s
+Best time used on TRAVERSE is 0.029763 s
+Best time used on BFS is 0.041184 s
+Best time used on BFS_localq is 0.046906 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 1000000 4000000
+THREADS: 1
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:6
+number of iterations:4
+Best time used on CRCW is 1.663346 s
+Best time used on TRAVERSE is 0.590457 s
+Best time used on BFS is 0.599481 s
+Best time used on BFS_localq is 0.570918 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 1000000 4000000
+THREADS: 2
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 1.335082 s
+Best time used on TRAVERSE is 0.369044 s
+Best time used on BFS is 0.410203 s
+Best time used on BFS_localq is 0.398723 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 1000000 4000000
+THREADS: 4
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 1.216633 s
+Best time used on TRAVERSE is 0.219192 s
+Best time used on BFS is 0.251450 s
+Best time used on BFS_localq is 0.256895 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 1000000 4000000
+THREADS: 6
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 1.545892 s
+Best time used on TRAVERSE is 0.191500 s
+Best time used on BFS is 0.226894 s
+Best time used on BFS_localq is 0.222821 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 1000000 4000000
+THREADS: 8
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+making connected done
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 1.476269 s
+Best time used on TRAVERSE is 0.167021 s
+Best time used on BFS is 0.229827 s
+Best time used on BFS_localq is 0.215336 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 4000000 16000000
+THREADS: 1
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 7.572622 s
+Best time used on TRAVERSE is 3.269014 s
+Best time used on BFS is 3.479891 s
+Best time used on BFS_localq is 2.950720 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 4000000 16000000
+THREADS: 2
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:6
+number of iterations:4
+Best time used on CRCW is 6.913236 s
+Best time used on TRAVERSE is 1.890901 s
+Best time used on BFS is 2.248641 s
+Best time used on BFS_localq is 2.067108 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 4000000 16000000
+THREADS: 4
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.649788 s
+Best time used on TRAVERSE is 0.958208 s
+Best time used on BFS is 1.157124 s
+Best time used on BFS_localq is 1.060266 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 4000000 16000000
+THREADS: 6
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 5.309913 s
+Best time used on TRAVERSE is 0.711691 s
+Best time used on BFS is 0.876314 s
+Best time used on BFS_localq is 0.868407 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 4000000 16000000
+THREADS: 8
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+making connected done
+init edge list done, n_edge = 32002742, n_vertices=4000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 6.347299 s
+Best time used on TRAVERSE is 0.772514 s
+Best time used on BFS is 0.999482 s
+Best time used on BFS_localq is 0.939095 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../span.amd64 -t 1 -- 0 9000000 36000000
+THREADS: 1
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:4
+number of iterations:4
+Best time used on CRCW is 20.082855 s
+Best time used on TRAVERSE is 8.136647 s
+Best time used on BFS is 8.804785 s
+Best time used on BFS_localq is 7.151780 s
+
+### nproc: 2
+../../../../span.amd64 -t 2 -- 0 9000000 36000000
+THREADS: 2
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 15.674523 s
+Best time used on TRAVERSE is 5.046746 s
+Best time used on BFS is 5.569955 s
+Best time used on BFS_localq is 4.557457 s
+
+### nproc: 4
+../../../../span.amd64 -t 4 -- 0 9000000 36000000
+THREADS: 4
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 14.565200 s
+Best time used on TRAVERSE is 2.647480 s
+Best time used on BFS is 3.222345 s
+Best time used on BFS_localq is 2.945868 s
+
+### nproc: 6
+../../../../span.amd64 -t 6 -- 0 9000000 36000000
+THREADS: 6
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:4
+Best time used on CRCW is 14.200646 s
+Best time used on TRAVERSE is 2.282908 s
+Best time used on BFS is 2.752916 s
+Best time used on BFS_localq is 3.059118 s
+
+### nproc: 8
+../../../../span.amd64 -t 8 -- 0 9000000 36000000
+THREADS: 8
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 9000000
+checking done,tail is 3038
+making connected done
+init edge list done, n_edge = 72006050, n_vertices=9000000
+number of iterations:5
+number of iterations:5
+Best time used on CRCW is 16.957587 s
+Best time used on TRAVERSE is 2.114007 s
+Best time used on BFS is 2.640634 s
+Best time used on BFS_localq is 3.101039 s
+
+############################################################
+# End Time: 02/17/2008 - 04:20:39
+############################################################

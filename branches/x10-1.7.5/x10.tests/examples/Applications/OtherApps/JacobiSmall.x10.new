@@ -1,0 +1,70 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Jacobi iteration
+ *
+ * At each step of the iteration, replace the value of a cell with
+ * the average of its adjacent cells in the (i,j) dimensions.
+ * Compute the error at each iteration as the sum of the changes
+ * in value across the whole array. Continue the iteration until
+ * the error falls below a given bound.
+ *
+ * @author vj
+ * @author cvp
+ * @author kemal
+ */
+public class JacobiSmall extends x10Test {
+
+	const N: int = 7;
+	const epsilon: double = 0.002;
+	const epsilon2: double = 0.000000001;
+	val R1: region{rank==1} = [0..N+1];
+	val R2: region{rank==1} = [1..N];
+	val R: region{rank==2} = [R1, R1];
+	val R_inner: region{rank==2} = [R2, R2];
+	val D: dist{rank==2} = (dist{rank==2})) distmakeBlock(R);
+	val D_inner: dist{rank==2} = D | R_inner;
+	val D_Boundary: dist{rank==2} = D - D_inner.region;
+	const EXPECTED_ITERS: int = 131;
+	const EXPECTED_ERR: double = 0.0019977310907846046;
+
+	public def run(): boolean = {
+
+		var iters: int = 0;
+
+		final val a: Array[double] = new Array[double](D);
+		finish ateach (val p: point[i,j] in D_inner) { a(p) = (double)(i-1)*N+(j-1); }
+		finish ateach (val p: point in D_Boundary) { a(p) = (N-1)/2; }
+		var err: double;
+		var x: Array[double] = a;
+		while (true) {
+			final val b: Array[double] = x;
+			final val temp: Array[double] = new Array[double](D_inner);
+			finish ateach (val p: point[i,j] in D_inner) temp(i, j) = (b(i+1, j)+b(i-1, j)+b(i, j-1)+b(i, j+1))/4.0;
+
+			if ((err = (b.restriction(D_inner)
+				     .lift(doubleArray.sub, temp)
+				     .lift(doubleArray.abs)
+				     .reduce(doubleArray.add, 0.0))) < epsilon)
+				break;
+
+			x = x.overlay(temp);
+			iters++;
+		}
+		System.out.println(err);
+		System.out.println(iters);
+
+		return Math.abs(err-EXPECTED_ERR) < epsilon2 && iters == EXPECTED_ITERS;
+	}
+	
+	public static def main(var args: Rail[String]): void = {
+		new JacobiSmall().execute();
+	}
+}
