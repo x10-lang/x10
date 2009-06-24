@@ -1,0 +1,187 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface interface I(public val i: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public public def a()(): void;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int iint i) {
+      public void  a();
+	}
+	interface interface J(public val k: int, ) extends I /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) extends I{
+      public public def a()(): void;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int kint k) extends I{
+      public void  a();
+	}
+	class E(public val k: int, ) implements J /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) extends I{
+      public void  a();
+	}
+	class E(int k) implements J{
+      public def this(var kk: int): E = { k = kk;}
+      public def a(): void = {
+        var x: int;
+      }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) extends I{
+      public void  a();
+	}
+	class E(int kint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Classes implementing interfaces with properties must also 
+ * define the same properties, or else an error is thrown
+ *
+ * @author raj
+ */
+public class InterfaceProp_MustFailCompile extends x10Test {
+  
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) extends I{
+      public void  a();
+	}
+	class E(int k) implements J{
+      public E(int kk) { k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	
+	public def run(): boolean = {
+        new E(1);
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new InterfaceProp_MustFailCompile().execute();
+	}
+}

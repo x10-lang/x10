@@ -1,0 +1,130 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int j) {
+		 public var value: int = 5;
+		public var value: int = 6;
+		def this(val i: int, val j: int): Test = {
+			this.i=i;
+			this.j=j;
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests that two guarded fields may not have the same name, even if their guard
+ * conditions are disjoint.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test { 
+
+	class Test(int i, int j) {
+		 this(:i==5) public int value = 5;
+		this(:i==6) public int value = 6;
+		Test (final int i, final int j ) {
+			this.i=i;
+			this.j=j;
+		}
+	}
+		
+	public def run(): boolean = {
+		var t: Test{i==5} = (Test{i == 5})) new Test(5, 5);
+		t.value = t.value + 10;
+	   return true;
+	}  
+	
+    public static def main(var args: Rail[String]): void = {
+        new SameNameGuardedFieldAccess_MustFailCompile().execute();
+    }
+   
+
+		
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="polyglot/ext/x10/dom/**|polyglot/ext/x10/plugin/Simple*.java|polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/lpg.runtime.java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/x10.runtime.17"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

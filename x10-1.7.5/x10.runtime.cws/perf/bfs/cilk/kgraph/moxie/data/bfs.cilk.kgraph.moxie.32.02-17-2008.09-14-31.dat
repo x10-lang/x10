@@ -1,0 +1,850 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/17/2008 - 09:14:31
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../BFSBlock.sparcv9 --nproc 1 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.157768 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.sparcv9 --nproc 2 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.091367 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.sparcv9 --nproc 4 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.132854 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.sparcv9 --nproc 8 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.116088 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../BFSBlock.sparcv9 --nproc 16 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.159346 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../BFSBlock.sparcv9 --nproc 20 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.120333 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../BFSBlock.sparcv9 --nproc 24 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.146441 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../BFSBlock.sparcv9 --nproc 30 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.148428 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../BFSBlock.sparcv9 --nproc 32 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 13  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.141558 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../BFSBlock.sparcv9 --nproc 1 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.142837 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.sparcv9 --nproc 2 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.605301 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.sparcv9 --nproc 4 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.375704 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.sparcv9 --nproc 8 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.317903 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../BFSBlock.sparcv9 --nproc 16 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.413058 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../BFSBlock.sparcv9 --nproc 20 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.341612 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../BFSBlock.sparcv9 --nproc 24 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.360009 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../BFSBlock.sparcv9 --nproc 30 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.354318 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../BFSBlock.sparcv9 --nproc 32 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 15  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.406492 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../BFSBlock.sparcv9 --nproc 1 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.896778 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.sparcv9 --nproc 2 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.984650 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.sparcv9 --nproc 4 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.640088 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.sparcv9 --nproc 8 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.110863 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../BFSBlock.sparcv9 --nproc 16 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.897781 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../BFSBlock.sparcv9 --nproc 20 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.795983 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../BFSBlock.sparcv9 --nproc 24 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.945826 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../BFSBlock.sparcv9 --nproc 30 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.842144 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../BFSBlock.sparcv9 --nproc 32 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 16  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.807244 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../BFSBlock.sparcv9 --nproc 1 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 14.230522 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.sparcv9 --nproc 2 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 7.167558 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.sparcv9 --nproc 4 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.790941 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.sparcv9 --nproc 8 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.316329 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../BFSBlock.sparcv9 --nproc 16 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.620987 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../BFSBlock.sparcv9 --nproc 20 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.521561 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../BFSBlock.sparcv9 --nproc 24 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.393401 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../BFSBlock.sparcv9 --nproc 30 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.461388 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../BFSBlock.sparcv9 --nproc 32 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+check if it is connected
+checking done
+making connected done
+generating graph done
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 17  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.355629 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/17/2008 - 09:34:47
+############################################################

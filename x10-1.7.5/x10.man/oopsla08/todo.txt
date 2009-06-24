@@ -1,0 +1,5 @@
+Expand discussion of parametric consistency.  Is 
+
+Add pointer to examples on x10.sf.net.
+
+Discuss LU example in new subsection of Section 3.

@@ -1,0 +1,362 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/22/2008 - 07:46:39
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 1 E 250000
+Number of procs=1
+graphType=E
+N=250000
+N=250000 t=818823186 ns 1.221 GE/s
+N=250000 t=704392492 ns 1.420 GE/s
+N=250000 t=592498757 ns 1.688 GE/s
+N=250000 t=689397364 ns 1.451 GE/s
+N=250000 t=688458672 ns 1.453 GE/s
+N=250000 t=699153329 ns 1.430 GE/s
+N=250000 t=584720391 ns 1.710 GE/s
+N=250000 t=686125480 ns 1.457 GE/s
+N=250000 t=685636020 ns 1.458 GE/s
+N=250000 t=698924709 ns 1.431 GE/s
+Completed iterations for N=250000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 2 E 250000
+Number of procs=2
+graphType=E
+N=250000
+N=250000 t=679880167 ns 1.471 GE/s
+N=250000 t=458536593 ns 2.181 GE/s
+N=250000 t=401045215 ns 2.493 GE/s
+N=250000 t=532834356 ns 1.877 GE/s
+N=250000 t=405003442 ns 2.469 GE/s
+N=250000 t=466252178 ns 2.145 GE/s
+N=250000 t=378320424 ns 2.643 GE/s
+N=250000 t=736796033 ns 1.357 GE/s
+N=250000 t=460890817 ns 2.170 GE/s
+N=250000 t=465996078 ns 2.146 GE/s
+Completed iterations for N=250000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 4 E 250000
+Number of procs=4
+graphType=E
+N=250000
+N=250000 t=424307095 ns 2.357 GE/s
+N=250000 t=385533915 ns 2.594 GE/s
+N=250000 t=232325999 ns 4.304 GE/s
+N=250000 t=303288168 ns 3.297 GE/s
+N=250000 t=256849656 ns 3.893 GE/s
+N=250000 t=230233479 ns 4.343 GE/s
+N=250000 t=236346764 ns 4.231 GE/s
+N=250000 t=218232127 ns 4.582 GE/s
+N=250000 t=655829331 ns 1.525 GE/s
+N=250000 t=234605729 ns 4.262 GE/s
+Completed iterations for N=250000
+
+### nproc: 6
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 6 E 250000
+Number of procs=6
+graphType=E
+N=250000
+N=250000 t=426807087 ns 2.343 GE/s
+N=250000 t=677898988 ns 1.475 GE/s
+N=250000 t=260144762 ns 3.844 GE/s
+N=250000 t=225721105 ns 4.430 GE/s
+N=250000 t=335189586 ns 2.983 GE/s
+N=250000 t=227085243 ns 4.404 GE/s
+N=250000 t=191178685 ns 5.231 GE/s
+N=250000 t=709922327 ns 1.409 GE/s
+N=250000 t=216110701 ns 4.627 GE/s
+N=250000 t=313009817 ns 3.195 GE/s
+Completed iterations for N=250000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 8 E 250000
+Number of procs=8
+graphType=E
+N=250000
+N=250000 t=652488757 ns 1.533 GE/s
+N=250000 t=304922344 ns 3.280 GE/s
+N=250000 t=195145157 ns 5.124 GE/s
+N=250000 t=355909162 ns 2.810 GE/s
+N=250000 t=176578497 ns 5.663 GE/s
+N=250000 t=174217695 ns 5.740 GE/s
+N=250000 t=766615242 ns 1.304 GE/s
+N=250000 t=200137162 ns 4.997 GE/s
+N=250000 t=190187309 ns 5.258 GE/s
+N=250000 t=345058029 ns 2.898 GE/s
+Completed iterations for N=250000
+
+## Size: 1000000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=5888424889 ns -0.050 GE/s
+N=1000000 t=4782313300 ns -0.062 GE/s
+N=1000000 t=4630264137 ns -0.064 GE/s
+N=1000000 t=5007998240 ns -0.059 GE/s
+N=1000000 t=4767638266 ns -0.062 GE/s
+N=1000000 t=4572788964 ns -0.065 GE/s
+N=1000000 t=4966897921 ns -0.059 GE/s
+N=1000000 t=4802110230 ns -0.061 GE/s
+N=1000000 t=4569262649 ns -0.065 GE/s
+N=1000000 t=4550713273 ns -0.065 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=3433385809 ns -0.086 GE/s
+N=1000000 t=2576042478 ns -0.115 GE/s
+N=1000000 t=2275666532 ns -0.130 GE/s
+N=1000000 t=3657797043 ns -0.081 GE/s
+N=1000000 t=2453386851 ns -0.120 GE/s
+N=1000000 t=2290458932 ns -0.129 GE/s
+N=1000000 t=2408522968 ns -0.122 GE/s
+N=1000000 t=2531235989 ns -0.117 GE/s
+N=1000000 t=2452802673 ns -0.120 GE/s
+N=1000000 t=2461499450 ns -0.120 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=2073119687 ns -0.142 GE/s
+N=1000000 t=1744943331 ns -0.169 GE/s
+N=1000000 t=2854341765 ns -0.103 GE/s
+N=1000000 t=1648768975 ns -0.179 GE/s
+N=1000000 t=1760356403 ns -0.168 GE/s
+N=1000000 t=1829803228 ns -0.161 GE/s
+N=1000000 t=1807217959 ns -0.163 GE/s
+N=1000000 t=2921480870 ns -0.101 GE/s
+N=1000000 t=1595999598 ns -0.185 GE/s
+N=1000000 t=2041317110 ns -0.144 GE/s
+Completed iterations for N=1000000
+
+### nproc: 6
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 6 E 1000000
+Number of procs=6
+graphType=E
+N=1000000
+N=1000000 t=1924838763 ns -0.153 GE/s
+N=1000000 t=1201724497 ns -0.245 GE/s
+N=1000000 t=2753994513 ns -0.107 GE/s
+N=1000000 t=1249306650 ns -0.236 GE/s
+N=1000000 t=1273651344 ns -0.232 GE/s
+N=1000000 t=2725206262 ns -0.108 GE/s
+N=1000000 t=1241463339 ns -0.238 GE/s
+N=1000000 t=1267960208 ns -0.233 GE/s
+N=1000000 t=2405300060 ns -0.123 GE/s
+N=1000000 t=1198744891 ns -0.246 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=3726281852 ns -0.079 GE/s
+N=1000000 t=1685106547 ns -0.175 GE/s
+N=1000000 t=2430475426 ns -0.121 GE/s
+N=1000000 t=1366104750 ns -0.216 GE/s
+N=1000000 t=3005001408 ns -0.098 GE/s
+N=1000000 t=1514695447 ns -0.195 GE/s
+N=1000000 t=1818206895 ns -0.162 GE/s
+N=1000000 t=1362550418 ns -0.216 GE/s
+N=1000000 t=2911662173 ns -0.101 GE/s
+N=1000000 t=1757244295 ns -0.168 GE/s
+Completed iterations for N=1000000
+
+## Size: 4000000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 1 E 4000000
+Number of procs=1
+graphType=E
+N=4000000
+N=4000000 t=22982462467 ns -0.051 GE/s
+N=4000000 t=24052914154 ns -0.049 GE/s
+N=4000000 t=21831413395 ns -0.054 GE/s
+N=4000000 t=23278010161 ns -0.051 GE/s
+N=4000000 t=21728333205 ns -0.054 GE/s
+N=4000000 t=23362629397 ns -0.051 GE/s
+N=4000000 t=21680315762 ns -0.054 GE/s
+N=4000000 t=23440830162 ns -0.050 GE/s
+N=4000000 t=21710859202 ns -0.054 GE/s
+N=4000000 t=23387003230 ns -0.050 GE/s
+Completed iterations for N=4000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 2 E 4000000
+Number of procs=2
+graphType=E
+N=4000000
+N=4000000 t=16449816304 ns -0.072 GE/s
+N=4000000 t=13185753534 ns -0.089 GE/s
+N=4000000 t=14988878032 ns -0.079 GE/s
+N=4000000 t=14741656193 ns -0.080 GE/s
+N=4000000 t=13353873465 ns -0.088 GE/s
+N=4000000 t=16195467638 ns -0.073 GE/s
+N=4000000 t=14890761511 ns -0.079 GE/s
+N=4000000 t=13321301385 ns -0.089 GE/s
+N=4000000 t=13133375914 ns -0.090 GE/s
+N=4000000 t=13412425833 ns -0.088 GE/s
+Completed iterations for N=4000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 4 E 4000000
+Number of procs=4
+graphType=E
+N=4000000
+N=4000000 t=9969747466 ns -0.118 GE/s
+N=4000000 t=12471921315 ns -0.095 GE/s
+N=4000000 t=7858242100 ns -0.150 GE/s
+N=4000000 t=9269500196 ns -0.127 GE/s
+N=4000000 t=7099337246 ns -0.166 GE/s
+N=4000000 t=7436978157 ns -0.159 GE/s
+N=4000000 t=9753130891 ns -0.121 GE/s
+N=4000000 t=7474592175 ns -0.158 GE/s
+N=4000000 t=7338732069 ns -0.161 GE/s
+N=4000000 t=10089214819 ns -0.117 GE/s
+Completed iterations for N=4000000
+
+### nproc: 6
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 6 E 4000000
+Number of procs=6
+graphType=E
+N=4000000
+N=4000000 t=7042907427 ns -0.168 GE/s
+N=4000000 t=9707968605 ns -0.122 GE/s
+N=4000000 t=10618807186 ns -0.111 GE/s
+N=4000000 t=7794022103 ns -0.151 GE/s
+N=4000000 t=9731813394 ns -0.121 GE/s
+N=4000000 t=12474023203 ns -0.095 GE/s
+N=4000000 t=7560411291 ns -0.156 GE/s
+N=4000000 t=6539995146 ns -0.180 GE/s
+N=4000000 t=7302706710 ns -0.162 GE/s
+N=4000000 t=9331080691 ns -0.126 GE/s
+Completed iterations for N=4000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 8 E 4000000
+Number of procs=8
+graphType=E
+N=4000000
+N=4000000 t=7744581839 ns -0.152 GE/s
+N=4000000 t=8621974453 ns -0.137 GE/s
+N=4000000 t=5587258302 ns -0.211 GE/s
+N=4000000 t=7727420962 ns -0.153 GE/s
+N=4000000 t=8005116332 ns -0.147 GE/s
+N=4000000 t=4643132814 ns -0.254 GE/s
+N=4000000 t=8322373845 ns -0.142 GE/s
+N=4000000 t=6002196300 ns -0.197 GE/s
+N=4000000 t=7597289803 ns -0.155 GE/s
+N=4000000 t=6940734663 ns -0.170 GE/s
+Completed iterations for N=4000000
+
+## Size: 9000000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 1 E 9000000
+Number of procs=1
+graphType=E
+N=9000000
+N=9000000 t=65791874969 ns 0.025 GE/s
+N=9000000 t=60629000111 ns 0.027 GE/s
+N=9000000 t=60096734640 ns 0.027 GE/s
+N=9000000 t=60522753640 ns 0.027 GE/s
+N=9000000 t=60148004731 ns 0.027 GE/s
+N=9000000 t=60181601613 ns 0.027 GE/s
+N=9000000 t=60115234456 ns 0.027 GE/s
+N=9000000 t=60247693423 ns 0.027 GE/s
+N=9000000 t=69697497789 ns 0.024 GE/s
+N=9000000 t=62242240868 ns 0.026 GE/s
+Completed iterations for N=9000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 2 E 9000000
+Number of procs=2
+graphType=E
+N=9000000
+N=9000000 t=46859210253 ns 0.035 GE/s
+N=9000000 t=35836064878 ns 0.046 GE/s
+N=9000000 t=44389449035 ns 0.037 GE/s
+N=9000000 t=38541604790 ns 0.043 GE/s
+N=9000000 t=39562533582 ns 0.041 GE/s
+N=9000000 t=38587647917 ns 0.043 GE/s
+N=9000000 t=40176274039 ns 0.041 GE/s
+N=9000000 t=38462077240 ns 0.043 GE/s
+N=9000000 t=43467179254 ns 0.038 GE/s
+N=9000000 t=35385086272 ns 0.046 GE/s
+Completed iterations for N=9000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 4 E 9000000
+Number of procs=4
+graphType=E
+N=9000000
+N=9000000 t=29440071813 ns 0.056 GE/s
+N=9000000 t=29919900629 ns 0.055 GE/s
+N=9000000 t=29652887002 ns 0.055 GE/s
+N=9000000 t=25661301631 ns 0.064 GE/s
+N=9000000 t=30026603497 ns 0.055 GE/s
+N=9000000 t=22652881314 ns 0.072 GE/s
+N=9000000 t=28732795126 ns 0.057 GE/s
+N=9000000 t=30105643033 ns 0.054 GE/s
+N=9000000 t=27076886421 ns 0.061 GE/s
+N=9000000 t=25083735463 ns 0.065 GE/s
+Completed iterations for N=9000000
+
+### nproc: 6
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 6 E 9000000
+Number of procs=6
+graphType=E
+N=9000000
+N=9000000 t=18498437560 ns 0.089 GE/s
+N=9000000 t=19587493949 ns 0.084 GE/s
+N=9000000 t=19470981174 ns 0.084 GE/s
+N=9000000 t=21017333989 ns 0.078 GE/s
+N=9000000 t=14751426821 ns 0.111 GE/s
+N=9000000 t=31305651736 ns 0.052 GE/s
+N=9000000 t=15625946594 ns 0.105 GE/s
+N=9000000 t=19569010931 ns 0.084 GE/s
+N=9000000 t=20390154586 ns 0.080 GE/s
+N=9000000 t=15721691682 ns 0.104 GE/s
+Completed iterations for N=9000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-amd64/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G SV 8 E 9000000
+Number of procs=8
+graphType=E
+N=9000000
+N=9000000 t=24100435321 ns 0.068 GE/s
+N=9000000 t=21068829679 ns 0.078 GE/s
+N=9000000 t=18606407804 ns 0.088 GE/s
+N=9000000 t=29015365174 ns 0.057 GE/s
+N=9000000 t=22622495008 ns 0.073 GE/s
+N=9000000 t=19725025551 ns 0.083 GE/s
+N=9000000 t=15657106926 ns 0.105 GE/s
+N=9000000 t=23454381668 ns 0.070 GE/s
+N=9000000 t=23443017671 ns 0.070 GE/s
+N=9000000 t=15564901314 ns 0.105 GE/s
+Completed iterations for N=9000000
+
+############################################################
+# End Time: 02/22/2008 - 08:46:28
+############################################################

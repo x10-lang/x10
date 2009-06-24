@@ -1,0 +1,78 @@
+\section{\Xten{}: Designed for High Productivity}\label{s:x10}
+\paragraph{}\Xten{} is a new Partitioned Global Address Space (PGAS) language being developed at IBM as part of the DARPA HPCS project~\cite{X10-OOPSLA05}. It is designed to address both programmer productivity and parallel performance for modern architectures from the multicores, to the heterogeneous accelerators (as in the Cell processor), and to the scale-out clusters of SMPs such as Blue Gene.  The language is based on sequential Java with extensions for programming fine-grained and massive parallelism. Unlike other PGAS languages such as Co-Array Fortran, Titanium, and UPC whose model of parallelism is Single Program Multiple Data (SPMD), \Xten{} supports dynamic and structured concurrency with SPMD as a special case. In this section, we provide a brief introduction to the basic concepts in the \Xten{} programming model and the language constructs used to implement the graph algorithms of interest. For more details and other features of \Xten{}, readers please refer to~\cite{X10-OOPSLA05}.
+ 
+\begin{enumerate}
+\item{\bf Activities}~--~All concurrency in \Xten{} is expressed as asynchronous {\em activities}. An activity is a lightweight thread of execution, which can be spawned recursively in a fork-join manner. The syntax of spawning an activity is {\tt async S}, where a new child activity is created executing statement {\tt S}. The granularity of an activity is arbitrary~--~{\tt S} can be a single statement reading a remote variable or a sequence of statements performing a stencil operation on a grid.  Our experience has been that this single notion of an asynchronous activity can subsume many levels of parallelism that  a programmer may encounter such as threads, structured parallelism (including OpenMP), messaging (including MPI), and DMA transfers.  
+\item{\bf Places}~--~The main program starts as single activity at {\em place} 0. Place is an \Xten{} concept which can be considered as a virtual SMP, but multiple places can be mapped to one physical SMP node. The global address space is partitioned across places. Data and activities have affinity with and only with one place. Activities can only operate on data local to them, that is, within the same place. To access data at another place, a new activity has to be spawned there to perform the operation. The syntax for spawning an activity at place $p$ is {\tt async (p) S}. The diagram in Figure \ref{fig 1} describes the X0 programming model.
+
+\begin{figure}
+\begin{center}
+\pdfimage width 14cm  {X10ProgModel.jpg}
+\end{center}
+
+Dynamic parallelism with a Partitioned Global Address Space. All
+concurrency is expressed as asynchronous activities.  Each vertical
+green rectangle above represents the stack for a single activity. An
+activity may hold references to remote objects, that is, at a
+different place.  However, if it attempts to operate on a remote
+object, then it has to spawn a new activity at the remote place to
+perform the operation.  Immutable (read only) data is special which
+can be accessed freely from any place providing opportunity for
+single-assignment parallelism.
+\caption{\Xten{} Programming Model}
+\label{fig 1}
+
+\end{figure}
+
+
+\item{\bf \Xten{} arrays}~--~\Xten{} supports a rich set of multidimensional array abstractions and domain calculus as in Titanium~\cite{titaniumDoc}. The array index space is global where each index is an integer vector named {\em point}, and a {\em domain} is a set of points which can be either rectangular or not. The distribution of an array across places is specified by a {\em distribution} which can be defined by users. Each distribution maps a set of points in a region to a set of places. 
+
+%For example, the following code defines a 1D block-distributed array initialized in a way such that each element contains its own index.
+
+%\begin{center}
+%{\scriptsize
+%\begin{verbatim}
+%region R = [0:TableSize-1];
+%dist RD = dist.factory.block(R);
+%long [.] Table = new long[DD] (point [i]) {return i;};
+%\end{verbatim}
+%}
+%\end{center}
+
+\item{\bf Parallel loops}~--~There are two kinds of parallel loop in \Xten{}: {\tt foreach} and {\tt ateach}, for looping over a region and a distribution respectively. Their difference is that the {\tt for} loop spawns activities locally, whereas the {\tt ateach} loop spawns activities at the places specified by the distribution. 
+
+%shown by the following two pairs of equivalent statements.
+%\begin{center}
+%{\scriptsize
+%\begin{verbatim}
+%foreach (point [i] : R) Table[i]+=i; is equivalent to for (point [i] : R) async Table[i]+=i;
+%ateach (point [i] : RD) Table[i]+=i; is equvalent to for (point [i] : R) async (RD[i]) Table[i]+=i;
+%\end{verbatim}
+%}
+%\end{center} 
+
+\item{\bf Finish and clock}~--~The statement {\tt async S} returns immediately when it is executed even if the statement {\tt S} is not finished, which may also spawn other activities. The {\tt finish S} construct is used to specify that the next instruction is executed only when the statement {\tt S} has finished globally, that is, all transitively spawned child activities have finished.
+ %For example, 
+%\begin{center}
+%{\scriptsize
+%\begin{verbatim}
+%finish foreach (point [i] : R) Table[i]*=i; 
+%Table[0]+=1;.
+%\end{verbatim}
+%}
+%\end{center}
+%Here, after the above two statements are executed, the value of {\tt Table[0]} is guaranteed to be $1$. 
+While {\tt finish} permits the detection of global termination, there are many cases in which a barrier-like coordination is needed for a set of activities during the middle of their computation. \Xten{} uses {\em clock} to coordinate such a set of activities. A clock has phases, and the activities registered with this clock can be synchronized by waiting for their finish of the current clock phase. An activity can be registered with multiple clocks and it can drop any of them at any time.
+\item{\bf Atomic blocks}~--~\Xten{} uses {\em atomic} blocks for mutual exclusion. An atomic statement/method is conceptually executed in a single step, while other activities are suspended. An atomic block must be nonblocking, sequential (without spawning activities), and local (no remote data access). %Without using the atomic block, the following code will generate race conditions.
+%\begin{center}
+%{\scriptsize
+%\begin{verbatim}
+%double sum = 0;
+%finish foreach (point [i] : R) sum+=1; //should use atomic sum+=1 instead;
+%\end{verbatim}
+%}
+%\end{center}
+{\em Conditional} atomic block is another parallel language construct of \Xten{} which can be used, for example, to implement point-to-point synchronization. The syntax for a conditional atomic block is {\tt when (E) S}, where the executing activity suspends until the boolean expression {\tt E} is true, then {\tt S} is executed atomically. 
+\end{enumerate}
+
+

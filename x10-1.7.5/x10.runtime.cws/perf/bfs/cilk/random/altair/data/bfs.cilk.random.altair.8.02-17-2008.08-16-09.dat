@@ -1,0 +1,1664 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/17/2008 - 08:16:09
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.120037 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.071655 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.100770 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.091550 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.107894 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.577066 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.352874 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.276145 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.295151 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.309860 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.832131 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.795381 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.146917 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.050619 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.114651 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 8.684487 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.651938 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.498639 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.760707 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.554434 s
+Work = 0.000000 s
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.126186 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.078616 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.088219 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.086815 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.107404 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.579596 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.352910 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.282836 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.313016 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.298549 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.813395 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.645113 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.129807 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.190507 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.139979 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 8.441010 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.531428 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.928815 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.898676 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.577285 s
+Work = 0.000000 s
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.106947 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.078784 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.094505 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.101055 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 82
+done generating graph structure
+number of edges is 1000068
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 82  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.108263 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.575889 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.374219 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.286571 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.297611 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 341
+done generating graph structure
+number of edges is 4000325
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 341  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.293001 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.801484 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.641462 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.199137 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.131344 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 1388
+done generating graph structure
+number of edges is 16001371
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 1388  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.085819 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../BFSBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 8.322495 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../BFSBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.501481 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../BFSBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.586891 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../BFSBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.735563 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../BFSBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+ number of edges got is 36000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+checking done,tail is 3038
+done generating graph structure
+number of edges is 36003025
+r_graph returning 
+graph is generated
+allocating color array 
+allocating buffers 
+Starting timing session 
+Total levels 3038  
+Computation finished and starting verification 
+BFS verification: the number of vertices missed 0 (should be zero) 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.743474 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/17/2008 - 08:41:21
+############################################################

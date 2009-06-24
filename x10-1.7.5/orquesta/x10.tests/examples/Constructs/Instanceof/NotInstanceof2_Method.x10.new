@@ -1,0 +1,139 @@
+****Error: examples/Constructs/Instanceof/NotInstanceof2_Method.x10:21:41:21:41:0:-1:9: ")" inserted to complete scope
+****Error: examples/Constructs/Instanceof/NotInstanceof2_Method.x10:25:46:25:46:0:-1:9: ")" inserted to complete scope
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Purpose: Side Effect Instanceof checking code must ensures both type and constraint equality is checked !
+ * Issue: Types are not compatible but constraint are verified.
+ * @author vcave
+ **/
+public class NotInstanceof2_Method extends x10Test {
+	 
+	public def run(): boolean = {
+		return !(this.getDifferentType() instanceof X10DepTypeClassOne{p==1}));
+	}
+
+	private def getSameType(): java.lang.Object = {
+		return new X10DepTypeClassOne(1);
+	}
+	
+	private def getDifferentType(): java.lang.Object = {
+		return new OtherClass(1);
+	}
+	
+	public static def main(var args: Rail[String]): void = {
+		new NotInstanceof2_Method().execute();
+	}
+		 
+	 public class OtherClass(public val p: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Side Effect Instanceof checking code must ensures both type and constraint equality is checked !
+ * Issue: Types are not compatible but constraint are verified.
+ * @author vcave
+ **/
+public class NotInstanceof2_Method extends x10Test {
+	 
+	public boolean run() {
+		return !(this.getDifferentType() instanceof X10DepTypeClassOne(:p==1));
+	}
+
+	private java.lang.Object getSameType( {
+		return new X10DepTypeClassOne(1);
+	}
+	
+	private java.lang.Object getDifferentType( {
+		return new OtherClass(1);
+	}
+	
+	public static void main(String[] args) {
+		new NotInstanceof2_Method().execute();
+	}
+		 
+	 public class OtherClass (int p) {
+		public def this(var p: int): OtherClass = {
+		    this.p=p;
+		}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Side Effect Instanceof checking code must ensures both type and constraint equality is checked !
+ * Issue: Types are not compatible but constraint are verified.
+ * @author vcave
+ **/
+public class NotInstanceof2_Method extends x10Test {
+	 
+	public boolean run() {
+		return !(this.getDifferentType() instanceof X10DepTypeClassOne(:p==1));
+	}
+
+	private java.lang.Object getSameType( {
+		return new X10DepTypeClassOne(1);
+	}
+	
+	private java.lang.Object getDifferentType( {
+		return new OtherClass(1);
+	}
+	
+	public static void main(String[] args) {
+		new NotInstanceof2_Method().execute();
+	}
+		 
+	 public class OtherClass (int pint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Side Effect Instanceof checking code must ensures both type and constraint equality is checked !
+ * Issue: Types are not compatible but constraint are verified.
+ * @author vcave
+ **/
+public class NotInstanceof2_Method extends x10Test {
+	 
+	public boolean run() {
+		return !(this.getDifferentType() instanceof X10DepTypeClassOne(:p==1));
+	}
+
+	private java.lang.Object getSameType( {
+		return new X10DepTypeClassOne(1);
+	}
+	
+	private java.lang.Object getDifferentType( {
+		return new OtherClass(1);
+	}
+	
+	public static void main(String[] args) {
+		new NotInstanceof2_Method().execute();
+	}
+		 
+	 public class OtherClass (int p) {
+		public OtherClass(int p) {
+		    this.p=p;
+		}
+	 }
+}
