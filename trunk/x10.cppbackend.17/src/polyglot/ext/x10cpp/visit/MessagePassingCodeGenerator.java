@@ -1789,7 +1789,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
-
 		if (n.inits() != null) {
 			for (Iterator i = n.inits().iterator(); i.hasNext(); ) {
 				ForInit s = (ForInit) i.next();
@@ -1807,7 +1806,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.begin(0);
 
 		if (n.inits() != null) {
-			boolean first = true;
 			for (Iterator i = n.inits().iterator(); i.hasNext(); ) {
 				ForInit s = (ForInit) i.next();
 				boolean oldSemiColon = tr.appendSemicolon(false);
@@ -1815,7 +1813,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				n.printBlock(s, sw, tr);
 				tr.printType(oldPrintType);
 				tr.appendSemicolon(oldSemiColon);
-				first = false;
 
 				if (i.hasNext()) {
 					sw.write(",");
