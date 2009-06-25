@@ -12,10 +12,7 @@ be disabled by giving the -NO_STEALS=true argument to x10 (for the
 Java backend) or by setting the environment variable X10_NO_STEALS to
 true (for the C++ backend).
 
-Language changes since the 1.7.4 release of X10:
-
-<LIST HERE>
-
+There were no language changes since the 1.7.4 release of X10.
 
 The following features described in the 1.7 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
@@ -48,7 +45,20 @@ Here's a list of known issues with the C++ backend:
 - Hash codes are not computed correctly for some classes
 
 Below is a summary of JIRA issues addressed for the X10 1.7.5 release.
-<LIST HERE>
+** New Feature
+    * [XTENLANG-227] - Fix the C++ runtime to build with xlC on AIX
+    * [XTENLANG-291] - Implement asyncs using Fork-Join library
+
+** Improvement
+    * [XTENLANG-245] - Reduce binary size w/ C++ back-end
+    * [XTENLANG-443] - Implement all standard functions in x10.lang.Math
+    * [XTENLANG-120] - Native layer implementation of java.util.concurrent.atomic.Fence
+
+** Bug
+    * [XTENLANG-238] - Atomic primitive types are not implemented for C++
+    * [XTENLANG-393] - FastArray g++ incomplete type error
+    * [XTENLANG-419] - Rail/ValRal implementation dependent on implementation-specific details of C++ object model
+    * [XTENLANG-420] - Unused variable warnings
 
 For the details of JIRA issues fixed in this release, see
 <URL HERE>
