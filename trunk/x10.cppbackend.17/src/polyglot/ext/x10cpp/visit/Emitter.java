@@ -40,6 +40,7 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
+import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
@@ -226,19 +227,33 @@ public class Emitter {
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
                 type = X10TypeMixin.baseType(type);
 		String name = null;
+		// TODO
+//		if (type instanceof ClosureType) {
+//		    ClosureType ct = (ClosureType) type;
+//		    assert (ct.typeArguments().size() != 0);
+//		    name = "x10aux::Fun";
+//		    String args = "";
+//		    if (ct.returnType().isVoid())
+//		        args += translateType(ct.returnType(), true) + ", ";
+//		    int s = ct.typeArguments().size();
+//		    for (Type t: ct.typeArguments()) {
+//		        args += translateType(t, true); // type arguments are always translated as refs
+//		        if (--s > 0)
+//		            args +=", ";
+//		    }
+//		    name += chevrons(args);
+//		} else
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
 			
 		    if (ct.isAnonymous()) {
-		    	// assert false : "unexpected anonymous type " + ct;
-		    	if (ct.interfaces().size() > 0) {
-		    		return translateType(ct.interfaces().get(0), asRef);
-		    	} else if (ct.superClass() != null) {
-		    		return translateType(ct.interfaces().get(0), asRef);
-		    	} else {
-		    		assert false;
-		    		return translateType(xts.Object(), asRef);
-		    	}
+		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof ClosureType) {
+		            return translateType(ct.interfaces().get(0), asRef);
+		        } else {
+		            assert false : "unexpected anonymous type " + ct;
+		            assert ct.superClass() != null;
+		       	    return translateType(ct.superClass(), asRef);
+		       	}
 		    }
 			else {
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
