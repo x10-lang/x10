@@ -56,6 +56,12 @@
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Fun_0_2.h>
 #include <x10/lang/Fun_0_3.h>
+#include <x10/lang/Fun_0_4.h>
+#include <x10/lang/Fun_0_5.h>
+#include <x10/lang/Fun_0_6.h>
+#include <x10/lang/Fun_0_7.h>
+#include <x10/lang/Fun_0_8.h>
+#include <x10/lang/Fun_0_9.h>
 #include <x10/lang/Iterator.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Object.h>
@@ -70,6 +76,12 @@
 #include <x10/lang/VoidFun_0_1.h>
 #include <x10/lang/VoidFun_0_2.h>
 #include <x10/lang/VoidFun_0_3.h>
+#include <x10/lang/VoidFun_0_4.h>
+#include <x10/lang/VoidFun_0_5.h>
+#include <x10/lang/VoidFun_0_6.h>
+#include <x10/lang/VoidFun_0_7.h>
+#include <x10/lang/VoidFun_0_8.h>
+#include <x10/lang/VoidFun_0_9.h>
 
 #include <x10/runtime/Deque.h>
 #include <x10/runtime/Lock.h>

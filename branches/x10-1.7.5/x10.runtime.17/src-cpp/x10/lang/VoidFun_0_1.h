@@ -22,11 +22,11 @@ namespace x10 {
             virtual void apply(P1 p1) = 0;
         };
 
-        template<class P1> const x10aux::RuntimeType * VoidFun_0_1<P1>::_initRTT() {
+        template<class P1> const x10aux::RuntimeType* VoidFun_0_1<P1>::_initRTT() {
             return x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
         }
 
-        template<class P1> const x10aux::RuntimeType * VoidFun_0_1<P1>::rtt = NULL;
+        template<class P1> const x10aux::RuntimeType* VoidFun_0_1<P1>::rtt = NULL;
     }
 }
 #endif
