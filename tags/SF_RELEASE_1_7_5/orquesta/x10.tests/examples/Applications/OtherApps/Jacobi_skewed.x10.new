@@ -1,0 +1,89 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Jacobi iteration
+ *
+ * At each step of the iteration, replace the value of a cell with
+ * the average of its adjacent cells.
+ * Compute the error at each iteration as the sum of the changes
+ * in value across the whole array. Continue the iteration until
+ * the error falls below a given bound.
+ *
+ * @author vj
+ * @author cvp
+ * @author kemal
+ */
+public class Jacobi_skewed extends x10Test {
+
+	public const N: int = 10;
+	public const epsilon: double = 0.1;
+	public const epsilon2: double = 0.00000001;
+	val R: region = [0..N+1];
+	val RInner: region{rank==1} = [1..N];
+	val D: dist{rank==1} = createDist(R);
+	val DInner: dist = D | RInner;
+	val DBoundary: dist = D - RInner;
+	public const EXPECTED_ITERS: int = 72;
+	public const EXPECTED_ERR: double = 0.0998058359189411;
+
+	val B: Array[double] = new Array[double](D, (var p: point[i]): double => { return DBoundary.contains(p) ? (N-1)/2 : i-1; });
+
+	public def run(): boolean = {
+		var iters: int = 0;
+		var err: double;
+		final val Temp: Array[double]{distribution==this.DInner} = (Array[double]{distribution==this.DInner}) new Array[double](DInner);
+		while (true) {
+			finish ateach (val p: point[i] in DInner) { Temp(i) = (read(i-1)+read(i+1))/2.0; }
+			if ((err = ((B | DInner) - Temp).abs().sum()) < epsilon) break;
+			B.update(Temp);
+			iters++;
+		}
+		System.out.println("Iterations = "+iters+" Error = "+err);
+		return Math.abs(err-EXPECTED_ERR) < epsilon2 && iters == EXPECTED_ITERS;
+	}
+
+	public def read(val i: int): double = {
+		return future(D(i)) { B(i) }.force();
+	}
+
+	public const SKEWED: boolean = true;
+
+	/**
+	 * Create either a blocked or a custom skewed dist
+	 */
+	def createDist(var r: region): dist{rank==1} = {
+		return SKEWED?
+			(dist{rank==1})) createSkewedDist(r.rank(0).high()-1, 2):
+				(dist{rank==1})) distmakeBlock(r);
+	}
+
+	/**
+	 * This creates a custom skewed dist
+	 * where all places get K array elements each,
+	 * except for the last place, which gets
+	 * all the remaining elements
+	 */
+	static def createSkewedDist(val N: int, val K: int): dist = {
+		final val u: dist = distmakeUnique(x10.lang.place.places);
+		final val NP: int = x10.lang.place.MAX_PLACES;
+		if (K*(NP-1) > N+1) throw new Error("Too few array elements");
+		var d0: dist = (Dist.makeConstant([0..(K-1)], u(0)));
+		for (var i: int = 1; i < NP-1; i++) {
+			final val start: int = K*i;
+			final val d1: dist = (Dist.makeConstant([start..(start+K-1)], u(i)));
+			d0 = d0.union(d1);
+		}
+		return d0.union(Dist.makeConstant([Region.makeRange((K*(NP-1)), (N+1))], u(NP-1)));
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Jacobi_skewed().execute();
+	}
+}

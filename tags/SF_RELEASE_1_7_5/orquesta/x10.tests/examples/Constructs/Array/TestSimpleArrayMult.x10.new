@@ -1,0 +1,47 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+public class TestSimpleArrayMult extends x10Test {
+
+	public def run(): boolean = {
+		final val N: int = 99900;
+		var start1: long = System.currentTimeMillis();
+		var e: region{rect} = [1..N];
+		//region r = region.factory.region(new region[]{e, e}); 
+		var d: dist{rect} = Dist.makeConstant(e, here);
+		var regionStop: long = System.currentTimeMillis();
+		var ia: Array[int]{rect} = new Array[int](d);
+		var ib: Array[int]{rect} = new Array[int](d, (var point [i]: point): int => { return i;});
+		var ic: Array[int]{rect} = new Array[int](d, (var p: point): int => {return 2;});
+		var initStop: long = System.currentTimeMillis();
+		for (val p: point in e) {
+			ia(p) = ib(p) * ic(p);
+		}
+		var multStop: long = System.currentTimeMillis();
+		var sum: int = ia.sum();
+		var expectedValue: int = (N * (N+1));
+		//expectedValue = expectedValue * 2;
+		System.out.println("expected vaule:"+expectedValue);
+		chk(sum == expectedValue);
+		
+		var regionTime: long = regionStop = start1;
+		var constructTime: long = initStop - regionStop;
+		var multTime: long = multStop - initStop;
+		System.out.println("Region construction time:"+(regionTime/1000.0));
+		System.out.println("Array construction time :"+(constructTime/1000.0));
+		System.out.println("Multiplication time     :"+(multTime/1000.0));
+		return true;
+	}
+
+	
+    public static def main(var args: Rail[String]): void = {
+    	new TestSimpleArrayMult().execute();
+       
+    }
+  
+}

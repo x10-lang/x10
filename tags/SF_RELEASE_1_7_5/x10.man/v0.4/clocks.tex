@@ -1,0 +1,189 @@
+\section{Clocks}
+
+\X10{}  has a built-in final reference class, {\tt x10.lang.clock} intended
+for repeated quiescence detection of arbitrary, data-dependent
+collection of activities.
+
+Clocks may only be stored in {\em flow} variables, i.e.{} local
+variables and parameter to methods (that are marked with the {\tt
+flow} modifier).  Values received by a method in a {\tt flow} argument
+or stored in a {\tt flow} local variable may not be assigned to fields
+of classes.
+
+Each activity is initiated with zero or more clocks, namely those
+available in its lexically enclosing environment.  Because of the
+condition above, an activity cannot acquire any new clocks during its
+lifetime (except by creating them). Therefore for each activity we can
+statically determine (a superset of) the clocks used by that activity
+through a simple flow analysis.
+
+% {We need to have a cost-model for clocks. Should ensure that this
+% model reflects hierarchical quiescence detection, cf trees of short
+% circuits.)
+
+Two statements use clocks: {\tt now (c) \{S\}} and {\tt next c;},
+where {\tt c} is a clock and {\tt S} a statement.
+
+The statement {\tt now (c) \{S\}} is said to be {\em clocked on {\tt
+c}}. It behaves like {\tt S}. However {\tt c} cannot advance as long
+as {\tt S} is executing. This statement is useful in an activity that
+wishes to execute {\tt S} in the current instant and does not require
+{\tt c} thereafter. If it does wish to access c (or state related to
+c) in subsequent instants, it should use next c.
+
+The statement {\tt next c;} blocks until clock {\tt c} can advance.
+
+An \X10{} computation is said to be {\em quiescent on $c$} if each
+activity that has a reference to $c$ is blocked on {\tt next c;}.
+All activities that do not have a reference to $c$ do not need to
+be quiescent. Note that once the system is quiescent on $c$, it
+will remain quiescent on $c$ forever (unless the system takes some
+action), since no non-blocked activity has a reference to $c$,
+or can acquire a reference to $c$. That is,  quiescence on 
+a clock is a {\em stable property}. 
+
+Once the implementation has detected quiecence on $c$, the system
+resumes all activities blocked on $c$; we say that the clock $c$ {\em
+has advanced}.
+
+The definition of quiescence given above can cause deadlock. Consider
+the situation in which only two activities are running in
+parallel. The first executes {\tt next c; A; next d;} and the other
+exeutes {\tt next d; B; next c;}. Now the configuration is stuck, but
+it is not quiescent on $c$ or $d$. Rather it is quiescent on the
+{\em clock set} $\{c, d\}$.
+
+But note that the the first activity should be thought of as quiescent
+on $c$ {\em and} {\em conditionally quiescent} on $d$. That is, as
+long as the clock $c$ does not advance, this activity should be
+considered quiescent on $d$. Similarly, the second activity is
+quiescent on $d$ and conditionally quiescent on $c$. Further the only
+activities that reference $c$ and $d$ are these two activities. From
+this we can conclude that the system is quiescent on both $c$ and
+$d$. Therefore it makes sense to {\em jointly advance} both clocks $c$
+and $d$. 
+
+More explicitly the rule for joint advancement is as follows: Say that
+an activity is quiescent on a clock set $s$ if it is blocked on some
+clock in $s$. An \X10{} computation is said to be quiescent on $s$ if
+every activity that has a reference to some clock $c \in s$ is blocked
+on $s$.  In such a state the system may simultaneously advance all the
+clocks in $s$, thus releasing all activities blocked on $s$.
+
+Note that the notion of quiescence on a clock set generalizes
+quiescence on a clock and is more strictly more powerful (i.e.{} it
+allows more computations to progress). Indeed the rule ensures that no
+computation may deadlock because it uses clocks.
+
+\subsection{Implementation Notes}
+Clocks may be implemented efficiently with message passing, e.g.{} by
+using short-circuit ideas in \cite{SaraswatPODC87}.  Recall that every
+activity is spawned with references to a fixed number of clocks. Each
+reference should be thought of as a global pointer to a location in
+some place representing the clock. (We shall discuss a further
+optimization below.) Each clock keeps two counters: the total number
+of outstanding references to the clock, and the number of activities
+that are currently suspended on the clock.
+
+When an activity $A$ spawns another activity $B$ that will reference a
+clock $c$ referenced by $A$, $A$ {\em splits} the reference by sending
+a message to the clock. Whenever an activity drops a reference to a
+clock, or suspends on it, it sends a message to the clock. 
+
+The optimization is that the clock can be represented in a distributed
+fashion. Each place keeps a local counter for each clock that is
+referenced by an activity in that place. The global location for the
+clock simply keeps track of the places that have references and that
+are quiescent. This can reduce the inter-place message traffic
+significantly.
+
+\paragraph{Clock set quiescence.}
+We now discuss how quiescence on clock sets may be detected. For this
+it is convenient to assume that are clocks are globally ordered (to
+avoid a ``lord of the rings'' computation).  
+
+Each activity keeps track of the set of clocks it references, together
+with the phase of each clock (an integer). Each clock $c$ tracks 
+\begin{enumerate}
+\item the number $n$ of outstanding references to it, 
+\item its current phase $m$, 
+\item the set $b$ of activities from which it has received a blocking message,
+\item the set $A$ of conditional blocking messages is has received from its activities,
+\item a set of  clock set proposals $q(S_i,Q_i)$ it has received from other clocks,
+
+\end{enumerate}
+
+$b$ of activities from which it has received a blocking message, and a
+set of quiescent clock set proposals $q(S_i,Q_i)$ it has received from
+other clocks, and its current knowledge $p(d)$ of the phase of each
+clock $d$ that it knows about.
+
+and two clock
+phase sets $S$ and $Q$. $S \cup Q$ represents the set of clocks that
+may be in a quiescent set with $c$; $Q$ is further known to be
+quiescent, whereas $S$ is not known to be quiescent.
+
+When an activity quiesces on {\tt next c;} it sends a {\bf Q()}
+message to $c$ and an $E(d,k)$ message to each remaining clock $d$
+(with value $k$) that it references.
+
+A clock {\em advances} itself (see below) on receiving a {\bf Q()}
+message from all activities referencing it. (Single clock rule.)
+
+A clock $c$ with value $k$ drops any message $E_c(S \cup
+\{(c,k')\},Q)$ it receives if $k\not=k'$. If $k
+
+Suppose an activity
+executes {\tt next c;} and has references to the set $s$ of clocks
+(excluding $c$). It sends an {\bf AmQuiescent($s$)} message to $c$
+and a {\bf CondQuiesecent} message to every clock in $s$.
+
+When a clock has received a (conditional) quiescence messages from all
+activities that reference it, it checks to see if the conditional set
+(the set of all clocks it has received in a conditional quiescence
+message, if any) is empty. If so, it advances itself (see below). If
+not it sends a {\bf DepQuiescent(s)} message to the clock $d$
+determined as follows. $s \cup \{d\}$ is the union of all sets
+received in {\bf DepQuiescent} messages together with the clocks
+received in conditional quiescent messages. $d$ is the least clock in
+$s\cup\{d\}$.
+
+A clock is advanced by sending a resume message to all activities that
+have quiesced on it, as well as a {\bf NowQuiescent} message to any
+clock which has sent it a {\bf DepQuiescent} message with an empty
+clock set. If the clock has received {\bf DepQuiescent} messages 
+
+A clock receiving a {\bf NowQuiescent} message from some other clock
+has determined that it is part of a quiescent clock set and 
+advances itself.
+
+\subsection{Usage of clocks}
+
+We allow types to specify clocks, via a clocked{c} modifier, e.g.
+
+  clocked(c) int r;
+
+This declaration asserts that r is accessible (readable/writable) only
+by those statements that are clocked on c. 
+
+The declaration 
+
+  clocked(c) final int r = 1;
+
+asserts additionally that in each clock instant r is final, i.e. the
+value of r can be reset in each time instant (and stays constant in
+that instant).
+
+I expect that most arrays containing application data will be declared
+to be phased final.
+
+We should prolly allow a variable to be clocked by multiple
+clocks.  For instance
+
+  clocked(c,d) final int r = 1;
+
+6/16/2004
+
+Now we should be able to get determinate computation with shared
+memory, if all shared variables are clocked final, and all accesses
+are from clocked statements.

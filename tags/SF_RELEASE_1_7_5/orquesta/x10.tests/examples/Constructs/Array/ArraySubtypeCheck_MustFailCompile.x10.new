@@ -1,0 +1,25 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ */
+public class ArraySubtypeCheck_MustFailCompile extends x10Test {
+	class Sup { }
+	class Sub extends Sup { }
+	
+	public def run(): boolean = {
+		var subarr00: Array[Sub] = new Array[Sub]([0..3]);
+		var suparr00: Array[Sup] = subarr00;
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArraySubtypeCheck_MustFailCompile().execute();
+	}
+}
