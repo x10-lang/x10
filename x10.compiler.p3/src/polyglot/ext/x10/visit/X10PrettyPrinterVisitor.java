@@ -2732,7 +2732,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		            return;
 		        }
 		        else if (ct.superClass() != null) {
-		            printType(ct.interfaces().get(0), flags);
+		            printType(ct.superClass(), flags);
 		            return;
 		        }
 		        else {
