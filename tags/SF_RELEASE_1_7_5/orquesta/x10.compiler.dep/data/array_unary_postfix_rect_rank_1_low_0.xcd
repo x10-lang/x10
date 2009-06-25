@@ -1,2 +1,0 @@
-// SYNOPSIS: #0[#1] op #2=opString
-((#0).getBackingArray()[#1]#2)
