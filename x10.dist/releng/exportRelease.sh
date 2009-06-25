@@ -1,6 +1,8 @@
-#! /bin/bash
+#!/bin/bash
 
 # Dave Grove
+
+svn_command=export
 
 while [ $# != 0 ]; do
 
@@ -19,6 +21,11 @@ while [ $# != 0 ]; do
 	export POLYGLOT_TAG=$2
 	shift
     ;;
+
+    -branch)
+        svn_command=co
+    ;;
+
    esac
    shift
 done
@@ -42,8 +49,6 @@ date
 
 workdir=$HOME/scratch/distribution
 distdir=$workdir/x10-$X10_VERSION
-tarfile=x10-$X10_VERSION.tar.gz
-tarfile2=x10-$X10_VERSION.tar.bz2
 
 echo
 echo cleaning $workdir
@@ -57,7 +62,7 @@ mkdir -p $workdir/x10-$X10_VERSION
 echo
 echo getting polyglot
 cd $workdir/x10-$X10_VERSION
-svn export http://polyglot-compiler.googlecode.com/svn/tags/$POLYGLOT_TAG/polyglot
+svn $svn_command http://polyglot-compiler.googlecode.com/svn/tags/$POLYGLOT_TAG/polyglot
 )
 
 (
@@ -74,7 +79,7 @@ for i in \
 	x10.runtime.17 \
 	x10.tests
 do
-    svn export https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
+    svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i
 done
 )
 
