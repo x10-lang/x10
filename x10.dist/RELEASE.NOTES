@@ -33,7 +33,7 @@ the subsequent releases:
 
 - Garbage collection on Cygwin and AIX
 - Generic virtual methods
-- Exception stack traces on Cygwin and AIX
+- Exception stack traces on Cygwin
 
 Here's a list of known issues with the C++ backend:
 
@@ -61,7 +61,7 @@ Below is a summary of JIRA issues addressed for the X10 1.7.5 release.
     * [XTENLANG-420] - Unused variable warnings
 
 For the details of JIRA issues fixed in this release, see
-<URL HERE>
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/15283
 
 Additional bug fixes have been made throughout the system.
 
