@@ -168,8 +168,11 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		        return new AllBarrierGoal("NewCodeGenBarrier", this) {
 		            @Override
 		            public Goal prereqForJob(Job job) {
-		                if (((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+		                if (!scheduler.commandLineJobs().contains(job) &&
+		                        ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+		                {
 		                    return null;
+		                }
 		                return StaticNestedClassesRemoved(job);
 		            }
 		        };
