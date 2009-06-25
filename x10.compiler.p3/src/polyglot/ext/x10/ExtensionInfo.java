@@ -305,8 +305,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		    return new AllBarrierGoal("CodeGenBarrier", this) {
     		    	@Override
     		    	public Goal prereqForJob(Job job) {
-    		    	    if (((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+    		    	    if (!scheduler.commandLineJobs().contains(job) &&
+    		    	            ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+    		    	    {
     		    	        return null;
+    		    	    }
     		    	    return Serialized(job);
     		    	}
     		    };
