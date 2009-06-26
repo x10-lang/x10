@@ -772,7 +772,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(def.asType().superClass());
         if (superClass != null) {
-            for (Name mname : getMethodNames(n.body().members())) {
+            for (Name mname : getMethodNames(n.body().members(), def.asType().interfaces())) {
                 List<MethodInstance> overriddenOverloads = getOROLMeths(mname, superClass);
                 for (MethodInstance mi : overriddenOverloads) {
                     extractAllClassTypes(mi.returnType(), types, dupes);
@@ -974,7 +974,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return ct;
     }
 
-    private ArrayList<Name> getMethodNames(List<ClassMember> members) {
+    private ArrayList<Name> getMethodNames(List<ClassMember> members, List<Type> interfaces) {
         ArrayList<Name> mnames = new ArrayList<Name>();
         Set<Name> dupes = new HashSet<Name>();
         for (ClassMember member : members) {
@@ -987,6 +987,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (mi.flags().isStatic()) continue;
             dupes.add(mname);
             mnames.add(mname);
+        }
+        for (Type iface : interfaces) {
+            List<MethodInstance> methods = iface.toClass().methods();
+            for (MethodInstance mi : methods) {
+                Name mname = mi.name();
+                if (dupes.contains(mname)) continue;
+                dupes.add(mname);
+                mnames.add(mname);
+            }
         }
         return mnames;
     }
@@ -1052,7 +1061,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // generate proxy methods for an overridden method's superclass overloads
             if (superClass != null) {
                 // first gather a set of all the method names in the current class
-                ArrayList<Name> mnames = getMethodNames(members);
+                ArrayList<Name> mnames = getMethodNames(members, currentClass.interfaces());
 
                 // then, for each one
                 for (Name mname : mnames) {
