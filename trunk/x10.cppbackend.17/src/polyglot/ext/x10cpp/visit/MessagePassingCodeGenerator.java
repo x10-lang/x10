@@ -2215,7 +2215,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 	    String val;
-	    if (n.kind() == IntLit_c.LONG) {
+	    if (n.kind() == X10IntLit_c.ULONG) {
+	        if (n.boundary())
+	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
+	        else if (n.value() < 0)
+	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
+	        else
+	            val = Long.toString(n.value()) + "ull";
+	    } else if (n.kind() == X10IntLit_c.UINT) {
+	        if (n.value() >= 0x80000000L)
+	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
+	        else if (n.boundary())
+	            val = "0x" + Long.toHexString(-n.value()).toUpperCase() + "u";
+	        else
+	            val = Long.toString((int) n.value()) + "u";
+	    } else if (n.kind() == IntLit_c.LONG) {
 	        if (n.boundary())
 	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
 	        else
