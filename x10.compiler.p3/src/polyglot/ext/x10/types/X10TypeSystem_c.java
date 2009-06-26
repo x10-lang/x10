@@ -1055,6 +1055,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
 
     @Override
+    public Flags legalFieldFlags() {
+        return X10Flags.toX10Flags(super.legalFieldFlags()).Property();
+    }
+
+    protected final X10Flags X10_FIELD_FLAGS = (X10Flags) legalFieldFlags();
+
+    @Override
     public Flags legalLocalFlags() {
         return X10Flags.toX10Flags(super.legalLocalFlags()).Shared();
     }
