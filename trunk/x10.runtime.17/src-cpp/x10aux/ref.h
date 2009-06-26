@@ -194,6 +194,10 @@ namespace x10aux {
     template<class T> bool operator==(x10_long l, const ref<T>& _ref) { return false; }
     template<class T> bool operator==(x10_float f, const ref<T>& _ref) { return false; }
     template<class T> bool operator==(x10_double d, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ubyte b, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ushort s, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_uint i, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ulong l, const ref<T>& _ref) { return false; }
     // comparison of a ref with a primitive
     template<class T> bool operator==(const ref<T>& _ref, x10_boolean b) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_byte b) { return false; }
@@ -203,6 +207,10 @@ namespace x10aux {
     template<class T> bool operator==(const ref<T>& _ref, x10_long l) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_float f) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_double d) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ubyte b) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ushort s) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_uint i) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ulong l) { return false; }
 
 } //namespace x10
 

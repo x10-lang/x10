@@ -14,8 +14,71 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "float", "x10.core.BoxedFloat", "x10.types.Type.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
 public final value Float {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Float) < (y:Float): Boolean;
+
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Float) > (y:Float): Boolean;
+
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Float) <= (y:Float): Boolean;
+
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Float) >= (y:Float): Boolean;
     
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((#1) + (#2))")
+    public native static operator (x:Float) + (y:Float): Float;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Float) - (y:Float): Float;
+
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((#1) * (#2))")
+    public native static operator (x:Float) * (y:Float): Float;
+
+    @Native("java", "((#1) / (#2))")
+    @Native("c++",  "((#1) / (#2))")
+    public native static operator (x:Float) / (y:Float): Float;
+
+    @Native("java", "((#1) % (#2))")
+    @Native("c++",  "x10aux::mod(#1, #2)")
+    public native static operator (x:Float) % (y:Float): Float;
+
+    @Native("java", "+(#1)")
+    @Native("c++",  "+(#1)")
+    public native static operator + (x:Float): Float;
+
+    @Native("java", "-(#1)")
+    @Native("c++",  "-(#1)")
+    public native static operator - (x:Float): Float;
+    
+    @Native("java", "((float) (#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static operator (x:Byte): Float;
+
+    @Native("java", "((float) (#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static operator (x:Short): Float;
+
+    @Native("java", "((float) (#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static operator (x:Int): Float;
+
+    @Native("java", "((float) (#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static operator (x:Long): Float;
+    
+    @Native("java", "((float) (#1))")
+    @Native("c++",  "((x10_float) (#1))")
+    public native static operator (x:Double) as Float;
+
+
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f800000)")
     public const POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);

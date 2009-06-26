@@ -171,17 +171,33 @@
 #define NO_PLACE_CHECKS
 #endif
 
+struct _x10_char {
+  unsigned short v;
+  _x10_char() : v(0) { }
+  _x10_char(const char x) : v(x) { }
+  operator char () { return (char) v; }
+};
 
+bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
+bool operator!=(const _x10_char a, _x10_char b) { return a.v != b.v; }
+bool operator>(const _x10_char a, _x10_char b) { return a.v > b.v; }
+bool operator>=(const _x10_char a, _x10_char b) { return a.v >= b.v; }
+bool operator<(const _x10_char a, _x10_char b) { return a.v < b.v; }
+bool operator<=(const _x10_char a, _x10_char b) { return a.v <= b.v; }
 
 typedef bool     x10_boolean;
 typedef int8_t   x10_byte;
-typedef uint16_t x10_char;
+typedef _x10_char x10_char;
 typedef int16_t  x10_short;
 typedef int32_t  x10_int;
 typedef uint32_t x10_unsigned_int;
 typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;
+typedef uint8_t  x10_ubyte;
+typedef uint16_t x10_ushort;
+typedef uint32_t x10_uint;
+typedef uint64_t x10_ulong;
 
 
 // We must use the same mangling rules as the compiler backend uses.

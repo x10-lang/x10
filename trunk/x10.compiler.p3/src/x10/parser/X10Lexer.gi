@@ -110,6 +110,8 @@
     DocComment
     IntegerLiteral
     LongLiteral
+    UnsignedIntegerLiteral
+    UnsignedLongLiteral
     FloatingPointLiteral
     DoubleLiteral
     CharacterLiteral
@@ -244,6 +246,16 @@
     Token ::= LongLiteral
         /.$BeginAction
                     makeToken($_LongLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedIntegerLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedIntegerLiteral);
+          $EndAction
+        ./
+    Token ::= UnsignedLongLiteral
+        /.$BeginAction
+                    makeToken($_UnsignedLongLiteral);
           $EndAction
         ./
     Token ::= FloatingPointLiteral
@@ -553,6 +565,11 @@
                     | '0' LetterXx HexDigits
 
     LongLiteral ::= IntegerLiteral LetterLl
+    
+    UnsignedIntegerLiteral ::= IntegerLiteral LetterUu
+
+    UnsignedLongLiteral -> IntegerLiteral LetterUu LetterLl
+                         | IntegerLiteral LetterLl LetterUu
 
     FloatingPointLiteral -> Decimal LetterFf
                           | Decimal Exponent LetterFf
@@ -646,8 +663,11 @@
     LetterDd -> 'D'
               | 'd'
 
-    LetterLl ->  'L'
+    LetterLl -> 'L'
               | 'l'
+              
+    LetterUu -> 'U'
+              | 'u'
 
     LetterEe -> 'E'
               | 'e'

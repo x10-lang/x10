@@ -72,22 +72,23 @@ public interface Marshal[T] {
                 val b2 = r.read();
                 val b3 = r.read();
                 val b4 = r.read();
-                return (((b1 & 0x03) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f)) as Char;
+                return Char.chr(((b1 & 0x03) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f));
             }
             if ((b1 & 0xf0) == 0xe0) {
                 val b2 = r.read();
                 val b3 = r.read();
-                return (((b1 & 0x1f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f)) as Char;
+                return Char.chr(((b1 & 0x1f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f));
             }
             if ((b1 & 0xe0) == 0xc0) {
                 val b2 = r.read();
-                return (((b1 & 0x1f) << 6) | (b2 & 0x3f)) as Char;
+                return Char.chr(((b1 & 0x1f) << 6) | (b2 & 0x3f));
             }
 //            if ((b1 & 0x80) == 0)
-                return b1 as Char;
+                return Char.chr(b1);
         }
+
         public def write(w: Writer, c: Char): Void throws IOException {
-            val i = c as Int;
+            val i = c.ord();
             if ((i & 0xffffff80) == 0) {
                 w.write(i as Byte);
                 return;

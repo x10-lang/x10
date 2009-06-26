@@ -46,7 +46,7 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
-    int needle = (int)c;
+    int needle = (int)c.v;
     // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
     const char *pos = strchr(haystack, needle);
@@ -88,7 +88,7 @@ static const char *my_strrchr(const char *haystack, int needle, int give_up) {
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
-    int needle = (int)c;
+    int needle = (int)c.v;
     const char *haystack = FMGL(content);
     // TODO: bounds check
     const char *pos = my_strrchr(haystack, needle, i);

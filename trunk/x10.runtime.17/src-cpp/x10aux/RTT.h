@@ -48,6 +48,11 @@ namespace x10aux {
         static const RuntimeType* FloatType;
         static const RuntimeType* LongType;
         static const RuntimeType* DoubleType;
+        static const RuntimeType* UByteType;
+        static const RuntimeType* UShortType;
+        static const RuntimeType* UIntType;
+        static const RuntimeType* ULongType;
+
 
         /**
          * RTT object for x10::lang::Object
@@ -113,6 +118,10 @@ namespace x10aux {
 	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
 	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
 	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() { return x10aux::RuntimeType::UByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() { return x10aux::RuntimeType::UShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() { return x10aux::RuntimeType::UIntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() { return x10aux::RuntimeType::ULongType; }
 
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {

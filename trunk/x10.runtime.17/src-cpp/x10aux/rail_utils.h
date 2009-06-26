@@ -200,6 +200,34 @@ namespace x10aux {
         for (int i = 7; i < length; i++)
             (*rail)[i] = va_arg(init, T);
     }
+    // init elements 7 though length: specialize for x10_ubyte
+    template<> inline void init_rail<x10_ubyte>(AnyRail<x10_ubyte> *rail,
+                                               x10_int length,
+                                               va_list init) {
+        for (int i = 7; i < length; i++)
+            (*rail)[i] = (x10_ubyte)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_ushort
+    template<> inline void init_rail<x10_ushort>(AnyRail<x10_ushort> *rail,
+                                               x10_int length,
+                                               va_list init) {
+        for (int i = 7; i < length; i++)
+            (*rail)[i] = (x10_ushort)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_uint
+    template<> inline void init_rail<x10_uint>(AnyRail<x10_uint> *rail,
+                                               x10_int length,
+                                               va_list init) {
+        for (int i = 7; i < length; i++)
+            (*rail)[i] = (x10_uint)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_ulong
+    template<> inline void init_rail<x10_ulong>(AnyRail<x10_ulong> *rail,
+                                               x10_int length,
+                                               va_list init) {
+        for (int i = 7; i < length; i++)
+            (*rail)[i] = (x10_ulong)va_arg(init, int);
+    }
     // init elements 7 though length: specialize for x10_byte
     template<> inline void init_rail<x10_byte>(AnyRail<x10_byte> *rail,
                                                x10_int length,
@@ -212,7 +240,7 @@ namespace x10aux {
                                                x10_int length,
                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_char)va_arg(init, int);
+            (*rail)[i] = (x10_char) (char) va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_short
     template<> inline void init_rail<x10_short>(AnyRail<x10_short> *rail,

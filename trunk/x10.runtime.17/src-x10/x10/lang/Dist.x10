@@ -53,14 +53,14 @@ public abstract value class Dist(
      * every point in the region to here.
      */
 
-    public static def makeConstant(r: Region): Dist(r.rank) = BaseDist.makeConstant1(r);
+    public static def makeConstant(r: Region): Dist(r) = BaseDist.makeConstant1(r);
 
     /**
      * Returns a distribution over the specified region that maps
      * every point in the region to here.
      */
 
-    public static def make(r: Region): Dist(r.rank) = makeConstant(r);
+    public static def make(r: Region): Dist(r) = makeConstant(r);
 
     /**
      * Returns a distribution over the specified region that varies in
@@ -68,7 +68,7 @@ public abstract value class Dist(
      * coordinate along that axis to place i%Place.NUM_PLACES.
      */
 
-    public static def makeCyclic(r: Region, axis: int): Dist(r.rank)
+    public static def makeCyclic(r: Region, axis: int): Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, 1);
 
     /**
@@ -78,7 +78,7 @@ public abstract value class Dist(
      * successive blocks to successive places.
      */
 
-    public static def makeBlock(r: Region, axis: int): Dist(r.rank) {
+    public static def makeBlock(r: Region, axis: int): Dist(r) {
         val n = r.max()(axis) - r.min()(axis) + 1;
         val bs = (n + Place.MAX_PLACES - 1) / Place.MAX_PLACES;
         return BaseDist.makeBlockCyclic1(r, axis, bs);
@@ -91,9 +91,8 @@ public abstract value class Dist(
      * block i to place i%Place.MAX_PLACES.
      */
 
-    public static def makeBlockCyclic(r: Region, axis: int, blockSize: int): Dist(r.rank)
+    public static def makeBlockCyclic(r: Region, axis: int, blockSize: int): Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, blockSize);
-
 
     //
     // factories - place is a parameter
@@ -122,7 +121,7 @@ public abstract value class Dist(
      * every point in the region to the specified place.
      */
 
-    public static def makeConstant(r: Region, p: Place): Dist(r.rank)
+    public static def makeConstant(r: Region, p: Place): Dist(r)
         = BaseDist.makeConstant1(r, p);
 
     /**
@@ -131,7 +130,7 @@ public abstract value class Dist(
      * coordinate along that axis to place ps(i%ps.length).
      */
 
-    public static def makeCyclic(r: Region, axis: int, ps: Set[Place]): Dist(r.rank)
+    public static def makeCyclic(r: Region, axis: int, ps: Set[Place]): Dist(r)
         = BaseDist.makeCyclic1(r, axis, ps);
 
     /**
@@ -141,7 +140,7 @@ public abstract value class Dist(
      * blocks to successive places in ps.
      */
 
-    public static def makeBlock(r: Region, axis: int, ps: Set[Place]): Dist(r.rank)
+    public static def makeBlock(r: Region, axis: int, ps: Set[Place]): Dist(r)
         = BaseDist.makeBlock1(r, axis, ps);
 
     /**
@@ -320,11 +319,11 @@ public abstract value class Dist(
     // ops
     //
 
-    public def $bar(r: Region(this.rank)): Dist(this.rank) = restriction(r);
-    public def $bar(p: Place): Dist(rank) = restriction(p);
-    public def $and(d: Dist(rank)): Dist(rank) = intersection(d);
-    public def $or(d: Dist(rank)): Dist(rank) = union(d);
-    public def $minus(d: Dist(rank)): Dist(rank) = difference(d);
+    public operator this | (r: Region(this.rank)): Dist(this.rank) = restriction(r);
+    public operator this | (p: Place): Dist(rank) = restriction(p);
+    public operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
+    public operator this || (d: Dist(rank)): Dist(rank) = union(d);
+    public operator this - (d: Dist(rank)): Dist(rank) = difference(d);
 
 
     //

@@ -1015,14 +1015,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
-        x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();
+        x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic().Global();
         return x;
 
     }
 
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
-        x = x.Safe().Local().NonBlocking().Sequential().Property().Pure().Atomic();
+        x = x.Safe().Local().NonBlocking().Sequential().Property().Pure().Atomic().Global();
         return x;
     }
 
@@ -1055,18 +1055,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
 
     @Override
-    public Flags legalFieldFlags() {
-        return X10Flags.toX10Flags(super.legalFieldFlags()).Property();
-    }
-
-    protected final X10Flags X10_FIELD_FLAGS = (X10Flags) legalFieldFlags();
-
-    @Override
     public Flags legalLocalFlags() {
         return X10Flags.toX10Flags(super.legalLocalFlags()).Shared();
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
+    
+    @Override
+    public Flags legalFieldFlags() {
+        return X10Flags.toX10Flags(super.legalFieldFlags()).Property();
+    }
+    
+    protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
 
     @Override
     public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
@@ -1534,46 +1534,38 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new X10FieldDef_c(this, pos, container, flags, type, name, thisVar);
     }
 
-    public static final boolean SUPPORT_UNSIGNED = false;
-
     public boolean isUByte(Type t) {
-        if (!SUPPORT_UNSIGNED)
-            return false;
         return isSubtype(t, UByte(), emptyContext());
     }
 
     public boolean isUShort(Type t) {
-        if (!SUPPORT_UNSIGNED)
-            return false;
         return isSubtype(t, UShort(), emptyContext());
     }
 
     public boolean isUInt(Type t) {
-        if (!SUPPORT_UNSIGNED)
-            return false;
         return isSubtype(t, UInt(), emptyContext());
     }
 
     public boolean isULong(Type t) {
-        if (!SUPPORT_UNSIGNED)
-            return false;
         return isSubtype(t, ULong(), emptyContext());
     }
 
     public boolean isNumeric(Type t) {
+        if (isChar(t))
+            return false;
         return super.isNumeric(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
     public boolean isIntOrLess(Type t) {
+        if (isChar(t))
+            return false;
         return super.isIntOrLess(t) || isUByte(t) || isUShort(t);
     }
 
     public boolean isLongOrLess(Type t) {
+        if (isChar(t))
+            return false;
         return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t);
-    }
-
-    public boolean isImplicitNumericCastValid(Type fromType, Type toType, Context context) {
-        return env(context).isImplicitNumericCastValid(fromType, toType);
     }
 
     public Type expandMacros(Type t) {
@@ -1615,150 +1607,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return true;
     }
 
-    /**
-     * Return true if there is a conversion from fromType to toType. Returns
-     * false if the two types are not both value types.
-     */
-    public boolean isPrimitiveConversionValid(Type fromType, Type toType, Context context) {
-        Type baseType1 = X10TypeMixin.baseType(fromType);
-        XConstraint c1 = X10TypeMixin.realX(fromType);
-        Type baseType2 = X10TypeMixin.baseType(toType);
-        XConstraint c2 = X10TypeMixin.realX(toType);
-
-        if (c1 != null && c1.valid()) {
-            c1 = null;
-        }
-        if (c2 != null && c2.valid()) {
-            c2 = null;
-        }
-
-        if (!entails(c1, c2, (X10Context) context, null))
-            return false;
-
-        if (isVoid(baseType1))
-            return false;
-        if (isVoid(baseType2))
-            return false;
-
-        if (isBoolean(baseType1))
-            return isBoolean(baseType2);
-
-        // Allow assignment if the fromType's value can be represented as a
-        // toType
-        if (c1 != null && isNumeric(baseType1) && isNumeric(baseType2)) {
-            XVar self = X10TypeMixin.selfVar(c1);
-            if (self instanceof XLit) {
-                Object val = ((XLit) self).val();
-                if (numericConversionValid(baseType2, val, context)) {
-                    return true;
-                }
-            }
-        }
-
-        if (isDouble(baseType1))
-            return isDouble(baseType2);
-        if (isFloat(baseType1))
-            return isFloat(baseType2) || isDouble(baseType2);
-
-        // Do not allow conversions to change signedness.
-        if (isLong(baseType1))
-            return isLong(baseType2) || isDouble(baseType2);
-        if (isInt(baseType1))
-            return isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-        if (isShort(baseType1))
-            return isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-        if (isByte(baseType1))
-            return isByte(baseType2) || isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-
-        if (SUPPORT_UNSIGNED) {
-            if (isULong(baseType1))
-                return isULong(baseType2) || isDouble(baseType2);
-            if (isUInt(baseType1))
-                return isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-            if (isUShort(baseType1))
-                return isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-            if (isUByte(baseType1))
-                return isUByte(baseType2) || isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
-        }
-
-        // Note: cannot implicitly coerce a value type to a superclass.
-        return false;
-    }
-
     @Override
     public boolean numericConversionValid(Type t, java.lang.Object value, Context context) {
-        assert_(t);
-
-        if (value == null)
-            return false;
-
-        if (value instanceof Float || value instanceof Double)
-            return false;
-
-        long v;
-
-        if (value instanceof Number) {
-            v = ((Number) value).longValue();
-        }
-        else if (value instanceof Character) {
-            v = ((Character) value).charValue();
-        }
-        else {
-            return false;
-        }
-
-        Type base = X10TypeMixin.baseType(t);
-
-        boolean fits = false;
-
-        if (SUPPORT_UNSIGNED) {
-            // For now, all constant values are signed, so conversions are only
-            // allowed for half the range.
-            // TODO: add unsigned kinds to IntLit, support unsigned
-            // Expr.constantValue()
-            if (isULong(base))
-                fits = 0L <= v && v <= Long.MAX_VALUE;
-            if (isUInt(base))
-                fits = 0L <= v && v <= Integer.MAX_VALUE;
-            if (isUShort(base))
-                fits = 0L <= v && v <= Short.MAX_VALUE;
-            if (isUByte(base))
-                fits = 0L <= v && v <= Byte.MAX_VALUE;
-        }
-
-        if (base.isDouble())
-            fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
-        // fits = v == (long) ((double) v);
-        if (base.isFloat())
-            fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
-        // fits = v == (long) ((float) v);
-        if (base.isLong())
-            fits = Long.MIN_VALUE <= v && v <= Long.MAX_VALUE;
-        if (base.isInt())
-            fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
-        if (base.isChar())
-            fits = Character.MIN_VALUE <= v && v <= Character.MAX_VALUE;
-        if (base.isShort())
-            fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
-        if (base.isByte())
-            fits = Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE;
-
-        if (!fits)
-            return false;
-
-        // Check if adding self==value makes the constraint on t inconsistent.
-
-        XLit val = XTerms.makeLit(value);
-
-        try {
-            XConstraint c = new XConstraint_c();
-            c.addSelfBinding(val);
-            return entailsClause(c, X10TypeMixin.realX(t), (X10Context) context, t);
-        }
-        catch (XFailure f) {
-            // Adding binding makes real clause inconsistent.
-            return false;
-        }
+        return env(context).numericConversionValid(t, value);
+    }
+    
+    public boolean numericConversionValid(Type t, Type fromType, java.lang.Object value, Context context) {
+        return env(context).numericConversionValid(t, fromType, value);
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2, Context context) {
@@ -1997,7 +1852,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         flagsForName.put("property", X10Flags.PROPERTY);
         flagsForName.put("pure", X10Flags.PURE);
         flagsForName.put("atomic", X10Flags.ATOMIC);
-
+        flagsForName.put("global", X10Flags.GLOBAL);
+        flagsForName.put("extern", X10Flags.EXTERN);
+        flagsForName.put("value", X10Flags.VALUE);
+        flagsForName.put("reference", X10Flags.REFERENCE);
+        flagsForName.put("mutable", X10Flags.MUTABLE);
+        flagsForName.put("shared", X10Flags.SHARED);
     }
 
     /** All flags allowed for a constructor. */
@@ -2077,16 +1937,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         if (isLong(t1) || isLong(t2))
             return Long();
 
-        if (SUPPORT_UNSIGNED)
-            if (isULong(t1) || isULong(t2))
-                return Long();
+        if (isULong(t1) || isULong(t2))
+            return Long();
 
         if (isInt(t1) || isInt(t2))
             return Int();
 
-        if (SUPPORT_UNSIGNED)
-            if (isUInt(t1) || isUInt(t2))
-                return Int();
+        if (isUInt(t1) || isUInt(t2))
+            return Int();
 
         if (isShort(t1) || isShort(t2))
             return Int();
@@ -2097,28 +1955,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         if (isByte(t1) || isByte(t2))
             return Int();
 	        
-        if (SUPPORT_UNSIGNED)
-            if (isUShort(t1) || isUShort(t2))
-                return Int();
+        if (isUShort(t1) || isUShort(t2))
+            return Int();
 
-        if (SUPPORT_UNSIGNED)
-            if (isUByte(t1) || isUByte(t2))
-                return Int();
+        if (isUByte(t1) || isUByte(t2))
+            return Int();
 
         throw new SemanticException("Cannot promote non-numeric type " + t1);
     }
 
     public Type promote2(Type t) throws SemanticException {
-        if (isUByte(t) || isUShort(t))
-            return UInt();
-
-        if (isUInt(t))
+        if (isUByte(t) || isUShort(t) || isUInt(t))
             return UInt();
 
         if (isULong(t))
             return ULong();
 
-        if (isByte(t) || isChar(t) || isShort(t) || isInt(t))
+        if (isByte(t) || isShort(t) || isInt(t))
             return Int();
 
         if (isLong(t))

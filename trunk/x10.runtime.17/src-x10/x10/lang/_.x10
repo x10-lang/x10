@@ -11,7 +11,7 @@ public value _ {
     public static type long = Long;
     public static type float = Float;
     public static type double = Double;
-    
+
     public static type boolean(b:Boolean) = Boolean{self==b};
     public static type byte(b:Byte) = Byte{self==b};
     public static type short(b:Short) = Short{self==b};
@@ -32,24 +32,28 @@ public value _ {
     public static type Double(b:Double) = Double{self==b};
     public static type String(s:String) = String{self==s};
    
-/*
-    // UNCOMMENT IF UNSIGNED INTEGERS SUPPORTED
-    public static type ubyte = UByte;
-    public static type ushort = UShort;
-    public static type uint = UInt;
-    public static type ulong = ULong;
-     
-    public static type Nat = uint;
-
-    public static type nat8 = ubyte;
-    public static type nat16 = ushort;
-    public static type nat32 = uint;
-    public static type nat64 = ulong;
-*/
-
     // COMMENT OUT IF UNSIGNED INTEGERS SUPPORTED
     public static type Nat = Int;
     public static type nat = int;
+
+    public static type signed = Int;
+    public static type unsigned = UInt;
+
+    public static type ubyte = UByte;
+    public static type uint8 = UByte;
+    public static type nat8 = UByte;
+
+    public static type ushort = UShort;
+    public static type uint16 = UShort;
+    public static type nat16 = UShort;
+
+    public static type uint = UInt;
+    public static type uint32 = UInt;
+    public static type nat32 = UInt;
+
+    public static type ulong = ULong;
+    public static type uint64 = ULong;
+    public static type nat64 = ULong;
  
     public static type int8 = byte;
     public static type int16 = short;

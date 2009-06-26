@@ -11,133 +11,135 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
+@NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Types.USHORT")
 //                  v-- when used
-@NativeRep("c++", "x10_int", "x10_int", null)
+@NativeRep("c++", "uint16_t", "uint16_t", null)
 //                            ^ when constructed
-public final value Int {
-    @Native("java", "((#1) < (#2))")
+public final value UShort {
+    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+
+    @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Int) < (y:Int): Boolean;
+    public native static operator (x:UShort) < (y:UShort): Boolean;
 
-    @Native("java", "((#1) > (#2))")
+    @Native("java", "x10.core.Unsigned.gt(#1, #2)")
     @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Int) > (y:Int): Boolean;
+    public native static operator (x:UShort) > (y:UShort): Boolean;
 
-    @Native("java", "((#1) <= (#2))")
+    @Native("java", "x10.core.Unsigned.le(#1, #2)")
     @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Int) <= (y:Int): Boolean;
+    public native static operator (x:UShort) <= (y:UShort): Boolean;
 
-    @Native("java", "((#1) >= (#2))")
+    @Native("java", "x10.core.Unsigned.ge(#1, #2)")
     @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Int) >= (y:Int): Boolean;
+    public native static operator (x:UShort) >= (y:UShort): Boolean;
 
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((#1) + (#2))")
-    public native static operator (x:Int) + (y:Int): Int;
+    public native static operator (x:UShort) + (y:UShort): UInt;
 
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:Int) - (y:Int): Int;
+    public native static operator (x:UShort) - (y:UShort): Int;
 
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((#1) * (#2))")
-    public native static operator (x:Int) * (y:Int): Int;
+    public native static operator (x:UShort) * (y:UShort): UInt;
 
-    @Native("java", "((#1) / (#2))")
+    @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((#1) / (#2))")
-    public native static operator (x:Int) / (y:Int): Int;
+    public native static operator (x:UShort) / (y:UShort): UInt;
 
-    @Native("java", "((#1) % (#2))")
+    @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((#1) % (#2))")
-    public native static operator (x:Int) % (y:Int): Int;
+    public native static operator (x:UShort) % (y:UShort): UInt;
     
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((#1) & (#2))")
-    public native static operator (x:Int) & (y:Int): Int;
+    public native static operator (x:UShort) & (y:UShort): UInt;
     
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((#1) ^ (#2))")
-    public native static operator (x:Int) ^ (y:Int): Int;
+    public native static operator (x:UShort) ^ (y:UShort): UInt;
     
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((#1) | (#2))")
-    public native static operator (x:Int) | (y:Int): Int;
+    public native static operator (x:UShort) | (y:UShort): UInt;
     
     @Native("java", "((#1) << (#2))")
     @Native("c++",  "((#1) << (#2))")
-    public native static operator (x:Int) << (y:Int): Int;
+    public native static operator (x:UShort) << (y:Int): UInt;
     
-    @Native("java", "((#1) >> (#2))")
+    @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((#1) >> (#2))")
-    public native static operator (x:Int) >> (y:Int): Int;
+    public native static operator (x:UShort) >> (y:Int): UInt;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
-    public native static operator (x:Int) >>> (y:Int): Int;
-    
-    @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
-    public native static operator (x:Int) << (y:Long): Int;
-    
-    @Native("java", "((#1) >> (#2))")
     @Native("c++",  "((#1) >> (#2))")
-    public native static operator (x:Int) >> (y:Long): Int;
-
-    @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
-    public native static operator (x:Int) >>> (y:Long): Int;
+    public native static operator (x:UShort) >>> (y:Int): UInt;
     
     @Native("java", "+(#1)")
     @Native("c++",  "+(#1)")
-    public native static operator + (x:Int): Int;
+    public native static operator + (x:UShort): UInt;
     
     @Native("java", "-(#1)")
     @Native("c++",  "-(#1)")
-    public native static operator - (x:Int): Int;
+    public native static operator - (x:UShort): Int;
     
     @Native("java", "~(#1)")
     @Native("c++",  "~(#1)")
-    public native static operator ~ (x:Int): Int;
+    public native static operator ~ (x:UShort): UInt;
     
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:Byte): Int;
+    @Native("java", "((short) ((#1) & 0xff))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:UByte): UShort;
 
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:Short): Int;
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:UInt) as UShort;
 
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:Long) as Int;
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:ULong) as UShort;
     
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:Float) as Int;
-    
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:Double) as Int;
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Byte) as UShort;
 
-    @Native("java", "((int) (#1))")
-    @Native("c++",  "((x10_int) (#1))")
-    public native static operator (x:UInt) as Int;
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Short) as UShort;
+
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Int) as UShort;
+
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Long) as UShort;
+    
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Float) as UShort;
+    
+    @Native("java", "((short) (#1))")
+    @Native("c++",  "((uint16_t) (#1))")
+    public native static operator (x:Double) as UShort;
     
 
-    @Native("java", "java.lang.Integer.MIN_VALUE")
-    @Native("c++", "(x10_int)0x80000000")
-    public const MIN_VALUE = 0x80000000;
+    @Native("java", "0")
+    @Native("c++", "0U")
+    public const MIN_VALUE = 0;
     
-    @Native("java", "java.lang.Integer.MAX_VALUE")
-    @Native("c++", "(x10_int)0x7fffffff")
-    public const MAX_VALUE = 0x7fffffff;
+    @Native("java", "0xffff")
+    @Native("c++", "0xffffU")
+    public const MAX_VALUE = 0xffff;
 
-    @Native("java", "java.lang.Integer.toString(#0)")
+    @Native("java", "java.lang.Integer.toString(#0 & 0xffff)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
-    @Native("java", "java.lang.Integer.toString(#0, #1)")
+    @Native("java", "java.lang.Integer.toString(#0 & 0xffff, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
     public native def toString(radix: Int): String;
     
@@ -183,21 +185,21 @@ public final value Int {
 
     @Native("java", "java.lang.Integer.rotateLeft(#0)")
     @Native("c++", "x10aux::int_utils::rotateLeft(#0)")
-    public native def rotateLeft(): Int;
+    public native def rotateLeft(): UShort;
     
     @Native("java", "java.lang.Integer.rotateRight(#0)")
     @Native("c++", "x10aux::int_utils::rotateRight(#0)")
-    public native def rotateRight(): Int;
+    public native def rotateRight(): UShort;
     
     @Native("java", "java.lang.Integer.reverse(#0)")
     @Native("c++", "x10aux::int_utils::reverse(#0)")
-    public native def reverse(): Int;
+    public native def reverse(): UShort;
     
-    @Native("java", "java.lang.Integer.signum(#0)")
-    @Native("c++", "x10aux::int_utils::signum(#0)")
+    @Native("java", "((#0==0) ? 0 : 1)")
+    @Native("c++",  "((#0==0U) ? 0 : 1)")
     public native def signum(): Int;
     
     @Native("java", "java.lang.Integer.reverseBytes(#0)")
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
-    public native def reverseBytes(): Int;
+    public native def reverseBytes(): UShort;
 }

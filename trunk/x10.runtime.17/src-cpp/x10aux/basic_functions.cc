@@ -90,7 +90,7 @@ ref<String> x10aux::to_string(bool v) {
 }   
     
 ref<String> x10aux::to_string(x10_char v) {
-    char v_[] = {(char)v,'\0'};
+    char v_[] = {(char)v.v,'\0'};
     return String::Lit(v_);
 }
 

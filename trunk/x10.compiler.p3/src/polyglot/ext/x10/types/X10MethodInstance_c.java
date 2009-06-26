@@ -94,7 +94,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         Flags flags2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).flags() : Flags.NONE;
 
         // A static method in a subclass is always more specific.
-        // Note: this rule differs from Java but avoids an anomaly with $convert methods.
+        // Note: this rule differs from Java but avoids an anomaly with conversion methods.
         if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
             return true;
         }

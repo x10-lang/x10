@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Catch;
 import polyglot.ast.Eval;
@@ -25,16 +26,15 @@ import polyglot.ast.IntLit;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.StringLit;
 import polyglot.ast.Stmt;
-import polyglot.ast.Try;
+import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.AtExpr;
-import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.AtStmt;
+import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.Await;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Finish;
@@ -45,16 +45,15 @@ import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.X10Call_c;
-import polyglot.ext.x10.ast.X10Cast;
-import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call;
+import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10Cast;
+import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.ClosureDef;
-import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -63,7 +62,6 @@ import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
-import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -108,7 +106,8 @@ public class Desugarer extends ContextVisitor {
     private static final Name STOP_FINISH = Name.make("stopFinish");
     private static final Name APPLY = Name.make("apply");
     private static final Name SET = Name.make("set");
-    private static final Name CONVERT = Name.make("$convert");
+    private static final Name CONVERT = X10Cast_c.operator_as;
+    private static final Name CONVERT_IMPLICITLY = X10Cast_c.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
 
     public Node override(Node parent, Node n) {
@@ -425,10 +424,10 @@ public class Desugarer extends ContextVisitor {
             }
             Type intRail = xts.ValRail(xts.Int());
             MethodInstance cnv = xts.findMethod(fType,
-                    xts.MethodMatcher(fType, CONVERT, Collections.singletonList(intRail), context));
+                    xts.MethodMatcher(fType, CONVERT_IMPLICITLY, Collections.singletonList(intRail), context));
             assert (cnv.flags().isStatic());
             index =
-                xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), xnf.Id(bpos, CONVERT),
+                xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), xnf.Id(bpos, CONVERT_IMPLICITLY),
                         xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType);
         }
         Expr place = xnf.Call(bpos,
@@ -445,36 +444,13 @@ public class Desugarer extends ContextVisitor {
 
     private Expr visitBinary(X10Binary_c n) throws SemanticException {
         Position pos = n.position();
-
-        Expr left = n.left();
-        Type l = left.type();
-        Expr right = n.right();
-        Type r = right.type();
-        X10Binary_c.Operator op = n.operator();
-
-        if (op == X10Binary_c.EQ || op == X10Binary_c.NE) { // TODO
-            return n;
-        }
-        if (l.isNumeric() && r.isNumeric()) { // TODO: get rid of this special case by defining native operators
-            return n;
-        }
-        if (l.isBoolean() && r.isBoolean()) { // TODO: get rid of this special case by defining native operators
-            return n;
-        }
-        if (op == X10Binary_c.ADD && (l.isSubtype(xts.String(), context) || r.isSubtype(xts.String(), context))) { // TODO: get rid of this special case by defining native operators
-            return n;
+        
+        Call c = X10Binary_c.desugarBinaryOp(n, this);
+        if (c != null) {
+            return c;
         }
 
-        boolean inv = n.invert();
-        Name methodName = inv ? X10Binary_c.invBinaryMethodName(op) : X10Binary_c.binaryMethodName(op);
-        assert (methodName != null) : ("No method to implement at " + pos);
-        Expr receiver = inv ? right : left;
-        Expr arg = inv ? left : right;
-        List<Type> types = Arrays.asList(new Type[] { arg.type() });
-        MethodInstance mi = xts.findMethod(receiver.type(),
-                xts.MethodMatcher(receiver.type(), methodName, types, context));
-        return xnf.Call(pos, receiver, xnf.Id(pos, methodName),
-                arg).methodInstance(mi).type(mi.returnType());
+        return n;
     }
 
     /**
@@ -554,20 +530,13 @@ public class Desugarer extends ContextVisitor {
         if (op == X10Unary_c.POST_DEC || op == X10Unary_c.POST_INC) {
             return unaryPost(pos, op, n.expr());
         }
-        if (l.isNumeric()) { // TODO: get rid of this special case by defining native operators
-            return n;
-        }
-        if (l.isBoolean()) { // TODO: get rid of this special case by defining native operators
-            return n;
-        }
 
-        Name methodName = X10Unary_c.unaryMethodName(op);
-        assert (methodName != null) : ("No method to implement at " + pos);
-        Expr receiver = left;
-        List<Type> types = Arrays.asList(new Type[] { });
-        MethodInstance mi = xts.findMethod(receiver.type(),
-                xts.MethodMatcher(receiver.type(), methodName, types, context));
-        return xnf.Call(pos, receiver, xnf.Id(pos, methodName)).methodInstance(mi).type(mi.returnType());
+        Call c = X10Unary_c.desugarUnaryOp(n, this);
+        if (c != null) {
+            return c;
+        }
+        
+        return n;
     }
 
     private Stmt visitEval(Eval n) throws SemanticException {
@@ -599,9 +568,7 @@ public class Desugarer extends ContextVisitor {
         X10Binary_c.Operator op = SettableAssign_c.binaryOp(n.operator());
         X10Call left = (X10Call) n.left(xnf);
         MethodInstance ami = left.methodInstance();
-if (ami == null)
-    System.out.print("");
-List<Formal> parms = new ArrayList<Formal>();
+        List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
         LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(mi.container()), xn);
         Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),

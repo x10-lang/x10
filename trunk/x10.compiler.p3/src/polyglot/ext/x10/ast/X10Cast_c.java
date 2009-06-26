@@ -9,62 +9,33 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 
-import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.Cast;
 import polyglot.ast.Cast_c;
-import polyglot.ast.ClassBody;
-import polyglot.ast.ClassMember;
-import polyglot.ast.ConstructorCall;
-import polyglot.ast.Eval;
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
-import polyglot.ast.Local;
-import polyglot.ast.LocalDecl;
-import polyglot.ast.MethodDecl;
-import polyglot.ast.New;
-import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
-import polyglot.ast.Special;
-import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10Def;
-import polyglot.ext.x10.types.X10Flags;
-import polyglot.ext.x10.types.X10LocalDef;
-import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
-import polyglot.types.Flags;
-import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ObjectType;
-import polyglot.types.Package;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeCheckPreparer;
-import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 
 /**
@@ -85,6 +56,9 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         this.convert = convert;
     }
 
+    public static final Name operator_as = Name.make("operator_as");
+    public static final Name implicit_operator_as = Name.make("implicit_operator_as");
+    
     public ConversionType conversionType() {
         return convert;
     }
@@ -170,11 +144,9 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                         ObjectType o = (ObjectType) t;
                         if (o.superClass() != null) {
                             l.add(o.superClass());
-                            //                        addSuperTypes(l, o.superClass());
                         }
                         for (Type ti : o.interfaces()) {
                             l.add(ti);
-                            //                        addSuperTypes(l, ti);
                         }
                     }
             }
@@ -262,34 +234,27 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 n.convert = ConversionType.CHECKED;
                 return n.type(toType);
             }
-
-            if (ts.isBoolean(fromType) && ts.isBoolean(toType) ||
-                ts.isNumeric(fromType) && ts.isNumeric(toType) ||
-                ts.isChar(fromType) && ts.isChar(toType)) {
-                if (cFrom == null || cTo == null || ts.clausesConsistent(cFrom, cTo, context)) {
-                    X10Cast_c n = (X10Cast_c) copy();
-                    n.convert = ConversionType.PRIMITIVE;
-                    return n.type(toType);
-                }
-            }
-        }
-        else {
-            if (ts.isNumeric(fromType) && ts.isNumeric(toType)) {
-                if (ts.isImplicitNumericCastValid(fromType, toType, context)) {
-                    X10Cast_c n = (X10Cast_c) copy();
-                    n.convert = ConversionType.PRIMITIVE;
-                    return n.type(toType);
-                }
-            }
         }
 
         {
             MethodInstance converter = null;
 
             // Can convert if there is a static method toType.$convert(fromType)
+            if (converter == null && convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
+                try {
+                    MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, operator_as, Collections.singletonList(fromType), context));
+                    Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+                    if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+                        converter = mi;
+                    }
+                }
+                catch (SemanticException e) {
+                }
+            }
+            
             if (converter == null) {
                 try {
-                    MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), context));
+                    MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, implicit_operator_as, Collections.singletonList(fromType), context));
                     Type baseMiType = X10TypeMixin.baseType(mi.returnType());
                     if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
                         converter = mi;
