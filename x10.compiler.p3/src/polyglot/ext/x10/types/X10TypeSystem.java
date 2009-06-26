@@ -307,9 +307,6 @@ public interface X10TypeSystem extends TypeSystem {
     
     Type expandMacros(Type arg);
 
-    /** Return true if fromType and toType are primitive types and there is a conversion from one to the other. */
-    boolean isPrimitiveConversionValid(Type fromType, Type toType, Context context);
-
 //    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
 //    Type coerceType(Type fromType, Type toType);
 
@@ -329,8 +326,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isParameterType(Type toType);
 
-    boolean isImplicitNumericCastValid(Type fromType, Type toType, Context context);
-
     Type Region();
 
     Type Iterator(Type formalType);
@@ -338,5 +333,12 @@ public interface X10TypeSystem extends TypeSystem {
     X10FieldDef fieldDef(Position pos,
             Ref<? extends StructType> container, Flags flags,
             Ref<? extends Type> type, Name name, XRoot thisVar);
+
+    boolean isUnsigned(Type r);
+
+    boolean isSigned(Type l);
+
+    boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
+    
 
 }

@@ -153,6 +153,7 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10IntLit_c;
 import polyglot.ext.x10.ast.X10Local_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.X10NodeFactory;
@@ -3145,7 +3146,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr expr = n.expr();
 		if (operator == Unary_c.NEG && expr instanceof IntLit) {
 		    IntLit_c lit = (IntLit_c) expr;
-		    n.printSubExpr(lit.value(-lit.longValue()), true, sw, tr);
+		    IntLit.Kind kind = (lit.kind() == X10IntLit_c.UINT) ? IntLit.INT : ((lit.kind() == X10IntLit_c.ULONG) ? IntLit.LONG : lit.kind());
+		    n.printSubExpr(lit.value(-lit.longValue()).kind(kind), true, sw, tr);
 		}
 		else if (operator.isPrefix()) {
 			sw.write(operator.toString());

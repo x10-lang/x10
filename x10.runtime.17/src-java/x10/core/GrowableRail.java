@@ -36,8 +36,9 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	
 	public T set(T v, Integer i) {
 		grow(i+1);
-		assert i < size();
-		assert i < length;
+                assert i >= 0 : i + " < 0";
+                assert i < length: i + " >= length==" + length;
+                assert i < size(): i + " >= size()==" + size();
 		return elementType.setArray(array, i, v);
 	}
 
@@ -92,9 +93,9 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	}
 	
 	public T apply(Integer i) {
-		assert i >= 0;
-		assert i < length;
-		assert i < size();
+		assert i >= 0 : i + " < 0";
+		assert i < length: i + " >= length==" + length;
+		assert i < size(): i + " >= size()==" + size();
 		return elementType.getArray(array, i);
 	}
 	

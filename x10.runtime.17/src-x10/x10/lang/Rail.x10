@@ -42,7 +42,7 @@ public abstract class Rail[T](length: nat)
 
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe def $convert[U](r: ValRail[U]): Rail[U]{self.length==r.length};
+    public native static safe operator [U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
     @Native("java", "#0.get(#1)")
     @Native("c++", "(*#0)[#1]")

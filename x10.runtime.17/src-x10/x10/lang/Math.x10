@@ -95,18 +95,30 @@ public final value Math {
    @Native("c++", "x10aux::math_utils::log1p(#1)")
    public static native def log1p(a:Double):Double;
 
+   /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
    public static safe def max(a:Int, b:Int)= a<b?b:a;
-   public static safe def max(a:Double, b:Double)= a<b?b:a;
    public static safe def min(a:Int, b:Int)= a<b?a:b;
+// public static safe def max(a:UInt, b:UInt)= a<b?b:a;
+// public static safe def min(a:UInt, b:UInt)= a<b?a:b;
+   public static safe def max(a:Long, b:Long)= a<b?b:a;
+   public static safe def min(a:Long, b:Long)= a<b?a:b;
+// public static safe def max(a:ULong, b:ULong)= a<b?b:a;
+// public static safe def min(a:ULong, b:ULong)= a<b?a:b;
+   public static safe def max(a:Float, b:Float)= a<b?b:a;
+   public static safe def min(a:Float, b:Float)= a<b?a:b;
+   public static safe def max(a:Double, b:Double)= a<b?b:a;
    public static safe def min(a:Double, b:Double)= a<b?a:b;
 
-    public static safe def powerOf2(var p:int) {
-        if (p <= 0) return false;
-        while (true) {
-           if (p%2 == 1) return false;
-           p = p/2;
-           if (p == 1) return true;
-        }
+   public static safe def nextPowerOf2(val p: int): int {
+        if (p==0) return 0;
+        var pow2: int = 1;
+        while (pow2 < p)
+            pow2 <<= 1;
+        return pow2;
+    }
+    
+    public static safe def powerOf2(p:int) {
+       return (p & -p) == p;
     }
     public static safe def log2(var p:Int):Int {
         assert powerOf2(p);
@@ -116,8 +128,6 @@ public final value Math {
     }
     // returns 2^(max(0,i))
     public static safe def pow2(i:Int) {
-        var p:Int = 1;
-        for (var j:Int = i; j > 0; j--) p *= 2;
-        return p;
+        return 1 << i;
     }
 }

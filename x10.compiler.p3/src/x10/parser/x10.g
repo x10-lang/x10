@@ -99,7 +99,9 @@
     import polyglot.ext.x10.ast.PropertyDecl;
     import polyglot.ext.x10.ast.RegionMaker;
     import polyglot.ext.x10.ast.X10Binary_c;
+    import polyglot.ext.x10.ast.X10Cast_c;
     import polyglot.ext.x10.ast.X10Unary_c;
+    import polyglot.ext.x10.ast.X10IntLit_c;
     import polyglot.ext.x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
@@ -655,11 +657,20 @@ public static class MessageHandler implements IMessageHandler {
 
         private long parseLong(String s)
         {
-            int radix,
-                start_index,
-                end_index = (s.charAt(s.length() - 1) == 'l' || s.charAt(s.length() - 1) == 'L'
-                                                       ? s.length() - 1
-                                                       : s.length());
+            int radix;
+            int start_index;
+            int end_index;
+            
+            end_index = s.length();
+
+            while (end_index > 0) {
+                char lastCh = s.charAt(end_index - 1);
+                if (lastCh != 'l' && lastCh != 'L' && lastCh != 'u' && lastCh != 'U') {
+                        break;
+                }
+                end_index--;
+            }
+
             if (s.charAt(0) == '0')
             {
                if (s.length() > 1 && (s.charAt(1) == 'x' || s.charAt(1) == 'X'))
@@ -682,28 +693,26 @@ public static class MessageHandler implements IMessageHandler {
             return parseLong(s.substring(start_index, end_index), radix);
         }
 
-        private polyglot.lex.LongLiteral int_lit(int i, int radix)
-        {
-            long x = parseLong(prsStream.getName(i), radix);
-            return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
-        }
-
         private polyglot.lex.LongLiteral int_lit(int i)
         {
             long x = parseLong(prsStream.getName(i));
             return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
         }
 
-        private polyglot.lex.LongLiteral long_lit(int i, int radix)
-        {
-            long x = parseLong(prsStream.getName(i), radix);
-            return new LongLiteral(pos(i), x, $sym_type.TK_LongLiteral);
-        }
-
         private polyglot.lex.LongLiteral long_lit(int i)
         {
             long x = parseLong(prsStream.getName(i));
             return new LongLiteral(pos(i), x, $sym_type.TK_LongLiteral);
+        }
+        private polyglot.lex.LongLiteral ulong_lit(int i)
+        {
+            long x = parseLong(prsStream.getName(i));
+            return new LongLiteral(pos(i), x, $sym_type.TK_UnsignedLongLiteral);
+        }
+        private polyglot.lex.LongLiteral uint_lit(int i)
+        {
+            long x = parseLong(prsStream.getName(i));
+            return new LongLiteral(pos(i), x, $sym_type.TK_UnsignedIntegerLiteral);
         }
 
         private polyglot.lex.FloatLiteral float_lit(int i)
@@ -918,10 +927,10 @@ public static class MessageHandler implements IMessageHandler {
         ./
     
     
-    Property ::=  Annotationsopt Identifier : Type
+    Property ::=  Annotationsopt Identifier ResultType
         /.$BeginJava
                     List annotations = extractAnnotations(Annotationsopt);
-                    PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), Type, Identifier);
+                    PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), ResultType, Identifier);
                     cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
                     setResult(cd);
           $EndJava
@@ -1084,7 +1093,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               Type,
-              nf.Id(pos(), Name.make("\044convert")), // DOLLAR convert, but DOLLAR is special in lpg
+              nf.Id(pos(), X10Cast_c.operator_as),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1101,7 +1110,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-              nf.Id(pos(), Name.make("\044convert")),
+              nf.Id(pos(), X10Cast_c.operator_as),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1113,7 +1122,23 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-        
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(), X10Cast_c.implicit_operator_as),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp1),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (! md.flags().flags().isStatic())
+              syntaxError("Conversion operator must be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
 
     PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
@@ -3396,25 +3421,25 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
                     
-    FormalDeclarator ::= Identifier : Type
+    FormalDeclarator ::= Identifier ResultType
         /.$BeginJava
-                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, Type, null });
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
           $EndJava
         ./
-                         | ( IdentifierList ) : Type
+                         | ( IdentifierList ) ResultType
         /.$BeginJava
-                    setResult(new Object[] { pos(), null, IdentifierList, null, Type, null });
+                    setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
           $EndJava
         ./
-                         | Identifier ( IdentifierList ) : Type
+                         | Identifier ( IdentifierList ) ResultType
         /.$BeginJava
-                    setResult(new Object[] { pos(), Identifier, IdentifierList, null, Type, null });
+                    setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
           $EndJava
         ./
     
-    FieldDeclarator ::= Identifier : Type
+    FieldDeclarator ::= Identifier ResultType
         /.$BeginJava
-                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, Type, null });
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultType, null });
           $EndJava
         ./
                          | Identifier ResultTypeopt = VariableInitializer
@@ -3790,27 +3815,39 @@ public static class MessageHandler implements IMessageHandler {
         ./
                        
 
-    Literal ::= IntegerLiteral$IntegerLiteral
+    Literal ::= IntegerLiteral$lit
         /.$BeginJava
-                    polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex($IntegerLiteral));
+                    polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex($lit));
                     setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
           $EndJava
         ./
-              | LongLiteral$LongLiteral
+              | LongLiteral$lit
         /.$BeginJava
-                    polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex($LongLiteral));
+                    polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex($lit));
                     setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
           $EndJava
         ./
-              | FloatingPointLiteral$FloatLiteral
+              | UnsignedIntegerLiteral$lit
         /.$BeginJava
-                    polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex($FloatLiteral));
+                    polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex($lit));
+                    setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
+          $EndJava
+        ./
+              | UnsignedLongLiteral$lit
+        /.$BeginJava
+                    polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex($lit));
+                    setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
+          $EndJava
+        ./
+              | FloatingPointLiteral$lit
+        /.$BeginJava
+                    polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex($lit));
                     setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
           $EndJava
         ./
-              | DoubleLiteral$DoubleLiteral
+              | DoubleLiteral$lit
         /.$BeginJava
-                    polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex($DoubleLiteral));
+                    polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex($lit));
                     setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
           $EndJava
         ./
@@ -3819,9 +3856,9 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
           $EndJava
         ./
-              | CharacterLiteral$CharacterLiteral
+              | CharacterLiteral$lit
         /.$BeginJava
-                    polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex($CharacterLiteral));
+                    polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex($lit));
                     setResult(nf.CharLit(pos(), a.getValue().charValue()));
           $EndJava
         ./

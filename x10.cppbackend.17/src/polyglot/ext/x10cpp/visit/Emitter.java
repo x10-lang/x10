@@ -1,44 +1,37 @@
 package polyglot.ext.x10cpp.visit;
 
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppBoxRep;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SAVED_THIS;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.THIS;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.chevrons;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.make_ref;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import polyglot.ast.Block_c;
+
 import polyglot.ast.Call_c;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
-import polyglot.ast.Do_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
-import polyglot.ast.For_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
-import polyglot.ast.If_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ast.SwitchBlock_c;
-import polyglot.ast.Switch_c;
-import polyglot.ast.Stmt_c;
-import polyglot.ast.Stmt;
-import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
-import polyglot.ast.While_c;
-import polyglot.types.QName;
-import polyglot.ext.x10.ast.Async_c;
-import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.Finish_c;
-import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode;
-import polyglot.ext.x10.ast.X10Cast_c;
-import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
@@ -52,6 +45,7 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
+import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -60,6 +54,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -69,8 +64,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
-import static polyglot.ext.x10cpp.visit.ASTQuery.*;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 
@@ -112,6 +105,7 @@ public class Emitter {
         return false;
     }
     private static String mangle_to_cpp(String str) {
+        str = X10PrettyPrinterVisitor.mangleIdentifier(str);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
         return str.replace("$", "__");

@@ -14,7 +14,50 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "char", "x10.core.BoxedChar", "x10.types.Type.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
 public final value Char {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+    @Native("java", "((char) (#1))")
+    @Native("c++",  "((x10_char) (char) (#1))")
+    public native static operator (x:Byte) as Char;
+    
+    @Native("java", "((char) (#1))")
+    @Native("c++",  "((x10_char) (char) (#1))")
+    public native static operator (x:Short) as Char;
+    
+    @Native("java", "((char) (#1))")
+    @Native("c++",  "((x10_char) (char) (#1))")
+    public native static operator (x:Int) as Char;
+    
+    @Native("java", "((char) (#1))")
+    @Native("c++",  "((x10_char) (char) (#1))")
+    public native static operator (x:Long) as Char;
+    
+    @Native("java", "((char) ((#1) + (#2)))")
+    @Native("c++",  "((x10_char) (char) ((#1) + (#2)))")
+    public native static operator (x:Char) + (y:Int): Char;
+
+    @Native("java", "((char) ((#1) + (#2)))")
+    @Native("c++",  "((x10_char) (char) ((#1) + (#2)))")
+    public native static operator (x:Int) + (y:Char): Char;
+
+    @Native("java", "((char) ((#1) - (#2)))")
+    @Native("c++",  "((x10_char) (char) ((#1) - (#2)))")
+    public native static operator (x:Char) - (y:Int): Char;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Char) - (y:Char): Int;
+
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Char) < (y:Char): Boolean;
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Char) > (y:Char): Boolean;
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Char) <= (y:Char): Boolean;
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Char) >= (y:Char): Boolean;
     
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.
@@ -42,18 +85,6 @@ public final value Char {
     @Native("java", "java.lang.Character.isLetterOrDigit(#0)")
     @Native("c++", "x10aux::char_utils::isLetterOrDigit(#0)")
     public native def isLetterOrDigit(): boolean;
-
-    @Native("java", "java.lang.Character.isUnicodeIdentifierStart(#0)")
-    @Native("c++", "x10aux::char_utils::isUnicodeIdentifierStart(#0)")
-    public native def isUnicodeIdentifierStart(): boolean;
-
-    @Native("java", "java.lang.Character.isUnicodeIdentifierPart(#0)")
-    @Native("c++", "x10aux::char_utils::isUnicodeIdentifierPart(#0)")
-    public native def isUnicodeIdentifierPart(): boolean;
-
-    @Native("java", "java.lang.Character.isIdentifierIgnorable(#0)")
-    @Native("c++", "x10aux::char_utils::isIdentiferIgnorable(#0)")
-    public native def isIdentifierIgnorable(): boolean;
 
     @Native("java", "java.lang.Character.isSpace(#0)")
     @Native("c++", "x10aux::char_utils::isSpace(#0)")
@@ -84,15 +115,15 @@ public final value Char {
     public native def toTitleCase(): Char;
     
     @Native("java", "((int) (#0))")
-    @Native("c++", "((x10_int) (#0))")
+    @Native("c++", "((x10_int) (#0).v)")
     public native def ord(): Int;
 
-    @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (#1))")
+    @Native("java", "((int) (#1))")
+    @Native("c++", "((x10_int) (#1).v)")
     public native static def ord(Char): Int;
 
     @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (#1))")
+    @Native("c++", "((x10_char) (char) (#1))")
     public native static def chr(Int): Char;
         
     @Native("java", "java.lang.Character.reverseBytes(#0)")

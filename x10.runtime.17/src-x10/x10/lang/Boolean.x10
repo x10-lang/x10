@@ -15,6 +15,23 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
 public final value Boolean {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
+
+    @Native("java", "!(#1)")
+    @Native("c++",  "!(#1)")
+    public native static operator ! (x:Boolean): Boolean;
+    
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) & ((#2) ? 1 : 0)))")
+    public native static operator (x:Boolean) & (y:Boolean): Boolean;
+    
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) ^ ((#2) ? 1 : 0)))")
+    public native static operator (x:Boolean) ^ (y:Boolean): Boolean;
+    
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) | ((#2) ? 1 : 0)))")
+    public native static operator (x:Boolean) | (y:Boolean): Boolean;
+    
     
     @Native("java", "true")
     @Native("c++", "true")

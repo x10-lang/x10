@@ -30,7 +30,7 @@ public class Ref(
     @Native("java", "new x10.lang.Box<#2>(#3, #4)")
 //    @Native("c++", "new (x10aux::alloc<x10::lang::Box>()) x10::lang::Box<#2>(#3, #4)")
     @Native("c++", "x10::lang::Box<#1 >::_make(#4)")
-    public static def $convert[T](x: T) /* {T <: Value} */ = new Box[T](x);
+    public static operator [T](x: T): Box[T] /* {T <: Value} */ = new Box[T](x);
 
     public native def this();
 

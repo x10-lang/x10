@@ -48,7 +48,7 @@ public value OutputStreamWriter extends Writer {
 
     public def close(): Void throws IOException = out.close();
     
-    public def write(x: Byte): Void throws IOException = out.write(x as Int);
+    public def write(x: Byte): Void throws IOException = out.write(x);
     
     public def write(buf: ValRail[Byte]): Void throws IOException {
         out.write(buf);

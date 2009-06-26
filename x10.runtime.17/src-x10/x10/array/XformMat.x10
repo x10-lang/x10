@@ -19,7 +19,7 @@ public final value class XformMat extends Mat[ValRow] {
      * Matrix multiplication
      */
 
-    public def $times(that: XformMat): XformMat {
+    public operator this * (that: XformMat): XformMat {
         return new XformMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
@@ -33,7 +33,7 @@ public final value class XformMat extends Mat[ValRow] {
      * Matrix times vector. Assumes homogeneous coordinates.
      */
 
-    public def $times(p:Point):Point {
+    public operator this * (p:Point):Point {
         return Point.make(rows-1, (i:nat)=> {
             var sum:int = this(i)(p.rank);
             for (var j:int=0; j<p.rank; j++)

@@ -249,7 +249,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * Matrix multiplication.
      */
 
-    public def $times(that: XformMat): PolyMat {
+    public operator this * (that: XformMat): PolyMat {
         return new PolyMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
@@ -263,7 +263,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * Concatenate matrices
      */
 
-    public def $or(that: PolyMat) {
+    public operator this || (that: PolyMat) {
         val pmb = new PolyMatBuilder(rank);
         for (r:PolyRow in this)
             pmb.add(r);

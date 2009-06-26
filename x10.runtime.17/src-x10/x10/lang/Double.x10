@@ -14,7 +14,70 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "double", "x10.core.BoxedDouble", "x10.types.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
 public final value Double {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Double) < (y:Double): Boolean;
+
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Double) > (y:Double): Boolean;
+
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Double) <= (y:Double): Boolean;
+
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Double) >= (y:Double): Boolean;
+    
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "x10aux::mod(#1, #2)")
+    public native static operator (x:Double) + (y:Double): Double;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Double) - (y:Double): Double;
+
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((#1) * (#2))")
+    public native static operator (x:Double) * (y:Double): Double;
+
+    @Native("java", "((#1) / (#2))")
+    @Native("c++",  "((#1) / (#2))")
+    public native static operator (x:Double) / (y:Double): Double;
+
+    @Native("java", "((#1) % (#2))")
+    @Native("c++",  "x10aux::mod(#1, #2)")
+    public native static operator (x:Double) % (y:Double): Double;
+
+    @Native("java", "+(#1)")
+    @Native("c++",  "+(#1)")
+    public native static operator + (x:Double): Double;
+
+    @Native("java", "-(#1)")
+    @Native("c++",  "-(#1)")
+    public native static operator - (x:Double): Double;
+    
+    @Native("java", "((double) (#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static operator (x:Byte): Double;
+    
+    @Native("java", "((double) (#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static operator (x:Short): Double;
+    
+    @Native("java", "((double) (#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static operator (x:Int): Double;
+    
+    @Native("java", "((double) (#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static operator (x:Long): Double;
+    
+    @Native("java", "((double) (#1))")
+    @Native("c++",  "((x10_double) (#1))")
+    public native static operator (x:Float): Double;
+
     
     @Native("java", "java.lang.Double.POSITIVE_INFINITY")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7ff0000000000000LL)")

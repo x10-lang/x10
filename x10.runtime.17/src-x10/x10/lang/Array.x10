@@ -124,16 +124,16 @@ public abstract value class Array[T](dist:Dist)
     public abstract safe def restriction(r: Region(rank)): Array[T];
     public abstract safe def restriction(p: Place): Array[T];
 
-    public abstract safe def $plus(): Array[T];
-    public abstract safe def $minus(): Array[T];
+    public abstract safe operator + this: Array[T];
+    public abstract safe operator - this: Array[T];
 
-    public abstract safe def $plus(that: Array[T]): Array[T];
-    public abstract safe def $minus(that: Array[T]): Array[T];
-    public abstract safe def $times(that: Array[T]): Array[T];
-    public abstract safe def $over(that: Array[T]): Array[T];
+    public abstract safe operator this + (that: Array[T]): Array[T];
+    public abstract safe operator this - (that: Array[T]): Array[T];
+    public abstract safe operator this * (that: Array[T]): Array[T];
+    public abstract safe operator this / (that: Array[T]): Array[T];
 
-    public abstract safe def $bar(r: Region(rank)): Array[T];
-    public abstract safe def $bar(p: Place): Array[T];
+    public abstract safe operator this | (r: Region(rank)): Array[T];
+    public abstract safe operator this | (p: Place): Array[T];
 
 
     //
@@ -161,8 +161,8 @@ public abstract value class Array[T](dist:Dist)
     //
     //
 
-    public static def $convert[T](r: Rail[T]): Array[T] = make(r);
-    public static def $convert[T](r: ValRail[T]): Array[T] = make(r);
+    public static operator [T](r: Rail[T]): Array[T] = make(r);
+    public static operator [T](r: ValRail[T]): Array[T] = make(r);
 
 
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
