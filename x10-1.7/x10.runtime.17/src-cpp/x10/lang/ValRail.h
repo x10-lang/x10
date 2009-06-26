@@ -22,7 +22,7 @@ namespace x10 {
                                                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
         extern const x10aux::RuntimeType* _initRTTHelper_ValRailIterator(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
                                                                          const x10aux::RuntimeType *p1);
-        
+
         template<class T> class ValRail : public Value,
                                           public virtual Fun_0_1<x10_int,T>,
                                           public x10aux::AnyRail<T>
@@ -43,10 +43,10 @@ namespace x10 {
             ValRail() : x10aux::AnyRail<T>(0, NULL) { }
             ValRail(x10_int length_, T* storage) : x10aux::AnyRail<T>(length_, storage) { }
 
-            GPUSAFE T apply(x10_int index) { 
-                // do bounds check 
-                return apply(index);
-            }    
+            GPUSAFE T apply(x10_int index) {
+                // do bounds check
+                return x10aux::AnyRail<T>::apply(index);
+            }
 
             class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
 
@@ -108,7 +108,7 @@ namespace x10 {
 
             static x10aux::ref<ValRail<T> > make(x10_int length,
                                                  x10aux::ref<Fun_0_1<x10_int,T> > init );
-            
+
             static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other);
 
             static const x10aux::serialization_id_t _serialization_id;
@@ -135,7 +135,7 @@ namespace x10 {
         template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::_initRTT() {
             return x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
         }
-        
+
         template<class T> const x10aux::RuntimeType* ValRail<T>::rtt = NULL;
 
         template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::rtt = NULL;
