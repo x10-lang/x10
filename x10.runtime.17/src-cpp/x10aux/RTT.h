@@ -152,12 +152,36 @@ namespace x10aux {
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
 
-    template<class T> inline x10_boolean instanceof(const x10aux::ref<x10::lang::Object> &v) {
-        return x10aux::getRTT<T>()->instanceOf(v);
+    template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
+        return false;
+    } };
+    template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
+        return true;
+    } };
+    template<class T> struct Instanceof<T, const x10aux::ref<x10::lang::Object>&> {
+        static x10_boolean _(const x10aux::ref<x10::lang::Object>& v) {
+            return x10aux::getRTT<T>()->instanceOf(v);
+        }
+    };
+
+    template<class T, class S> inline x10_boolean instanceof(S v) {
+        return x10aux::Instanceof<T, S>::_(v);
     }
 
-    template<class T> inline x10_boolean concrete_instanceof(const x10aux::ref<x10::lang::Object> &v) {
-        return x10aux::getRTT<T>()->concreteInstanceOf(v);
+    template<class T, class S> struct ConcreteInstanceof { static x10_boolean _(S v) {
+        return false;
+    } };
+    template<class T> struct ConcreteInstanceof<T, T> { static x10_boolean _(T v) {
+        return true;
+    } };
+    template<class T> struct ConcreteInstanceof<T, const x10aux::ref<x10::lang::Object>&> {
+        static x10_boolean _(const x10aux::ref<x10::lang::Object>& v) {
+            return x10aux::getRTT<T>()->concreteInstanceOf(v);
+        }
+    };
+
+    template<class T, class S> inline x10_boolean concrete_instanceof(S v) {
+        return x10aux::ConcreteInstanceof<T, S>::_(v);
     }
 
     template<class T1,class T2> inline x10_boolean subtypeof() {
