@@ -178,12 +178,12 @@ struct _x10_char {
   operator char () { return (char) v; }
 };
 
-bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
-bool operator!=(const _x10_char a, _x10_char b) { return a.v != b.v; }
-bool operator>(const _x10_char a, _x10_char b) { return a.v > b.v; }
-bool operator>=(const _x10_char a, _x10_char b) { return a.v >= b.v; }
-bool operator<(const _x10_char a, _x10_char b) { return a.v < b.v; }
-bool operator<=(const _x10_char a, _x10_char b) { return a.v <= b.v; }
+inline bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
+inline bool operator!=(const _x10_char a, _x10_char b) { return a.v != b.v; }
+inline bool operator>(const _x10_char a, _x10_char b) { return a.v > b.v; }
+inline bool operator>=(const _x10_char a, _x10_char b) { return a.v >= b.v; }
+inline bool operator<(const _x10_char a, _x10_char b) { return a.v < b.v; }
+inline bool operator<=(const _x10_char a, _x10_char b) { return a.v <= b.v; }
 
 typedef bool     x10_boolean;
 typedef int8_t   x10_byte;
