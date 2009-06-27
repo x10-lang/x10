@@ -66,6 +66,10 @@ RuntimeType::bootstrap() {
     FloatType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Float", 1, ObjectType);
     LongType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Long", 1, ObjectType);
     DoubleType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Double", 1, ObjectType);
+    UByteType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.UByte", 1, ObjectType);
+    UShortType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.UShort", 1, ObjectType);
+    UIntType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.UInt", 1, ObjectType);
+    ULongType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.ULong", 1, ObjectType);
 }
 
 const RuntimeType*
@@ -110,5 +114,9 @@ const RuntimeType* RuntimeType::IntType = NULL;
 const RuntimeType* RuntimeType::FloatType = NULL;
 const RuntimeType* RuntimeType::LongType = NULL;
 const RuntimeType* RuntimeType::DoubleType = NULL;
+const RuntimeType* RuntimeType::UByteType = NULL;
+const RuntimeType* RuntimeType::UShortType = NULL;
+const RuntimeType* RuntimeType::UIntType = NULL;
+const RuntimeType* RuntimeType::ULongType = NULL;
 
 // vim:tabstop=4:shiftwidth=4:expandtab
