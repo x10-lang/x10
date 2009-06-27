@@ -1093,7 +1093,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         if (newTypeParameters.isEmpty()) {
                             h.write("virtual ");
                         }
-                        emitter.printType(replaceType(dropzone.returnType(), typeMap), h);
+                        emitter.printType(replaceType(X10TypeMixin.baseType(dropzone.returnType()), typeMap), h);
                         h.write(" "+mangled_method_name(mname.toString())+"(");
                         h.begin(0);
                         int counter = 0;
@@ -1107,7 +1107,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
                         emitter.printTemplateSignature(currentClass.typeArguments(), sw);
                         emitter.printTemplateSignature(newTypeParameters, sw);
-                        emitter.printType(replaceType(dropzone.returnType(), typeMap), sw);
+                        emitter.printType(replaceType(X10TypeMixin.baseType(dropzone.returnType()), typeMap), sw);
                         sw.write(" " + emitter.translateType(currentClass, false) +
                                 "::" + mangled_method_name(mname.toString()) + "(");
                         sw.begin(0);
