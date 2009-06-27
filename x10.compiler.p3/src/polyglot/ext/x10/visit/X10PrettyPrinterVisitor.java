@@ -145,6 +145,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.constraint.XAnd_c;
 import x10.constraint.XConstraint;
@@ -202,6 +203,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	public static String mangleIdentifier(String n) {
+            // Workaround an assertion failure in Name.make.
+            if (! StringUtil.isNameShort(n))
+                return n;
 	    return mangleIdentifier(Name.make(n)).toString();
 	}
 	
