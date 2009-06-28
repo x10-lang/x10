@@ -803,9 +803,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Emitter.openNamespaces(h, pkgName);
 		    h.newline(0);
 		    h.forceNewline(0);
-		    emitter.emitUniqueNS(pkgName, new ArrayList<String>(), w);
-		    w.newline(0);
-		    w.forceNewline(0);
 		}
 
         /* [DC] since we don't have nested classes anymore, processClass is never called from
