@@ -25,10 +25,6 @@ public class U {
         return unsupported(o/*.getClass().getName()*/ + " does not support " + op);
     }
     
-    public static def unsupported(o: Value, op: String): RuntimeException {
-        return unsupported(o/*.getClass().getName()*/ + " does not support " + op);
-    }
-
     public static def illegal(): RuntimeException {
         return illegal("illegal operation");
     }

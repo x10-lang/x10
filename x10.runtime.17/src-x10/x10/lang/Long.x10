@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "long", "x10.core.BoxedLong", "x10.types.Type.LONG")
+@NativeRep("java", "long", null, "x10.types.Type.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
-public final value Long {
+public primitive Long {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Long) < (y:Long): Boolean;
@@ -118,7 +118,6 @@ public final value Long {
     @Native("c++",  "((x10_long) (#1))")
     public native static operator (x:Double) as Long;
     
-
     @Native("java", "java.lang.Long.MIN_VALUE")
     @Native("c++", "(x10_long)0x8000000000000000LL")
     public const MIN_VALUE = 0x8000000000000000L;

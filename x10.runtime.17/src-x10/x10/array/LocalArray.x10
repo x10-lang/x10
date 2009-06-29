@@ -9,7 +9,7 @@ package x10.array;
  * @author bdlucas
  */
 
-final value class LocalArray[T] extends BaseArray[T] {
+final /*value*/ class LocalArray[T] extends BaseArray[T] {
 
     private val raw: Rail[T];
     private val layout: RectLayout;
@@ -107,7 +107,7 @@ final value class LocalArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: Box[(Point)=>T]): LocalArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: Nullable[(Point)=>T]): LocalArray[T]{self.dist==dist} {
 
         super(dist);
         
@@ -119,7 +119,7 @@ final value class LocalArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init.location) { init. value };
                 for (p:Point in region)
                     raw(layout.offset(p)) = f(p);
             }
@@ -135,7 +135,7 @@ final value class LocalArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init.location) { init.value };
                 for (p:Point in region)
                     raw(layout.offset(p)) = f(p);
             }

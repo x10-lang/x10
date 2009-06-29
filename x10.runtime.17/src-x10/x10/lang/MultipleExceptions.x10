@@ -16,7 +16,7 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
+public /*value*/ class MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
 
     public def this(stack: Stack[Throwable]) {
         val s = new Stack[Throwable]();

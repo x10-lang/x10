@@ -15,7 +15,7 @@
  */    
 package x10.io;
 
-public abstract value Reader {
+public abstract /*value*/ class Reader {
     public abstract def close(): Void throws IOException;
 
     public abstract def read(): Byte throws IOException;

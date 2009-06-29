@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  * Create a TuningFork logger object for use in instrumenting X10 programs.
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.types.EventTypeSpaceVersion", null, null)
-public value EventTypeSpaceVersion {
+public /*value*/ class EventTypeSpaceVersion {
 	
     public native def this(name:String, version:int);
 }

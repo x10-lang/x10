@@ -13,7 +13,7 @@ package x10.lang;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu
  */
-public final value Place(id: nat) {
+public final /*value*/ class Place(id: nat) {
     public const MAX_PLACES = x10.runtime.NativeRuntime.MAX_PLACES;
     public const places = Rail.makeVal[Place](MAX_PLACES, ((id: nat) => new Place(id)));
     public const FIRST_PLACE = place(0);

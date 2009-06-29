@@ -555,10 +555,10 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 68:  KeyWord ::= s y n c h r o n i z e d
+        // Rule 68:  KeyWord ::= p r i m i t i v e
         //
         
-            keywordKind[68] = (X10Parsersym.TK_synchronized);
+            keywordKind[68] = (X10Parsersym.TK_primitive);
       
     
         //

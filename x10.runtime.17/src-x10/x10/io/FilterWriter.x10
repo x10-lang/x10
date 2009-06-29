@@ -1,6 +1,6 @@
 package x10.io;
 
-public value FilterWriter extends Writer {
+public /*value*/ class FilterWriter extends Writer {
     val w: Writer;
     
     protected def inner(): Writer = w;

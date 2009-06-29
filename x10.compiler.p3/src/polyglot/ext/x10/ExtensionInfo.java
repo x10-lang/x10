@@ -40,14 +40,12 @@ import polyglot.ext.x10.visit.Inliner;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
-import polyglot.ext.x10.visit.X10Boxer;
 import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
-import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
@@ -66,7 +64,6 @@ import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
-import polyglot.types.MethodDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -259,7 +256,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
-           goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
            goals.add(ConformanceChecked(job));
@@ -383,12 +379,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
        
-       public Goal X10Boxed(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("X10Boxed", job, new X10Boxer(job, ts, nf)).intern(this);
-       }
-
        public Goal X10Casted(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();

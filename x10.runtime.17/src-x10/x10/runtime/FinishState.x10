@@ -58,6 +58,7 @@ class FinishState {
 				if (t instanceof RuntimeException) {		
 					throw t as RuntimeException;
 				}
+				assert false as boolean;
 			}
 			throw new MultipleExceptions(exceptions);
 		}

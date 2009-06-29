@@ -75,12 +75,12 @@ public class HashMap[-K,V] implements Map[K,V] {
         return k == null ? 0 : (k.hashCode() * 17);
     }
     
-    public safe def apply(k: K): Box[V] = get(k);
+    public safe def apply(k: K): Nullable[V] = get(k);
     
-    public safe def get(k: K): Box[V] {
+    public safe def get(k: K): Nullable[V] {
         val e = getEntry(k);
         if (e == null) return null;
-        return e.value as Box[V];
+        return new Nullable[V](e.value);
     }
     
     public safe def getOrElse(k: K, orelse: V): V {
@@ -127,7 +127,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         }
     }
     
-    public safe def put(k: K, v: V): Box[V] {
+    public safe def put(k: K, v: V): Nullable[V] {
         if (occupation == table.length || shouldRehash)
             rehash();
         
@@ -157,7 +157,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                 	size++;
                     return null;
                 }
-                return (old as V) as Box[V];
+                return new Nullable[V](old as V);
             }
         }
     }
@@ -184,12 +184,12 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    return e != null && ! e.removed;
 	}
 	
-	public def remove(k: K): Box[V] {
+	public def remove(k: K): Nullable[V] {
 	    val e = getEntry(k);
 	    if (e != null && ! e.removed) {
 	        size--;
 	        e.removed = true;
-	        return e.value as Box[V];
+	        return new Nullable[V](e.value);
 	    }
 	    return null;
     }

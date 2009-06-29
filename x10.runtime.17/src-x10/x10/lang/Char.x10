@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "char", "x10.core.BoxedChar", "x10.types.Type.CHAR")
+@NativeRep("java", "char", null, "x10.types.Type.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
-public final value Char {
+public primitive Char {
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
     public native static operator (x:Byte) as Char;
@@ -129,4 +129,8 @@ public final value Char {
     @Native("java", "java.lang.Character.reverseBytes(#0)")
     @Native("c++", "x10aux::char_utils::reverseBytes(#0)")
     public native def reverseBytes(): Char;
+
+    @Native("java", "java.lang.String.valueOf(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
+    public native def toString(): String;
 }

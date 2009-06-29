@@ -1,6 +1,6 @@
 package x10.io;
 
-public value FilterReader extends Reader {
+public /*value*/ class FilterReader extends Reader {
     val r: Reader;
     
     protected def inner(): Reader = r;

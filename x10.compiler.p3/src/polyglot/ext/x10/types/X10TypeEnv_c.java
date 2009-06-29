@@ -293,7 +293,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         X10Context  c = (X10Context) this.context;
         t = X10TypeMixin.baseType(t);
         if (t instanceof ClosureType)
-            return Kind.VALUE;
+            return Kind.REFERENCE;
         if (t instanceof ClassType) {
             ClassType ct = (ClassType) t;
             if (ct.isAnonymous()) {
@@ -304,12 +304,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 else
                     throw new InternalCompilerError(t + " must have either a superclass or a single superinterface.");
             }
-            if (X10Flags.toX10Flags(ct.flags()).isValue())
-                return Kind.VALUE;
-            if (X10Flags.toX10Flags(ct.flags()).isInterface())
-                return Kind.EITHER;
-            else
-                return Kind.REFERENCE;
+            if (X10Flags.isPrimitive(ct.flags()))
+            	return Kind.VALUE;
+            return Kind.REFERENCE;
         }
         if (t instanceof ParameterType) {
             Kind k = Kind.EITHER;
@@ -577,16 +574,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t1.isVoid() || t2.isVoid())
             return false;
 
-        if (t1.isNull() && (t2.isNull() || ts.isReferenceOrInterfaceType(t2, (X10Context) context))) {
+        if (t1.isNull() && t2.isNull())
             return true;
-        }
 
-        if (t2.isNull()) {
+        if (t1.isNull() && ts.isReferenceOrInterfaceType(t2, (X10Context) context))
+            return true;
+        
+        if (t1.isNull() && ts.isValueType(t2, (X10Context) context))
             return false;
-        }
+
+        if (t2.isNull())
+            return false;
         
         // HACK: treat (S) => T as a subtype of Value.
-        if (ts.isFunction(t1, (X10Context) context) && ts.typeEquals(t2, ts.Value(), context))
+        if (ts.isFunction(t1, (X10Context) context) && ts.typeEquals(t2, ts.Object(), context))
             return true;
 
         if (ts.isValueType(t1, (X10Context) context) && ts.isReferenceType(t2, (X10Context) context))
@@ -669,10 +670,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (baseType1 != t1 || baseType2 != t2)
             if (isSubtype(baseType1, baseType2, allowValueInterfaces))
                 return true;
-
-        if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
-            return true;
-        }
 
         if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
             X10ClassType ct1 = (X10ClassType) t1;
@@ -1219,41 +1216,58 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 return type1;
             }
 
-            if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
-                if (hasSameClassDef(type1, type2)) {
-                    X10ClassType ct1 = (X10ClassType) type1;
-                    X10ClassType ct2 = (X10ClassType) type2;
-                    int n = ct1.typeArguments().size();
-                    List<Type> newArgs = new ArrayList<Type>(n);
-                    for (int i = 0; i < n; i++) {
-                        Type a1 = ct1.typeArguments().get(i);
-                        Type a2 = ct2.typeArguments().get(i);
-                        ParameterType.Variance v = ct1.x10Def().variances().get(i);
-                        switch (v) {
-                        case INVARIANT:
-                            if (typeEquals(a1, a2))
-                                newArgs.add(a1);
-                            else
-                                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-                                                            "\" and \"" + type2 + "\".");
-                            break;
-                        case COVARIANT:
-                            newArgs.add(leastCommonAncestor(a1, a2));
-                            break;
-                        case CONTRAVARIANT:
-                            if (isSubtype(a1, a2))
-                                newArgs.add(a1);
-                            else if (isSubtype(a2, a1))
-                                newArgs.add(a2);
-                            else
-                                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-                                                            "\" and \"" + type2 + "\".");
-                            break;
-                        }
-                    }
-                    return ct1.typeArguments(newArgs);
+            if (type1.isNumeric() && type2.isNumeric()) {
+                if (isImplicitCastValid(type1, type2)) {
+                    return type2;
+                }
+
+                if (isImplicitCastValid(type2, type1)) {
+                    return type1;
                 }
             }
+
+            SUPER: do {
+            	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+            		if (hasSameClassDef(type1, type2)) {
+            			X10ClassType ct1 = (X10ClassType) type1;
+            			X10ClassType ct2 = (X10ClassType) type2;
+            			int n = ct1.typeArguments().size();
+            			List<Type> newArgs = new ArrayList<Type>(n);
+            			for (int i = 0; i < n; i++) {
+            				Type a1 = ct1.typeArguments().get(i);
+            				Type a2 = ct2.typeArguments().get(i);
+            				ParameterType.Variance v = ct1.x10Def().variances().get(i);
+            				switch (v) {
+            				case INVARIANT:
+            					if (typeEquals(a1, a2))
+            						newArgs.add(a1);
+            					else
+            						break SUPER;
+            					break;
+            				case COVARIANT: {
+            					try {
+            						Type aa = leastCommonAncestor(a1, a2);
+            						newArgs.add(aa);
+            					}
+            					catch (SemanticException e) {
+            						break SUPER;
+            					}
+            					break;
+            				}
+            				case CONTRAVARIANT:
+            					if (isSubtype(a1, a2))
+            						newArgs.add(a1);
+            					else if (isSubtype(a2, a1))
+            						newArgs.add(a2);
+            					else
+            						break SUPER;
+            					break;
+            				}
+            			}
+            			return ct1.typeArguments(newArgs);
+            		}
+            	}
+            } while (false);
 
             if (type1.isReference() && type2.isNull()) return type1;
             if (type2.isReference() && type1.isNull()) return type2;
@@ -1272,8 +1286,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
             if (isSubtype(type1, X10TypeMixin.baseType(type2))) return X10TypeMixin.baseType(type2);
             if (isSubtype(type2, X10TypeMixin.baseType(type1))) return X10TypeMixin.baseType(type1);
-
-
 
             if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
                 // Walk up the hierarchy

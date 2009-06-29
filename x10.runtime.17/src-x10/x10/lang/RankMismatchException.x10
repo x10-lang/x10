@@ -13,14 +13,14 @@ package x10.lang;
    @author vj -- This class should not be needed. X10 1.7 catches rank mismatches
    statically.
  */
-public value RankMismatchException extends x10.lang.Exception {
-	private val p: Box[Point];
-	private val r: Box[Region];
-	private val d: Box[Dist];
+public /*value*/ class RankMismatchException extends x10.lang.Exception {
+	private val p: Point;
+	private val r: Region;
+	private val d: Dist;
 	private val n: int;
 
 	public def this(p_: Point, n_:int)  = {
-		p = p_ as Box[Point];
+		p = p_;
 		r = null;
 		d = null;
 		n = n_;
@@ -28,7 +28,7 @@ public value RankMismatchException extends x10.lang.Exception {
 
 	public def this(r_: Region, n_:int) = {
 		p = null;
-		r = r_ as Box[Region];
+		r = r_;
 		d = null;
 		n = n_;
 	}
@@ -36,7 +36,7 @@ public value RankMismatchException extends x10.lang.Exception {
     public def this(d_: Dist, n_:Int) = {
 		p = null;
 		r = null;
-		d = d_ as Box[Dist];
+		d = d_;
 		n = n_;
 	}
 

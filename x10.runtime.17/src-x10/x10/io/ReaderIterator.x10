@@ -19,7 +19,7 @@ import x10.util.NoSuchElementException;
 public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     val r: Reader;
     val m: Marshal[T];
-    var next: Box[T];
+    var next: Nullable[T];
     
     public def this(m: Marshal[T], r: Reader) {
        this.m = m;
@@ -42,7 +42,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
         if (next == null) {
             try {
                 val x: T = r.read[T](m);
-                next = x as Box[T];
+                next = new Nullable[T](x);
             }
             catch (IOException) {
                 return false;

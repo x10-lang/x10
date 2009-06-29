@@ -3,10 +3,10 @@ package x10.io;
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
-public value OutputStreamWriter extends Writer {
+public /*value*/ class OutputStreamWriter extends Writer {
     @NativeRep("java", "java.io.OutputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::NativeOutputStream>", "x10::io::NativeOutputStream", null)
-    protected abstract static value OutputStream {
+    protected abstract static /*value*/ class OutputStream {
         @Native("java", "#0.close()")
         @Native("c++", "(#0)->close()")
         public native def close(): Void throws IOException;
@@ -48,7 +48,7 @@ public value OutputStreamWriter extends Writer {
 
     public def close(): Void throws IOException = out.close();
     
-    public def write(x: Byte): Void throws IOException = out.write(x);
+    public def write(x: Byte): Void throws IOException = out.write(x as Int);
     
     public def write(buf: ValRail[Byte]): Void throws IOException {
         out.write(buf);

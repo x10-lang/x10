@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
  * associated with a particular event index.
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.types.EventType", null, null)
-public value EventType {
+public /*value*/ class EventType {
 
     public native def this(name:String, description:String);
     public native def this(name:String, description:String, attribute:EventAttribute);

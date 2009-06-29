@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "double", "x10.core.BoxedDouble", "x10.types.Types.DOUBLE")
+@NativeRep("java", "double", null, "x10.types.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
-public final value Double {
+public primitive Double {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Double) < (y:Double): Boolean;

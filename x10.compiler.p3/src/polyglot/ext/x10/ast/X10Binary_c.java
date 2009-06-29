@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.AmbExpr;
+import polyglot.ast.AmbReceiver;
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
@@ -34,6 +36,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -139,7 +142,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     /** If the expression was parsed as an ambiguous expression, return a Receiver that would have parsed the same way.  Otherwise, return null. */
-    private static Receiver toReceiver(X10NodeFactory nf, Expr e) {
+    public static Receiver toReceiver(X10NodeFactory nf, Expr e) {
         if (e instanceof AmbExpr) {
             AmbExpr e1 = (AmbExpr) e;
             return nf.AmbReceiver(e.position(), null, e1.name());
@@ -160,22 +163,25 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     /** If the expression was parsed as an ambiguous expression, return a Prefix that would have parsed the same way.  Otherwise, return null. */
-    private static Prefix toPrefix(X10NodeFactory nf, Expr e) {
+    public static Prefix toPrefix(X10NodeFactory nf, Receiver e) {
         if (e instanceof AmbExpr) {
             AmbExpr e1 = (AmbExpr) e;
             return nf.AmbPrefix(e.position(), null, e1.name());
         }
         if (e instanceof Field) {
             Field f = (Field) e;
-            if (f.target() instanceof Expr) {
-                Prefix p = toPrefix(nf, (Expr) f.target());
-                if (p == null)
-                    return null;
-                return nf.AmbPrefix(e.position(), p, f.name());
-            }
-            else {
-                return nf.AmbPrefix(e.position(), f.target(), f.name());
-            }
+            Prefix p = toPrefix(nf, f.target());
+            if (f.target() != null && p == null)
+            	return null;
+			return nf.AmbPrefix(e.position(), p, f.name());
+        }
+        if (e instanceof AmbReceiver) {
+        	AmbReceiver f = (AmbReceiver) e;
+        	return nf.AmbPrefix(e.position(), f.prefix(), f.nameNode());
+        }
+        if (e instanceof AmbTypeNode) {
+        	AmbTypeNode f = (AmbTypeNode) e;
+        	return nf.AmbPrefix(e.position(), f.prefix(), f.name());
         }
         return null;
     }
@@ -193,7 +199,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 Node n2 = this.visitChild(t2, tc);
 
                 if (n1 instanceof TypeNode && n2 instanceof TypeNode) {
-                    return nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true).disambiguate(tc).typeCheck(tc).checkConstants(tc);
+                    return X10Cast_c.check(nf.SubtypeTest(position(), (TypeNode) n1, (TypeNode) n2, true), tc);
                 }
             }
         }
@@ -439,8 +445,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
-        
+            X10Call_c n4 = (X10Call_c) nf.X10Call(n.position(), nf.CanonicalTypeNode(n.position(), Types.ref(l)), nf.Id(n.position(), methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+
             try {
                 n4 = X10Cast_c.check(n4, tc);
                 if (n4.methodInstance().def().flags().isStatic())

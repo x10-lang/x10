@@ -3,7 +3,7 @@
 
 package x10.array;
 
-public final value class XformMat extends Mat[ValRow] {
+public final /*value*/ class XformMat extends Mat[ValRow] {
     
     public def this(cols: nat, mat: ValRail[ValRow])
         = super(mat.length, cols, mat);

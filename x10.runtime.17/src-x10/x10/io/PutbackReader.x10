@@ -2,7 +2,7 @@ package x10.io;
 
 import x10.util.GrowableRail;
 
-public value PutbackReader extends FilterReader {
+public /*value*/ class PutbackReader extends FilterReader {
     val putback: GrowableRail[Byte];
 
     public def this(r: Reader) {

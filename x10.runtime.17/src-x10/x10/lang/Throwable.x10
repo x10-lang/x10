@@ -16,11 +16,10 @@ import x10.io.Console;
 
 @NativeRep("java", "java.lang.Throwable", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
-public value Throwable {
-    @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
+public /*value*/ class Throwable {
+    @Native("java", "(#0).getCause()")
     @Native("c++", "(#0)->getCause()")
-    // Box is to make it nullable
-    val cause: Box[Throwable];
+    val cause: Throwable;
 
     @Native("java", "#0.getMessage()")
     @Native("c++", "(#0)->getMessage()")
@@ -35,7 +34,7 @@ public value Throwable {
     public def this(cause: Throwable) = this("", cause);
     public def this(message: String, cause: Throwable): Throwable {
         super();
-    	this.cause = cause as Box[Throwable]; // BUG: should autobox
+    	this.cause = cause;
         this.message = message;
     }
     
@@ -43,9 +42,9 @@ public value Throwable {
     @Native("c++", "(#0)->getMessage()")
     public def getMessage() = message;
     
-    @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
+    @Native("java", "(#0).getCause()")
     @Native("c++", "(#0)->getCause()")
-    public final def getCause(): Box[Throwable] = cause;
+    public final def getCause(): Throwable = cause;
     
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")

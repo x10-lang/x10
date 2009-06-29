@@ -14,7 +14,7 @@ import x10.compiler.Native;
 /**
  * @author tardieu
  */
-public value Pool {
+public /*value*/ class Pool {
 	// the state of the pool
 	static class That {
 		var size:Int; // the number of workers in the pool

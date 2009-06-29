@@ -766,30 +766,34 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.THIS, outer, typeArgs, args);
 	}
 
-	public ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.THIS, null, typeArgs, args);
 	}
 
-	public ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.SUPER, outer, typeArgs, args);
 	}
+	
+	public X10ConstructorCall X10SuperCall(Position pos, List<Expr> args) {
+		return X10ConstructorCall(pos, ConstructorCall.SUPER, null, Collections.EMPTY_LIST, args);
+	}
 
-	public ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
+	public X10ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args) {
 		return X10ConstructorCall(pos, ConstructorCall.SUPER, null, typeArgs, args);
 	}
 
-	public ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
-		ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(typeArgs), CollectionUtil.nonNullList(args));
-		n = (ConstructorCall)n.ext(extFactory().extConstructorCall());
-		n = (ConstructorCall)n.del(delFactory().delConstructorCall());
+	public X10ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args) {
+		X10ConstructorCall n = new X10ConstructorCall_c(pos, kind, outer, CollectionUtil.nonNullList(typeArgs), CollectionUtil.nonNullList(args));
+		n = (X10ConstructorCall)n.ext(extFactory().extConstructorCall());
+		n = (X10ConstructorCall)n.del(delFactory().delConstructorCall());
 		return n;
 	}
 	
-	public ConstructorCall ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<Expr> args) {
+	public X10ConstructorCall ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<Expr> args) {
 		return X10ConstructorCall(pos, kind, outer, Collections.EMPTY_LIST, args);
 	}
 

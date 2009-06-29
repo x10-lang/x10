@@ -360,7 +360,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
         sup = sup.typeArguments(typeArgs);
 
-        cd.superType(Types.ref(Value())); // Closures are values.
+        cd.superType(Types.ref(Object())); // Closures are refs.
         cd.addInterface(Types.ref(sup));
 
         return cd;
@@ -407,7 +407,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         cd.kind(ClassDef.TOP_LEVEL);
         cd.superType(null); // interfaces have no superclass
-        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()).Value());
+        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()).Primitive());
 
         final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
@@ -835,34 +835,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return unknownType;
     }
 
-    private X10ParsedClassType refType_;
-
-    public Type Ref() {
-        if (refType_ == null)
-            refType_ = (X10ParsedClassType) load("x10.lang.Ref");
-        return refType_;
-    }
-
-    private X10ParsedClassType boxType_;
-
-    public Type Box() {
-        if (boxType_ == null)
-            boxType_ = (X10ParsedClassType) load("x10.lang.Box");
-        return boxType_;
-    }
-
-    protected ClassType valueType_;
-
-    public Type Value() {
-        if (valueType_ == null)
-            valueType_ = load("x10.lang.Value");
-        return valueType_;
-    }
-
-    public Type boxOf(Ref<? extends Type> base) {
-        return boxOf(Position.COMPILER_GENERATED, base);
-    }
-
     public List<Type> superTypes(ObjectType t) {
         Type sup = t.superClass();
         if (sup == null)
@@ -899,10 +871,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return !getFunctionSupertypes(t, context).isEmpty();
     }
 
-    public boolean isBox(Type t) {
-        return hasSameClassDef(t, this.Box());
-    }
-
     public boolean isInterfaceType(Type t) {
         t = X10TypeMixin.baseType(t);
         if (t instanceof ClassType)
@@ -935,38 +903,53 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public boolean isReferenceType(Type t, X10Context c) {
         return kind(t, c) == Kind.REFERENCE;
-        // t = X10TypeMixin.baseType(t);
-        // if (t instanceof ClosureType)
-        // return false;
-        // if (t instanceof ClassType) {
-        // ClassType ct = (ClassType) t;
-        // if (ct.isAnonymous()) {
-        // if (ct.superClass() != null)
-        // return isReferenceType(ct.superClass());
-        // else if (ct.interfaces().size() > 0)
-        // return isReferenceType(ct.interfaces().get(0));
-        // else
-        // return false;
-        // }
-        // return !X10Flags.toX10Flags(ct.flags()).isValue();
-        // }
-        // return false;
-        // return isX10BaseSubtype(t, Ref());
+    }
+    
+    public boolean isX10PrimitiveType(Type t, X10Context context) {
+    	return kind(t, context) == Kind.VALUE;
+    }
+    
+    public boolean isMoveableType(Type me, X10Context context) {
+    	return isX10PrimitiveType(me, context) || allFieldsFinal(me);
     }
 
-    public boolean isValueType(Type t, X10Context c) {
-        return kind(t, c) == Kind.VALUE;
+    private boolean allFieldsFinal(Type me) {
+    	Type t = X10TypeMixin.baseType(me);
+    	if (isValRail(t))
+    		return true;
+    	if (isRail(t))
+    		return false;
+		if (t.isVoid())
+			return true;
+		if (t instanceof X10ClassType) {
+			X10ClassType ct = (X10ClassType) t;
+			for (FieldInstance fi : ct.fields()) {
+				if (! fi.flags().isFinal())
+					return false;
+			}
+			Type sup = ct.superClass();
+			if (sup != null)
+				return allFieldsFinal(sup);
+		}
+			
+    	return true;
+	}
+
+	public boolean isValueType(Type t, X10Context c) {
+		return isX10PrimitiveType(t, c);
     }
 
     @Override
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
+    	assert false: "obsolete";
         Type r = Rail();
         return X10TypeMixin.instantiate(r, type);
     }
 
     @Override
     protected ArrayType createArrayType(Position pos, Ref<? extends Type> type) {
+    	assert false: "obsolete";
         return new X10ArrayType_c(this, pos, type);
     }
 
@@ -1015,41 +998,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
-        x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic().Global();
+        x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Extern().Atomic().Global();
         return x;
 
     }
 
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
-        x = x.Safe().Local().NonBlocking().Sequential().Property().Pure().Atomic().Global();
+        x = x.Safe().Local().NonBlocking().Sequential().Property().Atomic().Global();
         return x;
     }
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Primitive();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
     public Flags legalInterfaceFlags() {
-        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe().Primitive();
     }
 
     protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
     public Flags legalMemberClassFlags() {
-        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe().Primitive();
     }
 
     protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     public Flags legalLocalClassFlags() {
-        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Primitive();
     }
 
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
@@ -1089,15 +1072,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert_(argTypes);
         assert_(excTypes);
         return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
-    }
-
-    /**
-     * Return a nullable type based on a given type. TODO: rename this to
-     * nullableType() -- the name is misleading.
-     */
-    public Type boxOf(Position pos, Ref<? extends Type> type) {
-        X10ParsedClassType box = (X10ParsedClassType) Box();
-        return X10TypeMixin.instantiate(box, type);
     }
 
     X10ParsedClassType futureType_;
@@ -1842,13 +1816,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         flagsForName.put("sequential", X10Flags.SEQUENTIAL);
         flagsForName.put("incomplete", X10Flags.INCOMPLETE);
         flagsForName.put("property", X10Flags.PROPERTY);
-        flagsForName.put("pure", X10Flags.PURE);
         flagsForName.put("atomic", X10Flags.ATOMIC);
         flagsForName.put("global", X10Flags.GLOBAL);
         flagsForName.put("extern", X10Flags.EXTERN);
-        flagsForName.put("value", X10Flags.VALUE);
-        flagsForName.put("reference", X10Flags.REFERENCE);
-        flagsForName.put("mutable", X10Flags.MUTABLE);
+        flagsForName.put("primitive", X10Flags.PRIMITIVE);
         flagsForName.put("shared", X10Flags.SHARED);
     }
 

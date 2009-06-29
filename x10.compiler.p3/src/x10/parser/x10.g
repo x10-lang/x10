@@ -283,6 +283,7 @@
     null
     or
     package
+    primitive
     private
     protected
     property
@@ -1411,7 +1412,7 @@ public static class MessageHandler implements IMessageHandler {
 
 
     ------------------------------------- Section ::: Classes
-    ClassDeclaration ::= ValueClassDeclaration
+    ClassDeclaration ::= PrimitiveDeclaration
                        | NormalClassDeclaration
         
     NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
@@ -1429,14 +1430,14 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    PrimitiveDeclaration ::= ClassModifiersopt primitive Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(Identifier);
                     List TypeParametersopt = TypeParamsWithVarianceopt;
         List props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-        extractFlags(ClassModifiersopt, X10Flags.VALUE), Identifier,  TypeParametersopt,
+        extractFlags(ClassModifiersopt, X10Flags.PRIMITIVE), Identifier,  TypeParametersopt,
         props, ci, Superopt, Interfacesopt, ClassBody));
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
         setResult(cd);
@@ -2479,11 +2480,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
           $EndJava
         ./
-                    | value
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.VALUE)));
-          $EndJava
-        ./
         
     TypeDefModifiers ::= TypeDefModifier
         /.$BeginJava
@@ -3145,7 +3141,7 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     List l;
                     l = new TypedList(new LinkedList(), Stmt.class, false);
-                    l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
+                    l.add(nf.X10SuperCall(pos(), Collections.EMPTY_LIST).implicit(true));
                     l.add(AssignPropertyCall);
                     setResult(nf.Block(pos(), l));
           $EndJava
@@ -3159,7 +3155,7 @@ public static class MessageHandler implements IMessageHandler {
                     l = new TypedList(new LinkedList(), Stmt.class, false);
                     if (ExplicitConstructorInvocationopt == null)
                     {
-                        l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
+                        l.add(nf.X10SuperCall(pos(), Collections.EMPTY_LIST).implicit(true));
                     }
                     else
                     {
@@ -4840,7 +4836,7 @@ public static class MessageHandler implements IMessageHandler {
     Expr ::= PlaceExpression
     DepParameterExpr ::= WhereClauseopt
     DepParameterExpr ::= WhereClause
-    ClassDecl ::= ValueClassDeclaration
+    ClassDecl ::= PrimitiveDeclaration
     Object ::= Unsafeopt
     Now ::= NowStatement
     Async ::= AsyncStatement

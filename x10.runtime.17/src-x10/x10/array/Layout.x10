@@ -19,7 +19,7 @@ package x10.array;
  * @author bdlucas
  */
 
-abstract value class Layout {
+abstract /*value*/ class Layout {
 
     abstract def size(): int;
 

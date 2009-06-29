@@ -3,7 +3,6 @@
 
 package x10.lang;
 
-import x10.compiler.SetOps;
 import x10.array.BaseRegion;
 
 /**
@@ -19,7 +18,7 @@ import x10.array.BaseRegion;
  * @author bdlucas
  */
 
-public abstract value class Region(
+public abstract /*value*/ class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean

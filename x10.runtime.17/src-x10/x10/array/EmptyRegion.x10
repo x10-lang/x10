@@ -10,7 +10,7 @@ package x10.array;
  * @author bdlucas
  */
 
-value class EmptyRegion extends UnionRegion {
+/*value*/ class EmptyRegion extends UnionRegion {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
         super(new PolyRegionListBuilder(rank));
