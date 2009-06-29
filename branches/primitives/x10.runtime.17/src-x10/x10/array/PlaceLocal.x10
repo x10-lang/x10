@@ -27,7 +27,7 @@ package x10.array; // for now
  * large numbers of places.
  */
 
-final value class PlaceLocal[T] implements ()=>T {
+final /*value*/ class PlaceLocal[T] implements ()=>T {
 
 
     // would like Iterable[Place] but XTENLANG-164 prevents that

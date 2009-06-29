@@ -14,7 +14,7 @@ import x10.util.GrowableRail;
  * The representation of an X10 future expression.
  * @author tardieu
  */
-public value Future_c[T](name:String) extends Future[T] {
+public /*value*/ class Future_c[T](name:String) extends Future[T] {
     /**
      * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
      */

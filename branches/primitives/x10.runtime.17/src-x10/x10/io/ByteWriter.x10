@@ -2,7 +2,7 @@ package x10.io;
 
 import x10.util.Builder;
 
-public value ByteWriter[T] extends Writer {
+public /*value*/ class ByteWriter[T] extends Writer {
     val b: Builder[Byte,T];
 
     public def this(b: Builder[Byte,T]) { this.b = b; }

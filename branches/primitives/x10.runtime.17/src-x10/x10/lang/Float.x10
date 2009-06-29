@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "float", "x10.core.BoxedFloat", "x10.types.Type.FLOAT")
+@NativeRep("java", "float", null, "x10.types.Type.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
-public final value Float {
+public primitive Float {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Float) < (y:Float): Boolean;
@@ -77,7 +77,6 @@ public final value Float {
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:Double) as Float;
-
 
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f800000)")

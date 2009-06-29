@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.AmbTypeNode;
+import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
@@ -24,11 +25,17 @@ import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.Subst;
+import polyglot.ext.x10.types.TypeParamSubst;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
+import polyglot.ext.x10.types.X10ProcedureDef;
+import polyglot.ext.x10.types.X10ProcedureInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -41,6 +48,7 @@ import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
+import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.ProcedureDef;
@@ -59,6 +67,10 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
 /**
  * new C[T](e)
@@ -122,12 +134,8 @@ public class X10New_c extends New_c implements X10New {
             if (!flags.isInterface()) {
                 anonType.superType(ct);
             }
-            else if (flags.isValue()) {
-                anonType.superType(Types.<Type> ref(ts.Value()));
-                anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
-            }
             else {
-                anonType.superType(Types.<Type> ref(ts.Ref()));
+                anonType.superType(Types.<Type> ref(ts.Object()));
                 anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
             }
 

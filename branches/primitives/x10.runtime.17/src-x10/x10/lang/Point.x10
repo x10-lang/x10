@@ -3,9 +3,6 @@
 
 package x10.lang;
 
-import x10.compiler.ArithmeticOps;
-import x10.compiler.ComparisonOps;
-
 /**
  * Point(rank) represents a point in a rank-dimensional space. The
  * coordinates of a point p may be accessed individually using p(i)
@@ -15,7 +12,21 @@ import x10.compiler.ComparisonOps;
  * @author bdlucas
  */
 
-final public value class Point(rank: nat) implements (nat) => int {
+final public /*value*/ class Point(rank: nat) implements (nat) => int {
+
+    public def equals(o: Object) {
+        if (o instanceof Point) {
+            val p = o as Point;
+            if (rank == p.rank) {
+                for (var i: int = 0; i < rank; i++) {
+                    if (this(i) != p(i))
+                        return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Returns the value of the ith coordinate.

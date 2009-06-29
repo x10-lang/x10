@@ -61,11 +61,12 @@ public interface X10NodeFactory extends NodeFactory {
     X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
     X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);
 
-    ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-    ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-    ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
-    ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
-    ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10ThisCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10SuperCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
+    X10ConstructorCall X10SuperCall(Position pos, List<Expr> args);
 
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t, DepParameterExpr e);
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);

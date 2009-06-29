@@ -14,7 +14,7 @@ package x10.array;
  * @author bdlucas
  */
 
-final value class RectLayout(rank: int) extends Layout {
+final /*value*/ class RectLayout(rank: int) extends Layout {
 
     val size: int;
 

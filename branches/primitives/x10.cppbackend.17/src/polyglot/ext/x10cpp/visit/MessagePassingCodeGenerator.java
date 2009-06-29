@@ -1165,7 +1165,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
 
             // Generate structEquals for values
-            if (xts.isValueType(currentClass, context)) {
+            if (xts.isMoveableType(currentClass, context)) {
                 h.write("public: ");
                 h.write("virtual ");
                 emitter.printType(xts.Boolean(), h);
@@ -1183,11 +1183,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write(") {"); sw.newline(4); sw.begin(0);
                 sw.write("if (p0.get() == this) return true; // short-circuit trivial equality");
                 sw.newline();
-                sw.write("if (!this->" + emitter.translateType(superClass) + "::" +
-                         mangled_method_name(STRUCT_EQUALS_METHOD) + "(p0))");
-                sw.newline(4); sw.begin(0);
-                sw.write("return false;");
-                sw.end(); sw.newline();
+                if (superClass != null) {
+                	sw.write("if (!this->" + emitter.translateType(superClass) + "::" +
+                			mangled_method_name(STRUCT_EQUALS_METHOD) + "(p0))");
+                	sw.newline(4); sw.begin(0);
+                	sw.write("return false;");
+                	sw.end(); sw.newline();
+                }
                 emitter.printType(currentClass, sw);
                 sw.write(" that =");
                 sw.allowBreak(4, " ");
@@ -2775,7 +2777,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("class "+cname+" : "); inc.begin(0);
-        inc.write("public "+emitter.translateType(xts.Value())+", "); inc.newline();
+        inc.write("public "+emitter.translateType(xts.Object())+", "); inc.newline();
         inc.write("public virtual "+superType); inc.end(); inc.newline();
         inc.write("{") ; inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();

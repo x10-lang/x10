@@ -17,7 +17,7 @@ import x10.util.Set;
  * @author
  */
 
-public abstract value class Dist(
+public abstract /*value*/ class Dist(
     region: Region,
     unique: boolean,
     constant: boolean,

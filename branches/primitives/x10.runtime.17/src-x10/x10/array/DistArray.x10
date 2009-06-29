@@ -13,7 +13,7 @@ package x10.array;
 
 import x10.array.PlaceLocal;
 
-final value class DistArray[T] extends BaseArray[T] {
+final /*value*/ class DistArray[T] extends BaseArray[T] {
 
     private val raws: PlaceLocal[Rail[T]];
     private val layouts: PlaceLocal[RectLayout];
@@ -94,7 +94,7 @@ final value class DistArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist, val init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist, val init: Nullable[(Point)=>T]): DistArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -108,7 +108,7 @@ final value class DistArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init.location) { init.value };
                 for (p:Point in dist.get(here))
                     raw(layout.offset(p)) = f(p);
             }

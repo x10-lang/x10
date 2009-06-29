@@ -16,7 +16,7 @@ import x10.io.Console;
 /**
  * @author tardieu
  */
-public value Runtime {
+public /*value*/ class Runtime {
 	// TODO place-cast of null?
 	
 	private def this():Runtime {}
@@ -177,9 +177,9 @@ public value Runtime {
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && !(o instanceof Worker) && (o as Ref).location.id != p.id) {
+		if (NativeRuntime.PLACE_CHECKS && null != o && !(o instanceof Worker) && o.location.id != p.id) {
 			NativeRuntime.println("BAD PLACE EXCEPTION");
-			throw new BadPlaceException("object=" + (at ((o as Ref).location) o.toString()) + " access at place=" + p);
+			throw new BadPlaceException("object=" + (at (o.location) o.toString()) + " access at place=" + p);
 		}
 		return o;
 	}

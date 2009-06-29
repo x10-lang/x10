@@ -17,7 +17,7 @@ import x10.util.Set;
  * @author bdlucas
  */
 
-public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
+public /*value*/ class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};

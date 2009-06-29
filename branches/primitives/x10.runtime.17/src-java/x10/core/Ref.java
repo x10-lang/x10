@@ -20,25 +20,22 @@ public class Ref {
        	location = Thread.currentThread().location();
     }
      
+    public static int location(Object o) {
+        if (o instanceof Ref) {
+            return ((Ref) o).location();
+        }
+        if (o instanceof Thread) {
+            return ((Thread) o).location();
+        }
+        // String or Throwable
+        return 0;
+    }
+
     /** Note: since this is final, it's important that the method name not conflict with any methods introduced by subclasses of Ref in X10 code. */
     public final int location() {
         return location;
     }
 
-    public boolean equals(Object o) {
-        if (o instanceof Ref)
-            return this.equals((Ref) o);
-        return false;
-    }
-
-    public boolean equals(Value o) {
-        return false;
-    }
-    
-    public boolean equals(Ref o) {
-        return super.equals(o);
-    }
-    
     public static class RTT extends RuntimeType<Ref> {
     	public static final RTT it = new RTT();
 
@@ -50,9 +47,5 @@ public class Ref {
         public boolean instanceof$(Object o) {
             return o instanceof Ref;
         }
-    }
-
-    public Ref box$() {
-        return this;
     }
 }

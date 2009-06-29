@@ -11,7 +11,7 @@ package x10.lang;
 /**
  * @author tardieu
  */
-public abstract value Clock(name: String) {
+public abstract /*value*/ class Clock(name: String) {
     public static def make(): Clock = make("");
 
     public static def make(name: String): Clock = new x10.runtime.Clock_c(name);

@@ -17,7 +17,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-public value class PolyRegion extends BaseRegion {
+public /*value*/ class PolyRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};

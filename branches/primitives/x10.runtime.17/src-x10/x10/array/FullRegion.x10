@@ -11,7 +11,7 @@ package x10.array;
  * @author bdlucas
  */
 
-value class FullRegion extends PolyRegion {
+/*value*/ class FullRegion extends PolyRegion {
 
     def this(val rank: int): FullRegion{self.rank==rank} {
         super((new PolyMatBuilder(rank)).toSortedPolyMat(false), true);

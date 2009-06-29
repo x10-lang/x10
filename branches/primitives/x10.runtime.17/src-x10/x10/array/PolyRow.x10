@@ -21,7 +21,7 @@ import x10.io.StringWriter;
  * @author bdlucas
  */
 
-public value class PolyRow(rank:nat) extends ValRow {
+public /*value*/ class PolyRow(rank:nat) extends ValRow {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};

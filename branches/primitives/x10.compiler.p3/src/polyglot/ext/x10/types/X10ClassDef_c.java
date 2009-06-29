@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef_c;
+import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -151,10 +152,16 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    computing = true;
 		    
 		    try {
-			    List<X10FieldDef> properties = properties();
-			    
 			    X10TypeSystem xts = (X10TypeSystem) ts;
 
+			    if (this == ((ClassType) xts.Object()).def()) {
+				    this.rootClause = Types.<XConstraint>ref(new XConstraint_c());
+				    this.rootClauseInvalid = null;
+				    return rootClause.get();
+			    }
+			    
+			    List<X10FieldDef> properties = properties();
+			    
 			    XConstraint result = new XConstraint_c();
 			    
 			    XRoot oldThis = xts.xtypeTranslator().transThisWithoutTypeConstraint();

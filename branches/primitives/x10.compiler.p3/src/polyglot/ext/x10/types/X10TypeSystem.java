@@ -57,8 +57,6 @@ public interface X10TypeSystem extends TypeSystem {
     
     AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
-    Type boxOf(Position p, Ref<? extends Type> t);
-
     Type futureOf(Position p, Ref<? extends Type> t);
 
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
@@ -104,10 +102,6 @@ public interface X10TypeSystem extends TypeSystem {
     Type Clock(); // needed for clocked loops
 
     Type Runtime(); // used by asyncCodeInstance
-
-    Type Value();
-
-    Type Ref();
 
     XLit FALSE();
 
@@ -193,6 +187,8 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isPlace(Type me);
 
     boolean isValueType(Type me, X10Context context);
+    boolean isMoveableType(Type me, X10Context context);
+	boolean isX10PrimitiveType(Type t, X10Context context);
 
     boolean isReferenceType(Type me, X10Context context);
     
@@ -280,13 +276,6 @@ public interface X10TypeSystem extends TypeSystem {
     Type UInt();
 
     Type ULong();
-
-    /** x10.lang.Box */
-    Type Box();
-
-    Type boxOf(Ref<? extends Type> base);
-
-    boolean isBox(Type type);
 
     boolean isFunction(Type type, X10Context context);
 

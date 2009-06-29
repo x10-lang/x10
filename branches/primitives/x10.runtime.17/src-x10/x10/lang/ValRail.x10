@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.core.ValRail<#1>", "x10.core.ValRail.BoxedValRail", "new x10.core.ValRail.RTT(#2)")
+@NativeRep("java", "x10.core.ValRail<#1>", null, "new x10.core.ValRail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::ValRail<#1 > >", "x10::lang::ValRail<#1 >", null)
-public value class ValRail[+T](length: nat)
+public /*value*/ class ValRail[+T](length: nat)
     implements (nat) => T, Iterable[T]
 {
     // need to declare a constructor to shut up the initialization checker
@@ -30,6 +30,10 @@ public value class ValRail[+T](length: nat)
     @Native("java", "x10.core.RailFactory.<#2>makeValRailFromRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
     public native static operator [U](r: Rail[U]): ValRail[U]{self.length==r.length};
+
+    @Native("java", "x10.core.Equality.equalsequals(#0, #1)")
+    @Native("c++", "(#0)->_struct_equals(#1)")
+    public native def equals(o: Object): boolean;
 
     @Native("java", "#0.get(#1)")
     @Native("c++", "(#0)->get(#1)")

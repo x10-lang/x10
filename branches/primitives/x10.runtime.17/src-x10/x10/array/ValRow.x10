@@ -7,7 +7,7 @@ import x10.io.Printer;
 import x10.io.StringWriter;
 
 
-public value class ValRow extends Row {
+public /*value*/ class ValRow extends Row {
 
     private val row: ValRail[int];
 
