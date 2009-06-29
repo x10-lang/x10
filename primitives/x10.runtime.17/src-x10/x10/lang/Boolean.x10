@@ -11,10 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "boolean", "x10.core.BoxedBoolean", "x10.types.Type.BOOLEAN")
+@NativeRep("java", "boolean", null, "x10.types.Type.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
-public final value Boolean {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+public primitive Boolean {
 
     @Native("java", "!(#1)")
     @Native("c++",  "!(#1)")

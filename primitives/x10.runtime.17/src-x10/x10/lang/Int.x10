@@ -11,11 +11,11 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
+@NativeRep("java", "int", null, "x10.types.Type.INT")
 //                  v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public final value Int {
+public primitive Int {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Int) < (y:Int): Boolean;
@@ -124,7 +124,6 @@ public final value Int {
     @Native("c++",  "((x10_int) (#1))")
     public native static operator (x:UInt) as Int;
     
-
     @Native("java", "java.lang.Integer.MIN_VALUE")
     @Native("c++", "(x10_int)0x80000000")
     public const MIN_VALUE = 0x80000000;

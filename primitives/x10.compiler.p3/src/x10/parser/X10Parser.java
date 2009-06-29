@@ -1,5 +1,5 @@
 
-//#line 18 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+//#line 18 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -9,7 +9,7 @@ package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 28 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+//#line 28 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -286,7 +286,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //
     
 
-    //#line 318 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+    //#line 319 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -861,10 +861,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 1:  TypeName ::= TypeName . ErrorId
             //
             case 1: {
-               //#line 8 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 6 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 8 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 6 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 8 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 8 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -877,10 +877,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 2:  PackageName ::= PackageName . ErrorId
             //
             case 2: {
-               //#line 18 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 16 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 18 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 16 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 18 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 18 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -893,10 +893,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 3:  ExpressionName ::= AmbiguousName . ErrorId
             //
             case 3: {
-               //#line 28 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 26 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 28 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 26 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 28 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 28 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -909,10 +909,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 4:  MethodName ::= AmbiguousName . ErrorId
             //
             case 4: {
-               //#line 38 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 36 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 38 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 36 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 38 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 38 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -925,10 +925,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 5:  PackageOrTypeName ::= PackageOrTypeName . ErrorId
             //
             case 5: {
-               //#line 48 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 46 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 48 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 46 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 48 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 48 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -941,10 +941,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 6:  AmbiguousName ::= AmbiguousName . ErrorId
             //
             case 6: {
-               //#line 58 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 56 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 58 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 56 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 58 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 58 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -957,10 +957,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 7:  FieldAccess ::= Primary . ErrorId
             //
             case 7: {
-               //#line 68 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 66 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 68 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 66 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 68 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary,
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -970,9 +970,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 8:  FieldAccess ::= super . ErrorId
             //
             case 8: {
-               //#line 74 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 74 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 74 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 74 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -982,12 +982,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
             //
             case 9: {
-               //#line 80 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 78 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 80 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 78 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 78 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 78 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 80 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 80 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -997,12 +997,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
-               //#line 87 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 85 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 87 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 85 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 85 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 85 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 87 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 87 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
@@ -1013,12 +1013,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
             //
             case 11: {
-               //#line 94 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 92 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 94 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 92 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 92 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 92 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 94 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 94 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
                       break;
@@ -1028,12 +1028,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
-               //#line 100 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 98 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 100 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 98 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 98 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 98 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 100 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 100 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -1045,12 +1045,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
             //
             case 13: {
-               //#line 109 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 107 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 109 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 107 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 107 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 107 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 109 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 109 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -1062,10 +1062,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
             //
             case 14: {
-               //#line 117 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 115 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 117 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 115 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 117 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 117 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                       break;
             }
@@ -1074,14 +1074,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
             //
             case 15: {
-               //#line 122 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 120 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+               //#line 122 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 120 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 120 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 120 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 120 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 120 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 122 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 122 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -1094,20 +1094,20 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 16:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 16: {
-               //#line 888 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 889 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 886 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 887 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 888 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 889 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1123,18 +1123,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 17:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
             //
             case 17: {
-               //#line 900 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 901 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 900 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 901 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1150,10 +1150,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 18:  Properties ::= ( PropertyList )
             //
             case 18: {
-               //#line 913 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 911 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 914 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 912 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
-                //#line 913 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 914 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
    setResult(PropertyList);
                  break;
             } 
@@ -1161,10 +1161,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 19:  PropertyList ::= Property
             //
             case 19: {
-               //#line 918 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 916 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 919 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 917 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 918 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 919 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1175,12 +1175,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 20:  PropertyList ::= PropertyList , Property
             //
             case 20: {
-               //#line 925 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 923 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 926 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 924 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 923 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 924 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 925 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 926 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 PropertyList.add(Property);
                       break;
             }
@@ -1189,14 +1189,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 21:  Property ::= Annotationsopt Identifier ResultType
             //
             case 21: {
-               //#line 932 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 930 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 933 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 931 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 930 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 931 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 930 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 931 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 932 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 933 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List annotations = extractAnnotations(Annotationsopt);
                 PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), ResultType, Identifier);
                 cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1208,24 +1208,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 22: {
-               //#line 941 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 942 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 939 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 940 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 941 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 942 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        if (Identifier.id().toString().equals("this")) {
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
@@ -1259,26 +1259,26 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 23:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 23: {
-               //#line 971 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 972 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(9);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(11);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(12);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(13);
-                //#line 969 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 970 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(14);
-                //#line 971 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 972 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(14)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1299,24 +1299,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 24:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 24: {
-               //#line 988 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 989 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(6);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(8);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(9);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 986 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 987 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 988 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 989 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1337,24 +1337,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 25:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 25: {
-               //#line 1005 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1006 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(5);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(7);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1003 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1004 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1005 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1006 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1376,24 +1376,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 26:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 26: {
-               //#line 1023 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1024 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1021 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1022 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1023 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1024 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        Name op = X10Binary_c.invBinaryMethodName(BinOp);
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
@@ -1416,22 +1416,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 27:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 27: {
-               //#line 1042 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1043 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1040 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1041 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1042 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1043 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1452,22 +1452,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 28:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 28: {
-               //#line 1059 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1060 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1057 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1058 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1059 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1060 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1488,24 +1488,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 29:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 29: {
-               //#line 1076 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1077 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(8);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(10);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(11);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(12);
-                //#line 1074 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1075 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1076 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1077 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(13)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1526,22 +1526,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 30:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt MethodBody
             //
             case 30: {
-               //#line 1093 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1094 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1091 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1092 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1093 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1094 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
           extractFlags(MethodModifiersopt),
           Type,
@@ -1562,22 +1562,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 31:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 31: {
-               //#line 1110 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1111 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1108 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1109 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1110 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1111 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1598,22 +1598,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 32:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 32: {
-               //#line 1127 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1128 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(7);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(8);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(9);
-                //#line 1125 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1126 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 1127 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1128 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(10)),
           extractFlags(MethodModifiersopt),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1634,24 +1634,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 33:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 33: {
-               //#line 1145 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1146 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1143 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1144 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 1145 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1146 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1670,18 +1670,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 34:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier WhereClauseopt ResultTypeopt MethodBody
             //
             case 34: {
-               //#line 1160 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1158 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1161 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1159 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1158 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1159 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1158 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1159 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1158 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1159 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 1158 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1159 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 1160 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1161 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(6)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1700,12 +1700,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 35:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 35: {
-               //#line 1176 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1174 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1177 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1175 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1174 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1175 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1176 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1177 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1714,12 +1714,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 36:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 36: {
-               //#line 1181 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1179 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1182 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1180 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1179 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1180 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1181 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1182 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1728,14 +1728,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 37:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 37: {
-               //#line 1186 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1184 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1187 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1185 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1184 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1185 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1184 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1185 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1186 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1187 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1744,14 +1744,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 38:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 38: {
-               //#line 1191 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1189 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1192 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1190 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1189 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1190 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1189 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1190 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1191 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1192 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1760,22 +1760,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 39:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 39: {
-               //#line 1197 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1198 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 1195 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1196 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 1197 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1198 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
       List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -1799,16 +1799,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 40:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 40: {
-               //#line 1218 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1216 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1219 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1217 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1216 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1217 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 1216 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1217 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1216 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1217 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 1218 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1219 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1819,18 +1819,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 41:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 41: {
-               //#line 1225 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1223 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1226 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1224 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1223 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1223 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1223 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1223 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1225 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1226 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1842,18 +1842,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 42:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 42: {
-               //#line 1233 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1231 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1234 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1232 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1231 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1232 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1231 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1232 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1231 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1232 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1231 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1232 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1233 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1234 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1865,12 +1865,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 43:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 43: {
-               //#line 1242 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1240 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1243 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1241 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1240 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1241 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1242 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1243 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1879,18 +1879,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 46:  FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
             //
             case 46: {
-               //#line 1254 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1255 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1254 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1255 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
                       break;
             }
@@ -1899,12 +1899,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 51:  AnnotatedType ::= Type Annotations
             //
             case 51: {
-               //#line 1263 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1261 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1264 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1262 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1261 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1262 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1263 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1264 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -1915,10 +1915,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 54:  ConstrainedType ::= ( Type )
             //
             case 54: {
-               //#line 1273 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1271 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1274 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1272 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1273 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1274 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
@@ -1927,10 +1927,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 55:  PlaceType ::= PlaceExpression
             //
             case 55: {
-               //#line 1279 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1277 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1280 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1278 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(1);
-                //#line 1279 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1280 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(),
                                     nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
                                     PlaceExpression));
@@ -1941,18 +1941,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 56:  NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 56: {
-               //#line 1287 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1285 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1288 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1286 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1285 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1286 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1285 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1286 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1285 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1286 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(5);
-                //#line 1285 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1286 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1287 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1288 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
@@ -1966,16 +1966,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 57:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 57: {
-               //#line 1298 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1296 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1299 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1297 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1296 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1297 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1296 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1297 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(3);
-                //#line 1296 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1297 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1298 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1299 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type;
             
             if (TypeName.name.id().toString().equals("void")) {
@@ -2003,12 +2003,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 58:  DepParameters ::= { ExistentialListopt Conjunction }
             //
             case 58: {
-               //#line 1324 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1322 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1325 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1323 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1322 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1323 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(3);
-                //#line 1324 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1325 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
                       break;
             }
@@ -2017,12 +2017,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 59:  DepParameters ::= { ExistentialListopt Conjunction } !
             //
             case 59: {
-               //#line 1329 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1327 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1330 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1328 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1327 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1328 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(3);
-                //#line 1329 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1330 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
                       break;
             }
@@ -2031,14 +2031,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 60:  DepParameters ::= { ExistentialListopt Conjunction } ! PlaceType
             //
             case 60: {
-               //#line 1334 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1332 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1335 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1333 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1332 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1333 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(3);
-                //#line 1332 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1333 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(6);
-                //#line 1334 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1335 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (PlaceType != null)
                     setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(PlaceType))));
             else
@@ -2050,10 +2050,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 61:  TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
             //
             case 61: {
-               //#line 1343 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1341 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1344 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1342 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(2);
-                //#line 1343 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1344 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParamWithVarianceList);
                       break;
             }
@@ -2062,10 +2062,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 62:  TypeParameters ::= [ TypeParameterList ]
             //
             case 62: {
-               //#line 1349 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1347 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1350 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1348 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
-                //#line 1349 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1350 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParameterList);
                       break;
             }
@@ -2074,10 +2074,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 63:  FormalParameters ::= ( FormalParameterListopt )
             //
             case 63: {
-               //#line 1354 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1352 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1355 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1353 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
-                //#line 1354 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1355 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterListopt);
                       break;
             }
@@ -2086,10 +2086,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 64:  Conjunction ::= Expression
             //
             case 64: {
-               //#line 1360 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1358 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1361 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1359 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1360 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1361 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Expression);
                 setResult(l);
@@ -2100,12 +2100,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 65:  Conjunction ::= Conjunction , Expression
             //
             case 65: {
-               //#line 1367 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1365 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1368 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1366 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(1);
-                //#line 1365 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1366 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1367 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1368 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Conjunction.add(Expression);
                       break;
             }
@@ -2114,12 +2114,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 66:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
             case 66: {
-               //#line 1373 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1371 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1374 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1372 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1371 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1372 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1373 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1374 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, false));
                       break;
             }
@@ -2128,12 +2128,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 67:  SubtypeConstraint ::= Type$t1 :> Type$t2
             //
             case 67: {
-               //#line 1378 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1376 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1379 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1377 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1376 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1377 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1378 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1379 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
                       break;
             }
@@ -2142,10 +2142,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 68:  WhereClause ::= DepParameters
             //
             case 68: {
-               //#line 1384 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1382 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1385 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1383 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1384 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1385 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(DepParameters);
                       break;
             }
@@ -2154,9 +2154,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 69:  ExistentialListopt ::= $Empty
             //
             case 69: {
-               //#line 1390 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1391 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1390 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1391 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(new ArrayList());
                       break;
             }
@@ -2165,10 +2165,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 70:  ExistentialListopt ::= ExistentialList ;
             //
             case 70: {
-               //#line 1395 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1393 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1396 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1394 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1395 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1396 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(ExistentialList);
                       break;
             }
@@ -2177,10 +2177,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 71:  ExistentialList ::= FormalParameter
             //
             case 71: {
-               //#line 1401 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1399 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1402 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1400 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1401 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1402 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 setResult(l);
@@ -2191,12 +2191,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 72:  ExistentialList ::= ExistentialList ; FormalParameter
             //
             case 72: {
-               //#line 1408 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1406 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1409 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1407 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1406 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1407 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1408 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1409 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2205,24 +2205,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 75:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
             case 75: {
-               //#line 1419 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1420 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1417 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1418 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1419 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1420 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -2237,33 +2237,33 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 76:  ValueClassDeclaration ::= ClassModifiersopt value Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 76:  ValueClassDeclaration ::= ClassModifiersopt primitive Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
             case 76: {
-               //#line 1434 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1435 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1432 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1433 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1434 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1435 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
     checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
     List props = Propertiesopt;
     DepParameterExpr ci = WhereClauseopt;
     ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-    extractFlags(ClassModifiersopt, X10Flags.VALUE), Identifier,  TypeParametersopt,
+    extractFlags(ClassModifiersopt, X10Flags.PRIMITIVE.Final()), Identifier,  TypeParametersopt,
     props, ci, Superopt, Interfacesopt, ClassBody));
     cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
     setResult(cd);
@@ -2274,22 +2274,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 77:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt ConstructorBody
             //
             case 77: {
-               //#line 1448 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1449 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1446 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1447 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
-                //#line 1448 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1449 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
                                              nf.Id(pos(3), "this"),
@@ -2308,10 +2308,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 78:  Super ::= extends ClassType
             //
             case 78: {
-               //#line 1464 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1462 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1465 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1463 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1464 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1465 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClassType);
                       break;
             }
@@ -2320,9 +2320,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 79:  FieldKeyword ::= val
             //
             case 79: {
-               //#line 1470 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1471 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1470 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1471 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2331,9 +2331,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 80:  FieldKeyword ::= var
             //
             case 80: {
-               //#line 1475 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1476 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1475 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1476 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
@@ -2342,9 +2342,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 81:  FieldKeyword ::= const
             //
             case 81: {
-               //#line 1480 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1481 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1480 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1481 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
                       break;
             }
@@ -2353,9 +2353,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 82:  VarKeyword ::= val
             //
             case 82: {
-               //#line 1488 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1489 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1488 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1489 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -2364,9 +2364,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 83:  VarKeyword ::= var
             //
             case 83: {
-               //#line 1493 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1494 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1493 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1494 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
@@ -2375,14 +2375,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 84:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
             //
             case 84: {
-               //#line 1500 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1498 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1501 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1499 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1498 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1499 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1498 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1499 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
-                //#line 1500 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1501 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -2409,12 +2409,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 85:  FieldDeclaration ::= FieldModifiersopt FieldDeclarators ;
             //
             case 85: {
-               //#line 1524 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1522 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1525 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1523 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1522 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1523 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(2);
-                //#line 1524 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1525 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                     List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
@@ -2442,12 +2442,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 115:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 115: {
-               //#line 1583 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1581 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1584 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1582 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1581 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1582 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1583 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1584 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                       break;
             }
@@ -2456,14 +2456,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 116:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
             case 116: {
-               //#line 1589 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1587 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1590 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1588 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1587 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1588 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1587 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1588 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 1589 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1590 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                       break;
             }
@@ -2472,9 +2472,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 117:  EmptyStatement ::= ;
             //
             case 117: {
-               //#line 1595 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1596 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1595 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1596 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Empty(pos()));
                       break;
             }
@@ -2483,12 +2483,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 118:  LabeledStatement ::= Identifier : LoopStatement
             //
             case 118: {
-               //#line 1601 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1599 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1602 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1600 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1599 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1600 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
-                //#line 1601 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1602 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
                       break;
             }
@@ -2497,10 +2497,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 124:  ExpressionStatement ::= StatementExpression ;
             //
             case 124: {
-               //#line 1613 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1611 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1614 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1612 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1613 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1614 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 boolean eval = true;
                 if (StatementExpression instanceof X10Call) {
                     X10Call c = (X10Call) StatementExpression;
@@ -2526,10 +2526,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 132:  AssertStatement ::= assert Expression ;
             //
             case 132: {
-               //#line 1644 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1642 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1645 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1643 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1644 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1645 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
                       break;
             }
@@ -2538,12 +2538,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 133:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 133: {
-               //#line 1649 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1647 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1650 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1648 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1647 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1648 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1649 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1650 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                       break;
             }
@@ -2552,12 +2552,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 134:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 134: {
-               //#line 1655 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1653 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1656 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1654 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1653 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1654 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1655 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1656 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                       break;
             }
@@ -2566,12 +2566,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 135:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 135: {
-               //#line 1661 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1659 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1662 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1660 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1659 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1660 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1661 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1662 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                       break;
@@ -2581,12 +2581,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 137:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 137: {
-               //#line 1669 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1667 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1670 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1668 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1667 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1668 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1669 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1670 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                       break;
@@ -2596,12 +2596,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 138:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 138: {
-               //#line 1676 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1674 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1677 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1675 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1674 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1675 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1676 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1677 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2613,10 +2613,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 139:  SwitchLabels ::= SwitchLabel
             //
             case 139: {
-               //#line 1685 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1683 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1686 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1684 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1685 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1686 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2627,12 +2627,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 140:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 140: {
-               //#line 1692 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1690 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1693 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1691 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1690 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1691 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1692 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1693 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                       break;
@@ -2642,10 +2642,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 141:  SwitchLabel ::= case ConstantExpression :
             //
             case 141: {
-               //#line 1699 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1697 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1700 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1698 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1699 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1700 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                       break;
             }
@@ -2654,9 +2654,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 142:  SwitchLabel ::= default :
             //
             case 142: {
-               //#line 1704 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1705 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1704 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1705 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Default(pos()));
                       break;
             }
@@ -2665,12 +2665,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 143:  WhileStatement ::= while ( Expression ) Statement
             //
             case 143: {
-               //#line 1710 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1708 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1711 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1709 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1708 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1709 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1710 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1711 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                       break;
             }
@@ -2679,12 +2679,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 144:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 144: {
-               //#line 1716 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1714 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1717 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1715 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1714 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1715 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1716 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1717 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                       break;
             }
@@ -2693,16 +2693,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 147:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 147: {
-               //#line 1725 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1723 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1726 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1724 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1723 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1724 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1723 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1724 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1723 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1724 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1725 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1726 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                       break;
             }
@@ -2711,10 +2711,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 149:  ForInit ::= LocalVariableDeclaration
             //
             case 149: {
-               //#line 1732 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1730 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1733 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1731 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1732 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1733 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2725,10 +2725,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 151:  StatementExpressionList ::= StatementExpression
             //
             case 151: {
-               //#line 1742 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1740 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1743 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1741 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1742 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1743 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2739,12 +2739,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 152:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 152: {
-               //#line 1749 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1747 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1750 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1748 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1747 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1748 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1749 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1750 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                       break;
             }
@@ -2753,10 +2753,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 153:  BreakStatement ::= break Identifieropt ;
             //
             case 153: {
-               //#line 1755 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1753 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1756 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1754 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1755 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1756 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                       break;
             }
@@ -2765,10 +2765,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 154:  ContinueStatement ::= continue Identifieropt ;
             //
             case 154: {
-               //#line 1761 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1759 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1762 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1760 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1761 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1762 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                       break;
             }
@@ -2777,10 +2777,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 155:  ReturnStatement ::= return Expressionopt ;
             //
             case 155: {
-               //#line 1767 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1765 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1768 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1766 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1767 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1768 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                       break;
             }
@@ -2789,10 +2789,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 156:  ThrowStatement ::= throw Expression ;
             //
             case 156: {
-               //#line 1773 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1771 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1774 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1772 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1773 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1774 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
                       break;
             }
@@ -2801,12 +2801,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 157:  TryStatement ::= try Block Catches
             //
             case 157: {
-               //#line 1779 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1777 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1780 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1778 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1777 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1778 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1779 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1780 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                       break;
             }
@@ -2815,14 +2815,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 158:  TryStatement ::= try Block Catchesopt Finally
             //
             case 158: {
-               //#line 1784 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1782 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1785 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1783 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1782 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1783 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1782 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1783 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1784 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1785 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                       break;
             }
@@ -2831,10 +2831,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 159:  Catches ::= CatchClause
             //
             case 159: {
-               //#line 1790 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1788 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1791 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1789 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1790 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1791 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2845,12 +2845,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 160:  Catches ::= Catches CatchClause
             //
             case 160: {
-               //#line 1797 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1795 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1798 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1796 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1795 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1796 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1797 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1798 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                       break;
@@ -2860,12 +2860,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 161:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 161: {
-               //#line 1804 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1802 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1805 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1803 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1802 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1803 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1804 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1805 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                       break;
             }
@@ -2874,10 +2874,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 162:  Finally ::= finally Block
             //
             case 162: {
-               //#line 1810 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1808 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1811 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1809 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1810 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1811 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
@@ -2886,12 +2886,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 163:  NowStatement ::= now ( Clock ) Statement
             //
             case 163: {
-               //#line 1816 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1814 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1817 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1815 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1814 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1815 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1816 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1817 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                       break;
             }
@@ -2900,10 +2900,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 164:  ClockedClause ::= clocked ( ClockList )
             //
             case 164: {
-               //#line 1822 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1820 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1823 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1821 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1822 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1823 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
                       break;
             }
@@ -2912,14 +2912,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 165:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 165: {
-               //#line 1828 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1826 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1829 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1827 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1826 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1826 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1827 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1828 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1829 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -2931,12 +2931,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 166:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
             case 166: {
-               //#line 1837 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1835 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1838 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1836 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1835 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1836 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1837 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1838 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
                       break;
             }
@@ -2945,10 +2945,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 167:  AtomicStatement ::= atomic Statement
             //
             case 167: {
-               //#line 1843 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1841 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1844 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1842 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1843 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1844 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
                       break;
             }
@@ -2957,12 +2957,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 168:  WhenStatement ::= when ( Expression ) Statement
             //
             case 168: {
-               //#line 1850 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1848 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1851 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1849 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1848 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1849 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1850 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1851 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                       break;
             }
@@ -2971,16 +2971,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 169:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 169: {
-               //#line 1855 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1853 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1856 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1854 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1853 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1854 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1853 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1854 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1853 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1854 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1855 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1856 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                       break;
@@ -2990,16 +2990,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 170:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 170: {
-               //#line 1862 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1860 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1863 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1861 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1860 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1861 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1860 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1861 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1860 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1861 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1862 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1863 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -3016,16 +3016,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 171:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 171: {
-               //#line 1876 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1874 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1877 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1875 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1874 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1875 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1874 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1875 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1874 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1875 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1876 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1877 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -3042,14 +3042,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 172:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
             case 172: {
-               //#line 1890 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1888 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1891 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1889 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1888 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1889 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1888 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1889 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1890 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1891 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -3065,10 +3065,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 173:  FinishStatement ::= finish Statement
             //
             case 173: {
-               //#line 1903 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1901 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1904 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1902 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1903 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1904 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement));
                       break;
             }
@@ -3077,12 +3077,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 174:  AnnotationStatement ::= Annotations Statement
             //
             case 174: {
-               //#line 1910 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1908 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1911 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1909 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1908 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1909 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1910 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1911 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
                     Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
                 }
@@ -3094,10 +3094,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 175:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 175: {
-               //#line 1919 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1917 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1920 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1918 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1919 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1920 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
                       break;
             }
@@ -3106,9 +3106,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 177:  NextStatement ::= next ;
             //
             case 177: {
-               //#line 1927 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 1928 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1927 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1928 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Next(pos()));
                       break;
             }
@@ -3117,10 +3117,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 178:  AwaitStatement ::= await Expression ;
             //
             case 178: {
-               //#line 1933 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1931 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1934 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1932 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1933 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1934 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Await(pos(), Expression));
                       break;
             }
@@ -3129,10 +3129,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 179:  ClockList ::= Clock
             //
             case 179: {
-               //#line 1939 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1937 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1940 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1938 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1939 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1940 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -3143,12 +3143,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 180:  ClockList ::= ClockList , Clock
             //
             case 180: {
-               //#line 1946 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1944 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1947 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1945 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1944 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1945 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1946 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1947 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                       break;
@@ -3158,10 +3158,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 181:  Clock ::= Expression
             //
             case 181: {
-               //#line 1954 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1955 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1954 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1955 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
     setResult(Expression);
                       break;
             }
@@ -3170,12 +3170,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 182:  CastExpression ::= CastExpression as Type
             //
             case 182: {
-               //#line 1968 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1966 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1969 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1967 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 1966 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1967 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1968 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1969 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
                       break;
             }
@@ -3184,12 +3184,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 183:  CastExpression ::= ConditionalExpression ! Expression
             //
             case 183: {
-               //#line 1973 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1971 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1974 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1972 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1971 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1972 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1973 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1974 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
                       break;
             }
@@ -3198,10 +3198,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 185:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
             case 185: {
-               //#line 1982 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1980 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1983 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1981 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
-                //#line 1982 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1983 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParamWithVariance);
                 setResult(l);
@@ -3212,12 +3212,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 186:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
             case 186: {
-               //#line 1989 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1987 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1990 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1988 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(1);
-                //#line 1987 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1988 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(3);
-                //#line 1989 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1990 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParamWithVarianceList.add(TypeParamWithVariance);
                 setResult(TypeParamWithVarianceList);
                       break;
@@ -3227,10 +3227,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 187:  TypeParameterList ::= TypeParameter
             //
             case 187: {
-               //#line 1996 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1994 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 1997 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1995 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 1996 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1997 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -3241,12 +3241,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 188:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
             case 188: {
-               //#line 2003 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2001 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2004 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2002 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 2001 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2002 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 2003 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2004 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                       break;
@@ -3256,10 +3256,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 189:  TypeParamWithVariance ::= Identifier
             //
             case 189: {
-               //#line 2010 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2008 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2011 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2009 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2010 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2011 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
                       break;
             }
@@ -3268,10 +3268,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 190:  TypeParamWithVariance ::= + Identifier
             //
             case 190: {
-               //#line 2015 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2013 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2016 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2014 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2015 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2016 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
                       break;
             }
@@ -3280,10 +3280,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 191:  TypeParamWithVariance ::= - Identifier
             //
             case 191: {
-               //#line 2020 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2018 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2021 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2019 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2020 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2021 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
                       break;
             }
@@ -3292,10 +3292,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 192:  TypeParameter ::= Identifier
             //
             case 192: {
-               //#line 2026 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2024 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2027 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2025 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2026 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2027 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                       break;
             }
@@ -3304,9 +3304,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 193:  Primary ::= here
             //
             case 193: {
-               //#line 2032 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2033 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2032 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2033 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                       break;
             }
@@ -3315,10 +3315,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 195:  RegionExpressionList ::= RegionExpression
             //
             case 195: {
-               //#line 2040 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2038 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2041 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2039 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 2040 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2041 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -3329,12 +3329,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 196:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 196: {
-               //#line 2047 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2045 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2048 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2046 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 2045 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2046 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 2047 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2048 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                       break;
@@ -3344,10 +3344,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 197:  Primary ::= [ ArgumentListopt ]
             //
             case 197: {
-               //#line 2054 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2052 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2055 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2053 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 2054 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2055 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                       break;
@@ -3357,12 +3357,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 198:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 198: {
-               //#line 2061 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2059 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2062 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2060 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2059 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2060 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2061 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2062 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                       break;
@@ -3372,20 +3372,20 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 199:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
             //
             case 199: {
-               //#line 2068 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2069 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(1);
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(2);
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 2066 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2067 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
-                //#line 2068 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2069 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
                       break;
@@ -3395,10 +3395,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 200:  LastExpression ::= Expression
             //
             case 200: {
-               //#line 2075 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2073 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2076 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2074 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2075 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2076 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                       break;
             }
@@ -3407,10 +3407,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 201:  ClosureBody ::= CastExpression
             //
             case 201: {
-               //#line 2081 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2079 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2082 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2080 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2081 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2082 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
                       break;
             }
@@ -3419,14 +3419,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 202:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
             case 202: {
-               //#line 2086 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2084 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2087 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2085 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2084 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2085 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2084 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2085 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2086 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2087 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -3440,12 +3440,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 203:  ClosureBody ::= Annotationsopt Block
             //
             case 203: {
-               //#line 2096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
                 setResult(b);
@@ -3456,12 +3456,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 204:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
             case 204: {
-               //#line 2105 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2103 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2106 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2104 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2103 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2104 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2105 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2106 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3470,10 +3470,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 205:  AsyncExpression ::= async ClosureBody
             //
             case 205: {
-               //#line 2111 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2109 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2112 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2110 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2111 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2112 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3482,12 +3482,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 206:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
             case 206: {
-               //#line 2116 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2114 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2117 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2115 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2114 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2115 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2116 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2117 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3496,12 +3496,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 207:  AsyncExpression ::= async [ Type ] ClosureBody
             //
             case 207: {
-               //#line 2121 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2119 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2122 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2120 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2119 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2120 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2121 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2122 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3510,14 +3510,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 208:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 208: {
-               //#line 2126 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2124 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2127 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2125 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2124 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2125 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2124 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2125 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2126 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2127 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
@@ -3526,10 +3526,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 209:  FutureExpression ::= future ClosureBody
             //
             case 209: {
-               //#line 2132 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2130 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2133 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2131 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2132 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2133 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3538,12 +3538,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 210:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
             case 210: {
-               //#line 2137 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2135 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2138 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2136 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2135 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2136 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2137 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2138 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
@@ -3552,12 +3552,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 211:  FutureExpression ::= future [ Type ] ClosureBody
             //
             case 211: {
-               //#line 2142 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2140 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2143 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2141 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2140 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2141 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2142 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2143 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                       break;
             }
@@ -3566,14 +3566,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 212:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 212: {
-               //#line 2147 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2145 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2148 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2146 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2145 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2146 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2145 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2146 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2147 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2148 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                       break;
             }
@@ -3589,9 +3589,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 215:  PropertyListopt ::= $Empty
             //
             case 215: {
-               //#line 2158 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2159 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2158 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2159 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
@@ -3614,9 +3614,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 221:  ClassModifiersopt ::= $Empty
             //
             case 221: {
-               //#line 2173 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2174 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2173 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2174 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
@@ -3624,9 +3624,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 223:  TypeDefModifiersopt ::= $Empty
             //
             case 223: {
-               //#line 2179 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2180 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2179 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2180 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
@@ -3641,9 +3641,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 226:  Unsafeopt ::= unsafe
             //
             case 226: {
-               //#line 2187 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2188 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2187 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2188 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 // any value distinct from null
                 setResult(this);
                       break;
@@ -3653,9 +3653,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 227:  ClockedClauseopt ::= $Empty
             //
             case 227: {
-               //#line 2194 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2195 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2194 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2195 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
@@ -3664,10 +3664,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 229:  identifier ::= IDENTIFIER$ident
             //
             case 229: {
-               //#line 2205 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2203 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2206 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2204 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2205 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2206 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                       break;
@@ -3677,10 +3677,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 230:  TypeName ::= Identifier
             //
             case 230: {
-               //#line 2212 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2210 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2213 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2211 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2212 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2213 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3689,12 +3689,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 231:  TypeName ::= TypeName . Identifier
             //
             case 231: {
-               //#line 2217 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2215 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2218 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2216 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2215 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2216 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2217 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2218 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3707,10 +3707,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 233:  TypeArguments ::= [ TypeArgumentList ]
             //
             case 233: {
-               //#line 2229 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2227 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2230 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2228 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 2229 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2230 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
                       break;
             }
@@ -3719,10 +3719,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 234:  TypeArgumentList ::= Type
             //
             case 234: {
-               //#line 2236 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2234 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2237 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2235 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2236 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2237 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -3733,12 +3733,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 235:  TypeArgumentList ::= TypeArgumentList , Type
             //
             case 235: {
-               //#line 2243 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2241 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2244 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2242 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2241 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2242 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2243 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2244 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
                       break;
             }
@@ -3747,10 +3747,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 236:  PackageName ::= Identifier
             //
             case 236: {
-               //#line 2253 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2251 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2254 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2252 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2253 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2254 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3759,12 +3759,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 237:  PackageName ::= PackageName . Identifier
             //
             case 237: {
-               //#line 2258 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2256 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2259 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2257 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2256 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2257 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2258 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2259 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3777,10 +3777,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 238:  ExpressionName ::= Identifier
             //
             case 238: {
-               //#line 2274 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2272 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2275 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2273 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2274 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2275 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3789,12 +3789,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 239:  ExpressionName ::= AmbiguousName . Identifier
             //
             case 239: {
-               //#line 2279 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2277 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2280 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2278 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2277 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2278 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2279 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2280 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3807,10 +3807,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 240:  MethodName ::= Identifier
             //
             case 240: {
-               //#line 2289 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2287 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2290 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2288 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2289 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2290 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3819,12 +3819,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 241:  MethodName ::= AmbiguousName . Identifier
             //
             case 241: {
-               //#line 2294 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2292 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2295 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2293 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2292 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2293 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2294 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2295 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3837,10 +3837,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 242:  PackageOrTypeName ::= Identifier
             //
             case 242: {
-               //#line 2304 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2302 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2305 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2303 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2304 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2305 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3849,12 +3849,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 243:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
             case 243: {
-               //#line 2309 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2307 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2310 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2308 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2307 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2308 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2309 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2310 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3867,10 +3867,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 244:  AmbiguousName ::= Identifier
             //
             case 244: {
-               //#line 2319 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2317 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2320 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2318 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2319 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2320 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -3879,12 +3879,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 245:  AmbiguousName ::= AmbiguousName . Identifier
             //
             case 245: {
-               //#line 2324 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2322 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2325 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2323 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2322 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2323 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2324 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2325 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3897,14 +3897,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 246:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 246: {
-               //#line 2336 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2334 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2337 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2335 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2334 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2335 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2334 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2335 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2336 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2337 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3923,10 +3923,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 247:  ImportDeclarations ::= ImportDeclaration
             //
             case 247: {
-               //#line 2352 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2350 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2353 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2351 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2352 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2353 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3937,12 +3937,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 248:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 248: {
-               //#line 2359 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2357 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2360 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2358 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2357 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2358 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2359 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2360 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -3953,10 +3953,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 249:  TypeDeclarations ::= TypeDeclaration
             //
             case 249: {
-               //#line 2367 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2365 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2368 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2366 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2367 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2368 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -3968,12 +3968,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 250:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 250: {
-               //#line 2375 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2373 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2376 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2374 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2373 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2374 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2375 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2376 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -3984,12 +3984,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 251:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
             case 251: {
-               //#line 2383 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2381 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2384 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2382 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2381 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2382 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2383 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2384 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn);
@@ -4000,10 +4000,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 254:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 254: {
-               //#line 2397 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2395 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2398 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2396 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2397 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2398 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                       break;
             }
@@ -4012,10 +4012,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 255:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 255: {
-               //#line 2403 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2401 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2404 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2402 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2403 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2404 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                       break;
             }
@@ -4024,9 +4024,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 259:  TypeDeclaration ::= ;
             //
             case 259: {
-               //#line 2418 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2419 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2418 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2419 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
@@ -4035,10 +4035,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 260:  ClassModifiers ::= ClassModifier
             //
             case 260: {
-               //#line 2426 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2424 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2427 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2425 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2426 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2427 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -4049,12 +4049,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 261:  ClassModifiers ::= ClassModifiers ClassModifier
             //
             case 261: {
-               //#line 2433 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2431 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2434 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2432 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2431 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2432 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2433 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2434 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassModifiers.addAll(ClassModifier);
                       break;
             }
@@ -4063,10 +4063,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 262:  ClassModifier ::= Annotation
             //
             case 262: {
-               //#line 2439 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2437 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2440 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2438 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2439 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2440 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4075,9 +4075,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 263:  ClassModifier ::= public
             //
             case 263: {
-               //#line 2444 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2445 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2444 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2445 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4086,9 +4086,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 264:  ClassModifier ::= protected
             //
             case 264: {
-               //#line 2449 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2450 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2449 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2450 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4097,9 +4097,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 265:  ClassModifier ::= private
             //
             case 265: {
-               //#line 2454 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2455 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2454 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2455 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4108,9 +4108,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 266:  ClassModifier ::= abstract
             //
             case 266: {
-               //#line 2459 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2460 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2459 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2460 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -4119,9 +4119,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 267:  ClassModifier ::= static
             //
             case 267: {
-               //#line 2464 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2465 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2464 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2465 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4130,9 +4130,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 268:  ClassModifier ::= final
             //
             case 268: {
-               //#line 2469 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2470 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2469 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2470 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -4141,9 +4141,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 269:  ClassModifier ::= strictfp
             //
             case 269: {
-               //#line 2474 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2475 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2474 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2475 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
@@ -4152,9 +4152,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 270:  ClassModifier ::= safe
             //
             case 270: {
-               //#line 2479 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2480 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2479 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2480 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
@@ -4163,10 +4163,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 271:  ClassModifier ::= value
             //
             case 271: {
-               //#line 2484 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2485 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2484 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.VALUE)));
+                //#line 2485 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PRIMITIVE)));
                       break;
             }
     
@@ -4174,10 +4174,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 272:  TypeDefModifiers ::= TypeDefModifier
             //
             case 272: {
-               //#line 2490 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2488 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2491 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2489 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2490 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2491 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -4188,12 +4188,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 273:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
             case 273: {
-               //#line 2497 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2495 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2498 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2496 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2495 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2496 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2497 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2498 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                       break;
             }
@@ -4202,10 +4202,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 274:  TypeDefModifier ::= Annotation
             //
             case 274: {
-               //#line 2503 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2501 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2504 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2502 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2503 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2504 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4214,9 +4214,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 275:  TypeDefModifier ::= public
             //
             case 275: {
-               //#line 2508 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2509 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2508 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2509 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4225,9 +4225,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 276:  TypeDefModifier ::= protected
             //
             case 276: {
-               //#line 2513 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2514 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2513 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2514 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4236,9 +4236,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 277:  TypeDefModifier ::= private
             //
             case 277: {
-               //#line 2518 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2519 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2518 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2519 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4247,9 +4247,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 278:  TypeDefModifier ::= abstract
             //
             case 278: {
-               //#line 2523 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2524 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2523 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2524 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -4258,9 +4258,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 279:  TypeDefModifier ::= static
             //
             case 279: {
-               //#line 2528 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2529 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2528 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2529 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4269,9 +4269,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 280:  TypeDefModifier ::= final
             //
             case 280: {
-               //#line 2533 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2534 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2533 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2534 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -4280,10 +4280,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 281:  Interfaces ::= implements InterfaceTypeList
             //
             case 281: {
-               //#line 2542 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2540 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2543 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2541 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2542 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2543 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
                       break;
             }
@@ -4292,10 +4292,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 282:  InterfaceTypeList ::= Type
             //
             case 282: {
-               //#line 2548 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2546 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2549 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2547 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2548 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2549 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4306,12 +4306,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 283:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
             case 283: {
-               //#line 2555 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2553 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2556 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2554 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2553 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2554 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2555 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2556 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                       break;
@@ -4321,10 +4321,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 284:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 284: {
-               //#line 2565 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2563 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2566 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2564 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2565 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2566 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                       break;
             }
@@ -4333,12 +4333,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 286:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
             case 286: {
-               //#line 2572 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2570 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2573 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2571 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2570 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2571 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2572 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2573 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                       break;
@@ -4348,10 +4348,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 288:  ClassBodyDeclaration ::= InstanceInitializer
             //
             case 288: {
-               //#line 2580 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2578 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2581 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2579 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Initializer InstanceInitializer = (Initializer) getRhsSym(1);
-                //#line 2580 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2581 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InstanceInitializer);
                 setResult(l);
@@ -4362,10 +4362,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 289:  ClassBodyDeclaration ::= StaticInitializer
             //
             case 289: {
-               //#line 2587 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2585 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2588 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2586 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Initializer StaticInitializer = (Initializer) getRhsSym(1);
-                //#line 2587 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2588 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(StaticInitializer);
                 setResult(l);
@@ -4376,10 +4376,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 290:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 290: {
-               //#line 2594 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2592 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2595 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2593 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2594 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2595 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -4390,10 +4390,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 292:  ClassMemberDeclaration ::= MethodDeclaration
             //
             case 292: {
-               //#line 2603 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2601 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2604 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2602 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2603 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2604 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4404,10 +4404,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 293:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 293: {
-               //#line 2610 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2608 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2611 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2609 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2610 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2611 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -4418,10 +4418,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 294:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
             case 294: {
-               //#line 2617 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2615 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2618 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2616 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2617 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2618 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -4432,10 +4432,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 295:  ClassMemberDeclaration ::= ClassDeclaration
             //
             case 295: {
-               //#line 2624 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2622 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2625 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2623 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2624 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2625 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4446,10 +4446,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 296:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
             case 296: {
-               //#line 2631 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2629 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2632 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2630 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2631 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2632 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4460,9 +4460,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 297:  ClassMemberDeclaration ::= ;
             //
             case 297: {
-               //#line 2638 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2639 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2638 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2639 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                       break;
@@ -4472,10 +4472,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 298:  FormalDeclarators ::= FormalDeclarator
             //
             case 298: {
-               //#line 2645 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2643 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2646 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2644 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2645 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2646 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -4486,12 +4486,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 299:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
             case 299: {
-               //#line 2652 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2650 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2653 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2651 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2650 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2651 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2652 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2653 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
                       break;
             }
@@ -4500,10 +4500,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 300:  FieldDeclarators ::= FieldDeclarator
             //
             case 300: {
-               //#line 2659 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2657 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2660 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2658 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2659 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2660 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -4514,12 +4514,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 301:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
             case 301: {
-               //#line 2666 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2664 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2667 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2665 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2664 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2665 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2666 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2667 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                       break;
@@ -4529,10 +4529,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 302:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
             case 302: {
-               //#line 2674 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2672 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2675 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2673 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 2674 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2675 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -4543,12 +4543,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 303:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
             case 303: {
-               //#line 2681 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2679 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2682 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2680 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2679 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2680 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 2681 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2682 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                       break;
@@ -4558,10 +4558,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 304:  VariableDeclarators ::= VariableDeclarator
             //
             case 304: {
-               //#line 2688 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2686 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2689 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2687 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2688 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2689 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -4572,12 +4572,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 305:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 305: {
-               //#line 2695 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2693 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2696 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2694 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2693 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2694 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2695 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2696 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                       break;
@@ -4587,10 +4587,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 307:  FieldModifiers ::= FieldModifier
             //
             case 307: {
-               //#line 2704 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2702 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2705 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2703 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2704 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2705 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -4601,12 +4601,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 308:  FieldModifiers ::= FieldModifiers FieldModifier
             //
             case 308: {
-               //#line 2711 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2709 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2712 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2710 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2709 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2710 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2711 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2712 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldModifiers.addAll(FieldModifier);
                       break;
             }
@@ -4615,10 +4615,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 309:  FieldModifier ::= Annotation
             //
             case 309: {
-               //#line 2717 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2715 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2718 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2716 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2717 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2718 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4627,9 +4627,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 310:  FieldModifier ::= public
             //
             case 310: {
-               //#line 2722 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2723 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2722 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2723 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -4638,9 +4638,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 311:  FieldModifier ::= protected
             //
             case 311: {
-               //#line 2727 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2728 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2727 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2728 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -4649,9 +4649,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 312:  FieldModifier ::= private
             //
             case 312: {
-               //#line 2732 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2733 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2732 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2733 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -4660,9 +4660,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 313:  FieldModifier ::= static
             //
             case 313: {
-               //#line 2737 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2738 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2737 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2738 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -4671,9 +4671,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 314:  FieldModifier ::= transient
             //
             case 314: {
-               //#line 2742 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2743 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2742 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2743 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.TRANSIENT)));
                       break;
             }
@@ -4682,9 +4682,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 315:  FieldModifier ::= volatile
             //
             case 315: {
-               //#line 2747 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2748 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2747 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2748 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
                       break;
             }
@@ -4693,10 +4693,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 316:  ResultType ::= : Type
             //
             case 316: {
-               //#line 2753 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2751 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2754 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2752 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2753 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2754 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
@@ -4705,10 +4705,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 317:  FormalParameters ::= ( FormalParameterList )
             //
             case 317: {
-               //#line 2759 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2757 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2760 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2758 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2759 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2760 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterList);
                       break;
             }
@@ -4717,10 +4717,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 318:  FormalParameterList ::= FormalParameter
             //
             case 318: {
-               //#line 2765 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2763 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2766 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2764 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2765 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2766 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4731,12 +4731,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 319:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
             case 319: {
-               //#line 2772 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2770 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2773 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2771 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2770 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2771 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2772 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2773 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
                       break;
             }
@@ -4745,12 +4745,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 320:  LoopIndexDeclarator ::= Identifier ResultTypeopt
             //
             case 320: {
-               //#line 2778 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2776 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2779 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2777 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2776 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2777 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 2778 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2779 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
                       break;
             }
@@ -4759,12 +4759,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 321:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
             //
             case 321: {
-               //#line 2783 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2781 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2784 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2782 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 2781 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2782 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2783 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2784 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
                       break;
             }
@@ -4773,14 +4773,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 322:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
             //
             case 322: {
-               //#line 2788 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2786 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2789 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2787 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2786 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2787 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 2786 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2787 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 2788 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2789 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
                       break;
             }
@@ -4789,12 +4789,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 323:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
             //
             case 323: {
-               //#line 2794 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2792 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2795 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2793 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2792 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2793 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 2794 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2795 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = LoopIndexDeclarator;
@@ -4821,14 +4821,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 324:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
             //
             case 324: {
-               //#line 2817 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2815 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2818 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2816 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2815 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2816 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2815 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2816 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 2817 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2818 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = LoopIndexDeclarator;
@@ -4855,12 +4855,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 325:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
             case 325: {
-               //#line 2841 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2839 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2842 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2840 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2839 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2840 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2841 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2842 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -4888,14 +4888,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 326:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
             case 326: {
-               //#line 2865 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2863 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2866 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2864 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2863 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2864 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2863 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2864 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2865 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2866 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -4923,10 +4923,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 327:  FormalParameter ::= Type
             //
             case 327: {
-               //#line 2889 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2887 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2890 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2888 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2889 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2890 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST, true);
             setResult(f);
@@ -4937,10 +4937,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 328:  VariableModifiers ::= VariableModifier
             //
             case 328: {
-               //#line 2897 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2895 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2898 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2896 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2897 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2898 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -4951,12 +4951,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 329:  VariableModifiers ::= VariableModifiers VariableModifier
             //
             case 329: {
-               //#line 2904 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2902 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2905 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2903 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2902 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2903 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2904 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2905 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableModifiers.addAll(VariableModifier);
                       break;
             }
@@ -4965,10 +4965,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 330:  VariableModifier ::= Annotation
             //
             case 330: {
-               //#line 2910 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2908 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2911 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2909 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2910 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2911 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -4977,9 +4977,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 331:  VariableModifier ::= shared
             //
             case 331: {
-               //#line 2915 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2916 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2915 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2916 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
                       break;
             }
@@ -4988,10 +4988,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 332:  MethodModifiers ::= MethodModifier
             //
             case 332: {
-               //#line 2924 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2922 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2925 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2923 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2924 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2925 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -5002,12 +5002,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 333:  MethodModifiers ::= MethodModifiers MethodModifier
             //
             case 333: {
-               //#line 2931 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2929 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2932 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2930 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2929 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2930 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2931 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2932 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiers.addAll(MethodModifier);
                       break;
             }
@@ -5016,10 +5016,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 334:  MethodModifier ::= Annotation
             //
             case 334: {
-               //#line 2937 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2935 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2938 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2936 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2937 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2938 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -5028,9 +5028,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 335:  MethodModifier ::= public
             //
             case 335: {
-               //#line 2942 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2943 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2942 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2943 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -5039,9 +5039,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 336:  MethodModifier ::= protected
             //
             case 336: {
-               //#line 2947 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2948 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2947 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2948 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -5050,9 +5050,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 337:  MethodModifier ::= private
             //
             case 337: {
-               //#line 2952 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2953 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2952 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2953 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -5061,9 +5061,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 338:  MethodModifier ::= abstract
             //
             case 338: {
-               //#line 2957 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2958 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2957 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2958 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -5072,9 +5072,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 339:  MethodModifier ::= static
             //
             case 339: {
-               //#line 2962 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2963 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2962 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2963 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -5083,9 +5083,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 340:  MethodModifier ::= final
             //
             case 340: {
-               //#line 2967 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2968 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2967 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2968 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
@@ -5094,9 +5094,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 341:  MethodModifier ::= native
             //
             case 341: {
-               //#line 2972 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2973 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2972 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2973 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
@@ -5105,9 +5105,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 342:  MethodModifier ::= strictfp
             //
             case 342: {
-               //#line 2977 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2978 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2977 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2978 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
@@ -5116,9 +5116,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 343:  MethodModifier ::= atomic
             //
             case 343: {
-               //#line 2982 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2983 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2982 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2983 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                       break;
             }
@@ -5127,9 +5127,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 344:  MethodModifier ::= extern
             //
             case 344: {
-               //#line 2987 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2988 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2987 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2988 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                       break;
             }
@@ -5138,9 +5138,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 345:  MethodModifier ::= safe
             //
             case 345: {
-               //#line 2992 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2993 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2992 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2993 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
@@ -5149,9 +5149,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 346:  MethodModifier ::= sequential
             //
             case 346: {
-               //#line 2997 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 2998 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2997 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2998 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                       break;
             }
@@ -5160,9 +5160,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 347:  MethodModifier ::= local
             //
             case 347: {
-               //#line 3002 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3003 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3002 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3003 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.LOCAL)));
                       break;
             }
@@ -5171,9 +5171,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 348:  MethodModifier ::= nonblocking
             //
             case 348: {
-               //#line 3007 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3008 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3007 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3008 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                       break;
             }
@@ -5182,9 +5182,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 349:  MethodModifier ::= incomplete
             //
             case 349: {
-               //#line 3012 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3013 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3012 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3013 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                       break;
             }
@@ -5193,9 +5193,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 350:  MethodModifier ::= property
             //
             case 350: {
-               //#line 3017 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3018 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3017 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3018 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                       break;
             }
@@ -5204,10 +5204,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 351:  Throws ::= throws ExceptionTypeList
             //
             case 351: {
-               //#line 3024 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3022 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3025 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3023 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 3024 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3025 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExceptionTypeList);
                       break;
             }
@@ -5216,10 +5216,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 352:  ExceptionTypeList ::= ExceptionType
             //
             case 352: {
-               //#line 3030 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3028 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3031 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3029 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 3030 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3031 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -5230,12 +5230,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 353:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 353: {
-               //#line 3037 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3035 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3038 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3036 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 3035 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3036 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 3037 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3038 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
                       break;
             }
@@ -5244,10 +5244,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 355:  MethodBody ::= = LastExpression ;
             //
             case 355: {
-               //#line 3045 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3043 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3046 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3044 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 3045 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3046 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
                       break;
             }
@@ -5256,12 +5256,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 356:  MethodBody ::= = { BlockStatementsopt LastExpression }
             //
             case 356: {
-               //#line 3050 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3048 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3051 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3049 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3048 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3049 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 3050 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3051 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -5273,10 +5273,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 357:  MethodBody ::= = Block
             //
             case 357: {
-               //#line 3058 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3056 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3059 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3057 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 3058 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3059 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
@@ -5285,10 +5285,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 358:  MethodBody ::= Block
             //
             case 358: {
-               //#line 3063 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3061 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3064 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3062 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 3063 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3064 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
@@ -5304,10 +5304,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 360:  InstanceInitializer ::= Block
             //
             case 360: {
-               //#line 3071 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3069 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3072 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3070 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 3071 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3072 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
                       break;
             }
@@ -5316,10 +5316,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 361:  StaticInitializer ::= static Block
             //
             case 361: {
-               //#line 3077 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3075 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3078 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3076 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 3077 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3078 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
                       break;
             }
@@ -5328,10 +5328,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 362:  SimpleTypeName ::= Identifier
             //
             case 362: {
-               //#line 3083 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3081 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3084 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3082 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3083 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3084 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -5340,10 +5340,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 363:  ConstructorModifiers ::= ConstructorModifier
             //
             case 363: {
-               //#line 3089 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3087 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3090 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3088 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 3089 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3090 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -5354,12 +5354,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 364:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
             case 364: {
-               //#line 3096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 3094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 3096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                       break;
             }
@@ -5368,10 +5368,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 365:  ConstructorModifier ::= Annotation
             //
             case 365: {
-               //#line 3102 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3100 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3103 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3101 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3102 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3103 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -5380,9 +5380,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 366:  ConstructorModifier ::= public
             //
             case 366: {
-               //#line 3107 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3108 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3107 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3108 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -5391,9 +5391,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 367:  ConstructorModifier ::= protected
             //
             case 367: {
-               //#line 3112 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3113 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3112 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3113 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -5402,9 +5402,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 368:  ConstructorModifier ::= private
             //
             case 368: {
-               //#line 3117 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3118 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3117 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3118 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -5413,9 +5413,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 369:  ConstructorModifier ::= native
             //
             case 369: {
-               //#line 3122 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3123 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3122 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3123 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
@@ -5424,10 +5424,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 370:  ConstructorBody ::= = ConstructorBlock
             //
             case 370: {
-               //#line 3128 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3126 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3129 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3127 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 3128 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3129 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
@@ -5436,10 +5436,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 371:  ConstructorBody ::= ConstructorBlock
             //
             case 371: {
-               //#line 3133 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3131 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3134 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3132 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
-                //#line 3133 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3134 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
@@ -5448,10 +5448,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 372:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
             case 372: {
-               //#line 3138 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3136 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3139 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3137 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
-                //#line 3138 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3139 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -5463,13 +5463,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 373:  ConstructorBody ::= = AssignPropertyCall
             //
             case 373: {
-               //#line 3146 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3144 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3147 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3145 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 3146 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3147 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
-                l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
+                l.add(nf.X10SuperCall(pos(), Collections.EMPTY_LIST).implicit(true));
                 l.add(AssignPropertyCall);
                 setResult(nf.Block(pos(), l));
                       break;
@@ -5486,17 +5486,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 375:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 375: {
-               //#line 3158 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3156 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3159 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3157 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3156 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3157 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3158 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3159 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
                 {
-                    l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
+                    l.add(nf.X10SuperCall(pos(), Collections.EMPTY_LIST).implicit(true));
                 }
                 else
                 {
@@ -5511,10 +5511,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 376:  Arguments ::= ( ArgumentListopt )
             //
             case 376: {
-               //#line 3175 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3173 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3176 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3174 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 3175 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3176 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
                       break;
             }
@@ -5523,10 +5523,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 378:  InterfaceModifiers ::= InterfaceModifier
             //
             case 378: {
-               //#line 3185 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3183 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3186 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3184 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 3185 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3186 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -5537,12 +5537,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 379:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
             case 379: {
-               //#line 3192 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3190 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3193 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3191 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 3190 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3191 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 3192 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3193 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                       break;
             }
@@ -5551,10 +5551,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 380:  InterfaceModifier ::= Annotation
             //
             case 380: {
-               //#line 3198 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3196 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3199 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3197 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3198 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3199 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
@@ -5563,9 +5563,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 381:  InterfaceModifier ::= public
             //
             case 381: {
-               //#line 3203 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3204 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3203 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3204 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
@@ -5574,9 +5574,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 382:  InterfaceModifier ::= protected
             //
             case 382: {
-               //#line 3208 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3209 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3208 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3209 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
@@ -5585,9 +5585,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 383:  InterfaceModifier ::= private
             //
             case 383: {
-               //#line 3213 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3214 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3213 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3214 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
@@ -5596,9 +5596,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 384:  InterfaceModifier ::= abstract
             //
             case 384: {
-               //#line 3218 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3219 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3218 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3219 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
@@ -5607,9 +5607,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 385:  InterfaceModifier ::= static
             //
             case 385: {
-               //#line 3223 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3224 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3223 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3224 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
@@ -5618,9 +5618,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 386:  InterfaceModifier ::= strictfp
             //
             case 386: {
-               //#line 3228 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3229 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3228 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3229 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
@@ -5629,10 +5629,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 387:  ExtendsInterfaces ::= extends Type
             //
             case 387: {
-               //#line 3234 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3232 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3235 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3233 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3234 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3235 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -5643,12 +5643,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 388:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
             case 388: {
-               //#line 3241 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3239 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3242 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3240 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3239 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3240 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3241 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3242 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
                       break;
             }
@@ -5657,10 +5657,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 389:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 389: {
-               //#line 3250 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3248 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3251 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3249 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 3250 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3251 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                       break;
             }
@@ -5669,12 +5669,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 391:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 391: {
-               //#line 3257 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3255 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3258 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3256 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3255 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3256 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 3257 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3258 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                       break;
@@ -5684,10 +5684,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 392:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
             case 392: {
-               //#line 3264 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3262 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3265 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3263 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3264 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3265 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5698,10 +5698,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 393:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 393: {
-               //#line 3271 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3269 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3272 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3270 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3271 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3272 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5712,10 +5712,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 394:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
             case 394: {
-               //#line 3278 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3276 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3279 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3277 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
-                //#line 3278 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3279 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.addAll(FieldDeclaration);
                 setResult(l);
@@ -5726,10 +5726,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 395:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
             case 395: {
-               //#line 3285 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3283 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3286 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3284 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3285 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3286 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5740,10 +5740,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 396:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
             case 396: {
-               //#line 3292 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3290 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3293 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3291 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3292 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3293 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5754,10 +5754,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 397:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
             case 397: {
-               //#line 3299 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3297 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3300 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3298 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3299 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3300 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5768,9 +5768,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 398:  InterfaceMemberDeclaration ::= ;
             //
             case 398: {
-               //#line 3306 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3307 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3306 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3307 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -5779,10 +5779,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 399:  Annotations ::= Annotation
             //
             case 399: {
-               //#line 3312 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3310 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3313 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3311 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3312 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3313 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5793,12 +5793,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 400:  Annotations ::= Annotations Annotation
             //
             case 400: {
-               //#line 3319 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3317 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3320 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3318 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3317 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3318 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3319 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3320 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
                       break;
             }
@@ -5807,10 +5807,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 401:  Annotation ::= @ NamedType
             //
             case 401: {
-               //#line 3325 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3323 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3326 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3324 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3325 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3326 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                       break;
             }
@@ -5819,10 +5819,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 402:  SimpleName ::= Identifier
             //
             case 402: {
-               //#line 3331 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3329 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3332 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3330 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3331 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3332 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
@@ -5831,10 +5831,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 403:  Identifier ::= identifier
             //
             case 403: {
-               //#line 3337 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3335 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3338 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3336 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3337 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3338 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                       break;
             }
@@ -5843,10 +5843,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 404:  VariableInitializers ::= VariableInitializer
             //
             case 404: {
-               //#line 3345 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3343 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3346 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3344 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 3345 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3346 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -5857,12 +5857,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 405:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 405: {
-               //#line 3352 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3350 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3353 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3351 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3350 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3351 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 3352 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3353 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                       break;
@@ -5872,10 +5872,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 406:  Block ::= { BlockStatementsopt }
             //
             case 406: {
-               //#line 3370 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3368 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3371 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3369 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 3370 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3371 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                       break;
             }
@@ -5884,10 +5884,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 407:  BlockStatements ::= BlockStatement
             //
             case 407: {
-               //#line 3376 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3374 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3377 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3375 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 3376 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3377 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5898,12 +5898,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 408:  BlockStatements ::= BlockStatements BlockStatement
             //
             case 408: {
-               //#line 3383 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3381 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3384 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3382 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3381 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3382 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 3383 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3384 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                       break;
@@ -5913,10 +5913,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 410:  BlockStatement ::= ClassDeclaration
             //
             case 410: {
-               //#line 3391 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3389 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3392 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3390 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3391 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3392 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5927,10 +5927,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 411:  BlockStatement ::= TypeDefDeclaration
             //
             case 411: {
-               //#line 3398 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3396 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3399 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3397 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3398 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3399 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5941,10 +5941,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 412:  BlockStatement ::= Statement
             //
             case 412: {
-               //#line 3405 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3403 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3406 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3404 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3405 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3406 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5955,10 +5955,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 413:  IdentifierList ::= Identifier
             //
             case 413: {
-               //#line 3413 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3411 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3414 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3412 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3413 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3414 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5969,12 +5969,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 414:  IdentifierList ::= IdentifierList , Identifier
             //
             case 414: {
-               //#line 3420 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3418 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3421 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3419 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3418 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3419 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3420 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3421 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
                       break;
             }
@@ -5983,12 +5983,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 415:  FormalDeclarator ::= Identifier ResultType
             //
             case 415: {
-               //#line 3426 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3424 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3427 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3425 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3424 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3425 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3426 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3427 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
                       break;
             }
@@ -5997,12 +5997,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 416:  FormalDeclarator ::= ( IdentifierList ) ResultType
             //
             case 416: {
-               //#line 3431 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3429 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3432 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3430 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3429 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3430 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3431 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3432 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
                       break;
             }
@@ -6011,14 +6011,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 417:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
             //
             case 417: {
-               //#line 3436 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3434 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3437 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3435 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3434 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3435 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3434 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3435 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3436 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3437 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
                       break;
             }
@@ -6027,12 +6027,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 418:  FieldDeclarator ::= Identifier ResultType
             //
             case 418: {
-               //#line 3442 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3440 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3443 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3441 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3440 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3441 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3442 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3443 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultType, null });
                       break;
             }
@@ -6041,14 +6041,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 419:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
             case 419: {
-               //#line 3447 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3445 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3448 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3446 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3445 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3446 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3445 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3446 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3447 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3448 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultTypeopt, VariableInitializer });
                       break;
             }
@@ -6057,14 +6057,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 420:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
             case 420: {
-               //#line 3453 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3451 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3454 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3452 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3451 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3452 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3451 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3452 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3453 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3454 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
                       break;
             }
@@ -6073,14 +6073,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 421:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
             case 421: {
-               //#line 3458 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3456 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3459 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3457 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3456 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3457 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3456 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3457 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3458 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3459 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
                       break;
             }
@@ -6089,16 +6089,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 422:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
             case 422: {
-               //#line 3463 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3461 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3464 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3462 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3461 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3462 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3461 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3462 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3461 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3462 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3463 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3464 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
                       break;
             }
@@ -6107,14 +6107,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 423:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
             //
             case 423: {
-               //#line 3469 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3467 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3470 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3468 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3467 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3468 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3467 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3468 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3469 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3470 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
                       break;
             }
@@ -6123,14 +6123,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 424:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
             //
             case 424: {
-               //#line 3474 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3472 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3475 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3473 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3472 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3473 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3472 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3473 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3474 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3475 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
                       break;
             }
@@ -6139,16 +6139,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 425:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
             //
             case 425: {
-               //#line 3479 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3477 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3480 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3478 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3477 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3478 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3477 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3478 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3477 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3478 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3479 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3480 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
                       break;
             }
@@ -6157,14 +6157,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 427:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
             case 427: {
-               //#line 3487 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3485 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3488 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3486 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3485 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3486 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3485 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3486 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3487 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3488 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6201,12 +6201,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 428:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
             case 428: {
-               //#line 3520 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3518 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3521 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3519 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3518 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3519 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
-                //#line 3520 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3521 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6244,14 +6244,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 429:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
             case 429: {
-               //#line 3554 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3552 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3555 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3553 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3552 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3553 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3552 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3553 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3554 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3555 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6289,10 +6289,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 431:  Primary ::= TypeName . class
             //
             case 431: {
-               //#line 3595 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3593 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3596 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3594 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3595 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3596 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeName instanceof ParsedName)
                 {
                     ParsedName a = (ParsedName) TypeName;
@@ -6306,9 +6306,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 432:  Primary ::= self
             //
             case 432: {
-               //#line 3605 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3606 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3605 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3606 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Self(pos()));
                       break;
             }
@@ -6317,9 +6317,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 433:  Primary ::= this
             //
             case 433: {
-               //#line 3610 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3611 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3610 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3611 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos()));
                       break;
             }
@@ -6328,10 +6328,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 434:  Primary ::= ClassName . this
             //
             case 434: {
-               //#line 3615 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3613 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3616 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3614 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3615 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3616 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                       break;
             }
@@ -6340,10 +6340,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 435:  Primary ::= ( Expression )
             //
             case 435: {
-               //#line 3620 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3618 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3621 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3619 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3620 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3621 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                       break;
             }
@@ -6352,10 +6352,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 441:  OperatorFunction ::= TypeName . +
             //
             case 441: {
-               //#line 3631 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3629 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3632 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3630 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3631 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3632 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6370,10 +6370,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 442:  OperatorFunction ::= TypeName . -
             //
             case 442: {
-               //#line 3642 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3640 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3643 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3641 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3642 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3643 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6388,10 +6388,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 443:  OperatorFunction ::= TypeName . *
             //
             case 443: {
-               //#line 3653 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3651 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3654 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3652 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3653 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3654 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6406,10 +6406,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 444:  OperatorFunction ::= TypeName . /
             //
             case 444: {
-               //#line 3664 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3662 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3665 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3663 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3664 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3665 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6424,10 +6424,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 445:  OperatorFunction ::= TypeName . %
             //
             case 445: {
-               //#line 3675 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3673 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3676 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3674 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3675 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3676 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6442,10 +6442,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 446:  OperatorFunction ::= TypeName . &
             //
             case 446: {
-               //#line 3686 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3684 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3687 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3685 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3686 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3687 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6460,10 +6460,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 447:  OperatorFunction ::= TypeName . |
             //
             case 447: {
-               //#line 3697 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3695 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3698 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3696 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3697 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3698 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6478,10 +6478,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 448:  OperatorFunction ::= TypeName . ^
             //
             case 448: {
-               //#line 3708 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3706 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3709 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3707 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3708 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3709 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6496,10 +6496,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 449:  OperatorFunction ::= TypeName . <<
             //
             case 449: {
-               //#line 3719 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3717 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3720 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3718 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3719 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3720 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6514,10 +6514,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 450:  OperatorFunction ::= TypeName . >>
             //
             case 450: {
-               //#line 3730 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3728 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3731 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3729 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3730 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3731 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6532,10 +6532,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 451:  OperatorFunction ::= TypeName . >>>
             //
             case 451: {
-               //#line 3741 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3739 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3742 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3740 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3741 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3742 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6550,10 +6550,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 452:  OperatorFunction ::= TypeName . <
             //
             case 452: {
-               //#line 3752 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3750 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3753 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3751 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3752 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3753 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6568,10 +6568,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 453:  OperatorFunction ::= TypeName . <=
             //
             case 453: {
-               //#line 3763 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3761 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3764 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3762 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3763 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3764 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6586,10 +6586,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 454:  OperatorFunction ::= TypeName . >=
             //
             case 454: {
-               //#line 3774 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3772 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3775 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3773 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3774 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3775 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6604,10 +6604,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 455:  OperatorFunction ::= TypeName . >
             //
             case 455: {
-               //#line 3785 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3783 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3786 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3784 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3785 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3786 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6622,10 +6622,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 456:  OperatorFunction ::= TypeName . ==
             //
             case 456: {
-               //#line 3796 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3794 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3797 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3795 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3796 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3797 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6640,10 +6640,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 457:  OperatorFunction ::= TypeName . !=
             //
             case 457: {
-               //#line 3807 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3805 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3808 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3806 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3807 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3808 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6658,10 +6658,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 458:  Literal ::= IntegerLiteral$lit
             //
             case 458: {
-               //#line 3820 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3818 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3821 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3819 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3820 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3821 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                       break;
@@ -6671,10 +6671,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 459:  Literal ::= LongLiteral$lit
             //
             case 459: {
-               //#line 3826 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3824 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3827 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3825 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3826 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3827 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                       break;
@@ -6684,10 +6684,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 460:  Literal ::= UnsignedIntegerLiteral$lit
             //
             case 460: {
-               //#line 3832 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3830 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3833 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3831 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3832 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3833 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
                       break;
@@ -6697,10 +6697,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 461:  Literal ::= UnsignedLongLiteral$lit
             //
             case 461: {
-               //#line 3838 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3836 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3839 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3837 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3838 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3839 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
                       break;
@@ -6710,10 +6710,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 462:  Literal ::= FloatingPointLiteral$lit
             //
             case 462: {
-               //#line 3844 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3842 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3845 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3843 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3844 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3845 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                       break;
@@ -6723,10 +6723,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 463:  Literal ::= DoubleLiteral$lit
             //
             case 463: {
-               //#line 3850 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3848 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3851 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3849 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3850 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3851 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                       break;
@@ -6736,10 +6736,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 464:  Literal ::= BooleanLiteral
             //
             case 464: {
-               //#line 3856 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3854 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3857 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3855 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3856 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3857 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                       break;
             }
@@ -6748,10 +6748,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 465:  Literal ::= CharacterLiteral$lit
             //
             case 465: {
-               //#line 3861 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3859 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3862 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3860 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3861 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3862 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                       break;
@@ -6761,10 +6761,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 466:  Literal ::= StringLiteral$str
             //
             case 466: {
-               //#line 3867 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3865 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3868 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3866 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3867 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3868 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                       break;
@@ -6774,9 +6774,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 467:  Literal ::= null
             //
             case 467: {
-               //#line 3873 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3874 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3873 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3874 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.NullLit(pos()));
                       break;
             }
@@ -6785,10 +6785,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 468:  BooleanLiteral ::= true$trueLiteral
             //
             case 468: {
-               //#line 3879 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3877 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3880 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3878 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3879 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3880 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
@@ -6797,10 +6797,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 469:  BooleanLiteral ::= false$falseLiteral
             //
             case 469: {
-               //#line 3884 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3882 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3885 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3883 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3884 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3885 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
@@ -6809,10 +6809,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 470:  ArgumentList ::= Expression
             //
             case 470: {
-               //#line 3893 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3891 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3894 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3892 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3893 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3894 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6823,12 +6823,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 471:  ArgumentList ::= ArgumentList , Expression
             //
             case 471: {
-               //#line 3900 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3901 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3898 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3899 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3900 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3901 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
                       break;
             }
@@ -6837,12 +6837,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 472:  FieldAccess ::= Primary . Identifier
             //
             case 472: {
-               //#line 3906 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3904 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3907 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3905 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3904 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3905 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3906 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3907 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                       break;
             }
@@ -6851,10 +6851,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 473:  FieldAccess ::= super . Identifier
             //
             case 473: {
-               //#line 3911 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3909 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3912 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3910 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3911 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3912 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
@@ -6863,14 +6863,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 474:  FieldAccess ::= ClassName . super$sup . Identifier
             //
             case 474: {
-               //#line 3916 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3914 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3917 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3915 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3914 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3915 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3914 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3915 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3916 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3917 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
@@ -6879,12 +6879,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 475:  FieldAccess ::= Primary . class$c
             //
             case 475: {
-               //#line 3921 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3919 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3922 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3920 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3919 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3920 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3921 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3922 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
@@ -6893,10 +6893,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 476:  FieldAccess ::= super . class$c
             //
             case 476: {
-               //#line 3926 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3924 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3927 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3925 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3926 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3927 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
@@ -6905,14 +6905,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 477:  FieldAccess ::= ClassName . super$sup . class$c
             //
             case 477: {
-               //#line 3931 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3929 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3932 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3930 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3929 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3930 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3929 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3930 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 3931 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3932 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
@@ -6921,14 +6921,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 478:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
             case 478: {
-               //#line 3937 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3935 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3938 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3936 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3935 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3936 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3935 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3936 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3937 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3938 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6939,16 +6939,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 479:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 479: {
-               //#line 3944 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3942 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3945 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3943 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3942 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3943 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3942 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3943 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3942 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3943 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3944 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3945 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -6957,14 +6957,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 480:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 480: {
-               //#line 3949 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3947 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3950 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3948 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3947 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3948 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3947 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3948 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3949 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3950 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -6973,18 +6973,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 481:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 481: {
-               //#line 3954 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3955 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3952 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3953 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3954 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3955 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -6993,14 +6993,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 482:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
             case 482: {
-               //#line 3959 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3957 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3960 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3958 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3957 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3958 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3957 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3958 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3959 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3960 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -7023,14 +7023,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 483:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
             //
             case 483: {
-               //#line 3979 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3977 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3980 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3978 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3977 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3977 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 3979 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3980 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7047,16 +7047,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 484:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 484: {
-               //#line 3992 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3990 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3993 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3991 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3990 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3991 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3990 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3991 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3990 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3991 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3992 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3993 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7072,14 +7072,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 485:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 485: {
-               //#line 4004 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4002 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4005 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4003 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4002 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4003 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 4002 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4003 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 4004 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4005 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7095,18 +7095,18 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 486:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 486: {
-               //#line 4016 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4014 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4017 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4015 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4014 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4015 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4014 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4015 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4014 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4015 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 4014 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4015 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
-                //#line 4016 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4017 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7122,10 +7122,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 488:  PostfixExpression ::= ExpressionName
             //
             case 488: {
-               //#line 4030 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4028 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4031 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4029 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4030 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4031 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
@@ -7134,10 +7134,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 491:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 491: {
-               //#line 4038 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4036 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4039 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4037 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4038 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4039 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                       break;
             }
@@ -7146,10 +7146,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 492:  PostDecrementExpression ::= PostfixExpression --
             //
             case 492: {
-               //#line 4044 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4042 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4045 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4043 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4044 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4045 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                       break;
             }
@@ -7158,10 +7158,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 495:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
             case 495: {
-               //#line 4052 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4050 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4053 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4051 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4052 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4053 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                       break;
             }
@@ -7170,10 +7170,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 496:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
             case 496: {
-               //#line 4057 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4055 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4058 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4056 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4057 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4058 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                       break;
             }
@@ -7182,10 +7182,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 498:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
             case 498: {
-               //#line 4064 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4062 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4065 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4063 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4064 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4065 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                       break;
             }
@@ -7194,10 +7194,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 499:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
             case 499: {
-               //#line 4070 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4068 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4071 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4069 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4070 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4071 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                       break;
             }
@@ -7206,10 +7206,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 501:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 501: {
-               //#line 4077 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4075 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4078 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4076 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4077 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4078 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                       break;
             }
@@ -7218,12 +7218,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 502:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
             case 502: {
-               //#line 4082 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4080 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4083 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4081 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 4080 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4081 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4082 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4083 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -7234,10 +7234,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 503:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 503: {
-               //#line 4089 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4087 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4090 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4088 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4089 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4090 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                       break;
             }
@@ -7246,12 +7246,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 505:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 505: {
-               //#line 4096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4094 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4095 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4096 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4097 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                       break;
             }
@@ -7260,12 +7260,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 506:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 506: {
-               //#line 4101 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4099 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4102 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4100 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4099 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4100 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4101 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4102 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                       break;
             }
@@ -7274,12 +7274,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 507:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 507: {
-               //#line 4106 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4104 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4107 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4105 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4104 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4105 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4106 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4107 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                       break;
             }
@@ -7288,12 +7288,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 509:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 509: {
-               //#line 4113 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4111 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4114 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4112 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4111 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4112 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4113 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4114 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                       break;
             }
@@ -7302,12 +7302,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 510:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 510: {
-               //#line 4118 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4116 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4119 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4117 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4116 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4117 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4118 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4119 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                       break;
             }
@@ -7316,12 +7316,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 512:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 512: {
-               //#line 4125 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4123 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4126 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4124 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4123 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4124 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4125 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4126 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                       break;
             }
@@ -7330,12 +7330,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 513:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
             case 513: {
-               //#line 4130 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4128 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4131 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4129 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4128 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4129 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4130 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4131 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                       break;
             }
@@ -7344,12 +7344,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 514:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
             case 514: {
-               //#line 4135 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4133 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4136 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4134 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4133 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4134 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4135 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4136 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                       break;
             }
@@ -7358,12 +7358,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 516:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
             case 516: {
-               //#line 4142 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4140 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4143 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4141 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4140 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4141 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 4142 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4143 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                       break;
@@ -7373,12 +7373,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 519:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
             case 519: {
-               //#line 4151 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4149 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4152 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4150 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4149 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4150 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4151 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4152 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                       break;
             }
@@ -7387,12 +7387,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 520:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
             case 520: {
-               //#line 4156 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4154 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4157 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4155 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4154 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4155 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4156 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4157 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                       break;
             }
@@ -7401,12 +7401,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 521:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
             case 521: {
-               //#line 4161 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4159 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4162 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4160 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4159 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4160 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4161 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4162 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                       break;
             }
@@ -7415,12 +7415,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 522:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
             case 522: {
-               //#line 4166 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4164 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4167 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4165 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4164 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4165 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4166 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4167 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                       break;
             }
@@ -7429,12 +7429,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 523:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 523: {
-               //#line 4171 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4169 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4172 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4170 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4169 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4170 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 4171 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4172 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                       break;
             }
@@ -7443,12 +7443,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 524:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
             case 524: {
-               //#line 4176 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4174 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4177 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4175 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4174 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4175 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 4176 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4177 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                       break;
             }
@@ -7457,12 +7457,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 526:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 526: {
-               //#line 4183 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4181 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4184 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4182 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4181 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4182 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4183 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4184 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                       break;
             }
@@ -7471,12 +7471,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 527:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 527: {
-               //#line 4188 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4186 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4189 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4187 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4186 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4187 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4188 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4189 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                       break;
             }
@@ -7485,12 +7485,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 528:  EqualityExpression ::= Type$t1 == Type$t2
             //
             case 528: {
-               //#line 4193 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4191 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4194 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4192 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4191 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4192 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 4193 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4194 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                       break;
             }
@@ -7499,12 +7499,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 530:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 530: {
-               //#line 4200 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4198 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4201 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4199 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4198 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4199 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 4200 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4201 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                       break;
             }
@@ -7513,12 +7513,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 532:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 532: {
-               //#line 4207 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4205 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4208 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4206 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4205 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4206 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 4207 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4208 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                       break;
             }
@@ -7527,12 +7527,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 534:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 534: {
-               //#line 4214 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4212 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4215 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4213 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4212 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4213 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4214 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4215 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                       break;
             }
@@ -7541,12 +7541,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 536:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 536: {
-               //#line 4221 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4219 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4222 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4220 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4219 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4220 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4221 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4222 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                       break;
             }
@@ -7555,12 +7555,12 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 538:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 538: {
-               //#line 4228 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4226 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4229 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4227 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4226 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4227 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 4228 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4229 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                       break;
             }
@@ -7569,14 +7569,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 544:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 544: {
-               //#line 4240 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4238 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4241 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4239 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4238 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4239 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4238 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4239 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4240 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4241 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                       break;
             }
@@ -7585,14 +7585,14 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 547:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 547: {
-               //#line 4249 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4247 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4250 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4248 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4247 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4248 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4247 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4248 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4249 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4250 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                       break;
             }
@@ -7601,16 +7601,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 548:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 548: {
-               //#line 4254 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4255 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4252 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4253 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4254 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4255 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
@@ -7619,16 +7619,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 549:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 549: {
-               //#line 4259 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4257 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4260 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4258 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4257 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4258 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4257 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4258 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4257 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4258 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4259 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4260 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
@@ -7637,10 +7637,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 550:  LeftHandSide ::= ExpressionName
             //
             case 550: {
-               //#line 4265 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4263 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4266 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4264 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4265 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4266 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
@@ -7649,9 +7649,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 552:  AssignmentOperator ::= =
             //
             case 552: {
-               //#line 4272 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4273 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4272 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4273 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ASSIGN);
                       break;
             }
@@ -7660,9 +7660,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 553:  AssignmentOperator ::= *=
             //
             case 553: {
-               //#line 4277 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4278 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4277 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4278 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MUL_ASSIGN);
                       break;
             }
@@ -7671,9 +7671,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 554:  AssignmentOperator ::= /=
             //
             case 554: {
-               //#line 4282 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4283 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4282 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4283 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.DIV_ASSIGN);
                       break;
             }
@@ -7682,9 +7682,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 555:  AssignmentOperator ::= %=
             //
             case 555: {
-               //#line 4287 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4288 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4287 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4288 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MOD_ASSIGN);
                       break;
             }
@@ -7693,9 +7693,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 556:  AssignmentOperator ::= +=
             //
             case 556: {
-               //#line 4292 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4293 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4292 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4293 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ADD_ASSIGN);
                       break;
             }
@@ -7704,9 +7704,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 557:  AssignmentOperator ::= -=
             //
             case 557: {
-               //#line 4297 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4298 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4297 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4298 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SUB_ASSIGN);
                       break;
             }
@@ -7715,9 +7715,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 558:  AssignmentOperator ::= <<=
             //
             case 558: {
-               //#line 4302 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4303 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4302 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4303 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHL_ASSIGN);
                       break;
             }
@@ -7726,9 +7726,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 559:  AssignmentOperator ::= >>=
             //
             case 559: {
-               //#line 4307 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4308 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4307 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4308 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHR_ASSIGN);
                       break;
             }
@@ -7737,9 +7737,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 560:  AssignmentOperator ::= >>>=
             //
             case 560: {
-               //#line 4312 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4313 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4312 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4313 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.USHR_ASSIGN);
                       break;
             }
@@ -7748,9 +7748,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 561:  AssignmentOperator ::= &=
             //
             case 561: {
-               //#line 4317 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4318 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4317 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4318 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                       break;
             }
@@ -7759,9 +7759,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 562:  AssignmentOperator ::= ^=
             //
             case 562: {
-               //#line 4322 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4323 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4322 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4323 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                       break;
             }
@@ -7770,9 +7770,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 563:  AssignmentOperator ::= |=
             //
             case 563: {
-               //#line 4327 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4328 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4327 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4328 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                       break;
             }
@@ -7781,9 +7781,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 566:  PrefixOp ::= +
             //
             case 566: {
-               //#line 4338 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4339 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4338 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4339 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.POS);
                       break;
             }
@@ -7792,9 +7792,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 567:  PrefixOp ::= -
             //
             case 567: {
-               //#line 4343 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4344 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4343 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4344 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NEG);
                       break;
             }
@@ -7803,9 +7803,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 568:  PrefixOp ::= !
             //
             case 568: {
-               //#line 4348 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4349 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4348 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4349 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NOT);
                       break;
             }
@@ -7814,9 +7814,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 569:  PrefixOp ::= ~
             //
             case 569: {
-               //#line 4353 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4354 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4353 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4354 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.BIT_NOT);
                       break;
             }
@@ -7825,9 +7825,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 570:  BinOp ::= +
             //
             case 570: {
-               //#line 4359 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4360 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4359 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4360 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.ADD);
                       break;
             }
@@ -7836,9 +7836,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 571:  BinOp ::= -
             //
             case 571: {
-               //#line 4364 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4365 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4364 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4365 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SUB);
                       break;
             }
@@ -7847,9 +7847,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 572:  BinOp ::= *
             //
             case 572: {
-               //#line 4369 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4370 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4369 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4370 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MUL);
                       break;
             }
@@ -7858,9 +7858,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 573:  BinOp ::= /
             //
             case 573: {
-               //#line 4374 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4375 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4374 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4375 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.DIV);
                       break;
             }
@@ -7869,9 +7869,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 574:  BinOp ::= %
             //
             case 574: {
-               //#line 4379 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4380 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4379 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4380 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MOD);
                       break;
             }
@@ -7880,9 +7880,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 575:  BinOp ::= &
             //
             case 575: {
-               //#line 4384 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4385 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4384 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4385 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_AND);
                       break;
             }
@@ -7891,9 +7891,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 576:  BinOp ::= |
             //
             case 576: {
-               //#line 4389 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4390 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4389 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4390 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_OR);
                       break;
             }
@@ -7902,9 +7902,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 577:  BinOp ::= ^
             //
             case 577: {
-               //#line 4394 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4395 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4394 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4395 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_XOR);
                       break;
             }
@@ -7913,9 +7913,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 578:  BinOp ::= &&
             //
             case 578: {
-               //#line 4399 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4400 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4399 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4400 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_AND);
                       break;
             }
@@ -7924,9 +7924,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 579:  BinOp ::= ||
             //
             case 579: {
-               //#line 4404 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4405 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4404 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4405 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_OR);
                       break;
             }
@@ -7935,9 +7935,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 580:  BinOp ::= <<
             //
             case 580: {
-               //#line 4409 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4410 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4409 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4410 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHL);
                       break;
             }
@@ -7946,9 +7946,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 581:  BinOp ::= >>
             //
             case 581: {
-               //#line 4414 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4415 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4414 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4415 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHR);
                       break;
             }
@@ -7957,9 +7957,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 582:  BinOp ::= >>>
             //
             case 582: {
-               //#line 4419 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4420 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4419 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4420 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.USHR);
                       break;
             }
@@ -7968,9 +7968,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 583:  BinOp ::= >=
             //
             case 583: {
-               //#line 4424 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4425 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4424 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4425 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GE);
                       break;
             }
@@ -7979,9 +7979,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 584:  BinOp ::= <=
             //
             case 584: {
-               //#line 4429 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4430 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4429 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4430 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LE);
                       break;
             }
@@ -7990,9 +7990,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 585:  BinOp ::= >
             //
             case 585: {
-               //#line 4434 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4435 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4434 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4435 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GT);
                       break;
             }
@@ -8001,9 +8001,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 586:  BinOp ::= <
             //
             case 586: {
-               //#line 4439 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4440 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4439 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4440 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LT);
                       break;
             }
@@ -8012,9 +8012,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 587:  BinOp ::= ==
             //
             case 587: {
-               //#line 4447 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4448 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4447 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4448 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.EQ);
                       break;
             }
@@ -8023,9 +8023,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 588:  BinOp ::= !=
             //
             case 588: {
-               //#line 4452 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4453 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4452 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4453 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.NE);
                       break;
             }
@@ -8034,9 +8034,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 589:  Catchesopt ::= $Empty
             //
             case 589: {
-               //#line 4461 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4462 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4461 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4462 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                       break;
             }
@@ -8052,10 +8052,10 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 592:  Identifieropt ::= Identifier
             //
             case 592: {
-               //#line 4470 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4468 "/Users/nystrom/work/x10/1.7-unsigned/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 4471 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4469 "/Users/nystrom/work/x10/1.7-structs/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4470 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4471 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);
                       break;
             }
@@ -8064,9 +8064,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 593:  ForUpdateopt ::= $Empty
             //
             case 593: {
-               //#line 4476 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4477 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4476 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4477 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                       break;
             }
@@ -8082,9 +8082,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 597:  ForInitopt ::= $Empty
             //
             case 597: {
-               //#line 4487 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4488 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4487 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4488 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                       break;
             }
@@ -8093,9 +8093,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 599:  SwitchLabelsopt ::= $Empty
             //
             case 599: {
-               //#line 4494 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4495 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4494 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4495 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                       break;
             }
@@ -8104,9 +8104,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 601:  SwitchBlockStatementGroupsopt ::= $Empty
             //
             case 601: {
-               //#line 4501 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4502 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4501 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4502 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                       break;
             }
@@ -8115,9 +8115,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 603:  VariableModifiersopt ::= $Empty
             //
             case 603: {
-               //#line 4508 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4509 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4508 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4509 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -8133,9 +8133,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 607:  InterfaceMemberDeclarationsopt ::= $Empty
             //
             case 607: {
-               //#line 4519 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4520 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4519 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4520 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
@@ -8144,9 +8144,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 609:  ExtendsInterfacesopt ::= $Empty
             //
             case 609: {
-               //#line 4526 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4527 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4526 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4527 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
@@ -8155,9 +8155,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 611:  InterfaceModifiersopt ::= $Empty
             //
             case 611: {
-               //#line 4533 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4534 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4533 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4534 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -8173,9 +8173,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 615:  Argumentsopt ::= $Empty
             //
             case 615: {
-               //#line 4544 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4545 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4544 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4545 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
@@ -8184,9 +8184,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 617:  ArgumentListopt ::= $Empty
             //
             case 617: {
-               //#line 4551 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4552 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4551 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4552 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
@@ -8195,9 +8195,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 619:  BlockStatementsopt ::= $Empty
             //
             case 619: {
-               //#line 4558 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4559 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4558 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4559 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                       break;
             }
@@ -8213,9 +8213,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 623:  ConstructorModifiersopt ::= $Empty
             //
             case 623: {
-               //#line 4569 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4570 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4569 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4570 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -8224,9 +8224,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 625:  FormalParameterListopt ::= $Empty
             //
             case 625: {
-               //#line 4576 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4577 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4576 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4577 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
@@ -8235,9 +8235,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 627:  Throwsopt ::= $Empty
             //
             case 627: {
-               //#line 4583 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4584 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4583 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4584 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
@@ -8246,9 +8246,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 629:  MethodModifiersopt ::= $Empty
             //
             case 629: {
-               //#line 4590 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4591 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4590 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4591 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -8257,9 +8257,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 631:  FieldModifiersopt ::= $Empty
             //
             case 631: {
-               //#line 4597 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4598 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4597 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4598 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
@@ -8268,9 +8268,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 633:  ClassBodyDeclarationsopt ::= $Empty
             //
             case 633: {
-               //#line 4604 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4605 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4604 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4605 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
@@ -8279,9 +8279,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 635:  Interfacesopt ::= $Empty
             //
             case 635: {
-               //#line 4611 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4612 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4611 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4612 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
@@ -8297,9 +8297,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 639:  TypeParametersopt ::= $Empty
             //
             case 639: {
-               //#line 4622 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4623 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4622 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4623 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
@@ -8308,9 +8308,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 641:  FormalParametersopt ::= $Empty
             //
             case 641: {
-               //#line 4629 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4630 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4629 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4630 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
@@ -8319,9 +8319,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 643:  Annotationsopt ::= $Empty
             //
             case 643: {
-               //#line 4636 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4637 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4636 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4637 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                       break;
             }
@@ -8330,9 +8330,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 645:  TypeDeclarationsopt ::= $Empty
             //
             case 645: {
-               //#line 4643 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4644 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4643 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4644 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                       break;
             }
@@ -8341,9 +8341,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 647:  ImportDeclarationsopt ::= $Empty
             //
             case 647: {
-               //#line 4650 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4651 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4650 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4651 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                       break;
             }
@@ -8366,9 +8366,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 653:  TypeArgumentsopt ::= $Empty
             //
             case 653: {
-               //#line 4665 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4666 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4665 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4666 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
@@ -8377,9 +8377,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 655:  TypeParamsWithVarianceopt ::= $Empty
             //
             case 655: {
-               //#line 4672 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4673 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4672 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4673 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
@@ -8388,9 +8388,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 657:  Propertiesopt ::= $Empty
             //
             case 657: {
-               //#line 4679 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4680 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4679 "/Users/nystrom/work/x10/1.7-unsigned/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4680 "/Users/nystrom/work/x10/1.7-structs/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }

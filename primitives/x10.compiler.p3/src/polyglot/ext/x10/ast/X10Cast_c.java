@@ -9,33 +9,62 @@ package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 
+import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.Cast;
 import polyglot.ast.Cast_c;
+import polyglot.ast.ClassBody;
+import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
+import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
+import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
+import polyglot.ast.Special;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Def;
+import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10LocalDef;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.Flags;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ObjectType;
+import polyglot.types.Package;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
+import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 
 /**
@@ -198,8 +227,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        //        if (ts.isBox(castType.type()) && expr.type() instanceof ParameterType)
-        //            System.out.println(this);
         Expr e = converterChain(tc);
         assert e.type() != null;
         assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != ConversionType.UNKNOWN_CONVERSION;
@@ -284,69 +311,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 else {
                     return c;
                 }
-            }
-        }
-
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
-            if (ts.isParameterType(fromType) && ts.isCastValid(fromType, toType, context)) {
-                X10Cast_c n = (X10Cast_c) copy();
-                n.convert = ConversionType.CHECKED;
-                return n.type(toType);
-            }
-        }
-
-        //          if (ts.isValueType(fromType) && ts.isReferenceOrInterfaceType(toType)) {
-        //          if (ts.isSubtypeWithValueInterfaces(fromType, toType, Collections.EMPTY_LIST)) {
-        //              Expr boxed = wrap(expr, toType, tc);
-        //              return boxed;
-        //          }
-        //      }
-
-        Type boxOfTo = ts.boxOf(Types.ref(toType));
-        Type boxOfFrom = ts.boxOf(Types.ref(fromType));
-
-        // v: Ref
-        // v as Value
-        // ->
-        // (v as Box[Ref]).value as Value
-        if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isValueType(toType, context) || ts.isParameterType(toType))) {
-            Expr boxed = expr;
-            if (! ts.typeEquals(fromType, boxOfTo, context)) {
-                boxed = check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), boxOfTo), expr, convert), tc);
-                return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), boxed, convert), tc);
-            }
-        }
-
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(fromType, boxOfTo, context)) {
-            //            System.out.println("UNBOXING " + expr + " from " + fromType + " to " + toType);
-            Expr unboxed = check(nf.Field(position(), expr, nf.Id(position(), Name.make("value"))), tc);
-            return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), unboxed, convert), tc);
-        }
-
-        // v to I, where I is not a value interface (i.e., a function type)
-        if (ts.isParameterType(fromType) && ts.typeBaseEquals(toType, ts.Object(), context)) {
-            if (ts.isSubtypeWithValueInterfaces(fromType, toType, context)) {
-                //                TypeBuilder tb = new TypeBuilder(tc.job(), ts, nf);
-                //                tb = tb.pushPackage(tc.context().package_());
-                //                tb = tb.pushClass(tc.context().currentClassDef());
-                //                tb = tb.pushCode(tc.context().currentCode());
-                //                
-                //                TypeCheckPreparer sr = new TypeCheckPreparer(tc.job(), ts, nf, tc instanceof TypeChecker ? ((TypeChecker) tc).memo() : new HashMap<Node, Node>());
-                //                sr = (TypeCheckPreparer) sr.context(tc.context());
-
-                X10New_c boxed = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), Types.ref(boxOfFrom)), Collections.EMPTY_LIST, Collections.singletonList(expr));
-
-                ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking new expression."));
-                boxed = (X10New_c) boxed.constructorInstance(ci);
-
-                return check(boxed, tc);
-            }
-        }
-
-        // v to I, where I is not a value interface (i.e., a function type)
-        if ((ts.isValueType(fromType, context) || ts.isParameterType(fromType)) && ts.isInterfaceType(toType) && ! ts.isValueType(toType, context)) {
-            if (ts.isSubtypeWithValueInterfaces(fromType, toType, context)) {
-                return new X10Boxed_c(position(), castType, expr, ConversionType.BOXING).type(toType);
             }
         }
 

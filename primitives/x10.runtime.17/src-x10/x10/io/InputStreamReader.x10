@@ -4,12 +4,12 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 /** Note: package scope */
-value InputStreamReader extends Reader {
+/*value*/ class InputStreamReader extends Reader {
     val stream: InputStream;
 
     @NativeRep("java", "java.io.InputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::NativeInputStream>", "x10::io::NativeInputStream", null)
-    protected abstract static value InputStream {
+    protected abstract static /*value*/ class InputStream {
         @Native("java", "#0.close()")
         @Native("c++", "(#0)->close()")
         public native def close(): Void throws IOException;

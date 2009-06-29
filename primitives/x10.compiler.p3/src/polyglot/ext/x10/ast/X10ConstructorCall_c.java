@@ -26,6 +26,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10New_c.MatcherMaker;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -58,6 +59,8 @@ import x10.constraint.XConstraint;
  */
 public class X10ConstructorCall_c extends ConstructorCall_c implements X10ConstructorCall {
 
+	boolean implicit;
+	
 	/**
 	 * @param pos
 	 * @param kind
@@ -68,7 +71,19 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		List<TypeNode> typeArguments, List<Expr> arguments) {
 		super(pos, kind, qualifier, arguments);
 		this.typeArguments = typeArguments;
-		
+		this.implicit = false;	
+	}
+	
+	public boolean implicit() {
+		return implicit;
+	}
+	
+	public X10ConstructorCall implicit(boolean f) {
+		if (implicit == f)
+			return this;
+		X10ConstructorCall_c n = (X10ConstructorCall_c) copy();
+		n.implicit = f;
+		return n;
 	}
 	
 	// Override to remove reference to ts.Object(), which will cause resolver loop.
@@ -119,6 +134,18 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        Context context = tc.context();
             ClassType ct = context.currentClass();
 	        Type superType = ct.superClass();
+	        
+	        if (X10Flags.isPrimitive(ct.flags())) {
+	        	if (qualifier != null)
+	        		throw new SemanticException("Value class cannot be an inner class.", position());
+	        	if (kind == SUPER && ! implicit)
+	        		throw new SemanticException("Value class cannot invoke a superclass constructor.", position());
+	        	else if (kind == SUPER)
+	        		return tc.nodeFactory().Empty(position());
+	        }
+	        
+	        if (kind == SUPER && superType == null)
+	        	throw new SemanticException("Cannot invoke superclass constructor on class with no superclass.", position());
 
 	        // The qualifier specifies the enclosing instance of this inner class.
 	        // The type of the qualifier must be the outer class of this

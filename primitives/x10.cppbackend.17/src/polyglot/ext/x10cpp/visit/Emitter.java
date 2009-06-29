@@ -568,7 +568,7 @@ public class Emitter {
           h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;"); h.newline();
           h.write("const x10aux::RuntimeType* "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
           h.write("const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(\""+ct.fullName()+"\", "+num_parents);
-          h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+          h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
           for (Type iface : ct.interfaces()) {
               h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
           }
@@ -597,14 +597,14 @@ public class Emitter {
             h.write(");") ; h.end(); h.newline();
             if (num_parents <= 5) {
               h.write("return x10aux::RuntimeType::allocAndInstallRTT(&rtt, name");
-              h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+              h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
               for (Type iface : ct.interfaces()) {
                 h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
               }
               h.write(");"); h.end(); h.newline();
             } else {
               h.write("const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, "+num_parents);
-              h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+              h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
               for (Type iface : ct.interfaces()) {
                 h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
               }
@@ -874,7 +874,7 @@ public class Emitter {
                     "("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
 		Type parent = type.superClass();
-		if (parent != null && ts.isValueType(parent, context)) {
+		if (parent != null && ts.isMoveableType(parent, context)) {
 			w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf, m);");
 			w.newline();
 		}
@@ -922,7 +922,7 @@ public class Emitter {
 		printTemplateSignature(ct.typeArguments(), w);
 		w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
 		w.newline(4); w.begin(0);
-		if (parent != null && ts.isValueType(parent, context)) {
+		if (parent != null && ts.isMoveableType(parent, context)) {
 			w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
 			w.newline();
 		}

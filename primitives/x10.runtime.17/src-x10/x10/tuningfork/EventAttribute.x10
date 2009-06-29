@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  * 
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.types.EventAttribute", null, null)
-public value EventAttribute {
+public /*value*/ class EventAttribute {
 
 	public native def this(name:String, description:String, type:ScalarType);
 	

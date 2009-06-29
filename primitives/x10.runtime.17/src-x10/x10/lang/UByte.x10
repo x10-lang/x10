@@ -11,11 +11,11 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "byte", "x10.core.BoxedShort", "x10.types.Types.UBYTE")
+@NativeRep("java", "byte", null, "x10.types.Types.UBYTE")
 //                  v-- when used
 @NativeRep("c++", "uint8_t", "uint8_t", null)
 //                            ^ when constructed
-public final value UByte {
+public primitive UByte {
     @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:UByte) < (y:UByte): Boolean;

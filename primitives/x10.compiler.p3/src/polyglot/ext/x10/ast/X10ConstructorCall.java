@@ -15,8 +15,8 @@ import polyglot.ast.TypeNode;
 
 public interface X10ConstructorCall extends ConstructorCall, X10ProcedureCall {
 	List<TypeNode> typeArguments();
-
 	X10ConstructorCall typeArguments(List<TypeNode> args);
 
-
+	boolean implicit();
+	X10ConstructorCall implicit(boolean f);
 }

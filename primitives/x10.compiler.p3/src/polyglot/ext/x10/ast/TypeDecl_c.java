@@ -217,7 +217,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 			ct.kind(ClassDef.TOP_LEVEL);
 			ct.setPackage(package_ != null ? Types.ref(package_) : null);
 			ct.name(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
-			ct.superType(Types.ref(ts.Value()));
+			ct.superType(Types.ref(ts.Object()));
 			ct.flags(Flags.PUBLIC.Abstract());
 			ts.systemResolver().install(dummyClass, ct.asType());
 		    }

@@ -12,12 +12,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.AmbExpr;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
+import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
@@ -36,6 +40,8 @@ import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
+import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.LocalDef;
@@ -57,6 +63,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 
@@ -222,6 +229,38 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return null;
 	}
 
+    // HACK: p1.T2() might have been parsed as T1.T2().  Correct that.
+	@Override
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		if (target() != null) {
+			Prefix p = X10Binary_c.toPrefix(nf, target());
+			if (p != null) {
+				Prefix p2 = (Prefix) this.visitChild(p, tc);
+				Receiver r = nf.AmbReceiver(position(), p2, name);
+				try {
+					Node tn = X10Cast_c.check(r, tc);
+
+					if (tn instanceof TypeNode) {
+						Type t = ((TypeNode) tn).type();
+						X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+						if (ts.isX10PrimitiveType(t, (X10Context) tc.context())) {
+							X10New neu = nf.X10New(position(), (TypeNode) tn, typeArguments(), arguments());
+					        ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking new expression."));
+					        neu = (X10New) neu.constructorInstance(ci);
+							return X10Cast_c.check(neu, tc);
+						}
+					}
+				}
+				catch (SemanticException e) {
+					return null;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * Rewrite getLocation() to Here for value types and operator calls for
 	 * array types, otherwise leave alone.
@@ -230,6 +269,41 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
+		
+		{
+			// Check if target.name is a primitive type; if so, convert to a new call.
+			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+			TypeNode f;
+			if (target() instanceof TypeNode)
+				f = nf.AmbTypeNode(new Position(target().position(), name().position()), (TypeNode) target(), name());
+			else if (target() == null)
+				f = nf.AmbTypeNode(name().position(), name());
+			else
+				f = null;
+			
+			if (f != null) {
+				f = (TypeNode) f.del().buildTypes(new TypeBuilder(tc.job(), ts, nf));
+				try {
+					Node n = f;
+					n = X10Cast_c.check(n, tc);
+					if (n instanceof TypeNode) {
+						Type t = ((TypeNode) n).type();
+						if (ts.isX10PrimitiveType(t, (X10Context) tc.context())) {
+							X10New neu = nf.X10New(position(), f, typeArguments(), arguments());
+							ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking new expression."));
+							neu = (X10New) neu.constructorInstance(ci);
+							return X10Cast_c.check(neu, tc);
+						}
+					}
+				}
+				catch (SemanticException ex) {
+					// fall thru
+				}
+			}
+		}
+		
 
 		Expr cc = null;
 		
@@ -248,9 +322,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 			try {
 				Node n = f;
-				n = n.del().disambiguate(tc);
-				n = n.del().typeCheck(tc);
-				n = n.del().checkConstants(tc);
+				n = X10Cast_c.check(n, tc);
 				if (n instanceof Expr && n instanceof Variable) {
 					e = (Expr) n;
 //					if (! ts.isFunction(e.type())) {
@@ -341,9 +413,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    try {
 		        if (name == Name.make("equals") && argTypes.size() == 1 && typeArgs.size() == 0 && xts.isParameterType(targetType) && xts.isParameterType(argTypes.get(0))) {
 		            // Check that both equals(Ref) and equals(Value) are present
-		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Ref()), c));
-                            mi = null;
-		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value()), c));
+		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Object()), c));
 		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(X10TypeMixin.baseType(targetType)));
 		            LocalInstance d = mi.formalNames().get(0);
 		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(X10TypeMixin.baseType(targetType))));

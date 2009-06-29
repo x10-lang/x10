@@ -11,7 +11,7 @@ package x10.runtime;
 /**
  * @author tardieu
  */
-public value Clock_c extends Clock {
+public /*value*/ class Clock_c extends Clock {
 	private val state = new ClockState();
 	
 	private val hashCode = state.hashCode();
@@ -45,8 +45,8 @@ public value Clock_c extends Clock {
     
     public def drop():Void {
     	if (dropped()) throw new ClockUseException();
-    	val ph = Runtime.clockPhases().remove(this) as Int;
-    	async (state.location) state.drop(ph);
+    	val ph = Runtime.clockPhases().remove(this);
+    	async (state.location) state.drop(ph.value);
     }
     
 	public def hashCode():Int {
@@ -79,6 +79,7 @@ public value Clock_c extends Clock {
     }
     
     private def ph_c():Int {
-        return Runtime.clockPhases()(this) as Int;
+        val ph = Runtime.clockPhases()(this);
+        return ph.value;
     }
 }

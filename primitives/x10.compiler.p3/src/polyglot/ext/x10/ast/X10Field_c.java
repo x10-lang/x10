@@ -223,7 +223,7 @@ public class X10Field_c extends Field_c {
 	    X10Context xc = (X10Context) tc.context();
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	    
-	    if (! ts.isSubtype(result.target().type(), ts.Ref(), xc))
+	    if (! ts.isSubtype(result.target().type(), ts.Object(), xc))
 	        return;
 
 	    try {
@@ -231,7 +231,7 @@ public class X10Field_c extends Field_c {
 	        XConstraint_c pc = new XConstraint_c();
 	        XTerm target = ts.xtypeTranslator().trans(pc, result.target(), xc);
 	        if (target != null) {
-	            XTerm eloc = ts.xtypeTranslator().trans(pc, target, ((StructType) ts.Ref()).fieldNamed(Name.make("location")));
+	            XTerm eloc = ts.xtypeTranslator().trans(pc, target, ((StructType) ts.Object()).fieldNamed(Name.make("location")));
 	            Type t = result.target().type();
 
 	            XTerm here = ts.xtypeTranslator().transHere();

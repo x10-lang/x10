@@ -11,11 +11,11 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Types.USHORT")
+@NativeRep("java", "short", null, "x10.types.Types.USHORT")
 //                  v-- when used
 @NativeRep("c++", "uint16_t", "uint16_t", null)
 //                            ^ when constructed
-public final value UShort {
+public primitive UShort {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
 
     @Native("java", "x10.core.Unsigned.lt(#1, #2)")

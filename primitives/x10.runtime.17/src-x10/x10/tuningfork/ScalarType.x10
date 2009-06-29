@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.types.ScalarType", null, null)
 @NativeRep("c++", "x10aux::ref<x10::tuningfork::ScalarType>", "x10::tuningfork::ScalarType", null)
-public value ScalarType {
+public /*value*/ class ScalarType {
 	
 	@Native("java", "com.ibm.tuningfork.tracegen.types.ScalarType.INT")
 	@Native("c++", "x10::tuningfork::ScalarType::INT")

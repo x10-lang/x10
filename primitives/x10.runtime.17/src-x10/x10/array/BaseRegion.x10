@@ -16,7 +16,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-abstract public value class BaseRegion extends Region {
+abstract public /*value*/ class BaseRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -242,19 +242,19 @@ abstract public value class BaseRegion extends Region {
 // around issue with virtual method calls in constructor (XTENLANG-198)
 //
 
-value class Cache {
+/*value*/ class Cache {
 
-    val boundingBox: Box[Region];
-    val boundingBoxException: Box[RuntimeException];
+    val boundingBox: Region;
+    val boundingBoxException: RuntimeException;
 
     def this(r:BaseRegion, hack198:boolean) {
-        var boundingBox: Box[Region] = null;
-        var boundingBoxException: Box[RuntimeException] = null;
+        var boundingBox: Region = null;
+        var boundingBoxException: RuntimeException = null;
         try {
             // XTENLANG-198
-            boundingBox = hack198? r : r.computeBoundingBox() as Box[Region];
+            boundingBox = hack198? r : r.computeBoundingBox();
         } catch (e:RuntimeException) {
-            boundingBoxException = e as Box[RuntimeException];
+            boundingBoxException = e;
         }
         this.boundingBox = boundingBox;
         this.boundingBoxException = boundingBoxException;
@@ -262,11 +262,9 @@ value class Cache {
 
     def boundingBox(): Region {
         if (boundingBoxException!=null) {
-            val e: RuntimeException =
-                at (boundingBoxException.location)
-                    boundingBoxException as RuntimeException;
+            val e: RuntimeException = boundingBoxException;
             throw e;
         }
-        return at (boundingBox.location) boundingBox as Region;
+        return boundingBox;
     }
 }

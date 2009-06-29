@@ -24,11 +24,8 @@ import polyglot.types.Flags;
 public class X10Flags extends Flags {
     public static final Set X10_FLAGS = new TreeSet();
     public static final Flags EXTERN = createFlag("extern", null);
-    public static final Flags VALUE = createFlag("value", null);
-    public static final Flags REFERENCE = createFlag("reference", null);
+    public static final Flags PRIMITIVE = createFlag("primitive", null);
     public static final Flags ATOMIC = createFlag("atomic", null);
-    public static final Flags PURE = createFlag("pure", null);
-    public static final Flags MUTABLE = createFlag("mutable", null);
     public static final Flags SAFE = createFlag("safe", null);
     public static final Flags LOCAL = createFlag("local", null);
     public static final Flags NON_BLOCKING = createFlag("nonblocking", null);
@@ -156,65 +153,33 @@ public class X10Flags extends Flags {
      * @param flags
      *            TODO
      */
-    public X10Flags Value() {
-        return setX(VALUE);
+    public X10Flags Primitive() {
+        return setX(PRIMITIVE);
     }
 
     /**
-     * Return a copy of this <code>this</code> with the <code>value</code> flag
+     * Return a copy of this <code>this</code> with the <code>primitive</code> flag
      * clear.
      * 
      * @param flags
      *            TODO
      */
     public X10Flags clearValue() {
-        return clearX(VALUE);
+        return clearX(PRIMITIVE);
     }
 
     /**
-     * Return true if <code>this</code> has the <code>value</code> flag set.
+     * Return true if <code>this</code> has the <code>primitive</code> flag set.
      * 
      * @param flags
      *            TODO
      */
-    public boolean isValue() {
-        return contains(VALUE);
+    public boolean isPrimitive() {
+        return contains(PRIMITIVE);
     }
 
-    public static boolean isValue(Flags flags) {
-        return flags.contains(VALUE);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>reference</code>
-     * flag set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags Reference() {
-        return setX(REFERENCE);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>reference</code>
-     * flag clear.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags clearReference() {
-        return clearX(REFERENCE);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>reference</code> flag set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public boolean isReference() {
-        return contains(REFERENCE);
+    public static boolean isPrimitive(Flags flags) {
+        return flags.contains(PRIMITIVE);
     }
 
     /**
@@ -279,38 +244,6 @@ public class X10Flags extends Flags {
      */
     public boolean isGlobal() {
         return contains(GLOBAL);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>pure</code> flag
-     * set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags Pure() {
-        return setX(PURE);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>pure</code> flag
-     * clear.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags clearPure() {
-        return clearX(PURE);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>pure</code> flag set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public boolean isPure() {
-        return contains(PURE);
     }
 
     /**

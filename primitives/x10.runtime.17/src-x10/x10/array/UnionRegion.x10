@@ -14,7 +14,7 @@ package x10.array;
  * @author bdlucas
  */
 
-value class UnionRegion extends BaseRegion {
+/*value*/ class UnionRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};

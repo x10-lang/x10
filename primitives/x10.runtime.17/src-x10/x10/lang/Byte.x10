@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "byte", "x10.core.BoxedByte", "x10.types.Type.BYTE")
+@NativeRep("java", "byte", null, "x10.types.Type.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
-public final value Byte {
+public primitive Byte {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Byte) < (y:Byte): Boolean;

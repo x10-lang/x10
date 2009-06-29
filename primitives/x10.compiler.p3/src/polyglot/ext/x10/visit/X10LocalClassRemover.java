@@ -53,7 +53,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
      */
     protected TypeNode defaultSuperType(Position pos) {
         X10TypeSystem ts = (X10TypeSystem) this.ts;
-        return nf.CanonicalTypeNode(pos, ts.Ref());
+        return nf.CanonicalTypeNode(pos, ts.Object());
     }
 
     protected static TypeParamSubst subst(X10ClassType container) {

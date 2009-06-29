@@ -33,17 +33,7 @@ public class Value {
             return o instanceof Value;
         }
     }
-    
-    public static class BoxedValue extends Box<Value> {
-		BoxedValue(Value v) {
-			super(Value.RTT.it, v);
-		}
-	}
-    
-	public Ref box$() {
-		return new BoxedValue(this);
-	}
-	
+
     public boolean equals(Object o) {
         if (o instanceof Value)
             return this.equals((Value) o);

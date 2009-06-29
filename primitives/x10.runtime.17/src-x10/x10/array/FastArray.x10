@@ -15,7 +15,7 @@ package x10.array;
 
 import x10.compiler.Native;
 
-public final value class FastArray[T] extends BaseArray[T] {
+public final /*value*/ class FastArray[T] extends BaseArray[T] {
 
     private val raw: Rail[T];
     private val layout: RectLayout;
@@ -138,7 +138,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: Box[(Point)=>T]): FastArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: Nullable[(Point)=>T]): FastArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -149,7 +149,7 @@ public final value class FastArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init.location) { init.value };
                 for (p:Point in region)
                     raw(layout.offset(p)) = f(p);
             }
@@ -165,7 +165,7 @@ public final value class FastArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init.location) { init.value };
                 for (p:Point in region)
                     raw(layout.offset(p)) = f(p);
             }

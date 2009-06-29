@@ -117,6 +117,7 @@
     or
     operator
     package
+    primitive
     private
     property
     protected
@@ -130,7 +131,6 @@
     strictfp
     super
     switch
-    synchronized
     this
     throw
     throws
@@ -526,9 +526,9 @@
           $EndAction
         ./
 
-              | s y n c h r o n i z e d
+              | p r i m i t i v e
         /.$BeginAction
-                $setResult($_synchronized);
+                $setResult($_primitive);
           $EndAction
         ./
 

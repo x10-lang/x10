@@ -11,9 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Type.SHORT")
+@NativeRep("java", "short", null, "x10.types.Type.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
-public final value Short {
+public primitive Short {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static operator (x:Short) < (y:Short): Boolean;
@@ -118,7 +118,6 @@ public final value Short {
     @Native("c++",  "((x10_short) (#1))")
     public native static operator (x:Double) as Short;
     
-
     @Native("java", "java.lang.Short.MIN_VALUE")
     @Native("c++", "(x10_short)0x8000")
     public const MIN_VALUE = 0x8000 as Short;

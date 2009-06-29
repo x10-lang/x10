@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  * 
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.ITimerEvent", null, null)
-public value TimerEvent {
+public /*value*/ class TimerEvent {
 	
 	@Native("java", "#0.start(#1)")
 	public native def start(feedlet:Feedlet):void;

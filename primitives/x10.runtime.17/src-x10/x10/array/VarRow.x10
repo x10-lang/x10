@@ -3,7 +3,7 @@
 
 package x10.array;
 
-final value class VarRow extends Row {
+final /*value*/ class VarRow extends Row {
 
     private val row: Rail[int];
 

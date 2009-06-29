@@ -11,7 +11,7 @@ package x10.lang;
 /**
  * @author tardieu
  */
-public value Runtime {
+public /*value*/ class Runtime {
 	/**
 	 * Sleep for the specified number of milliseconds.
 	 * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
