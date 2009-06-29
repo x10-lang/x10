@@ -1,0 +1,3 @@
+// SYNOPSIS: #0=clock #1=unique_id
+add(current#1.checkClockUse((x10.runtime.Clock) #0));
+

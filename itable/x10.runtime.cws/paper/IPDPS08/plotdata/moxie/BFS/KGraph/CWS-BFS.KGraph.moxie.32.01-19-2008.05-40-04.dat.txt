@@ -1,0 +1,270 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 01/19/2008 - 05:40:05
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 24 K 100000 3
+Number of procs=24
+graphType=K
+N=100000
+D=3
+generating graph done
+
+N=100000 t=872555531 ns 0.000 GE/s
+N=100000 t=88350872 ns 0.003 GE/s
+N=100000 t=65585650 ns 0.005 GE/s
+N=100000 t=90427513 ns 0.003 GE/s
+N=100000 t=78606336 ns 0.004 GE/s
+N=100000 t=29394133 ns 0.010 GE/s
+N=100000 t=46057893 ns 0.007 GE/s
+N=100000 t=38771180 ns 0.008 GE/s
+N=100000 t=28886400 ns 0.010 GE/s
+N=100000 t=23351733 ns 0.013 GE/s
+Completed iterations for N=100000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 30 K 100000 3
+Number of procs=30
+graphType=K
+N=100000
+D=3
+generating graph done
+
+N=100000 t=880383399 ns 0.000 GE/s
+N=100000 t=94458123 ns 0.003 GE/s
+N=100000 t=74566603 ns 0.004 GE/s
+N=100000 t=80876986 ns 0.004 GE/s
+N=100000 t=23028756 ns 0.013 GE/s
+N=100000 t=23727334 ns 0.013 GE/s
+N=100000 t=37385256 ns 0.008 GE/s
+N=100000 t=31120473 ns 0.010 GE/s
+N=100000 t=22725053 ns 0.013 GE/s
+N=100000 t=25957329 ns 0.012 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 24 K 1000000 3
+Number of procs=24
+graphType=K
+N=1000000
+D=3
+generating graph done
+
+N=1000000 t=548029316 ns 0.005 GE/s
+N=1000000 t=411829541 ns 0.007 GE/s
+N=1000000 t=161656373 ns 0.019 GE/s
+N=1000000 t=255264058 ns 0.012 GE/s
+N=1000000 t=174289073 ns 0.017 GE/s
+N=1000000 t=176415192 ns 0.017 GE/s
+N=1000000 t=201788166 ns 0.015 GE/s
+N=1000000 t=250784002 ns 0.012 GE/s
+N=1000000 t=154546392 ns 0.019 GE/s
+N=1000000 t=140191526 ns 0.021 GE/s
+Completed iterations for N=1000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 30 K 1000000 3
+Number of procs=30
+graphType=K
+N=1000000
+D=3
+generating graph done
+
+N=1000000 t=563785153 ns 0.005 GE/s
+N=1000000 t=578564943 ns 0.005 GE/s
+N=1000000 t=192616659 ns 0.016 GE/s
+N=1000000 t=280277268 ns 0.011 GE/s
+N=1000000 t=232833005 ns 0.013 GE/s
+N=1000000 t=228332135 ns 0.013 GE/s
+N=1000000 t=281858288 ns 0.011 GE/s
+N=1000000 t=160974819 ns 0.019 GE/s
+N=1000000 t=126230287 ns 0.024 GE/s
+N=1000000 t=146564232 ns 0.020 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 24 K 10000000 3
+Number of procs=24
+graphType=K
+N=10000000
+D=3
+generating graph done
+
+N=10000000 t=2629298277 ns 0.011 GE/s
+N=10000000 t=1979976782 ns 0.015 GE/s
+N=10000000 t=2142157728 ns 0.014 GE/s
+N=10000000 t=2132507134 ns 0.014 GE/s
+N=10000000 t=1802848843 ns 0.017 GE/s
+N=10000000 t=2090274401 ns 0.014 GE/s
+N=10000000 t=2237979670 ns 0.013 GE/s
+N=10000000 t=1572708368 ns 0.019 GE/s
+N=10000000 t=2111066254 ns 0.014 GE/s
+N=10000000 t=1532906323 ns 0.020 GE/s
+Completed iterations for N=10000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 30 K 10000000 3
+Number of procs=30
+graphType=K
+N=10000000
+D=3
+generating graph done
+
+N=10000000 t=1680834980 ns 0.018 GE/s
+N=10000000 t=1802456373 ns 0.017 GE/s
+N=10000000 t=1320091048 ns 0.023 GE/s
+N=10000000 t=1602047314 ns 0.019 GE/s
+N=10000000 t=1528352797 ns 0.020 GE/s
+N=10000000 t=1648977107 ns 0.018 GE/s
+N=10000000 t=1556132904 ns 0.019 GE/s
+N=10000000 t=1361882999 ns 0.022 GE/s
+N=10000000 t=1674973246 ns 0.018 GE/s
+N=10000000 t=1625925915 ns 0.018 GE/s
+Completed iterations for N=10000000
+
+
+
+## Size: 100000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 24 K 100000 4
+Number of procs=24
+graphType=K
+N=100000
+D=4
+generating graph done
+
+N=100000 t=786350288 ns 0.001 GE/s
+N=100000 t=106787659 ns 0.004 GE/s
+N=100000 t=66749969 ns 0.006 GE/s
+N=100000 t=80552563 ns 0.005 GE/s
+N=100000 t=96925422 ns 0.004 GE/s
+N=100000 t=22837050 ns 0.018 GE/s
+N=100000 t=37641216 ns 0.011 GE/s
+N=100000 t=38324530 ns 0.010 GE/s
+N=100000 t=25626310 ns 0.016 GE/s
+N=100000 t=23607273 ns 0.017 GE/s
+Completed iterations for N=100000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 30 K 100000 4
+Number of procs=30
+graphType=K
+N=100000
+D=4
+generating graph done
+
+N=100000 t=896618681 ns 0.000 GE/s
+N=100000 t=68457673 ns 0.006 GE/s
+N=100000 t=71200002 ns 0.006 GE/s
+N=100000 t=98925929 ns 0.004 GE/s
+N=100000 t=35647156 ns 0.011 GE/s
+N=100000 t=51197847 ns 0.008 GE/s
+N=100000 t=27745073 ns 0.014 GE/s
+N=100000 t=32462246 ns 0.012 GE/s
+N=100000 t=33388316 ns 0.012 GE/s
+N=100000 t=25558110 ns 0.016 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 24 K 1000000 4
+Number of procs=24
+graphType=K
+N=1000000
+D=4
+generating graph done
+
+N=1000000 t=493321254 ns 0.008 GE/s
+N=1000000 t=581909333 ns 0.007 GE/s
+N=1000000 t=204704542 ns 0.020 GE/s
+N=1000000 t=166816446 ns 0.024 GE/s
+N=1000000 t=181518579 ns 0.022 GE/s
+N=1000000 t=159675429 ns 0.025 GE/s
+N=1000000 t=167567185 ns 0.024 GE/s
+N=1000000 t=201563065 ns 0.020 GE/s
+N=1000000 t=236147132 ns 0.017 GE/s
+N=1000000 t=252595322 ns 0.016 GE/s
+Completed iterations for N=1000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 30 K 1000000 4
+Number of procs=30
+graphType=K
+N=1000000
+D=4
+generating graph done
+
+N=1000000 t=596114976 ns 0.007 GE/s
+N=1000000 t=538282304 ns 0.007 GE/s
+N=1000000 t=279696835 ns 0.014 GE/s
+N=1000000 t=175474913 ns 0.023 GE/s
+N=1000000 t=192545739 ns 0.021 GE/s
+N=1000000 t=184231505 ns 0.022 GE/s
+N=1000000 t=136289416 ns 0.029 GE/s
+N=1000000 t=184809881 ns 0.022 GE/s
+N=1000000 t=283383098 ns 0.014 GE/s
+N=1000000 t=245121922 ns 0.016 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 24 K 10000000 4
+Number of procs=24
+graphType=K
+N=10000000
+D=4
+generating graph done
+
+N=10000000 t=2321236076 ns 0.017 GE/s
+N=10000000 t=2045315747 ns 0.020 GE/s
+N=10000000 t=1619877071 ns 0.025 GE/s
+N=10000000 t=1396458024 ns 0.029 GE/s
+N=10000000 t=1547534934 ns 0.026 GE/s
+N=10000000 t=1648662687 ns 0.024 GE/s
+N=10000000 t=1732041087 ns 0.023 GE/s
+N=10000000 t=1799654815 ns 0.022 GE/s
+N=10000000 t=1939786105 ns 0.021 GE/s
+N=10000000 t=1984237785 ns 0.020 GE/s
+Completed iterations for N=10000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 30 K 10000000 4
+Number of procs=30
+graphType=K
+N=10000000
+D=4
+generating graph done
+
+N=10000000 t=1672272177 ns 0.024 GE/s
+N=10000000 t=1565390337 ns 0.026 GE/s
+N=10000000 t=1393693009 ns 0.029 GE/s
+N=10000000 t=1684681470 ns 0.024 GE/s
+N=10000000 t=1636974748 ns 0.024 GE/s
+N=10000000 t=1662395220 ns 0.024 GE/s
+N=10000000 t=1768628088 ns 0.023 GE/s
+N=10000000 t=1534953348 ns 0.026 GE/s
+N=10000000 t=1303366696 ns 0.031 GE/s
+N=10000000 t=1334466556 ns 0.030 GE/s
+Completed iterations for N=10000000
+
+
+
+############################################################
+# End Time: 01/19/2008 - 06:02:38
+############################################################

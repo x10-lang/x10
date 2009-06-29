@@ -1,0 +1,569 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/24/2008 - 08:00:27
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.169411 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.106102 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.077604 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.067292 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.085902 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.790164 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.481810 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.343668 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.291921 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.285001 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 4.115647 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.496880 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.598435 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.395352 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.367251 s
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.167631 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.112251 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.092946 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.081310 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.084191 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.800110 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.495450 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.340837 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.292003 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.310602 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 5.034476 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.653225 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.538739 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.396897 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.369903 s
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.168194 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.104844 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.082495 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.110408 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.070366 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.781784 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.473905 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.327398 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.293818 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.253551 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 4.129411 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.433902 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.435025 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 2 4000000 4
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 2 4000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.384442 s
+
+############################################################
+# End Time: 02/24/2008 - 08:13:24
+############################################################

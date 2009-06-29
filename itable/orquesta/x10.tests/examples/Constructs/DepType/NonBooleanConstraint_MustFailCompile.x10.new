@@ -1,0 +1,106 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(public val i: int, public val j: int, , public const i: NonBooleanConstraint_MustFailCompile{i} = i)NonBooleanConstraint_MustFailCompile{i} extends x10Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(int i, int j : i ) extends x10Test {
+
+	public def this(var k: int): NonBooleanConstraint_MustFailCompile = {
+	    property(k,k);
+	}
+	public def run(): boolean = {
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new NonBooleanConstraint_MustFailCompile(2).execute();
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * The test checks that a nonboolean constraint is rejected.
+ *
+ * @author pvarma
+ */
+public class NonBooleanConstraint_MustFailCompile(int i, int j : i ) extends x10Test {
+
+	public NonBooleanConstraint_MustFailCompile(int k) {
+	    property(k,k);
+	}
+	public boolean run() {
+	    return true;
+	}
+	public static void main(String[] args) {
+		new NonBooleanConstraint_MustFailCompile(2).execute();
+	}
+}

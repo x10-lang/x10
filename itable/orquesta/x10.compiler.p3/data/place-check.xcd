@@ -1,0 +1,2 @@
+// SYNOPSIS: (#0)((#1)@here) #0=type #1=object
+((#0) x10.runtime.Runtime.hereCheck(#1))

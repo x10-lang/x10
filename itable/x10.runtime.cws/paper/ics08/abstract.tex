@@ -1,0 +1,50 @@
+
+\begin{abstract}
+
+Graph problems have many applications in high performance computing
+disciplines. Obtaining practical efficient implementations for large,
+irregular graph instances remains a challenge. Current hardware and
+software systems do not support fine-grained, irregular parallelism
+well. Implementing a custom framework for fine-grained parallelism for
+each new graph algorithm is impractical.
+
+% language. 
+
+In this paper we take the approach of writing graph algorithms in a
+high-level concurrent language with dynamic fine-grained parallelism
+(\Xten). The \Xten{} compiler translates this code into calls to an
+\Xten{} runtime (written in Java) organized around a Cilk-like
+work-stealing scheduler. \footnote{ The compiler is still under
+development, all tests in this paper were performed on code manually
+compiled from \Xten{} source.}  The scheduler extends the Cilk
+scheduler with several features necessary to efficiently implement
+graph algorithms, viz., support for improperly nested procedures,
+support for global termination detection, and support for phased
+computation.
+
+We show how to express spanning tree algortihms using (a)~pseudo-depth
+first search, (b)~breadth-first search and (c)~Shiloach-Vishkin (SV)
+algorithm in a simple elegant fashion. We compare the performance of
+the code with code written manually in C, and with code written in
+Cilk. (The Cilk and C codes perform no garbage-collection.) Tests are
+performed on a 32-way Sun Fire T200 server (moxie), and an 8-way
+SunFire V40Z server (altair). We compare performance on (i) graphs
+with randomly selected edges (Random), (ii) graphs with all vertices
+having a fixed outdegree (KGraph),and randomly selected edges, (iii)
+Torus planar graphs (each vertex is connected to its four
+neighbors). For the SV algorithm, we were unable to write a Cilk
+program; we show that the \Xten{} program scales at the same rate as
+the hand-written C program, but its performance is marginally poorer.
+For DFS and BFS algorithms, we show that on large Random and KGraphs,
+\Xten{} programs perform comparably to hand-written C, and better than
+Cilk, whereas on large Torus graphs, \Xten{} performs better than C
+and substantially better than Cilk. We note that the BFS and DS
+\Xten{} programs are approximately a dozen lines long, whereas the
+hand-written C code is several hundred lines long.
+
+We conclude that a fine-grained concurrent language such as \Xten{} with a
+work-stealing based scheduler may provide an attractive framework for
+the implementation of graph algorithms.
+
+\end{abstract}
+

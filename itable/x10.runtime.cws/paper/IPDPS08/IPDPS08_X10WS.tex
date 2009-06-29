@@ -1,0 +1,72 @@
+
+%\documentclass[onecolumn,12pt]{ieee}
+\documentclass[12pt]{article}
+%------------------------------------------------------------------------- 
+% 
+% Use \documentclass[pagenumbers]{ieee}
+%
+% to produce page numbers, bottom centered, in the output. Default is 
+% no page numbers for camera-ready copy.
+%
+%------------------------------------------------------------------------- 
+\usepackage[dvips,letterpaper,margin=1in]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{enumerate, amscd,  amsmath}  
+\usepackage{amssymb}
+\usepackage{algorithm2e}
+\usepackage{url}
+\numberwithin{equation}{section}
+
+%\newenvironment{javaen}{\begin{small}\begin{verbatim}}{\end{verbatim}\end{small}}
+\newcommand{\java}{\tt}
+\def\Xten{{\sf X10}}
+\def\XWS{{\sf XWS}}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\begin{document}
+
+\DeclareGraphicsExtensions{.jpg, .pdf, .mps, .gif, .png}
+\title{Solving Large, Irregular Graph Problems in X10}
+
+\author{
+Guojing Cong,  Vijay Saraswat, and Tong Wen\\
+IBM T. J. Watson Research Center\\
+ \{ gcong, vsaraswa, tongwen \}@us.ibm.com\\ 
+\vspace*{-2ex} \\
+Sreedhar Kodali\\
+IBM Systems and Technology Group\\
+srkodali@in.ibm.com\\
+\vspace*{-2ex} \\
+Sriram Krishnamoorthy \\
+Ohio State University\\
+krishnsr@cse.ohio-state.edu
+\vspace*{-3ex} \\
+}
+
+\date{}
+
+\maketitle
+\thispagestyle{empty}
+
+\input abstract
+
+
+\input introduction
+
+%------------------------------------------------------------------------- 
+\input introduction2X10
+%------------------------------------------------------------------------- 
+
+\input x10graphdesign
+\input runtime
+\input perf-eval
+\input conclusion
+{\footnotesize
+\bibliographystyle{ieee}
+\bibliography{IPDPS08_X10WS,parallel}
+}
+\end{document}
+
