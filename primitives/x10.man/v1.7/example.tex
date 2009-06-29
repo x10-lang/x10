@@ -1,0 +1,49 @@
+\extrapart{Example}
+
+This example illustrates 2-d Jacobi iteration.
+
+\begin{xten}
+public class Jacobi {
+   const N: int = 6;
+   const epsilon: double = 0.002;
+   const epsilon2: double = 0.000000001;
+   const R: region = [0:N+1, 0:N+1];
+   const RInner: region = [1:N, 1:N];
+   const D: distribution = distribution.factory.block(R);
+   const DInner: distribution = D | RInner;
+   const DBoundary: distribution = D - RInner;
+   const EXPECTED_ITERS: int  = 97;
+   const double EXPECTED_ERR: double = 0.0018673382039402497;
+     
+   val B: Array[double](D) = Array.make[double](D,
+        (p(i,j): point) => DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1));
+    
+   public def run(): boolean {
+      var iters: int = 0;
+      var err: double;
+      while (true) {
+        val Temp: Array[double] = 
+           new array[double](DInner, ((i,j): point) =>
+             (read(i+1,j)+read(i-1,j) +read(i,j+1)+read(i,j-1))/4.0);
+        if((err=((B | DInner) - Temp).abs().sum()) < epsilon)
+           break; 
+        B.update(Temp);
+        iters++; 
+      }
+      Console.OUT.println("Error="+err);
+      Console.OUT.println("Iterations="+iters);
+      return Math.abs(err-EXPECTED_ERR)<epsilon2 
+          && iters==EXPECTED_ITERS;
+   }
+   public def read(i: int, j: int): double {
+      return (future(D(i,j)) => B(i,j)).force();
+   }
+   public static def main(args: Array[String]) {
+      val b = new Jacobi().run();
+      Console.OUT.println("++++++ "
+                          + (b? "Test succeeded."
+                             :"Test failed."));
+      System.exit(b?0:1);
+   }
+}
+\end{xten}

@@ -1,0 +1,80 @@
+\documentclass[twoside,twocolumn]{algol60}
+%\documentclass[twoside]{algol60}
+\def\Hat{{\tt \char`\^}}
+\def\ccfont{\sf}
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+\input{commands}
+
+\def\headertitle{IBM Confidential:~\Xten{} Report}
+\def\integerversion{0.5}
+
+% Sizes and dimensions
+
+\topmargin -.375in       %    Nominal distance from top of page to top of
+                         %    box containing running head.
+\headsep 15pt            %    Space between running head and text.
+
+\textheight 663pt        % Height of text (including footnotes and figures, 
+                         % excluding running head and foot).
+
+\textwidth 523pt         % Width of text line.
+\columnsep 15pt          % Space between columns 
+\columnseprule 0pt       % Width of rule between columns.
+
+\parskip 5pt plus 2pt minus 2pt % Extra vertical space between paragraphs.
+\parindent 0pt                  % Width of paragraph indentation.
+\topsep 0pt plus 2pt            % Extra vertical space, in addition to 
+                                % \parskip, added above and below list and
+                                % paragraphing environments.
+
+\oddsidemargin  -.5in    % Left margin on odd-numbered pages.
+\evensidemargin -.5in    % Left margin on even-numbered pages.
+
+%% End of sizes and dimensions
+
+\begin{document}
+
+\parindent 0pt %!! 15pt                    % Width of paragraph indentation.
+
+\hfil {\bf 17 July 2004}
+%\hfil \today{}
+
+\input{first}   \par  % vj: first page
+\input{XtenIntro}   \par  % 0.1
+\vskip 2ex
+\clearchapterstar{Description of the language} %\unskip\vskip -2ex
+\input{XtenOverview}  \par % Semantics section. What else?
+\input{XtenLex}	\par % 0.1
+\input{XtenTypes}	\par % empty
+\input{XtenPackages}	\par % \vfill\eject % empty
+\input{XtenPlaces}	\par %0.1
+\input{XtenActivities}	\par %0.1
+\input{XtenClocks}	\par  %\vfill\eject %0.1
+\input{XtenInterfaces}	\par  %\vfill\eject % empty
+\input{XtenClasses}	\par % 0.1
+\input{XtenArrays}	\par % 0.1
+\input{NullaryTypeConstructor}	\par %0.1
+\input{XtenStatements}	\par  % 0.05
+%\input{PerformanceModel} \par \vfill\eject % empty
+\input{example}	\par  \vfill\eject % have an example
+%\newpage                   %  Put bib on it's own page (it's just one)
+%\twocolumn[\vspace{-.18in}]%  Last bib item was on a page by itself.
+\renewcommand{\bibname}{References}
+\newpage\bibliographystyle{plain}
+\bibliography{master}
+
+%\input{bib}	\par
+
+\vfill\eject
+
+% Adjustment to avoid having the last index entry on a page by itself.
+%\addtolength{\baselineskip}{-0.1pt}
+
+\bigskip
+
+\input{x10.ind}
+
+\end{document}
+

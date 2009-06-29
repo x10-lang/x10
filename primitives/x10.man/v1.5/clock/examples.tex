@@ -1,0 +1,35 @@
+\section{Examples}
+\todo{Bring in other examples from Concur paper.}
+Consider the core of the ASCI Benchmark Sweep3D program for computing
+solutions to mass transport problems.
+
+In a nutshell the core computation is a triply nested sequential loop
+in which the value of a variable in the current iteration is dependent
+on the values of neighboring variables in a past iteration. Such a
+problem can be parallelized through pipelining. One visualizes a
+diagonal wavefront sweeping through the array. An MPI version of the
+program may be described as follows. There is a two dimensional grid
+of processors which performs the following computation
+repeatedly. Each processor synchronously receives a value from the
+processor to its west, then to its north, then computes some function
+of these values and computes a new value to be sent to the processor
+to its east and then to its south.  Ignoring the behavior of the
+boundary processors for the moment such a computation may be described
+by the following \Xten{} program:
+
+\begin{x10}
+region R = [1..n0,1..m0];
+clock[R] W,N;
+clock(W) final double [cyclic(R)] A; 
+for (int t : 1..TMax) \{
+  ateach( i,j:A) 
+    clock (W[i-1,j],N[i,j-1],W[i,j],N[i,j]) \{
+      double west = now (W[i-1,j]) future\{A[i-1,j]\}; 
+      W[i-1,j].continue();           
+      double north = now (N[i,j-1]) future\{A[i,j-1]\}; 
+      N[i,j-1].continue();
+      next(W[i,j]) A[i,j] = compute(west, north);
+      next W[i-1,j],N[i,j-1],W[i,j],N[i,j];
+  \}
+\}
+\end{x10}
