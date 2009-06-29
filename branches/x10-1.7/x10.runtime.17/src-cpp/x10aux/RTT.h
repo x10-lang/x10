@@ -149,9 +149,15 @@ namespace x10aux {
     template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
         return true;
     } };
-    template<class T> struct Instanceof<T, const x10aux::ref<x10::lang::Object>&> {
-        static x10_boolean _(const x10aux::ref<x10::lang::Object>& v) {
+    template<class T, class S> struct Instanceof<T, x10aux::ref<S> > {
+        static x10_boolean _(x10aux::ref<S> v) {
             return x10aux::getRTT<T>()->instanceOf(v);
+        }
+    };
+    // Have to specialize again to disambiguate
+    template<class T> struct Instanceof<x10aux::ref<T>, x10aux::ref<T> > {
+        static x10_boolean _(x10aux::ref<T> v) {
+            return x10aux::getRTT<x10aux::ref<T> >()->instanceOf(v);
         }
     };
 
@@ -165,9 +171,15 @@ namespace x10aux {
     template<class T> struct ConcreteInstanceof<T, T> { static x10_boolean _(T v) {
         return true;
     } };
-    template<class T> struct ConcreteInstanceof<T, const x10aux::ref<x10::lang::Object>&> {
-        static x10_boolean _(const x10aux::ref<x10::lang::Object>& v) {
+    template<class T, class S> struct ConcreteInstanceof<T, x10aux::ref<S> > {
+        static x10_boolean _(x10aux::ref<S> v) {
             return x10aux::getRTT<T>()->concreteInstanceOf(v);
+        }
+    };
+    // Have to specialize again to disambiguate
+    template<class T> struct ConcreteInstanceof<x10aux::ref<T>, x10aux::ref<T> > {
+        static x10_boolean _(x10aux::ref<T> v) {
+            return x10aux::getRTT<x10aux::ref<T> >()->concreteInstanceOf(v);
         }
     };
 
