@@ -1,0 +1,45 @@
+Moxie
+	32-way SMP Sun Fire T200 Server
+	UltraSPARCT1 Processor @ 1200GHz
+	16KB Instruction Cache / Processor
+	8KB Data Cache/Processor
+	3MB Integrated L2 Cache
+	32GB Physical Memory
+
+	http://in.sun.com/webstore/servers/t2000/techspecs.jsp
+
+Altair
+	8-way SMP Sun Fire V40Z Server
+	Dual Core AMD Opteron Processor 880 @ 2.4GHz
+	1MB L2 Cache/Core
+	64KB Instruction Cache/Core
+	64KB Data Cache/Core
+	16GB Physical Memory
+
+	http://www.sun.com/servers/entry/v40z/specs.xml
+	
+We can use the following commands on either machine to get configured/detected values:
+
+	$ prtdiag -v
+	$ prtconf -v
+	$ psrinfo -v
+	$ uname -a
+
+You can have more information on this from Wikipedia at the following links:
+
+	http://en.wikipedia.org/wiki/Sun_Fire
+
+	http://en.wikipedia.org/wiki/UltraSPARC_T1
+
+	http://en.wikipedia.org/wiki/Opteron
+
+
+Thank You.
+
+With Regards,
+
+Sreedhar
+
+
+
+

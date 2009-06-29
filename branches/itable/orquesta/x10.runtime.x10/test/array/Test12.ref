@@ -1,0 +1,16 @@
+--- Test12: full intersected with rectangle
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 9
+region: [1..3,2..4]
+  poly
+    1  . . 2 3 4 . . . . . 
+    2  . . 4 6 8 . . . . . 
+    3  . . 6 9 2 . . . . . 
+  iterator
+    1  . . 2 3 4 . . . . . 
+    2  . . 4 6 8 . . . . . 
+    3  . . 6 9 2 . . . . . 

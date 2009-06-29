@@ -1,0 +1,243 @@
+r [0..3,0..3]
+d0 Dist(0->[0..0,0..3],1->[1..1,0..3],2->[2..2,0..3],3->[3..3,0..3])
+--- Test25: a1 at place(id=0) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..0,0..3]
+  poly
+    0  0 1 2 3 . . . . . . 
+  iterator
+    0  0 1 2 3 . . . . . . 
+--- Test25: a1 at place(id=0) (by region)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..0,0..3]
+  poly
+    0  0 1 2 3 . . . . . . 
+  iterator
+    0  0 1 2 3 . . . . . . 
+--- Test25: a1 at place(id=1) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [1..1,0..3]
+  poly
+    1  4 5 6 7 . . . . . . 
+  iterator
+    1  4 5 6 7 . . . . . . 
+--- Test25: a1 at place(id=1) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [1..1,0..3]
+  poly
+    1  4 5 6 7 . . . . . . 
+  iterator
+    1  4 5 6 7 . . . . . . 
+--- Test25: a1 at place(id=2) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [2..2,0..3]
+  poly
+    2  8 9 10 11 . . . . . . 
+  iterator
+    2  8 9 10 11 . . . . . . 
+--- Test25: a1 at place(id=2) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [2..2,0..3]
+  poly
+    2  8 9 10 11 . . . . . . 
+  iterator
+    2  8 9 10 11 . . . . . . 
+--- Test25: a1 at place(id=3) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [3..3,0..3]
+  poly
+    3  12 13 14 15 . . . . . . 
+  iterator
+    3  12 13 14 15 . . . . . . 
+--- Test25: a1 at place(id=3) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [3..3,0..3]
+  poly
+    3  12 13 14 15 . . . . . . 
+  iterator
+    3  12 13 14 15 . . . . . . 
+d1 Dist(0->[0..3,0..0],1->[0..3,1..1],2->[0..3,2..2],3->[0..3,3..3])
+--- Test25: a1 at place(id=0) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..3,0..0]
+  poly
+    0  0 . . . . . . . . . 
+    1  4 . . . . . . . . . 
+    2  8 . . . . . . . . . 
+    3  12 . . . . . . . . . 
+  iterator
+    0  0 . . . . . . . . . 
+    1  4 . . . . . . . . . 
+    2  8 . . . . . . . . . 
+    3  12 . . . . . . . . . 
+--- Test25: a1 at place(id=0) (by region)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..3,0..0]
+  poly
+    0  0 . . . . . . . . . 
+    1  4 . . . . . . . . . 
+    2  8 . . . . . . . . . 
+    3  12 . . . . . . . . . 
+  iterator
+    0  0 . . . . . . . . . 
+    1  4 . . . . . . . . . 
+    2  8 . . . . . . . . . 
+    3  12 . . . . . . . . . 
+--- Test25: a1 at place(id=1) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..3,1..1]
+  poly
+    0  . 1 . . . . . . . . 
+    1  . 5 . . . . . . . . 
+    2  . 9 . . . . . . . . 
+    3  . 13 . . . . . . . . 
+  iterator
+    0  . 1 . . . . . . . . 
+    1  . 5 . . . . . . . . 
+    2  . 9 . . . . . . . . 
+    3  . 13 . . . . . . . . 
+--- Test25: a1 at place(id=1) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [0..3,1..1]
+  poly
+    0  . 1 . . . . . . . . 
+    1  . 5 . . . . . . . . 
+    2  . 9 . . . . . . . . 
+    3  . 13 . . . . . . . . 
+  iterator
+    0  . 1 . . . . . . . . 
+    1  . 5 . . . . . . . . 
+    2  . 9 . . . . . . . . 
+    3  . 13 . . . . . . . . 
+--- Test25: a1 at place(id=2) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..3,2..2]
+  poly
+    0  . . 2 . . . . . . . 
+    1  . . 6 . . . . . . . 
+    2  . . 10 . . . . . . . 
+    3  . . 14 . . . . . . . 
+  iterator
+    0  . . 2 . . . . . . . 
+    1  . . 6 . . . . . . . 
+    2  . . 10 . . . . . . . 
+    3  . . 14 . . . . . . . 
+--- Test25: a1 at place(id=2) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [0..3,2..2]
+  poly
+    0  . . 2 . . . . . . . 
+    1  . . 6 . . . . . . . 
+    2  . . 10 . . . . . . . 
+    3  . . 14 . . . . . . . 
+  iterator
+    0  . . 2 . . . . . . . 
+    1  . . 6 . . . . . . . 
+    2  . . 10 . . . . . . . 
+    3  . . 14 . . . . . . . 
+--- Test25: a1 at place(id=3) (by place)
+rank 2
+rect true
+zeroBased true
+rail false
+isConvex() true
+size() 4
+region: [0..3,3..3]
+  poly
+    0  . . . 3 . . . . . . 
+    1  . . . 7 . . . . . . 
+    2  . . . 11 . . . . . . 
+    3  . . . 15 . . . . . . 
+  iterator
+    0  . . . 3 . . . . . . 
+    1  . . . 7 . . . . . . 
+    2  . . . 11 . . . . . . 
+    3  . . . 15 . . . . . . 
+--- Test25: a1 at place(id=3) (by region)
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() 4
+region: [0..3,3..3]
+  poly
+    0  . . . 3 . . . . . . 
+    1  . . . 7 . . . . . . 
+    2  . . . 11 . . . . . . 
+    3  . . . 15 . . . . . . 
+  iterator
+    0  . . . 3 . . . . . . 
+    1  . . . 7 . . . . . . 
+    2  . . . 11 . . . . . . 
+    3  . . . 15 . . . . . . 

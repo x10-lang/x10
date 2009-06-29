@@ -1,0 +1,72 @@
+This is e-TeX, Version 3.141592-2.2 (MiKTeX 2.4) (preloaded format=latex 2005.4.13)  13 APR 2005 04:18
+entering extended mode
+**test
+(test.tex
+LaTeX2e <2003/12/01>
+Babel <v3.8a> and hyphenation patterns for english, french, german, ngerman, du
+mylang, nohyphenation, loaded.
+(C:\texmf\tex\latex\base\article.cls
+Document Class: article 2004/02/16 v1.4f Standard LaTeX document class
+(C:\texmf\tex\latex\base\size10.clo
+File: size10.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (changebar.sty
+Package: changebar 2004/02/20 v3.4g Indicate changes with marginal bars
+\cb@nextpoint=\count87
+\cb@topleft=\count88
+\cb@topright=\count89
+\cb@botleft=\count90
+\cb@botright=\count91
+\cb@cnta=\count92
+\cb@cntb=\count93
+\cb@dima=\dimen103
+\cb@curbarwd=\dimen104
+\cb@page=\count94
+\cb@pagecount=\count95
+\cb@odd@left=\dimen105
+\cb@odd@right=\dimen106
+\cb@even@left=\dimen107
+\cb@even@right=\dimen108
+\changebarwidth=\skip43
+\deletebarwidth=\skip44
+\changebarsep=\skip45
+\c@changebargrey=\count96
+\cb@write=\write3
+\cb@read=\read1
+) (test.aux)
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 3.
+LaTeX Font Info:    ... okay on input line 3.
+ [1
+
+] (test.aux) ) 
+Here is how much of TeX's memory you used:
+ 362 strings out of 95898
+ 3588 string characters out of 1195288
+ 49363 words of memory out of 1053140
+ 3460 multiletter control sequences out of 60000
+ 3640 words of font info for 14 fonts, out of 500000 for 1000
+ 14 hyphenation exceptions out of 607
+ 23i,4n,17p,130b,111s stack positions out of 1500i,500n,5000p,200000b,32768s
+
+Output written on test.dvi (1 page, 836 bytes).

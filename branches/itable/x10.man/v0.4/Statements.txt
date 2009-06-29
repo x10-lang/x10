@@ -1,0 +1,79 @@
+'''Statements'''
+
+We focus on the new statements in X10. X10 inherits all the standard statements of Java, with the expected semantics: EmptyStatement, LabeledStatement, ExpressionStatement, IfStatement, SwitchStatement, WhileDo, DoWhile, ForLoop, BreakStatement, ContinueStatement, ReturnStatement, ThrowStatement, TryStatement.
+
+X10 also has the AtomicBlock and the AsynchronousBlock.
+'''Atomic Section'''
+
+<...>
+
+''' Asynchronous Block'''
+
+<...>
+
+We also introduce shorthand for asynchronous remote method invocation:
+
+   object -> methodname(arg1,...,argk)
+
+is taken as shorthand for one of
+
+    async (object) { object.methodname(arg1,...,argk); }
+    async (object) { return object.methodname(arg1, ..., argk);}
+
+based on whether the return type of methodname is '''void'''.
+
+'''Parallel iteration'''
+
+We introduce  k-dimensional versions of iteration operations '''for''' and '''forall''':
+
+   forall (  ind1, ..., indk : R) {S}
+
+Here R is an array, distribution or region. Let [T1,..., Tk] be the convex closure of the region.  Then the execution of this statement results in the parallel execution of an activity
+
+   { final T1 Ind1 = i1; 
+     ...
+     final Tk Indk = ik;
+     S
+   }
+
+for each value [i1,\ldots, ik] in the region. Note that the number of activities is equal to the cardinality of the region, not its convex closure.
+
+In a similar fashion we introduce the syntax:
+
+   ateach( Ind1, ..., Indk : A) {S}
+
+to stand for
+
+   forall (  ind1, ..., indk : A ) async (A[ind1,...,indk]) {S}
+
+
+In method definitions, for a region R we allow the syntax 
+
+     R i1,...,ik; 
+
+
+to introduce k new parameters which range over the component enumerations of the convex closure of R.
+
+''''Research Proposal: Please comment''''
+
+Here is a way to move to ZPL's notion that statements can be indexed with regions. Let D be a distribution of rank m, and S be a statement in which a1,...,ak is the list of all arrays that are distributed according to D. Then the syntax 
+
+    ateach( D ) S 
+
+is shorthand for
+
+    ateach( i1,.., im: D) S'
+
+where S' is S with aj replaced by aj[i1,...,im].
+
+Thus here is generic code for adding two arrays distributed in the same way, but of unknown rank:
+
+  <distribution D, T implements Field> 
+    T[D] add(T[D] a, T[D] b) {
+       _ r = new T[D];
+       ateach (D) atomic { 
+         r = a + b;
+       } >|
+       return r;
+    }
+

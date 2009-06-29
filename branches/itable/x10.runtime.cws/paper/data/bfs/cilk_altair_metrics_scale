@@ -1,0 +1,7 @@
+#scaling on altair, for 1, 2, 4, 8 processors
+# graph 5M nodes 20M edges
+# #processors		time(s)
+ 1			3.937374	
+ 2			4.865835	
+ 4			4.501707	
+ 8			4.673917	

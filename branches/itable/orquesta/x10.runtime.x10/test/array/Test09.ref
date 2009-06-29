@@ -1,0 +1,9 @@
+--- Test09: unbounded diamond
+rank 2
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0+x1>=3 && x0-x1>=-1 && x0+x1<=7)
+x10.array.UnboundedRegionException: axis 0 has no maximum

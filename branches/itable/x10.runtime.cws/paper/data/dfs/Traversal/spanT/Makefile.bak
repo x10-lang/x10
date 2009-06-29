@@ -1,0 +1,9 @@
+EXECS = span 
+
+SIMPLE_DIR = ../simple-4.4G
+
+OPT         = -O$(O_LEVEL)
+# OPT       = -g
+
+include ./Makefile.smp.mk
+

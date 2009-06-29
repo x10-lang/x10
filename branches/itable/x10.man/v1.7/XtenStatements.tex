@@ -1,0 +1,342 @@
+\chapter{Statements}\label{XtenStatements}\index{statements}
+
+This chapter describes the statements in the sequential core of
+\Xten{}.  Statements involving concurrency and distribution
+are described in \Sref{XtenActivities}.
+
+\section{Empty statement}
+
+\begin{grammar}
+Statement \: \xcd";" \\
+\end{grammar}
+
+The empty statement \xcd";" does nothing.  It is useful when a
+loop header is evaluated for its side effects.  For example,
+the following code sums the elements of an array.
+\begin{xten}
+var sum: Int = 0;
+for (i: Int = 0; i < a.length; i++, sum += a[i])
+    ;
+\end{xten}
+
+\section{Local variable declaration}
+
+\begin{grammar}
+Statement \: LocalVariableDeclarationStatement \\
+             LocalVariableDeclarationStatement \:
+             LocalVariableDeclaration \xcd";" \\
+\end{grammar}
+
+The syntax of local variables declarations is described in
+\Sref{VariableDeclarations}.
+
+Local variables may be declared only within a block statement
+(\Sref{Blocks}).
+The scope of a local variable declaration is the 
+statement itself and the subsequent statements in the block.
+
+\section{Block statement}
+\label{Blocks}
+
+\begin{grammar}
+Statement \: BlockStatement \\
+BlockStatement \: \xcd"{" Statement\star \xcd"}" \\
+\end{grammar}
+
+A block statement consists of a sequence of statements delimited
+by ``\xcd"{"'' and ``\xcd"}"''.  Statements are evaluated in
+order.  The scope of local variables introduced within the block  
+is the remainder of the block following the variable declaration.
+
+\section{Expression statement}
+
+\begin{grammar}
+Statement \: ExpressionStatement \\
+ExpressionStatement \: StatementExpression \xcd";" \\
+StatementExpression \: Assignment \\
+          \| Allocation \\
+          \| Call \\
+\end{grammar}
+
+The expression statement evaluates an expression, ignoring the
+result.  The expression must be either an assignment, an
+allocation, or a call.
+
+\section{Labeled statement}
+
+\begin{grammar}
+Statement \: LabeledStatement \\
+LabeledStatement \: Identifier \xcd":" Statement \\
+\end{grammar}
+
+Statements may be labeled.  The label may be used as the target
+of a break or continue statement.  The scope of a label is the
+statement labeled.
+
+\section{Break statement}
+
+\begin{grammar}
+Statement \: BreakStatement \\
+BreakStatement \: \xcd"break" Identifier\opt \\
+\end{grammar}
+
+An unlabeled break statement exits the currently enclosing loop
+or switch statement.
+
+An labeled break statement exits the enclosing loop
+or switch statement with the given label.
+
+It is illegal to break out of a loop not defined in the current
+method, constructor, initializer, or closure.
+
+The following code searches for an element of a two-dimensional
+array and breaks out of the loop when found:
+
+\begin{xten}
+var found: Boolean = false;
+for (i: Int = 0; i < a.length; i++)
+    for (j: Int = 0; j < a(i).length; j++)
+        if (a(i)(j) == v) {
+            found = true;
+            break;
+        }
+\end{xten}
+
+\section{Continue statement}
+
+\begin{grammar}
+Statement \: ContinueStatement \\
+ContinueStatement \: \xcd"continue" Identifier\opt \\
+\end{grammar}
+
+An unlabeled continue statement branches to the top of the
+currently enclosing loop.
+
+An labeled break statement branches to the top of the enclosing loop
+with the given label.
+
+It is illegal to continue a loop not defined in the current
+method, constructor, initializer, or closure.
+
+\section{If statement}
+
+\begin{grammar}
+Statement \: IfThenStatement \\
+          \| IfThenElseStatement \\
+IfThenStatement \: \xcd"if" \xcd"(" Expression \xcd")" Statement \\
+IfThenElseStatement \: \xcd"if" \xcd"(" Expression \xcd")" Statement \xcd"else" Statement \\
+\end{grammar}
+
+An if statement comes in two forms: with and without an else
+clause.
+
+The if-then statement evaluates a condition expression and 
+evaluates the consequent expression if the condition is
+\xcd"true".  If the 
+condition is \xcd"false",
+the if-then statement completes normally.
+
+The if-then-else statement evaluates a condition expression and 
+evaluates the consequent expression if the condition is
+\xcd"true"; otherwise, the alternative statement is evaluated.
+
+The condition must be of type \xcd"Boolean".
+
+\section{Switch statement}
+
+\begin{grammar}
+Statement \: SwitchStatement \\
+SwitchStatement \: \xcd"switch" \xcd"(" Expression \xcd")" \xcd"{" Case\plus \xcd"}" \\
+Case \: \xcd"case" Expression \xcd":" Statement\star \\
+     \| \xcd"default" \xcd":" Statement\star \\
+\end{grammar}
+
+A switch statement evaluates an index expression and then branches to
+a case whose value equal to the value of the index expression.
+If no such case exists, the switch branches to the 
+\xcd"default" case, if any.
+
+Statements in each case branch evaluated in sequence.  At the
+end of the branch, normal control-flow falls through to the next case, if
+any.  To prevent fall-through, a case branch may be exited using
+a \xcd"break" statement.
+
+The index expression must be of type \xcd"Int".
+
+Case labels must be of type \xcd"Int" and must be compile-time
+constants.  Case labels cannot be duplicated within the
+\xcd"switch" statement.
+
+\section{While statement}
+
+\index{while@\xcd"while"}
+
+\begin{grammar}
+Statement \: WhileStatement \\
+WhileStatement \: \xcd"while" \xcd"(" Expression \xcd")" Statement \\
+\end{grammar}
+
+A while statement evaluates a condition and executes a loop body
+if \xcd"true".  If the loop body completes normally (either by reaching
+the end or via a \xcd"continue" statement with the loop header
+as target), the condition is reevaluated and the loop repeats if
+\xcd"true".  If the condition is \xcd"false", the loop
+exits.
+
+The condition must be of type \xcd"Boolean".
+
+\section{Do--while statement}
+
+\index{do@\xcd"do"}
+
+\begin{grammar}
+Statement \: DoWhileStatement \\
+DoWhileStatement \: \xcd"do" Statement \xcd"while" \xcd"(" Expression \xcd")" \xcd";" \\
+\end{grammar}
+
+
+A do-while statement executes a loop body, and then evaluates a
+condition expression.  If \xcd"true", the loop repeats.
+Otherwise, the loop exits.
+
+The condition must be of type \xcd"Boolean".
+
+\section{For statement}
+
+\index{for@\xcd"for"}
+
+\begin{grammar}
+Statement \: ForStatement \\
+          \| EnhancedForStatement \\
+ForStatement \: \xcd"for" \xcd"("
+        ForInit\opt \xcd";" Expression\opt \xcd";" ForUpdate\opt
+        \xcd")" Statement \\
+ForInit \:
+        StatementExpression ( \xcd"," StatementExpression )\star
+        \\
+      \| LocalVariableDeclaration \\
+EnhancedForStatement \: \xcd"for" \xcd"("
+        Formal \xcd"in" Expression 
+        \xcd")" Statement \\
+\end{grammar}
+
+\Xten{} provides two forms of for statement: a basic for
+statement and an enhanced for statement.
+
+A basic for statement consists of an initializer, a condition, an
+iterator, and a body.  First, the initializer is evaluated.
+The initializer may introduce local variables that are in scope
+throughout the for statement.  An empty initializer is
+permitted.
+Next, the condition is evaluated.  If \xcd"true", the loop body
+is executed; otherwise, the loop exits.
+The condition may be omitted, in which case the condition is
+considered \xcd"true".
+If the loop completes normally (either by reaching the end
+or via a \xcd"continue" statement with the loop header as
+target),
+the iterator is evaluated and then the condition is reevaluated
+and the loop repeats if
+\xcd"true".  If the condition is \xcd"false", the loop
+exits.
+
+The condition must be of type \xcd"Boolean".
+The initializer and iterator are statements, not expressions
+and so do not have types.
+
+\label{ForAllLoop}
+
+% XXX REGION
+
+An enhanced for statement is used to iterate over a collection.
+If the formal parameter is of type \xcd"T",
+the collection expression must be of type \xcd"Iterable[T]".
+Exploded
+syntax may
+be used for the formal parameter (\Sref{exploded-syntax}).
+Each iteration of the loop
+binds the parameter to another element of the collection.
+If the parameter is final, it may not be assigned within the
+loop body.
+
+In a common case, the
+the collection is intended to be of type
+\xcd"Region" and the formal parameter is of type \xcd"Point".
+Expressions \xcd"e" of type \xcd"Dist" and
+\xcd"Array" are also accepted, and treated as if they were
+\xcd"e.region".
+If the collection is a region, the \xcd"for" statement
+enumerates the points in the region in canonical order.
+
+
+
+\section{Throw statement}
+\index{throw}
+
+\begin{grammar}
+Statement \: ThrowStatement \\
+ThrowStatement \: \xcd"throw" Expression \xcd";"
+\end{grammar}
+
+The \xcd"throw" statement throws an exception.  The exception
+must be a subclass of the value class \xcd"x10.lang.Throwable". 
+% null not allowed since a value class;
+% If the exception is
+% \xcd"null", a \xcd"NullPointerException" is thrown.
+
+\begin{example}
+The following statement checks if an index is in range and
+throws an exception if not.
+\begin{xten}
+if (i < 0 || i > x.length)
+    throw new IndexOutOfBoundsException();
+\end{xten}
+\end{example}
+
+\section{Try--catch statement}
+
+\begin{grammar}
+Statement \: TryStatement \\
+TryStatement \: \xcd"try" BlockStatement Catch\plus Finally\opt \\
+             \| \xcd"try" BlockStatement Catch\star Finally \\
+Catch \: \xcd"catch" \xcd"(" Formal \xcd")" BlockStatement \\
+Finally \: \xcd"finally" BlockStatement \\
+\end{grammar}
+
+Exceptions are handled with a \xcd"try" statement.
+A \xcd"try" statement consists of a \xcd"try" block, zero or more
+\xcd"catch" blocks, and an optional \xcd"finally" block.
+
+First, the \xcd"try" block is evaluated.  If the block throws an
+exception, control transfers to the first matching \xcd"catch"
+block, if any.  A \xcd"catch" matches if the value of the
+exception thrown is a subclass of the \xcd"catch" block's formal
+parameter type.
+
+The \xcd"finally" block, if present, is evaluated on all normal
+and exceptional control-flow paths from the \xcd"try" block.
+If the \xcd"try" block completes normally
+or via a \xcd"return", a \xcd"break", or a
+\xcd"continue" statement, 
+the \xcd"finally"
+block is evaluated, and then control resumes at
+the statement following the \xcd"try" statement, at the branch target, or at
+the caller as appropriate.
+If the \xcd"try" block completes
+exceptionally, the \xcd"finally" block is evaluated after the
+matching \xcd"catch" block, if any, and then the
+exception is rethrown.
+
+\section{Return statement}
+\label{ReturnStatement}
+\index{ReturnStatement}
+\begin{grammar}
+Statement \: ReturnStatement \\
+ReturnStatement \: \xcd"return" Expression \xcd";" \\
+             \| \xcd"return" \xcd";" \\
+\end{grammar}
+
+Methods and closures may return values using a return statement.
+If the method's return type is expliclty declared \xcd"Void",
+the method may return without a value; otherwise, it must return
+a value of the appropriate type.

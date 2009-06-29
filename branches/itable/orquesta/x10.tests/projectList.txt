@@ -1,0 +1,6 @@
+x10.dist
+x10.compiler
+x10.man 
+x10.runtime
+x10.tests
+x10.web

@@ -1,0 +1,117 @@
+.ds AL L\\v'.3m'A\\v'-.3m'\\*(ET
+.TH CHBAR 1 TeX
+.SH NAME
+chbar \- write \*(AL file with `change bars' showing change between input \*(AL files
+.SH SYNOPSIS
+.B chbar
+[
+.B \-h
+] [
+.B \-g
+] [
+.B \-G
+] [
+.BI \-d " dir"
+] [
+.BI \-r " rev"
+]
+.I old new
+[
+.I output
+]
+.sp
+.B chbar
+[
+.B \-h
+] [
+.B \-g
+] [
+.B \-G
+] [
+.BI \-d " dir"
+] [
+.BI \-r " rev"
+]
+.I old
+.sp
+.B chbar
+[
+.B \-h
+] [
+.B \-g
+] [
+.B \-G
+]
+.BI \-d " dir"
+.BI \-r " rev"
+.I files
+.SH DESCRIPTION
+.I chbar
+takes two \*(AL files and produce a third which
+has change bars highlighting the difference between them. There
+are three basic modes of operation: first, pathnames can
+be given for
+.I old
+and
+.IR new ;
+second, if only
+.I old
+is named, the
+.I new
+file is taken from standard input and the output is written to standard
+output; thirdly, if the
+.B \-r
+option is used
+.I files
+held by RCS must be named - (see the explanation of the
+.B \-r
+option).
+.sp
+Change bars are inserted for differences after '\ebegin{document}'.
+.SH OPTIONS
+.TP
+.BI \-d " dir"
+Write the output to file
+.IR dir/new ,
+if
+.I new
+is given or to file
+.IR dir/old .
+If
+.I dir
+does not exist, it is created.
+If
+.I output
+is given, it is discarded.
+.TP
+.BI \-r " rev"
+If the \*(AL
+.I files
+are kept under control of the Revision Control System RCS, the old files of
+the revision
+.I rev
+can be retrieved.
+.I rev
+is specified using the RCS conventions.
+This option must be used together with the
+.BI \-d " dir"
+option.
+.I files
+must be a nonempty list of files.
+.TP
+.B \-h
+Print a help text.
+.TP
+.B \-g
+Print some debugging info.
+.TP
+.B \-G
+Even more debug info.
+.SH SEE ALSO
+.IR diff (1),
+.IR rcs (1)
+.SH BUGS
+The
+.I new
+file can not be named `-'.
+
