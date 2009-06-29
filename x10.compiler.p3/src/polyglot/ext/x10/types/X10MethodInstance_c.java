@@ -74,7 +74,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     @Override
     public boolean moreSpecific(ProcedureInstance<MethodDef> p, Context context) {
-        return moreSpecificImpl(this, p, ts.emptyContext());
+        return moreSpecificImpl(this, p, context);
     }
 
     public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2, Context context) {
@@ -98,13 +98,19 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         if (descends && ! ts.hasSameClassDef(t1, t2) && flags1.isStatic() && flags2.isStatic()) {
             return true;
         }
+        
+        
 
         // if the formal params of p1 can be used to call p2, p1 is more specific
         if (p1.formalTypes().size() == p2.formalTypes().size() ) {
             for (int i = 0; i < p1.formalTypes().size(); i++) {
                 Type f1 = p1.formalTypes().get(i);
                 Type f2 = p2.formalTypes().get(i);
-                if (! ts.isImplicitCastValid(f1, f2, context)) {
+                // Ignore constraints.  This avoids an anomaly with the translation with erased constraints
+                // having inverting the result of the most-specific test.  Fixes XTENLANG-455.
+                Type b1 = X10TypeMixin.baseType(f1);
+                Type b2 = X10TypeMixin.baseType(f2);
+                if (! ts.isImplicitCastValid(b1, b2, context)) {
                     return false;
                 }
             }
