@@ -1495,14 +1495,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return arrayType_;
     }
 
-    protected Type valArrayType_ = null;
-
-    public Type ValArray() {
-        if (valArrayType_ == null)
-            valArrayType_ = load("x10.lang.ValArray");
-        return valArrayType_;
-    }
-
     // RMF 11/1/2005 - Not having the "static" qualifier on interfaces causes
     // problems,
     // e.g. for New_c.disambiguate(AmbiguityRemover), which assumes that

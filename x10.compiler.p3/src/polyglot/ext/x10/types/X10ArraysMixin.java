@@ -29,7 +29,7 @@ public class X10ArraysMixin {
 	
 	
 	public static boolean isX10Array(Type t) {
-	    return isVarArray(t) || isValArray(t);
+	    return isVarArray(t);
 	}
 	
 	public static boolean isVarArray(Type t) {
@@ -44,26 +44,13 @@ public class X10ArraysMixin {
 	    return false;
 	}
 
-	public static boolean isValArray(Type t) {
-	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	    Type tt = X10TypeMixin.baseType(t);
-	    Type at = X10TypeMixin.baseType(ts.ValArray());
-	    if (tt instanceof ClassType && at instanceof ClassType) {
-	        ClassDef tdef = ((ClassType) tt).def();
-	        ClassDef adef = ((ClassType) at).def();
-	        return ts.descendsFrom(tdef, adef);
-	    }
-	    return false;
-	}
-
 	public static Type arrayBaseType(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
 		X10ClassType ct = (X10ClassType) t;
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 		ClassType a = (ClassType) ts.Array();
-		ClassType v = (ClassType) ts.ValArray();
-		if (ct.def() == a.def() || ct.def() == v.def())
+		if (ct.def() == a.def())
 		    return ct.typeArguments().get(0);
 		else
 		    arrayBaseType(ct.superClass());

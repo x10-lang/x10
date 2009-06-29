@@ -156,11 +156,6 @@ public interface X10TypeSystem extends TypeSystem {
     Type Array();
 
     /**
-     * Return the ClassType object for the x10.lang.Array interface.
-     */
-    Type ValArray();
-
-    /**
      * Return the ClassType object for the x10.lang.Rail interface.
      * 
      * @return
