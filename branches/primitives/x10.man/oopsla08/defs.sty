@@ -1,0 +1,127 @@
+\newif\iflongproof
+\longprooffalse
+\newif\ifdraft
+\newif\ifpreprint
+\@ifclasswith{article}{draft}{\drafttrue}{\draftfalse}
+\@ifclasswith{sigplanconf}{preprint}{\preprinttrue}{\preprintfalse}
+
+\newcommand\trlabel[1]{\label{#1}\ifpreprint\textbf{(#1)}\fi}
+\newcommand\trref[1]{\ifpreprint\textbf{\ref{#1} (#1)}\else\ref{#1}\fi}
+
+\newcounter{thm}
+\setcounter{thm}{1}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{dem}[thm]{Definition}
+
+\newcommand\loc[1]{\ell_{#1}}
+
+\newcommand\join{\sqcup}
+\newcommand\meet{\sqcap}
+\newcommand\sqlt{\sqsubset}
+\newcommand\sqle{\sqsubseteq}
+\newcommand\sqgt{\sqsupset}
+\newcommand\sqge{\sqsupseteq}
+
+% alignment to be used in array{rl} environment when align* is not allowed
+\newcommand\backup{\!\!\!\!\!\!\!}
+
+\newcommand\ljoin{\mathbin{\rtimes}}
+\newcommand\rjoin{\mathbin{\ltimes}}
+
+\newcommand\subsetapprox{\mathbin{\raisebox{2pt}{$\subset$}\!\!\!\!\!\!\!\raisebox{-2pt}{$\sim$}}}
+
+\newcommand\ttamp{\ensuremath{\mbox{\normalfont\texttt \&}}}
+\newcommand\intersect{\mathbin{\ttamp}}
+\newcommand\bigttamp{\ensuremath{\mbox{\large \texttt \&}}}
+
+\newcommand\all[2]{{#2}^{\forall#1}}
+\newcommand\range[2]{#1..#2}
+%\newcommand\all[2]{\forall#1.~#2}
+%\newcommand\range[2]{#1,\dots,#2}
+
+\newcommand\nop{\emph{no-op}}
+
+\newcommand\fixspacing{\vspace{-5pt}\quad{}}
+
+\newcommand\eat[1]{}
+
+\renewcommand\bar[1]{\overline{#1}}
+
+\newcommand{\starderives}{\derives^*}
+
+% \newcommand\rn[1]{\textsc{#1}}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{\rn{#1})}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
+\def\derives{\rightarrow}
+\newcommand\subtype{\ensuremath{\,\xcd{<:}\,}}
+
+%\def\super{\mbox{\tt super}}
+\def\class{\mbox{\tt class}}
+%\def\extends{\mbox{\tt extends}}
+\def\inv{\mbox{\normalfont\em inv}}
+\def\mtype{\mbox{\normalfont\tt mtype}}
+\def\mbody{\mbox{\normalfont\tt mbody}}
+\def\fields{\mbox{\normalfont\tt fields}}
+\def\rc{\mbox{\em rc}}
+
+\newcommand\val{\mbox{\tt val}}
+\newcommand\klass{\mbox{\tt class}}
+\newcommand\var{\mbox{\tt var}}
+\newcommand\self{\mbox{\tt self}}
+\newcommand\this{\mbox{\tt this}}
+\newcommand\new{\mbox{\tt new}}
+\newcommand\extends{\unlhd}
+\newcommand\super{\unrhd}
+\newcommand\return{\mbox{\tt return}}
+\newcommand\true{\mbox{\tt true}}
+\newcommand\as{\mbox{\tt as}}
+\newcommand\type{\mbox{\tt type}}
+\newcommand\field{\mbox{\em field}}
+\newcommand\CFJ{{\sf CFJ}}
+\newcommand\FJ{{\sf FJ}}
+\newcommand\Java{{\sf Java}}
+
+\newcommand\csharp{C$^{\sharp}$\xspace}
+\newcommand\hmx{$\mathrm{HM}(X)$\xspace}
+\newcommand\clpx{$\mathrm{CLP}(X)$\xspace}
+
+\newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
+\newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
+\newcommand\exc[2]{\ensuremath{\exists}#1.~#2}
+\newcommand\exty[3]{\ensuremath{\exists}#1\ty#2.~#3}
+\newcommand\extyty[5]{\ensuremath{\exists}#1\ty#2,#3\ty#4.~#5}
+\newcommand\extytyty[7]{\ensuremath{\exists}#1\ty#2,#3\ty#4,#5\ty#6.~#7}
+\def\inv{\ensuremath{\mathit{inv}}}
+\newcommand\notsubtype{\ensuremath{\,\xcd{$\not$<}\xcd{:}\,}}
+
+\def\FGJ{{\sf FGJ}}
+\def\FX{\CFJ}
+\def\FXZ{\CFJ}
+\def\FXD{\CFJ}
+\def\has{\mbox{\tt has}}
+\def\TConstr{\mbox{\sc T-Constr}}
+\def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
+\def\TField{\mbox{\sc T-Field}}
+\def\TInvk{\mbox{\sc T-Invk}}
+\def\TNew{\mbox{\sc T-New}}
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+
+\def\RField{\mbox{\sc R-Field}}
+\def\RCField{\mbox{\sc RC-Field}}
+\def\RInvk{\mbox{\sc R-Invk}}
+\def\RCInvkRecv{\mbox{\sc RC-Invk-Recv}}
+\def\RCInvkArg{\mbox{\sc RC-Invk-Arg}}
+\def\RCNewArg{\mbox{\sc RC-New-Arg}}
+\def\RCast{\mbox{\sc R-Cast}}
+\def\RCCast{\mbox{\sc RC-Cast}}
+
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}

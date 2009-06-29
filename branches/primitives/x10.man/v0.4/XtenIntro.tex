@@ -1,0 +1,114 @@
+\clearextrapart{Introduction}
+\subsection*{Background}
+Bigger computational problems need bigger computers capable of
+performing a larger number of operations per second. The era of
+increasing performance by simply increasing clocking frequency now
+seems to be behind us. It is becoming increasingly difficult
+to mange chip power and heat.  Instead, computer
+designers are starting to look at {\em scale out} systems in which the
+system's computational capacity is increased by adding additional
+nodes of comparable power to existing nodes, and connecting nodes with
+a high-speed communication network.
+
+A central problem with scale out systems is a definition of the {\em
+memory model}, that is, a model of the interaction between shared
+memory and  simultaneous (read, write) operations on that
+memory by multiple processors. The traditional ``one operation at a
+time, to completion'' model that underlies Lamport's notion of {\em
+sequential consistency} (SC) proves too expensive to implement in
+hardware, at scale. Various models of {\em relaxed consistency} have
+proven too difficult for programmers to work with.  
+
+One response to this problem has been to move to a {\em fragmented
+memory model}. Multiple processors -- each sequentially consistent
+internally -- are made to interact via a relatively language-neutral
+message-passing format such as MPI \cite{mpi}. This model has enjoyed
+some success: several high-performance applications have been written
+in this style. Unfortunately, this model leads to a {\em loss of
+programmer productivity}: the mesage-passing format is integrated into
+the host language by means of an application-programming interface
+(API), the programmer must explicitly represent and manage the
+interaction between multiple processes and choreograph their data
+exchange; large data-structures (such as distributed arrays, graphs,
+hash-tables) that are conceptually unitary must be thought of as
+fragmented across different nodes; all processors must generally
+execute the same code (in an SPMD fashion) etc.
+
+One response to this problem has been the advent of the {\em
+partitioned global address space} (GAS) model underlying languages
+such as UPC, Titanium and Co-Array Fortran \cite{pgas,titanium}. These
+languages permit the programmer to think of a single computation
+running across multiple processors, sharing a common address
+space. All data resides at some processors, which is said to have {\em
+affinity} to the data.  Each processor may operate directly on the
+data it contains but must use some indirect mechanism to access or
+update data at other processors. Some kind of global {\em barriers}
+are used to ensure that processors remain roughly in lock-step.
+
+\Xten{} is a modern object-oriented programming language
+in the GAS family. The fundamental goal of \Xten{} is to enable
+scalable, high-performance, high-productivity transformational
+programming for high-end computers -- for traditional numerical
+computation workloads (such as weather simulation, molecular dynamics,
+particle transport problems etc) as well as commercial server
+workloads.
+%%(By transformational programming we mean computation
+%%focused on accepting some input, transforming it in some way and
+%%delivering some output. as opposed to computation focused on
+%%maintaining an ongoing interaction with the environment, e.g.{} {\em
+%%reactive computing}.) 
+\Xten{} is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems. \Xten{} takes advantage of several years of research (e.g.{}
+in the context of the Java$^{TM}$ Grande forum,
+\cite{moreira00java,kava}) on how to adapt such languages to the context of
+high-performance numerical computing. Thus \Xten{} provides support
+for user-defined {\em value types} (such as {\tt int}, {\tt float},
+{\tt complex} etc), supports a very
+flexible form of multi-dimensional arrays (based on ideas in ZPL
+\cite{zpl}) and supports IEEE-standard floating point arithmetic.
+Some limited operator overloading is provided for a few ``built in''
+classes in the {\cf x10.lang} package.  Future versions of the
+language will support user-definable operator overloading.
+
+{}\Xten{} introduces a flexible treatment of concurrency, distribution
+and locality, within an integrated type system. \Xten{} extends the
+GAS model to the {\em globally asynchronous, locally synchronous}
+(GALS) model originally developed in hardware and embedded software
+research.  {}\Xten{} introduces {\em places} as an abstraction for a
+computational context with a locally synchronous view of shared
+memory. An \Xten{} computation runs over a large collection of places.
+Each place hosts some data and runs one or more {\em
+activities}. Activities are extremely lightweight threads of
+execution. An activity may synchronously (and {\em atomically}) use
+one or more memory locations in the place in which it resides,
+leveraging current symmetric multiprocessor (SMP) technology.  It {\em
+must} spawn activities {\em asynchronously} to access or update memory
+at other places. \Xten{} provides weaker ordering guarantees for
+inter-place data access, enabling applications to scale.  {\em
+Immutable} data needs no consistency management and may be freely
+copied between places.  An attempt to read an uninitialized immutable
+location suspends until the location is written into, thus permitting
+data-flow synchronization. One or more {\em clocks} may be used to
+order activities running in multiple places. (Multi-dimensional)
+Arrays may be distributed across multiple places. Arrays support
+parallel collective operations. A novel exception flow model ensures
+that exceptions thrown by asynchronous activities can be caught at a
+suitable parent activity.  The type system tracks which memory
+accesses are local, and marks non-local accesses as compile time
+errors. The programmer may introduce placecasts which verify the
+access is local at runtime.  Linking with native code is supported.
+
+{}\Xten{} is an experimental language.  Several representative
+concurrent idioms have already found pleasant expression in \Xten. We
+intend to develop several full-scale applications to get better
+experience with the language, and revisit the design in the light of
+this experience. Future versions of the language are expected to
+support user-definable operators and permit the specification of
+generic classes and methods.
+
+Two papers have been published on \Xten{}. \cite{X10-concur05}
+presents a formal semantics for the concurrency and distributed
+aspects of \Xten{}. \cite{xten} presents some case studies, and
+discusses some \Xten{} programming idioms.
