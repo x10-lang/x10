@@ -19,6 +19,6 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Iterable<#1 > >", "x10::lang::Iterable<#1 >", null)
 public interface Iterable[+T] {
     @Native("java", "(#0).iterator()")
-    @Native("c++", "(#0)->iterator()")
+    @Native("c++", "INVOKE_INTERFACE((x10aux::findITable<x10::lang::Iterable<FMGL(T) > >), (#0), iterator, ())")
     def iterator(): Iterator[T];
 }

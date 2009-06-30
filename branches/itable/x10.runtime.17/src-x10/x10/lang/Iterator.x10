@@ -15,10 +15,10 @@ import x10.compiler.Native;
 @NativeRep("c++", "x10aux::ref<x10::lang::Iterator<#1 > >", "x10::lang::Iterator<#1 >", null)
 public interface Iterator[+T] {
     @Native("java", "#0.hasNext()")
-    @Native("c++", "(#0)->hasNext()")
+    @Native("c++", "INVOKE_INTERFACE((x10aux::findITable<x10::lang::Iterator<FMGL(T) > >), (#0), hasNext, ())")
     public def hasNext(): boolean;
     
     @Native("java", "#0.next()")
-    @Native("c++", "(#0)->next()")
+    @Native("c++", "INVOKE_INTERFACE((x10aux::findITable<x10::lang::Iterator<FMGL(T) > >), (#0), next, ())")
     public def next():T;
 }
