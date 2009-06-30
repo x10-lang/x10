@@ -154,7 +154,7 @@ namespace x10 {
             } else {
                 // Ref type; simple reference equality
                 for (x10_int i = 0; i < this->FMGL(length); ++i)
-                    if ((*other_rail)[i] != this->raw()[i])
+                    if (!x10aux::struct_equals((*other_rail)[i],this->raw()[i]))
                         return false;
             }
             return true;
