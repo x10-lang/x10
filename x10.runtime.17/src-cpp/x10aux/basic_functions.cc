@@ -23,7 +23,7 @@ ref<String> x10aux::to_string(T v) { \
 TO_STRING(4, unsigned char, "%hu")
 TO_STRING(5, signed char, "%hd")
 
-//TO_STRING(6, unsigned short, "%hu")
+TO_STRING(6, unsigned short, "%hu")
 TO_STRING(7, signed short, "%hd")
 
 TO_STRING(11, unsigned int, "%u")
