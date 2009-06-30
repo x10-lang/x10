@@ -659,17 +659,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.forceNewline(0);
         h.write("#include <x10rt17.h>"); h.newline();
         h.forceNewline(0);
-        
+
+        g.write("#ifndef "+cguard+"_GENERICS"); g.newline();
+        g.write("#define "+cguard+"_GENERICS"); g.newline();
+
         boolean inTemplate = def.typeParameters().size() != 0;
         if (inTemplate) {
             w.write("#ifndef "+cguard+"_IMPLEMENTATION"); w.newline();
             w.write("#define "+cguard+"_IMPLEMENTATION"); w.newline();
         }
-        
+
         w.write("#include <"+cheader+">"); w.newline();
         w.forceNewline(0);
         w.forceNewline(0);
-        
+
         String pkg = "";
         if (context.package_() != null)
             pkg = context.package_().fullName().toString();
@@ -868,6 +871,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		h.write("#endif // " + cguard); h.newline(0);
         h.forceNewline(0);
+
+        g.write("#endif // "+cguard+"_GENERICS"); g.newline();
 
         if (inTemplate) {
             w.write("#endif // "+cguard+"_IMPLEMENTATION"); w.newline();
@@ -1096,11 +1101,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         int counter = 0;
                         for (Type formal : formals) {
                             h.write(counter == 0 ? "" : ", ");
-                            emitter.printType(replaceType(formal, typeMap), h);
+                            emitter.printType(replaceType(X10TypeMixin.baseType(formal), typeMap), h);
                             h.write(" p"+counter++);
                         }
                         h.end();
                         h.write(");"); h.newline();
+
+                        if (newTypeParameters.size() != 0) {
+                            sw.pushCurrentStream(context.templateFunctions);
+                        }
 
                         emitter.printTemplateSignature(currentClass.typeArguments(), sw);
                         emitter.printTemplateSignature(newTypeParameters, sw);
@@ -1111,7 +1120,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         counter = 0;
                         for (Type formal : formals) {
                             sw.write(counter == 0 ? "" : ", ");
-                            emitter.printType(replaceType(formal, typeMap), sw);
+                            emitter.printType(replaceType(X10TypeMixin.baseType(formal), typeMap), sw);
                             sw.write(" p"+counter++);
                         }
                         sw.end();
@@ -1159,6 +1168,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         sw.write(";"); sw.end(); sw.newline();
 
                         sw.write("}"); sw.newline();
+
+                        if (newTypeParameters.size() != 0) {
+                            sw.popCurrentStream();
+                        }
                     }
                 }
             }
