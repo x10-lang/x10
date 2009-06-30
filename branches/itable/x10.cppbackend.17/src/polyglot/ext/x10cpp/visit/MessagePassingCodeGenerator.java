@@ -22,6 +22,8 @@ import static polyglot.ext.x10cpp.visit.Emitter.translateFQN;
 import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 import static polyglot.ext.x10cpp.visit.Emitter.voidTemplateInstantiation;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.INSTANCE_INIT;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.MAKE;
@@ -32,6 +34,7 @@ import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_MARKER;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STATIC_INIT;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
@@ -1052,6 +1055,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.end(); h.newline();
 			h.write("};"); h.newline();
 			h.forceNewline();
+			
+			/* Serialization redirection methods */
+			h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
+			h.write(emitter.translateType(currentClass, true)+" this_,"); h.newline();
+			h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
+			h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
+			h.write("x10::lang::Object::"+SERIALIZE_METHOD+"(this_, buf, m);"); h.end(); h.newline();
+			h.write("}"); h.newline(); h.forceNewline();		
+			
+            h.write("public: template<class __T> static ");
+            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
+			h.write("return x10::lang::Object::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
+            h.write("}"); h.newline(); h.forceNewline();
 		} else {
 			List<X10ClassType> allInterfaces = ITable.allImplementedInterfaces(currentClass);
 			int numInterfaces = allInterfaces.size();
@@ -1995,7 +2011,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
 		Receiver target = n.target();
 		Type t = target.type();
-
+		
 		X10MethodDef md = mi.x10Def();
 		if (target instanceof TypeNode) {
 		    assert (mi.flags().isStatic());
@@ -2045,7 +2061,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		{
 		    args.set(0, cast(args.get(0), xts.Object()));
 		}
-
+		
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
 			emitNativeAnnotation(pat, mi.typeParameters(), target, args);
@@ -2111,7 +2127,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 already_static = true;
             }
 		}
-
+		
         boolean virtual_dispatch = true;
         if (t.isClass()) {
             X10ClassType ct = (X10ClassType)t.toClass();
@@ -3138,10 +3154,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        return;
 		}
 
+		sw.write("INVOKE_INTERFACE((x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"), (");
 		c.printSubExpr(target, sw, tr);
-		sw.write("->");
-		sw.write("apply");
-		sw.write("(");
+		sw.write("), apply, (");
 		sw.begin(0);
 		/* TODO: TYPE PARAMETERS
 		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
@@ -3164,7 +3179,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		sw.end();
-		sw.write(")");
+		sw.write("))");
 	}
 
 
