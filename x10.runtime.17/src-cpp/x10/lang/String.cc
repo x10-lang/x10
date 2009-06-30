@@ -156,7 +156,7 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         else if (x10aux::instanceof<ref<Box<x10_byte> > >(p))
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_byte>(p)));
         else if (x10aux::instanceof<ref<Box<x10_char> > >(p))
-            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_char>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_char>(p).v));
         else if (x10aux::instanceof<ref<Box<x10_short> > >(p))
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_short>(p)));
         else if (x10aux::instanceof<ref<Box<x10_int> > >(p))
