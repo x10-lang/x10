@@ -35,6 +35,7 @@
 #include <x10aux/short_utils.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/rail_utils.h>
+#include <x10aux/fun_utils.h>
 
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>

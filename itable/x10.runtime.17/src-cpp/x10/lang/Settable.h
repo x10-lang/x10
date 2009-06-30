@@ -12,14 +12,16 @@ namespace x10 {
                                                                   const x10aux::RuntimeType *rtt1,
                                                                   const x10aux::RuntimeType *rtt2);
 
-        template<class I, class V> class Settable : public virtual Object {
+        template<class I, class V> class Settable {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT();
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
-            virtual V set(V v, I i) = 0;
+            template <class _I> struct itable {
+                itable(V(_I::*set)(V,I)) : set(set) {}
+                V(_I::*set)(V, I);
+            };
         };
 
         template<class I, class V> const x10aux::RuntimeType *Settable<I, V>::_initRTT() {

@@ -7,6 +7,17 @@
 #include <pthread.h>
 
 /* Macro to use in class declaration for boilerplace RTT junk */
+#define RTT_H_DECLS_CLASS \
+    static const x10aux::RuntimeType* rtt; \
+    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
+    static const x10aux::RuntimeType* _initRTT(); \
+    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+
+#define RTT_H_DECLS_INTERFACE \
+    static const x10aux::RuntimeType* rtt; \
+    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
+    static const x10aux::RuntimeType* _initRTT();
+
 #define RTT_H_DECLS \
     static const x10aux::RuntimeType* rtt; \
     static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \

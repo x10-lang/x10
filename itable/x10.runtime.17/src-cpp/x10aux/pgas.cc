@@ -86,7 +86,7 @@ static void deserialize_remote_closure(const x10_async_closure_t *cl, int) {
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
         _X_("The deserialised async was: "<<async->toString()->c_str());
         deserialized_bytes += buf.length();
-        async->apply();
+        INVOKE_INTERFACE((findITable<VoidFun_0_0>), async, apply, ());
 }
 #endif
 #if 0
@@ -111,7 +111,7 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
         buf.set(reinterpret_cast<const char*>(cl));
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
         _X_("The deserialised async was: "<<async->toString()->c_str());
-        async->apply();
+        INVOKE_INTERFACE((findITable<VoidFun_0_0>), async, apply, ());
         
 #ifndef NO_EXCEPTIONS
     /* TODO: need some other mechanism for calling exit() from another place

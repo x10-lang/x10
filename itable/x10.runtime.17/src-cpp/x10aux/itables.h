@@ -8,7 +8,8 @@
  * Implementation of X10 interface dispatching using "searched itables."
  * A description of a number of alternative interface dispatching
  * mechanisms for Java, including this one, can be found in a paper by 
- * Alpern et al published in OOPSLA'01 http://portal.acm.org/citation.cfm?doid=504282.504291.
+ * Alpern et al published in OOPSLA'01
+ * http://portal.acm.org/citation.cfm?doid=504282.504291.
  *
  * The basic idea is that interfaces generate secondary vtable-like structures,
  * known as itables. For every <class C, interface I> pair where C implements I,
@@ -28,17 +29,17 @@
  *       instead of C*).  Therefore we have to use static method thunks to a pointer
  *       to a function that casts an explicit receiver parameter and invokes the
  *       appropriate virtual method on it.
- *   (b) We're using the address of the interfaces rtt field as the interface id instead
- *       of generating a unique integer (or using the actual pointer to I's RuntimeType object).
- *       This is done to optimize the calling sequence for invokeinterface, since the address
- *       of the rtt field is a link-time constant.
- *   (c) X10 doesn't suffer from Java's "incompatible class change error" problem, because it
- *       has a less dynamic notion of linking a program.  This implies that (modulo compiler bugs),
- *       a search of an itable will always succeed.  For debugging purposes, we still pad itables
- *       with an extra sentinel entry, but failing to find an itable is a fatal error that aborts
- *       the program, not a runtime exception.
+ *   (b) We're using the address of the interfaces rtt field as the interface id
+ *       instead of generating a unique integer (or using the actual pointer
+ *       to I's RuntimeType object). This is done to optimize the calling sequence
+ *       for invokeinterface, since the address of the rtt field is a link-time constant.
+ *   (c) X10 doesn't suffer from Java's "incompatible class change error" problem
+ *       because it has a less dynamic notion of linking a program.  This implies that
+ *       (modulo compiler bugs), a search of an itable will always succeed.
+ *       For debugging purposes, we still pad itables with an extra sentinel entry,
+ *       but failing to find an itable is a fatal error that aborts the program,
+ *       not a runtime exception.
  */
-
 
 namespace x10 { namespace lang { class Object; }}
 
@@ -51,17 +52,26 @@ namespace x10aux {
      * therfore in the itable entry it must be declared as a void*.
      */
     struct itable_entry {
-        itable_entry(RuntimeType** id_, void* itable_) : id(id_), itable(itable_) {}
-        RuntimeType** id;
+        itable_entry(const RuntimeType** id_, void* itable_) : id(id_), itable(itable_) {}
+        const RuntimeType** id;
         void* itable;
     };
+
 
     /*
      * Find the itable for obj that matches the given id
      */
-    extern void* findItable(ref<x10::lang::Object> obj, RuntimeType **id);
+    extern void* findITable(ref<x10::lang::Object> obj, const RuntimeType **id);
+    
+    /*
+     * Find the I itable for obj
+     */
+    template<class I> inline typename I::template itable<x10::lang::Object>* findITable(ref<x10::lang::Object> obj) {
+        return (typename I::template itable<x10::lang::Object>*)findITable(obj, &I::rtt);
+    }
+
+#define INVOKE_INTERFACE(itable,obj,name,args)                  \
+    (__extension__ ({x10aux::ref<x10::lang::Object> _ = obj; (_.get()->*(itable(_)->name))args;}))
+
 }
-
-#define X10_ITABLE_INVOKE(obj, id, type, method) ((type)(x10aux::findItable(obj, id)))->method
-
 #endif

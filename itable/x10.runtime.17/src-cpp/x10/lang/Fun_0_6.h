@@ -3,7 +3,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10/lang/Object.h>
+#include <x10aux/fun_utils.h>
 
 namespace x10 {
     namespace lang {
@@ -17,15 +17,16 @@ namespace x10 {
                                                                  const x10aux::RuntimeType *rtt5,
                                                                  const x10aux::RuntimeType *rtt6);
 
-        template<class P1, class P2, class P3, class P4, class P5, class P6, class R> class Fun_0_6 : public virtual Object {
+        template<class P1, class P2, class P3, class P4, class P5, class P6, class R> class Fun_0_6 : public x10aux::AnyFun {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT();
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
-            virtual ~Fun_0_6() { };
-            virtual R apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) = 0;
+            template <class I> struct itable {
+                itable(R(I::*apply)(P1,P2,P3,P4,P5,P6)) : apply(apply) {}
+                R (I::*apply)(P1,P2,P3,P4,P5,P6);
+            };
         };
 
         template<class P1, class P2, class P3, class P4, class P5, class P6, class R>
