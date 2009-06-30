@@ -24,7 +24,7 @@ namespace x10 {
         template<class P1, class R> class Fun_0_1;
 
         template<class T> class Rail : public Ref,
-                                       public virtual x10::lang::Settable<x10_int,T>,
+                                       public x10::lang::Settable<x10_int,T>,
                                        public x10aux::AnyRail<T> {
             public:
             static const x10aux::RuntimeType* rtt;
@@ -97,10 +97,7 @@ namespace x10 {
                                               x10aux::ref<Fun_0_1<x10_int,T> > init);
             static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
-            virtual x10aux::ref<String> toString() {
-                return x10aux::AnyRail<T>::toString();
-            }
-
+            virtual x10aux::ref<x10::lang::String> toString() { return x10aux::AnyRail<T>::railToString(this); }
         };
 
         template<class T> const x10aux::RuntimeType* Rail<T>::rtt = NULL;

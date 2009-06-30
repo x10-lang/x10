@@ -5,7 +5,7 @@ using namespace x10aux;
 using namespace x10::lang;
 
 void*
-x10aux::findItable(ref<Object> obj, RuntimeType **id) {
+x10aux::findITable(ref<Object> obj, const RuntimeType **id) {
     itable_entry* itables = obj->_getITables();
 
     int i = 0;

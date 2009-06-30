@@ -24,7 +24,7 @@ namespace x10 {
                                                                          const x10aux::RuntimeType *p1);
         
         template<class T> class ValRail : public Value,
-                                          public virtual Fun_0_1<x10_int,T>,
+                                          public Fun_0_1<x10_int,T>,
                                           public x10aux::AnyRail<T>
         {
 
@@ -100,9 +100,7 @@ namespace x10 {
 
             virtual x10_int hashCode() { return 0; }
 
-            virtual x10aux::ref<String> toString() {
-                return x10aux::AnyRail<T>::toString();
-            }
+            virtual x10aux::ref<x10::lang::String> toString() { return x10aux::AnyRail<T>::railToString(this); }
 
             static x10aux::ref<ValRail<T> > make(x10_int length);
 

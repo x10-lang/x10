@@ -60,47 +60,32 @@ namespace x10aux {
         GPUSAFE ref(T* const val = NULL) : REF_INIT(val) {
         }
 
-        // Allow explicit casting between ref<S> and ref<T> dynamic_cast is
-        // needed not to check for bad casts but to allow casting in the
-        // context of virtual multiple inheritance.  Bad casts should never
-        // happen, as the only places this operation is used are: class_cast
-        // (which is guarded by a check) and upcasts from x10 code all operator
-        // T are implicit conversions, this is no exception
-/*
-        template<class S> operator ref<S>() const {
-            // (T*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
-            ref<S> _ref(dynamic_cast<S*>((T*)_val));
-            _R_("Casting reference " << this << "(" << _val
-                                     << ") of type " << TYPENAME(T)
-                                     << " to type " << TYPENAME(S)
-                                     << " into " << &_ref);
-            return _ref;
-        }
-*/
-
+        // Allow conversions between ref<S> and ref<T>.
+        // Because we have no multiple inheritance, we can
+        // use a re-interpret cast here. 
+        // Bad casts should never happen, as the only places
+        // this operation is used are: class_cast (which is guarded by a check)
+        // and upcasts from x10 code all operator T are implicit conversions,
+        // this is no exception
 
         // Allow the construction of a ref<T> from a ref<S>
         template<class S> GPUSAFE ref(const ref<S>& _ref)
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
-          : REF_INIT(dynamic_cast<T*>((S*)_ref._val)) {
+          : REF_INIT(reinterpret_cast<T*>((S*)_ref._val)) {
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
-            // assert that the above dynamic_cast was successful
-            assert(isNull() == _ref.isNull() && "Invalid c++ cast");
         }
 
         // Allow the assignment of a ref<S> to a ref<T>
         template<class S> GPUSAFE const ref<T> &operator=(const ref<S>& _ref) {
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
-            _val = dynamic_cast<T*>((S*)_ref._val);
+            _val = reinterpret_cast<T*>((S*)_ref._val);
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
-            // assert that the above dynamic_cast was successful
-            assert(isNull() == _ref.isNull() && "Invalid c++ cast");
             return *this;
         }
 

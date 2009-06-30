@@ -1,44 +1,36 @@
 package polyglot.ext.x10cpp.visit;
 
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppBoxRep;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SAVED_THIS;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.THIS;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.chevrons;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.make_ref;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import polyglot.ast.Block_c;
+
 import polyglot.ast.Call_c;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
-import polyglot.ast.Do_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
-import polyglot.ast.For_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
-import polyglot.ast.If_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ast.SwitchBlock_c;
-import polyglot.ast.Switch_c;
-import polyglot.ast.Stmt_c;
-import polyglot.ast.Stmt;
-import polyglot.ast.Try_c;
-import polyglot.ast.TypeNode;
-import polyglot.ast.While_c;
-import polyglot.types.QName;
-import polyglot.ext.x10.ast.Async_c;
-import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.Finish_c;
-import polyglot.ext.x10.ast.ForLoop_c;
-import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode;
-import polyglot.ext.x10.ast.X10Cast_c;
-import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
@@ -60,6 +52,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -69,8 +62,6 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
-import static polyglot.ext.x10cpp.visit.ASTQuery.*;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 
@@ -225,7 +216,7 @@ public class Emitter {
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
-                type = X10TypeMixin.baseType(type);
+		type = X10TypeMixin.baseType(type);
 		String name = null;
 		// TODO
 //		if (type instanceof ClosureType) {
@@ -245,7 +236,7 @@ public class Emitter {
 //		} else
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
-			
+
 		    if (ct.isAnonymous()) {
 		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof ClosureType) {
 		            return translateType(ct.interfaces().get(0), asRef);
@@ -254,15 +245,14 @@ public class Emitter {
 		            assert ct.superClass() != null;
 		       	    return translateType(ct.superClass(), asRef);
 		       	}
-		    }
-			else {
+		    } else {
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				if (!asRef)
 					pat = getCppBoxRep(cd);
 				else
 					pat = getCppRep(cd);
-				if (pat != null) { 
+				if (pat != null) {
 					List<Type> typeArguments = ct.typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
 					int i = 0;
@@ -298,7 +288,7 @@ public class Emitter {
 			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
 			return "x10aux::NullType"; // typedef to something sensible
-		} else 
+		} else
 			assert false : type; // unhandled type.
 		assert (name != null);
 		name = translateFQN(name);
@@ -310,11 +300,11 @@ public class Emitter {
 	void printArgumentList(CodeWriter w, X10CPPContext_c c) {
 		printArgumentList(w, c, false, true);
 	}
-	
+
 	void printArgumentList(CodeWriter w, X10CPPContext_c c, boolean omitType) {
 		printArgumentList(w, c, omitType, true);
 	}
-	
+
 	void printArgumentList(CodeWriter w, X10CPPContext_c c, boolean omitType, boolean saved_this_mechanism) {
 		for (int i = 0; i < c.variables.size(); i++) {
 			if (i > 0) {
@@ -353,14 +343,14 @@ public class Emitter {
 			h.allowBreak(0, " ");
 		}
 	}
-	
+
 	static List<Type> toTypeList(List<Ref<? extends Type>> list) {
 		ArrayList<Type> res = new ArrayList<Type>();
 		for (Ref<? extends Type> r : list)
 			res.add(r.get());
 		return res;
 	}
-	
+
 	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
 		if (mi.typeParameters().size() == 0)
 			return;
@@ -449,7 +439,7 @@ public class Emitter {
 				//System.out.println(from+" implements "+superMeth);
 				Type newReturnType = findRootMethodReturnType(n, pos, superMeth);
 
-				// check -- 
+				// check --
 				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType, context)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
@@ -512,9 +502,9 @@ public class Emitter {
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
-			h.write(translateType(n.methodDef().asInstance().container()) + "::"); 
+			h.write(translateType(n.methodDef().asInstance().container()) + "::");
 		//n.print(n.id(), h, tr);
-		h.write(mangled_method_name(name)); 
+		h.write(mangled_method_name(name));
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
@@ -554,15 +544,19 @@ public class Emitter {
 		}
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
-  
+
     void printRTT(X10ClassType ct, ClassifiedStream h) {
+    	boolean isInterface = ct.flags().isInterface();
         if (ct.typeArguments().isEmpty()) {
-            h.write("RTT_H_DECLS"); h.newline();
+        	h.write(isInterface ? "RTT_H_DECLS_INTERFACE" : "RTT_H_DECLS_CLASS"); h.newline(); h.forceNewline();
         } else {
             h.write("static const x10aux::RuntimeType* rtt;"); h.newline();
             h.write("static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }"); h.newline();
             h.write("static const x10aux::RuntimeType* _initRTT();"); h.newline();
-            h.write("virtual const x10aux::RuntimeType *_type() const { return getRTT(); }"); h.newline(); h.forceNewline();
+            if (!isInterface) {
+            	h.write("virtual const x10aux::RuntimeType *_type() const { return getRTT(); }"); h.newline();
+            }
+            h.forceNewline();
         }
 	}
 
@@ -584,7 +578,7 @@ public class Emitter {
         } else {
             printTemplateSignature(ct.typeArguments(), h);
             h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;"); h.newline();
-            
+
             printTemplateSignature(ct.typeArguments(), h);
             h.write("const x10aux::RuntimeType* "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
             h.write("const char *name ="); h.newline(4);
@@ -622,48 +616,7 @@ public class Emitter {
 		h.newline();
 	}
 
-	void printInheritance(ClassDecl_c n, CodeWriter h, Translator tr) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		String extends_ = n.superClass()==null ? null : translateType(n.superClass().type());
-		ArrayList<String> implements_ = new ArrayList<String>();
-		for (TypeNode tn : n.interfaces()) {
-			implements_.add(translateType(tn.type()));
-		}
-
-		// [DC] FIXME: the following is a hack, probably this should happen in
-		// the front end but I doubt that will happen any time soon.  It ought
-		// to use type objects instead of strings, too.  But I couldn't work
-		// out how to do that.
-
-		// it seems extends_==null implies that we are dealing with an
-		// interface, since otherwise extends_ is Ref, Value, or some
-		// user-defined type.
-
-		String x_l_Object = translateType(xts.Object());
-		if (extends_ == null && implements_.isEmpty()) {
-			//Interfaces must always extend something in c++
-			implements_.add(x_l_Object);
-		} else if (extends_ != null && implements_.contains(x_l_Object)) {
-			//Cosmetic: No point implementing Object if we're already extending something
-			implements_.remove(x_l_Object);
-		}
-
-		String prefix = ":";
-		if (extends_ != null) {
-			h.write(" "+prefix+" public "+extends_);
-			prefix = ",";
-		}
-
-		h.allowBreak(2);
-		h.begin(0);
-		for (String iface : implements_) {
-			h.write(" "+prefix+" public virtual "+iface);
-			prefix = ",";
-		}
-		h.end();
-	}
-
-	void printHeader(ClassDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
+    void printHeader(ClassDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		h.begin(0);
 		// Handle generics
 		// If it involves Parameter Types then generate C++
@@ -677,9 +630,12 @@ public class Emitter {
 			assert (false) : ("Nested class alert!");
 			h.write(translateType(n.classDef().outer().get().asType()) + "::");
 		}
-		h.write(mangled_non_method_name(n.name().id().toString())); 
+		h.write(mangled_non_method_name(n.name().id().toString()));
 
-		printInheritance(n, h, tr);
+		if (!n.flags().flags().isInterface() && n.superClass() != null) {
+			String parent = translateType(n.superClass().type());
+			h.write(" : public "+parent);
+		}
 
 		h.unifiedBreak(0);
 		h.end();
@@ -736,7 +692,7 @@ public class Emitter {
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
 			h.write(translateType(n.fieldDef().asInstance().container()) + "::");
-		h.write(mangled_field_name(n.name().id().toString())); 
+		h.write(mangled_field_name(n.name().id().toString()));
 		h.end();
 	}
 
@@ -754,10 +710,10 @@ public class Emitter {
 			printType(n.type().type(), h);
 			h.write(" ");
 		}
-		h.write(mangled_non_method_name(n.name().id().toString())); 
+		h.write(mangled_non_method_name(n.name().id().toString()));
 		h.end();
 	}
-	
+
 	void enterClosure(X10CPPContext_c c) {
 		c.advanceClosureId();
 	}
@@ -783,11 +739,11 @@ public class Emitter {
 
 		return;
 	}
-	
+
 	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
 		printDeclarationList(w, c, vars, true, false);
 	}
-	
+
 	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism, boolean writable) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
@@ -808,7 +764,7 @@ public class Emitter {
 		}
 	}
 
-	
+
 	void generateSerializationMethods(ClassType type, StreamWrapper sw) {
 		// FIXME: Has a lot of string constants. Refactor them
 		// into final variables.
@@ -866,7 +822,7 @@ public class Emitter {
             h.write("}"); h.newline();
             h.forceNewline();
         }
-    
+
 
 		// _serialize_body()
 		h.write("public: ");
@@ -964,13 +920,13 @@ public class Emitter {
         openNamespaces(h, name.qualifier());
         h.write("namespace "+name.name()+" { ");
     }
-                
+
     public static void closeNamespaces(CodeWriter h, QName name) {
         if (name == null) return;
         h.write("} ");
         closeNamespaces(h, name.qualifier());
     }
-     
+
 	public String makeUnsignedType(Type t) {
 		// FIXME: HACK!
 		if (t.isInt())

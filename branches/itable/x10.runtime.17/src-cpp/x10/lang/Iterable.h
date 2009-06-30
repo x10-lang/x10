@@ -10,14 +10,16 @@ namespace x10 {
 
         extern const x10aux::RuntimeType* _initRTTHelper_Iterable(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt);
         
-        template<class T> class Iterable : public virtual Object {
+        template<class T> class Iterable {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT();
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
-            virtual x10aux::ref<Iterator<T > > iterator() = 0;
+            template <class I> struct itable {
+                itable(x10aux::ref<Iterator<T > >(I::*iterator)()) : iterator(iterator) {}
+                x10aux::ref<Iterator<T> > (I::*iterator)();
+            };
         };
 
         template<class T> const x10aux::RuntimeType* Iterable<T>::_initRTT() {

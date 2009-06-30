@@ -21,7 +21,7 @@ namespace x10aux {
 
     void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
 
-    template<class T> class AnyRail : public virtual x10::lang::Iterable<T> { 
+    template<class T> class AnyRail : public x10::lang::Iterable<T> { 
         public:
 
         // 32 bit array indexes
@@ -41,8 +41,6 @@ namespace x10aux {
 
         public:
 
-        virtual const RuntimeType *_type() const = 0;
-
         AnyRail(x10_int length_, T* storage)
             : FMGL(length)(length_),  _data(storage) { }
 
@@ -57,7 +55,7 @@ namespace x10aux {
             #endif
         }
 
-        virtual ref<x10::lang::String> toString();
+        static ref<x10::lang::String> railToString(AnyRail<T>*);
 
         GPUSAFE T apply(x10_int index) {
             // do bounds check
@@ -87,15 +85,15 @@ namespace x10aux {
 
 namespace x10aux {
 
-    template<class T> ref<x10::lang::String> AnyRail<T>::toString() {
-        if (this->FMGL(length)==0) {
+    template<class T> ref<x10::lang::String> AnyRail<T>::railToString(AnyRail<T>* rail) {
+        if (rail->FMGL(length)==0) {
             return x10::lang::String::Lit("[]");
         }
         #ifndef NO_IOSTREAM
         std::stringstream ss;
         const char *prefix = "[";
-        for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
-            T element = (*this)[i];
+        for (x10_int i=0 ; i<rail->FMGL(length) ; ++i) {
+            T element = (*rail)[i];
             ss << prefix << x10aux::safe_to_string(element);
             prefix = ",";
         }
