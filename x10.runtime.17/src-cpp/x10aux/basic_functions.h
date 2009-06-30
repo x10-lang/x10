@@ -134,6 +134,11 @@ namespace x10aux {
         return x->_struct_equals(y);
     }
 
+    template<class T, class U>
+    inline x10_boolean struct_equals(T x, U y) {
+        return x._struct_equals(&y);
+    }
+
     template<class T>
     inline x10_boolean struct_equals(ref<T> x, x10_double y) { return false; }
     template<class T>
@@ -226,6 +231,10 @@ namespace x10aux {
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         return x->toString();
+    }
+
+    template<class T> ref<x10::lang::String> to_string(T x) {
+        return x.toString();
     }
 
     // [DC] importing the old code requires me to put these back to what they
