@@ -1,168 +1,118 @@
-//import java.util.Vector;
-//import java.util.Random;
-//import "java.util.Arrays";
-
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 import x10.io.Console;
 import x10.util.Random;
 
-
+/* This class represents a real-world problem in graphics engines --
+ * determining which objects in a large sprawling world are close enough to the
+ * camera to be considered for rendering.  The naive implementation produces a
+ * lot of objects and is thus a good benchmark for garbage collection in X10.
+ *
+ * The class has been annotated with 'ref' and 'inlined' params to show how the
+ * inline proposal might be deployed to make this implementation more efficient.
+ *
+ * @Author Dave Cunningham
+ * @Author Vijay Saraswat
+*/
 class GCSpheres {
 
-    static type Real = Double;
+    static type Real = Float;
 
-    // original code was for a student coursework
-    static interface Submission {
-	public def processFrame (x:Double,y:Double,z:Double) : Rail[Int];
-    }
 
-    static class Original implements Submission {
+    static final value Vector3 {
 
-	protected var spheres : ValRail[Sphere];
-	
-	@Native("java", "java.lang.System.arraycopy(#4.getBackingArray(),#5,#6.getBackingArray(),#7,#8)")
-	    public static def arraycopy[T] (src:Rail[T], srcPos:Int,
-					    dest:Rail[T], destPos:Int,
-					    length:Int) : Void {
-	    for (var i:Int=0 ; i<length ; ++i) {
-		dest(i+destPos) = src(i+srcPos);
-	    }
-	}
+        public def this (x:Real, y:Real, z:Real) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
 
-	var result : Rail[Int];
+        public def getX () = x; 
+        public def getY () = y;
+        public def getZ () = z;
 
-	public def this () = {
-	    spheres = getSpheres();
-	    result = Rail.makeVar[Int](spheres.length);
-	}
+        public def add (/*ref*/ other:Vector3)
+            = new Vector3(this.x+other.x,
+                          this.y+other.y,
+                          this.z+other.z);
 
-	public def processFrame (x:Real, y:Real, z:Real) {
-		
-	val vec = new Vector3(x,y,z);
-	for (val i0(i):Point(1)  in [0..spheres.length-1]) {
-		if (spheres(i).intersects(vec)) {
-			result(i) = i;
-		}
-	}
+        public def neg () = new Vector3(-this.x, -this.y, -this.z);
 
-	    //Arrays.sort(result);
-	   // val result2 = Rail.makeVar[Int](next);
-	    //arraycopy[Int](result,0,result2,0,next);
-	    return result;
-	}
+        public def sub (/*ref*/ other:Vector3) = add(other.neg());
 
-    }
+        public def length () = Math.sqrt(length2());
 
-    static value Vector3 {
-	public def this (x:Real, y:Real, z:Real) = {
-	    this.x = x;
-	    this.y = y;
-	    this.z = z;
-	}
-	public def getX ()=x; 
-	public def getY ()=y;
-	public def getZ ()=z;
-	public def add (other:Vector3) =new Vector3(this.x+other.x,
-			       this.y+other.y,
-			       this.z+other.z);
-	public def neg () =new Vector3(-this.x, -this.y, -this.z);
-	public def sub (other:Vector3) = add(other.neg());
-	public def length () = Math.sqrt(length2());
-	public def length2 () = x*x + y*y + z*z;
-	protected val x : Real;
-	protected val y : Real;
-	protected val z : Real;
+        public def length2 () = x*x + y*y + z*z;
+
+        protected val x:Real, y:Real, z:Real;
     }
 
 
-    static value Sphere {
-	def this (x:Real, y:Real, z:Real, r:Real) {
-	    pos = new Vector3(x,y,z);
-	    radius = r;
-                }
-                public def intersects (home:Vector3) : Boolean {
-                        return home.sub(pos).length2() < radius*radius;
-                }
-                protected val pos : Vector3;
-                protected val radius : Real;
+    static final value WorldObject {
+
+        def this (x:Real, y:Real, z:Real, r:Real) {
+            pos = new Vector3(x,y,z);
+            renderingDistance = r;
         }
 
+        public def intersects (/*ref*/ home:Vector3)
+            = home.sub(pos).length2() < renderingDistance*renderingDistance;
 
-        static class VarBox[T] {
-                var f: T;
-                def this (x : T) { set(x); }
-                def get ()=f;
-                def set (x : T) { f = x; }
-        }
+        protected /*inlined*/ val pos:Vector3;
+        protected val renderingDistance:Real;
+    }
 
-        private static val spheres = new VarBox[ValRail[Sphere]](Rail.makeVal[Sphere](0));
 
-        public static def getSpheres() = spheres.get(); 
+    public static def main (Rail[String]) {
 
-        public static def main (args : Rail[String]) throws Exception = {
-/*
-                if (args.length!=2) {
-                        Console.ERR.println(
-"Usage: runx10 GCSpheres <Frames> <Seed>");
-                        Console.ERR.println(
-"<Frames> (int): Number of iterations");
-                        Console.ERR.println(
-"<Seed> (int): The random seed that controls spheres and point generation");
-                        Console.ERR.println();
-                        return;
+        val reps = 75;
+
+        // The following correspond to a modern out-door computer game:
+        val num_objects = 50000;
+        val world_size = 3000;
+        val obj_max_size = 400;
+
+        val ran = new Random(0);
+
+        // the array can go on the heap
+        // but the elements ought to be /*inlined*/ in the array
+        val spheres =
+            ValRail.make[/*inlined*/ WorldObject](num_objects, (i:Int) => {
+                val x = ran.nextDouble()*world_size as Real;
+                val y = ran.nextDouble()*world_size as Real;
+                val z = ran.nextDouble()*world_size as Real;
+                val r = ran.nextDouble()*obj_max_size as Real;
+                return new WorldObject(x,y,z,r);
+            });
+
+        val time_start = System.nanoTime();
+
+        var counter : Long = 0;
+
+        // HOT LOOP BEGINS
+        for (_(frame):Point(1) in  [1..reps]) {
+
+            val x = ran.nextDouble()*10000 as Real;
+            val y = ran.nextDouble()*10000 as Real;
+            val z = ran.nextDouble()*10000 as Real;
+
+            /*inlined*/ val pos = new Vector3(x,y,z);
+
+            for (val i0(i):Point(1)  in [0..spheres.length-1]) {
+                if (spheres(i).intersects(pos)) {
+                    counter++;
                 }
-*/
-
-                val reps = 75; //Int.parseInt(args(0));
-                val ran = new Random(0); //Long.parseLong(args(1)));
-
-                generateSpheres(ran);
-
-                //System.gc(); // run a GC cycle
-
-                val init_start = System.nanoTime();
-                val student = new Original();
-                val init_time = System.nanoTime()-init_start;
-                //System.gc(); // run a GC cycle
-
-                // warm up
-/*
-                for (var frame:Int = 0 ; frame<75 ; ++frame) {
-                        val student_result = student.processFrame(0,0,0);
-                }
-*/
-
-                var total_frame_time : Long = 0;
-
-                for (_(frame):Point(1) in  [1..reps]) {
-                        val x = ran.nextDouble()*10000;
-                        val y = ran.nextDouble()*10000;
-                        val z = ran.nextDouble()*10000;
-
-                        val frame_start = System.nanoTime();
-                        val student_result = student.processFrame(x,y,z);
-                        total_frame_time += System.nanoTime() - frame_start;
-
-                }
-
-                //Console.OUT.println("=== Times in seconds ===");
-                //Console.OUT.println("Initialisation: "+init_time/1E9);
-                //Console.OUT.println("processFrame time: "+total_frame_time/1E9);
-                Console.OUT.println("Total time: "+
-                                   (total_frame_time+init_time)/1E9);
+            }
         }
+        // HOT LOOP ENDS
 
-        private static def generateSpheres (ran : Random) {
-                val tmp = ValRail.make[Sphere](100000, (i:Int) => {
-                        val x = ran.nextDouble()*10000;
-                        val y = ran.nextDouble()*10000;
-                        val z = ran.nextDouble()*10000;
-                        val r = ran.nextDouble()*1000;
-                        return new Sphere(x,y,z,r);
-                });
-                spheres.set(tmp);
+        val time_taken = System.nanoTime() - time_start;
+        Console.OUT.println("Total time: "+time_taken/1E9);
+
+        val expected = 237;
+        if (counter != expected) {
+            Console.ERR.println("number of intersections: "+counter
+                                +" (expected "+expected+")");
+            System.exit(1);
         }
+    }
 
 }
