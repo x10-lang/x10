@@ -389,11 +389,20 @@ public class Emitter {
 	}
 
 	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
-		try {
-			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes(), context));
-		} catch (SemanticException e) {
-			return null;
-		}
+	    try {
+	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
+	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
+	        for (MethodInstance smi : overrides) {
+	            List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	            if (params == null && sparams == null)
+	                return smi;
+	            if (params != null && params.equals(sparams))
+	                return smi; 
+	        }
+	        return null;
+	    } catch (SemanticException e) {
+	        return null;
+	    }
 	}
 
 	Type findRootMethodReturnType(X10MethodDef n, Position pos, MethodInstance from) {
