@@ -10,13 +10,11 @@
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/lang/Iterator.h>
 
 #include <x10/lang/Throwable.h>
 
 #include <x10/runtime/Thread.h>
-
-#include <x10/lang/Place.h>
-#include <x10/runtime/Runtime.h>
 
 #ifdef __CYGWIN__
 extern "C" int setlinebuf(FILE *);
@@ -40,10 +38,6 @@ namespace x10aux {
 
         // closure body
         void apply () {
-            // Initialise the static fields of x10 classes.
-            x10aux::InitDispatcher::runInitializers();
-
-            // Invoke the application main().
             main(args);
         }
 
@@ -79,8 +73,9 @@ namespace x10aux {
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
-            x10::lang::Place::_static_init();
-            x10::runtime::Runtime::_static_init();
+
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
 
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
