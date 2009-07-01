@@ -175,7 +175,6 @@ struct _x10_char {
   unsigned short v;
   _x10_char() : v(0) { }
   _x10_char(const char x) : v(x) { }
-  operator char () { return (char) v; }
 };
 
 inline bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
