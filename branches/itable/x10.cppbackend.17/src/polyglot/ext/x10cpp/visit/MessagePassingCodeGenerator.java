@@ -2641,10 +2641,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String iteratorTypeRef = emitter.translateType(xts.Iterator(form.type().type()), true);
 		
 		sw.write(iteratorTypeRef+" " + name + " = ");
-        if (!xts.typeDeepBaseEquals(form.type().type(), itType, context)) {
-            String fType = emitter.translateType(form.type().type(), true);
-            sw.write("x10aux::convert_iterator"+chevrons(fType+","+emitter.translateType(itType, true)));
-        }
         sw.write("INVOKE_INTERFACE((x10aux::findITable"+chevrons(iterableType)+"), (");
 		n.print(domain, sw, tr);
 		sw.write("), iterator, ());");
