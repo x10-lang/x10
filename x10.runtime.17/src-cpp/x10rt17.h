@@ -8,6 +8,7 @@
 // has to be first to ensure initialisation of pgas occurs before uses of x10aux::alloc
 #include <x10aux/pgas.h>
 
+#include <x10aux/bootstrap.h>
 #include <x10aux/class_cast.h>
 #include <x10aux/ref.h>
 #include <x10aux/reference_logger.h>
@@ -91,9 +92,6 @@
 #include <x10/util/concurrent/atomic/AtomicInteger.h>
 #include <x10/util/concurrent/atomic/AtomicLong.h>
 #include <x10/util/concurrent/atomic/AtomicReference.h>
-
-// has to be last to ensure the native classes have been included
-#include <x10aux/bootstrap.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
