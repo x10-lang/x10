@@ -169,7 +169,8 @@ namespace x10aux {
 
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
-        return x->toString();
+        ref<x10::lang::Object> asObj = x;
+        return asObj->toString();
     }
 
     // [DC] importing the old code requires me to put these back to what they
