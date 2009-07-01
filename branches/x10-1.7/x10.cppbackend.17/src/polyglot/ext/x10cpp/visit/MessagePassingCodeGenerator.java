@@ -1955,9 +1955,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type t = target.type();
 
 		X10MethodDef md = mi.x10Def();
-		if (target instanceof TypeNode) {
-		    assert (mi.flags().isStatic());
-		    TypeNode tn = (TypeNode) target;
+		if (mi.flags().isStatic()) {
+		    TypeNode tn =
+		        target instanceof TypeNode ?
+		                (TypeNode) target :
+		                tr.nodeFactory().CanonicalTypeNode(target.position(), t);
 		    if (t instanceof ParameterType) {
 		        // Rewrite to the class declaring the field.
 		        target = tn.typeRef(md.container());
