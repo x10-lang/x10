@@ -1020,7 +1020,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (isInterface) {
 			ITable itable = ITable.getITable(currentClass);
 
-			h.write("template <class _I> struct itable {"); h.newline(4); h.begin(0);
+			h.write("struct itable {"); h.newline(4); h.begin(0);
 			h.write("itable(");
 			boolean firstMethod = true;
 			for (MethodInstance meth : itable.getMethods()) {
@@ -1028,7 +1028,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write(", ");
 				}
 				firstMethod = false;
-				itable.emitFunctionPointerDecl(h, emitter, meth, "_I");
+				itable.emitFunctionPointerDecl(h, emitter, meth);
 			}
 			h.write(") ");
 			firstMethod = true;
@@ -1049,7 +1049,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			for (MethodInstance meth : itable.getMethods()) {
 				if (!firstMethod) h.newline();
 				firstMethod = false;
-				itable.emitFunctionPointerDecl(h, emitter, meth, "_I");
+				itable.emitFunctionPointerDecl(h, emitter, meth);
 				h.write(";");
 			}
 			h.end(); h.newline();
@@ -2108,11 +2108,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		ITable itable= ITable.getITable(clsType);
                     		targetMethodName = itable.mangledName(mi);
                     		isInterfaceInvoke = true;
-                    		String iType = emitter.translateType(clsType, false);
-                    		sw.write("INVOKE_INTERFACE((x10aux::findITable"+chevrons(iType)+"), (");
+                    		sw.write("(__extension__ ({"+emitter.translateType(clsType, true)+" _ = ");
                     		n.printSubExpr((Expr) target, assoc, sw, tr);
-                    		sw.write("), "+targetMethodName+ ", ");
-                    		dangling = ")";
+                    		sw.write("; x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_)->"+itable.mangledName(mi));
+                    		sw.write(args.size() > 0 ? "(_, " : "(_");
+                    		dangling = ";}))";
                     	}
                    }
 
@@ -2148,9 +2148,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (context.inTemplate() && mi.typeParameters().size() != 0 && virtual_dispatch) {
             sw.write("template ");
         }
-		if (!isInterfaceInvoke) sw.write(targetMethodName);
-		emitter.printTemplateInstantiation(mi, sw);
-		sw.write("(");
+		if (!isInterfaceInvoke) {
+			sw.write(targetMethodName);
+			emitter.printTemplateInstantiation(mi, sw);
+			sw.write("(");
+		}
 		if (args.size() > 0) {
 			sw.allowBreak(2, 2, "", 0); // miser mode
 			sw.begin(0);
@@ -2638,19 +2640,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String name = "__i" + form.name();
 		String iteratorType = emitter.translateType(xts.Iterator(form.type().type()), false);
 		String iterableType = emitter.translateType(xts.Iterable(form.type().type()), false);
+		String iterableTypeRef = emitter.translateType(xts.Iterable(form.type().type()), true);
 		String iteratorTypeRef = emitter.translateType(xts.Iterator(form.type().type()), true);
 		
 		sw.write(iteratorTypeRef+" " + name + " = ");
-        sw.write("INVOKE_INTERFACE((x10aux::findITable"+chevrons(iterableType)+"), (");
+		sw.write("(__extension__ ({"+iterableTypeRef+" _ = ");
 		n.print(domain, sw, tr);
-		sw.write("), iterator, ());");
-		sw.newline();
+		sw.write("; x10aux::findITable"+chevrons(iterableType)+"(_)->iterator(_); }));"); sw.newline();
 
 		sw.write("for (");
 		sw.begin(0);
 
 		sw.write(";"); sw.allowBreak(2, " ");
-        sw.write("(INVOKE_INTERFACE((x10aux::findITable"+chevrons(iteratorType)+"), ("+name+"), hasNext, ()));");
+		sw.write("x10aux::findITable"+chevrons(iteratorType)+"("+name+")->hasNext("+name+");");
 		sw.allowBreak(2, " ");
 
 		sw.end();
@@ -2661,7 +2663,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(";");
 		sw.newline();
 		sw.write(mangled_non_method_name(form.name().id().toString()));
-        sw.write(" = (INVOKE_INTERFACE((x10aux::findITable"+chevrons(iteratorType)+"), ("+name+"), next, ()));");
+        sw.write(" = x10aux::findITable"+chevrons(iteratorType)+"("+name+")->next("+name+");");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 			Stmt l = (Stmt) li.next();
@@ -3150,32 +3152,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        return;
 		}
 
-		sw.write("INVOKE_INTERFACE((x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"), (");
+		sw.write("(__extension__ ({ "+emitter.translateType(target.type(),true)+" _ = ");
 		c.printSubExpr(target, sw, tr);
-		sw.write("), apply, (");
+		sw.write("; x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_)->apply(_");
 		sw.begin(0);
-		/* TODO: TYPE PARAMETERS
-		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
-			final Type at = i.next();
-			new RuntimeTypeExpander(at).expand(tr);
-			if (i.hasNext() || c.arguments().size() > 0) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
-		}
-		*/
 
 		List l = args;
 		for (Iterator i = l.iterator(); i.hasNext(); ) {
 			Expr e = (Expr) i.next();
+			sw.write(",");
+			sw.allowBreak(0, " ");
 			c.print(e, sw, tr);
-			if (i.hasNext()) {
-				sw.write(",");
-				sw.allowBreak(0, " ");
-			}
 		}
 		sw.end();
-		sw.write("))");
+		sw.write(");}))");
 	}
 
 

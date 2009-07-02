@@ -156,14 +156,12 @@ public final class ITable {
 		}
 	}
 
-	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String templateType) {
+	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth) {
 		String returnType = emitter.translateType(meth.returnType(), true);
 		String name = mangledName(meth);
-		cw.write(returnType+" ("+templateType+"::*"+name+") (");
-		boolean first = true;
+		cw.write(returnType+" (*"+name+") ("+emitter.translateType(interfaceType, true));
 		for (Type f : meth.formalTypes()) {
-			if (!first) cw.write(", ");
-			first = false;
+			cw.write(", ");
 			cw.write(emitter.translateType(f, true));
 		}
 		cw.write(")");
@@ -171,21 +169,44 @@ public final class ITable {
 
 	public void emitForClass(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCType = emitter.translateType(interfaceType, false);
+		String interfaceCTypeRef = emitter.translateType(interfaceType, true);
 		String clsCType = emitter.translateType(cls, false);
+		String clsCTypeRef = emitter.translateType(cls, true);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-		String itableCType = interfaceCType+(doubleTemplate ? "::template" : "::")+" itable<"+clsCType+" >";
+		String itableCType = interfaceCType+"::itable";
 
 		h.write((doubleTemplate ? "static typename " : "static ")+itableCType+" _it"+itableNum+";"); h.newline();
 
+		// Static thunks.
+		// Trying to be clever with templates and member function pointers tends to result in ICEs in postcompilers. Sigh.
+		String thunkRoot = "_itable_thunk_"+itableNum+"_";
+		for (int i=0; i<methods.length; i++) {
+			MethodInstance meth = methods[i];
+			h.write("static "+emitter.translateType(meth.returnType(), true)+" "+thunkRoot+i+"("+interfaceCTypeRef+" this_");
+			List<Type> formals = meth.formalTypes();			
+			int argNum = 0;
+			for (Type argType : formals) {
+				h.write(", "+emitter.translateType(argType, true)+" arg"+argNum++);
+			}
+			h.write(") {"); h.newline(4); h.begin(0); 
+			h.write(clsCTypeRef+" tmp = this_;"); h.newline();
+			h.write((!meth.returnType().isVoid() ? "return ":"")+"tmp->"+emitter.mangled_method_name(meth.name().toString())+"(");
+			for (argNum = 0; argNum<formals.size(); argNum++) {
+				h.write((argNum>0?", arg":"arg")+argNum);
+			}
+			h.write(");"); h.end(); h.newline();
+			h.write("}"); h.newline();
+		}
+		
 		// Generate the itable initialization
 		if (!cls.typeArguments().isEmpty()) {
 			emitter.printTemplateSignature(cls.typeArguments(), sw);
 		}
-		sw.write((doubleTemplate ? "typename ":"")+itableCType+" "+emitter.translateType(cls,false)+"::_it"+itableNum+" = ");
+		sw.write((doubleTemplate ? "typename ":"")+itableCType+" "+clsCType+"::_it"+itableNum+" = ");
 		sw.write(interfaceCType+"::itable(");
-		for (int i=0, numMethods = methods.length; i<numMethods; i++) {
+		for (int i=0; i<methods.length; i++) {
 			if (i > 0) sw.write(", ");
-			sw.write("&"+clsCType+"::"+emitter.mangled_method_name(methods[i].name().toString()));
+			sw.write("&"+clsCType+"::"+thunkRoot+i);
 		}
 		sw.write(");"); sw.newline();
 	}
