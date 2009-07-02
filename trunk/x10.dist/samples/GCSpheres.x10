@@ -30,9 +30,7 @@ class GCSpheres {
         public def getZ () = z;
 
         public def add (/*ref*/ other:Vector3)
-            = new Vector3(this.x+other.x,
-                          this.y+other.y,
-                          this.z+other.z);
+            = new Vector3(this.x+other.x, this.y+other.y, this.z+other.z);
 
         public def neg () = new Vector3(-this.x, -this.y, -this.z);
 
@@ -90,9 +88,9 @@ class GCSpheres {
         // HOT LOOP BEGINS
         for ((frame):Point in [1..reps]) {
 
-            val x = ran.nextDouble()*10000 as Real;
-            val y = ran.nextDouble()*10000 as Real;
-            val z = ran.nextDouble()*10000 as Real;
+            val x = ran.nextDouble()*world_size as Real;
+            val y = ran.nextDouble()*world_size as Real;
+            val z = ran.nextDouble()*world_size as Real;
 
             /*inlined*/ val pos = new Vector3(x,y,z);
 
