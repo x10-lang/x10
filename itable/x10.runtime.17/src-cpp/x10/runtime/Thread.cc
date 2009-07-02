@@ -65,7 +65,8 @@ x10::runtime::Thread::thread_start_routine(void *arg)
     pthread_mutex_unlock(&(tp->__thread_start_lock));
     // this thread is now running
     tp->__thread_running = true;
-    INVOKE_INTERFACE((findITable<VoidFun_0_0>), tp->__taskBody, apply, ());
+
+    x10aux::findITable<VoidFun_0_0>(tp->__taskBody)->apply(tp->__taskBody);
 
     // finished running
     tp->__thread_running = false;

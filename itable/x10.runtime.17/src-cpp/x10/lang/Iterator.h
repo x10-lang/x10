@@ -22,10 +22,10 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT();
 
-            template <class I> struct itable {
-                itable(x10_boolean(I::*hasNext)(), T(I::*next)()) : hasNext(hasNext), next(next) {}
-                x10_boolean (I::*hasNext)();
-                T (I::*next)();
+            struct itable {
+                itable(x10_boolean(*hasNext)(x10aux::ref<Iterator<T> > this_), T(*next)(x10aux::ref<Iterator<T> >)) : hasNext(hasNext), next(next) {}
+                x10_boolean (*hasNext)(x10aux::ref<Iterator<T> >);
+                T (*next)(x10aux::ref<Iterator<T> >);
             };
         };
 

@@ -18,9 +18,9 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT();
 
-            template <class _I> struct itable {
-                itable(V(_I::*set)(V,I)) : set(set) {}
-                V(_I::*set)(V, I);
+            struct itable {
+                itable(V(*set)(x10aux::ref<Settable<I,V> >, V,I)) : set(set) {}
+                V(*set)(x10aux::ref<Settable<I, V> >, V, I);
             };
         };
 

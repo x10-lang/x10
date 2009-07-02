@@ -15,6 +15,6 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Settable<#1, #2 > >", "x10::lang::Settable<#1, #2 >", null)
 public interface Settable[-I,V] {
     @Native("java", "(#0).set(#1, #2)")
-    @Native("c++", "INVOKE_INTERFACE((x10aux::findITable<x10::lang::Settable<FMGL(I), FMGL(V) > >), (#0), set, (#1, #2))")
+    @Native("c++", "(__extension__ ({x10aux::ref<x10::lang::Settable<FMGL(I), FMGL(V)> > _ = (#0); x10aux::findITable<x10::lang::Settable<FMGL(I), FMGL(V)> >(_)->set(_, (#1), (#2));}))")
     def set(v: V, i: I): V;
 }
