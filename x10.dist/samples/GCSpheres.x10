@@ -67,7 +67,7 @@ class GCSpheres {
 
         // The following correspond to a modern out-door computer game:
         val num_objects = 50000;
-        val world_size = 3000;
+        val world_size = 6000;
         val obj_max_size = 400;
 
         val ran = new Random(0);
