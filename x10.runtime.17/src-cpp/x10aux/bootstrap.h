@@ -10,7 +10,6 @@
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
-#include <x10/lang/Iterator.h>
 
 #include <x10/lang/Throwable.h>
 
@@ -38,6 +37,10 @@ namespace x10aux {
 
         // closure body
         void apply () {
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
+
+            // Invoke the application main().
             main(args);
         }
 
@@ -58,6 +61,8 @@ namespace x10aux {
 
     };
 
+    extern void initialize_xrx();
+
     template<class Runtime, class T> int template_main(int ac, char **av) {
     
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
@@ -73,9 +78,7 @@ namespace x10aux {
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
-
-            // Initialise the static fields of x10 classes.
-            x10aux::InitDispatcher::runInitializers();
+            x10aux::initialize_xrx();
 
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
