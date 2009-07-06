@@ -13,7 +13,7 @@ namespace x10 {
 
     namespace lang {
 
-        class Value : public virtual Object {
+        class Value : public Object {
         public:
             RTT_H_DECLS;
 

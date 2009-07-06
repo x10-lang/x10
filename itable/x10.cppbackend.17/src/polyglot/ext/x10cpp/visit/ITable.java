@@ -167,15 +167,9 @@ public final class ITable {
 		cw.write(")");
 	}
 
-	public void emitForClass(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
-		String interfaceCType = emitter.translateType(interfaceType, false);
+	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCTypeRef = emitter.translateType(interfaceType, true);
-		String clsCType = emitter.translateType(cls, false);
 		String clsCTypeRef = emitter.translateType(cls, true);
-		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-		String itableCType = interfaceCType+"::itable";
-
-		h.write((doubleTemplate ? "static typename " : "static ")+itableCType+" _it"+itableNum+";"); h.newline();
 
 		// Static thunks.
 		// Trying to be clever with templates and member function pointers tends to result in ICEs in postcompilers. Sigh.
@@ -197,20 +191,27 @@ public final class ITable {
 			h.write(");"); h.end(); h.newline();
 			h.write("}"); h.newline();
 		}
-		
-		// Generate the itable initialization
-		if (!cls.typeArguments().isEmpty()) {
-			emitter.printTemplateSignature(cls.typeArguments(), sw);
-		}
-		sw.write((doubleTemplate ? "typename ":"")+itableCType+" "+clsCType+"::_it"+itableNum+" = ");
-		sw.write(interfaceCType+"::itable(");
+	}
+
+	public void emitInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
+		String interfaceCType = emitter.translateType(interfaceType, false);
+		String clsCType = emitter.translateType(cls, false);
+		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+		String itableCType = interfaceCType+"::itable";
+
+		h.write((doubleTemplate ? "static typename " : "static ")+itableCType+" _it"+itableNum+";"); h.newline();
+
+		String thunkRoot = "_itable_thunk_"+itableNum+"_";
+	
+		sw.write((doubleTemplate ? "new typename ":"new ")+interfaceCType+"::itable(");
 		for (int i=0; i<methods.length; i++) {
 			if (i > 0) sw.write(", ");
 			sw.write("&"+clsCType+"::"+thunkRoot+i);
 		}
-		sw.write(");"); sw.newline();
+		sw.write(")"); sw.newline();
 	}
 
+	
 	/**
 	 * Helper class to impose a canonical ordering on the methods of an interface.
 	 */

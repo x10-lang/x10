@@ -17,7 +17,7 @@ namespace x10 {
         class String;
         template<class T> class ValRail;
 
-        class Throwable : public virtual Value {
+        class Throwable : public Value {
         public:
             RTT_H_DECLS;
 
