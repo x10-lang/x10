@@ -1074,10 +1074,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (numInterfaces > 0) {
 				/* ITables declarations */
 				h.write("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.newline(); h.forceNewline();
+				h.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 				int itableNum = 0;
 				for (Type interfaceType : allInterfaces) {
 					ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-					itable.emitForClass(currentClass, itableNum++, emitter, h, sw);
+					itable.emitThunks(currentClass, itableNum++, emitter, h, sw);
 					h.forceNewline();
 				}
 
@@ -1088,8 +1089,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				itableNum = 0;
 				sw.write("x10aux::itable_entry "+emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 				for (Type interfaceType : allInterfaces) {
-					sw.write("x10aux::itable_entry(&"+emitter.translateType(interfaceType)+"::rtt, &_it"+(itableNum++)+")");
-					sw.write(", ");
+					ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+					sw.write("x10aux::itable_entry(&"+emitter.translateType(interfaceType)+"::rtt, "); 
+					itable.emitInitialization(currentClass, itableNum, emitter, h, sw);
+					sw.write("), ");
+					itableNum += 1;
 				}
 				sw.write("x10aux::itable_entry(NULL, NULL)};"); sw.newline();
 			}

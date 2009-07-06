@@ -27,15 +27,14 @@ namespace x10aux {
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
-    class BootStrapClosure : public x10::lang::Value,
-                             public virtual x10::lang::VoidFun_0_0
+    class BootStrapClosure : public x10::lang::Value 
     {
         protected:
 
         ApplicationMainFunction main;
         ref<x10::lang::Rail<ref<x10::lang::String> > > args;
         public:
-
+        
         // closure body
         void apply () {
             main(args);

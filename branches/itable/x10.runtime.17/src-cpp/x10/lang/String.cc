@@ -129,8 +129,8 @@ ref<ValRail<x10_byte> > String::bytes() {
     return rail;
 }
 
-// [IP] I'm sure I will hate this but it will do for now.
-static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > parms) {
+// TODO: DG: itables: refactor to share the code.
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
     std::ostringstream ss;
     char* fmt = const_cast<char*>(format->c_str());
     char* next = NULL;
@@ -177,12 +177,51 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
     return String::Lit(ss.str().c_str());
 }
 
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
-    return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
-}
-
 ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
-    return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
+    std::ostringstream ss;
+    char* fmt = const_cast<char*>(format->c_str());
+    char* next = NULL;
+    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
+        next = strchr(fmt+1, '%');
+        if (next != NULL)
+            *next = '\0';
+        if (*fmt != '%') {
+            ss << fmt;
+            if (next != NULL)
+                *next = '%';
+            i--;
+            continue;
+        }
+        const ref<Object> p = parms->operator[](i);
+        char* buf = NULL;
+        if (p.isNull())
+            ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
+        else if (x10aux::instanceof<ref<String> >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
+        else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_boolean>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_byte> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_byte>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_char> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_char>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_short> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_short>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_int> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_int>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_long> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_long>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_float> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_float>(p)));
+        else if (x10aux::instanceof<ref<Box<x10_double> > >(p))
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_double>(p)));
+        else
+            ss << (buf = x10aux::alloc_printf(fmt, p->toString()->c_str()));
+        if (buf != NULL)
+            dealloc(buf);
+        if (next != NULL)
+            *next = '%';
+    }
+    return String::Lit(ss.str().c_str());
 }
 
 x10_boolean String::_struct_equals(ref<Object> p0) {
