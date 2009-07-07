@@ -2112,11 +2112,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		ITable itable= ITable.getITable(clsType);
                     		targetMethodName = itable.mangledName(mi);
                     		isInterfaceInvoke = true;
-                    		sw.write("(__extension__ ({"+emitter.translateType(clsType, true)+" _ = ");
-                    		n.printSubExpr((Expr) target, assoc, sw, tr);
-                    		sw.write("; x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_)->"+itable.mangledName(mi));
-                    		sw.write(args.size() > 0 ? "(_, " : "(_");
-                    		dangling = ";}))";
+                    		if (mi.returnType().isVoid()) {
+                    			sw.write("(__extension__ ({"+emitter.translateType(clsType, true)+" _ = ");
+                        		n.printSubExpr((Expr) target, assoc, sw, tr);
+                        		sw.write("; x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_)->"+itable.mangledName(mi));
+                        		sw.write(args.size() > 0 ? "(_, " : "(_");
+                        		dangling = "; }))";                    			
+                    		} else {
+                    			// Note: working around g++ 4.1.2 bug in statement expressions by declaring
+                    			//       a variable to hold the result of the interface call, then using the variable
+                    			//       as the type of the expression.
+                    			sw.write("(__extension__ ({"+emitter.translateType(clsType, true)+" _1 = ");
+                    			n.printSubExpr((Expr) target, assoc, sw, tr);
+                    			sw.write("; "+emitter.translateType(mi.returnType(), true)+" _2 = x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_1)->"+itable.mangledName(mi));
+                    			sw.write(args.size() > 0 ? "(_1, " : "(_1");
+                    			dangling = "; _2; }))";
+                    		}
                     	}
                    }
 
@@ -2648,9 +2659,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String iteratorTypeRef = emitter.translateType(xts.Iterator(form.type().type()), true);
 		
 		sw.write(iteratorTypeRef+" " + name + " = ");
-		sw.write("(__extension__ ({"+iterableTypeRef+" _ = ");
+		sw.write("(__extension__ ({"+iterableTypeRef+" _1 = ");
 		n.print(domain, sw, tr);
-		sw.write("; x10aux::findITable"+chevrons(iterableType)+"(_)->iterator(_); }));"); sw.newline();
+		sw.write("; "+iteratorTypeRef+" _2 = x10aux::findITable"+chevrons(iterableType)+"(_1)->iterator(_1); _2; }));"); sw.newline();
 
 		sw.write("for (");
 		sw.begin(0);
