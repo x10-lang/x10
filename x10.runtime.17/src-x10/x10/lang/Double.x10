@@ -31,7 +31,7 @@ public final value Double {
     public native static operator (x:Double) >= (y:Double): Boolean;
     
     @Native("java", "((#1) + (#2))")
-    @Native("c++",  "x10aux::mod(#1, #2)")
+    @Native("c++",  "((#1) + (#2))")
     public native static operator (x:Double) + (y:Double): Double;
 
     @Native("java", "((#1) - (#2))")
