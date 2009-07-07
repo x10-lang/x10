@@ -42,7 +42,7 @@ namespace x10 {
             };
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
-                return x10aux::ref_deserialize<T>(buf.read<x10_remote_ref_t>());
+                return x10aux::ref_deserialize<T>(buf.read<x10rt_wire_t>());
             }
 
             template<class T> friend class x10aux::ref;
