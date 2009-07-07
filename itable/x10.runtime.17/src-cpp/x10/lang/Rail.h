@@ -170,8 +170,9 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            typename Fun_0_1<x10_int,T>::itable *it = x10aux::findITable<Fun_0_1<x10_int,T> >(init);
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = init->apply(i);
+                (*rail)[i] = it->apply(init, i);
             }
             return rail;
         }
