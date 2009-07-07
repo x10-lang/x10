@@ -288,11 +288,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 	    List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
 	    for (int i = 0; i < ct.typeArguments().size(); i++) {
-	        Type arg = ct.typeArguments().get(i);
-	        if (arg instanceof ParameterType)
-	            args.add(xts.Void());
-	        else
-	            args.add(arg);
+	        args.add(xts.Void());
 	    }
 	    return ct.typeArguments(args);
 	}
@@ -307,7 +303,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(voidTemplateInstantiation(cd.typeParameters().size()));
 		if (cd.superType() != null) {
 		    w.write(" : public ");
-		    X10ClassType stype = (X10ClassType) cd.superType().get();
+		    X10ClassDef sdef = ((X10ClassType) cd.superType().get()).x10Def();
+		    X10ClassType stype = (X10ClassType) sdef.asType();
 		    w.write(Emitter.translateType(getStaticMemberContainer(stype), false));
 		}
 		w.allowBreak(0, " ");
