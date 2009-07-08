@@ -64,6 +64,10 @@ namespace x10 {
                     x10aux::ref<x10::lang::String> toString() {
                         return x10aux::boolean_utils::toString(_val);
                     }
+
+                    static void _static_init() {
+                        x10::lang::Ref::_static_init();
+                    }
                 };
             }
         }

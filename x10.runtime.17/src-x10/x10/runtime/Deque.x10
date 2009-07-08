@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.runtime.impl.java.Deque", null, null)
 @NativeRep("c++", "x10aux::ref<x10::runtime::Deque>", "x10::runtime::Deque", null)
-public class Deque {
+public final class Deque {
   @Native("java", "#0.getQueueSize()")
   @Native("c++", "(#0)->getQueueSize()")
   public native def size():Int;
