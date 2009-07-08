@@ -39,6 +39,7 @@ import polyglot.ast.TopLevelDecl;
 
 import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.X10ClassDecl;
+import polyglot.ext.x10.types.X10ClassDef;
 
 import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.X10CPPCompilerOptions;
@@ -70,6 +71,7 @@ import polyglot.visit.Translator;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
@@ -330,6 +332,10 @@ public class X10CPPTranslator extends Translator {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
 				X10ClassDecl cd = (X10ClassDecl) decl;
+				// Skip output of all files for a native rep class.
+				if (getCppRep((X10ClassDef)cd.classDef()) != null) {
+					continue;
+				}
 				String className = cd.classDef().name().toString();
 				wstreams = new WriterStreams(className, pkg, tf, job);
 				sw = new StreamWrapper(wstreams, outputWidth);
@@ -381,7 +387,10 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 
-			wstreams.commitStreams();
+			if (wstreams != null) {
+				// wstreams will be null when the source file contains a NativeRep class
+				wstreams.commitStreams();
+			}
 
 			return true;
 		}

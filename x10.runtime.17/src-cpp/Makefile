@@ -187,11 +187,11 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
-	x10/io/FileInputStream.o \
-	x10/io/FileOutputStream.o \
-	x10/io/NativeFile.o \
-	x10/io/NativeInputStream.o \
-	x10/io/NativeOutputStream.o \
+	x10/io/FileReader__FileInputStream.o \
+	x10/io/FileWriter__FileOutputStream.o \
+	x10/io/File__NativeFile.o \
+	x10/io/InputStreamReader__InputStream.o \
+	x10/io/OutputStreamWriter__OutputStream.o \
 	x10/lang/Box.o \
 	x10/lang/Fun.o \
 	x10/lang/Iterator.o \
@@ -207,6 +207,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/runtime/Deque.o \
 	x10/runtime/Lock.o \
 	x10/runtime/Thread.o \
+	x10/tuningfork/ScalarType.o \
 	x10/util/GrowableRail.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \

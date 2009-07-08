@@ -693,8 +693,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.superClass() != null) {
 		    ClassType ct = n.superClass().type().toClass();
 		    X10ClassDef scd = (X10ClassDef) ct.def();
-		    String cpp = getCppRep(scd);
-		    if (scd != def && cpp == null) {
+		    if (scd != def) {
 		        String header = getHeader(ct);
 		        String guard = getHeaderGuard(header);
 		        h.write("#define "+guard+"_NODEPS"); h.newline();
@@ -718,8 +717,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		for (TypeNode i : n.interfaces()) {
 		    ClassType ct = i.type().toClass();
 		    X10ClassDef icd = (X10ClassDef) ct.def();
-		    String cpp = getCppRep(icd);
-		    if (icd != def && cpp == null) {
+		    if (icd != def) {
 		        String header = getHeader(ct);
 		        String guard = getHeaderGuard(header);
 		        h.write("#define "+guard+"_NODEPS"); h.newline();
@@ -794,9 +792,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             X10ClassDef cd = (X10ClassDef) ct.def();
             if (cd == def)
                 continue;
-            String cpp = getCppRep(cd);
-            if (cpp != null)
-                continue;
             if (!allIncludes.contains(ct)) {
                 declareClass(cd, h);
                 allIncludes.add(ct);
@@ -841,7 +836,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(n, h, tr, false);
 		h.allowBreak(0, " ");
 
-		n.print(n.body(), sw, tr);		
+		n.print(n.body(), sw, tr);
 
         ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
         /*
@@ -897,15 +892,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.newline(0);
         }
         h.forceNewline(0);
-        
+
         // [IP] Ok to include here, since the class is already defined
         h.write("#ifndef "+cguard+"_NODEPS"); h.newline();
         h.write("#define "+cguard+"_NODEPS"); h.newline();
 
         for (Type t : allIncludes) {
             ClassType ct = t.toClass();
-            String cpp = getCppRep((X10ClassDef) ct.def());
-            assert (cpp == null);
             String header = getHeader(ct);
             h.write("#include <" + header + ">");
             h.newline();
@@ -913,7 +906,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
         z.forceNewline(0);
-        
+
         context.templateFunctions = save_generic;
         sw.set(save_header, save_body);
 	}
@@ -1310,7 +1303,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Indexable"))) &&
 //            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Settable"))))
 //        {
-//         
+//
 //        }
 //        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
@@ -1480,7 +1473,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // FIXME: HACK: skip synthetic serialization fields
 	    if (query.isSyntheticField(dec.name().id().toString()))
 	        return;
-	    
+
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) &&
 	            dec.flags().flags().isStatic())
@@ -3136,7 +3129,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 	    NodeFactory nf = tr.nodeFactory();
 	    Unary.Operator op = n.operator();
-        
+
 	    if (op == Unary.POST_DEC || op == Unary.POST_INC || op == Unary.PRE_DEC || op == Unary.PRE_INC) { // TODO
 	        visit((Unary_c)n);
 	        return;
@@ -3154,7 +3147,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // FIXME: move this to the Desugarer
 	    Name methodName = X10Unary_c.unaryMethodName(op);
 	    Expr receiver = left;
-        
+
 	    if (methodName == null)
 	        throw new InternalCompilerError("No method to implement " + n, n.position());
 
@@ -3240,7 +3233,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Name methodName = inv ? X10Binary_c.invBinaryMethodName(op) : X10Binary_c.binaryMethodName(op);
 	    Expr receiver = inv ? right : left;
 	    Expr arg = inv ? left : right;
-        
+
 	    if (methodName == null)
 	        throw new InternalCompilerError("No method to implement " + n, n.position());
 
