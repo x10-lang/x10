@@ -377,6 +377,8 @@ public class Emitter {
 	}
 
 	public static String voidTemplateInstantiation(int num) {
+		if (num <= 0)
+		    return "";
 		StringBuffer b = new StringBuffer();
 		b.append("<");
 		for (int i = 0; i < num; i++) {

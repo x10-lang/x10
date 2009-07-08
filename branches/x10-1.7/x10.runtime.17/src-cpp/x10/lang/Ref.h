@@ -66,6 +66,7 @@ namespace x10 {
                 return false;
             }
 
+            static void _static_init() { }
         };
 
     }
