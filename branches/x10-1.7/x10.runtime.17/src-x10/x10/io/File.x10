@@ -22,7 +22,7 @@ import x10.compiler.Native;
 public class File {
     @NativeRep("java", "java.io.File", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::NativeFile>", "x10::io::NativeFile", null)
-    static class NativeFile {
+    protected final static class NativeFile {
         native def this(String);
 
         @Native("java", "#0.getName()")
