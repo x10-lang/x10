@@ -125,8 +125,8 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
         // Assume that only throwables can be thrown
         x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
 
-        fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                            (int)x10_here(), e_->_type()->name().c_str());
+        fprintf(stderr, "Uncaught exception at place %ld of type: %s\n",
+                            (long)x10aux::here(), e_->_type()->name().c_str());
         fprintf(stderr, "%s\n", e_->toString()->c_str());
 
         x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
@@ -138,7 +138,7 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 
     } catch(...) {
 
-        fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
+        fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here());
 
     }
 #endif
