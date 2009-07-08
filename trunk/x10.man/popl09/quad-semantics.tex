@@ -227,7 +227,7 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 
 \infrule[\RInvk]
 	{\vdash{\sf methods}({\tt C}[\tbar{V}]) \ni {\tt m}[\tbar{W}](\tbar{x}:\tbar{G})\{{\tt k}\}:{\tt H}={\tt e}}
-	{\new~{\tt C}[\tbar{V}](\tbar{v}).{\tt m}[\tbar{W}](\tbar{a})\derives {\tt e}[\new~{\tt C}[\tbar{V}](\tbar{v}),\tbar{W},\tbar{a}/\this,\tbar{Y},\tbar{x}]}
+	{\new~{\tt C}[\tbar{V}](\tbar{v}).{\tt m}[\tbar{W}](\tbar{a})\derives {\tt e}[\new~{\tt C}[\tbar{V}](\tbar{v}),\tbar{a}/\this,\tbar{x}]}
 
 \infrule[\RCInvkArg]
 	{{\tt a}_i\derives {\tt a}'_i}
