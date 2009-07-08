@@ -16,15 +16,16 @@ This paper extends the constrained types approach to handle
 \emph{type-dependency} (``genericity''). The key idea is to extend
 the constraint system to include predicates over types such as
 \texttt{X} is a subtype of \texttt{T}.  Generic types are supported
-by introducing parameters and properties that range over types and
-permitting the user program to impose constraints on such variables.
+by introducing type parameters and permitting programs to impose
+constraints on such variables.
 
-To illustrate the underlying theory, we develop a formal family
-FXG($\cal C$) of programming languages with a common set of sound
-type-checking rules.  By varying $\cal C$ and extending the type
-system, we obtain languages with the power of FJ, FGJ, dependent
-types, and new object-oriented languages that uniformly support
-value- and type-dependency.  Concretely, we illustrate with the
-design and implementation of the type system for X10.  The type
-system integrates and extends the features of nominal types, virtual
-types, and path-dependent types.
+To illustrate the underlying theory, we develop a formal family of
+programming languages with a common set of sound type-checking rules
+parameterized on a constraint system $\cal C$.  By varying $\cal
+C$ and extending the type system, we obtain languages with the power
+of \FJ, \FGJ, and languages that provide dependent types, structural
+subtyping, and constraints that relate values and types.  The core
+of the X10 language is concrete instantiation of the framework.  We
+describe the design and implementation of X10, which is available
+for download at \texttt{x10-lang.org}.
+
