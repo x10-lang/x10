@@ -179,7 +179,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Program) & {\tt P} &{::=}& $\tbar{L}$ \\
-  (Class declaration) & {\tt L} &{::=}& $\tt class~C[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{G})\{k\}~extends~D[\tbar{X}]~\{~\tbar{M}~\}$ \\
+  (Class declaration) & {\tt L} &{::=}& $\tt class~C[\tbar{X}](\tbar{f}:\tbar{G})\{k\}~extends~D~\{~\tbar{M}~\}$ \\
   (Method declaration)& {\tt M} &{::=}& $\tt def~m[\tbar{X}](\tbar{x}:\tbar{G})\{k\}:G=e;$ \\
   (Expression)& {\tt a}, {\tt b}, {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C[\tbar{G}](\tbar{e})$ \alt $\tt e.m[\tbar{G}](\tbar{e})$ \alt $\tt e~\as~G$ \\
   (Constraint term) & {\tt t} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C[\tbar{G}](\tbar{t})$ \\
@@ -193,7 +193,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 {\tt C}, {\tt D} range over class names, {\tt f}, {\tt g} over field names, {\tt m} over method names, {\tt x}, {\tt y}, {\tt z} over variable names, {\tt X}, {\tt Y}, {\tt Z} over type variables.
 
-${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtype{\tt C}[\tbar{A}], {\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt l}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}, {\tt k}={\tt l}[\tbar{A}/\tbar{X}\cdot\tbar{Y}]\}$
+${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtype{\tt C}[\tbar{A}], {\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt l}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}, {\tt k}={\tt l}[\tbar{A}/\tbar{X}]\}$
 \caption{{\sf FXG} productions}
 \label{fig:fx-grammar}
 \end{figure*}
@@ -285,19 +285,19 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{U}.~{\tt H}}
 
 \infrule[OK-Method]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P} \andalso
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \andalso
     {\tt def}~{\tt m}[\tbar{Z}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}\in\tbar{M}\andalso
-    \wj{\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type}{\tbar{G}}\\
-    \cj{\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type,\this:{\tt C}[\tbar{X}\cdot\tbar{Y}],\tbar{x}:\tbar{G}}{\tt l}\andalso
-   \tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type,\this:{\tt C}[\tbar{X}\cdot\tbar{Y}],\tbar{x}:\tbar{G},{\tt l}\vdash {\tt e}:{\tt E},{\tt E}\subtype {\tt H}}
-  {\vdash{\tt def}~{\tt m}[\tbar{Z}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}\cdot\tbar{Y}]}
+    \wj{\tbar{X}:\type,\tbar{Z}:\type}{\tbar{G}}\\
+    \cj{\tbar{X}:\type,\tbar{Z}:\type,\this:{\tt C}[\tbar{X}],\tbar{x}:\tbar{G}}{\tt l}\andalso
+   \tbar{X}:\type,\tbar{Z}:\type,\this:{\tt C}[\tbar{X}],\tbar{x}:\tbar{G},{\tt l}\vdash {\tt e}:{\tt E},{\tt E}\subtype {\tt H}}
+  {\vdash{\tt def}~{\tt m}[\tbar{Z}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \infrule[OK-Class]
-  {\wjj{\tbar{X}\cdot\tbar{Y}:\type}{\tt C[\tbar{X}\cdot\tbar{Y}]}{\tbar{F}}\andalso
-  \cj{\tbar{X}\cdot\tbar{Y}:\type,\tbar{x}:\tbar{F}}{{\tt k}[\tbar{x}/\this.\tbar{f}]} \andalso 
-  \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}\cdot\tbar{Y}]\andalso 
+  {\wjj{\tbar{X}:\type}{\tt C[\tbar{X}]}{\tbar{F}}\andalso
+  \cj{\tbar{X}:\type,\tbar{x}:\tbar{F}}{{\tt k}[\tbar{x}/\this.\tbar{f}]} \andalso 
+  \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]\andalso 
     \tbar{x}~\rm fresh}
-  {\vdash {\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}~\rm OK}
+  {\vdash {\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \end{minipage}%
 \caption{{\sf FXG} typing rules}\label{fig:FX}
 \end{figure*}
@@ -350,8 +350,8 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[W-Class]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\} \in {\tt P} \andalso \wjj{\Gamma}{{\tt D}[\tbar{A}]}{\tbar{B}}}
-  {\wj{\Gamma}{\tt C[\tbar{A}\cdot\tbar{B}]}}
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P} \andalso \wjj{\Gamma}{{\tt D}[\tbar{A}]}{\tbar{B}}}
+  {\wj{\Gamma}{\tt C[\tbar{A},\tbar{B}]}}
 \end{minipage}
 \caption{{\sf FXG} well-formed types}
 \label{fig:well}
@@ -392,9 +392,9 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Class]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{G})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}\andalso
-  \wj{\Gamma}{{\tt C}[\tbar{A}\cdot\tbar{B}]}}
-  {\Gamma\vdash {\tt C}[\tbar{A}\cdot\tbar{B}]\subtype {\tt D}[\tbar{A}]}
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{G})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}\andalso
+  \wjj{\Gamma}{{\tt C}[\tbar{A},\tbar{B}]}{{\tt D}[\tbar{A}]}}
+  {\Gamma\vdash {\tt C}[\tbar{A},\tbar{B}]\subtype {\tt D}[\tbar{A}]}
 \end{minipage}        
 \caption{{\sf FXG} subtyping rules}\label{fig:subtyping}
 \end{figure*}
@@ -427,27 +427,27 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Fields-I]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}
-    \andalso \wj{\Gamma}{\tbar{A}\cdot\tbar{B}} \andalso
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+    \andalso \wj{\Gamma}{\tbar{C}[\tbar{A},\tbar{B}]} \andalso
    \Gamma\vdash\fields({\tt D}[\tbar{A}])=\tbar{g}:\tbar{G}}
-   {\Gamma\vdash\fields({\tt C}[\tbar{A}\cdot\tbar{B}])=\tbar{g}\cdot\tbar{f}:\tbar{G}\cdot\tbar{F}[\tbar{A}\cdot\tbar{B}/\tbar{X}\cdot\tbar{Y}]}
+   {\Gamma\vdash\fields({\tt C}[\tbar{A},\tbar{B}])=\tbar{g},\tbar{f}:\tbar{G},\tbar{F}[\tbar{A},\tbar{B}/\tbar{X}]}
 
 \infrule[L-Method-B]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
    \andalso
    {\tt def}~{\tt m}[\tbar{Z}](\tbar{x}\ty \tbar{G})\{{\tt l}\}\ty {\tt H}={\tt e}\in \tbar{M} \andalso
-   \wj{\Gamma}{\tbar{A}\cdot\tbar{B}\cdot\tbar{E}}}
-  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{E}](\tbar{x}:\tbar{G}[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}])\{{\tt l[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}\}:{\tt H[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}={\tt e}[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}
+   \wjj{\Gamma}{{\tt C}[\tbar{A}]}{\tbar{B}}}
+  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{G}[\tbar{A},\tbar{B}/\tbar{X},\tbar{Z}])\{{\tt l[\tbar{A},\tbar{B}/\tbar{X},\tbar{Z}]}\}:{\tt H[\tbar{A},\tbar{B}/\tbar{X},\tbar{Z}]}={\tt e}[\tbar{A},\tbar{B}/\tbar{X},\tbar{Z}]}
 
 \infrule[L-Method-I]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}
+  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
    \andalso
-   \wj{\Gamma}{\tbar{B}}
+   \wj{\Gamma}{{\tt C}[\tbar{A},\tbar{B}]}
    \\
    \Gamma\vdash {\sf methods}({\tt D}[\tbar{A}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}
    \andalso
    {\tt m}\not\in\tbar{M}}
-  {\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
+  {\vdash {\sf methods}({\tt C}[\tbar{A},\tbar{B}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
 
 \infrule[L-Method-H]
   {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{y}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
@@ -459,6 +459,7 @@ ${\sf inv}({\tt T})=\wedge\{{\tt k}~s.t~\exists {\tt C}[\tbar{A}],{\tt T}\subtyp
 
 
 \begin{figure*}
+\centering
 \vspace{-\bigskipamount}
 \begin{minipage}{.4\textwidth}
 \typicallabel{XXXXXX}
