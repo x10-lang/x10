@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.ValRail<#1>", "x10.core.ValRail.BoxedValRail", "new x10.core.ValRail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::ValRail<#1 > >", "x10::lang::ValRail<#1 >", null)
-public value class ValRail[+T](length: nat)
+public final value class ValRail[+T](length: nat)
     implements (nat) => T, Iterable[T]
 {
     // need to declare a constructor to shut up the initialization checker

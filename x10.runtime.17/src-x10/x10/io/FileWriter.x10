@@ -6,7 +6,7 @@ import x10.compiler.Native;
 public value FileWriter extends OutputStreamWriter {
     @NativeRep("java", "java.io.FileOutputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::FileOutputStream>", "x10::io::FileOutputStream", null)
-    protected static value FileOutputStream extends OutputStream {
+    protected final static value FileOutputStream extends OutputStream {
         public native def this(String) throws IOException;
     }
 
