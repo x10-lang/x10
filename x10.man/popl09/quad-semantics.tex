@@ -212,7 +212,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \infrule[\RCCast]
 	{{\tt e}\derives {\tt e}'}
-	{{\tt e}~\as~{\tt T}\derives {\tt e}'~\as~{\tt T}}
+	{{\tt e}~\as~{\tt V}\derives {\tt e}'~\as~{\tt V}}
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXXXX}
@@ -230,7 +230,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \infrule[\RCast]
 	{\vdash{\tt C}[\tbar{V}]\{\self==\new~{\tt C}[\tbar{V}](\tbar{v})\}\subtype {\tt W}}
-	{\new~{\tt C}[\tbar{V}](\tbar{v})~\as~{\tt U}\derives\new~{\tt C}[\tbar{V}](\tbar{v})}
+	{\new~{\tt C}[\tbar{V}](\tbar{v})~\as~{\tt W}\derives\new~{\tt C}[\tbar{V}](\tbar{v})}
 \end{minipage}
 
 \centering
@@ -244,7 +244,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[T-Var]
-  {\wj{\Gamma}{\tt T} \andalso {\tt x}~\rm fresh}
+  {\wj{\Gamma}{\tt T}}
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
@@ -278,11 +278,12 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
     {\tt def}~{\tt m}[\tbar{Z}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}\in\tbar{M}\andalso
     \wj{\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type}{\tbar{G}}\\
     \cjj{\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type,\this:{\tt C}[\tbar{X}\cdot\tbar{Y}],\tbar{x}:\tbar{G}}{\tt l}{\tbar{Z}}\andalso
-   \tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type,\this:{\tt C}[\tbar{X}\cdot\tbar{Y}],\tbar{x}:\tbar{G},{\tt l}\vdash {\tt e}:{\tt A},{\tt A}\subtype {\tt H}}
+   \tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}:\type,\this:{\tt C}[\tbar{X}\cdot\tbar{Y}],\tbar{x}:\tbar{G},{\tt l}\vdash {\tt e}:{\tt E},{\tt E}\subtype {\tt H}}
   {\vdash{\tt def}~{\tt m}[\tbar{Z}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}\cdot\tbar{Y}]}
 
 \infrule[OK-Class]
-  {\wj{\tbar{X}\cdot\tbar{Y}:\type}{\tbar{F}}\andalso \wj{\tbar{X}:\type}{{\tt D[\tbar{X}]}} \andalso
+  {\wj{\tbar{X}\cdot\tbar{Y}:\type}{{\tt C[\tbar{X}\cdot\tbar{Y}]}} \andalso
+   \wj{\tbar{X}\cdot\tbar{Y}:\type}{\tbar{F}}\andalso 
     \tbar{x}~\rm fresh\\
   \cjj{\tbar{X}\cdot\tbar{Y}:\type,\tbar{x}:\tbar{F}}{{\tt k}[\tbar{x}/\this.\tbar{f}]}{\tbar{X}\cdot\tbar{Y}} \andalso 
   \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}\cdot\tbar{Y}]}
@@ -328,14 +329,18 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXXXX}
 \infax[W-Object]
   {\wj{}{\tt Object}}
+
 \infax[W-Var]
 	{\wj{\Gamma,{\tt X}:\type}{\tt X}}
+
+\infrule[W-Class]
+  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\} \in {\tt P} \andalso \wj{\Gamma}{{\tt D}[\tbar{A}]}\andalso \wj{\Gamma}{\tbar{B}}}
+  {\wj{\Gamma}{\tt C[\tbar{A}\cdot\tbar{B}]}}
+
 \infrule[W-Dep]
         {\wj{\Gamma}{\tt T} \andalso \cjj{\Gamma, \self \ty {\tt T}}{\tt c}{\bullet}}
 	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
-\infrule[W-Class]
-  {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{G})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\} \in {\tt P} \andalso \wj{\Gamma}{\tbar{T}}}
-  {\wj{\Gamma}{\tt C[\tbar{T}]}}
+
 \infrule[W-Exists]
         {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}:{\tt T}}{\tt U}}
 	{\wj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt U}}}
@@ -381,7 +386,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso\Gamma,\self:{\tt S}\vdash {\tt c},{\tt S}\subtype {\tt T}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso\Gamma,\self:{\tt S}\vdash {\tt c}\andalso\Gamma\vdash {\tt S}\subtype {\tt T}}
 	{\Gamma\vdash {\tt S}\subtype {\tt T}\{{\tt c}\}}
 
 \infrule[S-Exists-R]
@@ -399,8 +404,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Member-C]
-  {\Gamma,{\tt x}:{\tt E},{\tt c}\vdash {\tt x}~\has~{\tt I}}
-  {\Gamma,{\tt x}:{\tt E}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
 
 \infax[L-Fields-B]
   {\vdash\fields({\tt Object})=\bullet}
@@ -408,8 +413,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Member-E]
-  {\Gamma,{\tt y}:{\tt E},{\tt x}:{\tt F}\vdash {\tt x}~\has~{\tt I}}
-  {\Gamma,{\tt x}:\exists {\tt y}:{\tt E}.~{\tt F}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt y}:{\tt T},{\tt x}:{\tt U}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}\vdash {\tt x}~\has~{\tt I}}
 
 \infrule[L-Field-H]
   {\Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F}}
