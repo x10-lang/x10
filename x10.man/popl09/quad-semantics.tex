@@ -183,9 +183,9 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt false$ \alt $\tt c,c$ \alt $\tt t==t$ \alt $\tt \exists x:T.~c$ \\
   (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{T}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x:T.~T$ \\
   (User constraint)& {\tt k}, {\tt l} &{::=}& a constraint {\tt c} without existential constraints or types \\
-  (Generic type)& {\tt A}, {\tt B}, {\tt C}, {\tt F}, {\tt G}, {\tt H} &{::=}& a type {\tt T} without existential constraints or types \\
+  (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& a type {\tt T} without existential constraints or types \\
   (Ground type)& {\tt V}, {\tt W} &{::=}& a generic type {\tt G} without type variables \\
-  (Value)& {\tt v} &{::=}& $\tt\new~C[\tbar{A}](\tbar{v})$ \\
+  (Value)& {\tt v} &{::=}& $\tt\new~C[\tbar{V}](\tbar{v})$ \\
 \end{tabular}
 
 {\tt C}, {\tt D} range over class names, {\tt f}, {\tt g} over field names, {\tt m} over method names, {\tt x}, {\tt y}, {\tt z} over variable names, {\tt X}, {\tt Y}, {\tt Z} over type variables.
@@ -221,8 +221,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\new~{\tt C}[\tbar{V}](\ldots,{\tt e}_i,\ldots)\derives\new~{\tt C}[\tbar{V}](\ldots,{\tt e}'_i,\ldots)}
 
 \infrule[\RInvk]
-	{\vdash{\sf methods}({\tt C}[\tbar{V}]) \ni {\tt m}[\tbar{W}](\tbar{x}:\tbar{G})\{{\tt c}\}:{\tt H}={\tt e}}
-	{\new~{\tt C}[\tbar{V}](\tbar{v}).{\tt m}[\tbar{W}](\tbar{a})\derives {\tt e}[\new~{\tt C}[\tbar{T}](\tbar{v}),\tbar{W},\tbar{a}/\this,\tbar{Y},\tbar{x}]}
+	{\vdash{\sf methods}({\tt C}[\tbar{V}]) \ni {\tt m}[\tbar{W}](\tbar{x}:\tbar{G})\{{\tt k}\}:{\tt H}={\tt e}}
+	{\new~{\tt C}[\tbar{V}](\tbar{v}).{\tt m}[\tbar{W}](\tbar{a})\derives {\tt e}[\new~{\tt C}[\tbar{V}](\tbar{v}),\tbar{W},\tbar{a}/\this,\tbar{Y},\tbar{x}]}
 
 \infrule[\RCInvkArg]
 	{{\tt a}_i\derives {\tt a}'_i}
@@ -260,7 +260,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt F}\{\self=={\tt x}.{\tt f}\}}
 
 \infrule[T-New]
-	{\Gamma\vdash\tbar{e}:\tbar{T} \andalso \wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso 
+	{\Gamma\vdash\tbar{e}:\tbar{T} \andalso 
 	  \vdash\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F} \andalso 
 	  \Gamma\vdash \tbar{T}\subtype\tbar{F} \andalso 
 	  \Gamma,\tbar{x}:\tbar{T}\vdash{\sf inv}({\tt C}[\tbar{A}])[\tbar{x}/\this.\tbar{f}] \andalso
@@ -268,7 +268,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{e}):\exists\tbar{x}:\tbar{T}.~{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{x})\}}
         
 \infrule[T-Invk]
-	{\Gamma\vdash {\tt e}:{\tt T},\tbar{a}:\tbar{U} \andalso \wj{\Gamma,{\tt x}:{\tt T}}{\tbar{A}} \andalso
+	{\Gamma\vdash {\tt e}:{\tt T},\tbar{a}:\tbar{U} \andalso
 	  \Gamma,{\tt x}:{\tt T}\vdash {\tt
           x}~\has~{\tt m}[\tbar{A}](\tbar{y}:\tbar{G})\{{\tt k}\}:{\tt H}={\tt b},\tbar{U}\subtype\tbar{G}\andalso \Gamma,{\tt x}:{\tt E},\tbar{y}:\tbar{U}\vdash {\tt k} \andalso {\tt x},\tbar{y}~\rm fresh}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{U}.~{\tt H}}
@@ -308,7 +308,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{\textwidth}
 \quad{}\typicallabel{XXXXXX}
 \infrule[X-Sel]
-  {\Gamma,{\tt x}:{\tt C}[\tbar{T}]\vdash{\tt x}~\has~\tbar{f}:\tbar{F}
+  {\Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F}
   	\andalso
   	\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{t}):{\tt U}
   	\andalso
@@ -331,13 +331,13 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \infax[W-Var]
 	{\wj{\Gamma,{\tt X}:\type}{\tt X}}
 \infrule[W-Dep]
-        {\wj{\Gamma}{\tt T} \andalso \cjj{\Gamma, \self \ty {\tt T}}{\tt c}{\emptyset}}
+        {\wj{\Gamma}{\tt T} \andalso \cjj{\Gamma, \self \ty {\tt T}}{\tt c}{\bullet}}
 	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
 \infrule[W-Class]
   {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{G})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\} \in {\tt P} \andalso \wj{\Gamma}{\tbar{T}}}
   {\wj{\Gamma}{\tt C[\tbar{T}]}}
 \infrule[W-Exists]
-        {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}:{\tt T}}{\tt U} \andalso {\tt x}~\rm fresh}
+        {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}:{\tt T}}{\tt U}}
 	{\wj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt U}}}
 \end{minipage}
 \caption{{\sf FXG} well-formed types}
@@ -375,7 +375,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   {\Gamma\vdash {\tt C}[\tbar{A}\cdot\tbar{B}]\subtype {\tt D}[\tbar{A}]}
 
 \infrule[S-Exists-L]
-  {\wj{\Gamma}{\tt U} \andalso \Gamma,{\tt x}:{\tt U}\vdash {\tt S}\subtype {\tt T} \andalso {\tt x}~\rm fresh}
+  {\wj{\Gamma}{\tt U} \andalso \Gamma,{\tt x}:{\tt U}\vdash {\tt S}\subtype {\tt T} \andalso {\tt x}~\rm not~free~in~{\tt T}}
   {\Gamma\vdash\exists {\tt x}:{\tt U}.~{\tt S}\subtype {\tt T}}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
@@ -408,7 +408,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Member-E]
-  {\Gamma,{\tt y}:{\tt E},{\tt x}:{\tt F}\vdash {\tt x}~\has~{\tt I} \andalso {\tt y}~\rm fresh}
+  {\Gamma,{\tt y}:{\tt E},{\tt x}:{\tt F}\vdash {\tt x}~\has~{\tt I}}
   {\Gamma,{\tt x}:\exists {\tt y}:{\tt E}.~{\tt F}\vdash {\tt x}~\has~{\tt I}}
 
 \infrule[L-Field-H]
@@ -428,8 +428,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}
    \andalso
    {\tt def}~{\tt m}[\tbar{Z}](\tbar{x}\ty \tbar{G})\{{\tt l}\}\ty {\tt H}={\tt e}\in \tbar{M} \andalso
-   \wj{\Gamma}{\tbar{A}\cdot\tbar{B}\cdot\tbar{C}}}
-  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G}[\tbar{A}\cdot\tbar{B}\cdot\tbar{C}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]/)\{{\tt l[\tbar{A}\cdot\tbar{B}\cdot\tbar{C}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}\}:{\tt H[\tbar{A}\cdot\tbar{B}\cdot\tbar{C}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}={\tt e}[\tbar{A}\cdot\tbar{B}\cdot\tbar{C}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}
+   \wj{\Gamma}{\tbar{A}\cdot\tbar{B}\cdot\tbar{E}}}
+  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{E}](\tbar{x}:\tbar{G}[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}])\{{\tt l[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}\}:{\tt H[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}={\tt e}[\tbar{A}\cdot\tbar{B}\cdot\tbar{E}/\tbar{X}\cdot\tbar{Y}\cdot\tbar{Z}]}
 
 \infrule[L-Method-I]
   {{\tt class}~{\tt C}[\tbar{X}\cdot\tbar{Y}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{X}]~\{~\tbar{M}~\}\in {\tt P}
@@ -439,11 +439,11 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
    \wj{\Gamma}{\tbar{B}}
    \andalso
    {\tt m}\not\in\tbar{M}}
-  {\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G})\{{\tt d}\}:{\tt H}={\tt l}}
+  {\vdash {\sf methods}({\tt C}[\tbar{A}\cdot\tbar{B}]) \ni {\tt m}[\tbar{C}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
 
 \infrule[L-Method-H]
-  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{E})\{{\tt d}\}:{\tt G}={\tt e}}
-  {\Gamma,{\tt x}:{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt m}[\tbar{B}](\tbar{x}:\tbar{E})\{{\tt d}\}:{\tt G}={\tt e}}
+  {\Gamma\vdash {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{y}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
+  {\Gamma,{\tt x}:{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt m}[\tbar{B}](\tbar{y}:\tbar{G})\{{\tt l}[{\tt x}/\this]\}:{\tt H}[{\tt x}/\this]={\tt e}[{\tt x}/\this]}
 \end{minipage}%
 \caption{{\sf FXG} member lookup}
 \label{fig:lookup}
