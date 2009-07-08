@@ -1,23 +1,23 @@
 #ifndef X10_IO_FILEINPUTSTREAM_H
 #define X10_IO_FILEINPUTSTREAM_H
 
-#include <x10/io/NativeInputStream.h>
+#include <x10/io/InputStreamReader__InputStream.h>
 #include <x10aux/io/FILEPtrInputStream.h>
 
 namespace x10 {
 
     namespace io {
 
-        class FileInputStream : public x10aux::io::FILEPtrInputStream,
-                                public NativeInputStream {
+        class FileReader__FileInputStream : public x10aux::io::FILEPtrInputStream,
+                                public InputStreamReader__InputStream {
 
         public:
             RTT_H_DECLS;
 
-            FileInputStream(FILE *f)
+            FileReader__FileInputStream(FILE *f)
               : FILEPtrInputStream(f) { }
 
-            static x10aux::ref<FileInputStream> _make(x10aux::ref<x10::lang::String> name);
+            static x10aux::ref<FileReader__FileInputStream> _make(x10aux::ref<x10::lang::String> name);
 
             virtual char * gets(char *buf, int sz) {
                 return x10aux::io::FILEPtrInputStream::gets(buf,sz);
@@ -28,7 +28,7 @@ namespace x10 {
             }
 
             virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b) {
-                return x10::io::NativeInputStream::read(b);
+                return x10::io::InputStreamReader__InputStream::read(b);
             }
 
             virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b,
@@ -41,7 +41,7 @@ namespace x10 {
                 return x10aux::io::FILEPtrInputStream::skip(bytes);
             }
 
-            static x10aux::ref<FileInputStream> STANDARD_IN;
+            static x10aux::ref<FileReader__FileInputStream> STANDARD_IN;
 
 
         };

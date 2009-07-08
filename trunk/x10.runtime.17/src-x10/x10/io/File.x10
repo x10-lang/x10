@@ -21,7 +21,7 @@ import x10.compiler.Native;
 /* model after java.nio.file.Path */
 public class File {
     @NativeRep("java", "java.io.File", null, null)
-    @NativeRep("c++", "x10aux::ref<x10::io::NativeFile>", "x10::io::NativeFile", null)
+    @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)
     protected final static class NativeFile {
         native def this(String);
 

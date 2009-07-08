@@ -12,7 +12,7 @@ namespace x10 {
 
     namespace io {
 
-        class NativeOutputStream : public x10::lang::Value {
+        class OutputStreamWriter__OutputStream : public x10::lang::Value {
             public:
             RTT_H_DECLS;
 

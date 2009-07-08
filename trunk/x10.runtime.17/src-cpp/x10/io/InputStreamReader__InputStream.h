@@ -11,7 +11,7 @@ namespace x10 {
 
     namespace io {
 
-        class NativeInputStream : public x10::lang::Value {
+        class InputStreamReader__InputStream : public x10::lang::Value {
         public:
             RTT_H_DECLS;
 

@@ -8,7 +8,7 @@ value InputStreamReader extends Reader {
     val stream: InputStream;
 
     @NativeRep("java", "java.io.InputStream", null, null)
-    @NativeRep("c++", "x10aux::ref<x10::io::NativeInputStream>", "x10::io::NativeInputStream", null)
+    @NativeRep("c++", "x10aux::ref<x10::io::InputStreamReader__InputStream>", "x10::io::InputStreamReader__InputStream", null)
     protected abstract static value InputStream {
         @Native("java", "#0.close()")
         @Native("c++", "(#0)->close()")

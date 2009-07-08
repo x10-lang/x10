@@ -15,7 +15,7 @@ namespace x10 {
 
     namespace io {
 
-        class NativeFile : public x10::lang::Ref {
+        class File__NativeFile : public x10::lang::Ref {
             public:
             RTT_H_DECLS;
 
@@ -25,8 +25,8 @@ namespace x10 {
 
         public:
 
-            static x10aux::ref<NativeFile> _make(x10aux::ref<x10::lang::String> s);
-            x10aux::ref<NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
+            static x10aux::ref<File__NativeFile> _make(x10aux::ref<x10::lang::String> s);
+            x10aux::ref<File__NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
                 name = s;
                 return this;
             }
