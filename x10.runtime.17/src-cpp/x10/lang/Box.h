@@ -42,10 +42,15 @@ namespace x10 {
                  return x10aux::to_string(FMGL(value));
             }
 
-            public:
+        public:
 
             T FMGL(value);
 
+        };
+
+        template <> class Box<void> : public Ref {
+        public:
+            static void _static_init() { }
         };
 
         template<class T> const x10aux::RuntimeType* Box<T>::_initRTT() {
