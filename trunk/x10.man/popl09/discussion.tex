@@ -1,9 +1,138 @@
 Many features of modern object-oriented type systems can be
 cast as specializations of the generic constrained types
 framework.  
-Generic constrained types generalize virtual types and 
-have a connection to parametric types with use-site variance
-annotations, such as Java's wildcards.  
+
+\subsection{Type properties}
+\label{sec:type-properties}
+\label{sec:variance}
+
+Type properties generalize \Xten's properties.  A type property 
+is a final object member initialized at construction-time with a
+concrete type.  Like normal value properties, type properties
+can be used in constrained types through the variable \xcd"self".
+
+XXX Example.
+
+Subtyping constraints may be used to
+provide \emph{use-site variance}
+constraints.
+Use-site variance based on structural virtual types was proposed by
+Thorup and Torgerson~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type system lead
+to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
+type properties
+have similar expressive power.
+Section~\ref{sec:wildcards} describes a characterization of
+wildcards using generic constrained types.
+
+Consider the following subtypes  of \xcd"List" from
+Figure~\ref{fig:list}.
+\begin{itemize}
+\item \xcd"List".  This type has no constraints on the type
+property \xcd"T".
+Any type that constrains \xcd"T"
+is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
+\xcd"List{true}".
+%
+For a \xcd"List" \xcd"xs", the return type of the \xcd"get" method
+is \xcd"xs.T".
+Since the property \xcd"T" is unconstrained,
+the caller can only assign the return value of \xcd"get"
+to a variable of type \xcd"xs.T" or of type \xcd"Object".
+
+\item \xcd"List{T==float}".
+The type property \xcd"T" is bound to \xcd"float".
+For a final expression \xcd"xs" of this type,
+\xcd"xs.T" and \xcd"float" are equivalent types and can be used
+interchangeably.
+The syntax \xcd"List[float]" is used as
+shorthand for \xcd"List{T==float}".
+
+\item \xcdmath"List{T$\extends$Collection}".
+This type constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances of this type must bind \xcd"T" to a subtype of
+\xcd"Collection"; for example \xcd"List[Set]" (i.e.,
+\xcd"List{T==Set}") is a subtype of
+\xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcdmath"T"
+\xcdmath"$\extends$"
+\xcdmath"Collection".
+%
+If \xcd"xs" has the type \xcdmath"List{T$\extends$Collection}",
+then the return type of \xcd"get" has type \xcd"xs.T", which is an unknown but
+fixed subtype of \xcd"Collection"; the return value can be
+assigned into a variable of type \xcd"Collection".
+
+\item \xcdmath"List{T$\super$String}".  This type bounds the type property
+\xcd"T"
+from below.  For a \xcd"List" \xcd"xs" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"xs.T".
+The return type of the \xcd"get"
+method is known to be a
+supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
+\end{itemize}
+
+\label{sec:usability}
+\label{sec:parameters-vs-fields}
+
+Type properties, while powerful, have some
+some usability problems.
+The basic
+problem is that programmers are more familiar with
+\emph{type parameters} than with \emph{type properties}:
+providing similar functionality with often subtle distinctions
+can be difficult for novice users of the language.
+
+The key difference between type parameters and type properties
+is that type properties are
+instance members bound during object construction.  Type
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type (if \xcd"e" is final)---and are inherited by subclasses.
+These features gives type properties more expressive power than
+parameters, but are unfamiliar to many programmers.
+
+One complication is that,
+since type properties are inherited, the language design needs
+to account for ambiguities introduced when the same name is
+used for different type properties declared in or inherited into a class.
+These can be disambiguated
+by ``casting'' the target up to the desired supertype,
+e.g., \xcd"(e as C).X" specifies
+the property \xcd"X" inherited from \xcd"C".
+
+As an example, in the following \Xten code, \xcd"HashMap" 
+inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
+\begin{xten}
+interface Map[K,V] {
+  def get(K): V;
+  def put(K, V): V;
+}
+
+class HashMap extends Map {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+If a user is used to type parameters, \xcd"HashMap" would be
+declared as follows:
+\begin{xten}
+class HashMap[K,V] extends Map[K,V] {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+This introduces a new pair of type properties named \xcd"K" and
+\xcd"V" that shadow the inherited properties,
+and adds to the class invariant of \xcd"HashMap" the constraint
+\xcd"{(this as Map).K==K," \xcd"(this as Map).V==V}".
+A naive implementation of type properties would store run-time
+type information for all four properties in each instance
+of \xcd"HashMap".
+
+A practical implementation of type properties must account for
+these difficulties.
 
 \subsection{Virtual types}
 

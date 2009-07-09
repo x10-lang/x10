@@ -118,10 +118,14 @@ libraries, especially collections classes. For instance, the data type
 To permit genericity, variables \Xcd{X} must be admitted over types.
 \Xten{} follows languages such as Java~\cite{Java3} and
 Scala~\cite{scala}, by introducing type parameters on classes
-and methods.  This approach can be extended to 
-allow type-valued properties---object members that are
+and methods.
+Another approach, discussed in
+Section~\ref{sec:type-properties}, is to 
+allow type-valued properties: object members that are
 initialized with types when their enclosing object is
-constructed.
+constructed.  Type properties provide expressive power
+similar to Java's wildcards and subsume features of 
+virtual types and self types.
 
 What constraints can be used to specify conditions on such variables?
 In nominally typed OO languages such as \Java (1.4 and earlier), the answer is
@@ -231,7 +235,7 @@ programming idioms.
 This framework forms the basis of the \Xten type system.
 To make the system more usable,
 the \Xten language design simplifies the type system by
-restricting how constraints over type properties can be used.
+restricting how constraints over types can be used.
 We discuss these restrictions in Section~\ref{sec:discussion}.
 
 %\todo{implementation}
