@@ -4,7 +4,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("c++", "x10aux::ref<x10::lang::Box<#1 > >", "x10::lang::Box<#1 >", null)
-public final class Box[+T](value: T) {
+public class Box[+T](value: T) {
     public def this(x: T) { property(x); }
 
     @Native("c++", "x10aux::hash_code(#0)")
