@@ -55,7 +55,7 @@ inference systems used in programming languages, in particular as a
 foundation for constraint programming languages.  Patterned after
 Scott's information systems, a constraint system is
 organized around the notion of \emph{constraints} or tokens of partial
-information (e.g., \Xcd{X+Y>Z*3}), together with an entailment
+information (e.g., \Xcd{x+y>z*3}), together with an entailment
 relation $\vdash$.  Tokens may have first-order structure; existential
 quantification is supported. The entailment relation is required to
 support a certain set of inference rules arising from a Gentzen-style
@@ -116,8 +116,15 @@ libraries, especially collections classes. For instance, the data type
 \Xcd{Array} discussed above is generic on its member type.
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
+\Xten{} follows languages such as Java~\cite{Java3} and
+Scala~\cite{scala}, by introducing type parameters on classes
+and methods.  This approach can be extended to 
+allow type-valued properties---object members that are
+initialized with types when their enclosing object is
+constructed.
+
 What constraints can be used to specify conditions on such variables?
-In nominally typed OO languages such as \Java, the answer is
+In nominally typed OO languages such as \Java (1.4 and earlier), the answer is
 relatively clear and a simple semantic framework can be sketched out:
 a type is a class \emph{name}.\footnote{This can be extended naturally
 to account for interfaces.} Intuitively, an object belongs to a type
@@ -138,10 +145,6 @@ This motivates a very natural constraint system on types.  For a type
 variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
 $\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
 this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
-Similarly, it should be able to require that a type has a
-particular member---a field with a given name and type, or a method
-with a given name and signature. We introduce the constraints 
-\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has} \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
 
 %\todo{check status of extends relation transitivity}
 \eat{
@@ -160,20 +163,16 @@ Section~\ref{sec:O} describes the
 resulting Object constraint system, $\cal O$, in more detail.
 }
 
-The next question is: where should type variables be permitted?
-Clearly, one must permit methods to have type parameters (as permitted
-for instance in Java~\cite{Java3}, Scala~\cite{scala}, and in
-functional languages such as ML~\cite{ml} and Haskell~\cite{haskell}).
-It is necessary as well to permit classes to be dependent on types---for
-instance, \Xcd{Array} should be dependent on the type of its
-member elements. While it is possible to develop an approach in which
-classes have type \emph{parameters} \cite{Java3}, the constrained
-type approach suggests an alternative: classes may have type-valued
-properties. To create an instance of such
-a class, a type must be supplied to initialize this property. As with
-other object state, this value is available at runtime and
-can hence be used in dynamic cast expressions.
+Other constraints on
+types can be supported.  For instance, one should
+be able to require that a type have a
+particular member---a field with a given name and type, or a method
+with a given name and signature. We introduce the constraints 
+\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has} \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+Further, one can constrain values and types, expressing the
+\Xcd{instanceof} relation from Java as a constraint, for example.
 
+\eat{
 A pleasing aspect of the resulting design is that the same fundamental
 mechanism of constrained types---imposing constraints on properties---is
 used to specify both value-dependency and type-dependency of types.
@@ -216,8 +215,9 @@ the object \xcd"a" was instantiated
 (cf. the return type \Xcd{this.T} for \Xcd{Array.get}).
 For soundness, we require
 that \Xcd{a} be a final access path: an immutable
-variable (including \Xcd{this}) or an access to a final field of a final access
-path.
+variable (including \Xcd{this}) or an access to a final field of
+a final access path.
+}
 
 \subsection{Design and implementation of the \Xten{} type system}
 
