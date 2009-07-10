@@ -90,13 +90,11 @@
 #endif
 #include <stdint.h>
 
-#include <x10/x10.h> //pgas
-
 #include <x10aux/pragmas.h>
 
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
-    ss << ANSI_BOLD << x10_here() << ": " col << type << ": " ANSI_RESET << msg; \
+    ss << ANSI_BOLD << x10aux::here() << ": " col << type << ": " ANSI_RESET << msg; \
     fprintf(stderr,"%s\n",ss.str().c_str()); \
 } while (0)
 
@@ -160,7 +158,7 @@
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(DEBUG)
-#define _D_(x) std::cerr << x10_here() << ": " << x << std::endl
+#define _D_(x) std::cerr << x10aux::here() << ": " << x << std::endl
 #else
 #define _D_(x)
 #endif
