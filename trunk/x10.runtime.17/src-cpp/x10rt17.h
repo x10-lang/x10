@@ -43,7 +43,5 @@
 #include <x10aux/cuda/bridge_buffer.h>
 #include <x10aux/cuda/ring_buffer.h>
 
-#include <x10aux/bootstrap.h>
-
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
