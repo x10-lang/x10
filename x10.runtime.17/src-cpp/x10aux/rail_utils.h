@@ -8,20 +8,17 @@
 #include <cstdarg>
 
 #include <x10aux/config.h>
-
+#include <x10aux/ref.h>
 
 namespace x10 { namespace lang {
     class String;
 } }
-#include <x10/lang/Iterator.h>
-
-#include <x10/lang/Iterable.h>
 
 namespace x10aux {
 
     void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
 
-    template<class T> class AnyRail : public virtual x10::lang::Iterable<T> { 
+    template<class T> class AnyRail { 
         public:
 
         // 32 bit array indexes
@@ -41,8 +38,6 @@ namespace x10aux {
 
         public:
 
-        virtual const RuntimeType *_type() const = 0;
-
         AnyRail(x10_int length_, T* storage)
             : FMGL(length)(length_),  _data(storage) { }
 
@@ -57,7 +52,7 @@ namespace x10aux {
             #endif
         }
 
-        virtual ref<x10::lang::String> toString();
+        ref<x10::lang::String> toString();
 
         GPUSAFE T apply(x10_int index) {
             // do bounds check
