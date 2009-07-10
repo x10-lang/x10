@@ -1,6 +1,7 @@
 // SYNOPSIS: #0.main(...)
 
 ##include <x10/runtime/Runtime.h>
+##include <x10aux/bootstrap.h>
 extern "C" { int main(int ac, char **av) { return x10aux::template_main<x10::runtime::Runtime,#0 >(ac,av); } }
 
 

@@ -5,6 +5,7 @@
 #include <x10aux/pgas.h>
 #include <x10aux/alloc.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/system_utils.h>
 #include <x10aux/init_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
@@ -21,8 +22,6 @@ extern "C" int setlinebuf(FILE *);
 namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
-
-    extern x10_int exitCode;
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
