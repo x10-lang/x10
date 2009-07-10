@@ -29,7 +29,7 @@ namespace x10 {
                                    x10aux::addr_map &m)
             {
                 // don't send an id, just serialise the ref (null/local/remote -- we don't care)
-                buf.write(x10aux::ref_serialize(this_.get()),m);
+                buf.write(x10aux::remote_ref::make(this_.get()),m);
             }
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
@@ -38,11 +38,11 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 _S_("Serialising a local Ref object of type "<<_type()->name());
-                buf.write(x10aux::ref_serialize(this),m);
+                buf.write(x10aux::remote_ref::make(this),m);
             };
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
-                return x10aux::ref_deserialize<T>(buf.read<x10rt_wire_t>());
+                return (T*)x10aux::remote_ref::take(buf.read<x10aux::remote_ref>());
             }
 
             template<class T> friend class x10aux::ref;
