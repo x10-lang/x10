@@ -2,6 +2,7 @@
 #define X10REF_H
 
 #include <cstdlib>
+#include <cassert>
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>

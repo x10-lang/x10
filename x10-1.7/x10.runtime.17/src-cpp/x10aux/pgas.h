@@ -10,7 +10,7 @@
 #include "gc.h"
 #endif
 
-#include <x10/x10.h> //pgas
+#include <x10/pgasrt_x10.h> //pgas
 
 extern "C" {
     void __pgasrt_tsp_barrier(int,int);
@@ -22,7 +22,7 @@ extern "C" {
 namespace x10aux {
 
     /* callback */
-    void remote_closure_callback(x10rt_async_closure_t*, const int tag);
+    void remote_closure_callback(void *, int tag);
 
     class PGASInitializer {
     private:
@@ -33,7 +33,7 @@ namespace x10aux {
     };
 
     #ifndef NO_IOSTREAM
-    inline std::ostream &operator<<(std::ostream &o, const x10_remote_ref_t &rr) {
+    inline std::ostream &operator<<(std::ostream &o, const x10rt_wire_t &rr) {
         return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
     }
     #endif
@@ -49,21 +49,19 @@ namespace x10 { namespace lang { class VoidFun_0_0; } }
 
 namespace x10aux {
 
-    //inline x10_int here() { return (x10_int) x10_here(); }
-
     template<class T> inline x10_int location(T* p) {
-        return (x10_int) x10_ref_get_loc((x10_addr_t)p);
+        return x10rt_ref_get_loc(p);
     }
 
     template<class T> inline x10_int location(ref<T> r) {
-        return (x10_int) x10_ref_get_loc((x10_addr_t)r.get());
+        return location(r.get());
     }
 
     void run_at(x10_int place, ref<x10::lang::VoidFun_0_0> body);
 
     inline void shutdown() {
         _X_("PGAS shutdown starting");
-        x10_finalize();
+        x10rt_finalize();
         _X_("PGAS shutdown complete");
     }
 
@@ -75,38 +73,38 @@ namespace x10aux {
         __pgasrt_tsp_barrier(0,1);
     }
    
-    template<class T> x10aux::ref<T> ref_deserialize(x10_remote_ref_t remote_ref) {
-        x10_addr_t flagged = x10_ref_deserialize(remote_ref);
-        if (x10_ref_get_addr(flagged) == NULL) return x10aux::null;
+    template<class T> x10aux::ref<T> ref_deserialize(const x10rt_wire_t &remote_ref) {
+        void *flagged = x10rt_ref_deserialize(remote_ref);
+        if (x10rt_ref_get_addr(flagged) == NULL) return x10aux::null;
         return (T*)flagged;
     }
 
-    template<class T> x10_remote_ref_t ref_serialize(T *remote_ref) {
+    template<class T> x10rt_wire_t ref_serialize(T *remote_ref) {
         #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
         ReferenceLogger::log(remote_ref);
         #endif
-        return x10_ref_serialize(reinterpret_cast<x10_addr_t>(remote_ref));
+        return x10rt_ref_serialize(remote_ref);
     }
 
 
     inline x10_int num_places() {
-        return x10_nplaces();
+        return x10rt_nplaces();
     }
 
     x10_int num_threads();
 
     x10_boolean no_steals();
 
-    inline void event_loop() {
-        x10_wait();
+    inline void event_probe() {
+        x10rt_probe();
     }
 
-    inline void event_probe() {
-        x10_probe();
+    inline x10_int here() {
+    	return (x10_int)x10rt_here();
     }
 
     inline x10_boolean local(x10_int place) {
-    	return (x10_boolean) (x10_here() == place);
+    	return (x10_boolean) (here() == place);
     }
 }
 

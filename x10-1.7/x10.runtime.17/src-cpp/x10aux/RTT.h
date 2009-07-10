@@ -6,7 +6,7 @@
 
 #include <pthread.h>
 
-/* Macro to use in class declaration for boilerplace RTT junk */
+/* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS \
     static const x10aux::RuntimeType* rtt; \
     static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
@@ -133,9 +133,6 @@ namespace x10aux {
     }
 
     #define TYPENAME(T) x10aux::typeName<T>()
-    class place;
-    template<> inline const char *typeName<place>() { return "place"; }
-    template<> inline const char *typeName<x10_remote_ref_t>() { return "x10_remote_ref_t"; }
     class InitDispatcher;
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
