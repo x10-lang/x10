@@ -9,15 +9,14 @@ using namespace x10::lang;
 
 DeserializationDispatcher *DeserializationDispatcher::it;
 
-serialization_id_t DeserializationDispatcher::addDeserializer(Deserializer init) {
+serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer init) {
     if (NULL == it) {
         it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
     return it->addDeserializer_(init);
 }
 
-serialization_id_t
-DeserializationDispatcher::addDeserializer_(Deserializer init) {
+serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer init) {
     if (initsz<=(size_t)initc) {
         // grow slowly as this is init phase and we don't want to take
         // up RAM unnecessarily
