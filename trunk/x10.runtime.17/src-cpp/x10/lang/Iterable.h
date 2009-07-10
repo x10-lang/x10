@@ -3,7 +3,9 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
+
 #include <x10/lang/Object.h>
+#include <x10/lang/Iterator.h>
 
 namespace x10 {
     namespace lang {

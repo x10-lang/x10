@@ -9,10 +9,10 @@
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/Fun_0_1.h>
+#include <x10/lang/Iterable.h>
 
 #include <x10aux/rail_utils.h>
 #include <x10aux/basic_functions.h>
-
 
 namespace x10 {
 
@@ -25,6 +25,7 @@ namespace x10 {
 
         template<class T> class ValRail : public Value,
                                           public virtual Fun_0_1<x10_int,T>,
+                                          public virtual x10::lang::Iterable<T>,
                                           public x10aux::AnyRail<T>
         {
 

@@ -8,9 +8,9 @@
 #include <x10aux/rail_utils.h>
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/Iterable.h>
 #include <x10/lang/Settable.h>
 #include <x10/lang/ValRail.h>
-
 
 namespace x10 {
 
@@ -25,6 +25,7 @@ namespace x10 {
 
         template<class T> class Rail : public Ref,
                                        public virtual x10::lang::Settable<x10_int,T>,
+                                       public virtual x10::lang::Iterable<T>,
                                        public x10aux::AnyRail<T> {
             public:
             static const x10aux::RuntimeType* rtt;
