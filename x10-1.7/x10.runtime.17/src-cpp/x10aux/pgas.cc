@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/pgas.h>
+#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 
 #include <x10aux/cuda/cuda_utils.h>
@@ -20,20 +21,8 @@ volatile x10_long x10aux::deserialized_bytes = 0;
 
 volatile int PGASInitializer::count = 0;
 
-PGASInitializer::PGASInitializer() {
-    if (count++ == 0) {
-#ifdef X10_USE_BDWGC
-        GC_INIT();
-#endif
-        bootstrapRTT();
-        _X_("PGAS initialization starting");
-        x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
-        x10rt_init();
-        _X_("PGAS initialization complete");
-    }
-}
 
-void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
+void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
 
     assert(place!=x10rt_here()); // this case should be handled earlier
     assert(place<x10rt_nplaces()); // this is ensured by XRX runtime
@@ -46,8 +35,7 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
     buf.write(body,m);
     serialized_bytes += buf.length();
 
-    const x10rt_async_closure_t *cl = reinterpret_cast<const x10rt_async_closure_t *>(buf.get());
-    x10rt_comm_handle_t handle = x10rt_async_spawn(place, cl, buf.length(), QUEUED_ASYNC);
+    void *handle = x10rt_async_spawn(place, buf.get(), buf.length(), QUEUED_ASYNC);
     x10rt_async_spawn_wait(handle);
 
 }
@@ -146,13 +134,17 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 }
 #endif
 
-void x10aux::remote_closure_callback(void *cl, int) {
-    deserialize_remote_closure(cl,0);
-}
-
-void
-x10aux::PGASInitializer::bootstrapRTT() {
-    RuntimeType::bootstrap();
+PGASInitializer::PGASInitializer() {
+    if (count++ == 0) {
+#ifdef X10_USE_BDWGC
+        GC_INIT();
+#endif
+        RuntimeType::bootstrap();
+        _X_("PGAS initialization starting");
+        x10rt_register_async_callback(deserialize_remote_closure);
+        x10rt_init();
+        _X_("PGAS initialization complete");
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
