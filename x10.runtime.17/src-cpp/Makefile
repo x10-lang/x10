@@ -199,7 +199,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Ref.o \
-	x10/lang/Settable.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
