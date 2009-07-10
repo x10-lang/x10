@@ -23,7 +23,7 @@ if [[ -z "$X10_FROM_SRC" ]]; then
 else
     # Default to developer setup
     [ -z "$X10REL" ] && export X10REL="../x10.dist"
-    [ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas/common/work"
+    [ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas2/common/work"
     [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime.17/src-cpp"
     [ -z "$X10GC" ] && export X10GC="$TOP/../x10.runtime.17/src-cpp/bdwgc/install"
     X10="$(cd "$TOP/$X10REL" && pwd)"
