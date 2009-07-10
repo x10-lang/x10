@@ -370,7 +370,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   {\wj{\Gamma}{\exists{\tt y}:{\tt U}.~{\tt T}} \andalso \Gamma,{\tt y}:{\tt T},{\tt x}:{\tt U}\vdash {\tt x}~\has~{\tt I}}
   {\Gamma,{\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
-\caption{{\sf FXG} member lookup.}
+\caption{{\sf FXG} member lookup. {\tt I} ranges over members (fields and methods).}
 \label{fig:lookup2}
 \end{figure*}
 
@@ -457,16 +457,28 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \begin{figure*}
 \vspace{-\bigskipamount}
+\begin{minipage}{.32\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[S-Trans]
+	{\Gamma\vdash {\tt x}\subtype {\tt T}\andalso
+	\Gamma,{\tt y}:{\tt T}\vdash {\tt y}\subtype {\tt U}}
+	{\Gamma\vdash {\tt x}\subtype {\tt U}}
+\end{minipage}%
+\begin{minipage}{.27\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[S-Const-L]
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
+	{\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash{\tt x}\subtype {\tt T}}
+\end{minipage}%
+\begin{minipage}{.41\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[S-Const-R]
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso\Gamma\vdash {\tt c}[{\tt x}/\self],{\tt x}\subtype {\tt T}}
+	{\Gamma\vdash{\tt x}\subtype {\tt T}\{{\tt c}\}}
+\end{minipage}%
+
 \begin{minipage}{.57\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[S-Refl]
-  {\wj{\Gamma}{\tt T}}
-  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}\subtype {\tt T}}
-
-\infrule[S-Const-L]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso\Gamma,{\tt x}:{\tt T}\vdash {\tt x}\subtype {\tt U}}
-	{\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash{\tt x}\subtype {\tt U}}
-
 \infrule[S-Exists-L]
   {\wj{\Gamma}{\exists{\tt x}:{\tt U}.~{\tt S}} \andalso
   \Gamma,{\tt y}:{\tt U},{\tt x}:{\tt S}\vdash {\tt x}\subtype {\tt T} \andalso {\tt y}~\rm not~free~in~{\tt T}}
@@ -474,15 +486,6 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \end{minipage}%
 \begin{minipage}{.43\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[S-Trans]
-	{\Gamma\vdash {\tt x}\subtype {\tt T}\andalso
-	\Gamma,{\tt y}:{\tt T}\vdash {\tt y}\subtype {\tt U}}
-	{\Gamma\vdash {\tt x}\subtype {\tt U}}
-
-\infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso\Gamma\vdash {\tt c}[{\tt x}/\self],{\tt x}\subtype {\tt T}}
-	{\Gamma\vdash{\tt x}\subtype {\tt T}\{{\tt c}\}}
-
 \infrule[S-Exists-R]
   {\wj{\Gamma}{\exists{\tt x}:{\tt U}.~{\tt T}} \andalso
   \Gamma\vdash {\tt t}:{\tt U},{\tt y}\subtype {\tt T}[{\tt t}/{\tt x}]}
