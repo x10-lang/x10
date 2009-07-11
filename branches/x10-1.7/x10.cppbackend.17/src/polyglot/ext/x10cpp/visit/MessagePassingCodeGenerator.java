@@ -2964,6 +2964,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
+	    Type retType = closure.returnType().type();
 	    List<Stmt> body = closure.body().statements();
 	    // Special case: a single return statement
 	    if (body.size() != 1 || !(body.get(0) instanceof Return_c)) // TODO
@@ -3037,18 +3038,46 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        i++;
 	    }
+	    String ret = null;
+	    if (!retType.isVoid()) {
+	        ret = getId();
+	        sw.begin(0);
+	        emitter.printType(retType, sw);
+	        sw.write(" ");
+	        sw.write(ret);
+	        sw.end();
+	        sw.write(";");
+	        sw.newline();
+	    }
 	    // Special case: a single return statement
 	    if (body.size() == 1 && body.get(0) instanceof Return_c) {
 	    	Return_c r = (Return_c) body.get(0);
 	    	Expr e = r.expr();
-		    e = cast(e, closure.returnType().type());
-	        c.print(e, sw, tr);
-	        sw.write(";");
+	    	if (e != null) {
+	    	    e = cast(e, retType);
+	    	    sw.write(ret + " = ");
+	    	    c.print(e, sw, tr);
+	    	    sw.write(";");
+	    	}
 	    } else { // TODO
+	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Inlining a multi-statement closure", c.position());
 	        for (Stmt s : body) {
 	            sw.newline();
-	            printInlinedClosureStmt(s, sw, null, null, closure);
+	            printInlinedClosureStmt(s, sw, null, ret, closure);
 	        }
+	    }
+	    if (!retType.isVoid()) {
+	        sw.newline();
+	        sw.write(ret);
+	        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	        // Workaround for a g++ ICE (XTENLANG-461)
+	        if (retType.isClass() &&
+	            (xts.isSubtype(retType, xts.Ref(), tr.context()) ||
+	             retType.toClass().flags().isInterface()))
+	        {
+	            sw.write(".get()");
+	        }
+	        sw.write(";");
 	    }
 	    ctx.finalizeClosureInstance();
 	    ((X10CPPTranslator)tr).setContext(context); // FIXME
