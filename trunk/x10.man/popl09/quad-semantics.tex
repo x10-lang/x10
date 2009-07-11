@@ -241,7 +241,12 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.62\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[W-Class]
-  {\cdecl\in{\tt P} \andalso \wj{\Gamma}{\tbar{A}}}
+  {\cdecl\in{\tt P}
+    \\
+    \wj{\Gamma}{\tbar{A}} \andalso
+    \wj{\tbar{X}\ty*}{{\tt k}} \andalso 
+    \theta=\tbar{A}/\tbar{X} \andalso
+    \sigma(\Gamma)\vdashX{\tt k}\theta}
   {\wj{\Gamma}{\tt C}[\tbar{A}]}
 \end{minipage}%
 \begin{minipage}{.38\textwidth}
@@ -398,29 +403,31 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXXXX}
 \infrule[T-New]
 	{\Gamma\vdash\tbar{e}\ty\tbar{T} \andalso
-	  \Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso 
+	  \Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso 
 	  {\tt y},\tbar{x}~{\rm fresh} \andalso 
-	  \Gamma,{\tt y}\ty{\tt C}[\tbar{A}],\tbar{x}\ty\tbar{T},{\sf inv}(\tbar{x}),{\tt y}.\tbar{f}==\tbar{x}\vdash\tbar{x}\subtype\tbar{F}[{\tt y}/\this],{\sf inv}({\tt y})}
+	  \theta={\tt y}/\this \andalso
+	  \Gamma,{\tt y}\ty{\tt C}[\tbar{A}],\tbar{x}\ty\tbar{T},{\tt y}.\tbar{f}==\tbar{x}\vdash\tbar{x}\subtype\tbar{F}\theta}
 	{\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{e})\ty\exty{\tbar{x}}{\tbar{T}}{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{x})\}}
         
 \infrule[T-Invk]
 	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
 	  {\tt x},\tbar{y}~{\rm fresh} \andalso
 	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~\minst{A}{y}{G}{k}{H}{b} \andalso
-	  \Gamma,{\tt x}\ty{\tt T},{\sf inv}({\tt x }),\tbar{y}\ty\tbar{U},{\sf inv}(\tbar{y})\vdash {\tt k},\tbar{y}\subtype\tbar{G}}
+	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty\tbar{U}\vdash {\tt k},\tbar{y}\subtype\tbar{G}}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \infrule[OK-Method]
-  {\wj{\tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],\tbar{x}\ty\tbar{G}}{{\tt k},\tbar{G},{\tt H}} \andalso
-    \tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}\ty\tbar{G},{\sf inv}(\tbar{x})\vdash {\tt e}\ty{\tt E}
-    \\
+  {\cdecl \andalso
+    \wj{\tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G}}{{\tt l},\tbar{G},{\tt H}} \\
+    \tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt l}\vdash {\tt e}\ty{\tt E} \andalso
     {\tt y}~{\rm fresh} \andalso
-    \tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}\ty\tbar{G},{\sf inv}(\tbar{x}),{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
-  {\vdash\mdecl{Y}{x}{G}{k}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+    \tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt l},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
+  {\vdash\mdecl{Y}{x}{G}{l}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \infrule[OK-Class]
-  {\wj{\tbar{X}\ty*}{{\tt k},{\tt D}[\tbar{E}]} \andalso 
-    \wj{\tbar{X}\ty*,\this\ty{\tt C}[\tbar{X}]}{\tbar{F}} \andalso
+  {\wj{\tbar{X}\ty*}{{\tt k}} \andalso 
+    \wj{\tbar{X}\ty*,{\tt k}}{{\tt D}[\tbar{E}]} \andalso 
+    \wj{\tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}]}{\tbar{F}} \andalso
     \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
   {\vdash \cdecl~\rm OK}
 \end{minipage}%
