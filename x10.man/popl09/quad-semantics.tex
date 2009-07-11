@@ -1,15 +1,8 @@
-
-%\setlength{\afterruleskip}{\smallskipamount}
-%\setlength{\afterruleskip}{\medskipamount}
-
-\newcommand{\constraint}{{\tt constraint}}
-\newcommand\cj[2]{{#1} \vdash_{\cal W}{#2}}
-\newcommand\wj[2]{{#1} \vdash_{\cal W} {#2}}
-\newcommand\wjj[3]{{#1} \vdash_{\cal W} {#2},{#3}}
-\newcommand\tj[3]{{#1} \vdash {#2} \ty {#3}}
-\newcommand\stj[3]{{#1} \vdash {#2} \subtype {#3}}
-\newcommand\ttj[2]{{#1} \vdash_{\cal W}{#2}}
+\newcommand\wj[2]{{#1} \vdash_{\cal W}{#2}}
 \newcommand\vdashL{\vdash_{\cal L}}
+\newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt k}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
+\newcommand\minst[6]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}={\tt #6}}
+\newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
 
 We now describe the semantics of languages in the \FX{} family.
 We start with a core \FXZ{} language that supports simple
@@ -132,7 +125,7 @@ it is not free in the consequent of the rule.
 The judgments of interest are as follows:
 \begin{enumerate}
 	\item Well-formedness:\\
-	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed\\
+	  $\wj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed\\
 	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed
 	\item Member lookup:\\
 	  $\fields({\tt C})=\tbar{f}:\tbar{T}$ \hfill class {\tt C} has fields \tbar{f} of type \tbar{T}\\
@@ -155,7 +148,7 @@ A program type checks iff all its classes do.  We now describe
 in more detail each of these judgments, in turn.
 
 \paragraph{1. Well-formedness.} A constraint {\tt c} is well
-formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff
+formed in context $\Gamma$, written $\wj{\Gamma}{\tt c}$, iff
 both
 its free variables are declared in $\Gamma$ and it is well
 formed for the underlying constraint system. The rules in Figure~\ref{fig:well} extend this requirement to types.
@@ -180,12 +173,12 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Program) & {\tt P} &{::=}& $\tbar{L}$ \\
-  (Class declaration) & {\tt L} &{::=}& $\tt class~C[\tbar{X}](\tbar{f}:\tbar{G})\{k\}~extends~D[\tbar{G}]~\{~\tbar{M}~\}$ \\
-  (Method declaration)& {\tt M} &{::=}& $\tt def~m[\tbar{X}](\tbar{x}:\tbar{G})\{k\}:G=e;$ \\
+  (Class declaration) & {\tt L} &{::=}& $ \tt class~C[\tbar{X}]\{k\}(\tbar{f}\ty\tbar{G})~extends~D[\tbar{G}]~\{~\tbar{M}~\}$ \\
+  (Method declaration)& {\tt M} &{::=}& $\tt \mdecl{X}{x}{G}{k}{G}{e};$ \\
   (Expression)& {\tt a}, {\tt b}, {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C[\tbar{G}](\tbar{e})$ \alt $\tt e.m[\tbar{G}](\tbar{e})$ \alt $\tt e~\as~G$ \\
   (Constraint term) & {\tt t}, {\tt u} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C[\tbar{G}](\tbar{t})$ \\
-  (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\tt false$ \alt $\tt c,c$ \alt $\tt t==t$ \alt $\tt \exists x:T.~c$ \\
-  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{T}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x:T.~T$ \\
+  (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\tt false$ \alt $\tt c,c$ \alt $\tt t==t$ \alt $\tt \exists x\ty T.~c$ \\
+  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{T}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
   (User constraint)& {\tt k}, {\tt l} &{::=}& $\true$ \alt $\tt k,k$ \alt $\tt t==t$ \\
   (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{k\}$ \alt $\tt X$ \\
   (Value)& {\tt v}, {\tt w} &{::=}& $\tt\new~C[\tbar{G}](\tbar{v})$ where \tbar{G} contains no type variables \\
@@ -202,59 +195,59 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.24\textwidth}
 \quad\typicallabel{XXXX}
 \infax[W-Var]
-  {\ttj{{\tt x}:{\tt T}}{\tt x}}
+  {\wj{{\tt x}\ty{\tt T}}{\tt x}}
 
 \infax[W-True]
-  {\cj{}{\tt true}}
+  {\wj{}{\true}}
 
 \infax[W-False]
-  {\cj{}{\tt false}}
+  {\wj{}{\false}}
 
 \infax[W-Object]
-  {\wj{}{\tt Object}}
+  {\wj{}{\Object}}
 
 \infax[W-Type]
-	{\wj{{\tt X}:*}{\tt X}}
+	{\wj{{\tt X}\ty*}{\tt X}}
 \end{minipage}%
 \begin{minipage}{.38\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[W-Field]
-	{\ttj{\Gamma}{\tt t}}
-	{\ttj{\Gamma}{{\tt t}.{\tt f}}}
+	{\wj{\Gamma}{\tt t}}
+	{\wj{\Gamma}{{\tt t}.{\tt f}}}
 
 \infrule[W-Conj]
-	{\cj{\Gamma}{\tt c} \andalso 	\cj{\Gamma}{\tt d}}
-	{\cj{\Gamma}{{\tt c},{\tt d}}}
+	{\wj{\Gamma}{\tt c} \andalso \wj{\Gamma}{\tt d}}
+	{\wj{\Gamma}{{\tt c},{\tt d}}}
 
 \infrule[W-Const]
-        {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma,{\tt x}:{\tt T}}{\tt c}}
-	{\cj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt c}}}
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}\ty{\tt T}}{\tt c}}
+	{\wj{\Gamma}{\exty{\tt x}{\tt T}{\tt c}}}
 \end{minipage}%
 \begin{minipage}{.38\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[W-New]
-	{\wj{\Gamma}{\tt C}[{\tbar{G}}] \andalso \ttj{\Gamma}{\tbar{t}}}
-	{\ttj{\Gamma}{\new~{\tt C}[\tbar{G}](\tbar{t})}}
+	{\wj{\Gamma}{\tt C}[\tbar{G}] \andalso \wj{\Gamma}{\tbar{t}}}
+	{\wj{\Gamma}{\new~{\tt C}[\tbar{G}](\tbar{t})}}
 
 \infrule[W-Eq]
-	{\ttj{\Gamma}{\tt t} \andalso \ttj{\Gamma}{\tt u}}
-	{\cj{\Gamma}{\tt t}=={\tt u}}
+	{\wj{\Gamma}{\tt t} \andalso \wj{\Gamma}{\tt u}}
+	{\wj{\Gamma}{\tt t}=={\tt u}}
 
 \infrule[W-Exists]
-        {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}:{\tt T}}{\tt U}}
-	{\wj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt U}}}
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}\ty{\tt T}}{\tt U}}
+	{\wj{\Gamma}{\exty{\tt x}{\tt T}{\tt U}}}
 \end{minipage}%
 
 \begin{minipage}{.62\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[W-Class]
-  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\} \in {\tt P} \andalso \wj{\Gamma}{\tbar{A}}}
-  {\wj{\Gamma}{\tt C[\tbar{A}]}}
+  {\cdecl\in{\tt P} \andalso \wj{\Gamma}{\tbar{A}}}
+  {\wj{\Gamma}{\tt C}[\tbar{A}]}
 \end{minipage}%
 \begin{minipage}{.38\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[W-Dep]
-        {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma, \self \ty {\tt T}}{\tt c}}
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,\self\ty{\tt T}}{\tt c}}
 	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
 \end{minipage}%
 \caption{{\sf FXG} well-formedness.}
@@ -267,38 +260,38 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Method-B]
-  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}\in {\tt P}
-   \andalso
-   {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt l}\}\ty {\tt H}={\tt e}\in \tbar{M} \andalso
-   \wj{\Gamma}{{\tt C}[\tbar{A}]}\andalso \wj{\Gamma}{\tbar{B}}}
-  {\Gamma\vdashL {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{G}[\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}])\{{\tt l[\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}]}\}:{\tt H[\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}]}={\tt e}[\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}]}
+  {\cdecl\in{\tt P} \andalso
+    \mdecl{Y}{x}{G}{l}{H}{e}\in\tbar{M} \andalso
+    \wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
+    \theta=\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}}
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G\theta}{l\theta}{H\theta}{e\theta}}
 \end{minipage}%
 
-\begin{minipage}{.35\textwidth}
+\begin{minipage}{.3\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[L-Fields-B]
   {\vdashL\fields({\tt Object})=\bullet}
 \end{minipage}%
-\begin{minipage}{.65\textwidth}
+\begin{minipage}{.7\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Method-I]
-  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}\in {\tt P}
-   \andalso
-   \wj{\Gamma}{{\tt C}[\tbar{A}]}
-   \\
-   \Gamma\vdashL {\sf methods}({\tt D}[\tbar{E}[\tbar{A}/\tbar{X}]]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}
-   \andalso
-   {\tt m}\not\in\tbar{M}}
-  {\Gamma\vdashL {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
+  {\cdecl\in{\tt P} \andalso
+    \wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso
+    \theta=\tbar{A}/\tbar{X}
+    \\
+    \Gamma\vdashL\methods({\tt D}[\tbar{E}\theta])\ni\minst{B}{x}{G}{l}{H}{e} \andalso
+    {\tt m}\not\in\tbar{M}}
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{l}{H}{e}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Fields-I]
-  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}\in {\tt P}
-    \andalso \wj{\Gamma}{\tbar{C}[\tbar{A}]} \andalso
-   \Gamma\vdashL\fields({\tt D}[\tbar{E}[\tbar{A}/\tbar{X}]])=\tbar{g}:\tbar{G}}
-   {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{g},\tbar{f}:\tbar{G},\tbar{F}[\tbar{A}/\tbar{X}]}
+  {\cdecl\in{\tt P} \andalso
+    \wj{\Gamma}{\tbar{C}[\tbar{A}]} \andalso
+    \theta=\tbar{A}/\tbar{X} \andalso
+    \Gamma\vdashL\fields({\tt D}[\tbar{E}\theta])=\tbar{g}\ty\tbar{G}}
+  {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F}\theta}
 \end{minipage}%
 \caption{{\sf FXG} fields and methods.}
 \label{fig:lookup}
@@ -310,7 +303,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.33\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[\RField]
-	{\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F}}
+	{\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt f}_i \derives {\tt v}_i}
 
 \infrule[\RCField]
@@ -332,15 +325,16 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}_i,\ldots,{\tt e}_n)\derives\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
 
 \infrule[\RInvk]
-	{\vdashL{\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{x}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e}}
-	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt m}[\tbar{B}](\tbar{w})\derives {\tt e}[\new~{\tt C}[\tbar{A}](\tbar{v}),\tbar{w}/\this,\tbar{x}]}
+	{\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{l}{H}{e} \andalso
+	\theta=\new~{\tt C}[\tbar{A}](\tbar{v}),\tbar{w}/\this,\tbar{x}}
+	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt m}[\tbar{B}](\tbar{w})\derives {\tt e}\theta}
 
 \infrule[\RCInvkArg]
 	{{\tt a}_i\derives {\tt a}'_i}
 	{{\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}_i,\ldots,{\tt a}_n)\derives {\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}'_i,\ldots,{\tt a}_n)}
 
 \infrule[\RCast]
-	{{\tt x}:{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
+	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
 \end{minipage}
 \caption{{\sf FXG} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
@@ -353,27 +347,28 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.41\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[H-Field]
-  {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F} \andalso \theta=[{\tt x}/\this]}
-  {\Gamma,{\tt x}:{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt f}_i:{\tt F}_i\theta}
+  {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso \theta={\tt x}/\this}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt f}_i\ty{\tt F}_i\theta}
 
 \infrule[H-Dep]
-  {\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt x}~\has~{\tt I}}
-  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
+  {\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma,{\tt x}\ty{\tt T},{\tt c}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt x}\ty{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \begin{minipage}{.59\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[H-Method]
-  {\Gamma\vdashL {\sf methods}({\tt C}[\tbar{A}]) \ni {\tt m}[\tbar{B}](\tbar{y}:\tbar{G})\{{\tt l}\}:{\tt H}={\tt e} \andalso \theta=[{\tt x}/\this]}
-  {\Gamma,{\tt x}:{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt m}[\tbar{B}](\tbar{y}:\tbar{G}\theta)\{{\tt l}\theta\}:{\tt H}\theta={\tt e}\theta}
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{l}{H}{e} \andalso
+    \theta={\tt x}/\this}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{l\theta}{H\theta}{e\theta}}
 
 \infrule[H-Exists]
-  {\wj{\Gamma}{\exists{\tt y}:{\tt U}.~{\tt T}} \andalso \Gamma,{\tt y}:{\tt T},{\tt x}:{\tt U}\vdash {\tt x}~\has~{\tt I}}
-  {\Gamma,{\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}\vdash {\tt x}~\has~{\tt I}}
+  {\wj{\Gamma}{\exty{\tt y}{\tt U}{\tt T}} \andalso
+    \Gamma,{\tt y}\ty{\tt T},{\tt x}\ty{\tt U}\vdash {\tt x}~\has~{\tt I}}
+  {\Gamma,{\tt x}\ty\exty{\tt y}{\tt T}{\tt U}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \caption{{\sf FXG} member lookup. {\tt I} ranges over members (fields and methods).}
 \label{fig:lookup2}
 \end{figure*}
-
 
 
 \begin{figure*}
@@ -382,129 +377,103 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXX}
 \infrule[T-Var]
   {\wj{\Gamma}{\tt T}}
-  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
+  {\Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}\ty{\tt T}\{\self=={\tt x}\}}
 \end{minipage}%
 \begin{minipage}{.25\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[T-Cast]
-	{\Gamma\vdash {\tt e}:{\tt T}\andalso\wj{\Gamma}{\tt G}}
-	{\Gamma\vdash {\tt e}~\as~{\tt G}:{\tt G}}
+	{\Gamma\vdash {\tt e}\ty{\tt T} \andalso \wj{\Gamma}{\tt G}}
+	{\Gamma\vdash {\tt e}~\as~{\tt G}\ty{\tt G}}
 \end{minipage}%
 \begin{minipage}{.45\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[T-Field]
-	{\Gamma\vdash {\tt e}:{\tt T} \andalso {\tt x}~{\rm fresh} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt f}:{\tt F}}
-	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt F}\{\self=={\tt x}.{\tt f}\}}
+	{\Gamma\vdash {\tt e}\ty{\tt T} \andalso
+	  {\tt x}~{\rm fresh} \andalso
+	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~{\tt f}\ty{\tt F}}
+	{\Gamma\vdash {\tt e}.{\tt f}\ty\exty{\tt x}{\tt T}{\tt F}\{\self=={\tt x}.{\tt f}\}}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[T-New]
-	{\Gamma\vdash\tbar{e}:\tbar{T} \andalso
-	  \Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F} \andalso 
+	{\Gamma\vdash\tbar{e}\ty\tbar{T} \andalso
+	  \Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso 
 	  {\tt y},\tbar{x}~{\rm fresh} \andalso 
-	  \Gamma,{\tt y}:{\tt C}[\tbar{A}],\tbar{x}:\tbar{T},{\sf inv}(\tbar{x}),{\tt y}.\tbar{f}==\tbar{x}\vdash\tbar{x}\subtype\tbar{F}[{\tt y}/\this],{\sf inv}({\tt y})}
-	{\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{e}):\exists\tbar{x}:\tbar{T}.~{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{x})\}}
+	  \Gamma,{\tt y}\ty{\tt C}[\tbar{A}],\tbar{x}\ty\tbar{T},{\sf inv}(\tbar{x}),{\tt y}.\tbar{f}==\tbar{x}\vdash\tbar{x}\subtype\tbar{F}[{\tt y}/\this],{\sf inv}({\tt y})}
+	{\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{e})\ty\exty{\tbar{x}}{\tbar{T}}{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{x})\}}
         
 \infrule[T-Invk]
-	{\Gamma\vdash {\tt e}:{\tt T},\tbar{a}:\tbar{U}  \andalso {\tt x},\tbar{y}~{\rm fresh} \andalso
-	  \Gamma,{\tt x}:{\tt T}\vdash {\tt
-          x}~\has~{\tt m}[\tbar{A}](\tbar{y}:\tbar{G})\{{\tt k}\}:{\tt H}={\tt b}\andalso \Gamma,{\tt x}:{\tt T},{\sf inv}({\tt x }),\tbar{y}:\tbar{U},{\sf inv}(\tbar{y})\vdash {\tt k},\tbar{y}\subtype\tbar{G}}
-	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{U}.~{\tt H}}
+	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
+	  {\tt x},\tbar{y}~{\rm fresh} \andalso
+	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~\minst{A}{y}{G}{k}{H}{b} \andalso
+	  \Gamma,{\tt x}\ty{\tt T},{\sf inv}({\tt x }),\tbar{y}\ty\tbar{U},{\sf inv}(\tbar{y})\vdash {\tt k},\tbar{y}\subtype\tbar{G}}
+	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \infrule[OK-Method]
-  {\cj{\tbar{X}:*,\tbar{Y}:*,\this:{\tt C}[\tbar{X}]}{\tt k} \andalso
-    \wj{\tbar{X}:*,\tbar{Y}:*,\this:{\tt C}[\tbar{X}],\tbar{x}:\tbar{G}}{\tbar{G}} \andalso
-    \wj{\tbar{X}:*,\tbar{Y}:*,\this:{\tt C}[\tbar{X}],\tbar{x}:\tbar{G}}{\tbar{H}} \\
-   \tbar{X}:*,\tbar{Y}:*,\this:{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}:\tbar{G},{\sf inv}(\tbar{x})\vdash {\tt e}:{\tt E}\\
-   {\tt y}~{\rm fresh} \andalso
-   \tbar{X}:*,\tbar{Y}:*,\this:{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}:\tbar{G},{\sf inv}(\tbar{x}),{\tt y}:{\tt E}\vdash {\tt y}\subtype {\tt H}}
-  {\vdash{\tt def}~{\tt m}[\tbar{Y}](\tbar{x}:\tbar{G})\{{\tt k}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+  {\wj{\tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],\tbar{x}\ty\tbar{G}}{{\tt k},\tbar{G},{\tt H}} \andalso
+    \tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}\ty\tbar{G},{\sf inv}(\tbar{x})\vdash {\tt e}\ty{\tt E}
+    \\
+    {\tt y}~{\rm fresh} \andalso
+    \tbar{X}\ty*,\tbar{Y}\ty*,\this\ty{\tt C}[\tbar{X}],{\sf inv}(\this),{\tt k},\tbar{x}\ty\tbar{G},{\sf inv}(\tbar{x}),{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
+  {\vdash\mdecl{Y}{x}{G}{k}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \infrule[OK-Class]
-  {\cj{\tbar{X}:*,\this:{\tt C}[\tbar{X}]}{{\tt k}} \andalso 
-  \wj{\tbar{X}:*,\this:{\tt C}[\tbar{X}]}{\tbar{F}}\andalso 
-  \wj{\tbar{X}:*,\this:{\tt C}[\tbar{X}]}{\tt D[\tbar{E}]}\andalso
-  \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
-  {\vdash {\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}~\rm OK}
+  {\wj{\tbar{X}\ty*}{{\tt k},{\tt D}[\tbar{E}]} \andalso 
+    \wj{\tbar{X}\ty*,\this\ty{\tt C}[\tbar{X}]}{\tbar{F}} \andalso
+    \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+  {\vdash \cdecl~\rm OK}
 \end{minipage}%
-\caption{{\sf FXG} typing rules. ${\sf inv}({\tt x})=\{{\tt l}~s.t~\exists {\tt C}[\tbar{A}],{\tt x}\subtype{\tt C}[\tbar{A}], {\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{F})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}~\in~{\tt P}, {\tt l}={\tt k}[\tbar{A}/\tbar{X}]\}$.}\label{fig:FX}
+\caption{{\sf FXG} typing rules.}\label{fig:FX}
 \end{figure*}
 
-\eat{
-\begin{figure*}
-\begin{minipage}{.4\textwidth}
-\quad\typicallabel{XXXXXX}
-\end{minipage}%
-\begin{minipage}{.6\textwidth}
-\quad\typicallabel{XXXXXX}
-\end{minipage}
-\eat{
-\begin{minipage}{\textwidth}
-\quad{}\typicallabel{XXXXXX}
-\infrule[X-Sel]
-  {\Gamma\vdash\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{F}
-  	\andalso
-  	\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{t}):{\tt U}
-  	\andalso
-  	\Gamma, \new~{\tt C}[\tbar{A}](\tbar{t}).\tbar{f}==\tbar{t}\vdash {\tt c}}
-  {\Gamma\vdash {\tt c}}
-\end{minipage}}
-\caption{{\sf FXG} constraint system}
-\label{fig:object}
-\end{figure*}
-}
 
 \begin{figure*}
 \vspace{-\bigskipamount}
 \begin{minipage}{.32\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Trans]
-	{\Gamma\vdash {\tt x}\subtype {\tt T}\andalso
-	\Gamma,{\tt y}:{\tt T}\vdash {\tt y}\subtype {\tt U}}
+	{\Gamma\vdash {\tt x}\subtype {\tt T} \andalso \Gamma,{\tt y}\ty{\tt T}\vdash {\tt y}\subtype {\tt U}}
 	{\Gamma\vdash {\tt x}\subtype {\tt U}}
 \end{minipage}%
 \begin{minipage}{.27\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Const-L]
 	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
-	{\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash{\tt x}\subtype {\tt T}}
+	{\Gamma,{\tt x}\ty{\tt T}\{{\tt c}\}\vdash{\tt x}\subtype {\tt T}}
 \end{minipage}%
 \begin{minipage}{.41\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso\Gamma\vdash {\tt c}[{\tt x}/\self],{\tt x}\subtype {\tt T}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma\vdash {\tt c}[{\tt x}/\self],{\tt x}\subtype {\tt T}}
 	{\Gamma\vdash{\tt x}\subtype {\tt T}\{{\tt c}\}}
 \end{minipage}%
 
 \begin{minipage}{.57\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Exists-L]
-  {\wj{\Gamma}{\exists{\tt x}:{\tt U}.~{\tt S}} \andalso
-  \Gamma,{\tt y}:{\tt U},{\tt x}:{\tt S}\vdash {\tt x}\subtype {\tt T} \andalso {\tt y}~\rm not~free~in~{\tt T}}
-  {\Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt S}\vdash{\tt x}\subtype {\tt T}}
+  {\wj{\Gamma}{\exty{\tt x}{\tt U}{\tt S}} \andalso
+    \Gamma,{\tt y}\ty{\tt U},{\tt x}\ty{\tt S}\vdash {\tt x}\subtype {\tt T} \andalso {\tt y}~\rm not~free~in~{\tt T}}
+  {\Gamma,{\tt x}\ty\exty{\tt y}{\tt U}{\tt S}\vdash{\tt x}\subtype {\tt T}}
 \end{minipage}%
 \begin{minipage}{.43\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Exists-R]
-  {\wj{\Gamma}{\exists{\tt x}:{\tt U}.~{\tt T}} \andalso
-  \Gamma\vdash {\tt t}:{\tt U},{\tt y}\subtype {\tt T}[{\tt t}/{\tt x}]}
-  {\Gamma\vdash {\tt y}\subtype\exists {\tt x}:{\tt U}.~{\tt T}}
+  {\wj{\Gamma}{\exty{\tt x}{\tt U}{\tt T}} \andalso
+    \Gamma\vdash {\tt t}\ty{\tt U},{\tt y}\subtype {\tt T}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash {\tt y}\subtype\exty{\tt x}{\tt U}{\tt T}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Class]
-  {{\tt class}~{\tt C}[\tbar{X}](\tbar{f}:\tbar{G})\{{\tt k}\}~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}\in {\tt P}\andalso
-  \wj{\Gamma}{{\tt C}[\tbar{A}]\andalso\wj{\Gamma}{{\tt D}[\tbar{E}[\tbar{A}/\tbar{X}]]}}}
-  {\Gamma,{\tt x}:{\tt C}[\tbar{A}]\vdash{\tt x}\subtype {\tt D}[\tbar{E}[\tbar{A}/\tbar{X}]]}      
+  {\cdecl\in {\tt P} \andalso
+    \theta=\tbar{A}/\tbar{X} \andalso
+    \wj{\Gamma}{{\tt C}[\tbar{A}],{\tt D}[\tbar{E}\theta]}}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}\subtype {\tt D}[\tbar{E}\theta]}      
 \end{minipage}%
 \caption{{\sf FXG} subtyping rules.}\label{fig:subtyping}
 \end{figure*}
-
-
-
-
 
 
 \begin{figure*}
@@ -514,13 +483,13 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \typicallabel{XXXXXX}
 \infrule[A-Sub]
 	{\Gamma\vdash {\tt G}\extends {\tt H}}
-	{\Gamma,{\tt x}:{\tt G}\vdash {\tt x}\subtype {\tt H}}
+	{\Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}\subtype {\tt H}}
 
 \infrule[A-Member]
 	{\Gamma\vdash {\tt G}\subtype{\tt H}
          \andalso
-         \Gamma,{\tt x}:{\tt H}\vdash {\tt x}~\has~{\tt I}}
-	{\Gamma,{\tt x}:{\tt G}\vdash {\tt x}~\has~{\tt I}}
+         \Gamma,{\tt x}\ty{\tt H}\vdash {\tt x}~\has~{\tt I}}
+	{\Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXXXX}
@@ -932,22 +901,22 @@ Assume ${\tt q}(tbar{e})$ is well typed then if all \tbar{e} are values progress
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[W-True]
-  {\cj{}{\tt true}}
+  {\wj{}{\tt true}}
 
 \infax[W-False]
-  {\cj{}{\tt false}}
+  {\wj{}{\tt false}}
 
 \infrule[W-Conj]
-	{\cj{\Gamma}{\tt c} \andalso 	\cj{\Gamma}{\tt d}}
-	{\cj{\Gamma}{{\tt c},{\tt d}}}
+	{\wj{\Gamma}{\tt c} \andalso 	\wj{\Gamma}{\tt d}}
+	{\wj{\Gamma}{{\tt c},{\tt d}}}
 
 \infrule[W-Eq]
 	{}
-	{\cj{\Gamma}{\tt t}=={\tt u}}
+	{\wj{\Gamma}{\tt t}=={\tt u}}
 
 \infrule[W-Dep]
-  {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma, {\tt x}:{\tt T}}{\tt c}}
-	{\cj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt c}}}
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma, {\tt x}:{\tt T}}{\tt c}}
+	{\wj{\Gamma}{\exists {\tt x}:{\tt T}.~{\tt c}}}
 \end{minipage}
 \caption{{\sf FXG} well-formed constraints}
 \label{fig:well}
@@ -962,15 +931,15 @@ Assume ${\tt q}(tbar{e})$ is well typed then if all \tbar{e} are values progress
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[W-Var]
-  {\ttj{{\tt x}:{\tt T}}{\tt x}}
+  {\wj{{\tt x}:{\tt T}}{\tt x}}
 
 \infrule[W-Field]
-	{\ttj{\Gamma}{\tt t}}
-	{\ttj{\Gamma}{{\tt t}.{\tt f}}}
+	{\wj{\Gamma}{\tt t}}
+	{\wj{\Gamma}{{\tt t}.{\tt f}}}
 
 \infrule[W-New]
-	{\ttj{\Gamma}{\tbar{t}} \andalso \wj{\Gamma}{\tbar{G}}}
-	{\ttj{\Gamma}{\new~{\tt C}[\tbar{G}](\tbar{t})}}
+	{\wj{\Gamma}{\tbar{t}} \andalso \wj{\Gamma}{\tbar{G}}}
+	{\wj{\Gamma}{\new~{\tt C}[\tbar{G}](\tbar{t})}}
 \end{minipage}
 \caption{{\sf FXG} well-formed constraint terms}
 \label{fig:well}
