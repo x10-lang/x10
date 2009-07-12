@@ -127,18 +127,17 @@ The judgments of interest are as follows:
 	  $\wj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed\\
 	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed
 	\item Member lookup:\\
-	  $\fields({\tt C})=\tbar{f}:\tbar{T}$ \hfill class {\tt C} has fields \tbar{f} of type \tbar{T}\\
-	  $\Gamma\vdash {\tt C}~\has~{\tt I}$ \hfill class {\tt C} has member {\tt I}\\
-	  $\Gamma\vdash {\tt x}~\underline\has~{\tt I}$ \hfill variable {\tt x} has member {\tt I}\\
-	  $~$ \hfill where ${\tt I}::= {\tt f}:{\tt T} \alt {\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}$
+\eat{	  $\fields({\tt C})=\tbar{f}:\tbar{T}$ \hfill class {\tt C} has fields \tbar{f} of type \tbar{T}\\}
+	  $\Gamma\vdash {\tt x}~\has~{\tt I}$ \hfill variable {\tt x} has member {\tt I}\\
+	  $~$ \hfill where ${\tt I}::= {\tt f}:{\tt G} \alt {\tt m}[\tbar{B}](\tbar{x}:\tbar{G})\{{\tt c}\}:{\tt H}={\tt e}$
 	\item Constraints:\\
 	  $\Gamma\vdash {\tt c}$ \hfill constraint {\tt c} holds
 	\item Typing:\\
-	  $\Gamma\vdash {\tt e}:{\tt T}$ \hfill expression {\tt e} has type {\tt T}\\
-	  $\vdash {\tt def}~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}~{\rm OK~in}~{\tt C}$ \\ $~$ \hfill method {\tt m} in class {\tt C} type checks\\
-	  $\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~{\rm OK}$ \\ $~$ \hfill class {\tt C} type checks
+	  $\Gamma\vdash {\tt e}\ty{\tt T}$ \hfill expression {\tt e} has type {\tt T}\\
+	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}:\tbar{G})\{{\tt c}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
+	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
 	\item Subtyping:\\
-	  $\Gamma \vdash {\tt S} \subtype {\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
+	  $\Gamma,{\tt x\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
 \end{enumerate}
 
 \medskip
@@ -177,7 +176,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   (Expression)& {\tt a}, {\tt b}, {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C[\tbar{G}](\tbar{e})$ \alt $\tt e.m[\tbar{G}](\tbar{e})$ \alt $\tt e~\as~G$ \\
   (Constraint term) & {\tt t}, {\tt u} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C[\tbar{G}](\tbar{t})$ \\
   (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\false$ \alt $\tt c,c$ \alt $\tt t==t$ \\
-  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{T}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
+  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
   (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{c\}$ \alt $\tt X$ \\
   (Value)& {\tt v}, {\tt w} &{::=}& $\tt\new~C[\tbar{G}](\tbar{v})$ where \tbar{G} contains no type variables \\
 \end{tabular}\medskip
@@ -343,8 +342,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[X-Sel]
-  {\fields({\tt C}[\tbar{X}])=\tbar{f}\ty\tbar{F}}
-  {\sigma(\Gamma)\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
+  {\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
+  {\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
 \end{minipage}%
 \caption{{\sf FXG} object constraint system.}
 \label{fig:object}
@@ -532,14 +531,16 @@ projection}, $\sigma(\Gamma)$ as follows.
 \begin{center}
 \begin{tabular}{l}
 $\sigma(\epsilon)={\tt true}$\\
-$\sigma({\tt x}:{\tt C}, \Gamma)=\sigma(\Gamma)$\\
-$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma({\tt x}:{\tt T},\Gamma)$\\
-$\sigma({\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}, \Gamma)=\sigma({\tt z:T}, {\tt x}:{\tt U[{\tt z}/{\tt y}]},\Gamma)$\\
-$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
+$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$\\
+$\sigma({\tt X}\ty*, \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}\ty{\tt C}[\tbar{A}], \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}\ty{\tt X}, \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}\ty{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma({\tt x}\ty{\tt T},\Gamma)$\\
+$\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\tt T}, {\tt x}\ty{\tt U}[{\tt z}/{\tt y}],\Gamma)$\\
 \end{tabular}
 \end{center}
 %
-Above, in the fourth rule, 
+Above, in the last rule, 
 we assume that alpha-equivalence is used to
 choose a variable {\tt z} that does not
 occur in the context under construction.
