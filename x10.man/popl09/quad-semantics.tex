@@ -1,6 +1,6 @@
 \newcommand\wj[2]{{#1} \vdash_{\cal W}{#2}}
 \newcommand\vdashL{\vdash_{\cal L}}
-\newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt k}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
+\newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt c}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
 \newcommand\minst[6]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
 
@@ -173,14 +173,13 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Program) & {\tt P} &{::=}& $\tbar{L}$ \\
-  (Class declaration) & {\tt L} &{::=}& $ \tt class~C[\tbar{X}]\{k\}(\tbar{f}\ty\tbar{G})~extends~D[\tbar{G}]~\{~\tbar{M}~\}$ \\
-  (Method declaration)& {\tt M} &{::=}& $\tt \mdecl{X}{x}{G}{k}{G}{e};$ \\
+  (Class declaration) & {\tt L} &{::=}& $ \tt class~C[\tbar{X}]\{c\}(\tbar{f}\ty\tbar{G})~extends~D[\tbar{G}]~\{~\tbar{M}~\}$ \\
+  (Method declaration)& {\tt M} &{::=}& $\tt \mdecl{X}{x}{G}{c}{G}{e};$ \\
   (Expression)& {\tt a}, {\tt b}, {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C[\tbar{G}](\tbar{e})$ \alt $\tt e.m[\tbar{G}](\tbar{e})$ \alt $\tt e~\as~G$ \\
   (Constraint term) & {\tt t}, {\tt u} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C[\tbar{G}](\tbar{t})$ \\
-  (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\tt false$ \alt $\tt c,c$ \alt $\tt t==t$ \alt $\tt \exists x\ty T.~c$ \\
+  (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\false$ \alt $\tt c,c$ \alt $\tt t==t$ \\
   (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{T}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
-  (User constraint)& {\tt k}, {\tt l} &{::=}& $\true$ \alt $\tt k,k$ \alt $\tt t==t$ \\
-  (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{k\}$ \alt $\tt X$ \\
+  (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{c\}$ \alt $\tt X$ \\
   (Value)& {\tt v}, {\tt w} &{::=}& $\tt\new~C[\tbar{G}](\tbar{v})$ where \tbar{G} contains no type variables \\
 \end{tabular}\medskip
 
@@ -215,13 +214,13 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\wj{\Gamma}{\tt t}}
 	{\wj{\Gamma}{{\tt t}.{\tt f}}}
 
-\infrule[W-Conj]
+\infrule[W-And]
 	{\wj{\Gamma}{\tt c} \andalso \wj{\Gamma}{\tt d}}
 	{\wj{\Gamma}{{\tt c},{\tt d}}}
 
-\infrule[W-Const]
-  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}\ty{\tt T}}{\tt c}}
-	{\wj{\Gamma}{\exty{\tt x}{\tt T}{\tt c}}}
+\infrule[W-Dep]
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,\self\ty{\tt T}}{\tt c}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
 \end{minipage}%
 \begin{minipage}{.38\textwidth}
 \quad\typicallabel{XXXX}
@@ -238,22 +237,15 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\wj{\Gamma}{\exty{\tt x}{\tt T}{\tt U}}}
 \end{minipage}%
 
-\begin{minipage}{.62\textwidth}
-\quad\typicallabel{XXXX}
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[W-Class]
-  {\cdecl\in{\tt P}
-    \\
+  {\cdecl\in{\tt P} \andalso
     \wj{\Gamma}{\tbar{A}} \andalso
-    \wj{\tbar{X}\ty*}{{\tt k}} \andalso 
+    \wj{\tbar{X}\ty*}{{\tt c}} \andalso 
     \theta=\tbar{A}/\tbar{X} \andalso
-    \sigma(\Gamma)\vdashX{\tt k}\theta}
+    \sigma(\Gamma)\vdashX{\tt c}\theta}
   {\wj{\Gamma}{\tt C}[\tbar{A}]}
-\end{minipage}%
-\begin{minipage}{.38\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[W-Dep]
-  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,\self\ty{\tt T}}{\tt c}}
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
 \end{minipage}%
 \caption{{\sf FXG} well-formedness.}
 \label{fig:well}
@@ -266,10 +258,10 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXXXX}
 \infrule[L-Method-B]
   {\cdecl\in{\tt P} \andalso
-    \mdecl{Y}{x}{G}{l}{H}{e}\in\tbar{M} \andalso
+    \mdecl{Y}{x}{G}{d}{H}{e}\in\tbar{M} \andalso
     \wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
     \theta=\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}}
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G\theta}{l\theta}{H\theta}{e\theta}}
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G\theta}{d\theta}{H\theta}{e\theta}}
 \end{minipage}%
 
 \begin{minipage}{.3\textwidth}
@@ -284,9 +276,9 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
     \wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso
     \theta=\tbar{A}/\tbar{X}
     \\
-    \Gamma\vdashL\methods({\tt D}[\tbar{E}\theta])\ni\minst{B}{x}{G}{l}{H}{e} \andalso
+    \Gamma\vdashL\methods({\tt D}[\tbar{E}\theta])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
     {\tt m}\not\in\tbar{M}}
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{l}{H}{e}}
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
@@ -330,7 +322,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}_i,\ldots,{\tt e}_n)\derives\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
 
 \infrule[\RInvk]
-	{\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{l}{H}{e} \andalso
+	{\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
 	\theta=\new~{\tt C}[\tbar{A}](\tbar{v}),\tbar{w}/\this,\tbar{x}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt m}[\tbar{B}](\tbar{w})\derives {\tt e}\theta}
 
@@ -362,9 +354,9 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.59\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[H-Method]
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{l}{H}{e} \andalso
+  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{d}{H}{e} \andalso
     \theta={\tt x}/\this}
-  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{l\theta}{H\theta}{e\theta}}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{d\theta}{H\theta}{e\theta}}
 
 \infrule[H-Exists]
   {\wj{\Gamma}{\exty{\tt y}{\tt U}{\tt T}} \andalso
@@ -412,22 +404,22 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \infrule[T-Invk]
 	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
 	  {\tt x},\tbar{y}~{\rm fresh} \andalso
-	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~\minst{A}{y}{G}{k}{H}{b} \andalso
-	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty\tbar{U}\vdash {\tt k},\tbar{y}\subtype\tbar{G}}
+	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~\minst{A}{y}{G}{c}{H}{b} \andalso
+	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty\tbar{U}\vdash {\tt c},\tbar{y}\subtype\tbar{G}}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \infrule[OK-Method]
   {\cdecl \andalso
-    \wj{\tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G}}{{\tt l},\tbar{G},{\tt H}} \\
-    \tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt l}\vdash {\tt e}\ty{\tt E} \andalso
+    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G}}{{\tt d},\tbar{G},{\tt H}} \\
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
     {\tt y}~{\rm fresh} \andalso
-    \tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt l},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
-  {\vdash\mdecl{Y}{x}{G}{l}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
+  {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \infrule[OK-Class]
-  {\wj{\tbar{X}\ty*}{{\tt k}} \andalso 
-    \wj{\tbar{X}\ty*,{\tt k}}{{\tt D}[\tbar{E}]} \andalso 
-    \wj{\tbar{X}\ty*,{\tt k},\this\ty{\tt C}[\tbar{X}]}{\tbar{F}} \andalso
+  {\wj{\tbar{X}\ty*}{{\tt c}} \andalso 
+    \wj{\tbar{X}\ty*,{\tt c}}{{\tt D}[\tbar{E}]} \andalso 
+    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}]}{\tbar{F}} \andalso
     \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
   {\vdash \cdecl~\rm OK}
 \end{minipage}%
@@ -502,7 +494,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXXXX}
 \centering \begin{tabular}{r@{\quad}rcl}
   (Constraint) & {\tt c} &{::=}& $\tt G==G$ \alt $\tt G\extends G$ \\
-  (User constraint)& {\tt k}, {\tt l} &{::=}& $\tt G==G$ \alt $\tt G\extends G$ \\
+  (User constraint)& {\tt c}, {\tt d} &{::=}& $\tt G==G$ \alt $\tt G\extends G$ \\
 \end{tabular}
 
 \infrule[A-Inc]
@@ -610,14 +602,14 @@ Turning \FXZ{} into a language with value-dependent types is straightforward
 since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$, and constraint propagation is already built into the typing rules.
 
 First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$.
+predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt d}$.
 
 Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt T} &{::=}& {\tt A} \\
   (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
-  (Values) & {\tt v} &{::=}& ${\tt l}$ \\
+  (Values) & {\tt v} &{::=}& ${\tt d}$ \\
   (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
@@ -630,8 +622,8 @@ The following rules are needed to type functions and literals:
 	{\Gamma\vdash{{\tt q}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt q}(\tbar{x})\}}}
 
 \infrule[T-Lit]
-	{{\tt l}{\rm~has~type~{\tt A} {\rm~in~}\mathcal{A}}} 
-	{\Gamma\vdash{{\tt l}:{\tt A}\{\self=={\tt l}\}}}
+	{{\tt d}{\rm~has~type~{\tt A} {\rm~in~}\mathcal{A}}} 
+	{\Gamma\vdash{{\tt d}:{\tt A}\{\self=={\tt d}\}}}
 
 We extend the operational semantics with rules:
 \infrule[RC-Fun]
@@ -811,7 +803,7 @@ The following results hold for \FXGD supposing the program {\tt P} type checks.
 for some type {\tt S}, $\Gamma \vdash {\tt {\tt e}':{\tt S}},~{\tt S} \subtype {\tt T}$.
 \end{theorem}
 
-Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt l} \alt C\{c\}$.
+Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt d} \alt C\{c\}$.
 
 \begin{theorem}[Progress]
 If $\vdash {\tt e:T}$ then one of the following conditions holds:
@@ -874,7 +866,7 @@ that is a subtype of {\tt T}.
 \item Progress. \FXGD{} only differs from \FXD{} in that it
 admits a new kind of expressions: {\tt C}\{{\tt c}\}. But these are also values, so the proof of progress is essentially unchanged.
 \eat{
- {\tt l} ~$|$~ {\tt q}(\tbar{e}) ~$|$~ {\tt C}\{{\tt c}\}.
+ {\tt d} ~$|$~ {\tt q}(\tbar{e}) ~$|$~ {\tt C}\{{\tt c}\}.
 Both literals and class types are values, we just have to establish progress in the case of function calls (in the context of a proof by induction on the structure of the expression {\tt e}).
 Assume ${\tt q}(tbar{e})$ is well typed then if all \tbar{e} are values progress is possible by rule {\sc R-Fun}. If not, then at leat one of the expressions is not a value and by induction hypothesis applied to this expression we can conclude that it is either stuck on a cast or can make a step of execution step. We conclude using rule {\sc RC-Fun} in the second case.}
 \item{Type soundness}. Direct consequence of the previous two theorems.
