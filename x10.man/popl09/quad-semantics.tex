@@ -137,7 +137,7 @@ The judgments of interest are as follows:
 	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}:\tbar{G})\{{\tt c}\}:{\tt H}={\tt e}~{\rm OK~in}~{\tt C}$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
 	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
 	\item Subtyping:\\
-	  $\Gamma,{\tt x\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
+	  $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
 \end{enumerate}
 
 \medskip
@@ -294,7 +294,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	{\wj{\Gamma}{{\tt t}.{\tt f}}}
 
 \infrule[W-And]
-	{\wj{\Gamma}{\tt c} \andalso \wj{\Gamma}{\tt d}}
+	{\wj{\Gamma}{\tt c} \andalso \wj{\Gamma,{\tt c}}{\tt d}}
 	{\wj{\Gamma}{{\tt c},{\tt d}}}
 
 \infrule[W-Dep]
@@ -425,9 +425,22 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty\tbar{U}\vdash {\tt c},\tbar{y}\subtype\tbar{G}}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
+\eat{
 \infrule[OK-Method]
   {\cdecl \andalso
-    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G}}{{\tt d},\tbar{G},{\tt H}} \\
+    {\tt d}={\tt k},{\tt l} \andalso
+    \wj{\tbar{X}\ty*,{\tt c},\tbar{Y}\ty*}{{\tt k}} \\
+    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,{\tt k},\tbar{x}\ty\tbar{G}}{\tbar{G},{\tt l}} \andalso
+    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}}{{\tt H}} \\
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
+    {\tt y}~{\rm fresh} \andalso
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
+  {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+}
+
+\infrule[OK-Method]
+  {\cdecl \andalso
+    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}}{{\tt d},\tbar{G},{\tt H}} \\
     \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
     {\tt y}~{\rm fresh} \andalso
     \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
