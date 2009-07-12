@@ -1,5 +1,4 @@
 \newcommand\wj[2]{{#1} \vdash_{\cal W}{#2}}
-\newcommand\vdashL{\vdash_{\cal L}}
 \newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt c}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
 \newcommand\minst[6]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
@@ -191,6 +190,87 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \begin{figure*}
 \vspace{-\bigskipamount}
+\begin{minipage}{.27\textwidth}
+\quad\typicallabel{XXXXXX}
+\infax[L-Fields-B]
+  {\fields({\tt Object})=\bullet}
+\end{minipage}%
+\begin{minipage}{.73\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Fields-I]
+  {\cdecl\in{\tt P} \andalso
+    \theta=\tbar{A}/\tbar{X} \andalso
+    \fields({\tt D}[\tbar{E}\theta])=\tbar{g}\ty\tbar{G}}
+  {\fields({\tt C}[\tbar{A}])=\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F}\theta}
+\end{minipage}%
+
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Method-B]
+  {\cdecl\in{\tt P} \andalso
+    \mdecl{Y}{x}{G}{d}{H}{e}\in\tbar{M} \andalso
+    \theta=\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}}
+  {\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G\theta}{d\theta}{H\theta}{e\theta}}
+
+\infrule[L-Method-I]
+  {\cdecl\in{\tt P} \andalso
+    \theta=\tbar{A}/\tbar{X}
+    \andalso
+    \methods({\tt D}[\tbar{E}\theta])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
+    {\tt m}\not\in\tbar{M}}
+  {\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e}}
+\end{minipage}%
+\caption{{\sf FXG} fields and methods.}
+\label{fig:lookup}
+\end{figure*}
+
+
+\begin{figure*}
+\vspace{-\bigskipamount}
+\begin{minipage}{.33\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[\RField]
+	{\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
+	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt f}_i \derives {\tt v}_i}
+
+\infrule[\RCField]
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}.{\tt f}\derives {\tt e}'.{\tt f}}
+
+\infrule[\RCInvkRecv]
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}.{\tt m}(\tbar{a})\derives {\tt e}'.{\tt m}(\tbar{a})}
+
+\infrule[\RCCast]
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}~\as~{\tt G}\derives {\tt e}'~\as~{\tt G}}
+\end{minipage}%
+\begin{minipage}{.67\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[\RCNewArg]
+	{{\tt e}_i\derives {\tt e}'_i}
+	{\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}_i,\ldots,{\tt e}_n)\derives\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
+
+\infrule[\RInvk]
+	{\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
+	\theta=\new~{\tt C}[\tbar{A}](\tbar{v}),\tbar{w}/\this,\tbar{x}}
+	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt m}[\tbar{B}](\tbar{w})\derives {\tt e}\theta}
+
+\infrule[\RCInvkArg]
+	{{\tt a}_i\derives {\tt a}'_i}
+	{{\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}_i,\ldots,{\tt a}_n)\derives {\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}'_i,\ldots,{\tt a}_n)}
+
+\infrule[\RCast]
+	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
+	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
+\end{minipage}
+\caption{{\sf FXG} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
+\label{fig:sos}
+\end{figure*}
+
+
+\begin{figure*}
+\vspace{-\bigskipamount}
 \begin{minipage}{.24\textwidth}
 \quad\typicallabel{XXXX}
 \infax[W-Var]
@@ -254,110 +334,47 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \begin{figure*}
 \vspace{-\bigskipamount}
-\begin{minipage}{\textwidth}
+\begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[L-Method-B]
-  {\cdecl\in{\tt P} \andalso
-    \mdecl{Y}{x}{G}{d}{H}{e}\in\tbar{M} \andalso
-    \wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
-    \theta=\tbar{A},\tbar{B}/\tbar{X},\tbar{Y}}
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G\theta}{d\theta}{H\theta}{e\theta}}
+\infrule[X-Proj]
+  {\sigma(\Gamma)\vdashX c}
+  {\Gamma\vdash c}
 \end{minipage}%
-
-\begin{minipage}{.3\textwidth}
+\begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infax[L-Fields-B]
-  {\vdashL\fields({\tt Object})=\bullet}
+\infrule[X-Sel]
+  {\fields({\tt C}[\tbar{X}])=\tbar{f}\ty\tbar{F}}
+  {\sigma(\Gamma)\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
 \end{minipage}%
-\begin{minipage}{.7\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[L-Method-I]
-  {\cdecl\in{\tt P} \andalso
-    \wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso
-    \theta=\tbar{A}/\tbar{X}
-    \\
-    \Gamma\vdashL\methods({\tt D}[\tbar{E}\theta])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
-    {\tt m}\not\in\tbar{M}}
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e}}
-\end{minipage}%
-
-\begin{minipage}{\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[L-Fields-I]
-  {\cdecl\in{\tt P} \andalso
-    \wj{\Gamma}{\tbar{C}[\tbar{A}]} \andalso
-    \theta=\tbar{A}/\tbar{X} \andalso
-    \Gamma\vdashL\fields({\tt D}[\tbar{E}\theta])=\tbar{g}\ty\tbar{G}}
-  {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F}\theta}
-\end{minipage}%
-\caption{{\sf FXG} fields and methods.}
-\label{fig:lookup}
+\caption{{\sf FXG} object constraint system.}
+\label{fig:object}
 \end{figure*}
 
 
 \begin{figure*}
 \vspace{-\bigskipamount}
-\begin{minipage}{.33\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[\RField]
-	{\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
-	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt f}_i \derives {\tt v}_i}
-
-\infrule[\RCField]
-	{{\tt e}\derives {\tt e}'}
-	{{\tt e}.{\tt f}\derives {\tt e}'.{\tt f}}
-
-\infrule[\RCInvkRecv]
-	{{\tt e}\derives {\tt e}'}
-	{{\tt e}.{\tt m}(\tbar{a})\derives {\tt e}'.{\tt m}(\tbar{a})}
-
-\infrule[\RCCast]
-	{{\tt e}\derives {\tt e}'}
-	{{\tt e}~\as~{\tt G}\derives {\tt e}'~\as~{\tt G}}
-\end{minipage}%
-\begin{minipage}{.67\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[\RCNewArg]
-	{{\tt e}_i\derives {\tt e}'_i}
-	{\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}_i,\ldots,{\tt e}_n)\derives\new~{\tt C}[\tbar{A}]({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
-
-\infrule[\RInvk]
-	{\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e} \andalso
-	\theta=\new~{\tt C}[\tbar{A}](\tbar{v}),\tbar{w}/\this,\tbar{x}}
-	{\new~{\tt C}[\tbar{A}](\tbar{v}).{\tt m}[\tbar{B}](\tbar{w})\derives {\tt e}\theta}
-
-\infrule[\RCInvkArg]
-	{{\tt a}_i\derives {\tt a}'_i}
-	{{\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}_i,\ldots,{\tt a}_n)\derives {\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}'_i,\ldots,{\tt a}_n)}
-
-\infrule[\RCast]
-	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
-	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
-\end{minipage}
-\caption{{\sf FXG} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
-\label{fig:sos}
-\end{figure*}
-
-
-\begin{figure*}
-\vspace{-\bigskipamount}
-\begin{minipage}{.41\textwidth}
+\begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[H-Field]
-  {\Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso \theta={\tt x}/\this}
+  {\wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso
+    \fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso \theta={\tt x}/\this}
   {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~{\tt f}_i\ty{\tt F}_i\theta}
 
+\infrule[H-Method]
+  {\wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
+    \methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{d}{H}{e} \andalso
+    \theta={\tt x}/\this}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{d\theta}{H\theta}{e\theta}}
+\end{minipage}%
+
+\begin{minipage}{.41\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[H-Dep]
   {\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma,{\tt x}\ty{\tt T},{\tt c}\vdash {\tt x}~\has~{\tt I}}
   {\Gamma,{\tt x}\ty{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \begin{minipage}{.59\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[H-Method]
-  {\Gamma\vdashL\methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{d}{H}{e} \andalso
-    \theta={\tt x}/\this}
-  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{d\theta}{H\theta}{e\theta}}
-
 \infrule[H-Exists]
   {\wj{\Gamma}{\exty{\tt y}{\tt U}{\tt T}} \andalso
     \Gamma,{\tt y}\ty{\tt T},{\tt x}\ty{\tt U}\vdash {\tt x}~\has~{\tt I}}
@@ -395,7 +412,8 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \quad\typicallabel{XXXXXX}
 \infrule[T-New]
 	{\Gamma\vdash\tbar{e}\ty\tbar{T} \andalso
-	  \Gamma\vdashL\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso 
+	  \wj{\Gamma}{{\tt C}[\tbar{A}]} \andalso
+	  \fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F} \andalso 
 	  {\tt y},\tbar{x}~{\rm fresh} \andalso 
 	  \theta={\tt y}/\this \andalso
 	  \Gamma,{\tt y}\ty{\tt C}[\tbar{A}],\tbar{x}\ty\tbar{T},{\tt y}.\tbar{f}==\tbar{x}\vdash\tbar{x}\subtype\tbar{F}\theta}
