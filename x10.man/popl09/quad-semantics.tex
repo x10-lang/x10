@@ -15,7 +15,7 @@ We now describe the semantics of languages in the \FXGL{L} family. We start with
 We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. Finally, we characterize the family itself and state and prove the soundness of its type system.
 
 Following \FJ, our formalism does not account for mutations. Proving soundness for an imperative calculus is beyond the scope of this paper.
-For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariant may constrain the type parameters but not the fields of the class. \Xten does not support constraint-sensitive overloading.}
+For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariants we model may constrain the type parameters but not the fields of the class. \Xten does not support constraint-driven overloading.}
 
 
 
@@ -30,8 +30,9 @@ Each class has a default constructor. Class $\tt C$ has constructor
 $\tt def~this[\tbar{X}](\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F})~\{~super(\tbar{g});~property(\tbar{f});~\}$ if $\tt C$ is declared as
 $\cdecl$ and its superclass $\tt D$ has fields $\tbar{g}\ty\tbar{G}$. $\Object$ has a nullary constructor.
 
-
 Methods are introduced with the {\tt def} keyword. A method has both type parameters {\tbar{X}} and value parameters {\tbar{x}}. The method guard {\tt c} is to be thought of as an additional condition that must be satisfied by the receiver and the actual type and value arguments of the method call. We do not consider method overloading: we assume each class declares at most one method with name {\tt m}.
+
+Square brackets may be dropped in the absence of type parameters, as well as \true{} constraints and the surrounding curly braces.
 
 The body of a method is an expression {\tt e}. It is built from the value parameters {\tt x} of the method (including the receiver {\tt this}), field access expressions, constructor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
 
@@ -89,9 +90,19 @@ A program is well typed iff all its classes are. We now describe in more detail 
 
 
 \paragraph{1. Constraints.}
-Each language in the \FXGL{L} family is defined over a given untyped input constraint system $\mathcal{X}$ that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, conjunction of constraints, and equality on constraint terms in the \FXGL{\cdot} case. It must also satisfy the inference rule {\sc X-Sel} of Figure~\ref{fig:object}.\footnote{Formally, we consider a constraint system generator $\mathcal{X}$ that given a program {\tt P} produces a constraint system $\mathcal{X}_{\tt P}$ that satisfies {\sc X-Sel}.} Judgments in $\cal X$ are of the form $\tbar{c} \vdashX {\tt d}$.
+Each language in the \FXGL{L} family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{\cdot}.
 
-We define the {\em constraint projection}, $\sigma(\Gamma)$ as follows.
+Formally, $\cal X$ %has nullary predicates $\true$ and $\false$, a 2-ary conjunction predicate over constraints, a 2-ary equality predicate over terms. Moreover, $\cal X$ 
+has variable symbols $\tt x$, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$.
+
+Equality is to be understood as structural equality over terms. In particular, $\new~{\tt C}[\tbar{G}](\tbar{v})==\new~{\tt C}[\tbar{G}](\tbar{w})$ holds iff $\tbar{v}==\tbar{w}$.
+
+$\cal X$ permits judgments of the form $\tbar{c} \vdashX {\tt d}$.
+
+$\cal X$ must also satisfy\footnote{Formally, we consider a constraint system generator $\mathcal{X}$ that given a program {\tt P} produces a constraint system $\mathcal{X}_{\tt P}$ that satisfies {\sc X-Sel}.} the inference rules {\sc X-Sel} and {\sc X-False}\footnote{{\tt X-False} is intended as an example of how to reason in $\cal X$ about unsatisfiable constraints on objects. It is nowhere near complete. For instance, ${\tt t}=={\tt t}.{\tt f}$ cannot be satisfied by any value, but is not inconsistent. As a consequence, it is impossible to make the type system reject all programs declaring empty types. Such incompleteness however does not matter to the soundness of the type system.} of Figure~\ref{fig:object}  
+where ${\tt C}[\tbar{A}]\neq {\tt D}[\tbar{B}]$ is to be interpreted as syntactic equality.
+
+In order to access the constraint system from the type system, we define the {\em constraint projection} $\sigma(\Gamma)$ that, in essence, strips out all type information from the $\Gamma$.
 %
 \begin{center}
 \begin{tabular}{ll}
@@ -107,17 +118,15 @@ $\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\t
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
-By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash c$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{\cdot}, there is no other way to prove entailment.
+By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{\cdot}, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
-In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used.
-
-Inconsistency may arise because $\cal X$ itself defines inconsistent constraints, e.g., ``2==3'' for arithmetic constraints. In the sequel, we will also permit type system extensions to mark contexts as inconsistent. For instance, {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} is inconsistent if both class {\tt C} and {\tt D} extend {\Object}.
+In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} if both class {\tt C} and {\tt D} extend {\Object}.
 
 
-\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and $\Gamma$ entails the guards of all the instances of generic classes in $\alpha$. Notice this depends on $\cal X$ but not on any typing judgments. For \FXGL{\cdot} the later condition is a tautology.
+\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and all instances of generic classes in $\alpha$ satisfy the guards. Notice this depends on $\cal X$ but not on any typing judgments. For \FXGL{\cdot} the later condition is a tautology.
 
-By design of the type system, if the program {\tt P} type checks then all the constraints and types in {\tt P} are well formed in their respective contexts.
+By design, if the program {\tt P} is well typed then all the constraints and types in {\tt P} are well formed in their respective contexts.
 
 \begin{figure*}
 \centering
@@ -218,14 +227,20 @@ By design of the type system, if the program {\tt P} type checks then all the co
 
 \begin{figure*}
 \vspace{-\bigskipamount}
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
+\begin{minipage}{.3\textwidth}
+\quad\typicallabel{XXXX}
 \infrule[X-Sel]
   {\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
   {\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
+\quad\typicallabel{XXXX}
+\infrule[X-False]
+  {{\tt C}[\tbar{A}]\neq{\tt D}[\tbar{B}]}
+  {\new~{\tt C}[\tbar{A}](\tbar{t})==\new~{\tt D}[\tbar{B}](\tbar{u})\vdashX \false}
+\end{minipage}%
+\begin{minipage}{.2\textwidth}
+\quad\typicallabel{XXXX}
 \infrule[X-Proj]
   {\sigma(\Gamma)\vdashX c}
   {\Gamma\vdash c}
@@ -622,10 +637,10 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \end{figure*}
 
 
-\paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. This will change when we start considering constraints on type parameters.
+\paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. Constraints on type parameters will change that.
 
 \paragraph{4. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
-Because we deal with dependent and existential types, we choose a somewhat unconventional notation for the subtyping relation that enables more compact inference rules. Rather than judgments of the form $\Gamma\vdash{\tt S}\subtype{\tt T}$, we consider judgments of the form $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ which permit {\tt T} to depend on {\tt x}, hence make codependent types easier to work with. In fact, one could define classical subtyping as the following:
+Because we deal with dependent and existential types, we choose a somewhat unconventional notation for the subtyping relation that makes formal developments less verbose. Rather than judgments of the form $\Gamma\vdash{\tt S}\subtype{\tt T}$, we consider judgments of the form $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ which permit {\tt T} to depend on {\tt x}, hence make codependent types easier to work with. In fact, one could define classical subtyping as the following:
 \infrule
 	{\wj{\Gamma}{\tt S} \andalso \Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T} \andalso {\tt x}~\rm not~free~in~{\tt T}}
 	{\Gamma\vdash{\tt S}\subtype{\tt T}}
@@ -638,11 +653,14 @@ or derive our relation from subtyping:
 
 {\sc T-Var} is as expected, except that it asserts the constraint {\tt
 self==x}, which records that any value of this type is known
-statically to be equal to {\tt x}. This constraint is actually very
-crucial. As we will see later, a key condition of the soundness of 
-this type system is that constraint terms have singleton types, that is, the
-type system retains enough information in the type of a term to permit
-reconstructing the term from its type.
+statically to be equal to {\tt x}. It makes it possible to type methods
+calls that expect two parameters to be equal for instance.
+
+%This constraint is actually very
+%crucial. As we will see later, a key condition of the soundness of 
+%this type system is that constraint terms have singleton types, that is, the
+%type system retains enough information in the type of a term to permit
+%reconstructing the term from its type.
 
 \eat{---as we shall see in the other rules, once we establish that
 an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
@@ -673,12 +691,12 @@ Hence, we can assert that ${\tt e}.{\tt f}$ has type
 $\exty{\tt x}{\tt T}{\tt F}\{\self=={\tt x}.{\tt f}\}$.
 
 {\sc T-New} and {\sc T-Invk} have a similar structure to {\sc T-Field}: we use
-proxy reasoning for the arguments of the construtor call or for the receiver and the arguments of the method
+proxy reasoning for the arguments of the constructor call or for the receiver and the arguments of the method
 call.
 
-Fields cannot be overriden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyset$ in rule {\sc OK-Class}. The {\sc O-Method} rule formalizes method overriding. A method $m1$ may be overriden by a method $m2$ with the same name, type parameters (modulo alpha-renaming), value parameters (modulo alpha-renaming), and value parameter types provided method $m2$ has a return type that is a subtype of $m1$'s return type and $m1$'s guard entails $m2$'s. Rule {\sc O-Field} is redundant at this point. It will matter to type system extensions.
+Fields cannot be overridden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyset$ in rule {\sc OK-Class}. The {\sc O-Method} rule formalizes method overriding. A method $m1$ may be overridden by a method $m2$ with the same name, type parameters (modulo alpha-renaming), value parameters (modulo alpha-renaming), and value parameter types provided method $m2$ has a return type that is a subtype of $m1$'s return type and $m1$'s guard entails $m2$'s. Rule {\sc O-Field} is redundant at this point. It will matter to type system extensions.
 
-{\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes the guard of the superclass.
+{\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes entailing the guard of the superclass.
 
 \subsection{\FXGL{Q}}
 
