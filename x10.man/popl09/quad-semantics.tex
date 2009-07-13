@@ -5,6 +5,7 @@
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
 \newcommand\FXGL[1]{{\sf FXG($\cal #1$)}}
 \newcommand{\vdashQ}{\vdash_{\cal Q}}
+\newcommand{\vdashS}{\vdash_{\cal S}}
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
@@ -511,51 +512,39 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \label{fig:FXGB}
 \end{figure*}
 
-\eat{
 \begin{figure*}
 \begin{minipage}{\textwidth}
 \centering
 \begin{tabular}{r@{\quad}rcl}
-  (Constraint) & {\tt c} &{::=}& ${\tt X}~\underline{\has}~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H}}$ \\
 \end{tabular}
 \end{minipage}%
 
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.45\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[W-Bound]
-	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt I}}
+\infrule[W-Struct]
+	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma,\this\ty{\tt X},\tbar{Y}\ty*,\tbar{y}\ty\tbar{G},{\tt c}}{\tt d},\tbar{G},\tbar{H}}
 	{\wj{\Gamma}{{\tt X}~\underline\has~{\tt I}}}
 
+\infrule[X-Struct]
+  {\methods({\tt C}[\tbar{A}])\ni\minst{Y}{y}{G}{c}{H}{e}}
+  {\vdashS{\tt C}[\tbar{A}]~\underline\has~\msign{Y}{y}{G}{c}{H}}
 
-\infrule
-  {\methods({\tt C}[\tbar{A}])\ni\minst{Y}{x}{G}{c}{H}{e}}
-  {\vdash{\tt C}[\tbar{A}]~\underline\has~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}}
+\end{minipage}%
+\begin{minipage}{.55\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[H-Struct]
+  {\vdash{\tt X}~\underline\has~{\msign{Y}{y}{G}{c}{H}} \andalso
+    \theta={\tt x},\tbar{Z},\tbar{z}/\this,\tbar{Y},\tbar{y}}
+  {\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~\msign{Z}{z}{G\theta}{c\theta}{H\theta}}
 
-\infrule
-  {\vdash{\tt X}~\underline\has~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}}
-  {}
-
-\infrule[X-Bound]
+\infrule[X-Struct-False]
 	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J},{\tt I}~\not\ll~{\tt J},{\tt J}~\not\ll~{\tt I}}
 	{\Gamma\vdash\false}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[H-Bound]
-	{\Gamma\vdash{\tt X}~\underline{\has}~{\tt f}\ty{\tt F} \andalso \theta={\tt x}/\this}
-	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt f}\ty{\tt F}\theta}
-
-\infrule[H-Bound]
-	{\Gamma\vdash{\tt X}~\underline{\has}~{\tt I}
-         \andalso
-         \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
-	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \caption{\FXGL{S}.}
 \label{fig:FXGS}
 \end{figure*}
-}
-
 
 
 \begin{figure*}
@@ -684,17 +673,17 @@ While elementary, this extension demonstrates the extensibility of the \FXGL{\cd
 
 The soundness of the type system (i.e., its proof) is preserved because:
 \begin{enumerate}
-\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} ~//~ {\tt I}$.
+\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} ~\ll~ {\tt I}$.
 \item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ then $\Gamma,{\tt x}\ty{\tt X}\vdash {\tt I}~//~{\tt J},{\tt J}~//~{\tt I}$.
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ then $\Gamma,{\tt x}\ty{\tt X}\vdash {\tt I}~\ll~{\tt J},{\tt J}~\ll~{\tt I}$.
 \end{enumerate}
 
+\subsection{\FXGL{S}}
+Adding structural subtyping constraints to \FXGL{\cdot} is very similar. First, we extend the constraint system: it must satisfy inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program. {\sc H-Struct} is straightforward. Finally, {\sc X-Struct-False} make sure programs with inconsistent structural constraints do not type check.
 
 \subsection{\FXGL{Q}}
 
-Turning \FXGL{\cdot} into a language with value-dependent types is straightforward.
-First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$,
-predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
+Turning \FXGL{\cdot} into a language with value-dependent types is straightforward. First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$, predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
 
 
 We denote $\Dom({\tt l})$ the primitive type of the literal {\tt l}. For simplicity, we assume each function {\tt q}
