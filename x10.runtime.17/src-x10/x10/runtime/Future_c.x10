@@ -14,7 +14,7 @@ import x10.util.GrowableRail;
  * The representation of an X10 future expression.
  * @author tardieu
  */
-public value Future_c[T](name:String) extends Future[T] {
+public value Future_c[T] extends Future[T] {
     /**
      * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
      */
@@ -30,8 +30,7 @@ public value Future_c[T](name:String) extends Future[T] {
 	
 	private val eval:()=>T;
 	
-	public def this(eval:()=>T, name:String) {
-		property(name);
+	public def this(eval:()=>T) {
 		this.eval = eval;
 		result = new GrowableRail[T]();
 	}
@@ -65,5 +64,6 @@ public value Future_c[T](name:String) extends Future[T] {
         }
 	}
 	
-	public def toString():String = name; 
+    // [DC] The correct thing to do here is pull the name from the closure
+	//public def toString():String = name; 
 }
