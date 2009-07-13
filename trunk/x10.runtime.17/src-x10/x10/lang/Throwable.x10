@@ -70,8 +70,11 @@ public value Throwable {
                    "} while (0)")
     public native def printStackTrace(p: Printer) : Void;
 
+    @Native("java", "#0.fillInStackTrace()")
+    @Native("c++", "(#0)->fillInStackTrace()")
+    public native def fillInStackTrace() : Throwable;
+
     /*
-    public synchronized native java.lang.Throwable fillInStackTrace();
     public void setStackTrace(java.lang.StackTraceElement[]);
     */
 }
