@@ -9,48 +9,58 @@
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
-We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language that adds to the \FX language support for unconstrained type parameters. Variables of type-parameter types in generic classes have therefore no accessible methods and fields in \FXGL{\cdot}. We then introduce constraints on type parameters such as \FGJ-like bounds as a family of extensions to this core language and its type system.
+We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \FX.
+
+
+We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. Finally, we characterize the family itself and state and prove the soundness of its type system.
+
+Following \FJ, our formalism does not account for mutations. Proving soundness for an imperative calculus is beyond the scope of this paper.
+For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariant may constrain the type parameters but not the fields of the class. \Xten does not support constraint-sensitive overloading.}
+
+
 
 
 \subsection{\FXGL{\cdot}}
 
-We specify the gammar of \FXGL{\cdot}, its dynamic semantics, and its static type system.
+The grammar for \FXGL{\cdot} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. Following \FJ{}, we use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
 
-\paragraph{Grammar.} The grammar for \FXGL{\cdot} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. Following \FJ{}, we use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
+A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a superclass {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{\cdot}, that is, {\tt c} must be {\tt true}.
 
-A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{\cdot}, that is, {\tt c} must be {\tt true}.
+Each class has a default constructor. Class $\tt C$ has constructor
+$\tt def~this[\tbar{X}](\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F})~\{~super(\tbar{g});~property(\tbar{f});~\}$ if $\tt C$ is declared as
+$\cdecl$ and its superclass $\tt D$ has fields $\tbar{g}\ty\tbar{G}$. $\Object$ has a nullary constructor.
 
-Following \FJ{}, we omit user-defined constructors. Each class has a default constructor that requires initial values for all fields of the class including inherited fields. If class {\tt C} has a field {\tt f} of type {\tt F} and inherits from class {\tt D} a field {\tt g} of type {\tt G}, the constructor for {\tt C} takes first an argument of type {\tt G} then an argument of type {\tt F}.
 
-Methods are introduced with the {\tt def} keyword. A method has both type parameters {\tbar{X}} and value parameters {\tbar{x}}. The method guard {\tt c} is to be thought of as an additional condition that must be satisfied by the receiver and the actual type and value arguments of the method call. We do not consider method overloading:\footnote{Constraint-sensitive method overloading is beyond the scope of this paper. Constraint-insensitive method overloading is irrelevant.} we assume each class declares at most one method with name {\tt m}.
+Methods are introduced with the {\tt def} keyword. A method has both type parameters {\tbar{X}} and value parameters {\tbar{x}}. The method guard {\tt c} is to be thought of as an additional condition that must be satisfied by the receiver and the actual type and value arguments of the method call. We do not consider method overloading: we assume each class declares at most one method with name {\tt m}.
 
-The body of a method is an expression {\tt e}. It is built from the value parameters {\tt x} of the method (including the receiver {\tt this}), field access expressions, construtor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
+The body of a method is an expression {\tt e}. It is built from the value parameters {\tt x} of the method (including the receiver {\tt this}), field access expressions, constructor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
 
-The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgements but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type
+The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgments but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type
 $\tt U[w/x]$.
 
 Following \FJ{}, we denote values by means of nested constructor calls, e.g., new Pair[Object](new Object(), new Object()).
 
 \paragraph{Dynamic semantics.}
-The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is straightforward. It is described in terms of a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
+The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is described as a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
 
-The only novelty is the use of the subtyping relation to check that the cast is satisfied. This check is the only reason the operational semantics has to propagate type parameters. The fields and methods of a value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. See Section~\ref{sec:casts} for a discussion of casts. See below for a discussion of subtyping.
+The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of a value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. See Section~\ref{sec:casts} for a discussion of casts. See below for a discussion of subtyping.
 
-Rule {\sc L-Field-I} prevents classes from overriding inherited fields. Rule {\sc L-Method-I} makes sure method lookup goes bottom up but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
+{\sc L-Field-I} prevents classes from overriding inherited fields. {\sc L-Method-I} makes sure method lookup goes bottom up, but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
+
+{\sc R-Invk} does not check method guards. We will establish that there is no need for well-typed programs.
 
 \paragraph{Conventions.}
 In the following, the context $\Gamma$ is always a (finite, possibly empty) sequence of variable declarations $\tt x\ty T$, type parameter declarations $\tt X\ty*$, and constraints $\tt c$ satisfying:
 \begin{enumerate}
-  \item for any declaration $\phi=\tt x\ty T$ or constraint $\phi=\tt c$ in the sequence, all free variables\footnote{Variables are bound by existential quantifiers. In addition, the type constructor ${\tt c}\mapsto{\tt T}\{{\tt c}\}$ binds the special variable {\self} in {\tt c}.} $\tt y$ occurring in $\tt T$ or $\tt c$ are declared in the sequence to the left of $\phi$.
+  \item for any declaration $\phi=\tt x\ty T$ or constraint $\phi=\tt c$ in the sequence, all free variables\footnote{Variables are bound by existential quantifiers. In addition, the type constructor ${\tt c}\mapsto{\tt T}\{{\tt c}\}$ binds the special variable {\self} in {\tt c}.} occurring in $\tt T$ or $\tt c$ are declared in the sequence to the left of $\phi$.
 
   \item a variable or type parameter is declared at most once in $\Gamma$.
 \end{enumerate}
+For any formulas $\phi_1$ and $\phi_2$, the judgment $\Gamma \vdash \phi_1,~\phi_2$ is shorthand for the judgments $\Gamma \vdash \phi_1$ and $\Gamma \vdash \phi_2$. 
 
-In the following, for any formulas $\phi_1$ and $\phi_2$, we adopt the convention that the judgment $\Gamma \vdash \phi_1,~\phi_2$ is shorthand for the judgments $\Gamma \vdash \phi_1$ and $\Gamma \vdash \phi_2$. 
+An assumption ``{\tt x} fresh'' in an inference rule means that {\tt x} does not occur in the premises to the left of this assumption.
 
-An assumption of the form ``{\tt x} fresh'' in a deduction rule means that {\tt x} does not occur in the premises to the left of this assumption.
-
-A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha}$ and $\tbar{\beta}$ to have the same length $n$ and defines the substitution of $\beta_i$ by $\alpha_i$ for $1\leq i\leq n$. If $\gamma$ is a constraint, a type, an expression, etc., $\gamma\theta$ denotes the application of the substitution $\theta$ to the free variables of $\gamma$.
+A premise $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha}$ and $\tbar{\beta}$ to have the same length $n$ and defines the substitution of $\beta_i$ by $\alpha_i$ for $1\leq i\leq n$. If $\phi$ is a constraint, a type, an expression, etc., $\phi\theta$ denotes result of the application of the substitution $\theta$ to the free variables of $\phi$.
 
 \paragraph{Type system.} Typing checking a program {\tt P} involves a series of judgments:
 \begin{enumerate}
@@ -68,14 +78,14 @@ A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha
 	\item Typing:\\
 	  $\Gamma\vdash {\tt e}\ty{\tt T}$ \hfill expression {\tt e} has type {\tt T} in $\Gamma$\\
 	  $\Gamma\vdash {\tt I}\ll {\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
-	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt c}\}\ty {\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
-	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
+	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt c}\}\ty {\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ is well typed\\
+	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ is well typed
 
 \end{enumerate}
 
 Notice these judgments depend on the particular program {\tt P}. For readability, we do not make this dependency explicit as we will never consider more than one program at a time.
 
-A program type checks iff all its classes do. We now describe in more detail each of these judgments, in turn. 
+A program is well typed iff all its classes are. We now describe in more detail each of these judgments, in turn. 
 
 
 \paragraph{1. Constraints.}
@@ -100,7 +110,7 @@ In the last rule, we assume that alpha-equivalence is used to choose a variable 
 By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash c$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{\cdot}, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
-In all deduction rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used.
+In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used.
 
 Inconsistency may arise because $\cal X$ itself defines inconsistent constraints, e.g., ``2==3'' for arithmetic constraints. In the sequel, we will also permit type system extensions to mark contexts as inconsistent. For instance, {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} is inconsistent if both class {\tt C} and {\tt D} extend {\Object}.
 
