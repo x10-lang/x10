@@ -783,7 +783,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(def.asType().superClass());
         if (superClass != null) {
-            for (Name mname : getMethodNames(n.body().members(), def.asType().interfaces())) {
+            for (Name mname : getMethodNames(n.body().members())) {
                 List<MethodInstance> overriddenOverloads = getOROLMeths(mname, superClass);
                 for (MethodInstance mi : overriddenOverloads) {
                     extractAllClassTypes(mi.returnType(), types, dupes);
@@ -979,7 +979,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return ct;
     }
 
-    private ArrayList<Name> getMethodNames(List<ClassMember> members, List<Type> interfaces) {
+    private ArrayList<Name> getMethodNames(List<ClassMember> members) {
         ArrayList<Name> mnames = new ArrayList<Name>();
         Set<Name> dupes = new HashSet<Name>();
         for (ClassMember member : members) {
@@ -992,15 +992,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (mi.flags().isStatic()) continue;
             dupes.add(mname);
             mnames.add(mname);
-        }
-        for (Type iface : interfaces) {
-            List<MethodInstance> methods = iface.toClass().methods();
-            for (MethodInstance mi : methods) {
-                Name mname = mi.name();
-                if (dupes.contains(mname)) continue;
-                dupes.add(mname);
-                mnames.add(mname);
-            }
         }
         return mnames;
     }
@@ -1137,10 +1128,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 				if (superClass != null) {
 					// first gather a set of all the method names in the current class
-					// FIXME: itables.  Dave G.  Since we are no longer inheriting interfaces at the C++ level,
-					//                  I think we don't need this code anymore.  Will remove in a separate commit
-					//                  from the trunk merge to get a clean history of the removal.
-					ArrayList<Name> mnames = getMethodNames(members, currentClass.interfaces());
+					ArrayList<Name> mnames = getMethodNames(members);
 
 					// then, for each one
 					for (Name mname : mnames) {
