@@ -1754,13 +1754,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Return_c ret) {
 		Expr e = ret.expr();
-		sw.write("return");
-		if (e != null) {
-			sw.write(" ");
-			ret.print(e, sw, tr);
+		if (e == null) {
+			sw.write("return;");
+		} else {
+			// Hack around g++ 4.1 bug with expression statements. See XTENLANG-461.
+			sw.write("{"); sw.newline(4); sw.begin(0);
+			sw.write(emitter.translateType(e.type(), true)+" _returnVal = ");
+			ret.print(e, sw, tr); 
+			sw.write(";"); sw.newline();
+			sw.write("return _returnVal;"); sw.newline(); sw.end();
+			sw.write("};"); sw.newline();
 		}
-		sw.write(";");
-		sw.newline();
 	}
 
 
