@@ -104,20 +104,6 @@ Inconsistency may arise because $\cal X$ itself defines inconsistent constraints
 
 By design of the type system, if the program {\tt P} type checks then all the constraints and types in {\tt P} are well formed in their respective contexts.
 
-\paragraph{2. Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden. Methods cannot be overloaded.
-A method may only be overridden by a method with the same name,
-arity, parameter types, a return type that is a subtype of the
-overridden return type, and a weaker guard (i.e., the superclass
-method guard must entail the subclass's).
-\footnote{To avoid cluttering the inference rules, we
-define overriding only informally; a formal definition is
-straightforward.}
-
-To prepare for the introduction of generic types later, we
-distinguish members that are available on variables from members
-available on classes.  For now,
-${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
-
 \begin{figure*}
 \centering
 \begin{tabular}{r@{\quad}rcl}
@@ -488,12 +474,29 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \label{fig:FXG}
 \end{figure*}
 
-\paragraph{4. Typing.} The typing rules are specified in Figure~\ref{fig:FX}.
+\paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. This will change when we start considering constraints on type parameters.
+
+\paragraph{4. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
+Because we deal with dependent and existential types, we choose a somewhat unconventional notation for the subtyping relation that enables more compact inference rules. Rather than judgments of the form $\Gamma\vdash{\tt S}\subtype{\tt T}$, we consider judgments of the form $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ which permit {\tt T} to depend on {\tt x}, hence make codependent types easier to work with. In fact, one could define classical subtyping as the following:
+\infrule
+	{\wj{\Gamma}{\tt S} \andalso \Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T} \andalso {\tt x}~\rm not~free~in~{\tt T}}
+	{\Gamma\vdash{\tt S}\subtype{\tt T}}
+or derive our relation from subtyping:
+\infrule
+	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt S}\{\self=={\tt x}\}\subtype{\tt T}}
+	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T}}
+
+\paragraph{5. Typing.} The typing rules are specified in Figure~\ref{fig:FX}.
 
 {\sc T-Var} is as expected, except that it asserts the constraint {\tt
 self==x}, which records that any value of this type is known
 statically to be equal to {\tt x}. This constraint is actually very
-crucial---as we shall see in the other rules, once we establish that
+crucial. As we will see later, a key condition of the soundness of 
+this type system is that constraint terms have singleton types, that is, the
+type system retains enough information in the type of a term to permit
+reconstructing the term from its type.
+
+\eat{---as we shall see in the other rules, once we establish that
 an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
 type to a freshly chosen variable {\tt z}.  If, in fact, {\tt e} has a
 static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
@@ -501,41 +504,34 @@ equal to {\tt x}; that is, it has type {\tt T\{self==x\}}), then
 {\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., that {\tt z}
 equals {\tt x}.
 Thus {\sc T-Var} provides an important base case for
-reasoning statically about equality of values in the environment.
+reasoning statically about equality of values in the environment.}
 
 We do away with the three cast rules in \FJ{} in favor of a single
-cast rule, requiring only that {\tt e} be of some type {\tt U}.  At run time,
-{\tt e} will be checked to see if it is actually of type {\tt T} (see
+cast rule, requiring only that {\tt e} be of some type {\tt T}. At run time,
+{\tt e} will be checked to see if it is actually of type {\tt G} (see
 {\sc R-Cast} in Figure~\ref{fig:sos}).
 
-{\sc T-Field} may be understood through ``proxy'' reasoning as
-follows:  Given the context $\Gamma$, assume the receiver {\tt e} can
+{\sc T-Field} may be understood through ``proxy'' reasoning.
+Given the context $\Gamma$, assume the receiver {\tt e} can
 be established to be of type {\tt T}. Now, we do not know the run-time
 value of {\tt e}, so we shall assume that it is some fixed but unknown
 ``proxy'' value {\tt x} (of type {\tt T}) that is ``fresh'' in that it
 is not known to be related to any known value (i.e., those recorded
 in $\Gamma$).  If we can establish that {\tt x} has a field {\tt f} of
-type {\tt U}\footnote{Note from the definition of
-\fields{} in Figure~\ref{fig:lookup} that all occurrences of
-\this{} in the declared type of the field {\tt f} will have been replaced
-by {\tt x}.}, then we can assert that
-{\tt e.f} has type {\tt U} and, further, that it equals {\tt x.f}.
-Hence, we can assert that {\tt e.f} has type 
-$\exists {\tt x}:{\tt T}.~{\tt U}\{\self={\tt x}.{\tt f}\}$.
+type {\tt F} then we can assert that
+${\tt e}.{\tt f}$ has type {\tt F} and, further, that it equals ${\tt x}.{\tt f}$
+for some {\tt x} of type {\tt T}.
+Hence, we can assert that ${\tt e}.{\tt f}$ has type 
+$\exty{\tt x}{\tt T}{\tt F}\{\self=={\tt x}.{\tt f}\}$.
 
-{\sc T-Invk} has a similar structure to {\sc T-Field}: we use
-proxy reasoning for the receiver and the arguments of the method
-call. {\sc T-New} also uses the same proxy reasoning: however in this case
-we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
-for some values $\bar{\tt y}$ of the given types.
+{\sc T-New} and {\sc T-Invk} have a similar structure to {\sc T-Field}: we use
+proxy reasoning for the arguments of the construtor call or for the receiver and the arguments of the method
+call.
 
-{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
+A method may only be overridden by a method with the same name, type parameters, value parameters, and value parameter types. The return type of must be a subtype of the overridden return type. The method guard must be entailed by the overriden method guards. To avoid cluttering the inference rules, we define overriding only informally; a formal definition is straightforward.
 
+{\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that fields are not overriden, and that the body of a method has a type that is a subtype of its declared type.
 
-\paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
-Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
-{\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
-{\sc S-Const-L} and {\sc S-Const-R} handle constraints. The rules ensure all types are well formed.
 
 \subsection{\FXD}
 
