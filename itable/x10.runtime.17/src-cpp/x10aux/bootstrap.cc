@@ -9,6 +9,12 @@ using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
 
+x10aux::itable_entry BootStrapClosure::_itables[2] = {
+    x10aux::itable_entry(&x10::lang::VoidFun_0_0::rtt,
+                         new x10::lang::VoidFun_0_0::itable(&BootStrapClosure::_itable_thunk)),
+    x10aux::itable_entry(NULL, NULL)
+};
+    
 void x10aux::initialize_xrx() {
     x10::lang::Place::_static_init();
     x10::runtime::Runtime::_static_init();
