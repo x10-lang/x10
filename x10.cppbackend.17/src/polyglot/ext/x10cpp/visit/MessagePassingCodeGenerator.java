@@ -3101,6 +3101,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return true;
 	}
 
+	private Closure_c getClosureLiteral(Expr target) {
+	    if (target instanceof Closure_c)
+	        return (Closure_c) target;
+	    if (target instanceof ParExpr_c)
+	        return getClosureLiteral(((ParExpr_c)target).expr());
+	    return null;
+	}
+
 	public void visit(ClosureCall_c c) {
 		Expr target = c.target();
 
@@ -3117,9 +3125,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		// Optimization: if the target is a closure literal, inline the body
-		if (target instanceof Closure_c) {
-		    if (inlineClosureCall(c, (Closure_c) target, args))
-		        return;
+		Closure_c lit = null;//getClosureLiteral(target); //FIXME
+		if (lit != null && inlineClosureCall(c, lit, args)) {
+		    return;
 		}
 
 		c.printSubExpr(target, sw, tr);
