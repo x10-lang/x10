@@ -3017,7 +3017,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
 		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		inc.write("x10aux::itable_entry(&"+superType+"::rtt, new "+superType+"::itable(&"+cnamet+"::_itable_thunk)),"); 
+		inc.write("x10aux::itable_entry(&"+superType+"::rtt, new "+(in_template_closure ? "typename ": "")+superType+"::itable(&"+cnamet+"::_itable_thunk)),"); 
 		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
 
         if (in_template_closure)
@@ -3057,7 +3057,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (prefix.equals(",")) sb.append(">");
         String templateArgs = sb.toString();
 
-        sw.write(make_ref(cnamet));
+        sw.write(make_ref(superType)+"("+make_ref(cnamet));
         sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         sw.write(cname+templateArgs+"(");
         for (int i = 0; i < c.variables.size(); i++) {
@@ -3070,7 +3070,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = SAVED_THIS;
             sw.write(name);
         }
-        sw.write("))");
+        sw.write(")))");
 
         c.finalizeClosureInstance();
         emitter.exitClosure(c);
