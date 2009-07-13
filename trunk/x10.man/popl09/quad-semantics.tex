@@ -3,7 +3,9 @@
 \newcommand\minst[6]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
 \newcommand\FXGL[1]{{\sf FXG($\cal #1$)}}
-
+\newcommand{\vdashQ}{\vdash_{\cal Q}}
+\newcommand{\Dom}{{\sf Dom}}
+\newcommand{\Img}{{\sf Img}}
 
 We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language that adds to the \FX language support for unconstrained type parameters. Variables of type-parameter types in generic classes have therefore no accessible methods and fields in \FXGL{\cdot}. We then introduce constraints on type parameters such as \FGJ-like bounds as a family of extensions to this core language and its type system.
 
@@ -113,8 +115,8 @@ By design of the type system, if the program {\tt P} type checks then all the co
   (Expression)& {\tt a}, {\tt b}, {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C[\tbar{G}](\tbar{e})$ \alt $\tt e.m[\tbar{G}](\tbar{e})$ \alt $\tt e~\as~G$ \\
   (Constraint term) & {\tt t}, {\tt u} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C[\tbar{G}](\tbar{t})$ \\
   (Constraint) & {\tt c}, {\tt d} &{::=}& $\true$ \alt $\false$ \alt $\tt c,c$ \alt $\tt t==t$ \\
-  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
   (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{c\}$ \alt $\tt X$ \\
+  (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt G$ \alt $\tt T\{c\}$ \alt $\tt \exists x\ty T.~T$ \\
   (Value)& {\tt v}, {\tt w} &{::=}& $\tt\new~C[\tbar{G}](\tbar{v})$ where \tbar{G} contains no type variables \\
 \end{tabular}\smallskip
 
@@ -443,7 +445,6 @@ By design of the type system, if the program {\tt P} type checks then all the co
 
 
 \begin{figure*}
-\vspace{-\bigskipamount}
 \begin{minipage}{\textwidth}
 \centering
 \begin{tabular}{r@{\quad}rcl}
@@ -477,6 +478,64 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \caption{\FXGL{B}.}
 \label{fig:FXGB}
 \end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.34\textwidth}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Generic type)& {\tt G} &{::=}& {\tt Q} \\
+  (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
+  (Values) & {\tt v} &{::=}& ${\tt l}$ \\
+  (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \alt $\tt l$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
+\end{tabular}
+\end{minipage}%
+\begin{minipage}{.33\textwidth}
+\vspace{-\bigskipamount}\quad\typicallabel{XXXX}
+\infrule[W-Fun]
+  {\wj{\Gamma}{\tbar{t}} \andalso {\tt q}\in\cal Q}
+  {\wj{\Gamma}{{\tt q}(\tbar{t})}}
+
+\infrule[W-Pred]
+  {\wj{\Gamma}{\tbar{t}} \andalso {\tt p}\in\cal Q}
+  {\wj{\Gamma}{{\tt p}(\tbar{t})}}
+\end{minipage}%
+\begin{minipage}{.33\textwidth}
+\vspace{-\bigskipamount}
+\quad\typicallabel{XXXX}
+\infrule[W-Lit]
+  {{\tt l}\in\cal Q}
+  {\wj{}{{\tt l}}}
+
+\infrule[W-Prim]
+  {{\tt Q}\in\cal Q}
+  {\wj{}{{\tt Q}}}
+\end{minipage}%
+
+\begin{minipage}{.34\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[R-Fun]
+	{\vdashQ{\tt q}(\tbar{v})=={\tt l}}
+	{{\tt q}(\tbar{v})\derives {\tt l}}
+	
+\infax[T-Lit]
+	{\vdash{{\tt l}\ty\Dom({\tt l})\{\self=={\tt l}\}}}
+\end{minipage}%
+\begin{minipage}{.66\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[RC-Fun]
+	{{\tt e}_i\derives {\tt e}'_i}
+	{{\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},\ldots,{\tt e}_i,\ldots,{\tt e}_n)\derives {\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
+
+\infrule[T-Fun]
+	{\andalso \Gamma\vdash\tbar{e}:\Dom({\tt q})}
+	{\Gamma\vdash{{\tt q}(\tbar{e})\ty\exty{\tbar{x}}{\Dom({\tt q})}{\Img({\tt q})}\{\self=={\tt q}(\tbar{x})\}}}
+\end{minipage}%
+\caption{\FXGL{Q}.}
+\label{fig:FXGQ}
+\end{figure*}
+
 
 \paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. This will change when we start considering constraints on type parameters.
 
@@ -542,63 +601,31 @@ We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cd
 \FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
 The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
 
-\FXGL{B} is built on top of a slightly more expressive constraint system that permits propagating such constraints viewed as atoms. It does not do anything about extends constraints. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup.
+\FXGL{B} is built on top of a slightly more expressive constraint system $\cal B$ that permits propagating such constraints viewed as uninterpreted atoms of knowledge. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup. Rule {\sc X-Bound} ensure we do not type check program that specify mutiple bounds for a given type parameters.\footnote{More exactely, multiple bounds can be specified provided these are syntactically identical.}
 
 While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
 
-In order to preserve the soundness of the type system, one can ensure that:
+The soundness of the type system (i.e., its proof) is preserved because:
 \begin{enumerate}
 \item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}$ ans $\tt J$ overrides $\tt I$.
 \item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt F}$ and  $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt G}$ then ${\tt F}$ and $\tt G$ are equivalent.
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt F}$ and  $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt G}$ then ${\tt F}={\tt G}$.
 \item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt m}...$ and $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt m}...$ then the two method signatures are equivalent.
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~\minst{Y}{y}{G}{c}{H}{e}$ and $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~\minst{Y}{y}{G'}{c'}{H'}{e'}$ then the method signatures are equivalent, that is, $\tbar{G}=\tbar{G'}$, ${\tt H}={\tt H'}$, $\Gamma,{\tt x}\ty{\tt X},\tbar{y}:\tbar{G},{\tt c}\vdash {\tt c'}$, and $\Gamma,{\tt x}\ty{\tt X},\tbar{y}:\tbar{G},{\tt c'}\vdash{\tt c}$.
 \end{enumerate}
 
 
+\subsection{\FXGL{Q}}
 
-\subsection{\FXD}
+Turning \FXGL{\cdot} into a language with value-dependent types is straightforward.
+First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$,
+predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
 
-Turning \FXZ{} into a language with value-dependent types is straightforward
-since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$, and constraint propagation is already built into the typing rules.
 
-First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt d}$.
+We denote $\Dom({\tt l})$ the primitive type of the literal {\tt l}. For simplicity, we assume each function {\tt q}
+is a total mapping from ${\sf Dom}({\tt q})$ (a n-uple of primitive types) to ${\sf Img}({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})={\sf Img}({\tt q})$.
 
-Second, we extend the productions of \FXZ{} as follows.
-\begin{center}
-\begin{tabular}{r@{\quad}rcl}
-  (Type)& {\tt T} &{::=}& {\tt A} \\
-  (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
-  (Values) & {\tt v} &{::=}& ${\tt d}$ \\
-  (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \\
-  (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
-\end{tabular}
-\end{center}
-
-The following rules are needed to type functions and literals:
-
-\infrule[T-Fun]
-	{{\tt q}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
-	{\Gamma\vdash{{\tt q}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt q}(\tbar{x})\}}}
-
-\infrule[T-Lit]
-	{{\tt d}{\rm~has~type~{\tt A} {\rm~in~}\mathcal{A}}} 
-	{\Gamma\vdash{{\tt d}:{\tt A}\{\self=={\tt d}\}}}
-
-We extend the operational semantics with rules:
-\infrule[RC-Fun]
-	{{\tt e}_i\derives {\tt e}'_i}
-	{{\tt q}(\ldots,{\tt e}_i,\ldots)\derives {\tt q}(\ldots,{\tt e}'_i,\ldots)}
-
-\infrule[R-Fun]
-	{{\tt q}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{v}:\tbar{A}} 
-	{{\tt q}(\tbar{v})\derives \SB{{\tt q}(\tbar{v})}}
-where $\SB{{\tt q}(\tbar{v})}$ denotes the result of the evaluation of function {\tt q} on values \tbar{v}.
-
-Finally, we permit users to write constraints in $\cal A$ (except for existential constraints) in programs.
-%
-For instance, if $\mathcal{A}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators, then we can declare:
+For instance, if $\mathcal{Q}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators, then we can declare:
 
 \begin{xten}
 class Count(n:int) extends Object {
@@ -606,6 +633,46 @@ class Count(n:int) extends Object {
   	new Count(this.n+1);
 }
 \end{xten}
+
+
+
+\subsection{Results}
+The following results hold for \FXGL{\cdot}.
+
+\begin{theorem}[Subject Reduction] If ${\tt e} \derives {\tt e'}$ and $\Gamma \vdash {\tt e}\ty{\tt T}$ then there exists {\tt S} such that $\Gamma\vdash{\tt e'}\ty{\tt S}$. Morevoer, $\Gamma,{\tt x}\ty{\tt S} \vdash {\tt x}\subtype{\tt T}$.
+\end{theorem}
+
+\begin{theorem}[Progress]
+If $\vdash {\tt e:T}$ then one of the following conditions holds:
+\begin{enumerate}
+\item {\tt e} is a value,
+\item {\tt e} contains a cast sub-expression that is stuck,
+\item there exists $\tt e'$ such that $\tt e\derives e'$.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Type soundness]
+If $\vdash {\tt e}\ty{\tt T}$ and {\tt e}
+reduces to a normal form then either ${\tt e'}$ contains a stuck cast sub-expression or ${\tt e'}$ is a value {\tt v} and there exists {\tt S} such that $\vdash {\tt v:S}$. Moreover, in that case, ${\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$.
+\end{theorem}
+
+
+
+
+
+
+
+
+
+
+
+
+\eat{
+
+
+
+\section{Random bits}
+
 
 In practice, it makes sense to distinguish the functions of the
 constraint language from the functions of the base language.
@@ -952,4 +1019,6 @@ including decidability issues.
 Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to support the trivial constraint \true{}, conjunction, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and lets us decide whether {\tt P} is well typed.
 
 \medskip
+}
+
 }
