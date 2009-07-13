@@ -194,7 +194,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/OutputStreamWriter__OutputStream.o \
 	x10/lang/Box.o \
 	x10/lang/Fun.o \
-	x10/lang/Iterator.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Ref.o \
