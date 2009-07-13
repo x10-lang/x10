@@ -1,6 +1,7 @@
 \newcommand\wj[2]{{#1} \vdash_{\cal W}{#2}}
 \newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt c}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
-\newcommand\minst[6]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}={\tt #6}}
+\newcommand\msign[5]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}}
+\newcommand\minst[6]{\msign{#1}{#2}{#3}{#4}{#5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
 \newcommand\FXGL[1]{{\sf FXG($\cal #1$)}}
 \newcommand{\vdashQ}{\vdash_{\cal Q}}
@@ -60,12 +61,12 @@ A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha
 	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed in $\Gamma$
 	\item Lookup:\\
 	  $\Gamma\vdash {\tt x}~\has~{\tt I}$ \hfill variable {\tt x} has member {\tt I} in $\Gamma$\\
-	  $~$ \hfill where ${\tt I}::= {\tt f}\ty{\tt F} \alt {\tt m}[\tbar{B}](\tbar{x}\ty \tbar{G})\{{\tt c}\ty {\tt H}={\tt e}$
+	  $~$ \hfill where ${\tt I}::= {\tt f}\ty{\tt F} \alt \msign{B}{x}{G}{c}{H}$
 	\item Subtyping:\\
 	  $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \\ $~$ \hfill type ${\tt S}\{\self=={\tt x}\}$ is a 	subtype of type {\tt T} in $\Gamma,{\tt x}\ty{\tt S}$
 	\item Typing:\\
 	  $\Gamma\vdash {\tt e}\ty{\tt T}$ \hfill expression {\tt e} has type {\tt T} in $\Gamma$\\
-	  $\Gamma\vdash {\tt I}~//~{\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
+	  $\Gamma\vdash {\tt I}~\ll~{\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
 	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt c}\}\ty {\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
 	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
 
@@ -299,7 +300,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
   {\wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
     \methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{d}{H}{e} \andalso
     \theta={\tt x},\tbar{z}/\this,\tbar{y}}
-  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{z}{G\theta}{d\theta}{H\theta}{e\theta}}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\msign{B}{z}{G\theta}{d\theta}{H\theta}}
 \end{minipage}%
 
 \begin{minipage}{.41\textwidth}
@@ -405,7 +406,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \infrule[T-Invk]
 	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
 	  {\tt x},\tbar{y}~{\rm fresh} \andalso
-	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty{\tt U}\vdash {\tt x}~\has~\minst{A}{y}{G}{c}{H}{b},{\tt c},\tbar{y}\subtype\tbar{G}}
+	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty{\tt U}\vdash {\tt x}~\has~\msign{A}{y}{G}{c}{H},{\tt c},\tbar{y}\subtype\tbar{G}}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \eat{
@@ -425,14 +426,14 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \begin{minipage}{.3\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[O-Field]
-  {\Gamma\vdash {\tt f}\ty{\tt F} ~//~ {\tt f}\ty{\tt F}}
+  {\Gamma\vdash {\tt f}\ty{\tt F} ~\ll~ {\tt f}\ty{\tt F}}
 \end{minipage}%
 \begin{minipage}{.7\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[O-Method]
   {\tbar{G}=\tbar{G'} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d} \andalso 
     {\tt y}~{\rm fresh} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt H}\vdash{\tt y}\subtype{\tt H'}}
-  {\Gamma\vdash \minst{Y}{x}{G}{d}{H}{e} ~//~ \minst{Y}{x}{G'}{d'}{H'}{e'}}
+  {\Gamma\vdash \msign{Y}{x}{G}{d}{H} ~\ll~ \msign{Y}{x}{G'}{d'}{H'}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
@@ -444,15 +445,15 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \Gamma,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
     {\tt y}~{\rm fresh} \andalso
     \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H} \\
-    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\minst{Y}{x}{G'}{d'}{H'}{e'} ~\Rightarrow~
-    \Gamma\vdash \minst{Y}{x}{G}{d}{H}{e} ~//~ \minst{Y}{x}{G'}{d'}{H'}{e'}}
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\msign{Y}{x}{G'}{d'}{H'} ~\Rightarrow~
+    \Gamma\vdash \msign{Y}{x}{G}{d}{H} ~\ll~ \msign{Y}{x}{G'}{d'}{H'}}
   {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \eat{
 \infrule[OK-Method]
   {\cdecl \andalso
     \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H} \\
-    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\minst{Y}{x}{G'}{d'}{H'}{e'}~\Rightarrow
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\msign{Y}{x}{G'}{d'}{H'}~\Rightarrow
     \left\{\begin{array}{@{}l@{}}
     \tbar{G}=\tbar{G'}\\
     \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d}\\
@@ -482,7 +483,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \end{tabular}
 \end{minipage}%
 
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[W-Bound]
 	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
@@ -493,21 +494,68 @@ By design of the type system, if the program {\tt P} type checks then all the co
 	  {\tt G}\neq{\tt H}}
 	{\Gamma\vdash\false}
 \end{minipage}%
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Bound]
-	{\Gamma\vdash {\tt X}\extends {\tt G}}
+	{\wj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
 
 \infrule[H-Bound]
-	{\Gamma\vdash{\tt X}\extends{\tt G}
-         \andalso
-         \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
+	{\wj{\Gamma}{{\tt X}\extends{\tt G}} \andalso
+	  \Gamma\vdash{\tt X}\extends{\tt G}
+    \andalso
+    \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
 \caption{\FXGL{B}.}
 \label{fig:FXGB}
 \end{figure*}
+
+\eat{
+\begin{figure*}
+\begin{minipage}{\textwidth}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Constraint) & {\tt c} &{::=}& ${\tt X}~\underline{\has}~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}$ \\
+\end{tabular}
+\end{minipage}%
+
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[W-Bound]
+	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt I}}
+	{\wj{\Gamma}{{\tt X}~\underline\has~{\tt I}}}
+
+
+\infrule
+  {\methods({\tt C}[\tbar{A}])\ni\minst{Y}{x}{G}{c}{H}{e}}
+  {\vdash{\tt C}[\tbar{A}]~\underline\has~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}}
+
+\infrule
+  {\vdash{\tt X}~\underline\has~{\tt m}[\tbar{Y}](\tbar{x}\ty\tbar{G})\{{\tt c}\}\ty{\tt H}}
+  {}
+
+\infrule[X-Bound]
+	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J},{\tt I}~\not\ll~{\tt J},{\tt J}~\not\ll~{\tt I}}
+	{\Gamma\vdash\false}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[H-Bound]
+	{\Gamma\vdash{\tt X}~\underline{\has}~{\tt f}\ty{\tt F} \andalso \theta={\tt x}/\this}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt f}\ty{\tt F}\theta}
+
+\infrule[H-Bound]
+	{\Gamma\vdash{\tt X}~\underline{\has}~{\tt I}
+         \andalso
+         \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
+\end{minipage}%
+\caption{\FXGL{S}.}
+\label{fig:FXGS}
+\end{figure*}
+}
+
 
 
 \begin{figure*}
