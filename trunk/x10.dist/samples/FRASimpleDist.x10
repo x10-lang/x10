@@ -28,8 +28,6 @@ class FRASimpleDist {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    const NUM_PLACES = NativeRuntime.MAX_PLACES;
-    const PLACE_ID_MASK = NUM_PLACES-1;
 
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:long): long {
@@ -65,9 +63,9 @@ class FRASimpleDist {
         finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
             val valp = p;
             async (Place.places(p)) {
-                var ran:long = HPCC_starts(valp*(num_updates/NUM_PLACES));
-                for (var i:long=0; i<num_updates/NUM_PLACES; i++) {
-                    val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) as int;
+                var ran:long = HPCC_starts(valp*(num_updates/Place.MAX_PLACES));
+                for (var i:long=0; i<num_updates/Place.MAX_PLACES; i++) {
+                    val placeId = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as int;
                     val valran = ran;
                     val table = tables(placeId);
                     async (Place.places(placeId)) {
@@ -82,7 +80,7 @@ class FRASimpleDist {
 
     public static def main(args:Rail[String]) {
 
-        if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
+        if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
         }
@@ -91,7 +89,7 @@ class FRASimpleDist {
         val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
             int.parseInt(args(1)) : 12;
         val localTableSize = 1<<logLocalTableSize;
-        val tableSize = localTableSize*NUM_PLACES;
+        val tableSize = localTableSize*Place.MAX_PLACES;
         val num_updates = 4*tableSize;
 
         // create local tables
@@ -107,8 +105,8 @@ class FRASimpleDist {
         val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (x:Int) => varTables(x));
 
         // print some info
-        println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
-        println("Number of places = " + NUM_PLACES);
+        println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
+        println("Number of places = " + Place.MAX_PLACES);
         println("Number of updates = " + num_updates);
 
         // time it
