@@ -32,6 +32,15 @@ namespace x10aux {
         ApplicationMainFunction main;
         ref<x10::lang::Rail<ref<x10::lang::String> > > args;
         public:
+
+        static x10aux::itable_entry _itables[2];
+        
+        virtual x10aux::itable_entry* _getITables() { return _itables; }
+        
+        static void _itable_thunk(x10aux::ref<x10::lang::VoidFun_0_0> this_) {
+            x10aux::ref<BootStrapClosure> tmp = this_;
+            tmp->apply();
+        }
         
         // closure body
         void apply () {
@@ -81,9 +90,9 @@ namespace x10aux {
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
-                new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
-                    x10aux::BootStrapClosure(T::main,args);
-
+                x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
+                                              x10aux::BootStrapClosure(T::main,args));
+            
             Runtime::start(main_closure); // use XRX
             //main_closure->apply(); // bypass XRX
             //sleep(3);
