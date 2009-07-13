@@ -58,7 +58,7 @@ A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha
 	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed in $\Gamma$
 	\item Lookup:\\
 	  $\Gamma\vdash {\tt x}~\has~{\tt I}$ \hfill variable {\tt x} has member {\tt I} in $\Gamma$\\
-	  $~$ \hfill where ${\tt I}::= {\tt f}:{\tt F} \alt {\tt m}[\tbar{B}](\tbar{x}\ty \tbar{G})\{{\tt c}\ty {\tt H}={\tt e}$
+	  $~$ \hfill where ${\tt I}::= {\tt f}\ty{\tt F} \alt {\tt m}[\tbar{B}](\tbar{x}\ty \tbar{G})\{{\tt c}\ty {\tt H}={\tt e}$
 	\item Subtyping:\\
 	  $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \\ $~$ \hfill type ${\tt S}\{\self=={\tt x}\}$ is a 	subtype of type {\tt T} in $\Gamma,{\tt x}\ty{\tt S}$
 	\item Typing:\\
@@ -443,34 +443,38 @@ By design of the type system, if the program {\tt P} type checks then all the co
 
 
 \begin{figure*}
-\centering
 \vspace{-\bigskipamount}
-\begin{minipage}{.4\textwidth}
-\typicallabel{XXXXXX}
-\infrule[A-Sub]
-	{\Gamma\vdash {\tt G}\extends {\tt H}}
-	{\Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}\subtype {\tt H}}
-
-\infrule[A-Member]
-	{\Gamma\vdash {\tt G}\subtype{\tt H}
-         \andalso
-         \Gamma,{\tt x}\ty{\tt H}\vdash {\tt x}~\has~{\tt I}}
-	{\Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
-\end{minipage}%
-\begin{minipage}{.6\textwidth}
-\quad\typicallabel{XXXXXX}
-\centering \begin{tabular}{r@{\quad}rcl}
-  (Constraint) & {\tt c} &{::=}& $\tt G==G$ \alt $\tt G\extends G$ \\
-  (User constraint)& {\tt c}, {\tt d} &{::=}& $\tt G==G$ \alt $\tt G\extends G$ \\
+\begin{minipage}{\textwidth}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Constraint) & {\tt c} &{::=}& $\tt X\extends G$ \\
 \end{tabular}
-
-\infrule[A-Inc]
-{\Gamma\vdash {\tt G}\subtype{\tt C}[\tbar{A}],{\tt G}\subtype{\tt D}[\tbar{B}],{\tt C}\#{\tt D}}{\Gamma\vdash{\tt false}}
 \end{minipage}%
-\medskip
 
-{\tt C}\#{\tt D} holds if neither {\tt C} reflexively, transitively extends {\tt D} nor {\tt D} extends {\tt C}
-\caption{{\sf FXG}$(\extends)$.}
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[E-Bound]
+	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
+	{\wj{\Gamma}{{\tt X}\extends{\tt G}}}
+
+\infrule[A-False]
+	{\Gamma\vdash{\tt X}\extends{\tt G},{\tt X}\extends{\tt H} \andalso
+	  {\tt G}\neq{\tt H}}
+	{\Gamma\vdash\false}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[E-Sub]
+	{\Gamma\vdash {\tt X}\extends {\tt H}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt H}}
+
+\infrule[A-Has]
+	{\Gamma\vdash{\tt X}\extends{\tt G}
+         \andalso
+         \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
+\end{minipage}%
+\caption{{\sf FXG}$(\cal B)$.}
 \label{fig:FXG}
 \end{figure*}
 
