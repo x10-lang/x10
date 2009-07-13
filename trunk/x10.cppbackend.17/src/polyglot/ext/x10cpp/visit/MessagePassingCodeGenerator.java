@@ -764,16 +764,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
+		X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class, Closure_c.class);
 		n.visit(xTypes);
-        ArrayList<ClassType> types = new ArrayList<ClassType>();
-        Set<ClassType> dupes = new HashSet<ClassType>();
-        dupes.add(def.asType());
+		ArrayList<ClassType> types = new ArrayList<ClassType>();
+		Set<ClassType> dupes = new HashSet<ClassType>();
+		dupes.add(def.asType());
 		if (xTypes.found()) {
-		    ArrayList typeNodes = xTypes.getMatches();
-		    for (int i = 0; i < typeNodes.size(); i++) {
-		        X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
-		        extractAllClassTypes(t.type(), types, dupes);
+		    ArrayList typeNodesAndClosures = xTypes.getMatches();
+		    for (int i = 0; i < typeNodesAndClosures.size(); i++) {
+		        Node tn = (Node) typeNodesAndClosures.get(i);
+		        if (tn instanceof X10CanonicalTypeNode_c) {
+		            X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) tn;
+		            extractAllClassTypes(t.type(), types, dupes);
+		        } else if (tn instanceof Closure_c) {
+                    Closure_c t = (Closure_c) tn;
+		            ClassType c = t.type().toClass();
+		            assert (c.interfaces().size() == 1);
+                    extractAllClassTypes(c.interfaces().get(0), types, dupes);
+		        }
 		    }
         }
         X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(def.asType().superClass());
