@@ -65,6 +65,7 @@ A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha
 	  $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \\ $~$ \hfill type ${\tt S}\{\self=={\tt x}\}$ is a 	subtype of type {\tt T} in $\Gamma,{\tt x}\ty{\tt S}$
 	\item Typing:\\
 	  $\Gamma\vdash {\tt e}\ty{\tt T}$ \hfill expression {\tt e} has type {\tt T} in $\Gamma$\\
+	  $\Gamma\vdash {\tt I}~//~{\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
 	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt c}\}\ty {\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
 	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
 
@@ -297,8 +298,8 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \infrule[H-Method]
   {\wj{\Gamma}{{\tt C}[\tbar{A}],\tbar{B}} \andalso
     \methods({\tt C}[\tbar{A}])\ni\minst{B}{y}{G}{d}{H}{e} \andalso
-    \theta={\tt x}/\this}
-  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{y}{G\theta}{d\theta}{H\theta}{e\theta}}
+    \theta={\tt x},\tbar{z}/\this,\tbar{y}}
+  {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}~\has~\minst{B}{z}{G\theta}{d\theta}{H\theta}{e\theta}}
 \end{minipage}%
 
 \begin{minipage}{.41\textwidth}
@@ -403,12 +404,9 @@ By design of the type system, if the program {\tt P} type checks then all the co
         
 \infrule[T-Invk]
 	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
-	  {\tt x}~{\rm fresh} \andalso
-	  \Gamma,{\tt x}\ty{\tt T}\vdash {\tt x}~\has~\minst{A}{y}{G}{c}{H}{b} \andalso
-	  \tbar{z}~{\rm fresh} \andalso
-	  \theta=\tbar{z}/\tbar{y} \andalso
-	  \Gamma,{\tt x}\ty{\tt T},\tbar{z}\ty\tbar{U}\vdash {\tt c}\theta,\tbar{z}\subtype\tbar{G}\theta}
-	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{z}}{\tbar{U}}{\tt H}\theta}
+	  {\tt x},\tbar{y}~{\rm fresh} \andalso
+	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty{\tt U}\vdash {\tt x}~\has~\minst{A}{y}{G}{c}{H}{b},{\tt c},\tbar{y}\subtype\tbar{G}}
+	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \eat{
 \infrule[OK-Method]
@@ -422,14 +420,46 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
   {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 }
+\end{minipage}%
 
+\begin{minipage}{.3\textwidth}
+\quad\typicallabel{XXXXXX}
+\infax[O-Field]
+  {\Gamma\vdash {\tt f}\ty{\tt F} ~//~ {\tt f}\ty{\tt F}}
+\end{minipage}%
+\begin{minipage}{.7\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[O-Method]
+  {\tbar{G}=\tbar{G'} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d} \andalso 
+    {\tt y}~{\rm fresh} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt H}\vdash{\tt y}\subtype{\tt H'}}
+  {\Gamma\vdash \minst{Y}{x}{G}{d}{H}{e} ~//~ \minst{Y}{x}{G'}{d'}{H'}{e'}}
+\end{minipage}%
+
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[OK-Method]
   {\cdecl \andalso
-    \wj{\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}}{{\tt d},\tbar{G},{\tt H}} \\
-    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
+    \Gamma=\tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*\\
+    \wj{\Gamma,\tbar{x}\ty\tbar{G},{\tt d}}{{\tt d},\tbar{G},{\tt H}} \andalso
+    \Gamma,\tbar{x}\ty\tbar{G},{\tt d}\vdash {\tt e}\ty{\tt E} \andalso
     {\tt y}~{\rm fresh} \andalso
-    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H}}
+    \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H} \\
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\minst{Y}{x}{G'}{d'}{H'}{e'} ~\Rightarrow~
+    \Gamma\vdash \minst{Y}{x}{G}{d}{H}{e} ~//~ \minst{Y}{x}{G'}{d'}{H'}{e'}}
   {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+
+\eat{
+\infrule[OK-Method]
+  {\cdecl \andalso
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H} \\
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\minst{Y}{x}{G'}{d'}{H'}{e'}~\Rightarrow
+    \left\{\begin{array}{@{}l@{}}
+    \tbar{G}=\tbar{G'}\\
+    \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d}\\
+    {\tt z}~{\rm fresh} \andalso \tbar{X}\ty*,{\tt c},\this\ty{\tt C}[\tbar{X}],\tbar{Y}\ty*,\tbar{x}\ty\tbar{G},{\tt d},{\tt z}\ty{\tt H}\vdash{\tt z}\subtype{\tt H'}
+    \end{array}\right.}
+  {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
+}
 
 \infrule[OK-Class]
   {\fields({\tt D}[\tbar{E}])=\tbar{g}\ty\tbar{G} \andalso
@@ -591,10 +621,9 @@ $\exty{\tt x}{\tt T}{\tt F}\{\self=={\tt x}.{\tt f}\}$.
 proxy reasoning for the arguments of the construtor call or for the receiver and the arguments of the method
 call.
 
-A method may only be overridden by a method with the same name, type parameters, value parameters, and value parameter types. The return type of must be a subtype of the overridden return type. The method guard must be entailed by the overriden method guards. To avoid cluttering the inference rules, we define overriding only informally; a formal definition is straightforward.
+Fields cannot be overriden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyset$ in rule {\sc OK-Class}. The {\sc O-Method} rule formalizes method overriding. A method $m1$ may be overriden by a method $m2$ with the same name, type parameters (modulo alpha-renaming), value parameters (modulo alpha-renaming), and value parameter types provided method $m2$ has a return type that is a subtype of $m1$'s return type and $m1$'s guard entails $m2$'s. Rule {\sc O-Field} is redundant at this point. It will matter to type system extensions.
 
-{\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that fields are not overriden, and that the body of a method has a type that is a subtype of its declared type.
-
+{\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes the guard of the superclass.
 
 \subsection{\FXGL{B}}
 We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cdot} family.
@@ -607,11 +636,9 @@ While elementary, this extension demonstrates the extensibility of the \FXGL{\cd
 
 The soundness of the type system (i.e., its proof) is preserved because:
 \begin{enumerate}
-\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}$ ans $\tt J$ overrides $\tt I$.
+\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} ~//~ {\tt I}$.
 \item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt F}$ and  $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt G}$ then ${\tt F}={\tt G}$.
-\item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~\minst{Y}{y}{G}{c}{H}{e}$ and $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~\minst{Y}{y}{G'}{c'}{H'}{e'}$ then the method signatures are equivalent, that is, $\tbar{G}=\tbar{G'}$, ${\tt H}={\tt H'}$, $\Gamma,{\tt x}\ty{\tt X},\tbar{y}:\tbar{G},{\tt c}\vdash {\tt c'}$, and $\Gamma,{\tt x}\ty{\tt X},\tbar{y}:\tbar{G},{\tt c'}\vdash{\tt c}$.
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ then $\Gamma,{\tt x}\ty{\tt X}\vdash {\tt I}~//~{\tt J},{\tt J}~//~{\tt I}$.
 \end{enumerate}
 
 
