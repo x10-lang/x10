@@ -15,9 +15,116 @@ import x10.compiler.NativeRep;
 //                  v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public final value Int implements Integer, Signed {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+public final value Int {
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Int) < (y:Int): Boolean;
+
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Int) > (y:Int): Boolean;
+
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Int) <= (y:Int): Boolean;
+
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Int) >= (y:Int): Boolean;
+
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((#1) + (#2))")
+    public native static operator (x:Int) + (y:Int): Int;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Int) - (y:Int): Int;
+
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((#1) * (#2))")
+    public native static operator (x:Int) * (y:Int): Int;
+
+    @Native("java", "((#1) / (#2))")
+    @Native("c++",  "((#1) / (#2))")
+    public native static operator (x:Int) / (y:Int): Int;
+
+    @Native("java", "((#1) % (#2))")
+    @Native("c++",  "((#1) % (#2))")
+    public native static operator (x:Int) % (y:Int): Int;
     
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((#1) & (#2))")
+    public native static operator (x:Int) & (y:Int): Int;
+    
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((#1) ^ (#2))")
+    public native static operator (x:Int) ^ (y:Int): Int;
+    
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((#1) | (#2))")
+    public native static operator (x:Int) | (y:Int): Int;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Int) << (y:Int): Int;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Int) >> (y:Int): Int;
+
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    public native static operator (x:Int) >>> (y:Int): Int;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Int) << (y:Long): Int;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Int) >> (y:Long): Int;
+
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    public native static operator (x:Int) >>> (y:Long): Int;
+    
+    @Native("java", "+(#1)")
+    @Native("c++",  "+(#1)")
+    public native static operator + (x:Int): Int;
+    
+    @Native("java", "-(#1)")
+    @Native("c++",  "-(#1)")
+    public native static operator - (x:Int): Int;
+    
+    @Native("java", "~(#1)")
+    @Native("c++",  "~(#1)")
+    public native static operator ~ (x:Int): Int;
+    
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:Byte): Int;
+
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:Short): Int;
+
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:Long) as Int;
+    
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:Float) as Int;
+    
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:Double) as Int;
+
+    @Native("java", "((int) (#1))")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:UInt) as Int;
+    
+
     @Native("java", "java.lang.Integer.MIN_VALUE")
     @Native("c++", "(x10_int)0x80000000")
     public const MIN_VALUE = 0x80000000;

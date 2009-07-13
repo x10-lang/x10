@@ -387,7 +387,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     // XXX doesn't handle n-body scanners correctly
-    public def $times(that:Xform): PolyScanner {
+    public operator this * (that:Xform): PolyScanner {
         if (that instanceof PolyXform) {
             val p = that as PolyXform;
             return new PolyScanner((C*p.T)||p.E, X1(0)*p.T);
@@ -398,7 +398,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     // XXX makes simplifying assumptions about conformance of regions
     // - make this more general!!!
-    public def $or(that:PolyScanner) {
+    public operator this || (that:PolyScanner) {
         val x = Rail.makeVal(this.X1.length + that.X1.length, (i:nat) =>
             i<this.X1.length? this.X1(i) : that.X1(i-this.X1.length));
         return new PolyScanner(this.C, x);

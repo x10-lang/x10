@@ -1015,7 +1015,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (ts.isByte(baseType1))
             return ts.isByte(baseType2) || ts.isShort(baseType2) || ts.isInt(baseType2) || ts.isLong(baseType2) || ts.isFloat(baseType2) || ts.isDouble(baseType2);
 
-        if (X10TypeSystem_c.SUPPORT_UNSIGNED) {
+        if (true) {
             if (ts.isULong(baseType1))
                 return ts.isULong(baseType2) || ts.isDouble(baseType2);
             if (ts.isUInt(baseType1))
@@ -1032,74 +1032,124 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public boolean numericConversionValid(Type t, java.lang.Object value) {
-        if (value == null)
-            return false;
+        assert false;
+        return numericConversionValid(t, null, value);
+    }
+    
+    public boolean numericConversionValid(Type toType, Type fromType, java.lang.Object value) {
+            if (value == null)
+                return false;
+            
+            if (value instanceof Float || value instanceof Double)
+                return false;
 
-        if (value instanceof Float || value instanceof Double)
-            return false;
+            long v;
+            
+            if (value instanceof Number) {
+                v = ((Number) value).longValue();
+            }
+            else if (value instanceof Character) {
+                v = ((Character) value).charValue();
+            }
+            else {
+                return false;
+            }
+    
+            Type base = X10TypeMixin.baseType(toType);
+            
+            boolean fits = false;
+            
+            boolean signedFrom = ts.isSigned(fromType);
+            boolean unsignedFrom = ts.isUnsigned(fromType);
 
-        long v;
+            if (signedFrom) {
+                if (ts.isUByte(toType)) {
+                    fits = 0 <= v && v <= 0xffL;
+                }
+                if (ts.isUShort(toType)) {
+                    fits = 0 <= v && v <= 0xffffL;
+                }
+                if (ts.isUInt(toType)) {
+                    fits = 0 <= v && v <= 0xffffffffL;
+                }
+                if (ts.isULong(toType)) {
+                    fits = 0 <= v;
+                }
 
-        if (value instanceof Number) {
-            v = ((Number) value).longValue();
-        }
-        else if (value instanceof Character) {
-            v = ((Character) value).charValue();
-        }
-        else {
-            return false;
-        }
+                if (ts.isByte(toType)) {
+                    fits = Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE;
+                }
+                if (ts.isShort(toType)) {
+                    fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
+                }
+                if (ts.isInt(toType)) {
+                    fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
+                }
+                if (ts.isLong(toType)) {
+                    fits = true;
+                }
+                
+                if (ts.isFloat(toType))
+                    // -2^24 .. 2^24
+                    fits = -16777216 <= v && v <= 16777216;
 
-        Type base = X10TypeMixin.baseType(t);
+                if (ts.isDouble(toType))
+                    // -2^53 .. 2^53
+                    fits = -9007199254740992L <= v && v <= 9007199254740992L;
+            }
 
-        boolean fits = false;
+            if (unsignedFrom) {
+                if (ts.isUByte(toType)) {
+                    fits = v <= 0xffL;
+                }
+                if (ts.isUShort(toType)) {
+                    fits = v <= 0xffffL;
+                }
+                if (ts.isUInt(toType)) {
+                    fits = v <= 0xffffffffL;
+                }
+                if (ts.isULong(toType)) {
+                    fits = true;
+                }
 
-        if (X10TypeSystem_c.SUPPORT_UNSIGNED) {
-            // For now, all constant values are signed, so conversions are only allowed for half the range.
-            // TODO: add unsigned kinds to IntLit, support unsigned Expr.constantValue()
-            if (ts.isULong(base))
-                fits = 0L <= v && v <= Long.MAX_VALUE;
-            if (ts.isUInt(base))
-                fits = 0L <= v && v <= Integer.MAX_VALUE;
-            if (ts.isUShort(base))
-                fits = 0L <= v && v <= Short.MAX_VALUE;
-            if (ts.isUByte(base))
-                fits = 0L <= v && v <= Byte.MAX_VALUE;
-        }
+                if (ts.isByte(toType)) {
+                    fits = v <= Byte.MAX_VALUE;
+                }
+                if (ts.isShort(toType)) {
+                    fits = v <= Short.MAX_VALUE;
+                }
+                if (ts.isInt(toType)) {
+                    fits = v <= Integer.MAX_VALUE;
+                }
+                if (ts.isLong(toType)) {
+                    fits = (v & ~0x7fffffffffffffffL) == 0;
+                }
+                
+                if (ts.isFloat(toType))
+                    // 0 .. 2^24
+                    fits = v <= 16777216;
 
-        if (base.isDouble())
-            fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
-        //		    fits = v == (long) ((double) v);
-        if (base.isFloat())
-            fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
-        //		    fits = v == (long) ((float) v);
-        if (base.isLong())
-            fits = Long.MIN_VALUE <= v && v <= Long.MAX_VALUE;
-        if (base.isInt())
-            fits = Integer.MIN_VALUE <= v && v <= Integer.MAX_VALUE;
-        if (base.isChar())
-            fits = Character.MIN_VALUE <= v && v <= Character.MAX_VALUE;
-        if (base.isShort())
-            fits = Short.MIN_VALUE <= v && v <= Short.MAX_VALUE;
-        if (base.isByte())
-            fits = Byte.MIN_VALUE <= v && v <= Byte.MAX_VALUE;
+                if (ts.isDouble(toType))
+                    // 0 .. 2^53
+                    fits = v <= 9007199254740992L;
+            }
 
-        if (! fits)
-            return false;
+            if (! fits)
+                return false;
+                    
+            // Check if adding self==value makes the constraint on t inconsistent.
+            
+            XLit val = XTerms.makeLit(value);
 
-        // Check if adding self==value makes the constraint on t inconsistent.
-
-        XLit val = XTerms.makeLit(value);
-
-        try {
-            XConstraint c = new XConstraint_c();
-            c.addSelfBinding(val);
-            return entails(c, X10TypeMixin.realX(t));
-        }
-        catch (XFailure f) {
-            // Adding binding makes real clause inconsistent.
-            return false;
-        }
+            try {
+                XConstraint c = new XConstraint_c();
+                c.addSelfBinding(val);
+                return entails(c, X10TypeMixin.realX(toType));
+            }
+            catch (XFailure f) {
+                // Adding binding makes real clause inconsistent.
+                return false;
+            }
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {
@@ -1167,26 +1217,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
             if (typeEquals(type1, type2)) {
                 return type1;
-            }
-
-            if (type1.isNumeric() && type2.isNumeric()) {
-                if (isImplicitCastValid(type1, type2)) {
-                    return type2;
-                }
-
-                if (isImplicitCastValid(type2, type1)) {
-                    return type1;
-                }
-
-                if (type1.isChar() && type2.isByte() ||
-                        type1.isByte() && type2.isChar()) {
-                    return ts.Int();
-                }
-
-                if (type1.isChar() && type2.isShort() ||
-                        type1.isShort() && type2.isChar()) {
-                    return ts.Int();
-                }
             }
 
             if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {

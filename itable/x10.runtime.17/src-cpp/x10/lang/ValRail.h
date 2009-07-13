@@ -14,7 +14,6 @@
 #include <x10aux/rail_utils.h>
 #include <x10aux/basic_functions.h>
 
-
 namespace x10 {
 
     namespace lang {
@@ -23,7 +22,7 @@ namespace x10 {
                                                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
         extern const x10aux::RuntimeType* _initRTTHelper_ValRailIterator(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
                                                                          const x10aux::RuntimeType *p1);
-        
+
         template<class T> class ValRail : public Value {
 
             public:
@@ -137,7 +136,7 @@ namespace x10 {
 
             static x10aux::ref<ValRail<T> > make(x10_int length,
                                                  x10aux::ref<Fun_0_1<x10_int,T> > init );
-            
+
             static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other);
 
             static const x10aux::serialization_id_t _serialization_id;
@@ -164,7 +163,7 @@ namespace x10 {
         template<class T> const x10aux::RuntimeType* ValRail<T>::RailIterator::_initRTT() {
             return x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
         }
-        
+
         template<class T> const x10aux::RuntimeType* ValRail<T>::rtt = NULL;
 
         template <class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
@@ -191,7 +190,7 @@ namespace x10 {
             } else {
                 // Ref type; simple reference equality
                 for (x10_int i = 0; i < this->FMGL(length); ++i)
-                    if ((*other_rail)[i] != this->raw()[i])
+                    if (!x10aux::struct_equals((*other_rail)[i],this->raw()[i]))
                         return false;
             }
             return true;

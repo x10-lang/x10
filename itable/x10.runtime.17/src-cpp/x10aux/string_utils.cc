@@ -35,7 +35,7 @@ void x10aux::free_args(ref<Rail<ref<String> > > arr) {
 ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
     char *str = alloc<char>(v->FMGL(length)+1);
     for (int i = 0; i < v->FMGL(length); ++i)
-        str[i] = (*v)[i];
+        str[i] = (*v)[i].v;
     str[v->FMGL(length)] = '\0';
     return String::Steal(str);
 }

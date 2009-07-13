@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Assign;
@@ -40,6 +41,7 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Id_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.Instanceof;
 import polyglot.ast.IntLit_c;
@@ -96,6 +98,7 @@ import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10IntLit_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.ast.X10Special;
@@ -142,12 +145,12 @@ import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.constraint.XAnd_c;
 import x10.constraint.XConstraint;
 import x10.constraint.XEQV_c;
 import x10.constraint.XEquals_c;
-import x10.constraint.XFailure;
 import x10.constraint.XField_c;
 import x10.constraint.XFormula_c;
 import x10.constraint.XLit_c;
@@ -173,7 +176,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         public static final String X10_FUN_CLASS_PREFIX = "x10.core.fun.Fun";
         public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
 
-        public static final boolean USE_JAVA_GENERICS = true;
         protected static final boolean serialize_runtime_constraints = false;
  
 	private final CodeWriter w;
@@ -199,6 +201,68 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		n.translate(w, tr);
 	}
 	
+	public static String mangleIdentifier(String n) {
+            // Workaround an assertion failure in Name.make.
+            if (! StringUtil.isNameShort(n))
+                return n;
+	    return mangleIdentifier(Name.make(n)).toString();
+	}
+	
+	public static Name mangleIdentifier(Name n) {
+	    Map<Name,Name> map = new HashMap<Name,Name>();
+	    map.put(X10Cast_c.operator_as, Name.make("$convert"));
+	    map.put(X10Cast_c.implicit_operator_as, Name.make("$implicit_convert"));
+	    map.put(Name.make("set"), Name.make("set"));
+	    map.put(Name.make("apply"), Name.make("apply"));
+            map.put(Name.make("operator+"), Name.make("$plus"));
+            map.put(Name.make("operator-"), Name.make("$minus"));
+            map.put(Name.make("operator*"), Name.make("$times"));
+            map.put(Name.make("operator/"), Name.make("$over"));
+            map.put(Name.make("operator%"), Name.make("$percent"));
+            map.put(Name.make("operator<"), Name.make("$lt"));
+            map.put(Name.make("operator>"), Name.make("$gt"));
+            map.put(Name.make("operator<="), Name.make("$le"));
+            map.put(Name.make("operator>="), Name.make("$ge"));
+            map.put(Name.make("operator<<"), Name.make("$left"));
+            map.put(Name.make("operator>>"), Name.make("$right"));
+            map.put(Name.make("operator>>>"), Name.make("$unsigned_right"));
+            map.put(Name.make("operator&"), Name.make("$ampersand"));
+            map.put(Name.make("operator|"), Name.make("$bar"));
+            map.put(Name.make("operator^"), Name.make("$caret"));
+            map.put(Name.make("operator~"), Name.make("$tilde"));
+            map.put(Name.make("operator&&"), Name.make("$and"));
+            map.put(Name.make("operator||"), Name.make("$or"));
+            map.put(Name.make("operator!"), Name.make("$not"));
+            map.put(Name.make("operator=="), Name.make("$equalsequals"));
+            map.put(Name.make("operator!="), Name.make("$ne"));
+            map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
+            map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
+            map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
+            map.put(Name.make("inverse_operator/"), Name.make("$inv_over"));
+            map.put(Name.make("inverse_operator%"), Name.make("$inv_percent"));
+            map.put(Name.make("inverse_operator<"), Name.make("$inv_lt"));
+            map.put(Name.make("inverse_operator>"), Name.make("$inv_gt"));
+            map.put(Name.make("inverse_operator<="), Name.make("$inv_le"));
+            map.put(Name.make("inverse_operator>="), Name.make("$inv_ge"));
+            map.put(Name.make("inverse_operator<<"), Name.make("$inv_left"));
+            map.put(Name.make("inverse_operator>>"), Name.make("$inv_right"));
+            map.put(Name.make("inverse_operator>>>"), Name.make("$inv_unsigned_right"));
+            map.put(Name.make("inverse_operator&"), Name.make("$inv_ampersand"));
+            map.put(Name.make("inverse_operator|"), Name.make("$inv_bar"));
+            map.put(Name.make("inverse_operator^"), Name.make("$inv_caret"));
+            map.put(Name.make("inverse_operator~"), Name.make("$inv_tilde"));
+            map.put(Name.make("inverse_operator&&"), Name.make("$inv_and"));
+            map.put(Name.make("inverse_operator||"), Name.make("$inv_or"));
+            map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
+            map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
+            map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
+
+            Name o = map.get(n);
+            if (o != null)
+                return o;
+	    return n;
+	}
+	
 	public void visit(LocalAssign_c n) {
 	    Local l = n.local();
 	    TypeSystem ts = tr.typeSystem();
@@ -216,7 +280,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(" = ");
 	        tr.print(n, l, w);
 	        w.write(".");
-	        w.write(methodName.toString());
+	        w.write(mangleIdentifier(methodName).toString());
 	        w.write("(");
 	        tr.print(n, n.right(), w);
 	        w.write(")");
@@ -230,7 +294,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n.operator() == Assign.ASSIGN || t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String(), tr.context())) {
 	            tr.print(n, n.target(), w);
 	            w.write(".");
-	            w.write(n.name().id().toString());
+	            w.write(mangleIdentifier(n.name().id()).toString());
 	            w.write(" ");
 	            w.write(n.operator().toString());
 	            w.write(" ");
@@ -242,14 +306,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        Name methodName = X10Binary_c.binaryMethodName(op);
                 tr.print(n, n.target(), w);
                 w.write(".");
-                w.write(n.name().id().toString());
+                w.write(mangleIdentifier(n.name().id()).toString());
                 w.write(" ");
 	        w.write(" = ");
                 tr.print(n, n.target(), w);
                 w.write(".");
-                w.write(n.name().id().toString());
+                w.write(mangleIdentifier(n.name().id()).toString());
 	        w.write(".");
-	        w.write(methodName.toString());
+	        w.write(mangleIdentifier(methodName).toString());
 	        w.write("(");
 	        tr.print(n, n.right(), w);
 	        w.write(")");
@@ -271,12 +335,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(" right) {");
 	        w.allowBreak(0, " ");
 	        w.write("return (target.");
-	        w.write(n.name().id().toString());
+	        w.write(mangleIdentifier(n.name().id()).toString());
 	        w.write(" = ");
 	        w.write("target.");
-	        w.write(n.name().id().toString());
+	        w.write(mangleIdentifier(n.name().id()).toString());
 	        w.write(".");
-	        w.write(methodName.toString());
+	        w.write(mangleIdentifier(methodName).toString());
 	        w.write("(right));");
 	        w.allowBreak(0, " ");
 	        w.write("} }.eval(");
@@ -405,20 +469,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.begin(0);
 	    w.write(flags.translate());
 
-	    if (USE_JAVA_GENERICS) {
-	        String sep = "<";
-	        for (int i = 0; i < md.typeParameters().size(); i++) {
-	            w.write(sep);
-	            sep = ", ";
-	            printType(md.typeParameters().get(i), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	        }
-	        if (md.typeParameters().size() > 0)
-	            w.write("> ");
-	    }
+            String sep = "<";
+            for (int i = 0; i < md.typeParameters().size(); i++) {
+                w.write(sep);
+                sep = ", ";
+                printType(md.typeParameters().get(i), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+            }
+            if (md.typeParameters().size() > 0)
+                w.write("> ");
 
 	    printType(md.returnType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 	    w.allowBreak(2, 2, " ", 1);
-	    w.write(md.name().toString());
+	    w.write(mangleIdentifier(md.name()).toString());
 
 	    w.write("(");
 
@@ -438,16 +500,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(" ");
 	        Type pt = p;
 	        assert pt instanceof ParameterType;
-	        w.write(((ParameterType) pt).name().toString());
+	        w.write(mangleIdentifier(((ParameterType) pt).name()).toString());
 	    }
 
 	    List<Expander> dispatchArgs = new ArrayList<Expander>();
 
-	    if (USE_JAVA_GENERICS) {
-	        for (Type pt : md.typeParameters()) {
-	            dispatchArgs.add(new Inline(((ParameterType) pt).name().toString()));
-	        }
-	    }
+            for (Type pt : md.typeParameters()) {
+                dispatchArgs.add(new Inline(mangleIdentifier(((ParameterType) pt).name()).toString()));
+            }
 
 	    for (int i = 0; i < md.formalTypes().size(); i++) {
 	        Type f = md.formalTypes().get(i);
@@ -511,18 +571,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write(".");
 	    
 
-            if (USE_JAVA_GENERICS) {
-                String sep = "<";
-                for (int i = 0; i < md.typeParameters().size(); i++) {
-                    w.write(sep);
-                    sep = ", ";
-                    printType(md.typeParameters().get(i), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-                }
-                if (md.typeParameters().size() > 0)
-                    w.write("> ");
+            sep = "<";
+            for (int i = 0; i < md.typeParameters().size(); i++) {
+                w.write(sep);
+                sep = ", ";
+                printType(md.typeParameters().get(i), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
             }
+            if (md.typeParameters().size() > 0)
+                w.write("> ");
 
-	    w.write(md.name().toString());
+	    w.write(mangleIdentifier(md.name()).toString());
 	    w.write("(");
 	    w.begin(0);
 
@@ -641,7 +699,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         return false;
     }
-	
+    
+
+    public void visit(Id_c n) {
+        w.write(mangleIdentifier(n.id()).toString());
+    }
+
 	private void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 	   X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
@@ -661,16 +724,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.begin(0);
 	    w.write(flags.translate());
 
-	    if (USE_JAVA_GENERICS) {
-	        String sep = "<";
-	        for (int i = 0; i < n.typeParameters().size(); i++) {
-	            w.write(sep);
-	            sep = ", ";
-	            printType(n.typeParameters().get(i).type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	        }
-	        if (n.typeParameters().size() > 0)
-	            w.write("> ");
-	    }
+            String sep = "<";
+            for (int i = 0; i < n.typeParameters().size(); i++) {
+                w.write(sep);
+                sep = ", ";
+                printType(n.typeParameters().get(i).type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+            }
+            if (n.typeParameters().size() > 0)
+                w.write("> ");
 
 	    printType(n.returnType().type(), PRINT_TYPE_PARAMS | (boxPrimitives ? BOX_PRIMITIVES : 0));
             w.allowBreak(2, 2, " ", 1);
@@ -693,7 +754,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("final ");
                 w.write(X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                w.write(p.name().id().toString());
+                w.write(mangleIdentifier(p.name().id()).toString());
             }
 
 	    for (int i = 0; i < n.formals().size(); i++) {
@@ -782,7 +843,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    w.write("final ");
 		    w.write(X10_RUNTIME_TYPE_CLASS);
 		    w.write(" ");
-		    w.write(p.name().toString());
+		    w.write(mangleIdentifier(p.name()).toString());
 		
 		    typeAssignments.add("this." + p.name() + " = " + p.name() + ";");
 		    
@@ -952,20 +1013,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		tr.print(n, n.name(), w);
 		
-		if (USE_JAVA_GENERICS) {
-		    if (n.typeParameters().size() > 0) {
-		        w.write("<");
-		        w.begin(0);
-		        String sep = "";
-		        for (TypeParamNode tp : n.typeParameters()) {
-		            w.write(sep);
-		            n.print(tp, w, tr);
-		            sep = ", ";
-		        }
-		        w.end();
-		        w.write(">");
-		    }
-		}
+                if (n.typeParameters().size() > 0) {
+                    w.write("<");
+                    w.begin(0);
+                    String sep = "";
+                    for (TypeParamNode tp : n.typeParameters()) {
+                        w.write(sep);
+                        n.print(tp, w, tr);
+                        sep = ", ";
+                    }
+                    w.end();
+                    w.write(">");
+                }
 		
 		if (n.superClass() != null) {
 		    w.allowBreak(0);
@@ -1023,14 +1082,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (n.typeParameters().size() > 0) {
 		    w.newline(4);
 		    w.begin(0);
-		    if (! USE_JAVA_GENERICS) {
-		        for (TypeParamNode tp : n.typeParameters()) {
-		            w.write("@x10.generics.Synthetic public class ");
-		            n.print(tp.name(), w, tr);
-		            w.write(" { }");
-		            w.newline();
-		        }
-		    }
 		    if (! n.flags().flags().isInterface()) {
 		        for (TypeParamNode tp : n.typeParameters()) {
 		            w.write("private final ");
@@ -1162,7 +1213,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (int i = 0; i < def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
             w.write("public final x10.types.Type ");
-            w.write(pt.name().toString());
+            w.write(mangleIdentifier(pt.name()).toString());
             w.write(";");
             w.newline();
         }
@@ -1174,7 +1225,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (i != 0)
                 w.write(", ");
             w.write("final x10.types.Type ");
-            w.write(pt.name().toString());
+            w.write(mangleIdentifier(pt.name()).toString());
         }
 
         w.write(") {");
@@ -1204,9 +1255,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (int i = 0; i <  def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
             w.write("this.");
-            w.write(pt.name().toString());
+            w.write(mangleIdentifier(pt.name()).toString());
             w.write(" = ");
-            w.write(pt.name().toString());
+            w.write(mangleIdentifier(pt.name()).toString());
             w.write(";");
             w.newline();
         }
@@ -1240,32 +1291,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             switch (var) {
             case INVARIANT:
                 w.write("this.");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write(".equals(");
                 javacast(def.asType(), BOX_PRIMITIVES, "o");
                 w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write("()");
                 w.write(")");
                 break;
             case COVARIANT:
                 w.write("this.");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write(".isSubtype(");
                 javacast(def.asType(), BOX_PRIMITIVES, "o");
                 w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write("()");
                 w.write(")");
                 break;
             case CONTRAVARIANT:
                 javacast(def.asType(), BOX_PRIMITIVES, "o");
                 w.write("." + "rtt_" + mangle(def.fullName()) + "_");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write("()");
                 w.write(".isSubtype(");
                 w.write("this.");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write(")");
                 break;
             }
@@ -1296,7 +1347,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 ParameterType pt = def.typeParameters().get(i);
                 if (i != 0)
                     w.write(", ");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
             }
             w.end();
             w.newline();
@@ -1528,7 +1579,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             ParameterType.Variance var = def.variances().get(i);
             
             w.write("public x10.types.Type<?> " + "rtt_" + mangle(def.fullName()) + "_");
-            w.write(pt.name().toString());
+            w.write(mangleIdentifier(pt.name()).toString());
             w.write("()");
 
             if (def.flags().isInterface()) {
@@ -1536,7 +1587,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             else if (! boxed) {
                 w.write(" { return this.");
-                w.write(pt.name().toString());
+                w.write(mangleIdentifier(pt.name()).toString());
                 w.write("; }");
             }
             else {
@@ -1573,7 +1624,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     for (int i = 0; i < idef.typeParameters().size(); i++) {
                         ParameterType pt = idef.typeParameters().get(i);
                         w.write("public x10.types.Type<?> " + "rtt_" + mangle(idef.fullName()) + "_");
-                        w.write(pt.name().toString());
+                        w.write(mangleIdentifier(pt.name()).toString());
                         w.write("() { ");
 
                         if (! boxed) {
@@ -1980,7 +2031,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    w.write(">");
 		}
 
-		w.write(c.name().id().toString());
+		w.write(mangleIdentifier(c.name().id()).toString());
 
 		w.write("(");
 		w.begin(0);
@@ -2341,7 +2392,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (target instanceof TypeNode) {
 		    printType(t, 0);
 		    w.write(".");
-		    w.write(n.name().id().toString());
+		    w.write(mangleIdentifier(n.name().id()).toString());
 		}
 		else {
 
@@ -2354,7 +2405,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        new Template("place-check", new TypeExpander(t, true, false, false), target).expand();
 		        // then emit '.' and name of the field.
 		        w.write(".");
-		        w.write(n.name().id().toString());
+		        w.write(mangleIdentifier(n.name().id()).toString());
 		    } else
 		        // WARNING: it's important to delegate to the appropriate visit() here!
 		        visit((Node)n);
@@ -2364,8 +2415,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(IntLit_c n) {
 	    String val;
-	    if (n.kind() == IntLit_c.LONG)
+	    if (n.kind() == X10IntLit_c.ULONG) {
 	        val = Long.toString(n.value()) + "L";
+            }
+            else if (n.kind() == IntLit_c.LONG) {
+	        val = Long.toString(n.value()) + "L";
+            }
+            else if (n.kind() == X10IntLit_c.UINT) {
+	        if (n.value() >= 0x80000000L)
+	            val = "0x" + Long.toHexString(n.value() & 0xffffffffL);
+	        else
+	            val = Long.toString(n.value() & 0xffffffffL);
+            }
 	    else if (n.kind() == IntLit_c.INT) {
 	        if (n.value() >= 0x80000000L)
 	            val = "0x" + Long.toHexString(n.value());
@@ -2558,7 +2619,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	        else {
 	            w.write(".");
-	            w.write(methodName.toString());
+	            w.write(mangleIdentifier(methodName).toString());
 	            w.write("(");
 	            tr.print(n, n.right(), w);
 	            w.write(")");
@@ -2617,7 +2678,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	        else {
 	            w.write(".");
-	            w.write(methodName.toString());
+	            w.write(mangleIdentifier(methodName).toString());
 	            w.write("(right)");
 	        }
 	        if (index.size() > 0)
@@ -2747,12 +2808,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 
 		if (type instanceof ParameterType) {
-		    if (USE_JAVA_GENERICS) {
-		        w.write(((ParameterType) type).name().toString());
-		    }
-		    else {
-		        w.write("java.lang.Object");
-		    }
+                    w.write(((ParameterType) type).name().toString());
 		    return;
 		}
 		
@@ -2768,7 +2824,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		    w.write("_" + ct.typeParameters().size());
 		    w.write("_" + args.size());
-		    if (USE_JAVA_GENERICS && printTypeParams && args.size() + (ret.isVoid() ? 0 : 1) > 0) {
+		    if (printTypeParams && args.size() + (ret.isVoid() ? 0 : 1) > 0) {
 		        w.write("<");
 		        String sep = "";
 		        for (Type a : args) {
@@ -2805,7 +2861,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			type.print(w);
 		}
 
-		if (printTypeParams && USE_JAVA_GENERICS) {
+		if (printTypeParams) {
 			if (type instanceof X10ClassType) {
 				X10ClassType ct = (X10ClassType) type;
 				String sep = "<";

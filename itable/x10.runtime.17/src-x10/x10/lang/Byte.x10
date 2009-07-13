@@ -13,8 +13,111 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "byte", "x10.core.BoxedByte", "x10.types.Type.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
-public final value Byte implements Integer, Signed {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+public final value Byte {
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Byte) < (y:Byte): Boolean;
+
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Byte) > (y:Byte): Boolean;
+
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Byte) <= (y:Byte): Boolean;
+
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Byte) >= (y:Byte): Boolean;
+
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((#1) + (#2))")
+    public native static operator (x:Byte) + (y:Byte): Int;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Byte) - (y:Byte): Int;
+
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((#1) * (#2))")
+    public native static operator (x:Byte) * (y:Byte): Int;
+
+    @Native("java", "((#1) / (#2))")
+    @Native("c++",  "((#1) / (#2))")
+    public native static operator (x:Byte) / (y:Byte): Int;
+
+    @Native("java", "((#1) % (#2))")
+    @Native("c++",  "((#1) % (#2))")
+    public native static operator (x:Byte) % (y:Byte): Int;
+    
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((#1) & (#2))")
+    public native static operator (x:Byte) & (y:Byte): Int;
+    
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((#1) ^ (#2))")
+    public native static operator (x:Byte) ^ (y:Byte): Int;
+    
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((#1) | (#2))")
+    public native static operator (x:Byte) | (y:Byte): Int;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Byte) << (y:Int): Int;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Byte) >> (y:Int): Int;
+    
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    public native static operator (x:Byte) >>> (y:Int): Int;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Byte) << (y:Long): Int;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Byte) >> (y:Long): Int;
+    
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    public native static operator (x:Byte) >>> (y:Long): Int;
+    
+    @Native("java", "+(#1)")
+    @Native("c++",  "+(#1)")
+    public native static operator + (x:Byte): Int;
+    
+    @Native("java", "-(#1)")
+    @Native("c++",  "-(#1)")
+    public native static operator - (x:Byte): Int;
+    
+    @Native("java", "~(#1)")
+    @Native("c++",  "~(#1)")
+    public native static operator ~ (x:Byte): Int;
+    
+    @Native("java", "((byte) (#1))")
+    @Native("c++",  "((x10_byte) (#1))")
+    public native static operator (x:Short) as Byte;
+    
+    @Native("java", "((byte) (#1))")
+    @Native("c++",  "((x10_byte) (#1))")
+    public native static operator (x:Int) as Byte;
+
+    @Native("java", "((byte) (#1))")
+    @Native("c++",  "((x10_byte) (#1))")
+    public native static operator (x:Long) as Byte;
+
+    @Native("java", "((byte) (#1))")
+    @Native("c++",  "((x10_byte) (#1))")
+    public native static operator (x:Float) as Byte;
+    
+    @Native("java", "((byte) (#1))")
+    @Native("c++",  "((x10_byte) (#1))")
+    public native static operator (x:Double) as Byte;
+
     
     @Native("java", "java.lang.Byte.MIN_VALUE")
     @Native("c++", "(x10_byte)0x80")

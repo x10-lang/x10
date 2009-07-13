@@ -46,7 +46,7 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
-    int needle = (int)c;
+    int needle = (int)c.v;
     // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
     const char *pos = strchr(haystack, needle);
@@ -88,7 +88,7 @@ static const char *my_strrchr(const char *haystack, int needle, int give_up) {
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
-    int needle = (int)c;
+    int needle = (int)c.v;
     const char *haystack = FMGL(content);
     // TODO: bounds check
     const char *pos = my_strrchr(haystack, needle, i);
@@ -125,7 +125,7 @@ ref<ValRail<x10_byte> > String::bytes() {
     x10_int sz = length();
     ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
     for (int i=0 ; i<sz ; i++)
-        rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
+        rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
     return rail;
 }
 
@@ -156,7 +156,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
         else if (x10aux::instanceof<ref<Box<x10_byte> > >(p))
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_byte>(p)));
         else if (x10aux::instanceof<ref<Box<x10_char> > >(p))
-            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_char>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, (char)class_cast<x10_char>(p).v));
         else if (x10aux::instanceof<ref<Box<x10_short> > >(p))
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_short>(p)));
         else if (x10aux::instanceof<ref<Box<x10_int> > >(p))

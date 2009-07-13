@@ -20,6 +20,7 @@ import polyglot.ast.AmbExpr;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
@@ -33,7 +34,6 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -203,27 +203,27 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
     public static Name binaryMethodName(Binary.Operator op) {
         Map<Binary.Operator,String> methodNameMap = new HashMap<Operator, String>();
-        methodNameMap.put(ADD, "$plus");
-        methodNameMap.put(SUB, "$minus");
-        methodNameMap.put(MUL, "$times");
-        methodNameMap.put(DIV, "$over");
-        methodNameMap.put(MOD, "$percent");
-        methodNameMap.put(BIT_AND, "$ampersand");
-        methodNameMap.put(BIT_OR, "$bar");
-        methodNameMap.put(BIT_XOR, "$caret");
-        methodNameMap.put(COND_OR, "$or");
-        methodNameMap.put(COND_AND, "$and");
-        methodNameMap.put(SHL, "$left");
-        methodNameMap.put(SHR, "$right");
-        methodNameMap.put(USHR, "$righter");
-        methodNameMap.put(LT, "$lt");
-        methodNameMap.put(GT, "$gt");
-        methodNameMap.put(LE, "$le");
-        methodNameMap.put(GE, "$ge");
+        methodNameMap.put(ADD, "operator+");
+        methodNameMap.put(SUB, "operator-");
+        methodNameMap.put(MUL, "operator*");
+        methodNameMap.put(DIV, "operator/");
+        methodNameMap.put(MOD, "operator%");
+        methodNameMap.put(BIT_AND, "operator&");
+        methodNameMap.put(BIT_OR, "operator|");
+        methodNameMap.put(BIT_XOR, "operator^");
+        methodNameMap.put(COND_OR, "operator||");
+        methodNameMap.put(COND_AND, "operator&&");
+        methodNameMap.put(SHL, "operator<<");
+        methodNameMap.put(SHR, "operator>>");
+        methodNameMap.put(USHR, "operator>>>");
+        methodNameMap.put(LT, "operator<");
+        methodNameMap.put(GT, "operator>");
+        methodNameMap.put(LE, "operator<=");
+        methodNameMap.put(GE, "operator>=");
 
         // these should not be overridable
-        methodNameMap.put(EQ, "$eq");
-        methodNameMap.put(NE, "$ne");
+        methodNameMap.put(EQ, "operator==");
+        methodNameMap.put(NE, "operator!=");
 
         String methodName = methodNameMap.get(op);
         if (methodName == null)
@@ -235,7 +235,60 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Name n = binaryMethodName(op);
         if (n == null)
             return null;
-        return Name.make("inv" + n.toString());
+        return Name.make("inverse_" + n.toString());
+    }
+    
+    private static Type promote(X10TypeSystem ts, Type t1, Type t2) {
+        if (ts.isByte(t1)) {
+            return t2;
+        }
+        if (ts.isShort(t1)) {
+            if (ts.isByte(t2))
+                return t1;
+            return t2;
+        }
+        if (ts.isInt(t1)) {
+            if (ts.isByte(t2) || ts.isShort(t2))
+                return t1;
+            return t2;
+        }
+        if (ts.isLong(t1)) {
+            if (ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2))
+                return t1;
+            return t2;
+        }
+
+        if (ts.isUByte(t1)) {
+            return t2;
+        }
+        if (ts.isUShort(t1)) {
+            if (ts.isUByte(t2))
+                return t1;
+            return t2;
+        }
+        if (ts.isUInt(t1)) {
+            if (ts.isUByte(t2) || ts.isUShort(t2))
+                return t1;
+            return t2;
+        }
+        if (ts.isULong(t1)) {
+            if (ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2))
+                return t1;
+            return t2;
+        }
+
+        if (ts.isFloat(t1)) {
+            if (ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2) || ts.isLong(t2))
+                return t1;
+            if (ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2) || ts.isULong(t2))
+                return t1;
+            return t2;
+        }
+        if (ts.isDouble(t1)) {
+            return t1;
+        }
+        
+        return null;
     }
 
     /**
@@ -246,164 +299,80 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        
+        TypeSystem ts = xts;
         Context context = tc.context();
-        
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        Name methodName = binaryMethodName(op);
-        Name invMethodName = invBinaryMethodName(op);
-        
-        Type l = left.type();
-        Type r = right.type();
+
+        Type lbase = X10TypeMixin.baseType(left.type());
+        Type rbase = X10TypeMixin.baseType(right.type());
+
+        if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
+            Object lv = left.isConstant() ? left.constantValue() : null;
+            Object rv = right.isConstant() ? right.constantValue() : null;
+            
+            // If comparing signed vs. unsigned, check if one operand is a constant convertible to the other (base) type.
+            // If so, insert the conversion and check again.
+            
+            if (xts.isSigned(lbase) && xts.isUnsigned(rbase) || xts.isSigned(lbase) && xts.isUnsigned(rbase)) {
+                if (lv != null && xts.numericConversionValid(rbase, lv, context)) {
+                    Expr e = X10New_c.attemptCoercion(tc, left, rbase);
+                    return X10Cast_c.check(left(e), tc);
+                }
+                if (rv != null && xts.numericConversionValid(lbase, rv, context)) {
+                    Expr e = X10New_c.attemptCoercion(tc, right, lbase);
+                    return X10Cast_c.check(right(e), tc);
+                }
+            }
+            
+            if (xts.isUnsigned(lbase) && xts.isSigned(rbase))
+                throw new SemanticException("Cannot compare unsigned versus signed values.", position());
+
+            if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
+                throw new SemanticException("Cannot compare signed versus unsigned values.", position());
+            
+            Type promoted = promote(xts, lbase, rbase);
+            
+            if (promoted != null &&
+                (! xts.typeBaseEquals(lbase, promoted, context) ||
+                 ! xts.typeBaseEquals(rbase, promoted, context))) {
+                Expr el = X10New_c.attemptCoercion(tc, left, promoted);
+                Expr er = X10New_c.attemptCoercion(tc, right, promoted);
+                return X10Cast_c.check(left(el).right(er), tc);
+            }
+        }
         
         if (op == EQ || op == NE) {
-            if (xts.isNumeric(l) && xts.isNumeric(r)) {
+            // == and != are allowed if the *unconstrained* types can be cast to each other without coercions.
+            // Coercions are handled above for numerics.  No other coercions are allowed.
+            // Constraints are ignored so that things like x==k will not cause compile-time errors
+            // when x is a final variable initialized to a constant != k.
+            if (xts.isCastValid(lbase, rbase, context) || xts.isCastValid(rbase, lbase, context)) {
                 return type(xts.Boolean());
             }
-
-            if (xts.isCastValid(l, r, context) || xts.isCastValid(r, l, context)) {
-                return type(xts.Boolean());
-            }
-
-            if (xts.isImplicitCastValid(l, r, context) || xts.isImplicitCastValid(r, l, context)) {
-                return type(xts.Boolean());
-            }
+//
+//            if (xts.isImplicitCastValid(lbase, rbase, context) || xts.isImplicitCastValid(rbase, lbase, context)) {
+//                assert false : "isCastValid but isImplicitCastValid not for " + lbase + " and " + rbase;
+//                return type(xts.Boolean());
+//            }
 
             throw new SemanticException("The " + op +
-                                        " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
+                                        " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
                                         position());
         }
 
-        X10Call_c virtual_left = null;
-        X10Call_c virtual_right = null;
-        X10Call_c static_left = null;
-        X10Call_c static_right = null;
-
-        if (methodName != null) {
-            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n = (X10Call_c) nf.X10Call(position(), left, nf.Id(position(), methodName), Collections.EMPTY_LIST, Collections.singletonList(right));
-
-            try {
-                n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-                virtual_left = n;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
-        }
-
-        if (methodName != null) {
-            // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n = (X10Call_c) nf.X10Call(position(), nf.CanonicalTypeNode(position(), Types.ref(l)), nf.Id(position(), methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
-
-            try {
-                n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-                static_left = n;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
-        }
-
-        if (methodName != null) {
-            // Check if there is a static method of the right type with the appropriate name and type.   
-            X10Call_c n = (X10Call_c) nf.X10Call(position(), nf.CanonicalTypeNode(position(), Types.ref(r)), nf.Id(position(), methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
-
-            try {
-                n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-                static_right = n;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
-        }
-
-
-        if (invMethodName != null) {
-            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n = (X10Call_c) nf.X10Call(position(), right, nf.Id(position(), invMethodName), Collections.EMPTY_LIST, Collections.singletonList(left));
-
-            try {
-                n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-                virtual_right = n;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
-        }
-
-        List<X10Call_c> defs = new ArrayList<X10Call_c>();
-        if (virtual_left != null) defs.add(virtual_left);
-        if (virtual_right != null) defs.add(virtual_right);
-        if (static_left != null) defs.add(static_left);
-        if (static_right != null) defs.add(static_right);
-
-        if (defs.size() > 1) {
-
-            X10Call_c best = null;
-
-            for (int i = 0; i < defs.size(); i++) {
-                X10Call_c n = defs.get(i);
-                if (best == null)
-                    best = n;
-                else {
-                    MethodDef m0 = best.methodInstance().def();
-                    MethodDef mi = n.methodInstance().def();
-                    if (m0 == mi)
-                        continue;
-                    Type t0 = Types.get(m0.container());
-                    Type ti = Types.get(mi.container());
-                    t0 = X10TypeMixin.baseType(t0);
-                    ti = X10TypeMixin.baseType(ti);
-                    
-                    if (t0 instanceof ClassType && ti instanceof ClassType) {
-                    ClassDef c0 = ((ClassType) t0).def();
-                    ClassDef ci = ((ClassType) ti).def();
-                    if (xts.descendsFrom(ci, c0)) {
-                        best = n;
-                    }
-                    else if (xts.descendsFrom(c0, ci)) {
-                        // best is still the best
-                    }
-                    else {
-                        throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ".", position());
-                    }
-                    }
-                }
-            }
-
-            assert best != null;
-            return best;
-        }
-
-        if (defs.size() == 1)
-            return defs.get(0);
-
-        X10Binary_c n = (X10Binary_c) superTypeCheck(tc);
-
-        Type resultType = n.type();
-        resultType = xts.performBinaryOperation(resultType, l, r, op);
-        if (resultType != n.type()) {
-            n = (X10Binary_c) n.type(resultType);
-        }
-
-        return n;
-    }
-
-    // Override to insert explicit coercions.
-    private Expr superTypeCheck(ContextVisitor tc) throws SemanticException {
         Type l = left.type();
         Type r = right.type();
-
-        TypeSystem ts = tc.typeSystem();
-        Context context = tc.context();
-
-        if (op == GT || op == LT || op == GE || op == LE) {
-            if (l.isNumeric() && r.isNumeric()) {
-                return type(ts.Boolean());
+        
+        Call c = desugarBinaryOp(this, tc);
+        if (c != null) {
+            // rebuild the unary using the call's arguments.  We'll actually use the call node after desugaring.
+            if (c.methodInstance().flags().isStatic()) {
+                return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
+            }
+            else {
+                return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
             }
         }
-
+        
         if (op == COND_OR || op == COND_AND) {
             if (l.isBoolean() && r.isBoolean()) {
                 return type(ts.Boolean());
@@ -412,17 +381,17 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (op == ADD) {
             if (ts.isSubtype(l, ts.String(), context) || ts.isSubtype(r, ts.String(), context)) {
-                if (!ts.canCoerceToString(r, tc.context())) {
-                    throw new SemanticException("Cannot coerce an expression " + 
-                                                "of type " + r + " to a String.", 
-                                                right.position());
-                }
                 if (!ts.canCoerceToString(l, tc.context())) {
                     throw new SemanticException("Cannot coerce an expression " + 
                                                 "of type " + l + " to a String.", 
                                                 left.position());
                 }
-                
+                if (!ts.canCoerceToString(r, tc.context())) {
+                    throw new SemanticException("Cannot coerce an expression " + 
+                                                "of type " + r + " to a String.", 
+                                                right.position());
+                }
+
                 Expr newLeft = coerceToString(tc, left);
                 Expr newRight = coerceToString(tc, right);
 
@@ -430,38 +399,204 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             }
         }
 
-        if (op == ADD || op == SUB || op == MUL || op == DIV || op == MOD) {
-            if (l.isNumeric() && r.isNumeric()) {
-                Type t = ts.promote(l, r);
-                Expr le = X10New_c.attemptCoercion(tc, left, t);
-                Expr re = X10New_c.attemptCoercion(tc, right, t);
-                return left(le).right(re).type(t);
-            }
-        }
-
-        if (op == BIT_AND || op == BIT_OR || op == BIT_XOR) {
-            if (l.isBoolean() && r.isBoolean()) {
-                return type(ts.Boolean());
-            }
-
-            if (ts.isLongOrLess(l) && ts.isLongOrLess(r)) {
-                Type t = ts.promote(l, r);
-                Expr le = X10New_c.attemptCoercion(tc, left, t);
-                Expr re = X10New_c.attemptCoercion(tc, right, t);
-                return left(le).right(re).type(t);
-            }
-        }
-
-        if (op == SHL || op == SHR || op == USHR) {
-            if (ts.isLongOrLess(l) && ts.isLongOrLess(r)) {
-                // For shift, only promote the left operand.
-                Type t = ts.promote(l);
-                Expr le = X10New_c.attemptCoercion(tc, left, t);
-                return left(le).type(t);
-            }
-        }
-
         throw new SemanticException("No operation " + op + " found for operands " + l + " and " + r + ".", position());
+    }
+    
+    public static X10Call_c desugarBinaryOp(Binary n, ContextVisitor tc) throws SemanticException {
+        Expr left = n.left();
+        Expr right = n.right();
+        Binary.Operator op = n.operator();
+        Position pos = n.position();
+        
+        Type l = left.type();
+        Type r = right.type();
+        
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        Name methodName = X10Binary_c.binaryMethodName(op);
+        Name invMethodName = X10Binary_c.invBinaryMethodName(op);
+        
+        // TODO: byte+byte should convert both bytes to int and search int
+        // For now, we have to define byte+byte in byte.x10.
+        
+        X10Call_c virtual_left = null;
+        X10Call_c virtual_right = null;
+        X10Call_c static_left = null;
+        X10Call_c static_right = null;
+        
+        if (methodName != null) {
+            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(right));
+        
+            try {
+                n2 = X10Cast_c.check(n2, tc);
+                if (! n2.methodInstance().def().flags().isStatic())
+                    virtual_left = n2;
+            }
+            catch (SemanticException e2) {
+                // Cannot find the method.  Fall through.
+            }
+        }
+        
+        if (methodName != null) {
+            // Check if there is a static method of the left type with the appropriate name and type.   
+            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+        
+            try {
+                n4 = X10Cast_c.check(n4, tc);
+                if (n4.methodInstance().def().flags().isStatic())
+                    static_left = n4;
+            }
+            catch (SemanticException e2) {
+                // Cannot find the method.  Fall through.
+            }
+        }
+        
+        if (methodName != null) {
+            // Check if there is a static method of the right type with the appropriate name and type.   
+            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+        
+            try {
+                n3 = X10Cast_c.check(n3, tc);
+                if (n3.methodInstance().def().flags().isStatic())
+                    static_right = n3;
+            }
+            catch (SemanticException e2) {
+                // Cannot find the method.  Fall through.
+            }
+        }
+        
+        if (invMethodName != null) {
+            // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+            X10Call_c n5 = (X10Call_c) nf.X10Call(pos, right, nf.Id(pos, invMethodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+        
+            try {
+                n5 = X10Cast_c.check(n5, tc);
+                if (! n5.methodInstance().def().flags().isStatic())
+                    virtual_right = n5;
+            }
+            catch (SemanticException e2) {
+                // Cannot find the method.  Fall through.
+            }
+        }
+        
+        List<X10Call_c> defs = new ArrayList<X10Call_c>();
+        if (virtual_left != null) defs.add(virtual_left);
+        if (virtual_right != null) defs.add(virtual_right);
+        if (static_left != null) defs.add(static_left);
+        if (static_right != null) defs.add(static_right);
+        
+        if (defs.size() > 1) {
+            X10TypeSystem  ts = (X10TypeSystem) tc.typeSystem();
+        
+            X10Call_c best = null;
+            boolean bestNeedsConversion = false;
+            boolean bestNeedsExplicitConversion = false;
+        
+            for (int i = 0; i < defs.size(); i++) {
+                X10Call_c n1 = defs.get(i);
+        
+                // Check if n needs a conversio
+                boolean needsConversion = false;
+                boolean needsExplicitConversion = false;
+                if (n1.arguments().size() == 1 && n1.target() instanceof Expr) {
+                    Expr[] actuals = new Expr[] { (Expr) n1.target(), n1.arguments().get(0) };
+                    Expr[] original = new Expr[] { left, right };
+                    needsConversion = needsConversion(actuals, original);
+                    needsExplicitConversion = needsExplicitConversion(actuals, original);
+                }
+                else if (n1.arguments().size() == 2) {
+                    Expr[] actuals = new Expr[] { n1.arguments().get(0), n1.arguments().get(1) };
+                    Expr[] original = new Expr[] { left, right };
+                    needsConversion = needsConversion(actuals, original);
+                    needsExplicitConversion = needsExplicitConversion(actuals, original);
+                }
+        
+                if (best == null) {
+                    best = n1;
+                    bestNeedsConversion = needsConversion;
+                    bestNeedsExplicitConversion = needsExplicitConversion;
+                }
+                else if (needsExplicitConversion && ! bestNeedsExplicitConversion) {
+                    // best is still the best
+                }
+                else if (needsConversion && ! bestNeedsConversion) {
+                    // best is still the best
+                }
+                else if (! needsExplicitConversion && bestNeedsExplicitConversion) {
+                    best = n1;
+                    bestNeedsConversion = needsConversion;
+                    bestNeedsExplicitConversion = needsExplicitConversion;
+                }
+                else if (! needsConversion && bestNeedsConversion) {
+                    best = n1;
+                    bestNeedsConversion = needsConversion;
+                    bestNeedsExplicitConversion = needsExplicitConversion;
+                }
+                else {
+                    MethodDef m0 = best.methodInstance().def();
+                    MethodDef mi = n1.methodInstance().def();
+                    if (m0 == mi)
+                        continue;
+        
+                    Type t0 = Types.get(m0.container());
+                    Type ti = Types.get(mi.container());
+                    
+                    ClassDef d0 = def(t0);
+                    ClassDef di = def(ti);
+                    
+                    if (d0 == null || di == null) {
+                        throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ": " + m0 + " and " + mi + ".", pos);
+                    }
+                    
+                    if (ts.descendsFrom(d0, di)) {
+                        // best is still the best
+                    }
+                    else if (ts.descendsFrom(di, d0)) {
+                        best = n1;
+                        bestNeedsConversion = needsConversion;
+                        bestNeedsExplicitConversion = needsExplicitConversion;
+                    }
+                    else {
+                        throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ": " + m0 + " and " + mi + ".", pos);
+                    }
+                }
+            }
+        
+            assert best != null;
+            return best;
+        }
+        
+        if (defs.size() == 1)
+            return defs.get(0);
+        
+        return null;
+    }
+    
+    public static ClassDef def(Type t) {
+        Type base = X10TypeMixin.baseType(t);
+        if (base instanceof ClassType)
+            return ((ClassType) base).def();
+        return null;
+    }
+    
+    public static boolean needsExplicitConversion(Expr[] actuals, Expr[] original) {
+        for (int k = 0; k < actuals.length; k++) {
+            if (actuals[k] != original[k])
+                if (actuals[k] instanceof X10Call) {
+                    X10Call c = (X10Call) actuals[k];
+                    if (c.methodInstance().name() == X10Cast_c.operator_as)
+                        return true;
+                }
+        }
+        return false;
+    }
+
+    public static boolean needsConversion(Expr[] actuals, Expr[] original) {
+        for (int k = 0; k < actuals.length; k++) {
+            if (actuals[k] != original[k])
+                return true;
+        }
+        return false;
     }
 
     protected static Expr coerceToString(ContextVisitor tc, Expr e) throws SemanticException {
@@ -483,7 +618,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     public X10Binary_c invert(boolean invert) {
-        X10Binary_c	    n = (X10Binary_c) copy();
+        X10Binary_c n = (X10Binary_c) copy();
         n.invert = invert;
         return n;
     }

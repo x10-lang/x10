@@ -45,7 +45,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, regions);
     }
 
-    public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r.rank) { // XTENLANG-4
+    public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r) { // XTENLANG-4
 
         if (blockSize<=0)
             throw new IllegalArgumentException("blocksize is " + blockSize + "; it must be >0");
@@ -70,7 +70,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(r, Place.places, regions);
     }
 
-    public static def makeConstant1(r: Region): Dist(r.rank) { // XTENLANG-4
+    public static def makeConstant1(r: Region): Dist(r) { // XTENLANG-4
         return makeConstant(r, here);
     }
 
@@ -82,15 +82,15 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     incomplete public static def makeUnique1(ps: Set[Place]): Dist(1); // XTENLANG-4
 
-    public static def makeConstant1(r: Region, p: Place): Dist(r.rank) { // XTENLANG-4
+    public static def makeConstant1(r: Region, p: Place): Dist(r) { // XTENLANG-4
         return new BaseDist(r, [p], [r]);
     }
 
-    incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r.rank); // XTENLANG-4
+    incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
 
-    incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r.rank); // XTENLANG-4
+    incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
 
-    incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r.rank); // XTENLANG-4
+    incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r); // XTENLANG-4
 
 
     //
@@ -303,7 +303,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     protected val regions: ValRail[Region];
     private val regionMap: ValRail[Region];
 
-    protected def this(r: Region, ps: Rail[Place], rs: Rail[Region]): BaseDist{self.rank==r.rank} {
+    protected def this(r: Region, ps: Rail[Place], rs: Rail[Region]): BaseDist{self.region==r} {
 
         super(r, isUnique(ps), isConstant(ps), onePlace(ps));
 

@@ -4,6 +4,9 @@
 #include <x10aux/config.h>
 
 namespace x10aux {
+
+    extern x10_int exitCode;
+
     class system_utils {
     public:
         static void exit(x10_int code);

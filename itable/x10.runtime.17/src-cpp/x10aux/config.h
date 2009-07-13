@@ -90,13 +90,11 @@
 #endif
 #include <stdint.h>
 
-#include <x10/x10.h> //pgas
-
 #include <x10aux/pragmas.h>
 
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
-    ss << ANSI_BOLD << x10_here() << ": " col << type << ": " ANSI_RESET << msg; \
+    ss << ANSI_BOLD << x10aux::here() << ": " col << type << ": " ANSI_RESET << msg; \
     fprintf(stderr,"%s\n",ss.str().c_str()); \
 } while (0)
 
@@ -160,7 +158,7 @@
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(DEBUG)
-#define _D_(x) std::cerr << x10_here() << ": " << x << std::endl
+#define _D_(x) std::cerr << x10aux::here() << ": " << x << std::endl
 #else
 #define _D_(x)
 #endif
@@ -171,17 +169,32 @@
 #define NO_PLACE_CHECKS
 #endif
 
+struct _x10_char {
+  unsigned short v;
+  _x10_char() : v(0) { }
+  _x10_char(const char x) : v(x) { }
+};
 
+inline bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
+inline bool operator!=(const _x10_char a, _x10_char b) { return a.v != b.v; }
+inline bool operator>(const _x10_char a, _x10_char b) { return a.v > b.v; }
+inline bool operator>=(const _x10_char a, _x10_char b) { return a.v >= b.v; }
+inline bool operator<(const _x10_char a, _x10_char b) { return a.v < b.v; }
+inline bool operator<=(const _x10_char a, _x10_char b) { return a.v <= b.v; }
 
 typedef bool     x10_boolean;
 typedef int8_t   x10_byte;
-typedef uint16_t x10_char;
+typedef _x10_char x10_char;
 typedef int16_t  x10_short;
 typedef int32_t  x10_int;
 typedef uint32_t x10_unsigned_int;
 typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;
+typedef uint8_t  x10_ubyte;
+typedef uint16_t x10_ushort;
+typedef uint32_t x10_uint;
+typedef uint64_t x10_ulong;
 
 
 // We must use the same mangling rules as the compiler backend uses.

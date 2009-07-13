@@ -51,7 +51,7 @@ public interface X10TypeEnv extends TypeEnv {
     boolean clausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2);
 
     Kind kind(Type t);
-
-    boolean isImplicitNumericCastValid(Type fromType, Type toType);
+    
+    boolean numericConversionValid(Type toType, Type fromType, Object value);
 
 }

@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/pgas.h>
+#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 
 #include <x10aux/cuda/cuda_utils.h>
@@ -20,23 +21,11 @@ volatile x10_long x10aux::deserialized_bytes = 0;
 
 volatile int PGASInitializer::count = 0;
 
-PGASInitializer::PGASInitializer() {
-    if (count++ == 0) {
-#ifdef X10_USE_BDWGC
-        GC_INIT();
-#endif
-        bootstrapRTT();
-        _X_("PGAS initialization starting");
-        x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
-        x10_init();
-        _X_("PGAS initialization complete");
-    }
-}
 
-void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
+void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
 
-    assert(place!=x10_here()); // this case should be handled earlier
-    assert(place<x10_nplaces()); // this is ensured by XRX runtime
+    assert(place!=x10rt_here()); // this case should be handled earlier
+    assert(place<x10rt_nplaces()); // this is ensured by XRX runtime
 
     serialization_buffer buf;
 
@@ -46,9 +35,8 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
     buf.write(body,m);
     serialized_bytes += buf.length();
 
-    const x10_async_closure_t *cl = reinterpret_cast<const x10_async_closure_t*>(buf.get());
-    x10_comm_handle_t handle = x10_async_spawn((x10_place_t)place, cl, buf.length(), NULL, 0);
-    x10_async_spawn_wait(handle);
+    void *handle = x10rt_async_spawn(place, buf.get(), buf.length(), QUEUED_ASYNC);
+    x10rt_async_spawn_wait(handle);
 
 }
 
@@ -80,7 +68,7 @@ x10_boolean x10aux::no_steals() {
 
 #if 1
 // this one for when pgas does not use an internal thread
-static void deserialize_remote_closure(const x10_async_closure_t *cl, int) {
+static void deserialize_remote_closure(void *cl, int) {
         _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
         x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
@@ -125,8 +113,8 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
         // Assume that only throwables can be thrown
         x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
 
-        fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                            (int)x10_here(), e_->_type()->name().c_str());
+        fprintf(stderr, "Uncaught exception at place %ld of type: %s\n",
+                            (long)x10aux::here(), e_->_type()->name().c_str());
         fprintf(stderr, "%s\n", e_->toString()->c_str());
 
         x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
@@ -138,7 +126,7 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 
     } catch(...) {
 
-        fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
+        fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here());
 
     }
 #endif
@@ -146,13 +134,17 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 }
 #endif
 
-void x10aux::remote_closure_callback(x10_async_closure_t *cl, int) {
-    deserialize_remote_closure(const_cast<const x10_async_closure_t *>(cl),0);
-}
-
-void
-x10aux::PGASInitializer::bootstrapRTT() {
-    RuntimeType::bootstrap();
+PGASInitializer::PGASInitializer() {
+    if (count++ == 0) {
+#ifdef X10_USE_BDWGC
+        GC_INIT();
+#endif
+        RuntimeType::bootstrap();
+        _X_("PGAS initialization starting");
+        x10rt_register_async_callback(deserialize_remote_closure);
+        x10rt_init();
+        _X_("PGAS initialization complete");
+    }
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

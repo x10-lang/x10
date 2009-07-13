@@ -21,7 +21,6 @@ namespace x10aux {
     inline ref<x10::lang::String> class_name(const x10_long) {
         return x10::lang::String::Lit(getRTT<x10_long>()->name());
     }
-
     inline ref<x10::lang::String> class_name(const x10_int) {
         return x10::lang::String::Lit(getRTT<x10_int>()->name());
     }
@@ -30,6 +29,18 @@ namespace x10aux {
     }
     inline ref<x10::lang::String> class_name(const x10_byte) {
         return x10::lang::String::Lit(getRTT<x10_byte>()->name());
+    }
+    inline ref<x10::lang::String> class_name(const x10_ulong) {
+        return x10::lang::String::Lit(getRTT<x10_ulong>()->name());
+    }
+    inline ref<x10::lang::String> class_name(const x10_uint) {
+        return x10::lang::String::Lit(getRTT<x10_uint>()->name());
+    }
+    inline ref<x10::lang::String> class_name(const x10_ushort) {
+        return x10::lang::String::Lit(getRTT<x10_ushort>()->name());
+    }
+    inline ref<x10::lang::String> class_name(const x10_ubyte) {
+        return x10::lang::String::Lit(getRTT<x10_ubyte>()->name());
     }
     inline ref<x10::lang::String> class_name(const x10_char) {
         return x10::lang::String::Lit(getRTT<x10_char>()->name());
@@ -64,6 +75,14 @@ namespace x10aux {
     template<class T>
     inline x10_boolean equals(ref<T> x, x10_byte y) { return false; }
     template<class T>
+    inline x10_boolean equals(ref<T> x, x10_ulong y) { return false; }
+    template<class T>
+    inline x10_boolean equals(ref<T> x, x10_uint y) { return false; }
+    template<class T>
+    inline x10_boolean equals(ref<T> x, x10_ushort y) { return false; }
+    template<class T>
+    inline x10_boolean equals(ref<T> x, x10_ubyte y) { return false; }
+    template<class T>
     inline x10_boolean equals(ref<T> x, x10_char y) { return false; }
     template<class T>
     inline x10_boolean equals(ref<T> x, x10_boolean y) { return false; }
@@ -81,6 +100,14 @@ namespace x10aux {
     template<class T>
     inline x10_boolean equals(x10_byte y, ref<T> x) { return false; }
     template<class T>
+    inline x10_boolean equals(x10_ulong y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean equals(x10_uint y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean equals(x10_ushort y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean equals(x10_ubyte y, ref<T> x) { return false; }
+    template<class T>
     inline x10_boolean equals(x10_char y, ref<T> x) { return false; }
     template<class T>
     inline x10_boolean equals(x10_boolean y, ref<T> x) { return false; }
@@ -91,7 +118,11 @@ namespace x10aux {
     inline x10_boolean equals(const x10_int x,     const x10_int y)     { return x==y; }
     inline x10_boolean equals(const x10_short x,   const x10_short y)   { return x==y; }
     inline x10_boolean equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x==y; }
+    inline x10_boolean equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
+    inline x10_boolean equals(const x10_uint x,    const x10_uint y)     { return x==y; }
+    inline x10_boolean equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
+    inline x10_boolean equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
+    inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T, class U>
@@ -101,6 +132,11 @@ namespace x10aux {
         if (y.isNull())
             return false; // x != null, needed for remote refs
         return x->_struct_equals(y);
+    }
+
+    template<class T, class U>
+    inline x10_boolean struct_equals(T x, U y) {
+        return x._struct_equals(&y);
     }
 
     template<class T>
@@ -115,6 +151,14 @@ namespace x10aux {
     inline x10_boolean struct_equals(ref<T> x, x10_short y) { return false; }
     template<class T>
     inline x10_boolean struct_equals(ref<T> x, x10_byte y) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(ref<T> x, x10_ulong y) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(ref<T> x, x10_uint y) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(ref<T> x, x10_ushort y) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(ref<T> x, x10_ubyte y) { return false; }
     template<class T>
     inline x10_boolean struct_equals(ref<T> x, x10_char y) { return false; }
     template<class T>
@@ -133,6 +177,14 @@ namespace x10aux {
     template<class T>
     inline x10_boolean struct_equals(x10_byte y, ref<T> x) { return false; }
     template<class T>
+    inline x10_boolean struct_equals(x10_ulong y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(x10_uint y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(x10_ushort y, ref<T> x) { return false; }
+    template<class T>
+    inline x10_boolean struct_equals(x10_ubyte y, ref<T> x) { return false; }
+    template<class T>
     inline x10_boolean struct_equals(x10_char y, ref<T> x) { return false; }
     template<class T>
     inline x10_boolean struct_equals(x10_boolean y, ref<T> x) { return false; }
@@ -143,7 +195,11 @@ namespace x10aux {
     inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
     inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
     inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_uint x,    const x10_uint y)     { return x==y; }
+    inline x10_boolean struct_equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T> inline x10_int hash_code(ref<T> x) {
@@ -159,11 +215,16 @@ namespace x10aux {
     inline x10_int hash_code(const x10_long x) {
         return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
     }
-
     inline x10_int hash_code(const x10_int x) { return x; }
     inline x10_int hash_code(const x10_short x) { return x; }
     inline x10_int hash_code(const x10_byte x) { return x; }
-    inline x10_int hash_code(const x10_char x) { return x; }
+    inline x10_int hash_code(const x10_ulong x) {
+        return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
+    }
+    inline x10_int hash_code(const x10_uint x) { return x; }
+    inline x10_int hash_code(const x10_ushort x) { return x; }
+    inline x10_int hash_code(const x10_ubyte x) { return x; }
+    inline x10_int hash_code(const x10_char x) { return x.v; }
     inline x10_int hash_code(const x10_boolean x) { return x; }
 
 
@@ -171,6 +232,10 @@ namespace x10aux {
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         ref<x10::lang::Object> asObj = x;
         return asObj->toString();
+    }
+
+    template<class T> ref<x10::lang::String> to_string(T x) {
+        return x.toString();
     }
 
     // [DC] importing the old code requires me to put these back to what they
@@ -181,7 +246,7 @@ namespace x10aux {
     ref<x10::lang::String> to_string(bool v);
     ref<x10::lang::String> to_string(unsigned char v);
     ref<x10::lang::String> to_string(signed char v);
-    // ref<x10::lang::String> to_string(unsigned short v); used for x10_char
+    ref<x10::lang::String> to_string(unsigned short v);
     ref<x10::lang::String> to_string(signed short v);
     ref<x10::lang::String> to_string(unsigned int v);
     ref<x10::lang::String> to_string(signed int v);

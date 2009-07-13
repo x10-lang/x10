@@ -35,6 +35,10 @@ public class Types {
     public static Type<Character> CHAR = new CharType();
     public static Type<Integer> INT = new IntType();
     public static Type<Long> LONG = new LongType();
+    public static Type<Byte> UBYTE = new UByteType();
+    public static Type<Short> USHORT = new UShortType();
+    public static Type<Integer> UINT = new UIntType();
+    public static Type<Long> ULONG = new ULongType();
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
 }

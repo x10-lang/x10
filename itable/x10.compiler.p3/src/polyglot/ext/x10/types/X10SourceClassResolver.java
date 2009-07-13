@@ -111,6 +111,10 @@ public class X10SourceClassResolver implements TopLevelResolver {
 
         return null;
     }
+    
+    public Named getEncodedType(Resource clazz, QName name) throws SemanticException {
+        return null;
+    }
 
     /**
      * Manifest support.
@@ -176,7 +180,21 @@ public class X10SourceClassResolver implements TopLevelResolver {
 
         Named result = null;
         
-        if (source != null) {
+        if (clazz != null) {
+            if (Report.should_report(report_topics, 4))
+                Report.report(4, "Using encoded class type for " + name);
+            
+            try {
+                result = getEncodedType(clazz, name);
+            }
+            catch (SemanticException e) {
+                if (Report.should_report(report_topics, 4))
+                    Report.report(4, "Could not load encoded class " + name);
+                clazz = null;
+            }
+        }
+        
+        if (result == null && source != null) {
             if (Report.should_report(report_topics, 4))
                 Report.report(4, "Using source file for " + name);
             result = getTypeFromSource(source, name, shouldCompile(name) && clazz == null);

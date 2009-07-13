@@ -31,6 +31,7 @@ import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
@@ -44,6 +45,7 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
+import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -103,6 +105,7 @@ public class Emitter {
         return false;
     }
     private static String mangle_to_cpp(String str) {
+        str = X10PrettyPrinterVisitor.mangleIdentifier(str);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
         return str.replace("$", "__");
@@ -367,6 +370,8 @@ public class Emitter {
 	}
 
 	public static String voidTemplateInstantiation(int num) {
+		if (num <= 0)
+		    return "";
 		StringBuffer b = new StringBuffer();
 		b.append("<");
 		for (int i = 0; i < num; i++) {
@@ -379,11 +384,20 @@ public class Emitter {
 	}
 
 	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
-		try {
-			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes(), context));
-		} catch (SemanticException e) {
-			return null;
-		}
+	    try {
+	        List<Type> params = ((X10MethodInstance) mi).typeParameters();
+	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, xts.MethodMatcher(localClass, mi.name(), ((X10MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
+	        for (MethodInstance smi : overrides) {
+	            List<Type> sparams = ((X10MethodInstance) smi).typeParameters();
+	            if (params == null && sparams == null)
+	                return smi;
+	            if (params != null && params.equals(sparams))
+	                return smi; 
+	        }
+	        return null;
+	    } catch (SemanticException e) {
+	        return null;
+	    }
 	}
 
 	Type findRootMethodReturnType(X10MethodDef n, Position pos, MethodInstance from) {

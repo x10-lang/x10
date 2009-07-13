@@ -13,9 +13,112 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "long", "x10.core.BoxedLong", "x10.types.Type.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
-public final value Long implements Integer, Signed {
-    // Binary and unary operations and conversions are built-in.  No need to declare them here.
+public final value Long {
+    @Native("java", "((#1) < (#2))")
+    @Native("c++",  "((#1) < (#2))")
+    public native static operator (x:Long) < (y:Long): Boolean;
+
+    @Native("java", "((#1) > (#2))")
+    @Native("c++",  "((#1) > (#2))")
+    public native static operator (x:Long) > (y:Long): Boolean;
+
+    @Native("java", "((#1) <= (#2))")
+    @Native("c++",  "((#1) <= (#2))")
+    public native static operator (x:Long) <= (y:Long): Boolean;
+
+    @Native("java", "((#1) >= (#2))")
+    @Native("c++",  "((#1) >= (#2))")
+    public native static operator (x:Long) >= (y:Long): Boolean;
+
+    @Native("java", "((#1) + (#2))")
+    @Native("c++",  "((#1) + (#2))")
+    public native static operator (x:Long) + (y:Long): Long;
+
+    @Native("java", "((#1) - (#2))")
+    @Native("c++",  "((#1) - (#2))")
+    public native static operator (x:Long) - (y:Long): Long;
+
+    @Native("java", "((#1) * (#2))")
+    @Native("c++",  "((#1) * (#2))")
+    public native static operator (x:Long) * (y:Long): Long;
+
+    @Native("java", "((#1) / (#2))")
+    @Native("c++",  "((#1) / (#2))")
+    public native static operator (x:Long) / (y:Long): Long;
+
+    @Native("java", "((#1) % (#2))")
+    @Native("c++",  "((#1) % (#2))")
+    public native static operator (x:Long) % (y:Long): Long;
     
+    @Native("java", "((#1) & (#2))")
+    @Native("c++",  "((#1) & (#2))")
+    public native static operator (x:Long) & (y:Long): Long;
+    
+    @Native("java", "((#1) ^ (#2))")
+    @Native("c++",  "((#1) ^ (#2))")
+    public native static operator (x:Long) ^ (y:Long): Long;
+    
+    @Native("java", "((#1) | (#2))")
+    @Native("c++",  "((#1) | (#2))")
+    public native static operator (x:Long) | (y:Long): Long;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Long) << (y:Long): Long;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Long) >> (y:Long): Long;
+
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_long) ((uint64_t) (#1) >> (#2)))")
+    public native static operator (x:Long) >>> (y:Long): Int;
+    
+    @Native("java", "((#1) << (#2))")
+    @Native("c++",  "((#1) << (#2))")
+    public native static operator (x:Long) << (y:Int): Long;
+    
+    @Native("java", "((#1) >> (#2))")
+    @Native("c++",  "((#1) >> (#2))")
+    public native static operator (x:Long) >> (y:Int): Long;
+
+    @Native("java", "((#1) >>> (#2))")
+    @Native("c++",  "((x10_long) ((uint64_t) (#1) >> (#2)))")
+    public native static operator (x:Long) >>> (y:Int): Int;
+    
+    @Native("java", "+(#1)")
+    @Native("c++",  "+(#1)")
+    public native static operator + (x:Long): Long;
+    
+    @Native("java", "-(#1)")
+    @Native("c++",  "-(#1)")
+    public native static operator - (x:Long): Long;
+    
+    @Native("java", "~(#1)")
+    @Native("c++",  "~(#1)")
+    public native static operator ~ (x:Long): Long;
+    
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static operator (x:Byte): Long;
+    
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static operator (x:Short): Long;
+
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static operator (x:Int): Long;
+    
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static operator (x:Float) as Long;
+
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static operator (x:Double) as Long;
+    
+
     @Native("java", "java.lang.Long.MIN_VALUE")
     @Native("c++", "(x10_long)0x8000000000000000LL")
     public const MIN_VALUE = 0x8000000000000000L;

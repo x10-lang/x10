@@ -237,7 +237,7 @@ void extract_src_file_line_num (const char *filename, size_t addr,
         return;
     }
 
-    if (bfd_get_file_flags (abfd) & HAS_SYMS == 0)  {
+    if ((bfd_get_file_flags (abfd) & HAS_SYMS) == 0)  {
         bfd_close(abfd);
         // file has no symbols
         srcfile = strdup("????");

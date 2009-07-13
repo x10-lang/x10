@@ -8,17 +8,14 @@
 #include <cstdarg>
 
 #include <x10aux/config.h>
-
+#include <x10aux/ref.h>
 
 namespace x10 { namespace lang {
-    class String;
-} }
-#include <x10/lang/Iterator.h>
-
-#include <x10/lang/Iterable.h>
+        class String;
+    }
+}
 
 namespace x10aux {
-
 
     void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
     
@@ -166,6 +163,34 @@ namespace x10aux {
         for (int i = 7; i < length; i++)
             data[i] = va_arg(init, T);
     }
+    // init elements 7 though length: specialize for x10_ubyte
+    template<> inline void init_rail<x10_ubyte>(x10_ubyte *data,
+                                                x10_int length,
+                                                va_list init) {
+        for (int i = 7; i < length; i++)
+            data[i] = (x10_ubyte)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_ushort
+    template<> inline void init_rail<x10_ushort>(x10_ushort *data,
+                                                 x10_int length,
+                                                 va_list init) {
+        for (int i = 7; i < length; i++)
+            data[i] = (x10_ushort)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_uint
+    template<> inline void init_rail<x10_uint>(x10_uint *data,
+                                               x10_int length,
+                                               va_list init) {
+        for (int i = 7; i < length; i++)
+            data[i] = (x10_uint)va_arg(init, int);
+    }
+    // init elements 7 though length: specialize for x10_ulong
+    template<> inline void init_rail<x10_ulong>(x10_ulong *data,
+                                                x10_int length,
+                                                va_list init) {
+        for (int i = 7; i < length; i++)
+            data[i] = (x10_ulong)va_arg(init, int);
+    }
     // init elements 7 though length: specialize for x10_byte
     template<> inline void init_rail<x10_byte>(x10_byte *data,
                                                x10_int length,
@@ -178,7 +203,7 @@ namespace x10aux {
                                                x10_int length,
                                                va_list init) {
         for (int i = 7; i < length; i++)
-            data[i] = (x10_char)va_arg(init, int);
+            data[i] = (x10_char)(char)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_short
     template<> inline void init_rail<x10_short>(x10_short *data,
