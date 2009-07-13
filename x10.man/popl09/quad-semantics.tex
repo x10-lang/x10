@@ -67,7 +67,7 @@ A premise of the form $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha
 	  $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ \\ $~$ \hfill type ${\tt S}\{\self=={\tt x}\}$ is a 	subtype of type {\tt T} in $\Gamma,{\tt x}\ty{\tt S}$
 	\item Typing:\\
 	  $\Gamma\vdash {\tt e}\ty{\tt T}$ \hfill expression {\tt e} has type {\tt T} in $\Gamma$\\
-	  $\Gamma\vdash {\tt I}~\ll~{\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
+	  $\Gamma\vdash {\tt I}\ll {\tt J}$ \hfill member {\tt I} overrides member {\tt J} in $\Gamma$\\
 	  $\vdash {\tt def}~{\tt m}[\tbar{Y}](\tbar{x}\ty \tbar{G})\{{\tt c}\}\ty {\tt H}={\tt e}~{\rm OK~in}~{\tt C}[\tbar{X}]$ \\ $~$ \hfill method {\tt m} in class ${\tt C}[\tbar{X}]$ type checks\\
 	  $\vdash \cdecl~{\rm OK}$ \\ $~$ \hfill class ${\tt C}[\tbar{X}]$ type checks
 
@@ -427,14 +427,14 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \begin{minipage}{.3\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[O-Field]
-  {\Gamma\vdash {\tt f}\ty{\tt F} ~\ll~ {\tt f}\ty{\tt F}}
+  {\Gamma\vdash {\tt f}\ty{\tt F} \ll  {\tt f}\ty{\tt F}}
 \end{minipage}%
 \begin{minipage}{.7\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[O-Method]
   {\tbar{G}=\tbar{G'} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d} \andalso 
     {\tt y}~{\rm fresh} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt H}\vdash{\tt y}\subtype{\tt H'}}
-  {\Gamma\vdash \msign{Y}{x}{G}{d}{H} ~\ll~ \msign{Y}{x}{G'}{d'}{H'}}
+  {\Gamma\vdash \msign{Y}{x}{G}{d}{H} \ll  \msign{Y}{x}{G'}{d'}{H'}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
@@ -447,7 +447,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     {\tt y}~{\rm fresh} \andalso
     \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt E}\vdash {\tt y}\subtype {\tt H} \\
     \tbar{X}\ty*,{\tt c},\this\ty{\tt D}[\tbar{E}],\tbar{Y}\ty*\vdash\this~\has~\msign{Y}{x}{G'}{d'}{H'} ~\Rightarrow~
-    \Gamma\vdash \msign{Y}{x}{G}{d}{H} ~\ll~ \msign{Y}{x}{G'}{d'}{H'}}
+    \Gamma\vdash \msign{Y}{x}{G}{d}{H} \ll  \msign{Y}{x}{G'}{d'}{H'}}
   {\vdash\mdecl{Y}{x}{G}{d}{H}{e}~{\rm OK~in}~{\tt C}[\tbar{X}]}
 
 \eat{
@@ -477,36 +477,101 @@ By design of the type system, if the program {\tt P} type checks then all the co
 
 
 \begin{figure*}
-\begin{minipage}{\textwidth}
+\begin{minipage}{.30\textwidth}
+\centering
+\begin{tabular}{r@{\quad}rcl@{}}
+  (Generic type)& {\tt G} &{::=}& {\tt Q} \\
+  (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
+  (Values) & {\tt v} &{::=}& ${\tt l}$ \\
+  (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \alt $\tt l$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$
+\end{tabular}
+\end{minipage}%
+\begin{minipage}{.26\textwidth}
+\vspace{-\bigskipamount}\quad\typicallabel{XXXX}
+\infrule[W-Fun]
+  {\wj{\Gamma}{\tbar{t}} \andalso {\tt q}\in\cal Q}
+  {\wj{\Gamma}{{\tt q}(\tbar{t})}}
+
+\infrule[W-Pred]
+  {\wj{\Gamma}{\tbar{t}} \andalso {\tt p}\in\cal Q}
+  {\wj{\Gamma}{{\tt p}(\tbar{t})}}
+\end{minipage}%
+\begin{minipage}{.16\textwidth}
+\vspace{-\bigskipamount}
+\quad\typicallabel{XXXX}
+\infrule[W-Lit]
+  {{\tt l}\in\cal Q}
+  {\wj{}{{\tt l}}}
+
+\infrule[W-Prim]
+  {{\tt Q}\in\cal Q}
+  {\wj{}{{\tt Q}}}
+\end{minipage}%
+\begin{minipage}{.28\textwidth}
+\vspace{-\bigskipamount}
+\quad\typicallabel{XX}
+\infrule[R-Fun]
+	{\vdashQ{\tt q}(\tbar{v})=={\tt l}}
+	{{\tt q}(\tbar{v})\derives {\tt l}}
+	
+\infax[T-Lit]
+	{\vdash{{\tt l}\ty\Dom({\tt l})\{\self=={\tt l}\}}}
+\end{minipage}%
+
+\begin{minipage}{.55\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[RC-Fun]
+	{{\tt e}_i\derives {\tt e}'_i}
+	{{\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},\ldots,{\tt e}_i,\ldots,{\tt e}_n)\derives {\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
+\end{minipage}%
+\begin{minipage}{.45\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[T-Fun]
+	{\andalso \Gamma\vdash\tbar{e}:\Dom({\tt q})}
+	{\Gamma\vdash{{\tt q}(\tbar{e})\ty\exty{\tbar{x}}{\Dom({\tt q})}{\Img({\tt q})}\{\self=={\tt q}(\tbar{x})\}}}
+\end{minipage}%
+\caption{\FXGL{Q}.}
+\label{fig:FXGQ}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.4\textwidth}
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Constraint) & {\tt c} &{::=}& $\tt X\extends G$ \\
 \end{tabular}
 \end{minipage}%
-
-\begin{minipage}{.4\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[W-Bound]
-	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
-	{\wj{\Gamma}{{\tt X}\extends{\tt G}}}
-
-\infrule[X-Bound]
-	{\Gamma\vdash{\tt X}\extends{\tt G},{\tt X}\extends{\tt H} \andalso
-	  {\tt G}\neq{\tt H}}
-	{\Gamma\vdash\false}
-\end{minipage}%
 \begin{minipage}{.6\textwidth}
+\vspace{-\bigskipamount}
 \quad\typicallabel{XXXXXX}
-\infrule[S-Bound]
-	{\wj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
-	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
-
 \infrule[H-Bound]
 	{\wj{\Gamma}{{\tt X}\extends{\tt G}} \andalso
 	  \Gamma\vdash{\tt X}\extends{\tt G}
     \andalso
     \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
+\end{minipage}%
+
+\begin{minipage}{.30\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[W-Bound]
+	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
+	{\wj{\Gamma}{{\tt X}\extends{\tt G}}}
+\end{minipage}%
+\begin{minipage}{.36\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[X-Bound]
+	{\Gamma\vdash{\tt X}\extends{\tt G},{\tt X}\extends{\tt H} \andalso
+	  {\tt G}\neq{\tt H}}
+	{\Gamma\vdash\false}
+\end{minipage}%
+\begin{minipage}{.34\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[S-Bound]
+	{\wj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
 \end{minipage}%
 \caption{\FXGL{B}.}
 \label{fig:FXGB}
@@ -516,7 +581,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
 \begin{minipage}{\textwidth}
 \centering
 \begin{tabular}{r@{\quad}rcl}
-  (Constraint) & {\tt c} &{::=}& ${\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H}}$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H}$
 \end{tabular}
 \end{minipage}%
 
@@ -539,68 +604,11 @@ By design of the type system, if the program {\tt P} type checks then all the co
   {\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~\msign{Z}{z}{G\theta}{c\theta}{H\theta}}
 
 \infrule[X-Struct-False]
-	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J},{\tt I}~\not\ll~{\tt J},{\tt J}~\not\ll~{\tt I}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J},{\tt I}\not\ll{\tt J},{\tt J}\not\ll{\tt I}}
 	{\Gamma\vdash\false}
 \end{minipage}%
 \caption{\FXGL{S}.}
 \label{fig:FXGS}
-\end{figure*}
-
-
-\begin{figure*}
-\begin{minipage}{.34\textwidth}
-\centering
-\begin{tabular}{r@{\quad}rcl}
-  (Generic type)& {\tt G} &{::=}& {\tt Q} \\
-  (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
-  (Values) & {\tt v} &{::=}& ${\tt l}$ \\
-  (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \alt $\tt l$ \\
-  (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
-\end{tabular}
-\end{minipage}%
-\begin{minipage}{.33\textwidth}
-\vspace{-\bigskipamount}\quad\typicallabel{XXXX}
-\infrule[W-Fun]
-  {\wj{\Gamma}{\tbar{t}} \andalso {\tt q}\in\cal Q}
-  {\wj{\Gamma}{{\tt q}(\tbar{t})}}
-
-\infrule[W-Pred]
-  {\wj{\Gamma}{\tbar{t}} \andalso {\tt p}\in\cal Q}
-  {\wj{\Gamma}{{\tt p}(\tbar{t})}}
-\end{minipage}%
-\begin{minipage}{.33\textwidth}
-\vspace{-\bigskipamount}
-\quad\typicallabel{XXXX}
-\infrule[W-Lit]
-  {{\tt l}\in\cal Q}
-  {\wj{}{{\tt l}}}
-
-\infrule[W-Prim]
-  {{\tt Q}\in\cal Q}
-  {\wj{}{{\tt Q}}}
-\end{minipage}%
-
-\begin{minipage}{.34\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[R-Fun]
-	{\vdashQ{\tt q}(\tbar{v})=={\tt l}}
-	{{\tt q}(\tbar{v})\derives {\tt l}}
-	
-\infax[T-Lit]
-	{\vdash{{\tt l}\ty\Dom({\tt l})\{\self=={\tt l}\}}}
-\end{minipage}%
-\begin{minipage}{.66\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[RC-Fun]
-	{{\tt e}_i\derives {\tt e}'_i}
-	{{\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},\ldots,{\tt e}_i,\ldots,{\tt e}_n)\derives {\tt q}({\tt v}_1,\ldots,{\tt v}_{i-1},{\tt e}'_i,\ldots,{\tt e}_n)}
-
-\infrule[T-Fun]
-	{\andalso \Gamma\vdash\tbar{e}:\Dom({\tt q})}
-	{\Gamma\vdash{{\tt q}(\tbar{e})\ty\exty{\tbar{x}}{\Dom({\tt q})}{\Img({\tt q})}\{\self=={\tt q}(\tbar{x})\}}}
-\end{minipage}%
-\caption{\FXGL{Q}.}
-\label{fig:FXGQ}
 \end{figure*}
 
 
@@ -662,25 +670,6 @@ Fields cannot be overriden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyset
 
 {\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes the guard of the superclass.
 
-\subsection{\FXGL{B}}
-We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cdot} family.
-\FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
-The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
-
-\FXGL{B} is built on top of a slightly more expressive constraint system $\cal B$ that permits propagating such constraints viewed as uninterpreted atoms of knowledge. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup. Rule {\sc X-Bound} ensure we do not type check program that specify mutiple bounds for a given type parameters.\footnote{More exactely, multiple bounds can be specified provided these are syntactically identical.}
-
-While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
-
-The soundness of the type system (i.e., its proof) is preserved because:
-\begin{enumerate}
-\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} ~\ll~ {\tt I}$.
-\item
-If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ then $\Gamma,{\tt x}\ty{\tt X}\vdash {\tt I}~\ll~{\tt J},{\tt J}~\ll~{\tt I}$.
-\end{enumerate}
-
-\subsection{\FXGL{S}}
-Adding structural subtyping constraints to \FXGL{\cdot} is very similar. First, we extend the constraint system: it must satisfy inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program. {\sc H-Struct} is straightforward. Finally, {\sc X-Struct-False} make sure programs with inconsistent structural constraints do not type check.
-
 \subsection{\FXGL{Q}}
 
 Turning \FXGL{\cdot} into a language with value-dependent types is straightforward. First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$, predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
@@ -698,7 +687,24 @@ class Count(n:int) extends Object {
 }
 \end{xten}
 
+\subsection{\FXGL{B}}
+We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cdot} family.
+\FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
+The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
 
+\FXGL{B} is built on top of a slightly more expressive constraint system $\cal B$ that permits propagating such constraints viewed as uninterpreted atoms of knowledge. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup. Rule {\sc X-Bound} ensure we do not type check program that specify mutiple bounds for a given type parameters.\footnote{More exactely, multiple bounds can be specified provided these are syntactically identical.}
+
+While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
+
+The soundness of the type system (i.e., its proof) is preserved because:
+\begin{enumerate}
+\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll  {\tt I}$.
+\item
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ then $\Gamma,{\tt x}\ty{\tt X}\vdash {\tt I}\ll {\tt J},{\tt J}\ll {\tt I}$.
+\end{enumerate}
+
+\subsection{\FXGL{S}}
+Adding structural subtyping constraints to \FXGL{\cdot} is very similar. First, we extend the constraint system: it must satisfy inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program. {\sc H-Struct} is straightforward. Finally, {\sc X-Struct-False} make sure programs with inconsistent structural constraints do not type check.
 
 \subsection{Results}
 The following results hold for \FXGL{\cdot}.
