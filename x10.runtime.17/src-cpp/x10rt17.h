@@ -37,7 +37,6 @@
 
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>
-#include <x10aux/iterator_utils.h>
 
 #include <x10aux/cuda/cuda_utils.h>
 #include <x10aux/cuda/bridge_buffer.h>

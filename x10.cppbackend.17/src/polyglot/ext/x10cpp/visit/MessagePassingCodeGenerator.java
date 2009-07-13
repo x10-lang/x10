@@ -673,6 +673,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         w.write("#include <"+cheader+">"); w.newline();
+        w.write("#include <x10aux/iterator_utils.h>"); w.newline();
 
         w.forceNewline(0);
         w.forceNewline(0);
