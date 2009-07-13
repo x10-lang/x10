@@ -2883,17 +2883,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!retType.isVoid())
             supArgs.add(retType);
         String superType = emitter.translateType(sup.typeArguments(supArgs));
+        String superTypeRef = emitter.translateType(sup.typeArguments(supArgs), true);
 
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("class "+cname+" : "); inc.begin(0);
-        inc.write("public "+emitter.translateType(xts.Value())+", "); inc.newline();
-        inc.write("public virtual "+superType); inc.end(); inc.newline();
+        inc.write("public "+emitter.translateType(xts.Value()));
         inc.write("{") ; inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
+        
+		/* ITables declarations */
+		inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
+		inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
+		inc.write("static "+emitter.translateType(retType, true)+" _itable_thunk("+superTypeRef+" this_");
+        for (Formal formal : n.formals()) {
+        	inc.write(", ");
+            n.print(formal, inc, tr);
+        }
+        inc.write(") {"); inc.newline(4); inc.begin(0);
+        inc.write(make_ref(cnamet)+" tmp = this_;"); inc.newline();
+        inc.write((retType.isVoid() ? "" : "return ")+"tmp->apply(");
+        boolean first = true;
+        for (Formal formal : n.formals()) {
+        	if (!first) inc.write(", ");
+        	inc.write(formal.name().toString());
+        	first = false;
+        }
+        inc.write(");"); inc.end(); inc.newline();
+        inc.write("}"); inc.newline();
+        inc.forceNewline();
 
-        inc.write("// closure body"); inc.newline();
+		inc.write("// closure body"); inc.newline();
         inc.write(emitter.translateType(retType, true)+" apply(");
         prefix = "";
         for (Formal formal : n.formals()) {
@@ -2995,6 +3016,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
+		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
+		inc.write("x10aux::itable_entry(&"+superType+"::rtt, new "+superType+"::itable(&"+cnamet+"::_itable_thunk)),"); 
+		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
+
+        if (in_template_closure)
+            emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("x10aux::RuntimeType * "+cnamet+"::rtt = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
         inc.newline(); inc.forceNewline();
 
@@ -3030,7 +3057,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (prefix.equals(",")) sb.append(">");
         String templateArgs = sb.toString();
 
-        sw.write(make_ref(superType));
+        sw.write(make_ref(cnamet));
         sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         sw.write(cname+templateArgs+"(");
         for (int i = 0; i < c.variables.size(); i++) {
