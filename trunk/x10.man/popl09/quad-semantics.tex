@@ -116,10 +116,10 @@ By design of the type system, if the program {\tt P} type checks then all the co
   (Type)& {\tt S}, {\tt T}, {\tt U} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt T\{c\}$ \alt $\tt X$ \alt $\tt \exists x\ty T.~T$ \\
   (Generic type)& {\tt A}, {\tt B}, {\tt E}, {\tt F}, {\tt G}, {\tt H} &{::=}& $\tt C[\tbar{G}]$ \alt $\tt G\{c\}$ \alt $\tt X$ \\
   (Value)& {\tt v}, {\tt w} &{::=}& $\tt\new~C[\tbar{G}](\tbar{v})$ where \tbar{G} contains no type variables \\
-\end{tabular}\medskip
+\end{tabular}\smallskip
 
 {\tt C}, {\tt D} range over class names, {\tt f}, {\tt g} over field names, {\tt m} over method names, {\tt x}, {\tt y} over variable names, {\tt X}, {\tt Y} over type variables.
-\caption{{\sf FXG} productions.}
+\caption{\FXGL{\cdot} productions.}
 \label{fig:fxg-grammar}
 \end{figure*}
 
@@ -152,7 +152,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     {\tt m}\not\in\tbar{M}}
   {\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e}}
 \end{minipage}%
-\caption{{\sf FXG} fields and methods.}
+\caption{\FXGL{\cdot} fields and methods.}
 \label{fig:members}
 \end{figure*}
 
@@ -196,7 +196,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
 	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
 \end{minipage}
-\caption{{\sf FXG} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
+\caption{\FXGL{\cdot} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
 \label{fig:sos}
 \end{figure*}
 
@@ -215,7 +215,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
   {\sigma(\Gamma)\vdashX c}
   {\Gamma\vdash c}
 \end{minipage}%
-\caption{{\sf FXG} object constraint system.}
+\caption{\FXGL{\cdot} object constraint system.}
 \label{fig:object}
 \end{figure*}
 
@@ -278,7 +278,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \sigma(\Gamma)\vdashX{\tt c}\theta}
   {\wj{\Gamma}{\tt C}[\tbar{A}]}
 \end{minipage}%
-\caption{{\sf FXG} well-formedness.}
+\caption{\FXGL{\cdot} well-formedness.}
 \label{fig:well}
 \end{figure*}
 
@@ -312,7 +312,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \Gamma,{\tt y}\ty{\tt T},{\tt x}\ty{\tt U}\vdash {\tt x}~\has~{\tt I}}
   {\Gamma,{\tt x}\ty\exty{\tt y}{\tt T}{\tt U}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
-\caption{{\sf FXG} member lookup. {\tt I} ranges over members (fields and methods).}
+\caption{\FXGL{\cdot} member lookup. {\tt I} ranges over members (fields and methods).}
 \label{fig:lookup}
 \end{figure*}
 
@@ -361,7 +361,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \wj{\Gamma}{{\tt C}[\tbar{A}],{\tt D}[\tbar{E}\theta]}}
   {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}\subtype {\tt D}[\tbar{E}\theta]}      
 \end{minipage}%
-\caption{{\sf FXG} subtyping rules.}\label{fig:subtyping}
+\caption{\FXGL{\cdot} subtyping rules.}\label{fig:subtyping}
 \end{figure*}
 
 
@@ -438,7 +438,7 @@ By design of the type system, if the program {\tt P} type checks then all the co
     \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
   {\vdash \cdecl~\rm OK}
 \end{minipage}%
-\caption{{\sf FXG} typing rules.}\label{fig:FX}
+\caption{\FXGL{\cdot} typing rules.}\label{fig:FX}
 \end{figure*}
 
 
@@ -453,29 +453,29 @@ By design of the type system, if the program {\tt P} type checks then all the co
 
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[E-Bound]
+\infrule[W-Bound]
 	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
 	{\wj{\Gamma}{{\tt X}\extends{\tt G}}}
 
-\infrule[A-False]
+\infrule[X-Bound]
 	{\Gamma\vdash{\tt X}\extends{\tt G},{\tt X}\extends{\tt H} \andalso
 	  {\tt G}\neq{\tt H}}
 	{\Gamma\vdash\false}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[E-Sub]
-	{\Gamma\vdash {\tt X}\extends {\tt H}}
-	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt H}}
+\infrule[S-Bound]
+	{\Gamma\vdash {\tt X}\extends {\tt G}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
 
-\infrule[A-Has]
+\infrule[H-Bound]
 	{\Gamma\vdash{\tt X}\extends{\tt G}
          \andalso
          \Gamma,{\tt x}\ty{\tt G}\vdash {\tt x}~\has~{\tt I}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
-\caption{{\sf FXG}$(\cal B)$.}
-\label{fig:FXG}
+\caption{\FXGL{B}.}
+\label{fig:FXGB}
 \end{figure*}
 
 \paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. This will change when we start considering constraints on type parameters.
@@ -535,6 +535,26 @@ call.
 A method may only be overridden by a method with the same name, type parameters, value parameters, and value parameter types. The return type of must be a subtype of the overridden return type. The method guard must be entailed by the overriden method guards. To avoid cluttering the inference rules, we define overriding only informally; a formal definition is straightforward.
 
 {\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that fields are not overriden, and that the body of a method has a type that is a subtype of its declared type.
+
+
+\subsection{\FXGL{B}}
+We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cdot} family.
+\FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
+The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
+
+\FXGL{B} is built on top of a slightly more expressive constraint system that permits propagating such constraints viewed as atoms. It does not do anything about extends constraints. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup.
+
+While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
+
+In order to preserve the soundness of the type system, one can ensure that:
+\begin{enumerate}
+\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}$ ans $\tt J$ overrides $\tt I$.
+\item
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt F}$ and  $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt f}\ty{\tt G}$ then ${\tt F}$ and $\tt G$ are equivalent.
+\item
+If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt m}...$ and $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt m}...$ then the two method signatures are equivalent.
+\end{enumerate}
+
 
 
 \subsection{\FXD}
@@ -615,7 +635,7 @@ following productions:
 \end{tabular}
 \end{center}
 \noindent
-and deduction rules of Figure~\ref{fig:FXG}.
+and deduction rules of Figure~\ref{fig:FXGB}.
 
 First we introduce the ``type'' *. \FGJ{} method type
 parameters are modeled in \FXG{} as normal parameters of type
