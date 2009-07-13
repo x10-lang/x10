@@ -10,7 +10,7 @@ namespace x10 {
 
         extern const x10aux::RuntimeType* _initRTTHelper_Fun_0_0(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt0);
 
-        template<class R> class Fun_0_0 : public x10aux::AnyFun{
+        template<class R> class Fun_0_0 : public x10aux::AnyFun {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
