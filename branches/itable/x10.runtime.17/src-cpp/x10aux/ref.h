@@ -2,6 +2,7 @@
 #define X10REF_H
 
 #include <cstdlib>
+#include <cassert>
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
@@ -9,6 +10,27 @@
 namespace x10 { namespace lang { class Object; } }
 
 namespace x10aux {
+
+    struct remote_ref {
+        static bool is_remote (void *ref) { return ((size_t)ref) & 1; }
+        static remote_ref *strip (void *ref) { return (remote_ref*)(((size_t)ref) & ~1); }
+        static void *mask (remote_ref *ref) { return (void*)(((size_t)ref) | 1); }
+
+        x10_int loc;
+        x10_ulong addr;
+
+        // take a (possibly masked) pointer and provide a remote_ref struct for serialisation
+        static remote_ref make (void *ptr);
+
+        // take a remote_ref struct (presumably from the wire) and create a local representation
+        static void *take (remote_ref r);
+    };
+
+    #ifndef NO_IOSTREAM
+    inline std::ostream &operator<<(std::ostream &o, const remote_ref &rr) {
+        return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
+    }
+    #endif
 
     void throwNPE() X10_PRAGMA_NORETURN;
 
@@ -97,7 +119,7 @@ namespace x10aux {
 
         inline void assertLocal() const {
             #ifndef NO_EXCEPTIONS
-            if (isRemote()) throwBPE();
+            if (remote_ref::is_remote(_val)) throwBPE();
             #endif
         }
 
@@ -127,14 +149,6 @@ namespace x10aux {
             assertLocal();
             #endif
             return (T*)_val;
-        }
-
-        bool isLocal() const { return !isRemote(); }
-
-        bool isRemote() const {
-            _R_("Remotecheck reference " << this << "(" << _val
-                                      << ") of type " << TYPENAME(T));
-            return reinterpret_cast<size_t>(_val) & 0x3;
         }
 
         bool GPUSAFE isNull() const {
@@ -179,6 +193,10 @@ namespace x10aux {
     template<class T> bool operator==(x10_long l, const ref<T>& _ref) { return false; }
     template<class T> bool operator==(x10_float f, const ref<T>& _ref) { return false; }
     template<class T> bool operator==(x10_double d, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ubyte b, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ushort s, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_uint i, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_ulong l, const ref<T>& _ref) { return false; }
     // comparison of a ref with a primitive
     template<class T> bool operator==(const ref<T>& _ref, x10_boolean b) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_byte b) { return false; }
@@ -188,6 +206,16 @@ namespace x10aux {
     template<class T> bool operator==(const ref<T>& _ref, x10_long l) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_float f) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_double d) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ubyte b) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ushort s) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_uint i) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_ulong l) { return false; }
+
+    x10_int location (void *ptr);
+
+    template<class T> x10_int location (x10aux::ref<T> ptr) {
+        return location(ptr.get());
+    }
 
 } //namespace x10
 

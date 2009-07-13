@@ -71,8 +71,8 @@ final public value class Point(rank: nat) implements (nat) => int {
     // conversion ops
     //
 
-    public static def $convert(r: Rail[int]): Point(r.length) = make(r);
-    public static def $convert(r: ValRail[int]): Point(r.length) = make(r);
+    public static operator (r: Rail[int]): Point(r.length) = make(r);
+    public static operator (r: ValRail[int]): Point(r.length) = make(r);
 
 
 
@@ -80,82 +80,82 @@ final public value class Point(rank: nat) implements (nat) => int {
     // arithmetic ops
     //
 
-    public def $plus(): Point(rank) {
+    public operator + this: Point(rank) {
         return this;
     }
 
-    public def $minus(): Point(rank) {
+    public operator - this: Point(rank) {
         val cs = Rail.makeVar[int](rank, (i:nat)=>-this.coords(i));
         return Point.make(cs);
     }
 
-    public def $plus(that: Point(rank)): Point(rank) {
+    public operator this + (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) + that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $minus(that: Point(rank)): Point(rank) {
+    public operator this - (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) - that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $times(that: Point(rank)): Point(rank) {
+    public operator this * (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) * that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $over(that: Point(rank)): Point(rank) {
+    public operator this / (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) / that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $plus(c: int): Point(rank) {
+    public operator this + (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) + c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $minus(c: int): Point(rank) {
+    public operator this - (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) - c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $times(c: int): Point(rank) {
+    public operator this * (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) * c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def $over(c: int): Point(rank) {
+    public operator this / (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) / c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def inv$plus(c: int): Point(rank) {
+    public operator (c: int) + this: Point(rank) {
         val init = (i:nat) => c + this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def inv$minus(c: int): Point(rank) {
+    public operator (c: int) - this: Point(rank) {
         val init = (i:nat) => c - this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def inv$times(c: int): Point(rank) {
+    public operator (c: int) * this: Point(rank) {
         val init = (i:nat) => c * this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public def inv$over(c: int): Point(rank) {
+    public operator (c: int) / this: Point(rank) {
         val init = (i:nat) => c / this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
@@ -166,42 +166,42 @@ final public value class Point(rank: nat) implements (nat) => int {
     // comparison ops
     //
 
-    public def $eq(that: Point(rank)): boolean {
+    public operator this == (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)==that.coords(i)))
                 return false;
         return true;
     }
 
-    public def $lt(that: Point(rank)): boolean {
+    public operator this < (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)<that.coords(i)))
                 return false;
         return true;
     }
 
-    public def $gt(that: Point(rank)): boolean {
+    public operator this > (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)>that.coords(i)))
                 return false;
         return true;
     }
 
-    public def $le(that: Point(rank)): boolean {
+    public operator this <= (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)<=that.coords(i)))
                 return false;
         return true;
     }
 
-    public def $ge(that: Point(rank)): boolean {
+    public operator this >= (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)>=that.coords(i)))
                 return false;
         return true;
     }
 
-    public def $ne(that: Point(rank)): boolean {
+    public operator this != (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)!=that.coords(i)))
                 return false;

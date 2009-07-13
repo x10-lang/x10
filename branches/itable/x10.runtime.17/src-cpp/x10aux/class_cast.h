@@ -80,6 +80,10 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_int);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_long);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_ubyte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_ushort);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_uint);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_ulong);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_double);
 
@@ -89,19 +93,12 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_int);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_long);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_ubyte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_ushort);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_uint);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_ulong);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_double);
-
-    /* FIXME this won't work: Box<T> does not implement Integer or Signed
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_byte);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_short);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_int);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_long);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_byte);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_short);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_int);
-    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_long);
-    */
 
     // Unbox primitives on down-casting from interfaces
     #define INTERFACE_PRIMITIVE_CAST(T,F) \
@@ -119,16 +116,10 @@ namespace x10aux {
     INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Object);
     INTERFACE_PRIMITIVE_CAST(x10_float, x10::lang::Object);
     INTERFACE_PRIMITIVE_CAST(x10_double, x10::lang::Object);
-    /* FIXME this won't work: Box<T> does not implement Integer or Signed
-    INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Integer);
-    INTERFACE_PRIMITIVE_CAST(x10_short, x10::lang::Integer);
-    INTERFACE_PRIMITIVE_CAST(x10_int, x10::lang::Integer);
-    INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Integer);
-    INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Signed);
-    INTERFACE_PRIMITIVE_CAST(x10_short, x10::lang::Signed);
-    INTERFACE_PRIMITIVE_CAST(x10_int, x10::lang::Signed);
-    INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Signed);
-    */
+    INTERFACE_PRIMITIVE_CAST(x10_ubyte, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_ushort, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_uint, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_ulong, x10::lang::Object);
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
         static GPUSAFE ref<T> _(F* obj) {
@@ -184,6 +175,10 @@ namespace x10aux {
     PRIMITIVE_VALUE_CAST2(x10_long);
     PRIMITIVE_VALUE_CAST2(x10_float);
     PRIMITIVE_VALUE_CAST2(x10_double);
+    PRIMITIVE_VALUE_CAST2(x10_ubyte);
+    PRIMITIVE_VALUE_CAST2(x10_ushort);
+    PRIMITIVE_VALUE_CAST2(x10_uint);
+    PRIMITIVE_VALUE_CAST2(x10_ulong);
 
     template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj) {
         if (obj == x10aux::null) {
@@ -258,32 +253,59 @@ namespace x10aux {
     // boolean can't be cast to anything except itself (handled below)
     // everything else is totally connected
 
-    PRIMITIVE_CAST2(x10_byte,x10_char);
     PRIMITIVE_CAST2(x10_byte,x10_short);
     PRIMITIVE_CAST2(x10_byte,x10_int);
     PRIMITIVE_CAST2(x10_byte,x10_long);
     PRIMITIVE_CAST2(x10_byte,x10_float);
     PRIMITIVE_CAST2(x10_byte,x10_double);
-
-    PRIMITIVE_CAST2(x10_char,x10_short);
-    PRIMITIVE_CAST2(x10_char,x10_int);
-    PRIMITIVE_CAST2(x10_char,x10_long);
-    PRIMITIVE_CAST2(x10_char,x10_float);
-    PRIMITIVE_CAST2(x10_char,x10_double);
+    PRIMITIVE_CAST2(x10_byte,x10_ubyte);
+    PRIMITIVE_CAST2(x10_byte,x10_ushort);
+    PRIMITIVE_CAST2(x10_byte,x10_uint);
+    PRIMITIVE_CAST2(x10_byte,x10_ulong);
 
     PRIMITIVE_CAST2(x10_short,x10_int);
     PRIMITIVE_CAST2(x10_short,x10_long);
     PRIMITIVE_CAST2(x10_short,x10_float);
     PRIMITIVE_CAST2(x10_short,x10_double);
+    PRIMITIVE_CAST2(x10_short,x10_ubyte);
+    PRIMITIVE_CAST2(x10_short,x10_ushort);
+    PRIMITIVE_CAST2(x10_short,x10_uint);
+    PRIMITIVE_CAST2(x10_short,x10_ulong);
 
     PRIMITIVE_CAST2(x10_int,x10_long);
     PRIMITIVE_CAST2(x10_int,x10_float);
     PRIMITIVE_CAST2(x10_int,x10_double);
+    PRIMITIVE_CAST2(x10_int,x10_ubyte);
+    PRIMITIVE_CAST2(x10_int,x10_ushort);
+    PRIMITIVE_CAST2(x10_int,x10_uint);
+    PRIMITIVE_CAST2(x10_int,x10_ulong);
 
     PRIMITIVE_CAST2(x10_long,x10_float);
     PRIMITIVE_CAST2(x10_long,x10_double);
+    PRIMITIVE_CAST2(x10_long,x10_ubyte);
+    PRIMITIVE_CAST2(x10_long,x10_ushort);
+    PRIMITIVE_CAST2(x10_long,x10_uint);
+    PRIMITIVE_CAST2(x10_long,x10_ulong);
 
     PRIMITIVE_CAST2(x10_float,x10_double);
+    PRIMITIVE_CAST2(x10_float,x10_ubyte);
+    PRIMITIVE_CAST2(x10_float,x10_ushort);
+    PRIMITIVE_CAST2(x10_float,x10_uint);
+    PRIMITIVE_CAST2(x10_float,x10_ulong);
+
+    PRIMITIVE_CAST2(x10_double,x10_ubyte);
+    PRIMITIVE_CAST2(x10_double,x10_ushort);
+    PRIMITIVE_CAST2(x10_double,x10_uint);
+    PRIMITIVE_CAST2(x10_double,x10_ulong);
+
+    PRIMITIVE_CAST2(x10_ubyte,x10_ushort);
+    PRIMITIVE_CAST2(x10_ubyte,x10_uint);
+    PRIMITIVE_CAST2(x10_ubyte,x10_ulong);
+
+    PRIMITIVE_CAST2(x10_ushort,x10_uint);
+    PRIMITIVE_CAST2(x10_ushort,x10_ulong);
+
+    PRIMITIVE_CAST2(x10_uint,x10_ulong);
 
 
     // first level of template specialisation that recognises <T,T>

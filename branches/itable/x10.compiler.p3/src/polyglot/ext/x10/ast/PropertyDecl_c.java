@@ -53,7 +53,10 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
 	PropertyDecl_c n = (PropertyDecl_c) super.buildTypesOverride(tb);
         X10FieldDef fi = (X10FieldDef) n.fieldDef();
         fi.setProperty();
-        return n;
+        
+        // Set the property flag.
+        fi.setFlags(X10Flags.toX10Flags(flags.flags()).Property());
+        return n.flags(flags.flags(fi.flags()));
     }
     
    /**

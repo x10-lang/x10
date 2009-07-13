@@ -12,7 +12,7 @@ else
   abspath=$(abspath $1)
 endif
 
-X10LIB ?= $(call abspath,../../pgas/common/work)
+X10LIB ?= $(call abspath,../../pgas2/common/work)
 CXXFLAGS += -g
 INCLUDE_DIRS += -I$(X10LIB)/include -I.
 
@@ -103,7 +103,7 @@ XRX_ARCHIVE = libx10.a
 XRX_MANIFEST = libx10.mft
 
 # if this doesn't exist, we need to build pgas first
-PGAS_SANITY_CHECK=$(X10LIB)/include/x10/x10.h
+PGAS_SANITY_CHECK=$(X10LIB)/include/x10/pgasrt_x10.h
 
 # this builds everything
 xrx: $(XRX_ARCHIVE) $(PGAS_SANTIY_CHECK)
@@ -187,19 +187,16 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
-	x10/io/FileInputStream.o \
-	x10/io/FileOutputStream.o \
-	x10/io/NativeFile.o \
-	x10/io/NativeInputStream.o \
-	x10/io/NativeOutputStream.o \
+	x10/io/FileReader__FileInputStream.o \
+	x10/io/FileWriter__FileOutputStream.o \
+	x10/io/File__NativeFile.o \
+	x10/io/InputStreamReader__InputStream.o \
+	x10/io/OutputStreamWriter__OutputStream.o \
 	x10/lang/Box.o \
 	x10/lang/Fun.o \
-	x10/lang/Iterator.o \
-	x10/lang/Iterable.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Ref.o \
-	x10/lang/Settable.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
@@ -207,6 +204,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/runtime/Deque.o \
 	x10/runtime/Lock.o \
 	x10/runtime/Thread.o \
+	x10/tuningfork/ScalarType.o \
 	x10/util/GrowableRail.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \

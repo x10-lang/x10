@@ -9,7 +9,7 @@ public class PolyXform(E:PolyMat, T:XformMat) extends Xform {
         property(E, T);
     }
 
-    public def $times(that:Xform):Xform {
+    public operator this * (that:Xform):Xform {
         if (that instanceof PolyXform) {
             val p = that as PolyXform;
             return new PolyXform(this.E||p.E, this.T*p.T);

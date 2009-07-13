@@ -3,8 +3,13 @@
 
 #include <x10aux/io/FILEPtrStream.h>
 
-namespace x10aux {
+namespace x10 {
+    namespace lang {
+        template <class T> class Rail;
+    }
+}
 
+namespace x10aux {
     namespace io {
 
         class FILEPtrInputStream : public FILEPtrStream {

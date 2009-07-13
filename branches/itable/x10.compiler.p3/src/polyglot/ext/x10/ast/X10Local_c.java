@@ -78,6 +78,7 @@ public class X10Local_c extends Local_c {
 			result = (X10Local_c) result.type(((X10LocalInstance) li).rightType());
 			
 			// Fold in the method's guard.
+			// %%% FIXME: move method guard into context.currentConstraint
 			CodeDef ci = context.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;

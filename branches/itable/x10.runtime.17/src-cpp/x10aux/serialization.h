@@ -4,8 +4,6 @@
 
 #include <x10aux/config.h>
 
-#include <x10/x10.h> // pgas
-
 #include <x10aux/pgas.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>

@@ -4,16 +4,16 @@ import x10.compiler.Native;
 
 public value Console {
         @Native("java", "java.lang.System.out")
-        @Native("c++", "x10::io::FileOutputStream::STANDARD_OUT")
-        private native static def realOut(): OutputStreamWriter.OutputStream;
+        @Native("c++", "x10::io::FileWriter__FileOutputStream::STANDARD_OUT")
+        private native static def realOut(): FileWriter.FileOutputStream;
 
         @Native("java", "new java.io.FileOutputStream(java.io.FileDescriptor.err)")
-        @Native("c++", "x10::io::FileOutputStream::STANDARD_ERR")
-        private native static def realErr(): OutputStreamWriter.OutputStream;
+        @Native("c++", "x10::io::FileWriter__FileOutputStream::STANDARD_ERR")
+        private native static def realErr(): FileWriter.FileOutputStream;
 
         @Native("java", "java.lang.System.in")
-        @Native("c++", "x10::io::FileInputStream::STANDARD_IN")
-        private native static def realIn(): InputStreamReader.InputStream;
+        @Native("c++", "x10::io::FileReader__FileInputStream::STANDARD_IN")
+        private native static def realIn(): FileReader.FileInputStream;
     
         public const OUT: Printer = new Printer(new OutputStreamWriter(realOut()));
         public const ERR: Printer = new Printer(new OutputStreamWriter(realErr()));

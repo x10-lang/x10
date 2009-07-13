@@ -13,14 +13,19 @@
 
 package polyglot.ext.x10cuda.visit;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary_c;
+import polyglot.ast.Block;
+import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
+import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch_c;
 import polyglot.ast.CharLit_c;
@@ -29,16 +34,20 @@ import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
+import polyglot.ast.Eval;
 import polyglot.ast.Eval_c;
+import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit_c;
 import polyglot.ast.For_c;
+import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Id_c;
 import polyglot.ast.If_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.Initializer_c;
+import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalClassDecl_c;
@@ -47,9 +56,9 @@ import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
-import polyglot.ast.Block_c;
 import polyglot.ast.NullLit_c;
 import polyglot.ast.PackageNode_c;
+import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit_c;
@@ -61,12 +70,15 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.Await_c;
+import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.ConstantDistMaker_c;
+import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
+import polyglot.ext.x10.ast.RegionMaker;
 import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.Tuple_c;
@@ -76,6 +88,7 @@ import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.ast.X10Unary_c;
@@ -119,12 +132,16 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     private void generatingCuda(boolean v) { context().generatingCuda(v); }
 
+    private Type getType(String name) throws SemanticException {
+        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        return (Type) xts.systemResolver().find(QName.make(name));
+    }
+    
     // does the block have the annotation that denotes that it should be split-compiled to cuda?
     private boolean nodeHasCudaAnnotation(Node n) {
-        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
         X10Ext ext = (X10Ext) n.ext();
         try {
-            Type cudable = (Type) xts.systemResolver().find(QName.make(CUDA_ANNOTATION));
+            Type cudable = getType(CUDA_ANNOTATION);
             return !ext.annotationMatching(cudable).isEmpty();
         } catch (SemanticException e) {
             assert false : e;
@@ -159,11 +176,90 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.write("} // extern \"C\""); out.newline();
         out.forceNewline();
     }
+    
+    // Java cannot return multiple values from a function
+    class MultipleValues {
+        public long iterations;
+        public Formal var;
+        public Block body;
+    }
+    
+    protected MultipleValues processLoop (ForLoop loop) {
+        MultipleValues r = new MultipleValues();
+        Formal loop_formal = loop.formal();
+        assert loop_formal instanceof X10Formal; // FIXME: proper error
+        X10Formal loop_x10_formal = (X10Formal) loop_formal;
+        assert loop_x10_formal.hasExplodedVars(); // FIXME: proper error
+        assert loop_x10_formal.vars().size() == 1; // FIXME: proper error
+        r.var = loop_x10_formal.vars().get(0);
+        Expr domain = loop.domain();
+        assert domain instanceof RegionMaker; // FIXME: proper error
+        RegionMaker region = (RegionMaker) domain;
+        assert region.isTargetImplicit(); // FIXME: proper error
+        assert region.name().equals("makeRectangular"); // FIXME: proper error
+        Receiver target = region.target();
+        assert target instanceof CanonicalTypeNode; // FIXME: proper error
+        CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
+        assert target_type_node.nameString().equals("x10.lang.Region"); // FIXME: proper error
+        assert region.arguments().size() == 2; // FIXME: proper error
+        Expr from_ = region.arguments().get(0);
+        Expr to_ = region.arguments().get(1);
+        assert from_ instanceof IntLit; // FIXME: proper error
+        assert to_ instanceof IntLit; // FIXME: proper error
+        IntLit from = (IntLit) from_;
+        IntLit to = (IntLit) to_;
+        assert from.value() == 0; // FIXME: proper error
+        r.iterations = to.value()+1;
+        r.body = (Block) loop.body();
+        return r;
+    }
 
     public void visit(Block_c b) {
         if (nodeHasCudaAnnotation(b)) {
             assert !generatingCuda() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
+            
+            assert b.statements().size() == 1; // FIXME: proper error
+            Stmt loop_ = b.statements().get(0);
+            // test that it is of the form for (blah in region)
+            assert loop_ instanceof ForLoop; // FIXME: proper error
+            ForLoop loop = (ForLoop) loop_;
+
+            
+            MultipleValues outer = processLoop(loop);
+            //System.out.println("outer loop: "+outer.var+" "+outer.iterations);
+            b = (Block_c) outer.body;
+            
+            Stmt last = b.statements().get(b.statements().size()-1);
+            assert last instanceof ForLoop; // FIXME: proper error
+            loop = (ForLoop) last;
+            
+            MultipleValues inner = processLoop(loop);
+            //System.out.println("outer loop: "+outer.var+" "+outer.iterations);
+            b = (Block_c) inner.body;
+            
+            assert b.statements().size() == 1; // FIXME: proper error
+            Stmt async = b.statements().get(0);
+            assert async instanceof Eval; // FIXME: proper error
+            Eval async_eval = (Eval) async;
+            Expr async_expr = async_eval.expr();
+            assert async_expr instanceof Call; // FIXME: proper error
+            Call async_call = (Call)async_expr;
+            assert async_call.isTargetImplicit(); // FIXME: proper error
+            assert async_call.name().equals("runAsync"); // FIXME: proper error
+            Receiver async_target = async_call.target();
+            assert async_target instanceof CanonicalTypeNode; // FIXME: proper error
+            CanonicalTypeNode async_target_type_node = (CanonicalTypeNode) async_target;
+            assert async_target_type_node.nameString().equals("x10.runtime.Runtime"); // FIXME: proper error
+            assert async_call.arguments().size() == 2; // FIXME: proper error
+            Expr async_arg = async_call.arguments().get(0);
+            assert async_arg instanceof Closure; // FIXME: proper error
+            Closure async_closure = (Closure) async_arg;
+            assert async_closure.formals().size() == 0;
+            Block async_body = async_closure.body();
+            
+            b = (Block_c) async_body;
+            
             generatingCuda(true);
             handleCuda(b);
             generatingCuda(false);

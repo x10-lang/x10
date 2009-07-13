@@ -243,24 +243,24 @@ public abstract value class BaseArray[T] extends Array[T] {
     // ops
     //
 
-    public safe def $bar(r: Region(rank)): Array[T] = restriction(r);
-    public safe def $bar(p: Place): Array[T] = restriction(p);
+    public safe operator this | (r: Region(rank)): Array[T] = restriction(r);
+    public safe operator this | (p: Place): Array[T] = restriction(p);
 
-    incomplete public safe def $plus(): Array[T];
-    incomplete public safe def $minus(): Array[T];
+    incomplete public safe operator + this: Array[T];
+    incomplete public safe operator - this: Array[T];
 
-    incomplete public safe def $plus(that: Array[T]): Array[T];
-    incomplete public safe def $minus(that: Array[T]): Array[T];
-    incomplete public safe def $times(that: Array[T]): Array[T];
-    incomplete public safe def $over(that: Array[T]): Array[T];
-    incomplete public safe def $percent(that: Array[T]): Array[T];
+    incomplete public safe operator this + (that: Array[T]): Array[T];
+    incomplete public safe operator this - (that: Array[T]): Array[T];
+    incomplete public safe operator this * (that: Array[T]): Array[T];
+    incomplete public safe operator this / (that: Array[T]): Array[T];
+    incomplete public safe operator this % (that: Array[T]): Array[T];
 
-    incomplete public safe def $eq(x: Array[T]): boolean;
-    incomplete public safe def $lt(x: Array[T]): boolean;
-    incomplete public safe def $gt(x: Array[T]): boolean;
-    incomplete public safe def $le(x: Array[T]): boolean;
-    incomplete public safe def $ge(x: Array[T]): boolean;
-    incomplete public safe def $ne(x: Array[T]): boolean;
+    incomplete public safe operator this == (x: Array[T]): boolean;
+    incomplete public safe operator this <  (x: Array[T]): boolean;
+    incomplete public safe operator this >  (x: Array[T]): boolean;
+    incomplete public safe operator this <= (x: Array[T]): boolean;
+    incomplete public safe operator this >= (x: Array[T]): boolean;
+    incomplete public safe operator this != (x: Array[T]): boolean;
 
     // incomplete public def sum(): T; // XTENLANG-116
 

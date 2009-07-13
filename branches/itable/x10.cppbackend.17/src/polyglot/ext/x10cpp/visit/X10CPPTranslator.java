@@ -39,6 +39,7 @@ import polyglot.ast.TopLevelDecl;
 
 import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.X10ClassDecl;
+import polyglot.ext.x10.types.X10ClassDef;
 
 import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.X10CPPCompilerOptions;
@@ -70,6 +71,7 @@ import polyglot.visit.Translator;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
@@ -330,6 +332,10 @@ public class X10CPPTranslator extends Translator {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
 				X10ClassDecl cd = (X10ClassDecl) decl;
+				// Skip output of all files for a native rep class.
+				if (getCppRep((X10ClassDef)cd.classDef()) != null) {
+					continue;
+				}
 				String className = cd.classDef().name().toString();
 				wstreams = new WriterStreams(className, pkg, tf, job);
 				sw = new StreamWrapper(wstreams, outputWidth);
@@ -381,7 +387,10 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 
-			wstreams.commitStreams();
+			if (wstreams != null) {
+				// wstreams will be null when the source file contains a NativeRep class
+				wstreams.commitStreams();
+			}
 
 			return true;
 		}
@@ -398,7 +407,7 @@ public class X10CPPTranslator extends Translator {
 		if (map.isEmpty())
 			return;
 		sw.forceNewline();
-		String lnmName = Emitter.mangled_non_method_name(pkg).replace('.','_')+"_"+Emitter.mangled_non_method_name(className);
+		String lnmName = Emitter.translateFQN(pkg).replace("::","_")+"_"+Emitter.mangled_non_method_name(className);
 //		sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
 //		sw.newline();
 //		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
@@ -451,7 +460,7 @@ public class X10CPPTranslator extends Translator {
     private static class CXXCommandBuilder {
         public static final String DUMMY = "-U___DUMMY___";
 
-        public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
+        public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas2/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
         public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
         public static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;

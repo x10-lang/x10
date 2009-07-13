@@ -79,6 +79,10 @@ namespace x10 {
              */
             x10_int getHoldCount();
 
+            static void _static_init() {
+                x10::lang::Ref::_static_init();
+            }
+
         private:
             // lock id
             pthread_mutex_t __lock;

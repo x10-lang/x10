@@ -51,6 +51,8 @@ namespace x10 {
             }
 
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
+
+            static void _static_init() { }
         };
 
         template<class T> x10aux::ref<T> Value::_deserializer(x10aux::serialization_buffer &) {

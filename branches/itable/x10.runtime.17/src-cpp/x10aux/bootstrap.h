@@ -5,12 +5,12 @@
 #include <x10aux/pgas.h>
 #include <x10aux/alloc.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/system_utils.h>
 #include <x10aux/init_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
-#include <x10/lang/Iterator.h>
 
 #include <x10/lang/Throwable.h>
 
@@ -22,8 +22,6 @@ extern "C" int setlinebuf(FILE *);
 namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
-
-    extern x10_int exitCode;
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
@@ -37,6 +35,10 @@ namespace x10aux {
         
         // closure body
         void apply () {
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
+
+            // Invoke the application main().
             main(args);
         }
 
@@ -57,6 +59,8 @@ namespace x10aux {
 
     };
 
+    extern void initialize_xrx();
+
     template<class Runtime, class T> int template_main(int ac, char **av) {
     
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
@@ -72,9 +76,7 @@ namespace x10aux {
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
-
-            // Initialise the static fields of x10 classes.
-            x10aux::InitDispatcher::runInitializers();
+            x10aux::initialize_xrx();
 
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
@@ -98,7 +100,7 @@ namespace x10aux {
             x10aux::ref<x10::lang::Throwable> &e_ =
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
-            fprintf(stderr, "Uncaught exception at place %d: %s\n", (int)x10_here(),
+            fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here(),
                                                                     e_->toString()->c_str());
 
             e_->printStackTrace();
@@ -107,21 +109,19 @@ namespace x10aux {
 
         } catch(...) {
 
-            fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
+            fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here());
             x10aux::exitCode = 1;
 
         }
 #endif
-
-        //fprintf(stderr, "Done with main in place %d", (int)x10_here());
 
         x10aux::free_args(args);
 
         x10aux::shutdown();
 
         if (getenv("X10_RXTX")!=NULL)
-            fprintf(stderr, "Place: %d   rx: %lld   tx: %lld\n",
-                (int)x10_here(),
+            fprintf(stderr, "Place: %ld   rx: %lld   tx: %lld\n",
+                (long)x10aux::here(),
                 (long long)x10aux::deserialized_bytes,
                 (long long)x10aux::serialized_bytes);
 

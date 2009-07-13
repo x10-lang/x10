@@ -16,9 +16,7 @@ import x10.compiler.NativeRep;
  * parameter of type T, and if s implements Iterable[T].
  */
 @NativeRep("java", "x10.core.Iterable<#1 >", null, null)
-@NativeRep("c++", "x10aux::ref<x10::lang::Iterable<#1 > >", "x10::lang::Iterable<#1 >", null)
 public interface Iterable[+T] {
     @Native("java", "(#0).iterator()")
-    @Native("c++", "(__extension__ ({x10aux::ref<x10::lang::Iterable<FMGL(T)> > _ = (#0); x10aux::findITable<x10::lang::Iterable<FMGL(T)> >(_)->iterator(_);}))")
     def iterator(): Iterator[T];
 }

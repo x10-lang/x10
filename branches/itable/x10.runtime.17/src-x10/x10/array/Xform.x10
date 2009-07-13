@@ -64,5 +64,5 @@ public abstract class Xform {
     }
 
     // compose transforms
-    abstract public def $times(that:Xform): Xform;
+    abstract public operator this * (that:Xform): Xform;
 }

@@ -134,7 +134,7 @@ namespace x10 {
             x10_int sz = buf.read<x10_int>();
             char *content = x10aux::alloc<char>(sz+1);
             for (x10_int i=0 ; i<sz ; ++i) {
-                content[i] = (char)buf.read<x10_char>();
+                content[i] = (char)buf.read<x10_char>().v;
             }
             content[sz] = '\0';
             // there are no fields

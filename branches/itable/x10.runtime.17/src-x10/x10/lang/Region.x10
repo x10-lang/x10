@@ -356,19 +356,19 @@ public abstract value class Region(
     // conversion
     //
 
-    public static def $convert(rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
+    public static operator (rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
 
 
     //
     // ops
     //
 
-    public def $not(): Region(rank) = complement();
-    public def $and(that: Region(rank)): Region(rank) = intersection(that);
-    public def $or(that: Region(rank)): Region(rank) = union(that);
-    public def $minus(that: Region(rank)): Region(rank) = difference(that);
+    public operator ! this: Region(rank) = complement();
+    public operator this && (that: Region(rank)): Region(rank) = intersection(that);
+    public operator this || (that: Region(rank)): Region(rank) = union(that);
+    public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
-    public def $times(that: Region) = product(that);
+    public operator this * (that: Region) = product(that);
 
 
     //

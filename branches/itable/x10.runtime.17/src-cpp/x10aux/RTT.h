@@ -6,7 +6,7 @@
 
 #include <pthread.h>
 
-/* Macro to use in class declaration for boilerplace RTT junk */
+/* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS_CLASS \
     static const x10aux::RuntimeType* rtt; \
     static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
@@ -59,6 +59,11 @@ namespace x10aux {
         static const RuntimeType* FloatType;
         static const RuntimeType* LongType;
         static const RuntimeType* DoubleType;
+        static const RuntimeType* UByteType;
+        static const RuntimeType* UShortType;
+        static const RuntimeType* UIntType;
+        static const RuntimeType* ULongType;
+
 
         /**
          * RTT object for x10::lang::Object
@@ -124,6 +129,10 @@ namespace x10aux {
 	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
 	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
 	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() { return x10aux::RuntimeType::UByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() { return x10aux::RuntimeType::UShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() { return x10aux::RuntimeType::UIntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() { return x10aux::RuntimeType::ULongType; }
 
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
@@ -144,9 +153,6 @@ namespace x10aux {
     }
 
     #define TYPENAME(T) x10aux::typeName<T>()
-    class place;
-    template<> inline const char *typeName<place>() { return "place"; }
-    template<> inline const char *typeName<x10_remote_ref_t>() { return "x10_remote_ref_t"; }
     class InitDispatcher;
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
@@ -154,12 +160,48 @@ namespace x10aux {
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
 
-    template<class T> inline x10_boolean instanceof(const x10aux::ref<x10::lang::Object> &v) {
-        return x10aux::getRTT<T>()->instanceOf(v);
+    template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
+        return false;
+    } };
+    template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
+        return true;
+    } };
+    template<class T, class S> struct Instanceof<T, x10aux::ref<S> > {
+        static x10_boolean _(x10aux::ref<S> v) {
+            return x10aux::getRTT<T>()->instanceOf(v);
+        }
+    };
+    // Have to specialize again to disambiguate
+    template<class T> struct Instanceof<x10aux::ref<T>, x10aux::ref<T> > {
+        static x10_boolean _(x10aux::ref<T> v) {
+            return x10aux::getRTT<x10aux::ref<T> >()->instanceOf(v);
+        }
+    };
+
+    template<class T, class S> inline x10_boolean instanceof(S v) {
+        return x10aux::Instanceof<T, S>::_(v);
     }
 
-    template<class T> inline x10_boolean concrete_instanceof(const x10aux::ref<x10::lang::Object> &v) {
-        return x10aux::getRTT<T>()->concreteInstanceOf(v);
+    template<class T, class S> struct ConcreteInstanceof { static x10_boolean _(S v) {
+        return false;
+    } };
+    template<class T> struct ConcreteInstanceof<T, T> { static x10_boolean _(T v) {
+        return true;
+    } };
+    template<class T, class S> struct ConcreteInstanceof<T, x10aux::ref<S> > {
+        static x10_boolean _(x10aux::ref<S> v) {
+            return x10aux::getRTT<T>()->concreteInstanceOf(v);
+        }
+    };
+    // Have to specialize again to disambiguate
+    template<class T> struct ConcreteInstanceof<x10aux::ref<T>, x10aux::ref<T> > {
+        static x10_boolean _(x10aux::ref<T> v) {
+            return x10aux::getRTT<x10aux::ref<T> >()->concreteInstanceOf(v);
+        }
+    };
+
+    template<class T, class S> inline x10_boolean concrete_instanceof(S v) {
+        return x10aux::ConcreteInstanceof<T, S>::_(v);
     }
 
     template<class T1,class T2> inline x10_boolean subtypeof() {

@@ -14,8 +14,6 @@
 #include <cstring>
 #include <new> // [DC] took me an hour to work out that we needed this for placement new
 
-#include <x10/x10.h> // pgas
-
 namespace x10aux {
 
     void throwOOME() X10_PRAGMA_NORETURN;
@@ -25,7 +23,7 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC        
         T* ret = (T*)GC_MALLOC(size);
 #else        
-        T* ret = (T*)x10_alloc(size);
+        T* ret = (T*)malloc(size);
 #endif        
         _M_("\t-> " << (void*)ret);
         if (ret == NULL && size > 0) {
@@ -39,7 +37,6 @@ namespace x10aux {
         return ret;
     }
 
-    // there should probably be an optimised x10_realloc function but never mind
     // FIXME:  There is a GC_REALLOC macro, which we could use when this is actually calling realloc..
     template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
         T *dest = alloc<T>(dsz);
@@ -49,12 +46,13 @@ namespace x10aux {
         return dest;
     }
 
-    template<class T> void dealloc(T* obj) {
+    template<class T> void dealloc(const T* obj_) {
+        T *obj = const_cast<T*>(obj_); // free does not take const void *
         _M_("Freeing chunk " << (void*)obj << " of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC
-        GC_FREE((x10_addr_t) obj);
+        GC_FREE(obj);
 #else        
-        x10_free((x10_addr_t) obj);
+        free(obj);
 #endif        
     }
 
