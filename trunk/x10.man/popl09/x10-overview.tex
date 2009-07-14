@@ -47,7 +47,8 @@ parameters and properties.
         }
         def this(hd: T, tl: List[T]):
             List[T]{len==tl.len+1} {
-          property[T](tl.len+1);
+          super();
+          property(tl.len+1);
           head = hd; tail = tl;
         }
       }
@@ -57,11 +58,11 @@ parameters and properties.
 \label{fig:list0}
 \end{figure}
 
-Like in Scala, fields are declared using the keywords \xcd"var"
+As in Scala, fields are declared using the keywords \xcd"var"
 or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
 field with type \xcd"T" (which resolves to \xcd"this.T"), and an
-immutable (final) \xcd"tail" field with type \xcd"List[T]", that
-is, with type \xcd"List{self.T==this.T}".  Note that \xcd"this" occurring
+immutable (final) \xcd"tail" field with type \xcd"List[T]".
+Note that \xcd"this" occurring
 in the constraint refers to the instance of the enclosing
 \xcd"List" class,
 and \xcd"self" refers to the value being
@@ -88,7 +89,11 @@ constructors may refer to final parameters of the same
 declaration.
 
 The body of the constructor
-begins with a \xcd"property" statement that initializes the
+begins with a \xcd"super" call that invokes the superclass
+constructor.  In the case of \xcd"List", the superclass is
+\xcd"Object" and its constructor takes no arguments.
+Nullary \xcd"super" calls can be elided from the X10 programs.
+A \xcd"property" statement that initializes the
 properties of the new instance.  All properties are initialized
 simultaneously and it is required that the property assignment
 entails the constraint in the constructor return type.
@@ -106,6 +111,10 @@ class List[T](len: int){len >= 0) {
   var head: T;
   val tail: List[T]{self.len==this.len-1};
 
+  def map[S](f: T => S): List[S]{self.len==this.len} {
+    return new List[S](f(head), tail.map[S](f));
+  }
+
   def get(i: int{0 <= self, self < len}){len > 0}: T {
     if (i == 0)
       return head;
@@ -116,6 +125,7 @@ class List[T](len: int){len >= 0) {
 
   def this(hd: T, tl: List[T]):
       List[T]{len==tl.len+1} {
+    super();
     property(tl.len+1);
     head = hd; tail = tl;
   }
@@ -125,14 +135,9 @@ class List[T](len: int){len >= 0) {
     println(", ");
     tail.print();
   }
-
-  def map[S](f: T => S): List[S]{self.len==this.len} {
-    return new List[S](f(head), tail.map[S](f));
-  }
 }
 \end{xtenmathnoindent}}
-\caption{List example, with more functionality and more
-constraints.}
+\caption{List example, extended}
 \label{fig:list}
 \end{figure}
 
@@ -146,7 +151,7 @@ the list be non-negative.
 The class invariant must be established by all constructors of
 the class and subsequently can be assumed for all instances of the class.
 
-For generic types, the invariant is used to provide subtyping
+For generic types, the invariant is used to provide 
 bounds on the type parameters.
 For example, in the following code,
 \xcd"SortedList" 
@@ -157,11 +162,23 @@ class SortedList[T] {T$\extends$Comparable[T]} {
   def sort() { ... x.compare(y) ... }
 }
 \end{xtenmath}
+Constraints can specify either subtype (\xcd"<="), supertype (\xcd">="),
+or equality bounds (\xcd"==").
 
 \subsection{Methods}
 
+Methods in \Xten may have type parameters.  
+For instance, the \xcd"map" method in Figure~\ref{fig:list} 
+has a type parameter \xcd"S" and a value parameter that is a
+function from \xcd"T" to \xcd"S".
+A parametrized method is invoked by giving type arguments before the
+expression arguments (see the recursive call to
+\xcd"map").\footnote{In \Xten, actual type arguments can be
+inferred from the types of the value arguments.  However, type
+inference is out of the scope of this paper.}
+
 Method declarations in \Xten
-may have additional
+may also have additional
 constraints, or \emph{guards}, on the method parameters.  A
 method guard must be satisfied by the caller of the method, and
 the guard holds throughout the method body.
@@ -200,7 +217,7 @@ $$
 $$}
 }
 
-Method guards can also be constraints on type parameters.
+Method guards can also constrain type parameters.
 For instance, the \xcd"print" method can be invoked only if
 \xcd"T" is instantiated on a type that implements
 \xcd"Printable".  Since the guard holds in the body of the
@@ -210,6 +227,7 @@ This feature is similar to optional methods in CLU~\cite{clu}.
 Using structural constraints on \xcd"T" would give more
 expressive power; optional methods are discussed further in
 Section~\ref{sec:discussion}.
+Constructors in \Xten may also have guards.
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
@@ -219,14 +237,11 @@ A method guard may be weakened by an overriding
 method; that is, the guard in the superclass must entail the  
 guard in the subclass.
 
-Methods may also have type parameters.  
-For instance, the \xcd"map" method in Figure~\ref{fig:list} 
-has a type parameter \xcd"S" and a value parameter that is a
-function from \xcd"T" to \xcd"S".
-A parametrized method is invoked by giving type arguments before the
-expression arguments (see recursive call to
-\xcd"map").\footnote{Actual type arguments can be inferred from the types
-of the value arguments. Type inference is out of the scope of this paper.}
+Method overloading in \Xten is not constraint-sensitive.  It is
+illegal for a class to contain two methods with the same name
+and the same parameter types when constraints are erased from the 
+types.  Constraints are also not evaluated during method
+dispatch, as in predicate dispatch~\cite{jpred}.
 
 \eat{
 \xcd"List" also defines three constructors: the first
@@ -243,16 +258,16 @@ list; the third takes both a head and tail.
 \Xten supports definition-site variance annotations.
 Parameters may be declared invariant, covariant, or
 contravariant.
-Invariant parameters are the default; a covariant parameter is
-declared by prepending ``\xcd"+"'' to the parameter name in the
-class header; a contravariant parameter is declared by
-prepending ``\xcd"-"''.
-
 If a parameter \xcd"X" of a class \xcd"C" is covariant,
 then if \xcd"S" is a subtype of
 \xcd"T", the type \xcd"C[S]" is a subtype of \xcd"C[T]".
 Similarly, if \xcd"X" is contravariant, 
 \xcd"C[T]" is a subtype of \xcd"C[S]".
+Invariant parameters are the default; a covariant parameter is
+declared by prepending ``\xcd"+"'' to the parameter name in the
+class header; a contravariant parameter is declared by
+prepending ``\xcd"-"''.
+
 It is illegal for a covariant parameter to occur in a negative
 position in its class declaration and for a contravariant
 parameter to occur in a positive position.  A position is
@@ -260,9 +275,11 @@ negative if it is a formal parameter type, or occurs in a method
 where clause.  A position is positive if it is a return type or
 occurs in a method constraint.
 
-XXX
-Variant parameters used in method guards must also be
-constrained.
+\todo{
+Variant type parameters used in method guards and in other
+constraints in method signatures must also be
+restricted.  
+}
 
 \eat{
 \subsection{Methods}
