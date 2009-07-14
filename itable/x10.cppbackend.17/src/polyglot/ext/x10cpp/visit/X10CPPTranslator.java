@@ -698,6 +698,11 @@ public class X10CPPTranslator extends Translator {
             for (int i = 0; i < preArgsLinux.length; i++) {
                 cxxCmd.add(preArgsLinux[i]);
             }
+
+            // Partial workaround XTENLANG-461: g++ 4.1 bug with statement expressions
+            if (!polyglot.ext.x10.Configuration.OPTIMIZE) {
+            	cxxCmd.add("-O1");
+            }
         }
 
         protected void addPostArgs(ArrayList<String> cxxCmd) {
@@ -750,6 +755,10 @@ public class X10CPPTranslator extends Translator {
             for (int i = 0; i < preArgsAIX.length; i++) {
                 cxxCmd.add(preArgsAIX[i]);
             }
+            // Partial workaround XTENLANG-461: g++ 4.1 bug with statement expressions
+            if (!USE_XLC && !polyglot.ext.x10.Configuration.OPTIMIZE) {
+            	cxxCmd.add("-O1");
+            }            
         }
 
         protected void addPostArgs(ArrayList<String> cxxCmd) {
