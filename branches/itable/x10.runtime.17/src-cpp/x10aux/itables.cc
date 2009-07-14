@@ -4,7 +4,7 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-#define TRACE_ITABLES 1
+#define TRACE_ITABLES 0
 
 void*
 x10aux::findITable(ref<Object> obj, const RuntimeType **id) {
