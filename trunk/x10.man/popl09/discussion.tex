@@ -1,21 +1,42 @@
-Many features of modern object-oriented type systems can be
-cast as specializations of the generic constrained types
-framework.  
-
-\subsection{Type properties}
 \label{sec:type-properties}
 \label{sec:variance}
 
-Type properties generalize \Xten's properties.  A type property 
+We explored a 
+different approach to adding generics to \Xten based on a
+generlization of properties.
+A \emph{type property}
 is a final object member initialized at construction-time with a
 concrete type.  Like normal value properties, type properties
 can be used in constrained types through the variable \xcd"self".
 
-XXX Example.
+For example, the \xcd"List" class of Figure~\ref{fig:list0}
+could be written as shown in Figure~\ref{fig:list0prop}.
+The class has a type-valued property \xcd"T" and a value property \xcd"len".
+\begin{figure}
+{
+\begin{xtennoindent}
+      class List(T: *, len: int) {
+        var head: T;
+        val tail: List{self.T==this.T}
+        def get(i: int): T {
+          if (i == 0) return head;
+          else return tail.get(i-1);
+        }
+        def this(S: *, hd: T, tl: List{self.T==S}):
+            List{self.T==S,len==tl.len+1} {
+          super();
+          property(S, tl.len+1);
+          head = hd; tail = tl;
+        }
+      }
+\end{xtennoindent}
+}
+\caption{List example, with type properties}
+\label{fig:list0prop}
+\end{figure}
 
-Subtyping constraints may be used to
-provide \emph{use-site variance}
-constraints.
+Subtyping constraints on type properties may be used to
+provide \emph{use-site variance} constraints.
 Use-site variance based on structural virtual types was proposed by
 Thorup and Torgerson~\cite{unifying-genericity} and extended for
 parametrized type systems by Igarashi and
@@ -24,11 +45,8 @@ to the development of wildcards in
 Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
 type properties
 have similar expressive power.
-Section ?? \eat{~\ref{sec:wildcards}} describes a characterization of
-wildcards using generic constrained types.
 
-Consider the following subtypes  of \xcd"List" from
-Figure~\ref{fig:list}.
+Consider the following subtypes of \xcd"List":
 \begin{itemize}
 \item \xcd"List".  This type has no constraints on the type
 property \xcd"T".
@@ -77,24 +95,19 @@ supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \label{sec:usability}
 \label{sec:parameters-vs-fields}
 
-Type properties, while powerful, have some
-some usability problems.
-The basic
-problem is that programmers are more familiar with
-\emph{type parameters} than with \emph{type properties}:
-providing similar functionality with often subtle distinctions
-can be difficult for novice users of the language.
-
 The key difference between type parameters and type properties
 is that type properties are
-instance members bound during object construction.  Type
+instance \emph{members} bound during object construction.  Type
 properties are thus accessible through expressions---\xcd"e.T" is
 a legal type (if \xcd"e" is final)---and are inherited by subclasses.
 These features gives type properties more expressive power than
-parameters, but are unfamiliar to many programmers.
+type parameters, but because they 
+provide similar functionality with often subtle distinctions
+type properties
+can be difficult to use, especially for novices.
+For this reason, \Xten uses type parameter rather than type properties.
 
-One complication is that,
-since type properties are inherited, the language design needs
+Since type properties are inherited, the language design needs
 to account for ambiguities introduced when the same name is
 used for different type properties declared in or inherited into a class.
 These can be disambiguated
@@ -102,37 +115,34 @@ by ``casting'' the target up to the desired supertype,
 e.g., \xcd"(e as C).X" specifies
 the property \xcd"X" inherited from \xcd"C".
 
-As an example, in the following \Xten code, \xcd"HashMap" 
-inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
+As an example, in the following \Xten code extended with type properties, the
+\xcd"HashMap"  class inherits the properties \xcd"K" and \xcd"V" from the
+\xcd"Map" interface.
 \begin{xten}
-interface Map[K,V] {
+interface Map(K:*, V:*) {
   def get(K): V;
   def put(K, V): V;
 }
 
-class HashMap extends Map {
+class HashMap implements Map {
   def get(k: K): V = ...;
   def put(k: K, v: V): V = ...;
 }
 \end{xten}
-If a user is used to type parameters, \xcd"HashMap" would be
-declared as follows:
+A user more used to type parameters might declare \xcd"HashMap" as follows:
 \begin{xten}
-class HashMap[K,V] extends Map[K,V] {
+class HashMap(K:*,V:*) implements Map(K,V) {
   def get(k: K): V = ...;
   def put(k: K, v: V): V = ...;
 }
 \end{xten}
-This introduces a new pair of type properties named \xcd"K" and
-\xcd"V" that shadow the inherited properties,
-and adds to the class invariant of \xcd"HashMap" the constraint
-\xcd"{(this as Map).K==K," \xcd"(this as Map).V==V}".
-A naive implementation of type properties would store run-time
+This declaration would introduce a new pair of type properties
+named \xcd"K" and
+\xcd"V" that shadow the inherited properties.
+A na{\"\i}ve implementation of type properties would store run-time
 type information for all four properties in each instance
 of \xcd"HashMap".
 
-A practical implementation of type properties must account for
-these difficulties.
 
 \subsection{Virtual types}
 
@@ -214,14 +224,10 @@ Type properties can also be refined contravariantly.
 For instance, one can write the type \xcdmath"List{T$\super$Integer}",
 and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
 
-\eat{
 \subsection{Wildcards}
 \label{sec:wildcards}
 
-As discussed in Section~\ref{sec:parameters-vs-fields},
-type properties are similar to type
-parameters.
-Constrained types can provide a characterization of
+Constraints on type properties can also provide a characterization of
 wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
 Wildcards can be motivated
 by the following example from Torgersen et al.~\cite{adding-wildcards}:
@@ -317,7 +323,35 @@ of \xcd"reverse" requires delegating to a private parametrized version that
 
 %\input{self-types.tex}
 
-}
+\subsection{Self types}
+
+Type properties can also be used to support a form of self
+types~\cite{bruce-binary,bsg95}.
+%
+Self types can be implemented by introducing a
+type property \Xcd{type} to the root of the class hierarchy, \Xcd{Object}:
+\begin{xtenmath}
+class Object(type:*){type <= Object} { $\dots$ }
+\end{xtenmath}
+
+\noindent
+The type
+For any final path expression \Xcd{p}, the type
+$\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by \Xcd{p}.
+Scala's path-dependent types~\cite{scala-book} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+constraining types so that if a path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{type} \subtype \Xcd{C}$.
+In particular, one can add the class invariant
+$\Xcd{this}.\Xcd{type} \subtype \Xcd{C}$ to every class \Xcd{C}.
+This invariant ensures that
+$\Xcd{this}.\Xcd{type}$ is a subtype
+of the lexically enclosing class.
 
 \eat{
 \subsection{Ownership types}
@@ -379,335 +413,3 @@ Restrictions:
 
 }
 
-\subsection{Structural constraints}
-\label{sec:structural}
-\label{sec:structural-typing}
-
-Constraints on types need not be limited to subtyping.
-By introducing structural constraints on types, one can
-instantiate
-type properties on any type with a given set
-of methods or fields.
-A structural constraint is satisfied if the type has a member of
-the appropriate name and with a compatible type.
-This feature is useful for reusing code
-from separate libraries; it does not require
-code of one library to implement a named interface of the other
-library to interoperate.
-
-Here, we consider an extension, not yet implemented, of the \Xten{} type system
-that supports structural type constraints.
-Formally, the extension
-is straightforward; indeed the \FXG{} family already supports structural
-constraints
-via the rules for ``{\tt x \underline{has} I}'' in
-Figure~\ref{fig:lookup}.
-
-Structural constraints on types are found in many languages.
-For instance,
-Haskell supports type
-classes~\cite{haskell,haskell-type-classes}.
-%
-%ML's module system allows modules to be constrained by
-%structural signatures~\cite{ml}.
-In Modula-3, type equivalence is structural
-rather than nominal as in object-oriented languages of the C
-family (e.g., C++, Java, and \Xten{}).
-Unity~\cite{malayeriIntegrating08}
-is another language with structural subtyping.
-
-Using structural constraints in \Xten was inspired by 
-the language PolyJ~\cite{java-popl97}, which allows type parameters to be
-bounded using
-structural \emph{where clauses}~\cite{where-clauses}.
-For example, a sorted list class % from Figure~\ref{fig:sorted}
-could
-be written as follows in PolyJ:
-{
-\begin{xten}
-class SortedList[T]
-  where T {int compareTo(T)} {
-    void add(T x) {... x.compareTo(y) ...}
-    ... }
-\end{xten}}
-The \xcd"where" clause states that the type parameter \xcd"T" must have a
-method \xcd"compareTo" with the given signature.
-
-The analogous code for \xcd"SortedList" in the structural
-extension of \Xten{} would be:
-{
-\begin{xten}
-class SortedList[T]
-  {T has compareTo(T): int} {
-    def add(x: T) {... x.compareTo(y) ...}
-    ... }
-\end{xten}}
-
-\eat{
-A structural constraint is satisfied if the type has a member of
-the appropriate name and with a compatible type.
-The constraint
-\xcdmath"Z has def m[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$): U"
-is satisfied by a type \xcd"T" if it has a method \xcd"m"
-with signature
-\xcdmath"def m[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$): V"
-and where
-(\xcdmath"[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$) => V")$[\Xcd{T}/\Xcd{Z}]$
-is a subtype of
-(\xcdmath"[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$) => U")$[\Xcd{T}/\Xcd{Z}]$.
-As an example,
-the constraint \xcd"X has def compareTo(X): int"
-is satisfied by both of the following classes:
-{\footnotesize
-\begin{xten}
-class C { def compareTo(x: C): int = ...; }
-class D { def compareTo(x: Object): int = ...; }
-\end{xten}}
-}
-
-\subsubsection{Function-typed properties}
-
-\Xten{} supports first-class functions.
-Function-typed properties provide a useful alternative to
-structural constraints.  In the
-following version of the
-\xcd"SortedList" class:
-{
-\begin{xten}
-class SortedList(compare: (T,T)=>int)
-    extends List {
-  def add(x: T) {... compare(x, y) ...}
-  ... }
-\end{xten}}
-\noindent
-the class has a property \xcd"compare" of type
-\xcd"(T,T)=>int", a function that takes a pair of \xcd"T"s and
-returns an \xcd"int".  
-
-Using this definition, one can create lists with distinct types
-using different constraints on the \xcd"compare" property.
-For example, one can define lists of
-both
-case-sensitive and case-insensitive strings:
-\bigskip
-{
-\begin{xten}
-val unixFiles
-  = new SortedList[String]
-      (String.compareTo.(String));
-val windowsFiles
-  = new SortedList[String]
-      (String.compareToIgnoreCase.(String));
-\end{xten}}
-
-\noindent
-\xcd"String.compareTo.(String)" selects the
-method named
-\xcd"compareTo" with a \xcd"String" argument from
-class \xcd"String".
-%
-The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
-by different comparison functions.  This allows the programmer
-to write code, for instance, in which it is illegal to pass a list of UNIX
-file names into a function that expects a list of Windows file names, and
-vice versa.
-
-\subsubsection{Optional methods}
-
-Structural method constraints permit the introduction of
-CLU-style optional methods~\cite{clu}.  Consider the following
-\xcd"Array" class:
-{
-\begin{xten}
-class Array[T] {
-  def add(a: Array[S])
-    {T has add(S): U}: Array[U] {
-    return new Array[U](
-      (p:Point) => this(p)+a(p));
-  }
-  ... }
-\end{xten}}
-
-\noindent
-The \xcd"Array" class defines an \xcd"add" method that takes 
-an array of \xcd"S", adds each element of the array to the
-corresponding element of \xcd"this", and returns an array of the
-results.  The method constraint specifies that the method may
-only be invoked if \xcd"T" has an \xcd"add" method of the
-appropriate type.  Thus, for example, an \xcd"Array[int]"
-can be added to an \xcd"Array[double]" because \xcd"int"
-has a method \xcd"add" (corresponding to the \xcd"+" operation)
-that adds an \xcd"int" and a \xcd"double", retuning a
-\xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
-the \xcd"add" operation because \xcd"Rabbit" does not have an
-\xcd"add" method.
-%\footnote{It may have a \xcd"multiply" method.}
-
-
-
-
-\eat{
-\subsection{Definition-site variance}
-
-\subsection{Conditional methods and generalized constraints}
-
-For type parameters, method constraints are 
-similar to generalized constraints proposed for
-\csharp~\cite{emir06}.
-%
-In the following code, the \xcd"T" parameter is covariant
-and so the \xcd"append" methods below are illegal:
-{\footnotesize
-\begin{xten}
-class List[+T] {
-  def append(other: T): List[T] { ... }
-      // illegal
-  def append(other: List[T]): List[T] { ... }
-      // illegal
-}
-\end{xten}}
-%
-However, one can introduce a method parameter and then constrain
-the parameter from below by the class's parameter:
-For example, in the following code,
-{\footnotesize
-\begin{xtenmath}
-class List[+T] {
-  def append[U](other: U)
-      {T $\extends$ U}: List[U] { ... }
-  def append[U](other: List[U])
-      {T $\extends$ U}: List[U] { ... }
-}
-\end{xten}}
-
-The constraints must be satisfied by the callers of \xcd"append".
-For example, in the following code:
-{\footnotesize
-\begin{xten}
-xs: List[Number];
-ys: List[Integer];
-xs = ys; // ok
-xs.append(1.0); // legal
-ys.append(1.0); // illegal
-\end{xten}}
-the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
-the call to \xcd"ys.append" is not allowed because the caller cannot show that
-$\Xcd{Number} \subtype \Xcd{Double}$.
-
-}
-
-\subsection{Run-time casts}
-\label{sec:casts}
-
-While constraints are normally solved at compile time, 
-constraints can be evaluated at run time by using casts.
-The expression 
-\xcd"xs as List{length==n}" checks not only 
-that \xcd"xs"
-is an instance of
-the \xcd"List" class, but also that \xcd"xs.length" equals \xcd"n".
-A \xcd"ClassCastException" is thrown if the check fails.
-%
-In this example, the test of the constraint does not require
-run-time constraint
-solving; the constraint can be checked by simply
-evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
-However, the situation is more complicated when casting to a
-type that constrains the value's type properties.
-
-For equality constraints on types, one can simply test equality on
-canonical run-time representations of the base types and of the
-constraints.
-However, with subtyping constraints (e.g., \xcdmath"S$\extends$T"),
-the generated code must be able to test if the constraint on the
-subtype entails the constraint on the supertype.  Since one or
-both of the types involved in the constraint might be type
-variables, the entailment cannot be checked at compile time.
-
-One approach is to restrict the language 
-to rule out casts to type parameters 
-and to generic types with subtyping constraints, ensuring that
-entailment checks are not needed at run time.
-
-Alternatively, 
-the constraint solver could be embedded into the runtime system.
-This is the solution used in the \Xten{} implementation; however, this
-solution can result in inefficient run-time casts
-if entailment checking for the given constraint system is expensive.
-
-\eat{
-A different approach to have the compiler pre-compute the results of
-entailment checks.
-This might be done by analyzing the program to identify which pairs of
-constraints might be tested for entailment at run time and then generating a
-graph were each node is a constraint and there is a directed edge between
-nodes in an entailment relationship.  Run-time entailment
-checking can then be implemented as reachability checking. 
-This solution is a whole program analysis; all
-constraints must be visible to generate the graph.
-\todo{
-We leave the design of this analysis for future work.
-}
-
-\todo{this is vague.  and very likely wrong.}
-If \xcd"e as T" occurs in the program text and \xcd"e" has
-type \xcd"U", the analysis identifies all \xcd"new" expressions
-$a$,
-that create a subtype of \xcd"U" and identifies all type
-expressions $t$ that could instantiate \xcd"T".
-For each pair $(a,t)$, the analysis checks that the
-type of $a$ (determined by the constructor invoked by $a$) is a subtype of $t$.
-Since $a$ and $t$ may be in different environments, \xcd"e" must
-be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
-}
-
-Another option is to test objects cast to \xcd"T" not for membership in the
-type \xcd"T", but rather to test against the
-\emph{interpretation} of \xcd"T".
-Observe that
-if an instance of a generic class \xcd"C[X]"
-is a member of the type \xcd"C{X==U}", then
-all fields ${\tt f}_i$ of the instance with
-declared type ${\tt S}_i$ contain values
-that are instances of ${\tt S}_i[{\tt U}/{\tt X}]$.
-For example, given the following declaration of class \xcd"List":
-{
-\begin{xten}
-class List[X] {
-  val head: X;
-  val tail: List[X];
-}
-\end{xten}
-}
-\noindent
-if \xcd"xs" is an instance of \xcd"List{X==String}", then
-by checking that \xcd"xs.head" is an instance of \xcd"String"
-and \xcd"xs.tail" is, recursively, an instance of \xcd"List{X==String}".
-This property can be exploited by implementing cast to check the
-types of all fields of the object.
-For this check to be sound, it is vital that all fields whose
-type depends on the type property \xcd"X" be transitively final;
-otherwise, the test is not invariant---the
-result of the test could change as the data is mutated.
-Care must also be taken to implement the
-test so that it terminates for cyclic data structures.
-This implementation is inefficient for large data structures.
-
-This solution has a more permissive semantics
-than those implemented in \Xten or \FXGL{Q}.
-The difference is best illustrated by considering an empty generic class:
-{
-\begin{xten}
-class Nil[X] { }
-\end{xten}
-}
-\noindent
-In this case, there is no field of type \xcd"X" to test;
-therefore, an object instantiated as \xcd"Nil[int]" 
-can be considered a member of \xcd"Nil[String]". 
-However, the solution remains sound:
-Given a class \xcd"C[X]" and an expression \xcd"e" of type \xcd"t.X", if
-a run-time check finds that \xcd"t" has type \xcd"C[T]", 
-the compiler \emph{cannot} use this information to derive 
-that \xcd"e" has type \xcd"T".
-We leave to future work a proof of this claim.
