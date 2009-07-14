@@ -50,6 +50,9 @@ ifeq ($(shell uname -s),AIX)
   ifdef USE_GCC
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
+    else
+      # partial workaround for g++ 4.1 bug with statement expressions (XTENLANG-461)
+      override CXXFLAGS += -O1 
     endif
     override CXXFLAGS += -maix64
   else	
@@ -82,6 +85,9 @@ else
 
   ifdef OPTIMIZE
     override CXXFLAGS += -O2 -finline-functions
+  else
+    # partial workaround for g++ 4.1 bug with statement expressions (XTENLANG-461)
+    override CXXFLAGS += -O1 
   endif
 
   override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
