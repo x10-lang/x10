@@ -1,4 +1,3 @@
-
 \subsection{Run-time casts}
 \label{sec:casts}
 
@@ -15,17 +14,40 @@ In this example, the test of the constraint does not require
 run-time constraint
 solving; the constraint can be checked by simply
 evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
-However, the situation is more complicated when casting to a
-type that constrains the value's type properties.
 
-For equality constraints on types, one can simply test equality on
-canonical run-time representations of the base types and of the
-constraints.
-However, with subtyping constraints (e.g., \xcdmath"S$\extends$T"),
-the generated code must be able to test if the constraint on the
-subtype entails the constraint on the supertype.  Since one or
-both of the types involved in the constraint might be type
-variables, the entailment cannot be checked at compile time.
+However, the situation is more complicated when casting to a
+generic type.  Unlike Java, \Xten does not erase type
+parameters at run-time.  Instead each instance of a generic type
+contains a description of the types that its parameters are
+instantiated upon.  This extra run-time type information
+enables checked casts to generic types.
+
+The implementation becomes complicated when variant type
+parameters are permitted.
+While our formalism does not model
+variance, \Xten does support them, as described in
+Section~\ref{sec:lang}.
+Consider a declaration of class \xcd"C" with a covariant type
+parameter \xcd"X":
+\begin{xtenmath}
+class C[+X](x: X) {
+   def this(y: X) { property(y); }
+}
+\end{xtenmath}
+\noindent
+Because the static type of an expression may involve one or more
+type parameters,
+checking if an expression is an instance of, say, \xcd"C[A{c}]"
+may require a run-time constraint entailment test.  That is, if a value \xcd"v"
+has run-time type \xcd"C[B{d}]", then because \xcd"C"'s
+parameter is covariant,
+\xcd"v" \xcd"as" \xcd"C[A{c}]" must check that \xcd"B" is a subclass of
+\xcd"A" and that \xcd"d" entails \xcd"c".\footnote{If the
+\xcd"X" parameter were declared invariant, the cast would only
+need to check that \xcd"A" and \xcd"B" are the same class and
+that \xcd"d" and \xcd"c" are equivalent, which might be
+accomplished by representing constraints at run-time in a
+canonical form.}
 
 One approach is to restrict the language 
 to rule out casts to type parameters 
@@ -37,6 +59,8 @@ the constraint solver could be embedded into the runtime system.
 This is the solution used in the \Xten{} implementation; however, this
 solution can result in inefficient run-time casts
 if entailment checking for the given constraint system is expensive.
+
+We are exploring alternative implementations or future work.
 
 \eat{
 A different approach to have the compiler pre-compute the results of
@@ -64,6 +88,7 @@ Since $a$ and $t$ may be in different environments, \xcd"e" must
 be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
 }
 
+\eat{
 Another option is to test objects cast to \xcd"T" not for membership in the
 type \xcd"T", but rather to test against the
 \emph{interpretation} of \xcd"T".
@@ -114,3 +139,4 @@ a run-time check finds that \xcd"t" has type \xcd"C[T]",
 the compiler \emph{cannot} use this information to derive 
 that \xcd"e" has type \xcd"T".
 We leave to future work a proof of this claim.
+}
