@@ -11,9 +11,9 @@
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
-We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \FXG.
+We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \CFJ~\cite{constrained-types}.
 
-We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. Finally, we characterize the family itself and state and prove the soundness of its type system.
+We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. %Finally, we prove the soundness of their type systems.
 
 Following \FJ, our formalism does not account for mutations. Proving soundness for an imperative calculus is beyond the scope of this paper.
 For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariants we model may constrain the type parameters but not the fields of the class. \Xten does not support constraint-driven overloading.} Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of X10 for future work.
@@ -658,6 +658,11 @@ or derive our relation from subtyping:
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt S}\{\self=={\tt x}\}\subtype{\tt T}}
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T}}
 
+As explained in the previous section, the intend of the subtyping relation is to combine subclassing and constraint entailment: type ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt D}[\tbar{A}]\{{\tt c}\}$ iff {\tt C} is a subclass of {\tt D} and {\tt c} entails {\tt d} in the underlying constraint system. In the formal model, subtyping is invariant in the type parameters, that is, ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt C}[\tbar{B}]\{{\tt c}\}$ only if $\tbar{A}=\tbar{B}$.
+
+Rules {\sc S-Const-L} and {\sc S-Const-R} let us manipulate constraints in types and prove lemmas such as ${\tt T}\{{\tt c},{\tt d}\}\subtype {\tt T}\{{\tt c}\}\{{\tt d}\}$ (assuming well-formedness).
+
+
 \paragraph{5. Typing.} The typing rules are specified in Figure~\ref{fig:FX}.
 
 {\sc T-Var} is as expected, except that it asserts the constraint {\tt
@@ -708,6 +713,8 @@ Fields cannot be overridden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyse
 
 {\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes entailing the guard of the superclass.
 
+The type system of \FXGL{\cdot} has principal types in strong sense (for a constrained type system): if $\Gamma\vdash {\tt t}\ty{\tt T}$ and $\Gamma\vdash {\tt x}\ty{\tt U}$ then {\tt T} and {\tt U} are syntactically identical. So if $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt c}\}$ then it cannot be proved that $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt d}\}$ for any other constraint even if equivalent to {\tt c}. However, one can establish the subtyping relation $\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\{{\tt c}\}\vdash {\tt x}\subtype{\tt C}[\tbar{A}]\{{\tt d}\}$.
+
 \subsection{\FXGL{Q}}
 
 Turning \FXGL{\cdot} into a language with value-dependent types is straightforward. First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$, predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
@@ -736,7 +743,7 @@ add four rules to the type system respectively about
 well-formedness, inconsitent constraints, subtyping, and member
 lookup. {\sc X-Bound} ensures we do not type check programs
 that specify mutiple bounds for a given type
-parameter.\footnote{More precisely, multiple bounds can be specified provided they are syntactically identical.}
+parameter.%\footnote{More precisely, multiple bounds can be specified provided they are syntactically identical.}
 
 While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
 
@@ -746,6 +753,7 @@ The soundness of the type system is preserved because:
 
 \item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parametes. That is, if a variable of type parameter $\tt X$ is established to have two members with the same name then the must have the same signature.
 \end{enumerate}
+
 
 
 \subsection{\FXGL{S}}
