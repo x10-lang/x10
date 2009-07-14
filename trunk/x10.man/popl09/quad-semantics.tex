@@ -1,3 +1,4 @@
+\newcommand\comma{,~}
 \newcommand\wj[2]{{#1} \vdash_{\cal W}{#2}}
 \newcommand\cdecl{{\tt class}~{\tt C}[\tbar{X}]\{{\tt c}\}(\tbar{f}\ty\tbar{F})~{\tt extends}~{\tt D}[\tbar{E}]~\{~\tbar{M}~\}}
 \newcommand\msign[5]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}}
@@ -55,7 +56,7 @@ In the following, the context $\Gamma$ is always a (finite, possibly empty) sequ
 
   \item a variable or type parameter is declared at most once in $\Gamma$.
 \end{enumerate}
-For any formulas $\phi_1$ and $\phi_2$, the judgment $\Gamma \vdash \phi_1,~\phi_2$ is shorthand for the judgments $\Gamma \vdash \phi_1$ and $\Gamma \vdash \phi_2$. 
+For any formulas $\phi_1$ and $\phi_2$, the judgment $\Gamma \vdash \phi_1\comma\phi_2$ is shorthand for the judgments $\Gamma \vdash \phi_1$ and $\Gamma \vdash \phi_2$. 
 
 An assumption ``{\tt x} fresh'' in an inference rule means that {\tt x} does not occur in the premises to the left of this assumption.
 
@@ -362,7 +363,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \begin{minipage}{.41\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma\vdash {\tt c}[{\tt x}/\self],{\tt x}\subtype {\tt T}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}} \andalso \Gamma\vdash {\tt c}[{\tt x}/\self]\comma{\tt x}\subtype {\tt T}}
 	{\Gamma\vdash{\tt x}\subtype {\tt T}\{{\tt c}\}}
 \end{minipage}%
 
@@ -377,7 +378,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \quad\typicallabel{XXXXXX}
 \infrule[S-Exists-R]
   {\wj{\Gamma}{\exty{\tt x}{\tt U}{\tt T}} \andalso
-    \Gamma\vdash {\tt t}\ty{\tt U},{\tt y}\subtype {\tt T}[{\tt t}/{\tt x}]}
+    \Gamma\vdash {\tt t}\ty{\tt U}\comma{\tt y}\subtype {\tt T}[{\tt t}/{\tt x}]}
   {\Gamma\vdash {\tt y}\subtype\exty{\tt x}{\tt U}{\tt T}}
 \end{minipage}%
 
@@ -428,9 +429,9 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	{\Gamma\vdash\new~{\tt C}[\tbar{A}](\tbar{e})\ty\exty{\tbar{x}}{\tbar{T}}{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{x})\}}
         
 \infrule[T-Invk]
-	{\Gamma\vdash {\tt e}\ty{\tt T},\tbar{a}\ty\tbar{U} \andalso
+	{\Gamma\vdash {\tt e}\ty{\tt T}\comma\tbar{a}\ty\tbar{U} \andalso
 	  {\tt x},\tbar{y}~{\rm fresh} \andalso
-	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty{\tt U}\vdash {\tt x}~\has~\msign{A}{y}{G}{c}{H},{\tt c},\tbar{y}\subtype\tbar{G}}
+	  \Gamma,{\tt x}\ty{\tt T},\tbar{y}\ty{\tt U}\vdash {\tt x}~\has~\msign{A}{y}{G}{c}{H}\comma{\tt c}\comma\tbar{y}\subtype\tbar{G}}
 	{\Gamma\vdash {\tt e}.{\tt m}[\tbar{A}](\tbar{a})\ty\extyty{\tt x}{\tt T}{\tbar{y}}{\tbar{U}}{\tt H}}
 
 \eat{
@@ -586,7 +587,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \begin{minipage}{.36\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[X-Bound]
-	{\Gamma\vdash{\tt X}\extends{\tt G},{\tt X}\extends{\tt H} \andalso
+	{\Gamma\vdash{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H} \andalso
 	  {\tt G}\neq{\tt H}}
 	{\Gamma\vdash\false}
 \end{minipage}%
@@ -627,7 +628,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
   {\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~\msign{Z}{z}{G\theta}{c\theta}{H\theta}}
 
 \infrule[X-Struct-False]
-	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J},{\tt I}\not\ll{\tt J},{\tt J}\not\ll{\tt I}}
+	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I}\comma{\tt x}~\has~{\tt J}\comma{\tt I}\not\ll{\tt J}\comma{\tt J}\not\ll{\tt I}}
 	{\Gamma\vdash\false}
 \end{minipage}%
 \caption{\FXGL{S}.}
@@ -924,7 +925,7 @@ generics and value-dependent types. All constraints but existential constraints 
 The following results hold for \FXGD supposing the program {\tt P} type checks.
 
 \begin{theorem}[Subject Reduction] If $\Gamma$ is well formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
-for some type {\tt S}, $\Gamma \vdash {\tt {\tt e}':{\tt S}},~{\tt S} \subtype {\tt T}$.
+for some type {\tt S}, $\Gamma \vdash {\tt {\tt e}':{\tt S}}\comma{\tt S} \subtype {\tt T}$.
 \end{theorem}
 
 Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt d} \alt C\{c\}$.
