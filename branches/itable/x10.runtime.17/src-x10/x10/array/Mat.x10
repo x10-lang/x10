@@ -6,7 +6,7 @@ package x10.array;
 import x10.io.Printer;
 
 // {T<:Row} needs fix to XTENLANG-300
-public abstract value class Mat[+T](rows:nat, cols:nat) implements (nat)=>T {
+public abstract value class Mat[+T](rows:nat, cols:nat) implements (nat)=>T, Iterable[T] {
 
     private val mat: ValRail[T];
 
