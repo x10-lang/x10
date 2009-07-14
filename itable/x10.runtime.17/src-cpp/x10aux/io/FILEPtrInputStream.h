@@ -14,8 +14,7 @@ namespace x10aux {
 
         class FILEPtrInputStream : public FILEPtrStream {
         public:
-            explicit FILEPtrInputStream(FILE* stream)
-              : FILEPtrStream(stream) { }
+            explicit FILEPtrInputStream(FILE* stream) : FILEPtrStream(stream) { }
 
             char* gets(char* s, int num);
 
@@ -25,9 +24,7 @@ namespace x10aux {
             x10_int read();
 
             void skip(x10_int bytes);
-
         };
-
     }
 }
 
