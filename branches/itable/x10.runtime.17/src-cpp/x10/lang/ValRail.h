@@ -78,10 +78,8 @@ namespace x10 {
       
             T* raw() { return _data; }
 
-            class RailIterator : public Ref, public virtual x10::lang::Iterator<T> {
-
+            class RailIterator : public Ref {
                 protected:
-
                 x10_int i;
                 x10aux::ref<ValRail<T> > rail;
 
@@ -91,6 +89,19 @@ namespace x10 {
                 static const x10aux::RuntimeType* _initRTT();
                 virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
+                static x10aux::itable_entry _railItITables[2];
+                virtual x10aux::itable_entry* _getITables() { return _railItITables; }
+    
+                static x10_boolean _itable_thunk_hasNext(x10aux::ref<Iterator<T> > this_) {
+                    x10aux::ref<RailIterator> tmp = this_;
+                    return tmp->hasNext();
+                }
+
+                static T _itable_thunk_next(x10aux::ref<Iterator<T> > this_) {
+                    x10aux::ref<RailIterator> tmp = this_;
+                    return tmp->next();
+                }
+                
                 RailIterator (const x10aux::ref<ValRail> &rail_)
                     : i(0), rail(rail_) { }
 
@@ -123,7 +134,8 @@ namespace x10 {
             };
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new (x10aux::alloc<RailIterator>()) RailIterator(this);
+                x10aux::ref<RailIterator> tmp = new (x10aux::alloc<RailIterator>()) RailIterator(this);
+                return tmp;
             }
 
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
@@ -176,6 +188,12 @@ namespace x10 {
 
         template<class T> const x10aux::RuntimeType* ValRail<T>::RailIterator::rtt = NULL;
 
+        template<class T> x10aux::itable_entry ValRail<T>::RailIterator::_railItITables[2] = {
+            x10aux::itable_entry(&Iterator<T>::rtt,
+                                 new typename x10::lang::Iterator<T>::itable(&ValRail<T>::RailIterator::_itable_thunk_hasNext, &ValRail<T>::RailIterator::_itable_thunk_next)),
+            x10aux::itable_entry(NULL, NULL)
+        };
+        
         template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
             if (other.get() == this) return true; // short-circuit trivial equality
             if (!this->Value::_struct_equals(other)) return false;
