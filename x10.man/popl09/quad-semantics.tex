@@ -4,13 +4,12 @@
 \newcommand\msign[5]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}}
 \newcommand\minst[6]{\msign{#1}{#2}{#3}{#4}{#5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
-\newcommand\FXGL[1]{{\sf FXG(${\cal #1}$)}}
 \newcommand{\vdashQ}{\vdash_{\cal Q}}
 \newcommand{\vdashS}{\vdash_{\cal S}}
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
-We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \FX.
+We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \FXG.
 
 We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. Finally, we characterize the family itself and state and prove the soundness of its type system.
 
@@ -794,8 +793,8 @@ systems for Presburger arithmetic and for set constraints over
 \Xten's array index domains (viz., regions).
 
 \subsection{\FXG}
-We now turn to showing how \FGJ{}-style generics can be supported in the \FX{} family.
-\FXG{} is the language obtained by adding to \FXZ{} the
+We now turn to showing how \FGJ{}-style generics can be supported in the \FXG{} family.
+\FXGL{B} is the language obtained by adding to \FXGZ{} the
 following productions:
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
