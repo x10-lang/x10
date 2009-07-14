@@ -123,8 +123,11 @@ public value Runtime {
 		if (place.id == Thread.currentThread().loc()) {
 			pool.execute(new Activity(body, state, ok));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, ok));
-			NativeRuntime.runAt(place.id, c);
+            if (ok) {
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, true)));
+            } else {
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, false)));
+            }
 		}
 	}
 
