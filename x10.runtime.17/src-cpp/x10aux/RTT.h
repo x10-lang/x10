@@ -144,6 +144,8 @@ namespace x10aux {
     #define TYPENAME(T) x10aux::typeName<T>()
     class InitDispatcher;
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
+    class remote_ref;
+    template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
     template<> inline const char *typeName<const void*>() { return "const void *"; }
     template<> inline const char *typeName<char>() { return "char"; }

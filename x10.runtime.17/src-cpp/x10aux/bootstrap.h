@@ -67,6 +67,8 @@ namespace x10aux {
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
 
+        x10aux::init_config_bools();
+
 #ifndef NO_EXCEPTIONS
         try {
 #endif

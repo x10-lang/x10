@@ -73,7 +73,7 @@ namespace x10 {
 
         template<class T> x10aux::ref<T> Object::_deserialize(x10aux::serialization_buffer &buf){
             // extract the id and execute a callback to instantiate the right concrete class
-            _S_("Deserializing an "ANSI_SER ANSI_BOLD"interface"ANSI_RESET
+            _S_("Deserializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
                 " (expecting id) from buf: "<<&buf);
             return x10aux::DeserializationDispatcher::create<T>(buf);
         }
