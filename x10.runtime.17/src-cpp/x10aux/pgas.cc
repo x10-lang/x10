@@ -34,6 +34,7 @@ void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
         <<" to place: "<<place);
     buf.write(body,m);
     serialized_bytes += buf.length();
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<buf.length());
 
     void *handle = x10rt_async_spawn(place, buf.get(), buf.length(), QUEUED_ASYNC);
     x10rt_async_spawn_wait(handle);
