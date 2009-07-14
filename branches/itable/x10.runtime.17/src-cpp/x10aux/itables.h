@@ -24,11 +24,13 @@
  *
  * There are a couple ways in which the implementation of itables in C++ for X10
  * diverges from the usual implementation for Java in JVMs.
- *   (a) C++ won't let us directly insert a pointer to a virtual function
+ *   (a) C++ won't easily let us directly insert a pointer to a virtual function
  *       in the itable (whose nominal type needs to have a first argument of Object
  *       instead of C*).  Therefore we have to use static method thunks to a pointer
  *       to a function that casts an explicit receiver parameter and invokes the
- *       appropriate virtual method on it.
+ *       appropriate virtual method on it.  There is a way to use templates to
+ *       work around this, but it results in more complex itable instantiation code,
+ *       so we are deferring using it in the initial implementation.
  *   (b) We're using the address of the interfaces rtt field as the interface id
  *       instead of generating a unique integer (or using the actual pointer
  *       to I's RuntimeType object). This is done to optimize the calling sequence
