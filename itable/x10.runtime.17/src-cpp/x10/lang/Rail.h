@@ -80,7 +80,7 @@ namespace x10 {
             T* raw() { return _data; }
 
             
-            class RailIterator : public Ref, public virtual x10::lang::Iterator<T> {
+            class RailIterator : public Ref {
 
                 protected:
 
@@ -93,6 +93,19 @@ namespace x10 {
                 static const x10aux::RuntimeType* _initRTT();
                 virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
+                static x10aux::itable_entry _railItITables[2];
+                virtual x10aux::itable_entry* _getITables() { return _railItITables; }
+    
+                static x10_boolean _itable_thunk_hasNext(x10aux::ref<Iterator<T> > this_) {
+                    x10aux::ref<RailIterator> tmp = this_;
+                    return tmp->hasNext();
+                }
+
+                static T _itable_thunk_next(x10aux::ref<Iterator<T> > this_) {
+                    x10aux::ref<RailIterator> tmp = this_;
+                    return tmp->next();
+                }
+                
                 RailIterator (x10aux::ref<Rail> rail_)
                         : i(0), rail(rail_) { }
 
@@ -125,7 +138,8 @@ namespace x10 {
             };  
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new (x10aux::alloc<RailIterator>()) RailIterator (this);
+                x10aux::ref<RailIterator> tmp = new (x10aux::alloc<RailIterator>()) RailIterator (this);
+                return tmp;
             }   
 
             static x10aux::ref<Rail<T> > make(x10_int length);
@@ -155,6 +169,12 @@ namespace x10 {
             x10aux::itable_entry(NULL, NULL)
         };
 
+        template<class T> x10aux::itable_entry x10::lang::Rail<T>::RailIterator::_railItITables[2] = {
+            x10aux::itable_entry(&x10::lang::Iterator<T>::rtt,
+                                 new typename x10::lang::Iterator<T>::itable(&x10::lang::Rail<T>::RailIterator::_itable_thunk_hasNext,
+                                                                             &x10::lang::Rail<T>::RailIterator::_itable_thunk_next)),
+            x10aux::itable_entry(NULL, NULL)
+        };
         
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
