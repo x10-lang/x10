@@ -19,10 +19,10 @@ void Object::_serialize(x10aux::ref<Object> this_,
         buf.write(x10aux::remote_ref::make(this_.get()),m);
         return;
     }
-    _S_("Serializing an "ANSI_SER ANSI_BOLD"interface"ANSI_RESET
+    _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
         " (i.e. serializing the id) to buf: "<<&buf);
     this_->_serialize_id(buf, m);
-    _S_("Serializing the "ANSI_SER"body"ANSI_RESET" of the interface to buf: "<<&buf);
+    _S_("Serializing the "<<ANSI_SER<<"body"<<ANSI_RESET<<" of the interface to buf: "<<&buf);
     this_->_serialize_body(buf, m);
 }
 

@@ -193,7 +193,7 @@ namespace x10aux {
 
     template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf, const T &val, addr_map &) {
         // FIXME: assumes all places are same endian
-        _S_("Serializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+        _S_("Serializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
         //*(T*) buf.cursor = val; // Cannot do this because of alignment
         memcpy(buf.cursor, &val, sizeof(T));
         buf.cursor += sizeof(T);
@@ -206,8 +206,7 @@ namespace x10aux {
 
     // case for references e.g. ref<Object>, 
     template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf, ref<T> val, addr_map &m) {
-        _S_("Serializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET
-            " into buf: "<<&buf);
+        _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
         //depends what T is (interface/Ref/Value/FinalValue/Closure)
         T::_serialize(val,buf,m);
     }
@@ -230,7 +229,7 @@ namespace x10aux {
         T val;
         memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
-        _S_("Deserializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+        _S_("Deserializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
         return val;
     }
         
@@ -241,7 +240,7 @@ namespace x10aux {
 
     template<class T> ref<T> serialization_buffer::Read<ref<T> >::_(serialization_buffer &buf) {
         //dispatch because we don't know what it is
-        _S_("Deserializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET" from buf: "<<&buf);
+        _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
         return T::template _deserialize<T>(buf);
     }
 

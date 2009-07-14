@@ -14,17 +14,17 @@
  *   X10_USE_BDWGC     - enable BDW conservative GC
  *
  * The following debugging macros are supported:
- *   TRACE_ALLOC       - trace allocation operations
- *   TRACE_CONSTR      - trace object construction
- *   TRACE_INIT        - trace x10 class initialization
  *   TRACE_REF         - trace reference operations
- *   TRACE_RTT         - trace runtimetype instantiation
  *   TRACE_CAST        - trace casts
- *   TRACE_PGAS        - trace X10lib invocations
- *   TRACE_SER         - trace serialization operations
- *   DEBUG             - general debug trace printouts
- *
+ *   TRACE_ENV_VAR     - turn on support for the tracing variables listed below
  *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
+ *
+ * Note, tracing is not actually enabled unless the following environment variables are defined:
+ *   X10_TRACE_ALLOC       - trace allocation operations
+ *   X10_TRACE_INIT        - trace x10 class initialization
+ *   X10_TRACE_X10RT       - trace x10rt invocations
+ *   X10_TRACE_SER         - trace serialization operations
+ *   X10_TRACE_ALL         - all of the above
  */
 
 #ifdef __CUDA_ARCH__
@@ -48,40 +48,15 @@
     #define GPUSAFE
 #endif
 
-#ifndef USE_ANSI_COLORS
-#define ANSI_RESET ""
-#define ANSI_BOLD ""
-#define ANSI_NOBOLD ""
-#define ANSI_UNDERLINE ""
-#define ANSI_NOUNDERLINE ""
-#define ANSI_REVERSE ""
-#define ANSI_NOREVERSE ""
-#define ANSI_BLACK ""
-#define ANSI_RED ""
-#define ANSI_GREEN ""
-#define ANSI_YELLOW ""
-#define ANSI_BLUE ""
-#define ANSI_MAGENTA ""
-#define ANSI_CYAN ""
-#define ANSI_WHITE ""
-#else
-#define ANSI_RESET "\x1b[0m"
-#define ANSI_BOLD "\x1b[1m"
-#define ANSI_NOBOLD "\x1b[22m"
-#define ANSI_UNDERLINE "\x1b[4m"
-#define ANSI_NOUNDERLINE "\x1b[24m"
-#define ANSI_REVERSE "\x1b[6m"
-#define ANSI_NOREVERSE "\x1b[27m"
-#define ANSI_BLACK "\x1b[30m"
-#define ANSI_RED "\x1b[31m"
-#define ANSI_GREEN "\x1b[32m"
-#define ANSI_YELLOW "\x1b[33m"
-#define ANSI_BLUE "\x1b[34m"
-#define ANSI_MAGENTA "\x1b[35m"
-#define ANSI_CYAN "\x1b[36m"
-#define ANSI_WHITE "\x1b[37m"
+#ifdef NO_CHECKS
+#define NO_BOUNDS_CHECKS
+#define NO_NULL_CHECKS
+#define NO_PLACE_CHECKS
 #endif
 
+#ifndef NDEBUG 
+#define TRACE_ENV_VAR
+#endif
 
 
 #ifndef NO_IOSTREAM
@@ -92,23 +67,85 @@
 
 #include <x10aux/pragmas.h>
 
+struct x10_char {
+    unsigned short v;
+    x10_char() : v(0) { }
+    x10_char(const char x) : v(x) { }
+};
+#ifndef NO_IOSTREAM
+inline std::ostream &operator << (std::ostream &o, const x10_char &c) {
+    return o<<c.v;
+}
+#endif
+inline bool operator==(const x10_char a, x10_char b) { return a.v == b.v; }
+inline bool operator!=(const x10_char a, x10_char b) { return a.v != b.v; }
+inline bool operator>(const x10_char a, x10_char b) { return a.v > b.v; }
+inline bool operator>=(const x10_char a, x10_char b) { return a.v >= b.v; }
+inline bool operator<(const x10_char a, x10_char b) { return a.v < b.v; }
+inline bool operator<=(const x10_char a, x10_char b) { return a.v <= b.v; }
+
+typedef bool     x10_boolean;
+typedef int8_t   x10_byte;
+typedef int16_t  x10_short;
+typedef int32_t  x10_int;
+typedef int64_t  x10_long;
+typedef float    x10_float;
+typedef double   x10_double;
+typedef uint8_t  x10_ubyte;
+typedef uint16_t x10_ushort;
+typedef uint32_t x10_uint;
+typedef uint64_t x10_ulong;
+
+
+namespace x10aux {
+    void init_config_bools (void);
+    extern bool use_ansi_colors;
+    extern bool trace_alloc;
+    extern bool trace_init;
+    extern bool trace_x10rt;
+    extern bool trace_ser;
+    x10_int here ();
+}
+
+#define ANSI_RESET       (::x10aux::use_ansi_colors?"\x1b[0m" :"")
+
+#define ANSI_BOLD        (::x10aux::use_ansi_colors?"\x1b[1m" :"")
+#define ANSI_NOBOLD      (::x10aux::use_ansi_colors?"\x1b[22m":"")
+
+#define ANSI_UNDERLINE   (::x10aux::use_ansi_colors?"\x1b[4m" :"")
+#define ANSI_NOUNDERLINE (::x10aux::use_ansi_colors?"\x1b[24m":"")
+
+#define ANSI_REVERSE     (::x10aux::use_ansi_colors?"\x1b[6m" :"")
+#define ANSI_NOREVERSE   (::x10aux::use_ansi_colors?"\x1b[27m":"")
+
+#define ANSI_BLACK       (::x10aux::use_ansi_colors?"\x1b[30m":"")
+#define ANSI_RED         (::x10aux::use_ansi_colors?"\x1b[31m":"")
+#define ANSI_GREEN       (::x10aux::use_ansi_colors?"\x1b[32m":"")
+#define ANSI_YELLOW      (::x10aux::use_ansi_colors?"\x1b[33m":"")
+#define ANSI_BLUE        (::x10aux::use_ansi_colors?"\x1b[34m":"")
+#define ANSI_MAGENTA     (::x10aux::use_ansi_colors?"\x1b[35m":"")
+#define ANSI_CYAN        (::x10aux::use_ansi_colors?"\x1b[36m":"")
+#define ANSI_WHITE       (::x10aux::use_ansi_colors?"\x1b[37m":"")
+
+#define _MAYBE_DEBUG_MSG(col,type,msg,doit) do { \
+    if (doit) _DEBUG_MSG(col,type,msg); \
+} while (0)
+
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
-    ss << ANSI_BOLD << x10aux::here() << ": " col << type << ": " ANSI_RESET << msg; \
+    ss << ANSI_BOLD << x10aux::here() << ": " << col << type << ": " << ANSI_RESET << msg; \
     fprintf(stderr,"%s\n",ss.str().c_str()); \
 } while (0)
 
 #define ANSI_ALLOC ANSI_WHITE
 #define ANSI_CAST ANSI_RED
-#define ANSI_CONSTR ANSI_WHITE
 #define ANSI_INIT ANSI_MAGENTA
 #define ANSI_REF ANSI_YELLOW
-#define ANSI_RTT ANSI_GREEN
 #define ANSI_SER ANSI_CYAN
-#define ANSI_PGAS ANSI_BLUE
+#define ANSI_X10RT ANSI_BLUE
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_ALLOC)
-#define _M_(x) _DEBUG_MSG(ANSI_ALLOC,"MM",x)
+#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#define _M_(x) _MAYBE_DEBUG_MSG(ANSI_ALLOC,"MM",x,::x10aux::trace_alloc)
 #else
 #define _M_(x)
 #endif
@@ -119,14 +156,8 @@
 #define _CAST_(x)
 #endif
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_CONSTR)
-#define _T_(x) _DEBUG_MSG(ANSI_CONSTR,"CC",x)
-#else
-#define _T_(x)
-#endif
-
-#if !defined(NO_IOSTREAM) && defined(TRACE_INIT)
-#define _I_(x) _DEBUG_MSG(ANSI_INIT,"INIT",x)
+#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#define _I_(x) _MAYBE_DEBUG_MSG(ANSI_INIT,"INIT",x,::x10aux::trace_init)
 #else
 #define _I_(x)
 #endif
@@ -137,64 +168,19 @@
 #define _R_(x)
 #endif
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_RTT)
-#define _RTT_(x) _DEBUG_MSG(ANSI_GREEN,"RTT",x)
-#else
-#define _RTT_(x)
-#endif
-
-#if !defined(NO_IOSTREAM) && defined(TRACE_SER)
-#define _S_(x) _DEBUG_MSG(ANSI_SER,"SS",x)
+#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#define _S_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SS",x,::x10aux::trace_ser)
 #define _Sd_(x) x
 #else
 #define _S_(x)
 #define _Sd_(x)
 #endif
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_PGAS)
-#define _X_(x) _DEBUG_MSG(ANSI_PGAS,"XX",x)
+#if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#define _X_(x) _MAYBE_DEBUG_MSG(ANSI_X10RT,"XX",x,::x10aux::trace_x10rt)
 #else
 #define _X_(x)
 #endif
-
-#if !defined(NO_IOSTREAM) && defined(DEBUG)
-#define _D_(x) std::cerr << x10aux::here() << ": " << x << std::endl
-#else
-#define _D_(x)
-#endif
-
-#ifdef NO_CHECKS
-#define NO_BOUNDS_CHECKS
-#define NO_NULL_CHECKS
-#define NO_PLACE_CHECKS
-#endif
-
-struct _x10_char {
-  unsigned short v;
-  _x10_char() : v(0) { }
-  _x10_char(const char x) : v(x) { }
-};
-
-inline bool operator==(const _x10_char a, _x10_char b) { return a.v == b.v; }
-inline bool operator!=(const _x10_char a, _x10_char b) { return a.v != b.v; }
-inline bool operator>(const _x10_char a, _x10_char b) { return a.v > b.v; }
-inline bool operator>=(const _x10_char a, _x10_char b) { return a.v >= b.v; }
-inline bool operator<(const _x10_char a, _x10_char b) { return a.v < b.v; }
-inline bool operator<=(const _x10_char a, _x10_char b) { return a.v <= b.v; }
-
-typedef bool     x10_boolean;
-typedef int8_t   x10_byte;
-typedef _x10_char x10_char;
-typedef int16_t  x10_short;
-typedef int32_t  x10_int;
-typedef uint32_t x10_unsigned_int;
-typedef int64_t  x10_long;
-typedef float    x10_float;
-typedef double   x10_double;
-typedef uint8_t  x10_ubyte;
-typedef uint16_t x10_ushort;
-typedef uint32_t x10_uint;
-typedef uint64_t x10_ulong;
 
 
 // We must use the same mangling rules as the compiler backend uses.
