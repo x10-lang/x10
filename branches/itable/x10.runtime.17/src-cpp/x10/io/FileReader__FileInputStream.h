@@ -15,7 +15,7 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            FileReader__FileInputStream(FILE *f) : _inputStream(x10aux::io::FILEPtrInputStream(f)) { } 
+            FileReader__FileInputStream(FILE *f) : _inputStream(f) { } 
 
             static x10aux::ref<FileReader__FileInputStream> _make(x10aux::ref<x10::lang::String> name);
 

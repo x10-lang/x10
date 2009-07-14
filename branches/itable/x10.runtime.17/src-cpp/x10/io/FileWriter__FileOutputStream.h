@@ -15,7 +15,7 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            FileWriter__FileOutputStream(FILE *f) : _outputStream(x10aux::io::FILEPtrOutputStream(f)) { }
+            FileWriter__FileOutputStream(FILE *f) : _outputStream(f) { }
 
             static x10aux::ref<FileWriter__FileOutputStream> _make(x10aux::ref<x10::lang::String> name);
             

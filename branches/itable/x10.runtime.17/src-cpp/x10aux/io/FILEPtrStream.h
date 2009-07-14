@@ -11,31 +11,20 @@ namespace x10 {
     }
 }
 
-
 namespace x10aux {
-
     namespace io {
 
-        // FILEPtrStream
         class FILEPtrStream {
-
         protected:
-
             FILE* _stream;
 
             static FILE* check_stream(FILE* stream);
-
-            explicit FILEPtrStream(FILE* stream)
-              : _stream(check_stream(stream)) { }
-
-            virtual ~FILEPtrStream() { }
+            explicit FILEPtrStream(FILE* stream) : _stream(check_stream(stream)) { }
 
         public:
-
             static FILE* open_file(const x10aux::ref<x10::lang::String>& name,
                                    const char* mode);
-
-            virtual void close();
+            void close();
         };
 
     }
