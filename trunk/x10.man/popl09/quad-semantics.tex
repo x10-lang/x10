@@ -11,7 +11,6 @@
 
 We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \FX.
 
-
 We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. Finally, we characterize the family itself and state and prove the soundness of its type system.
 
 Following \FJ, our formalism does not account for mutations. Proving soundness for an imperative calculus is beyond the scope of this paper.
@@ -22,7 +21,7 @@ For simplicity, some features of \Xten are not modeled either, mainly, interface
 
 \subsection{\FXGL{\cdot}}
 
-The grammar for \FXGL{\cdot} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. Following \FJ{}, we use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
+The grammar for \FXGL{\cdot} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
 
 A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a superclass {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{\cdot}, that is, {\tt c} must be {\tt true}.
 
@@ -36,15 +35,14 @@ Square brackets may be dropped in the absence of type parameters, as well as \tr
 
 The body of a method is an expression {\tt e}. It is built from the value parameters {\tt x} of the method (including the receiver {\tt this}), field access expressions, constructor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
 
-The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgments but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type
-$\tt U[w/x]$.
+The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgments but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type $\tt U[w/x]$. In other words, the set of values of $\exty{\tt x}{\tt T}{\tt U}$ is the union of the sets of values $\tt U[w/x]$ for all {\tt x} of type {\tt T}.
 
 Following \FJ{}, we denote values by means of nested constructor calls, e.g., new Pair[Object](new Object(), new Object()).
 
 \paragraph{Dynamic semantics.}
 The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is described as a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
 
-The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of a value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. See Section~\ref{sec:casts} for a discussion of casts. See below for a discussion of subtyping.
+The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. See Section~\ref{sec:casts} for a discussion of casts. See below for a discussion of subtyping.
 
 {\sc L-Field-I} prevents classes from overriding inherited fields. {\sc L-Method-I} makes sure method lookup goes bottom up, but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
 
@@ -61,7 +59,7 @@ For any formulas $\phi_1$ and $\phi_2$, the judgment $\Gamma \vdash \phi_1,~\phi
 
 An assumption ``{\tt x} fresh'' in an inference rule means that {\tt x} does not occur in the premises to the left of this assumption.
 
-A premise $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha}$ and $\tbar{\beta}$ to have the same length $n$ and defines the substitution of $\beta_i$ by $\alpha_i$ for $1\leq i\leq n$. If $\phi$ is a constraint, a type, an expression, etc., $\phi\theta$ denotes result of the application of the substitution $\theta$ to the free variables of $\phi$.
+A premise $\theta=\tbar{\alpha}/\tbar{\beta}$ requires $\tbar{\alpha}$ and $\tbar{\beta}$ to have the same length $n$ and defines the substitution of $\beta_i$ by $\alpha_i$ for $1\leq i\leq n$. If $\phi$ is a constraint, a type, an expression, etc., $\phi\theta$ denotes the result of the application of the substitution $\theta$ to the free variables of $\phi$.
 
 \paragraph{Type system.} Typing checking a program {\tt P} involves a series of judgments:
 \begin{enumerate}
