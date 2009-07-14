@@ -4,7 +4,7 @@
 \newcommand\msign[5]{{\tt m}[\tbar{#1}](\tbar{#2}\ty\tbar{#3})\{{\tt #4}\}\ty{\tt #5}}
 \newcommand\minst[6]{\msign{#1}{#2}{#3}{#4}{#5}={\tt #6}}
 \newcommand\mdecl[6]{{\tt def}~\minst{#1}{#2}{#3}{#4}{#5}{#6}}
-\newcommand\FXGL[1]{{\sf FXG($\cal #1$)}}
+\newcommand\FXGL[1]{{\sf FXG(${\cal #1}$)}}
 \newcommand{\vdashQ}{\vdash_{\cal Q}}
 \newcommand{\vdashS}{\vdash_{\cal S}}
 \newcommand{\Dom}{{\sf Dom}}
@@ -38,7 +38,8 @@ The body of a method is an expression {\tt e}. It is built from the value parame
 
 The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgments but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type $\tt U[w/x]$. In other words, the set of values of $\exty{\tt x}{\tt T}{\tt U}$ is the union of the sets of values $\tt U[w/x]$ for all {\tt x} of type {\tt T}.
 
-Following \FJ{}, we denote values by means of nested constructor calls, e.g., new Pair[Object](new Object(), new Object()).
+Following \FJ{}, we denote values by means of nested constructor calls, e.g.,
+\texttt{new} \texttt{Pair[C](new} \texttt{C(),} \texttt{new} \texttt{C())}.
 
 \paragraph{Dynamic semantics.}
 The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is described as a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
@@ -47,7 +48,8 @@ The use of the subtyping relation to check that the cast is satisfied is the onl
 
 {\sc L-Field-I} prevents classes from overriding inherited fields. {\sc L-Method-I} makes sure method lookup goes bottom up, but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
 
-{\sc R-Invk} does not check method guards. We will establish that there is no need for well-typed programs.
+{\sc R-Invk} does not check method guards. We will establish
+that there is no need for a run-time check in well-typed programs.
 
 \paragraph{Conventions.}
 In the following, the context $\Gamma$ is always a (finite, possibly empty) sequence of variable declarations $\tt x\ty T$, type parameter declarations $\tt X\ty*$, and constraints $\tt c$ satisfying:
@@ -703,7 +705,7 @@ Turning \FXGL{\cdot} into a language with value-dependent types is straightforwa
 
 
 We denote $\Dom({\tt l})$ the primitive type of the literal {\tt l}. For simplicity, we assume each function {\tt q}
-is a total mapping from ${\sf Dom}({\tt q})$ (a n-uple of primitive types) to ${\sf Img}({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})={\sf Img}({\tt q})$.
+is a total mapping from ${\sf Dom}({\tt q})$ (a $n$-tuple of primitive types) to ${\sf Img}({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})={\sf Img}({\tt q})$.
 
 For instance, if $\mathcal{Q}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators, then we can declare:
 
@@ -719,7 +721,14 @@ We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cd
 \FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
 The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
 
-\FXGL{B} is built on top of a slightly more expressive constraint system $\cal B$ that permits propagating such constraints viewed as uninterpreted atoms of knowledge. We then add four rules to the type system respectively about well-formedness, inconsitent constraints, subtyping, and member lookup. Rule {\sc X-Bound} ensure we do not type check program that specify mutiple bounds for a given type parameters.\footnote{More exactely, multiple bounds can be specified provided these are syntactically identical.}
+\FXGL{B} is built on top of a slightly more expressive
+constraint system $\cal B$ that permits propagating such
+constraints viewed as uninterpreted atoms of knowledge. We then
+add four rules to the type system respectively about
+well-formedness, inconsitent constraints, subtyping, and member
+lookup. Rule {\sc X-Bound} ensures we do not type check programs
+that specify mutiple bounds for a given type
+parameter.\footnote{More precisely, multiple bounds can be specified provided they are syntactically identical.}
 
 While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
 
@@ -736,7 +745,7 @@ Adding structural subtyping constraints to \FXGL{\cdot} is very similar. First, 
 \subsection{Results}
 The following results hold for \FXGL{\cdot}.
 
-\begin{theorem}[Subject Reduction] If ${\tt e} \derives {\tt e'}$ and $\Gamma \vdash {\tt e}\ty{\tt T}$ then there exists {\tt S} such that $\Gamma\vdash{\tt e'}\ty{\tt S}$. Morevoer, $\Gamma,{\tt x}\ty{\tt S} \vdash {\tt x}\subtype{\tt T}$.
+\begin{theorem}[Subject Reduction] If ${\tt e} \derives {\tt e'}$ and $\Gamma \vdash {\tt e}\ty{\tt T}$ then there exists {\tt S} such that $\Gamma\vdash{\tt e'}\ty{\tt S}$. Moreover, $\Gamma,{\tt x}\ty{\tt S} \vdash {\tt x}\subtype{\tt T}$.
 \end{theorem}
 
 \begin{theorem}[Progress]
