@@ -222,15 +222,16 @@ one uses the constrained subtypes
 \xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
 
 Type properties can also be refined contravariantly.
-For instance, one can write the type \xcdmath"List{T$\super$Integer}",
-and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
+For instance, one can write the type \xcdmath"List{T$\super$Integer}".
 
 \subsection{Wildcards}
 \label{sec:wildcards}
 
 Constraints on type properties can also provide a characterization of
 wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
-Wildcards can be motivated
+We leave to future work a formal proof of this
+characterization.
+Wildcards can be  motivated
 by the following example from Torgersen et al.~\cite{adding-wildcards}:
 Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
 the empty set.  What should be the type of \xcd"EMPTY"?
@@ -239,7 +240,7 @@ assign the type \xcd"Set<?>", i.e., the type of all \xcd"Set"
 instantiated on \emph{some} parameter.  Clients of this
 type do not know what parameter to which the actual instance of \xcd"Set"
 is bound.
-With constrained types,
+With type properties,
 a similar effect is achieved simply by leaving the
 element type property of \xcd"Set" unconstrained.
 
@@ -248,28 +249,11 @@ also be bounded above and below with
 ``\Xcd{?} \Xcd{extends} \Xcd{T}'' and ``\Xcd{?} \Xcd{super} \Xcd{T}'',
 respectively.
 %
-A similar effect is achieved with constrained types by constraining
+Again, with type properties, 
+a similar effect is achieved by constraining
 the
-element type property of \xcd"Set" with a subtyping constraint.
-
-We can define the following straightforward translation
-from Java wildcards to \Xten{}.
-Type parameters are translated to type properties whose name
-encodes their position in the parameter list.
-Types are translated as follows:
-\begin{align*}
-\SB{ \Xcd{X} } &= \Xcd{_}i ~~\hfill \mbox{where \xcd{X} is the $i$th type param} \\
-\SB{ \Xcdmath{C<?, $\dots$>} } &= \Xcdmath{C\{$\dots$\}} \\
-\SB{ \Xcdmath{C<? extends T, $\dots$>} } &= \Xcdmath{C\{_1 } \ \extends\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
-\SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 } \ \super\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
-\SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
-\end{align*}
-\noindent
-Through such a translation, the \FXG\ calculus in
-Section~\ref{sec:semantics} captures the essence of Java's
-wildcards, but extended with support for run-time type
-introspection.  We leave to future work a formal proof of this
-characterization.
+element type property \xcd"X" of \xcd"Set" with subtyping constraints,
+e.g., \xcd"Set{X<=T}" and \xcd"Set{X>=T}".
 
 \eat{
 Finally,
@@ -323,6 +307,7 @@ of \xcd"reverse" requires delegating to a private parametrized version that
 ``opens up'' the parameter.
 
 %\input{self-types.tex}
+
 
 \subsection{Self types}
 
