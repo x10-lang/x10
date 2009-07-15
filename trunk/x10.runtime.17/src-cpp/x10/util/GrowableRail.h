@@ -14,14 +14,11 @@ namespace x10 {
 
     namespace util {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_GrowableRail(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt);
+        void _initRTTHelper_GrowableRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
         
         template<class T> class GrowableRail : public x10::lang::Ref {
         public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT();
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+            RTT_H_DECLS
 
         private:
             x10aux::ref<x10::lang::Rail<T> > _array;
@@ -136,11 +133,12 @@ namespace x10 {
             }
         };
 
-        template<class T> const x10aux::RuntimeType* GrowableRail<T>::_initRTT() {
-            return x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
+        template<class T> void GrowableRail<T>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
         }
         
-        template<class T> const x10aux::RuntimeType* GrowableRail<T>::rtt = NULL;
+        template<class T> x10aux::RuntimeType GrowableRail<T>::rtt;
     }
 }
 

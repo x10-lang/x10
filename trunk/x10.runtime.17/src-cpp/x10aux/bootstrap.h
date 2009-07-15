@@ -60,7 +60,7 @@ namespace x10aux {
 
     };
 
-    extern void initialize_xrx();
+    void initialize_xrx();
 
     template<class Runtime, class T> int template_main(int ac, char **av) {
     
