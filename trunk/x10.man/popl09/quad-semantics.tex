@@ -11,19 +11,29 @@
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
-We now describe the semantics of languages in the \FXGL{L} family. We start with a core \FXGL{\cdot} language. While its \FGJ-like syntax enables the declaration of generic classes and methods, \FXGL{\cdot} does not allow constraints on type parameters. Types in \FXGL{\cdot} are therefore are isomorphic to those of \CFJ~\cite{constrained-types}.
+In the previous section we presented X10. The subtle issues we encountered in the process of designing and implementing the X10 type system led us to believe we needed a formal framework in which to explore the design space and that would let us reason about fundamental issues such as soundness, completeness, and decidability. The framework we came up with consists in a family of formal languages---the \FXG family---that share a common base language, operational semantics, and type system.
 
-We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. Each language is derived from \FXGL{\cdot} in a rigorous way. %Finally, we prove the soundness of their type systems.
-
-Following \FJ, our formalism does not account for mutations. Proving soundness for an imperative calculus is beyond the scope of this paper.
+Our framework models a lot of the relevant bits of X10 but not all.
+Following \FJ, our it does not account for mutations. Proving the soundness of the type system for an imperative calculus is beyond the scope of this paper.
 For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariants we model may constrain the type parameters but not the fields of the class. \Xten does not support constraint-driven overloading.} Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of \Xten for future work.
 
+\subsection{The \FXG family}
 
-\subsection{\FXGL{\cdot}}
+We now describe the semantics of languages in the \FXG family. We start with the \FXGL{X,\bullet} language that is the common core of all languages  in the family. Each language \FXGL{X',T} of the family is rigourously derived from the core language by:
+\begin{itemize}
+\item replacing the object constraint system $\cal X$ in use in the core type system with a richer object constraint denoted $\cal X'$;
+\item extending the core type systems with a set of inference rules denoted $\cal T$.
+\end{itemize}
 
-The grammar for \FXGL{\cdot} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
+We first specify the grammar, static, and dynamic semantics of \FXGL{X,\bullet}. While its \FGJ-like syntax enables the declaration of generic classes and methods, it does not allow constraints on type parameters. Types in \FXGL{X,\bullet} are therefore are isomorphic to those of \CFJ~\cite{constrained-types}. We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. 
 
-A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{\cdot}, that is, {\tt c} must be {\tt true}.
+We state and prove the soundness of the \FXGL{X,\bullet}. We describe the methodology by which extensions of the languages such as the one we presented can be formalized. We identify the requirements an extension must satify to ensure the soundness of its type system (i.e., its proof) can be derived from the soudness of the core type system.
+
+\subsection{\FXGL{X,\bullet}}
+
+The grammar for \FXGL{X} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
+
+A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{X}, that is, {\tt c} must be {\tt true}.
 
 Each class has a default constructor. Class $\tt C$ has constructor
 $\tt def~this[\tbar{X}](\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F})~\{~super(\tbar{g});~property(\tbar{f});~\}$ if $\tt C$ is declared as
@@ -90,7 +100,7 @@ A program is well typed iff all its classes are. We now describe in more detail 
 
 
 \paragraph{1. Constraints.}
-Each language in the \FXGL{L} family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{\cdot}.
+Each language in the \FXGL{L} family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{X}.
 
 Formally, $\cal X$ %has nullary predicates $\true$ and $\false$, a 2-ary conjunction predicate over constraints, a 2-ary equality predicate over terms. Moreover, $\cal X$ 
 has variable symbols $\tt x$, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$.
@@ -118,13 +128,13 @@ $\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\t
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
-By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{\cdot}, there is no other way to prove entailment.
+By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{X}, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
 In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} if both class {\tt C} and {\tt D} extend {\Object}.
 
 
-\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and all instances of generic classes in $\alpha$ satisfy the guards. Notice this depends on $\cal X$ but not on any typing judgments. For \FXGL{\cdot} the later condition is a tautology.
+\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and all instances of generic classes in $\alpha$ satisfy the guards. Notice this depends on $\cal X$ but not on any typing judgments. For \FXGL{X} the later condition is a tautology.
 
 By design, if the program {\tt P} is well typed then all the constraints and types in {\tt P} are well formed in their respective contexts.
 
@@ -143,8 +153,21 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \end{tabular}\smallskip
 
 {\tt C}, {\tt D} range over class names, {\tt f}, {\tt g} over field names, {\tt m} over method names, {\tt x}, {\tt y} over variable names, {\tt X}, {\tt Y} over type variables.
-\caption{\FXGL{\cdot} productions.}
+\caption{\FXGL{X} productions.}
 \label{fig:fxg-grammar}
+\end{figure*}
+
+
+\begin{figure*}
+\vspace{-\bigskipamount}
+\begin{minipage}{\textwidth}
+\quad
+\infrule[X-Proj]
+  {\sigma(\Gamma)\vdashX c}
+  {\Gamma\vdash c}
+\end{minipage}%
+\caption{\FXGL{X} object constraint system.}
+\label{fig:object}
 \end{figure*}
 
 
@@ -176,7 +199,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
     {\tt m}\not\in\tbar{M}}
   {\methods({\tt C}[\tbar{A}])\ni\minst{B}{x}{G}{d}{H}{e}}
 \end{minipage}%
-\caption{\FXGL{\cdot} fields and methods.}
+\caption{\FXGL{X} fields and methods.}
 \label{fig:members}
 \end{figure*}
 
@@ -220,33 +243,8 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
 \end{minipage}
-\caption{\FXGL{\cdot} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
+\caption{\FXGL{X} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
 \label{fig:sos}
-\end{figure*}
-
-
-\begin{figure*}
-\vspace{-\bigskipamount}
-\begin{minipage}{.3\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[X-Sel]
-  {\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
-  {\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[X-False]
-  {{\tt C}[\tbar{A}]\neq{\tt D}[\tbar{B}]}
-  {\new~{\tt C}[\tbar{A}](\tbar{t})==\new~{\tt D}[\tbar{B}](\tbar{u})\vdashX \false}
-\end{minipage}%
-\begin{minipage}{.2\textwidth}
-\quad\typicallabel{XXXX}
-\infrule[X-Proj]
-  {\sigma(\Gamma)\vdashX c}
-  {\Gamma\vdash c}
-\end{minipage}%
-\caption{\FXGL{\cdot} object constraint system.}
-\label{fig:object}
 \end{figure*}
 
 
@@ -308,7 +306,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
     \sigma(\Gamma)\vdashX{\tt c}\theta}
   {\wj{\Gamma}{\tt C}[\tbar{A}]}
 \end{minipage}%
-\caption{\FXGL{\cdot} well-formedness.}
+\caption{\FXGL{X} well-formedness.}
 \label{fig:well}
 \end{figure*}
 
@@ -342,7 +340,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
     \Gamma,{\tt y}\ty{\tt T},{\tt x}\ty{\tt U}\vdash {\tt x}~\has~{\tt I}}
   {\Gamma,{\tt x}\ty\exty{\tt y}{\tt T}{\tt U}\vdash {\tt x}~\has~{\tt I}}
 \end{minipage}%
-\caption{\FXGL{\cdot} member lookup. {\tt I} ranges over members (fields and methods).}
+\caption{\FXGL{X} member lookup. {\tt I} ranges over members (fields and methods).}
 \label{fig:lookup}
 \end{figure*}
 
@@ -391,7 +389,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
     \wj{\Gamma}{{\tt C}[\tbar{A}],{\tt D}[\tbar{E}\theta]}}
   {\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\vdash{\tt x}\subtype {\tt D}[\tbar{E}\theta]}      
 \end{minipage}%
-\caption{\FXGL{\cdot} subtyping rules.}\label{fig:subtyping}
+\caption{\FXGL{X} subtyping rules.}\label{fig:subtyping}
 \end{figure*}
 
 
@@ -499,7 +497,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
     \tbar{M}~{\rm OK~in}~{\tt C}[\tbar{X}]}
   {\vdash \cdecl~\rm OK}
 \end{minipage}%
-\caption{\FXGL{\cdot} typing rules.}\label{fig:FX}
+\caption{\FXGL{X} typing rules.}\label{fig:FX}
 \end{figure*}
 
 
@@ -646,7 +644,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \end{figure*}
 
 
-\paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the field and method signatures available on each type. In \FXGL{\cdot}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. Constraints on type parameters will change that.
+\paragraph{3. Lookup.} Figure~\ref{fig:lookup} specifies the field and method signatures available on each type. In \FXGL{X}, these are exactly those captured by the \fields{} and \methods{} predicates for class types and none for type parameters. Constraints on type parameters will change that.
 
 \paragraph{4. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
 Because we deal with dependent and existential types, we choose a somewhat unconventional notation for the subtyping relation that makes formal developments less verbose. Rather than judgments of the form $\Gamma\vdash{\tt S}\subtype{\tt T}$, we consider judgments of the form $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ which permit {\tt T} to depend on {\tt x}, hence make codependent types easier to work with. In fact, one could define classical subtyping as the following:
@@ -713,11 +711,11 @@ Fields cannot be overridden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyse
 
 {\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes entailing the guard of the superclass.
 
-The type system of \FXGL{\cdot} has principal types in strong sense (for a constrained type system): if $\Gamma\vdash {\tt t}\ty{\tt T}$ and $\Gamma\vdash {\tt x}\ty{\tt U}$ then {\tt T} and {\tt U} are syntactically identical. So if $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt c}\}$ then it cannot be proved that $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt d}\}$ for any other constraint even if equivalent to {\tt c}. However, one can establish the subtyping relation $\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\{{\tt c}\}\vdash {\tt x}\subtype{\tt C}[\tbar{A}]\{{\tt d}\}$.
+The type system of \FXGL{X} has principal types in strong sense (for a constrained type system): if $\Gamma\vdash {\tt t}\ty{\tt T}$ and $\Gamma\vdash {\tt x}\ty{\tt U}$ then {\tt T} and {\tt U} are syntactically identical. So if $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt c}\}$ then it cannot be proved that $\Gamma\vdash {\tt t}\ty{\tt C}[\tbar{A}]\{{\tt d}\}$ for any other constraint even if equivalent to {\tt c}. However, one can establish the subtyping relation $\Gamma,{\tt x}\ty{\tt C}[\tbar{A}]\{{\tt c}\}\vdash {\tt x}\subtype{\tt C}[\tbar{A}]\{{\tt d}\}$.
 
 \subsection{\FXGL{Q}}
 
-Turning \FXGL{\cdot} into a language with value-dependent types is straightforward. First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$, predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{\cdot} with the productions and rules of Figure~\ref{fig:FXGQ}.
+Turning \FXGL{X} into a language with value-dependent types is straightforward. First, we assume we are given a constraint system $\cal Q$ with a vocabulary of primitive types ${\tt Q}$, predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXGL{X} with the productions and rules of Figure~\ref{fig:FXGQ}.
 
 We denote $\Dom({\tt l})$ the primitive type of the literal {\tt l}. We assume each function {\tt q}
 is a total mapping from ${\sf Dom}({\tt q})$ (a $n$-tuple of primitive types) to ${\sf Img}({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})={\sf Img}({\tt q})$.
@@ -732,8 +730,8 @@ class Count(n:int) extends Object {
 \end{xten}
 
 \subsection{\FXGL{B}}
-We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{\cdot} family.
-\FXGL{B} is the language obtained by adding to \FXGL{\cdot} the productions and rules of Figure~\ref{fig:FXGB}.
+We now turn to showing how \FGJ{}-style bounds can be supported in the \FXGL{X} family.
+\FXGL{B} is the language obtained by adding to \FXGL{X} the productions and rules of Figure~\ref{fig:FXGB}.
 The key idea is that information about type parameters can be accumulated through constraints. Specifically we introduce the ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$}.
 
 \FXGL{B} is built on top of a slightly more expressive
@@ -747,7 +745,7 @@ parameter.%\footnote{More precisely, multiple bounds can be specified provided t
 
 \subsection{Methodology}
 
-While elementary, this last extension demonstrates the extensibility of the \FXGL{\cdot} language and type system and its mechanisms. One can extend the \FXGL{\cdot} language and the following by:
+While elementary, this last extension demonstrates the extensibility of the \FXGL{X} language and type system and its mechanisms. One can extend the \FXGL{X} language and the following by:
 \begin{itemize}
 \item extending the vocabulary of constraints;
 \item specifing the well-formedness conditions for these constraints;
@@ -770,7 +768,7 @@ Formally, the proof of the soudness result is built on top of lemmas so that the
 
 
 \subsection{\FXGL{S}}
-Adding structural subtyping constraints to \FXGL{\cdot} is very similar. For brevity, we only consider constraint {\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H} and forget about fields. We use the underline notation ``$\underline{\has}$'' to distinguish the constraint on types from the predicate on variables. Of course, the two are closely related (by {\sc H-Struct}).
+Adding structural subtyping constraints to \FXGL{X} is very similar. For brevity, we only consider constraint {\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H} and forget about fields. We use the underline notation ``$\underline{\has}$'' to distinguish the constraint on types from the predicate on variables. Of course, the two are closely related (by {\sc H-Struct}).
 
 We extend the constraint system: it must satisfy inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program. {\sc KO-Struct} makes sure programs with inconsistent structural constraints do not type check.
 
