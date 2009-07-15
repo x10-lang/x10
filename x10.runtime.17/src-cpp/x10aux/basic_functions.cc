@@ -9,10 +9,10 @@ using namespace x10::lang;
 extern "C" int snprintf(char *, size_t, const char *, ...);
 #endif
 
-#define TO_STRING(SZ,T,FMT) \
+#define TO_STRING(SZ,T,C,FMT) \
 ref<String> x10aux::to_string(T v) { \
     char buf[SZ]; \
-    int amt = ::snprintf(buf, sizeof(buf), FMT, v); \
+    int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
     (void)amt; \
     assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
     return String::Lit(buf); \
@@ -20,18 +20,16 @@ ref<String> x10aux::to_string(T v) { \
 
 // hh is C99, not ansi c, so we use h instead.
 // This is fine as va_args turns everything to int anyway
-TO_STRING(4, unsigned char, "%hu")
-TO_STRING(5, signed char, "%hd")
+TO_STRING(4, x10_ubyte, unsigned char, "%hu")
+TO_STRING(5, x10_byte, signed char, "%hd")
 
-TO_STRING(6, unsigned short, "%hu")
-TO_STRING(7, signed short, "%hd")
+TO_STRING(6, x10_ushort, unsigned short, "%hu")
+TO_STRING(7, x10_short, signed short, "%hd")
 
-TO_STRING(11, unsigned int, "%u")
-TO_STRING(12, signed int, "%d")
-TO_STRING(11, unsigned long, "%lu")
-TO_STRING(12, signed long, "%ld")
-TO_STRING(20, unsigned long long, "%llu")
-TO_STRING(21, signed long long, "%lld")
+TO_STRING(11, x10_uint, unsigned long, "%lu")
+TO_STRING(12, x10_int, signed long, "%ld")
+TO_STRING(20, x10_ulong, unsigned long long, "%llu")
+TO_STRING(21, x10_long, signed long long, "%lld")
 
 ref<String> x10aux::to_string(float v) {
     return x10aux::to_string((double)v);
