@@ -20,7 +20,8 @@ import x10.array.FastArray;
  */
 
 public abstract value class Array[T](dist:Dist)
-    implements (Point{self.rank==dist.region.rank})=>T
+    implements (Point{self.rank==dist.region.rank})=>T,
+               Iterable[Point{self.rank==dist.region.rank}]
 {
 
     //
