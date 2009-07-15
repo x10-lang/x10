@@ -26,16 +26,18 @@ namespace x10 {
             public:
             RTT_H_DECLS
 
+            static typename Iterable<T>::itable _itable_iterable;
+            static typename Settable<x10_int, T>::itable _itable_settable;
             static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
-            static x10aux::ref<x10::lang::Iterator<T> >_itable_thunk_iterable(x10aux::ref<x10::lang::Iterable<T> > this_) {
-                x10aux::ref<x10::lang::Rail<T> > tmp = this_;
+            static x10aux::ref<Iterator<T> >_itable_thunk_iterable(x10aux::ref<Iterable<T> > this_) {
+                x10aux::ref<Rail<T> > tmp = this_;
                 return tmp->iterator();
             }
 
-            static T _itable_thunk_settable(x10aux::ref<x10::lang::Settable<x10_int, T> > this_, T arg0, x10_int arg1) {
-                x10aux::ref<x10::lang::Rail<T> > tmp = this_;
+            static T _itable_thunk_settable(x10aux::ref<Settable<x10_int, T> > this_, T arg0, x10_int arg1) {
+                x10aux::ref<Rail<T> > tmp = this_;
                 return tmp->set(arg0, arg1);
             }
             
@@ -74,8 +76,8 @@ namespace x10 {
       
             T* raw() { return _data; }
 
-            virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                x10aux::ref<x10::lang::RailIterator<T> > tmp = new (x10aux::alloc<x10::lang::RailIterator<T> >()) x10::lang::RailIterator<T> (this->FMGL(length), this->raw());
+            virtual x10aux::ref<Iterator<T> > iterator() {
+                x10aux::ref<RailIterator<T> > tmp = new (x10aux::alloc<RailIterator<T> >()) RailIterator<T> (this->FMGL(length), this->raw());
                 return tmp;
             }   
 
@@ -84,7 +86,7 @@ namespace x10 {
                                               x10aux::ref<Fun_0_1<x10_int,T> > init);
             static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
-            virtual x10aux::ref<x10::lang::String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
+            virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
         };
 
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
@@ -95,9 +97,13 @@ namespace x10 {
                                            x10aux::getRTT<Iterable<T> >());
         }
 
+        template <class T> typename Iterable<T>::itable Rail<T>::_itable_iterable(&Rail<T>::_itable_thunk_iterable);
+
+        template <class T> typename Settable<x10_int, T>::itable Rail<T>::_itable_settable(&Rail<T>::_itable_thunk_settable);
+        
         template <class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
-            x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, new typename x10::lang::Iterable<T>::itable(&x10::lang::Rail<T>::_itable_thunk_iterable)),
-            x10aux::itable_entry(&x10::lang::Settable<x10_int, T>::rtt, new typename x10::lang::Settable<x10_int, T>::itable(&x10::lang::Rail<T>::_itable_thunk_settable)),
+            x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
+            x10aux::itable_entry(&x10::lang::Settable<x10_int, T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
             x10aux::itable_entry(NULL, NULL)
         };
 

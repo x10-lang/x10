@@ -25,16 +25,18 @@ namespace x10 {
         public:
             RTT_H_DECLS
 
+            static typename Iterator<T>::itable _itable_iterator;
+            
             static x10aux::itable_entry _railItITables[2];
             virtual x10aux::itable_entry* _getITables() { return _railItITables; }
     
-            static x10_boolean _itable_thunk_hasNext(x10aux::ref<x10::lang::Iterator<T> > this_) {
-                x10aux::ref<x10::lang::RailIterator<T> > tmp = this_;
+            static x10_boolean _itable_thunk_hasNext(x10aux::ref<Iterator<T> > this_) {
+                x10aux::ref<RailIterator<T> > tmp = this_;
                 return tmp->hasNext();
             }
 
-            static T _itable_thunk_next(x10aux::ref<x10::lang::Iterator<T> > this_) {
-                x10aux::ref<x10::lang::RailIterator<T > > tmp = this_;
+            static T _itable_thunk_next(x10aux::ref<Iterator<T> > this_) {
+                x10aux::ref<RailIterator<T > > tmp = this_;
                 return tmp->next();
             }
                 
@@ -71,16 +73,17 @@ namespace x10 {
         };  
 
         template<class T> x10aux::RuntimeType RailIterator<T>::rtt;
-
+        
         template<class T> void RailIterator<T>::_initRTT() {
             rtt.parentsc = -2;
-            x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
-        }        
+            _initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Iterator<T> >());
+        }
 
-        template<class T> x10aux::itable_entry x10::lang::RailIterator<T>::_railItITables[2] = {
-            x10aux::itable_entry(&x10::lang::Iterator<T>::rtt,
-                                 new typename x10::lang::Iterator<T>::itable(&x10::lang::RailIterator<T>::_itable_thunk_hasNext,
-                                                                             &x10::lang::RailIterator<T>::_itable_thunk_next)),
+        template <class T> typename Iterator<T>::itable RailIterator<T>::_itable_iterator(&RailIterator<T>::_itable_thunk_hasNext,
+                                                                                          &RailIterator<T>::_itable_thunk_next);
+
+        template<class T> x10aux::itable_entry RailIterator<T>::_railItITables[2] = {
+            x10aux::itable_entry(&Iterator<T>::rtt, &RailIterator<T>::_itable_iterator),
             x10aux::itable_entry(NULL, NULL)
         };
     }
