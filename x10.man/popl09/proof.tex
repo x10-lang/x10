@@ -171,30 +171,28 @@ Lemma~\ref{sue} & $\Gamma,y:V_i\vdash y<:T$
 \\
 where & $R$ is $\exists\overline{x}:\overline{V}.C[\overline{A}]\{self=={\tt new}~C(\overline{x})\}$
 \\
-{\sc H-Method} & $\Gamma, r:C[\overline{A}]~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c\}:M$
+{\sc H-Method} & $\Gamma, r:C[\overline{A}]~{\tt has}~m[\overline{B}](\overline{f\theta}:\overline{F\theta})\{c\theta\}:M\theta$
+\\
+& where $\theta=r/this$
 \\
 {\sc T-Invk} & $\Gamma\vdash{\tt new}~C[\overline{A}](\overline{v}).m[\overline{B}](\overline{w}):T$
 \\
 & $\Gamma\vdash\overline{w}:\overline{W}$
 \\
-& $\Gamma,x:C[\overline{A}],\overline{f}:\overline{W}\vdash c, \overline f<:\overline{F}$
+& $\Gamma,r:C[\overline{A}],\overline{f}:\overline{W}\vdash c\theta, \overline f<:\overline{F}\theta$
 \\
-where & $T$ is $\exists r:R.\exists \overline{f}:\overline{W}.M$
+where & $T$ is $\exists r:R.\exists \overline{f}:\overline{W}.M\theta$
 \\
 Lemma~\ref{sub} & $\Gamma\vdash e':S$
 \\
-& $\Gamma,x:S\vdash x<:\exists r:R.\exists \overline{f}:\overline{W}.E$
+& $\Gamma,x:S\vdash x<:\exists r:R.\exists \overline{f}:\overline{W}.E\theta$
 \\
-& $\Gamma,r:R,\overline{f}:\overline{W},x:E\vdash x<:M$
+& $\Gamma,r:R,\overline{f}:\overline{W},x:E\theta\vdash x<:M\theta$
 \\
-Lemma~\ref{sud} & $\Gamma,x:\exists r:R.\exists \overline{f}:\overline{W}.E\vdash x<:T$
+Lemma~\ref{sud} & $\Gamma,x:\exists r:R.\exists \overline{f}:\overline{W}.E\theta\vdash x<:T$
 \\
 {\sc S-Trans} & $\Gamma,x:S\vdash x<:T$
 \end{tabular}
-
-%%%%%%%%%%
-
-TODO: handle $\theta$ between methods and has in the above
 
 %%%%%%%%%%
 
