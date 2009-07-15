@@ -44,7 +44,7 @@ If $\Gamma,y:U,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exist
 \end{lem}
 
 
-\begin{thm}
+\begin{thm}[Subject Reduction]\label{sr}
 If $\Gamma$ is well formed and $\Gamma\vdash e:T$ and $e\rightarrow e'$ then there exists $S$ such that $\Gamma\vdash e':S$. Moreover $\Gamma,x:S\vdash x<:T$.
 \end{thm}
 
@@ -289,19 +289,38 @@ Ind. hyp. & $\Gamma\vdash e':E'$
 If $\vdash e:T$ then one of the following conditions holds:
 \begin{enumerate}
 \item $e$ is a value,
-\item $e$ contains a cast sub-expression that is stuck,
+\item $e$ has a stuck sub-expression of the form $v~{\tt as}~G$,
 \item there exists $e'$ such that $e\rightarrow e'$.
 \end{enumerate}
 \end{thm}
 
-\begin{proof}By looking at the form of the expression
+\begin{proof}By induction on the structure of the expression. Assume $e$ contains no sub-expression that is of the form $v~{\tt as}~G$.
 \begin{itemize}
-\item If $e$ is $e'.f$.\\
-By induction hypothesis, if $e'$ is a value then $e$ can make a step by rule {\sc R-Field}
+\item If $e$ is $a.f$.\\
+If $a$ is a value then $e$ can make a step by rule {\sc R-Field}. Otherwise, by induction hypothesis, $a\rightarrow a'$ then $e$ can make a step by rule {\sc RC-Field}.
 
+\item If $e$ is $a.m[\overline{B}](\overline{b})$. \\
+If $a,\overline{b}$ are values then $e$ can make a step by rule {\sc R-Invk}. 
+Otherwise, if $a$ is not a value then by induction hypothesis $a\rightarrow a'$ and $e$ can make a step by rule {\sc RC-Invk-Recv}. Otherwise, if $b_i$ is not a value then by induction hypothesis $b_i\rightarrow b_i'$ and $e$ can make a step by rule {\sc RC-Invk-Arg}. 
+
+\item If $e$ is ${\tt new}~C[\overline{G}](\overline{a})$\\
+Since $a_i$ is not a value for some $i$ then $e$ can make a step by rule {\sc RC-New-Arg}.
+
+\item If $e$ is $a~{\tt as}~G$.\\
+If $a$ is not a value then $a$ is well typed by {\sc T-Cast}, hence can make a step by induction hypothesis, thus $e$ can make a step by rule {\sc RC-Cast}.
+Otherwise, if $a$ is a value then $e$ can make a step by rule {\sc R-Cast} since $e$ contains no sub-expression that is of the form $v~{\tt as}~G$.
 \end{itemize}
-
-
 \end{proof}
+
+\begin{thm}[Method guards] If $\Gamma$ is a well-formed context and $\Gamma \vdash e.m[\overline{B}](\overline{a}):T$ and $e \rightarrow^*{\tt new}~C[\overline{A}](\overline{v})$ and $\overline{a} \rightarrow^* \overline{w}$ and ${\sf methods}(C[\overline{A}])\ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$ then $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{x}]$.
+\end{thm}
+
+\begin{proof}
+By {\sc T-Invk}, $\Gamma\vdash e:E, \overline{a}:\overline{A}$.
+By Th.~\ref{sr}, $\Gamma \vdash{\tt new}~C[\overline{A}](\overline{v}):R, \overline{w}:\overline{W}$ and 
+$\Gamma, x:R\vdash x<:E$ and $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$. By Lemma~\ref{sum},
+\end{proof}
+
+
 
 \end{document}
