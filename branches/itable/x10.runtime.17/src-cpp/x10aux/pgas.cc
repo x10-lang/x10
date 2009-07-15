@@ -30,7 +30,8 @@ void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
     serialization_buffer buf;
 
     addr_map m;
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET<<body->toString()->c_str()
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
+        <<(__extension__ ({ ref<Object> bodyAsObj = body; bodyAsObj->toString()->c_str(); }))
         <<" to place: "<<place);
     buf.write(body,m);
     serialized_bytes += buf.length();
@@ -73,7 +74,7 @@ static void deserialize_remote_closure(void *cl, int) {
         _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
         x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
-        _X_("The deserialised async was: "<<async->toString()->c_str());
+        _X_("The deserialised async was: "<<(__extension__ ({ ref<Object> asyncAsObj = body; asyncAsObj->toString()->c_str()})));
         deserialized_bytes += buf.length();
         findITable<VoidFun_0_0>(async)->apply(async);
 }
