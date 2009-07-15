@@ -962,7 +962,7 @@
     \@titleauthors{i}{}{}\or
     \@titleauthors{i}{ii}{}\or
     \@titleauthors{i}{ii}{iii}\or
-    \@titleauthors{i}{ii}{}\@titleauthors{iii}{iv}{}\or
+    \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{}{}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}\or
     \@titleauthors{i}{ii}{iii}\@titleauthors{iv}{v}{vi}%
