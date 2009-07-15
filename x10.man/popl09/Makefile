@@ -71,5 +71,5 @@ PDFLATEX = TEXINPUTS=$(TEXDIR)${SEP} pdflatex
 	perl process-x10 -l $< > $@
 $(X10_FILES:.x10=.tex): process-x10
 
-DIRT += $(JXTEXS)
+DIRT += $(JXTEXS) paper.pdf $(TARGETS)
 
