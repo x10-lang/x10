@@ -164,14 +164,14 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr visitFuture(Future f) throws SemanticException {
-        return visitRemoteClosure(f, EVAL_FUTURE, f.place(), true);
+        return visitRemoteClosure(f, EVAL_FUTURE, f.place());
     }
 
     private Expr visitAtExpr(AtExpr e) throws SemanticException {
-        return visitRemoteClosure(e, EVAL_AT, e.place(), false);
+        return visitRemoteClosure(e, EVAL_AT, e.place());
     }
 
-    private Expr visitRemoteClosure(Closure c, Name implName, Expr place, boolean named) throws SemanticException {
+    private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         ClosureDef fDef = c.closureDef();
@@ -187,10 +187,6 @@ public class Desugarer extends ContextVisitor {
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             xts.Place(), closure.closureDef().asType()
         }));
-        if (named) {
-            args.add(xnf.StringLit(pos, pos.nameAndLineString()).type(xts.String()));
-            mArgs.add(xts.String());
-        }
         List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
