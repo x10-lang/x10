@@ -26,7 +26,7 @@ their formal parameters---including type parameters. The
 caller of a guarded method must ensure the constraint is
 satisfied.
 
-To illustrate the features of dependent types in \Xten{}, we
+To illustrate the features of \Xten{}, we
 develop a simple \xcd"Vector"
 class, shown in Figure~\ref{fig:vector}.
 The \xcd"Vector" class has a type parameter \xcd"T" and an \xcd"int"
@@ -77,7 +77,7 @@ class Vector[T](len: int) {len >= 0} {
   }
 }
 \end{numberedxten}}
-\caption{List example, extended}
+\caption{A Vector class in \Xten}
 \label{fig:vector}
 \end{figure}
 
@@ -87,8 +87,8 @@ As in Scala, fields are declared using the keywords \xcd"var"
 or \xcd"val".  The \xcd"Vector" class has a single
 immutable (final) \xcd"data" field (line 2), of type \xcd"Rail[T]"---a ``rail'' in \Xten is a zero-based, one-dimensional array similar to Java's \xcd"T[]".
 The type of \xcd"data" is
-              has a constraint specifying that the length of
-the data rail is the same as the vectory length.
+has a constraint specifying that the length of
+the \xcd"data" rail is the same as the vector length.
 Note that \xcd"this" occurring
 in the constraint refers to the instance of the enclosing
 \xcd"Vector" class,
@@ -105,7 +105,8 @@ class and its superclasses and superinterfaces hold.
 In \Xten{}, constructors have a ``return type'', which constrains
 the properties of the new object.  The constructor in
 Figure~\ref{fig:vector} (lines 4--12) takes
-two arguments \xcd"n" and \xcd"init" and 
+two arguments---an integer \xcd"n", and a function from integers
+to \xcd"T", \xcd"init"---and 
 initializes the
 object to have type \xcd"Vector[T]{len==n}".
 For both constructors and methods,
