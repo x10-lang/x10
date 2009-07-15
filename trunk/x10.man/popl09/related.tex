@@ -21,6 +21,12 @@ dependent types.
 We consider object-oriented languages with constraint-based type systems when 
 we discuss generic types, below.
 
+\eat{
+Ancona and Zucca~\cite{principal-typings}
+describe a type system for separate compilation in Java-like languages that uses an entailment relation on type environments.
+XXX
+}
+
 \paragraph{Dependent types.}
 
 Dependent type
@@ -111,7 +117,7 @@ form of separation logic.
 Constrained types permit a more natural expression of constraints
 than Coq formulas; however, unlike Ynot, they do not capture
 side-effects since they constrain
-only mutable object state.
+only immutable object state.
 
 \eat{
 Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
@@ -252,7 +258,7 @@ Dynamic enforcement enables a more expressive assertion language
 at the cost of possible run-time failures.
 Integration of constrained types and generic types
 effectively allow parametrization of classes on constraints.
-Consider the \xcd"List" class in Figure~\ref{fig:list0}.
+Consider the \xcd"List" class in Figure~\ref{fig:list}.
 If the class is instantiated on a constrained type \xcd"C{c}",
 i.e., \xcd"List[C{c}]",
 then all elements of the list satisfy \xcd"c".
