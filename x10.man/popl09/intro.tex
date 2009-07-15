@@ -120,14 +120,12 @@ To permit genericity, variables \Xcd{X} must be admitted over types.
 Scala~\cite{scala}, by introducing type parameters on classes
 and methods.
 Constraints can be used to specify conditions on such parameters.
-In class-based OO languages such as \Java, 
-a type is a class (or interface) \emph{name}, and 
+In class-based OO languages such as Java,
 types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
 through the ``\Xcd{extends}'' relationship.  Further, each type is
 associated with member fields and methods, each with their
 name and signature.
-
 This motivates a very natural constraint system on types.  For a type
 variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
 $\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
@@ -150,11 +148,12 @@ Section~\ref{sec:O} describes the
 resulting Object constraint system, $\cal O$, in more detail.
 }
 
-Other constraints on
-types can be supported.  For instance, one should
+One could support other constraints on types.
+For instance, one should
 be able to require that a type have a
 particular member---a field with a given name and type, or a method
-with a given name and signature. We introduce the constraints 
+with a given name and signature.
+In our formalism, we introduce the constraints 
 \Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has} \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
 \todo{Revisit:}
 Further, one can constrain values and types, expressing the
@@ -236,32 +235,42 @@ design does not require that primitive values be boxed.
 }
 
 \subsection{The \FXGL{L} family}
-To further the foundations of constrained types, we develop the
-\FXG
-family of languages. The core expression language is essentially
-Featherweight Java (\FJ \cite{FJ}) with constrained types over
-value and type constraints.
-A single set of rules specifies the static and dynamic
-semantics for all languages in the family.  The static semantics is
+
+The subtle issues
+encountered when designing and implementing the \Xten type
+system exposed the need for a formal framework in which to
+explore the design space, and to reason about fundamental issues
+such as soundness, completeness, and decidability. The resulting
+framework consists of a family of formal languages---the \FXG
+family---that share a common base language, operational
+semantics, and type system.
+
+The core expression language of languages in \FXG is essentially
+Featherweight Java (\FJ~\cite{FJ}) extended with constraints
+over types and values.
+The family defines a core language \FXGZ{} that corresponds to
+\FGJ.  \FXGZ{} provides a minimal constraint system permitting
+only the constraint \Xcd{true}.
+This core language can be extended
+by enriching the constraint system
+and
+by extending the set of inference rules of
+the core type system.
+The static semantics of \FXGZ{} is
 shown to be sound with respect to the operational semantics.
 
-Different members of the family are associated with different
-constraint systems. \FXGZ{} is
-\FXG{} instantiated over the vacuous constraint system---the only
-user-specifiable constraint permitted is the vacuous \Xcd{true}.  \FXGZ{}
-corresponds to \FJ. \FXG{} permits user-specifiable subtyping
-and type equality constraints; it corresponds to
-\FGJ{} (being somewhat richer in permitting path types). \FXGL{Z} permits
-%and structural constraints \todo{really?}
-the use of constraints from some constraint system $\cal A$ over
-values; it
-corresponds to a language with a pure value-dependent type system as
-described in \cite{constrained-types}. Finally, \FXGL{B} permits the
-use of both value and type constraints,
-and is the main topic of this paper.
+We then describe a methodology by which extensions of the
+language can be formalized, identifying requirements for
+ensuring soundness of the resulting type system.  We apply this 
+methodology to several extensions of the core language,
+modelling more features of \Xten language, including generics
+types, and also modelling possible extensions of the
+\Xten language, demonstrating how several ideas in OO typing
+(such as structural types) can be handled in this framework.
 
+\eat{
+\subsection{Contributions}
 
-\paragraph{Contributions.}
 We extend the constrained types approach to handle generic types.  We
 present the design and implementation of the type system for a
 concrete language \Xten{} based on these ideas. We show how several
@@ -272,12 +281,13 @@ types. By appropriately choosing $\cal L$, one can get languages that
 support simple types, just value-dependent types, just type-dependent
 types, and both. We establish the soundness of the type system for all
 members of the family.
+}
 
 \paragraph{Outline.}
 
 The rest of the paper is organized as follows.
 %
-An informal overview of generic constrained types in \Xten{}
+An informal overview of generic and constrained types in \Xten{}
 is presented in
 Section~\ref{sec:lang}.
 %
