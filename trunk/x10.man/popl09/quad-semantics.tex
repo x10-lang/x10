@@ -745,14 +745,27 @@ lookup. {\sc X-Bound} ensures we do not type check programs
 that specify mutiple bounds for a given type
 parameter.%\footnote{More precisely, multiple bounds can be specified provided they are syntactically identical.}
 
-While elementary, this extension demonstrates the extensibility of the \FXGL{\cdot} and its mechanisms.
+\subsection{Methodology}
 
-The soundness of the type system is preserved because:
+While elementary, this last extension demonstrates the extensibility of the \FXGL{\cdot} language and type system and its mechanisms. One can extend the \FXGL{\cdot} language and the following by
+\begin{itemize}
+\item extending the vocabulary of constraints.
+\item specifing the well-formedness conditions for these constraints.
+\item extending the constraint system with constraints on types (or constraints relating types and values).
+\item specifing what types the variables of constrainted type-parameters types are subtypes of.
+\item specifing the member of variables of constrainted type-parameters types.
+\end{itemize}
+
+In order to preserve the well-formedness of the type system and its proof one need only ensure that:
 \begin{enumerate}
 \item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll {\tt I}$. That is, if a type parameter $\tt X$ is established to be a subtype of type $\tt G$ then each member $\tt I$ of $\tt G$ must be matched by a member $\tt J$ of $\tt X$ whose signature overrides that of $\tt I$.
 
 \item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parametes. That is, if a variable of type parameter $\tt X$ is established to have two members with the same name then the must have the same signature.
 \end{enumerate}
+In order to comply with these two requirements one can use rules of the form:
+\infrule {\Gamma\vdash \phi}{\Gamma\vdash\false} whenever $\phi$ (or its consequences) would violates any of the above.
+
+Formally, the proof of the soudness result is built on top of lemmas so that the main body of the proof does not directly depend on member lookup rules and subtyping rules for types parameters but do it through lemmas that exactely formalize points 1 and 2 above.
 
 
 

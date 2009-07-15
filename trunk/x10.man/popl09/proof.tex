@@ -11,9 +11,13 @@
 \newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
 
-%\begin{lem}\label{uni}
-%If $\Gamma\vdash v:T$ then $\Gamma,self:T\vdash self==v$.
-%\end{lem}
+\begin{lem}\label{uni}
+If $\Gamma$ is well formed and $\Gamma\vdash e:T,e:S$ then $S=T$.
+\end{lem}
+
+\begin{proof}[Sketch]
+There is exactly one typing rule for each kind of expression. Each type ``{\tt has}'' at most one field with name $f$ and method with name $m$ (modulo alpha-renaming of the type parameters and formals).
+\end{proof}
 
 \begin{lem}\label{sub}
 If $\Gamma,x:X\vdash e:T$ and $\Gamma\vdash f:Y$ and $\Gamma,x:Y\vdash x<:X$ then there exists $S$ such that $\Gamma\vdash e[f/x]:S$ and $\Gamma,x:S\vdash x<:\exists y:Y.T$.
@@ -276,12 +280,28 @@ Ind. hyp. & $\Gamma\vdash e':E'$
 & $S$ is $\exists\overline{x}:\overline{V}.C[\overline{B}]\{self=={\tt new}~C[\overline{B}](\overline{x})\}$
 \\
 {\sc R-Cast} & $x:S\vdash x<:T$
-\\
-
-
 \end{tabular}
 \end{itemize}
 \end{proof}
 
+
+\begin{thm}[Progress]
+If $\vdash e:T$ then one of the following conditions holds:
+\begin{enumerate}
+\item $e$ is a value,
+\item $e$ contains a cast sub-expression that is stuck,
+\item there exists $e'$ such that $e\rightarrow e'$.
+\end{enumerate}
+\end{thm}
+
+\begin{proof}By looking at the form of the expression
+\begin{itemize}
+\item If $e$ is $e'.f$.\\
+By induction hypothesis, if $e'$ is a value then $e$ can make a step by rule {\sc R-Field}
+
+\end{itemize}
+
+
+\end{proof}
 
 \end{document}
