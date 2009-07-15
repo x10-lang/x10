@@ -75,8 +75,10 @@ class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c}
 is a
 constraint on the immutable fields, or \emph{properties}, of the
 class~\cite{constrained-types}. Thus, 
-\Xcd{Array\{self.length==N\}} is a type satisfied by any array whose length
-is \Xcd{N}---a (final) variable whose value may be unknown
+\Xcd{Point\{self.rank==N\}} is a type satisfied by any
+\Xcd{N}-dimensional point, that is, any
+instance of \xcd"Point" whose \xcd"rank" property
+is \Xcd{N}.  \Xcd{N}, here, is a (final) variable whose value may be unknown
 statically. In a constraint, \Xcd{self} refers to 
 a value of the base type being constrained, in this case \Xcd{Array}.
 Subtyping is easily defined: a type \Xcd{C\{c\}} is a
@@ -154,10 +156,34 @@ be able to require that a type have a
 particular member---a field with a given name and type, or a method
 with a given name and signature.
 In our formalism, we introduce the constraints 
-\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has} \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
+\Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+
+\eat{
 \todo{Revisit:}
 Further, one can constrain values and types, expressing the
 \Xcd{instanceof} relation from Java as a constraint, for example.
+}
+
+Unlike Java's generics, the \Xten does not erase type
+parameters.  This allows \Xten to support run-time casts to 
+generic types, including types instantiated on constrained
+types.
+With
+non-generic constrained types, casts like \xcd"r" \xcd"as"
+\xcd"Region{rank==k}" can be implemented by
+checking the run-time class of the value being cast---\xcd"r" \xcd"instanceof" \xcd"Region"---and then
+evaluating the constraint---\xcd"r.rank==k".
+
+However, the issue is more subtle with generic casts.
+For instance, to implement
+\xcd"a" \xcd"as" \xcd"Array[int{self>=0}]"
+one must check at run time that the concrete type used to instantiate
+the \xcd"Array"'s type parameter is equivalent to
+\xcd"int{self>=0}".  This check could involve a run-time
+entailment check, 
+breaking the phase distinction between
+compile time and run time for constraint solving.
 
 \eat{
 A pleasing aspect of the resulting design is that the same fundamental
