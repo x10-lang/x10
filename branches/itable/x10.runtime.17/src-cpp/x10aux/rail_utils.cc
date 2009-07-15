@@ -12,7 +12,7 @@ using namespace x10aux;
 
 void x10aux::throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) {
 #ifndef NO_EXCEPTIONS
-    char *msg = alloc_printf("%d not in [0,%d)", index, length);
+    char *msg = alloc_printf("%ld not in [0,%ld)", (long)index, (long)length);
     throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
 #endif
 }

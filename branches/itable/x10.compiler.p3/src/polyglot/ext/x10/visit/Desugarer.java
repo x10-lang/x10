@@ -164,14 +164,14 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr visitFuture(Future f) throws SemanticException {
-        return visitRemoteClosure(f, EVAL_FUTURE, f.place(), true);
+        return visitRemoteClosure(f, EVAL_FUTURE, f.place());
     }
 
     private Expr visitAtExpr(AtExpr e) throws SemanticException {
-        return visitRemoteClosure(e, EVAL_AT, e.place(), false);
+        return visitRemoteClosure(e, EVAL_AT, e.place());
     }
 
-    private Expr visitRemoteClosure(Closure c, Name implName, Expr place, boolean named) throws SemanticException {
+    private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         ClosureDef fDef = c.closureDef();
@@ -187,10 +187,6 @@ public class Desugarer extends ContextVisitor {
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             xts.Place(), closure.closureDef().asType()
         }));
-        if (named) {
-            args.add(xnf.StringLit(pos, pos.nameAndLineString()).type(xts.String()));
-            mArgs.add(xts.String());
-        }
         List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
@@ -234,16 +230,15 @@ public class Desugarer extends ContextVisitor {
         return closure;
     }
 
-    private Stmt async(Position pos, Stmt body, List clocks, Expr place, String prefix) throws SemanticException {
-        if (clocks.size() == 0) return async(pos, body, place, prefix);
+    private Stmt async(Position pos, Stmt body, List clocks, Expr place) throws SemanticException {
+        if (clocks.size() == 0) return async(pos, body, place);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
-        List<Expr> args = Arrays.asList(new Expr[] { place, clockRail, closure, pString });
+        List<Expr> args = Arrays.asList(new Expr[] { place, clockRail, closure });
         List<Type> mArgs = Arrays.asList(new Type[] {
-            xts.Place(), clockRailType, closure.closureDef().asType(), xts.String()
+            xts.Place(), clockRailType, closure.closureDef().asType()
         });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
@@ -253,13 +248,12 @@ public class Desugarer extends ContextVisitor {
                 args).methodInstance(implMI).type(xts.Void()));
     }
 
-    private Stmt async(Position pos, Stmt body, Expr place, String prefix) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, Expr place) throws SemanticException {
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
-        List<Expr> args = Arrays.asList(new Expr[] { place, closure, pString });
+        List<Expr> args = Arrays.asList(new Expr[] { place, closure });
         List<Type> mArgs = Arrays.asList(new Type[] {
-            xts.Place(), closure.closureDef().asType(), xts.String()
+            xts.Place(), closure.closureDef().asType()
         });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
@@ -269,16 +263,15 @@ public class Desugarer extends ContextVisitor {
                 args).methodInstance(implMI).type(xts.Void()));
     }
 
-    private Stmt async(Position pos, Stmt body, List clocks, String prefix) throws SemanticException {
-        if (clocks.size() == 0) return async(pos, body, prefix);
+    private Stmt async(Position pos, Stmt body, List clocks) throws SemanticException {
+        if (clocks.size() == 0) return async(pos, body);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
-        List<Expr> args = Arrays.asList(new Expr[] { clockRail, closure, pString });
+        List<Expr> args = Arrays.asList(new Expr[] { clockRail, closure });
         List<Type> mArgs = Arrays.asList(new Type[] {
-            clockRailType, closure.closureDef().asType(), xts.String()
+            clockRailType, closure.closureDef().asType()
         });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
@@ -288,13 +281,12 @@ public class Desugarer extends ContextVisitor {
                 args).methodInstance(implMI).type(xts.Void()));
     }
 
-    private Stmt async(Position pos, Stmt body, String prefix) throws SemanticException {
+    private Stmt async(Position pos, Stmt body) throws SemanticException {
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
-        List<Expr> args = Arrays.asList(new Expr[] { closure, pString });
+        List<Expr> args = Arrays.asList(new Expr[] { closure });
         List<Type> mArgs = Arrays.asList(new Type[] {
-            closure.closureDef().asType(), xts.String()
+            closure.closureDef().asType()
         });
         // TODO: merge with the call() function
         MethodInstance implMI = xts.findMethod(xts.Runtime(),
@@ -307,8 +299,8 @@ public class Desugarer extends ContextVisitor {
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
         if (old instanceof Async && ((Async) old).place() instanceof Here)
-            return async(pos, a.body(), a.clocks(), "async-");
-        return async(pos, a.body(), a.clocks(), a.place(), "async-");
+            return async(pos, a.body(), a.clocks());
+        return async(pos, a.body(), a.clocks(), a.place());
     }
 
     private Expr visitHere(Here h) throws SemanticException {
@@ -388,7 +380,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = f.position();
         // Have to desugar some newly-created nodes
         Expr here = visitHere(xnf.Here(f.body().position()));
-        Stmt body = async(f.body().position(), f.body(), f.clocks(), here, "foreach-");
+        Stmt body = async(f.body().position(), f.body(), f.clocks(), here);
         X10Formal formal = (X10Formal) f.formal();
         return xnf.ForLoop(pos, formal, f.domain(), body).locals(formal.explode(this));
     }
@@ -434,7 +426,7 @@ public class Desugarer extends ContextVisitor {
                 xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
                 xnf.Id(bpos, APPLY),
                 index).methodInstance(mi).type(xts.Place());
-        Stmt body = async(bpos, a.body(), a.clocks(), place, "ateach-");
+        Stmt body = async(bpos, a.body(), a.clocks(), place);
         return xnf.Block(pos,
                 local,
                 xnf.ForLoop(pos, formal,

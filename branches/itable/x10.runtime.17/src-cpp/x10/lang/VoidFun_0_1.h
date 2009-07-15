@@ -8,14 +8,12 @@
 namespace x10 {
     namespace lang {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_VoidFun_0_1(const x10aux::RuntimeType **location,
-                                                                     const x10aux::RuntimeType *rtt1);
+        void _initRTTHelper_VoidFun_0_1(x10aux::RuntimeType *location,
+                                        const x10aux::RuntimeType *rtt1);
 
         template<class P1> class VoidFun_0_1 : public x10aux::AnyFun {
             public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT();
+            RTT_H_DECLS_INTERFACE
 
             struct itable {
                 itable(void(*apply)(x10aux::ref<VoidFun_0_1<P1> >, P1)) : apply(apply) {}
@@ -23,11 +21,12 @@ namespace x10 {
             };
         };
 
-        template<class P1> const x10aux::RuntimeType* VoidFun_0_1<P1>::_initRTT() {
-            return x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
+        template<class P1> void VoidFun_0_1<P1>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
         }
 
-        template<class P1> const x10aux::RuntimeType* VoidFun_0_1<P1>::rtt = NULL;
+        template<class P1> x10aux::RuntimeType VoidFun_0_1<P1>::rtt;
     }
 }
 #endif

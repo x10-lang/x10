@@ -13,7 +13,7 @@ import x10.util.Stack;
 /**
  * @author tardieu
  */
-class Activity(finishState:FinishState, name:String, safe:Boolean) {
+class Activity(finishState:FinishState, safe:Boolean) {
 	// the finish state governing the execution of this activity
 
 	/**
@@ -36,16 +36,16 @@ class Activity(finishState:FinishState, name:String, safe:Boolean) {
 	/**
 	 * Create activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState, name:String, safe:Boolean) {
-		property(finishState, name, safe);
+	def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
+		property(finishState, safe);
 	    this.body = body;
 	}
 
 	/**
 	 * Create clocked activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
-		this(body, finishState, name, false);
+	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
+		this(body, finishState, false);
 	    clockPhases = new ClockPhases();
 		clockPhases.register(clocks, phases);
 	}
@@ -95,7 +95,8 @@ class Activity(finishState:FinishState, name:String, safe:Boolean) {
 		if (null != clockPhases) clockPhases.drop();
 	}
 
-	public def toString():String = name; 
+    // [DC] The correct thing to do here is do toString() on the closure
+	//public def toString():String = name; 
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

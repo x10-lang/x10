@@ -30,7 +30,6 @@
 \else
 \newcommand\todo[1]{}
 \fi
-\renewcommand\todo[1]{}
 
   %\hyphenpenalty=1000
 
@@ -87,11 +86,12 @@
 \def\inv{\mathit{inv}}
 
 \def\FGJ{{\sf FGJ}\xspace}
-\def\FX{{\sf FX}\xspace}
-\def\FXZ{{\sf FX($\cdot$)}\xspace}
-\def\FXG{{\sf FX($\cal G$)}\xspace}
-\def\FXD{{\sf FX($\cal A$)}\xspace}
-\def\FXGD{{\sf FX(${\cal G},{\cal A}$)}\xspace}
+
+\newcommand\FXGL[1]{{\sf FXG(${\cal #1}$)}}
+\def\FXGZ{\FXGL{\cdot}}
+\def\FXGD{\FXGL{Q}}
+\def\FXG{{\sf FXG}\xspace}
+
 \def\has{\mbox{\tt has}}
 \def\TConstr{\mbox{\sc T-Constr}}
 \def\TInv{\mbox{\sc T-Inv}}
@@ -113,6 +113,9 @@
 \def\RCast{\mbox{\sc R-Cast}}
 \def\RCCast{\mbox{\sc RC-Cast}}
 
+
+\DeclareTextCommand{\textbraceleft}{OT1}{\texttt{\symbol{`\{}}}
+\DeclareTextCommand{\textbraceright}{OT1}{\texttt{\symbol{`\}}}}
 
 % \input{../../../../vj/res/pagesizes}
 % \input{../../../../vj/res/vijay-macros}
@@ -139,37 +142,23 @@
 
 \title{Genericity through Constrained Types}
 
-\iflncs
+\authorinfo{Nathaniel Nystrom}{University of Texas, Arlington}{nystrom@uta.edu}
+        
+\authorinfo{Olivier Tardieu}{IBM T.~J. Watson Research Center}
+  {tardieu@us.ibm.com}
+\authorinfo{Igor Peshansky}{IBM T.~J. Watson Research Center}
+  {igorp@us.ibm.com}
+\authorinfo{Vijay Saraswat}{IBM T.~J. Watson Research Center}
+  {vsaraswa@us.ibm.com}
 
-\author{
-Nathaniel Nystrom\inst{1}
-\and
-Olivier Tardieu\inst{1}
-\and
-Igor Peshansky\inst{1}
-\and
-Vijay Saraswat\inst{1}
-}
-
-\institute{IBM T.~J. Watson Research~Center,
-P.O.~Box~704, Yorktown~Heights NY 10598 USA,
-\email{\{nystrom,igorp,vsaraswa,tardieu\}@us.ibm.com}}
-
-\else
-
-\authorinfo{Nathaniel Nystrom
-        \and Olivier Tardieu
-        \and Igor Peshansky
-        \and Vijay Saraswat
-        }{IBM T.~J. Watson Research
-Center, P.O. Box 704, Yorktown Heights NY 10598 USA}
-  {\{nystrom,tardieu,igorp,vsaraswa\}@us.ibm.com}
+\if 0
+\authorinfo{Olivier Tardieu \\ Igor Peshansky \\ Vijay Saraswat}{IBM T.~J. Watson Research Center}
+  {\{tardieu,igorp,vsaraswa\}@us.ibm.com}
+\fi
 
 % \conferenceinfo{POPL'08}{XXX}
 % \copyrightyear{2008}
 % \copyrightdata{[to be supplied]}
-
-\fi
 
 \maketitle
 
@@ -211,7 +200,7 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}
 \section{Conclusions}
 \label{sec:conclusions}
 
-We have presented a constraint-based framework \FX{} for type-
+We have presented a constraint-based framework \FXG{} for type-
 and value-dependent types in an object-oriented language.
 %
 The use of constraints on type properties allows the design to
@@ -219,7 +208,7 @@ capture many features of generics in object-oriented languages
 and then to extend these features with more
 expressive power.  We have proved the type system sound.
 
-The type system \FXGD{} formalizes the semantics of the \Xten{}
+The type system \FXGL{Q} formalizes the semantics of the \Xten{}
 programming language.  The design admits an efficient
 implementation for generics and dependent types in \Xten{}.
 To improve the expressiveness of \Xten{}, we plan to implement
