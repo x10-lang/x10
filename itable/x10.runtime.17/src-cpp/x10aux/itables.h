@@ -31,10 +31,10 @@
  *       appropriate virtual method on it.  There is a way to use templates to
  *       work around this, but it results in more complex itable instantiation code,
  *       so we are deferring using it in the initial implementation.
- *   (b) We're using the address of the interfaces rtt field as the interface id
- *       instead of generating a unique integer (or using the actual pointer
- *       to I's RuntimeType object). This is done to optimize the calling sequence
- *       for invokeinterface, since the address of the rtt field is a link-time constant.
+ *   (b) We're using the address of the interface'ss rtt field as the interface id
+ *       instead of generating a unique integer. This is done to optimize the calling
+ *       sequence for invokeinterface, since the address of the rtt field is a
+ *       link-time constant.
  *   (c) X10 doesn't suffer from Java's "incompatible class change error" problem
  *       because it has a less dynamic notion of linking a program.  This implies that
  *       (modulo compiler bugs), a search of an itable will always succeed.
@@ -54,8 +54,8 @@ namespace x10aux {
      * therfore in the itable entry it must be declared as a void*.
      */
     struct itable_entry {
-        itable_entry(const RuntimeType** id_, void* itable_) : id(id_), itable(itable_) {}
-        const RuntimeType** id;
+        itable_entry(const RuntimeType* id_, void* itable_) : id(id_), itable(itable_) {}
+        const RuntimeType* id;
         void* itable;
     };
 
@@ -63,7 +63,7 @@ namespace x10aux {
     /*
      * Find the itable for obj that matches the given id
      */
-    extern void* findITable(ref<x10::lang::Object> obj, const RuntimeType **id);
+    extern void* findITable(ref<x10::lang::Object> obj, RuntimeType *id);
     
     /*
      * Find the I itable for obj

@@ -8,15 +8,13 @@
 namespace x10 {
     namespace lang {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_VoidFun_0_2(const x10aux::RuntimeType **location,
-                                                                     const x10aux::RuntimeType *rtt1,
-                                                                     const x10aux::RuntimeType *rtt2);
+        void _initRTTHelper_VoidFun_0_2(x10aux::RuntimeType *location,
+                                        const x10aux::RuntimeType *rtt1,
+                                        const x10aux::RuntimeType *rtt2);
 
         template<class P1, class P2> class VoidFun_0_2 : public x10aux::AnyFun {
             public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT();
+            RTT_H_DECLS_INTERFACE
 
             struct itable {
                 itable(void(*apply)(x10aux::ref<VoidFun_0_2<P1,P2> >, P1,P2)) : apply(apply) {}
@@ -24,11 +22,12 @@ namespace x10 {
             };
         };
 
-        template<class P1, class P2> const x10aux::RuntimeType* VoidFun_0_2<P1,P2>::_initRTT() {
-            return x10::lang::_initRTTHelper_VoidFun_0_2(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>());
+        template<class P1, class P2> void VoidFun_0_2<P1,P2>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_VoidFun_0_2(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>());
         }
 
-        template<class P1, class P2> const x10aux::RuntimeType* VoidFun_0_2<P1,P2>::rtt = NULL;
+        template<class P1, class P2> x10aux::RuntimeType VoidFun_0_2<P1,P2>::rtt;
     }
 }
 #endif

@@ -71,7 +71,7 @@ public value Runtime {
 // temporary: printStackTrace call moved to Main template (native code) 
 		try {
 			if (master.loc() == 0) {
-				pool.execute(new Activity(body, rootFinish, "root", true));
+				pool.execute(new Activity(body, rootFinish, true));
 				while (pool.worker().loop(rootFinish, true));
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					val c = ()=>Runtime.quit();
@@ -104,41 +104,44 @@ public value Runtime {
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, name:String):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
 		if (place.id == Thread.currentThread().loc()) {
-			pool.execute(new Activity(body, state, clocks, phases, name));
+			pool.execute(new Activity(body, state, clocks, phases));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, clocks, phases, name));
+            val c = ()=>pool.execute(new Activity(body, state, clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
 
-	public static def runAsync(place:Place, body:()=>Void, name:String):Void {
+	public static def runAsync(place:Place, body:()=>Void):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn();
 		val ok = safe();
 		if (place.id == Thread.currentThread().loc()) {
-			pool.execute(new Activity(body, state, name, ok));
+			pool.execute(new Activity(body, state, ok));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, name, ok));
-			NativeRuntime.runAt(place.id, c);
+            if (ok) {
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, true)));
+            } else {
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, false)));
+            }
 		}
 	}
 
-	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, name:String):Void {
+	public static def runAsync(clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
-		pool.execute(new Activity(body, state, clocks, phases, name));
+		pool.execute(new Activity(body, state, clocks, phases));
 	}
 
-	public static def runAsync(body:()=>Void, name:String):Void {
+	public static def runAsync(body:()=>Void):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn();
-		pool.execute(new Activity(body, state, name, safe()));
+		pool.execute(new Activity(body, state, safe()));
 	}
 	
 	/**
@@ -164,8 +167,8 @@ public value Runtime {
 	/**
 	 * Eval future expression
 	 */
-	public static def evalFuture[T](place:Place, eval:()=>T, name:String):Future[T] {
-		val futur = at (place) new Future_c[T](eval, name);
+	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
+		val futur = at (place) new Future_c[T](eval);
 		async (place) futur.run();
 		return futur;
 	}

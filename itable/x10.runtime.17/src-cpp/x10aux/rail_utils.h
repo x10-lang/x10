@@ -24,7 +24,7 @@ namespace x10aux {
         // Since we know length is non-negative and Rails are zero-based,
         // the bounds check can be optimized to a single unsigned comparison.
         // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
-        if (((x10_unsigned_int)index) >= ((x10_unsigned_int)length)) {
+        if (((x10_uint)index) >= ((x10_uint)length)) {
             x10aux::throwArrayIndexOutOfBoundsException(index, length);
         }
         #endif

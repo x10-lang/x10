@@ -7,29 +7,26 @@
 #include <pthread.h>
 
 /* Macro to use in class declaration for boilerplate RTT junk */
+#define RTT_H_DECLS \
+    static x10aux::RuntimeType rtt; \
+    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
+    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+
 #define RTT_H_DECLS_CLASS \
-    static const x10aux::RuntimeType* rtt; \
-    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
-    static const x10aux::RuntimeType* _initRTT(); \
+    static x10aux::RuntimeType rtt; \
+    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
     virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
 #define RTT_H_DECLS_INTERFACE \
-    static const x10aux::RuntimeType* rtt; \
-    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
-    static const x10aux::RuntimeType* _initRTT();
-
-#define RTT_H_DECLS \
-    static const x10aux::RuntimeType* rtt; \
-    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
-    static const x10aux::RuntimeType* _initRTT(); \
-    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+    static x10aux::RuntimeType rtt; \
+    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
 
 #define RTT_CC_DECLS1(TYPE,NAME,P1) \
-    const x10aux::RuntimeType* TYPE::rtt = NULL; \
-    const x10aux::RuntimeType * TYPE::_initRTT() { \
-        const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(NAME, 1, P1::getRTT()); \
-        return x10aux::RuntimeType::installRTT(&rtt, cand); \
-    }
+    x10aux::RuntimeType TYPE::rtt; \
+    void TYPE::_initRTT() { rtt.parentsc = -2; rtt.init(NAME, 1, P1::getRTT()); }
 
 namespace x10 {
     namespace lang {
@@ -51,18 +48,18 @@ namespace x10aux {
          * RTT objects for all builtin primitive types.
          * These are created by the bootstrap method
          */
-        static const RuntimeType* BooleanType;
-        static const RuntimeType* ByteType;
-        static const RuntimeType* CharType;
-        static const RuntimeType* ShortType;
-        static const RuntimeType* IntType;
-        static const RuntimeType* FloatType;
-        static const RuntimeType* LongType;
-        static const RuntimeType* DoubleType;
-        static const RuntimeType* UByteType;
-        static const RuntimeType* UShortType;
-        static const RuntimeType* UIntType;
-        static const RuntimeType* ULongType;
+        static RuntimeType BooleanType;
+        static RuntimeType ByteType;
+        static RuntimeType CharType;
+        static RuntimeType ShortType;
+        static RuntimeType IntType;
+        static RuntimeType FloatType;
+        static RuntimeType LongType;
+        static RuntimeType DoubleType;
+        static RuntimeType UByteType;
+        static RuntimeType UShortType;
+        static RuntimeType UIntType;
+        static RuntimeType ULongType;
 
 
         /**
@@ -70,14 +67,16 @@ namespace x10aux {
          * Created by the bootstrap method because it
          * is needed as the parent object for the primitive RTT's
          */
-        static const RuntimeType* ObjectType;
+        static RuntimeType ObjectType;
         
     public:
-        const int parentsc;
+        int parentsc;
         const RuntimeType **parents;
         const char* typeName;
+
+        RuntimeType () : parentsc(-1) { }
         
-        RuntimeType(const char* n, int pc, ...);
+        void init(const char* n, int pc, ...);
 
         const char *name() const { return typeName; }
 
@@ -93,25 +92,6 @@ namespace x10aux {
             return other == this;
         }
 
-        /*
-         * Helper functions to use in defining _initRTT methods in templates to reduce code space impact
-         */
-        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
-                                                     const RuntimeType *p1);
-        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
-                                                     const RuntimeType *p1, const RuntimeType *p2);
-        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
-                                                     const RuntimeType *p1, const RuntimeType *p2,
-                                                     const RuntimeType *p3);
-        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
-                                                     const RuntimeType *p1, const RuntimeType *p2,
-                                                     const RuntimeType *p3, const RuntimeType *p4);
-        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
-                                                     const RuntimeType *p1, const RuntimeType *p2,
-                                                     const RuntimeType *p3, const RuntimeType *p4,
-                                                     const RuntimeType *p5);
-        
-        static const RuntimeType* installRTT(const RuntimeType **location, const RuntimeType *rtt);
         static void bootstrap();
     };
 
@@ -121,18 +101,18 @@ namespace x10aux {
         return T::getRTT();
     }
     // specializations of getRTT template for primitive types
-	template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() { return x10aux::RuntimeType::BooleanType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() { return x10aux::RuntimeType::ByteType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_short>() { return x10aux::RuntimeType::ShortType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_char>() { return x10aux::RuntimeType::CharType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_int>() { return x10aux::RuntimeType::IntType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() { return x10aux::RuntimeType::UByteType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() { return x10aux::RuntimeType::UShortType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() { return x10aux::RuntimeType::UIntType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() { return x10aux::RuntimeType::ULongType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() { return &x10aux::RuntimeType::BooleanType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() { return &x10aux::RuntimeType::ByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_short>() { return &x10aux::RuntimeType::ShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_char>() { return &x10aux::RuntimeType::CharType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_int>() { return &x10aux::RuntimeType::IntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return &x10aux::RuntimeType::FloatType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return &x10aux::RuntimeType::LongType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return &x10aux::RuntimeType::DoubleType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() { return &x10aux::RuntimeType::UByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() { return &x10aux::RuntimeType::UShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() { return &x10aux::RuntimeType::UIntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() { return &x10aux::RuntimeType::ULongType; }
 
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
@@ -155,6 +135,8 @@ namespace x10aux {
     #define TYPENAME(T) x10aux::typeName<T>()
     class InitDispatcher;
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
+    class remote_ref;
+    template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
     template<> inline const char *typeName<const void*>() { return "const void *"; }
     template<> inline const char *typeName<char>() { return "char"; }

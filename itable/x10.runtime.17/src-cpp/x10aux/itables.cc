@@ -7,11 +7,11 @@ using namespace x10::lang;
 #define TRACE_ITABLES 0
 
 void*
-x10aux::findITable(ref<Object> obj, const RuntimeType **id) {
+x10aux::findITable(ref<Object> obj, RuntimeType *id) {
 #if TRACE_ITABLES
     printf("Begin ITable search on %p for interface %p\n", obj.get(), id);
     printf("\tObject RTT is %s\n", obj->_type()->name());
-    printf("\tInterface RTT is %s\n", (*id)->name());
+    printf("\tInterface RTT is %s\n", id->name());
 #endif
     itable_entry* itables = obj->_getITables();
 #if TRACE_ITABLES
@@ -22,7 +22,7 @@ x10aux::findITable(ref<Object> obj, const RuntimeType **id) {
     do {
 #if TRACE_ITABLES
         printf("\tChecking %d:  %p\n", i, itables[i].id);
-        printf("\t\tRTT of candidate %s\n", (*(itables[i].id))->name());
+        printf("\t\tRTT of candidate %s\n", itables[i].id->name());
 #endif        
         if (itables[i].id == id) {
 #if TRACE_ITABLES
@@ -32,6 +32,6 @@ x10aux::findITable(ref<Object> obj, const RuntimeType **id) {
         }
     } while (itables[++i].id != 0);
     
-    fprintf(stderr, "ITable search failed: receiver class %s, target interface %s\n", obj->_type()->name(), (*id)->name());
+    fprintf(stderr, "ITable search failed: receiver class %s, target interface %s\n", obj->_type()->name(), *id->name());
     abort();
 }

@@ -8,13 +8,11 @@
 namespace x10 {
     namespace lang {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_Fun_0_0(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt0);
+        void _initRTTHelper_Fun_0_0(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt0);
 
         template<class R> class Fun_0_0 : public x10aux::AnyFun {
             public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT();
+            RTT_H_DECLS_INTERFACE
 
             struct itable {
                 itable(R(*apply)(x10aux::ref<Fun_0_0>)) : apply(apply) {}
@@ -22,11 +20,12 @@ namespace x10 {
             };
         };
 
-        template<class R> const x10aux::RuntimeType* Fun_0_0<R>::_initRTT() {
-            return x10::lang::_initRTTHelper_Fun_0_0(&rtt, x10aux::getRTT<R>());
+        template<class R> void Fun_0_0<R>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_Fun_0_0(&rtt, x10aux::getRTT<R>());
         }
 
-        template<class R> const x10aux::RuntimeType* Fun_0_0<R>::rtt = NULL;
+        template<class R> x10aux::RuntimeType Fun_0_0<R>::rtt;
     }
 }
 #endif

@@ -119,31 +119,14 @@ To permit genericity, variables \Xcd{X} must be admitted over types.
 \Xten{} follows languages such as Java~\cite{Java3} and
 Scala~\cite{scala}, by introducing type parameters on classes
 and methods.
-Another approach, discussed in
-Section~\ref{sec:type-properties}, is to 
-allow type-valued properties: object members that are
-initialized with types when their enclosing object is
-constructed.  Type properties provide expressive power
-similar to Java's wildcards and subsume features of 
-virtual types and self types.
-
-What constraints can be used to specify conditions on such variables?
-In nominally typed OO languages such as \Java (1.4 and earlier), the answer is
-relatively clear and a simple semantic framework can be sketched out:
-a type is a class \emph{name}.\footnote{This can be extended naturally
-to account for interfaces.} Intuitively, an object belongs to a type
-if it is an instance of the class. Types are equipped with a partial
+Constraints can be used to specify conditions on such parameters.
+In class-based OO languages such as \Java, 
+a type is a class (or interface) \emph{name}, and 
+types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
 through the ``\Xcd{extends}'' relationship.  Further, each type is
 associated with member fields and methods, each with their
 name and signature.
-%
-%. Members are of two kinds.  A {\em
-%field} has a name and an associated type. A \emph{method} has a name
-%and an associated signature (the type of arguments and the return
-%type).  The members available at a type and its supertype are related:
-%members ``flow'' from supertypes to subtypes in a manner determined by
-%the overriding rules of the language.
 
 This motivates a very natural constraint system on types.  For a type
 variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
@@ -173,6 +156,7 @@ be able to require that a type have a
 particular member---a field with a given name and type, or a method
 with a given name and signature. We introduce the constraints 
 \Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has} \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+\todo{Revisit:}
 Further, one can constrain values and types, expressing the
 \Xcd{instanceof} relation from Java as a constraint, for example.
 
@@ -223,6 +207,7 @@ variable (including \Xcd{this}) or an access to a final field of
 a final access path.
 }
 
+\eat{
 \subsection{Design and implementation of the \Xten{} type system}
 
 Many features of modern object-oriented type systems fall out
@@ -231,13 +216,9 @@ naturally in this extended framework for constrained types.
 We illustrate these by discussing the design of
 the \Xten{} language and of various
 programming idioms.
+}
 
-This framework forms the basis of the \Xten type system.
-To make the system more usable,
-the \Xten language design simplifies the type system by
-restricting how constraints over types can be used.
-We discuss these restrictions in Section~\ref{sec:discussion}.
-
+\eat{
 %\todo{implementation}
 %Besides constrained types, the language supports function types.
 Since there may be a large number of constrained types
@@ -252,9 +233,11 @@ introspection and instantiation of generic types on primitive types.
 The performance of primitive arrays, especially, is critical for the
 high-performance applications for which \Xten{} is intended.  Our
 design does not require that primitive values be boxed.
+}
 
-\subsection{The \FX{}($\cal C$) family}
-To further the foundations of constrained types, we develop the \FX{}
+\subsection{The \FXGL{L} family}
+To further the foundations of constrained types, we develop the
+\FXG
 family of languages. The core expression language is essentially
 Featherweight Java (\FJ \cite{FJ}) with constrained types over
 value and type constraints.
@@ -263,17 +246,17 @@ semantics for all languages in the family.  The static semantics is
 shown to be sound with respect to the operational semantics.
 
 Different members of the family are associated with different
-constraint systems. \FXZ{} is
-\FX{} instantiated over the vacuous constraint system---the only
-user-specifiable constraint permitted is the vacuous \Xcd{true}. \FXZ{}
+constraint systems. \FXGZ{} is
+\FXG{} instantiated over the vacuous constraint system---the only
+user-specifiable constraint permitted is the vacuous \Xcd{true}.  \FXGZ{}
 corresponds to \FJ. \FXG{} permits user-specifiable subtyping
 and type equality constraints; it corresponds to
-\FGJ{} (being somewhat richer in permitting path types). \FXD{} permits
+\FGJ{} (being somewhat richer in permitting path types). \FXGL{Z} permits
 %and structural constraints \todo{really?}
 the use of constraints from some constraint system $\cal A$ over
 values; it
 corresponds to a language with a pure value-dependent type system as
-described in \cite{constrained-types}. Finally, \FXGD{} permits the
+described in \cite{constrained-types}. Finally, \FXGL{B} permits the
 use of both value and type constraints,
 and is the main topic of this paper.
 
@@ -284,8 +267,8 @@ present the design and implementation of the type system for a
 concrete language \Xten{} based on these ideas. We show how several
 other ideas in OO typing (such as structural types) can also be
 handled in this framework. We present a family of formal languages,
-$\FX{}(\cal C)$ that capture the essence of the idea of constrained
-types. By appropriately choosing $\cal C$, one can get languages that
+\FXGL{L} that capture the essence of the idea of constrained
+types. By appropriately choosing $\cal L$, one can get languages that
 support simple types, just value-dependent types, just type-dependent
 types, and both. We establish the soundness of the type system for all
 members of the family.
@@ -302,8 +285,9 @@ Section~\ref{sec:lang}.
 Section~\ref{sec:semantics} presents a formal semantics and a
 proof of soundness.
 %\todo{implementation}
+\eat{
 The implementation of generics in \Xten{} is
-described in Section~\ref{sec:translation}.
+described in Section~\ref{sec:translation}.}
 %
 Section~\ref{sec:discussion} discusses extensions of the type system,
 including extensions for virtual types and self types.

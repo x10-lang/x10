@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include <x10aux/config.h>
+#include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
 
 namespace x10 { namespace lang { class Object; } }

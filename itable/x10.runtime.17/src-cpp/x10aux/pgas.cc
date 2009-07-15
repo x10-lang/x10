@@ -30,10 +30,11 @@ void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
     serialization_buffer buf;
 
     addr_map m;
-    _X_(ANSI_BOLD ANSI_PGAS"Transmitting an async: "ANSI_RESET<<body->toString()->c_str()
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET<<body->toString()->c_str()
         <<" to place: "<<place);
     buf.write(body,m);
     serialized_bytes += buf.length();
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<buf.length());
 
     void *handle = x10rt_async_spawn(place, buf.get(), buf.length(), QUEUED_ASYNC);
     x10rt_async_spawn_wait(handle);
@@ -69,7 +70,7 @@ x10_boolean x10aux::no_steals() {
 #if 1
 // this one for when pgas does not use an internal thread
 static void deserialize_remote_closure(void *cl, int) {
-        _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
+        _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
         x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
         _X_("The deserialised async was: "<<async->toString()->c_str());

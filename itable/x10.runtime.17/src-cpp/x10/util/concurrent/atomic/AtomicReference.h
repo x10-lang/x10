@@ -19,7 +19,7 @@ namespace x10 {
         namespace concurrent {
             namespace atomic {
 
-                extern const x10aux::RuntimeType* _initRTTHelper_AtomicReference(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt);
+                void _initRTTHelper_AtomicReference(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
 
                 /*
                  * Implementation note: Extreme care must be taken when casting up/down
@@ -31,10 +31,7 @@ namespace x10 {
                  */
                 template<class T> class AtomicReference : public x10::lang::Ref {
                 public:
-                    static const x10aux::RuntimeType* rtt;
-                    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-                    static const x10aux::RuntimeType* _initRTT();
-                    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+                    RTT_H_DECLS
 
                     static x10aux::ref<AtomicReference<T > > _make();
                     static x10aux::ref<AtomicReference<T > > _make(T val);
@@ -112,11 +109,12 @@ namespace x10 {
                     return x10aux::safe_to_string(tmp3);
                 }
                 
-                template<class T> const x10aux::RuntimeType* AtomicReference<T >::_initRTT() {
-                    return x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
+                template<class T> void AtomicReference<T >::_initRTT() {
+                    rtt.parentsc = -2;
+                    x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 
-                template<class T> const x10aux::RuntimeType *AtomicReference<T >::rtt = NULL;
+                template<class T> x10aux::RuntimeType AtomicReference<T >::rtt;
             }
         }
     }
