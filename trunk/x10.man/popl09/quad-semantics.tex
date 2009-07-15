@@ -11,11 +11,11 @@
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
-In the previous section we presented X10. The subtle issues we encountered in the process of designing and implementing the X10 type system led us to believe we needed a formal framework in which to explore the design space and that would let us reason about fundamental issues such as soundness, completeness, and decidability. The framework we came up with consists in a family of formal languages---the \FXG family---that share a common base language, operational semantics, and type system.
+In the previous section we presented \Xten. The subtle issues encountered when designing and implementing the \Xten type system exposed the need for a formal framework in which to explore the design space, and to reason about fundamental issues such as soundness, completeness, and decidability. The resulting framework consists of a family of formal languages---the \FXG family---that share a common base language, operational semantics, and type system.
 
-Our framework models a lot of the relevant bits of X10 but not all.
-Following \FJ, our it does not account for mutations. Proving the soundness of the type system for an imperative calculus is beyond the scope of this paper.
-For simplicity, some features of \Xten are not modeled either, mainly, interfaces, user-specified constructors, method overloading, and class invariants. We believe none of these restrictions affect the type system in a fundamental way.\footnote{The class invariants we model may constrain the type parameters but not the fields of the class. \Xten does not support constraint-driven overloading.} Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of \Xten for future work.
+Our framework models many, but not all, relevant features of \Xten.
+Following \FJ, our framework does not account for mutations. Proving the soundness of the type system for an imperative calculus is beyond the scope of this paper.
+Other features of \Xten not modeled in the framework include interfaces, constructors, and method overloading. Class invariants are simplified and may constrain only type parameters, but not properties of the class.  We believe none of these restrictions affect the type system in a fundamental way. Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of \Xten for future work.
 
 \subsection{The \FXG family}
 
