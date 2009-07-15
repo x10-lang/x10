@@ -33,6 +33,7 @@ namespace x10aux {
         ref<x10::lang::Rail<ref<x10::lang::String> > > args;
         public:
 
+        static x10::lang::VoidFun_0_0::itable _itable;
         static x10aux::itable_entry _itables[2];
         
         virtual x10aux::itable_entry* _getITables() { return _itables; }

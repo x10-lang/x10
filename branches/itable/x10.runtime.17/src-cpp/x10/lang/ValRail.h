@@ -25,6 +25,8 @@ namespace x10 {
             public:
             RTT_H_DECLS
 
+            static typename Iterable<T>::itable _itable_iterable;
+            static typename Fun_0_1<x10_int, T>::itable _itable_fun;
             static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
     
@@ -114,11 +116,13 @@ namespace x10 {
 
         template<class T> x10aux::RuntimeType ValRail<T>::rtt;
 
+        template <class T> typename Iterable<T>::itable ValRail<T>::_itable_iterable(&ValRail<T>::_itable_thunk_iterable);
+
+        template <class T> typename Fun_0_1<x10_int,T>::itable ValRail<T>::_itable_fun(&ValRail<T>::_itable_thunk_fun);
+
         template <class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
-            x10aux::itable_entry(&Iterable<T>::rtt,
-                                 new typename x10::lang::Iterable<T>::itable(&ValRail<T>::_itable_thunk_iterable)),
-            x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt,
-                                 new typename x10::lang::Fun_0_1<x10_int, T>::itable(&ValRail<T>::_itable_thunk_fun)),
+            x10aux::itable_entry(&Iterable<T>::rtt, &ValRail<T>::_itable_iterable),
+            x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt, &ValRail<T>::_itable_fun),
             x10aux::itable_entry(NULL, NULL)
         };
 

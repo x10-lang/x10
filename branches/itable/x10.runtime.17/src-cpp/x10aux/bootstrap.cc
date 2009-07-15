@@ -9,9 +9,10 @@ using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
 
+x10::lang::VoidFun_0_0::itable BootStrapClosure::_itable(&BootStrapClosure::_itable_thunk);
+
 x10aux::itable_entry BootStrapClosure::_itables[2] = {
-    x10aux::itable_entry(&x10::lang::VoidFun_0_0::rtt,
-                         new x10::lang::VoidFun_0_0::itable(&BootStrapClosure::_itable_thunk)),
+    x10aux::itable_entry(&x10::lang::VoidFun_0_0::rtt, &_itable),
     x10aux::itable_entry(NULL, NULL)
 };
     
