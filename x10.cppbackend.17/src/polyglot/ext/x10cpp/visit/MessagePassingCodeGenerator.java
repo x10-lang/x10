@@ -2830,7 +2830,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write("buf.write(" + name + ", m);");
+            inc.write("buf.write(this->" + name + ", m);");
         }
         inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
