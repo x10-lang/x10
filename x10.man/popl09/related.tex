@@ -204,19 +204,32 @@ for adding genericity to Java quickly followed
 the initial release of
 the language~\cite{GJ,java-popl97,thorup97,allen03}.
 GJ~\cite{GJ} implements invariant type
-parameters via type erasure.
-PolyJ~\cite{java-popl97} supports run-time representation of types
-via adapter objects, and also permits instantiation of
+parameters via type erasure.  Java5~\cite{Java3} adopted the same
+implementation approach, incorporating wildcards and raw types.
+Other proposals~\cite{java-popl97,nextgen,reflective-generics,type-passing-generics} support run-time representation of type parameters.
+PolyJ~\cite{java-popl97} permits instantiation of
 parameters on primitive types and structural parameter bounds.
-Viroli and Natali~\cite{reflective-generics,type-passing-generics}
-also support
-a run-time representation of types, using Java's reflection API.
-NextGen~\cite{nextgen,allen03} was implemented using run-time 
-instantiation.
+MixGen~\cite{allen03} supported mixins through type parameterization.
+
+Like \Xten's generics, Scala~\cite{scala}'s generic types provide
+definition-site variance annotations and polymorphic methods.  Type parameters
+definitions can specify bounds.  Scala also provides mixins and self types,
+abstract type members, and virtual types.
+
+Fortress~\cite{fortress} also support generic types.  Traits and objects may be
+parameterized on values as well as types.  Parameterization on values is
+limited to integers, naturals, booleans, and operators that are compile-time
+constants.  Value properties in \Xten can be of arbitrary type and can be
+initialized with arbitrary values; run-time constants (i.e., final expressions)
+can be used in constraints.  Fortress allows parameters to be hidden, reducing
+the programmer burden by allowing the compiler to infer the arguments.
+
+\eat{
 \Xten{}'s generics have a hybrid implementation, adopting PolyJ's
 adapter object approach for dependent types and for 
 type introspection and using NextGen's run-time
 instantiation approach for greater efficiency.
+}
 % MixGen~\cite{allen04} extends NextGen with mixins.
 
 \csharp also supports generic types via run-time instantiation in the
@@ -258,10 +271,10 @@ Dynamic enforcement enables a more expressive assertion language
 at the cost of possible run-time failures.
 Integration of constrained types and generic types
 effectively allow parametrization of classes on constraints.
-Consider the \xcd"List" class in Figure~\ref{fig:list}.
+Consider the \xcd"Vector" class in Figure~\ref{fig:vector}.
 If the class is instantiated on a constrained type \xcd"C{c}",
-i.e., \xcd"List[C{c}]",
-then all elements of the list satisfy \xcd"c".
+i.e., \xcd"Vector[C{c}]",
+then all elements of the vector satisfy \xcd"c".
 Guha et al.~\cite{GMFK07} 
 explore polymorphic contracts as a way to achieve this
 parametrization in a functional language.
