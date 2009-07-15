@@ -17,15 +17,6 @@ namespace x10 {
             const RuntimeType *p0 = Value::getRTT();
             location->init(name, 3, p0, p1, p2);
         }
-
-        void
-        _initRTTHelper_ValRailIterator(RuntimeType *location, const RuntimeType *element,
-                                       const RuntimeType *p1) {
-            const char *name = alloc_printf("x10.lang.ValRail.Iterator[%s]", element->name());
-            const RuntimeType *p0 = Ref::getRTT();
-            location->init(name, 2, p0, p1);
-        }
-
     }
 }
 
