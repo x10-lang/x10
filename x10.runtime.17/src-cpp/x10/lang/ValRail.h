@@ -18,9 +18,9 @@ namespace x10 {
 
     namespace lang {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_ValRail(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
+        void _initRTTHelper_ValRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
-        extern const x10aux::RuntimeType* _initRTTHelper_ValRailIterator(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
+        void _initRTTHelper_ValRailIterator(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                                                          const x10aux::RuntimeType *p1);
 
         template<class T> class ValRail : public Value,
@@ -30,10 +30,7 @@ namespace x10 {
         {
 
             public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT();
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+            RTT_H_DECLS
 
             private:
 
@@ -57,10 +54,7 @@ namespace x10 {
                 x10aux::ref<ValRail<T> > rail;
 
                 public:
-                static const x10aux::RuntimeType* rtt;
-                static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-                static const x10aux::RuntimeType* _initRTT();
-                virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+                RTT_H_DECLS
 
                 Iterator (const x10aux::ref<ValRail> &rail_)
                         : i(0), rail(rail_) { }
@@ -128,18 +122,20 @@ namespace x10 {
             x10aux::DeserializationDispatcher
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
 
-        template<class T> const x10aux::RuntimeType* ValRail<T>::_initRTT() {
-            return x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Fun_0_1<x10_int,T> >(),
+        template<class T> void ValRail<T>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Fun_0_1<x10_int,T> >(),
                                                      x10aux::getRTT<Iterable<T> >());
         }
 
-        template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::_initRTT() {
-            return x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
+        template<class T> void ValRail<T>::Iterator::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
         }
 
-        template<class T> const x10aux::RuntimeType* ValRail<T>::rtt = NULL;
+        template<class T> x10aux::RuntimeType ValRail<T>::rtt;
 
-        template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::rtt = NULL;
+        template<class T> x10aux::RuntimeType ValRail<T>::Iterator::rtt;
 
         template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
             if (other.get() == this) return true; // short-circuit trivial equality

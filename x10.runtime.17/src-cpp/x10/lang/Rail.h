@@ -16,10 +16,11 @@ namespace x10 {
 
     namespace lang {
 
-        extern const x10aux::RuntimeType* _initRTTHelper_Rail(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
-                                                              const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
-        extern const x10aux::RuntimeType* _initRTTHelper_RailIterator(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
-                                                                      const x10aux::RuntimeType *p1);
+        void _initRTTHelper_Rail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
+                                 const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
+        void _initRTTHelper_RailIterator(x10aux::RuntimeType *location,
+                                         const x10aux::RuntimeType *element,
+                                         const x10aux::RuntimeType *p1);
         
         template<class P1, class R> class Fun_0_1;
 
@@ -28,10 +29,7 @@ namespace x10 {
                                        public virtual x10::lang::Iterable<T>,
                                        public x10aux::AnyRail<T> {
             public:
-            static const x10aux::RuntimeType* rtt;
-            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT(); 
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+            RTT_H_DECLS
 
             private:
 
@@ -53,10 +51,7 @@ namespace x10 {
                 x10aux::ref<Rail<T> > rail;
 
                 public:
-                static const x10aux::RuntimeType* rtt;
-                static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-                static const x10aux::RuntimeType* _initRTT();
-                virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+                RTT_H_DECLS
 
                 Iterator (x10aux::ref<Rail> rail_)
                         : i(0), rail(rail_) { }
@@ -104,16 +99,18 @@ namespace x10 {
 
         };
 
-        template<class T> const x10aux::RuntimeType* Rail<T>::rtt = NULL;
-        template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::rtt = NULL;
+        template<class T> x10aux::RuntimeType Rail<T>::rtt;
+        template<class T> x10aux::RuntimeType Rail<T>::Iterator::rtt;
 
-        template<class T> const x10aux::RuntimeType* Rail<T>::_initRTT() {
-            return x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
+        template<class T> void Rail<T>::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
                                                   x10aux::getRTT<Iterable<T> >());
         }
 
-        template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::_initRTT() {
-            return x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
+        template<class T> void Rail<T>::Iterator::_initRTT() {
+            rtt.parentsc = -2;
+            x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
         }        
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {

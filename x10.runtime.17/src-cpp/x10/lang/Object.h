@@ -24,7 +24,7 @@ namespace x10 {
             public:
 
             /* Note special RTT code block because Object is predefined by RuntimeType */
-            static const x10aux::RuntimeType* getRTT() { return x10aux::RuntimeType::ObjectType; }
+            static const x10aux::RuntimeType* getRTT() { return &x10aux::RuntimeType::ObjectType; }
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
