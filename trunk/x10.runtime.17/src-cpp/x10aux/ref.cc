@@ -27,7 +27,7 @@ remote_ref remote_ref::make (void *ptr) {
 }
 
 void *remote_ref::take (remote_ref r) {
-    if (r.loc==x10aux::here()) return (void*)r.addr;
+    if (r.loc==x10aux::here()) return (void*)(size_t)r.addr;
     if (r.addr==0) return NULL;
     return mask(new remote_ref(r));
 }
