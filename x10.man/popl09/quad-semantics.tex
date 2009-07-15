@@ -161,19 +161,6 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \begin{figure*}
 \vspace{-\bigskipamount}
 \begin{minipage}{\textwidth}
-\quad
-\infrule[X-Proj]
-  {\sigma(\Gamma)\vdashX c}
-  {\Gamma\vdash c}
-\end{minipage}%
-\caption{\FXGL{X} object constraint system.}
-\label{fig:object}
-\end{figure*}
-
-
-\begin{figure*}
-\vspace{-\bigskipamount}
-\begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[L-Fields-B]
   {\fields({\tt Object})=\bullet}
@@ -245,6 +232,25 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \end{minipage}
 \caption{\FXGL{X} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
 \label{fig:sos}
+\end{figure*}
+
+
+\begin{figure*}
+\vspace{-\bigskipamount}
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[X-Sel]
+  {\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
+  {\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[X-Proj]
+  {\sigma(\Gamma)\vdashX c}
+  {\Gamma\vdash c}
+\end{minipage}%
+\caption{{\sf FXG} object constraint system.}
+\label{fig:object}
 \end{figure*}
 
 
