@@ -462,9 +462,9 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \quad\typicallabel{XXXXXX}
 
 \infrule[O-Method]
-  {\tbar{G}=\tbar{G'} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d} \andalso 
+  {\Gamma,\tbar{x}\ty\tbar{G},{\tt d'}\vdash{\tt d} \andalso 
     {\tt y}~{\rm fresh} \andalso \Gamma,\tbar{x}\ty\tbar{G},{\tt d},{\tt y}\ty{\tt H}\vdash{\tt y}\subtype{\tt H'}}
-  {\Gamma\vdash \msign{Y}{x}{G}{d}{H} \ll  \msign{Y}{x}{G'}{d'}{H'}}
+  {\Gamma\vdash \msign{Y}{x}{G}{d}{H} \ll  \msign{Y}{x}{G}{d'}{H'}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
@@ -594,9 +594,8 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \begin{minipage}{.36\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[X-Bound]
-	{\Gamma\vdash{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H} \andalso
-	  {\tt G}\neq{\tt H}}
-	{\Gamma\vdash\false}
+	{{\tt G}\neq{\tt H}}
+	{{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H}\vdash\false}
 \end{minipage}%
 \begin{minipage}{.34\textwidth}
 \quad\typicallabel{XXXX}
