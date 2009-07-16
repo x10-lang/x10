@@ -102,7 +102,6 @@ import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit_c;
-import polyglot.ast.NumLit_c;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
@@ -344,7 +343,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // [IP] except for the ones that use a literal init - otherwise switch is broken
 				if (fd.init() != null &&
 						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-								(fd.init() instanceof NumLit_c || fd.init() instanceof BooleanLit_c)))
+						  fd.init().isConstant() &&
+						  (fd.init().type().isNumeric() || fd.init().type().isBoolean() || fd.init().type().isNull())))
 				{
 					hasInits = true;
 				}
@@ -393,8 +393,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                // [DC] want these to occur in the static initialiser instead
 	                // [IP] except for the ones that use a literal init - otherwise switch is broken
 	                if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-	                        ((fd.type().type().isNumeric() && fd.init() instanceof NumLit_c) ||
-	                         (fd.type().type().isBoolean() && fd.init() instanceof BooleanLit_c)))
+	                    fd.init().isConstant() &&
+	                    (fd.init().type().isNumeric() || fd.init().type().isBoolean() || fd.init().type().isNull()))
 	                {
 	                    sw.write(" =");
 	                    sw.allowBreak(2, " ");
@@ -455,6 +455,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        X10ClassDef superDef = ((X10ClassType) X10TypeMixin.baseType(cd.superType().get())).x10Def();
 	        String superContainer = translate_mangled_FQN(superDef.fullName().toString())+voidTemplateInstantiation(superDef.typeParameters().size());
 	        sw.write(superContainer + "::" + STATIC_INIT + "();");
+	        sw.newline();
 	    }
 	    for (FieldDecl_c fd : inits) {
 	        assert (fd.init() != null);
@@ -489,7 +490,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (currentClass.superClass() != null) {
 	            X10ClassDef superDef = ((X10ClassType) X10TypeMixin.baseType(currentClass.superClass())).x10Def();
 	            String superContainer = translate_mangled_FQN(superDef.fullName().toString())+voidTemplateInstantiation(superDef.typeParameters().size());
-	            sw.write(superContainer + "::" + STATIC_INIT + "();");
+	            sw.write(superContainer + "::" + methodName + "();");
+	            sw.newline();
 	        }
 	    } else {
 	        sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
@@ -511,9 +513,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 	                    continue;
 	                if (dec.init() != null && dec.flags().flags().isFinal() &&
-	                        ((dec.type().type().isNumeric() && dec.init() instanceof NumLit_c) ||
-	                         (dec.type().type().isBoolean() && dec.init() instanceof BooleanLit_c)))
+	                    dec.init().isConstant() &&
+	                    (dec.init().type().isNumeric() || dec.init().type().isBoolean() || dec.init().type().isNull()))
+	                {
 	                    continue;
+	                }
 	            }
 	        }
 	        sawInit = true;
@@ -1505,8 +1509,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        // [DC] disabled because I want this done through the static initialisation framework
 	        // [IP] re-enabled for a very limited set of cases, namely literal inits
 	        if (dec.init() != null && dec.flags().flags().isFinal() &&
-	                ((dec.type().type().isNumeric() && dec.init() instanceof NumLit_c) ||
-                     (dec.type().type().isBoolean() && dec.init() instanceof BooleanLit_c)))
+	            dec.init().isConstant() &&
+	            (dec.init().type().isNumeric() || dec.init().type().isBoolean() || dec.init().type().isNull()))
 	        {
 	            sw.write(" =");
 	            sw.allowBreak(2, " ");
