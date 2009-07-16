@@ -498,16 +498,16 @@ constraints, multi-method dispatch can be simulated.
 
 Finally, we turn to the implementation of generics.
 To implement a generic class \xcd"C[X]" one can either generate a single 
-class for \xcd"C" in the target language or can generate a class per
-instantiation
+class for \xcd"C" in the target language (homogeneous translation)
+or generate one class per instantiation
 \xcdmath"C[T$_1$]",
-\xcdmath"C[T$_2$]", \dots.
-\xcdmath"C[T$_k$]".
+\xcdmath"C[T$_2$]", \dots,
+\xcdmath"C[T$_k$]" (heterogeneous translation).
 The former approach reduces the amount of generated code; the
 latter enables specialization based on the type arguments to
-\xcd"C".  Hybrid approaches are possible, too.
+\xcd"C".  Hybrid approaches are possible as well.
 
-Java's approach is to erase type parameters and to use the homogenous
+Java's approach is to erase type parameters and to use the homogeneous
 translation.  Erasure admits more dynamic errors because
 it permits, for instance, a \xcd"C<A>" to be cast to \xcd"C<B>".
 Retrieving a field of static type \xcd"B" could cause a run-time
@@ -518,23 +518,23 @@ translation.  Following NextGen~\cite{nextgen},
 Fortress~\cite{fortress} takes this approach as well, reducing
 (static) code bloat by instantiating generics at run time.
 
-A compromise approach is to specialized for only a few parameter
+A compromise approach is to specialize for only a few parameter
 types, for example the primitive types.
 
-Unlike Java's generics, the \Xten does not erase type
+\Xten's generic implementation also does not erase type
 parameters.  This allows \Xten to support run-time casts to 
 generic types, including types instantiated on constrained
 types.
 With
-non-generic constrained types, casts like \xcd"r" \xcd"as"
-\xcd"Region{rank==k}" can be implemented by
+non-generic constrained types, casts like
+\xcd"r"~\xcd"as"~\xcd"Region{rank==k}" can be implemented by
 checking the run-time class of the value being
-cast---\xcd"r" \xcd"instanceof" \xcd"Region"---and then
+cast---\xcd"r"~\xcd"instanceof"~\xcd"Region"---and then
 evaluating the constraint---\xcd"r.rank==k".
 
 However, the issue is more subtle with generic casts.
 For instance, to implement
-\xcd"a" \xcd"as" \xcd"Array[int{self>=0}]"
+\xcd"a"~\xcd"as"~\xcd"Array[int{self>=0}]"
 one must check at run time that the concrete type used to instantiate
 the \xcd"Array"'s type parameter is equivalent to
 \xcd"int{self>=0}".  This check could involve a run-time
