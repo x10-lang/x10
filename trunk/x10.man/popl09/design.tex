@@ -519,15 +519,15 @@ to support run-time casts to generic types,
 including possibly types instantiated on constrained types.
 
 With
-non-generic constrained types, casts like
+non-generic types, a cast such as
 \xcd"r"~\xcd"as"~\xcd"Region{rank==k}" can be implemented by
 checking the run-time class of the value being
 cast---\xcd"r"~\xcd"instanceof"~\xcd"Region"---and then
 evaluating the constraint---\xcd"r.rank==k".
 %
 However, the issue is more subtle with generic casts.
-For instance, to implement
-\xcd"a"~\xcd"as"~\xcd"Array[int{self>=0}]"
+For instance, to do
+\xcd"A"~\xcd"as"~\xcd"Array[int{self>=0}]"
 one must check at run time that the concrete type used to instantiate
 the \xcd"Array"'s type parameter is equivalent to
 \xcd"int{self>=0}".  This check could involve a run-time
