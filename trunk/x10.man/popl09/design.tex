@@ -3,46 +3,44 @@ that provides both dependent and generic types.
 The language has a sequential core similar to Java or Scala, but
 also
 constructs for concurrency and distribution.
+
+One key feature that interacts with generics is that the type
+system provides both reference types and value types.
+An instance of a reference type is an object on the
+heap.  All reference types are subclasses of \xcd"Object".
+Variables of reference type may be \xcd"null".
+In contrast, an instance of a value type might be represented in
+unboxed form on the call stack
+and can never be \xcd"null".
+
 This section describes the design of generics for \Xten,
 including several alternative designs.
 
+
 %\footnote{We plan
 %to support traits in a future version of the language.}
-\todo{\emph interactions with data constraints}
-
-\subsection{Handling value types}
-
-\Xten's type system provides both reference types and value
-types.  An instance of a reference type is an object on the
-heap.  Variables of reference type may be \xcd"null".
-In contrast, an instance of a value type might live on the call stack
-and can never be \xcd"null".  Java's generics support only 
-instantiation on reference types (subtypes of \xcd"Object") and
-not primitives.  Languages like C$\sharp$ and  PolyJ~\cite{java-popl97}, in contrast, support
-instantiation on both kinds of type.
-
-\todo{common base type}
+\todo{emph interactions with data constraints}
 
 \subsection{Type constraints}
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
 The choice of type variables is discussed below.  We assume here
-that classes have a means of introducing new type variables.
+that classes have a means of introducing new type variables
+either as type parameters or as type members.
 For instance,
 the class \xcd"List" introduces a type variable \xcd"X"
 representing the list's element type.
-Here, we ask: how should type variables be constrained?
+
 \Xten already supports constraints over values, so it is natural
 to extend these to constraints over types.
+Here, we ask: how should type variables be constrained?
 
 \subsubsection{Subtyping and equality constraints}
 
 In class-based OO languages such as Java,
 types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
-through the ``\Xcd{extends}'' relationship.  Further, each type is
-associated with member fields and methods, each with a
-name and signature.
+through the ``\Xcd{extends}'' relationship.  
 This motivates a very natural constraint system on types.  For a type
 variable \Xcd{X} we should be able to assert the constraint
 \Xcd{X}~$\extends$~\Xcd{T}: a valuation (mapping from variables to types) realizes
@@ -66,15 +64,12 @@ declaration.  Subtyping constraints in constrained types
 type-valued members of the base type \xcd"C".
 
 Methods and constructors
-may also have additional
-constraints, or \emph{guards}, on their parameters.  A
-guard must be satisfied by the caller of the method and
+may also have constraints, or \emph{guards}, on their parameters.
+A guard must be satisfied by the caller of the method and
 will hold throughout its body.  Type constraints used in the
-method guard restrict the types of the arguments or the method
+method guard restrict the types of the arguments or of the method
 receiver.  
 This feature is similar to optional methods in CLU~\cite{clu} and to generalized type constraints in C$\sharp$~\cite{emir06}.
-
-\todo{Need to define a list class before this point.}
 
 For instance, given a list of \xcd"T", one could define a
 method \xcd"print" with a guard that requires that \xcd"T" be a
@@ -89,8 +84,8 @@ This constraint ensures that the \xcd"head" field of type
 \xcd"T" has a \xcd"print()" method.
 
 \subsubsection{Structural consraints}
-We considered other constraints on types as well.
-One should
+
+One should also
 be able to require that a type have a
 particular member---a field with a given name and type, or a method
 with a given name and signature.
@@ -512,14 +507,27 @@ translation.  Erasure admits more dynamic errors because
 it permits, for instance, a \xcd"C<A>" to be cast to \xcd"C<B>".
 Retrieving a field of static type \xcd"B" could cause a run-time
 type error when an \xcd"A" is returned instead.
+The homogeneous translation is aided by a restriction that type
+parameters cannot be instantiated on primitive types and by
+using nominal subtyping bounds on types.
+These restrictions ensure type parameters can be represented
+with their type bound, or \xcd"Object" if unbounded.
 
-Other languages, such as C++, use the heterogeneous
-translation.  Following NextGen~\cite{nextgen},
+PolyJ~\cite{java-poly97} supports structural bounds and uses a
+homogeneous translation with adapter objects to allow generic
+code to invoke methods on values of its type parameters.
+
+Other languages, such as C++, use a heterogeneous
+translation, specializing the generic class for each
+instantiation.
+C$\sharp$,
+NextGen~\cite{nextgen}, and
 Fortress~\cite{fortress} takes this approach as well, reducing
-(static) code bloat by instantiating generics at run time.
+(static) code bloat by instantiating generic classes at run time.
 
 A compromise approach is to specialize for only a few parameter
-types, for example the primitive types.
+types, for example the primitive types, but to use a homogeneous
+translation otherwise.
 
 \Xten's generic implementation also does not erase type
 parameters.  This allows \Xten to support run-time casts to 
