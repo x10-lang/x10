@@ -117,7 +117,7 @@ not just over the built-in constraint system.
 
 \subsection{Generic types}
 The notion of \emph{generic types}---types such as \Xcd{List<T>} in
-Java that are parametrized by other types--- is now widely
+Java that are parametrized by other types---is now widely
 established~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}.
 Generic types are vital for implementing type-safe, reusable
 libraries, especially collections classes.  For instance, the data
@@ -126,8 +126,9 @@ type \Xcd{Array} discussed above is generic on its element type.
 This paper lays out a framework to extend constrained types to handle
 (type-)genericity. The general outlines of the approach seem clear
 enough. First, some mechanism must be found to introduce {\em type
-variables}, for instance as {\em type parameters} (cf. Java) or as
-{\em type members} (cf. Scala). 
+variables}, for instance as {\em type parameters} (cf.
+Java~\cite{Java3}) or as
+{\em type members} (cf. BETA~\cite{beta}). 
 
 Second, a suitable vocabulary of constraints over types must be
 chosen. This raises the fundamental question: What is the structure of
