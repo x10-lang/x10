@@ -11,6 +11,8 @@
 \newcommand{\Dom}{{\sf Dom}}
 \newcommand{\Img}{{\sf Img}}
 
+REVISE
+
 In the previous section we presented \Xten. The subtle issues encountered when designing and implementing the \Xten type system exposed the need for a formal framework in which to explore the design space, and to reason about fundamental issues such as soundness, completeness, and decidability. The resulting framework consists of a family of formal languages---the \FXG family---that share a common base language, operational semantics, and type system.
 
 Our framework models many, but not all, relevant features of \Xten.
@@ -18,6 +20,8 @@ Following \FJ, our framework does not account for mutations. Proving the soundne
 Other features of \Xten not modeled in the framework include interfaces, constructors, and method overloading. Class invariants are simplified and may constrain only type parameters, but not properties of the class.  We believe none of these restrictions affect the type system in a fundamental way. Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of \Xten for future work.
 
 \subsection{The \FXG family}
+
+REVISE
 
 We now describe the semantics of languages in the \FXG family. We start with the \FXGL{X,\bullet} language that is the common core of all languages  in the family. Each language \FXGL{X',T} of the family is rigourously derived from the core language by:
 \begin{itemize}
@@ -29,9 +33,9 @@ We first specify the grammar, static, and dynamic semantics of \FXGL{X,\bullet}.
 
 We state and prove the soundness of the \FXGL{X,\bullet}. We describe the methodology by which extensions of the languages such as the one we presented can be formalized. We identify the requirements an extension must satify to ensure the soundness of its type system (i.e., its proof) can be derived from the soudness of the core type system.
 
-\subsection{\FXGL{X,\bullet}}
+\subsection{\FXG}
 
-The grammar for \FXGL{X} is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
+The grammar for \FXG is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
 
 A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{X}, that is, {\tt c} must be {\tt true}.
 
@@ -51,14 +55,17 @@ Following \FJ{}, we denote values by means of nested constructor calls, e.g.,
 \texttt{new} \texttt{Pair[C](new} \texttt{C(),} \texttt{new} \texttt{C())}.
 
 \paragraph{Dynamic semantics.}
+
 The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is described as a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
 
-The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. See Section~\ref{sec:casts} for a discussion of casts. See below for a discussion of subtyping.
+The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}.
 
 {\sc L-Field-I} prevents classes from overriding inherited fields. {\sc L-Method-I} makes sure method lookup goes bottom up, but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
 
-{\sc R-Invk} does not check method guards. We will establish
-that there is no need for a run-time check in well-typed programs.
+{\sc R-Invk} does not check method guards. We will establish that there is no need for a run-time check in well-typed programs.
+
+{\sc R-Cast} checks that the static type of $\new~{\tt C}[\tbar{A}](\tbar{v})$ is a subtype of $\tt G$.
+
 
 \paragraph{Conventions.}
 In the following, the context $\Gamma$ is always a (finite, possibly empty) sequence of variable declarations $\tt x\ty T$, type parameter declarations $\tt X\ty*$, and constraints $\tt c$ satisfying:
@@ -100,19 +107,26 @@ A program is well typed iff all its classes are. We now describe in more detail 
 
 
 \paragraph{1. Constraints.}
-Each language in the \FXGL{L} family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{X}.
+The type system of the \FXG language is parametrized in the constraint system $\cal X$ that is used to decide constraint entailment. $\cal X$ must be expressive enough to handle the constraints permitted by the \FXG grammar and provide judgments of the form $\tbar{c} \vdashX {\tt d}$.
+
+A minimal $\cal X$ would simply have function symbols ``$.{\tt f}$''$\,:{\tt t}\mapsto{\tt t}.{\tt f}$ and ``$\new~{\tt C}[\tbar{A}]$''$\,:\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$ and satisfy\footnote{Formally, we consider a constraint system generator $\mathcal{X}$ that given a program {\tt P} produces a constraint system $\mathcal{X}_{\tt P}$ that satisfies {\sc X-Sel}.} the {\sc X-Sel} inference rule of Figure~\ref{fig:object}.
+
+
+\eat{
+ and decide about the term equality
+
+. Formally, $\cal X$ has variables, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$ an
+
+$\cal X$ axiomatization...
+family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{X}.
 
 Formally, $\cal X$ %has nullary predicates $\true$ and $\false$, a 2-ary conjunction predicate over constraints, a 2-ary equality predicate over terms. Moreover, $\cal X$ 
 has variable symbols $\tt x$, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$.
 
 Equality is to be understood as structural equality over terms. In particular, $\new~{\tt C}[\tbar{G}](\tbar{v})==\new~{\tt C}[\tbar{G}](\tbar{w})$ holds iff $\tbar{v}==\tbar{w}$.
+}
 
-$\cal X$ permits judgments of the form $\tbar{c} \vdashX {\tt d}$.
-
-$\cal X$ must also satisfy\footnote{Formally, we consider a constraint system generator $\mathcal{X}$ that given a program {\tt P} produces a constraint system $\mathcal{X}_{\tt P}$ that satisfies {\sc X-Sel}.} the inference rules {\sc X-Sel} and {\sc X-False}\footnote{{\sc X-False} is intended as an example of how to reason in $\cal X$ about unsatisfiable constraints on objects. The theory is not complete. For instance, constraint ${\tt t}=={\tt t}.{\tt f}$ cannot be satisfied by any (finite) value, but is not inconsistent. As a consequence, it is impossible to make the type system reject all programs declaring empty types. Such incompleteness however does not matter to the soundness of the type system. Incidentally, one may want to substitute syntactic type equality in {\sc X-False} with type equivalence.} of Figure~\ref{fig:object}  
-where ${\tt C}[\tbar{A}]\neq {\tt D}[\tbar{B}]$ is to be interpreted as syntactic equality.
-
-In order to access the constraint system from the type system, we define the {\em constraint projection} $\sigma(\Gamma)$ that, in essence, strips out all type information from the $\Gamma$.
+In order to expose the current typing context to $\cal X$, we define the {\em constraint projection} $\sigma(\Gamma)$ that, in essence, strips out all type information from the $\Gamma$.
 %
 \begin{center}
 \begin{tabular}{ll}
@@ -128,13 +142,15 @@ $\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\t
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
-By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. In \FXGL{X}, there is no other way to prove entailment.
+By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. %In \FXG, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
-In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} if both class {\tt C} and {\tt D} extend {\Object}.
+In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} entails \false{} if {\tt C} and {\tt D} are not related by the subclassing relation.
 
 
-\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and all instances of generic classes in $\alpha$ satisfy the guards. Notice this depends on $\cal X$ but not on any typing judgments. For \FXGL{X} the later condition is a tautology.
+\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$, written $\wj{\Gamma}{\alpha}$, iff its free variables are declared in $\Gamma$ and all the type parameters of all the generic classes in $\alpha$ satisfy the guards of these classes. Notice this depends on $\cal X$ but not on any typing judgments.
+
+In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise of a constraint-entailment, lookup, typing, or subtyping judgment are well-formed. If $\Gamma$ is not then the rule cannot be used. However, we make no such assumption for the premises of well-formedness judgements.
 
 By design, if the program {\tt P} is well typed then all the constraints and types in {\tt P} are well formed in their respective contexts.
 
@@ -227,7 +243,8 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	{{\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}_i,\ldots,{\tt a}_n)\derives {\tt v}.{\tt m}({\tt w}_1,\ldots,{\tt w}_{i-1},{\tt a}'_i,\ldots,{\tt a}_n)}
 
 \infrule[\RCast]
-	{{\tt x}\ty{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{v})\}\vdash{\tt x}\subtype {\tt G}}
+	{\Gamma\vdash\tbar{v}\ty\tbar{V} \andalso
+	  {\tt x}\ty\exty{\tbar{y}}{\ty\tbar{V}}{{\tt C}[\tbar{A}]\{\self==\new~{\tt C}[\tbar{A}](\tbar{y})\}\vdash{\tt x}}\subtype {\tt G}}
 	{\new~{\tt C}[\tbar{A}](\tbar{v})~\as~{\tt G}\derives\new~{\tt C}[\tbar{A}](\tbar{v})}
 \end{minipage}
 \caption{\FXGL{X} operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
@@ -280,7 +297,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	{\tj{\Gamma}{{\tt t}.{\tt f}}}
 
 \infrule[W-And]
-	{\cj{\Gamma}{\tt c} \andalso \cj{\Gamma,{\tt c}}{\tt d}}
+	{\cj{\Gamma}{\tt c} \andalso \cj{\Gamma}{\tt d}}
 	{\cj{\Gamma}{{\tt c},{\tt d}}}
 
 \infrule[W-Dep]
