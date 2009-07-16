@@ -39,17 +39,15 @@ We state and prove the soundness of the \FXGL{X,\bullet}. We describe the method
 
 The grammar for \FXG is shown in Figure~\ref{fig:fxg-grammar}. The syntax is essentially that of \FGJ. We use $\bar{x}$ to denote a list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty list.
 
-A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters. It is not used in \FXGL{X}, that is, {\tt c} must be {\tt true}.
+A program {\tt P} is a set of class declarations \tbar{L}. Class names {\tt C} range over the declared classes in {\tt P} and {\tt Object}. A class declaration has type parameters \tbar{X}, value properties (i.e., immutable fields) \tbar{f}, a supertype {\tt D}[\tbar{E}], methods \tbar{M}, and a guard {\tt c}---a constraint on its type parameters.
 
-Each class has a default constructor. Class $\tt C$ has constructor
-$\tt def~this[\tbar{X}](\tbar{g},\tbar{f}\ty\tbar{G},\tbar{F})~\{~super(\tbar{g});~property(\tbar{f});~\}$ if $\tt C$ is declared as
-$\cdecl$ and its superclass $\tt D$ has fields $\tbar{g}\ty\tbar{G}$. $\Object$ has a nullary constructor.
+Each class has a default constructor. If class $\tt C[\tbar{X}]$ has field $\tt f$ of type $\tt F$ and extends class $\tt D$ with field $\tt g$ of type $\tt G$ then $\tt C$'s constructor has type parameters $\tbar{X}$, a formal of type $\tt G$, and a formal of type $\tt F$. $\Object$ has a nullary constructor.
 
 Methods are introduced with the {\tt def} keyword. A method has both type parameters {\tbar{X}} and value parameters {\tbar{x}}. The method guard {\tt c} is to be thought of as an additional condition that must be satisfied by the receiver and the actual type and value arguments of the method call. We do not consider method overloading: we assume each class declares at most one method with name {\tt m}.
 
 Square brackets may be dropped in the absence of type parameters, as well as \true{} constraints and the surrounding curly braces.
 
-The body of a method is an expression {\tt e}. It is built from the value parameters {\tt x} of the method (including the receiver {\tt this}), field access expressions, constructor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
+The body of a method is an expression {\tt e}. It is built from the value parameters of the method (including the receiver {\tt this}), field access expressions, constructor calls, method invocations, and casts (written {\tt e}~\as~{\tt G}).
 
 The set of types includes class types {\tt C}[\tbar{A}], type parameters {\tt X}, dependent types ($\tt T\{c\}$), and is closed under existential quantification ($\exty{\tt x}{\tt T}{\tt U}$). Existential types arise in typing judgments but are not permitted in programs. Neither casts nor methods invocations are permitted in constraints. A value {\tt v} is of type {\tt C}[\tbar{A}] if it is an instance of class {\tt C}[\tbar{A}]; it is of type $\tt T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt c[v/self]$; it is of type $\exty{\tt x}{\tt T}{\tt U}$ if there exists some value {\tt w} of type {\tt T} such that {\tt v} is of type $\tt U[w/x]$. In other words, the set of values of $\exty{\tt x}{\tt T}{\tt U}$ is the union of the sets of values $\tt U[w/x]$ for all {\tt x} of type {\tt T}.
 
@@ -60,11 +58,11 @@ Following \FJ{}, we denote values by means of nested constructor calls, e.g.,
 
 The operational semantics, shown in Figures~\ref{fig:members} and~\ref{fig:sos}, is described as a reduction relation on expressions. It enforces a strict left-to-right call-by-value evaluation order.
 
-The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The fields and methods of value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}.
+The use of the subtyping relation to check that the cast is satisfied is the only reason the semantics has to keep track of type parameters. The existence of fields and methods of value $\new~{\tt C}[\tbar{A}](\tbar{v})$ do not depend on the types \tbar{A}. Moreover, even if the applicability of a method depend on the guard hence the type parameters, this is irrelevant to the operational semantics because we will establish that there is no need for a run-time check of the guards in well-typed programs. As a consequence, {\sc R-Invk} does not check method guards. 
+
 
 {\sc L-Field-I} prevents classes from overriding inherited fields. {\sc L-Method-I} makes sure method lookup goes bottom up, but does not enforce any overriding restrictions. These are not relevant to the operational semantics, hence are introduced later.
 
-{\sc R-Invk} does not check method guards. We will establish that there is no need for a run-time check in well-typed programs.
 
 {\sc R-Cast} checks that the static type of $\new~{\tt C}[\tbar{A}](\tbar{v})$ is a subtype of $\tt G$.
 
@@ -735,7 +733,8 @@ class Count(n:int) extends Object {
 
 
 \subsection{Results}
-The following results hold for all instantiations of \FXG on a constraint system $\cal X$ satisfying the prerequisites. Below, the typing contexts are always assumed to be consistent and well formed.
+\label{sec:results}
+The following results hold \FXG+primitive types. Below, the typing context is always assumed to be consistent and well formed.
 
 \begin{theorem}[Principal types]
 $\Gamma\vdash {\tt t}\ty{\tt T}$ and $\Gamma\vdash {\tt x}\ty{\tt U}$ then ${\tt T}={\tt U}$.
@@ -782,7 +781,12 @@ We need to make several additions to \FXG to make this work.
   (Constraint) & {\tt c} &{::=}& $\tt X\extends G$ \\
 \end{tabular}
 \end{center}
-\item We adopt a constraint system that can handle the new constraints. Here, we only have to require the constraint system to propagate the new constraints. There is no particular inference rule it must satisfy about them. The extension with structural subtyping constraint we discuss below gives a better example of that step.
+\item We adopt a constraint system that can handle the new constraints and add inference rules about entailment if necessary---none in this case (see structural subtyping constraints below for an example). We also deal with inconsistent bounds, here by means of:
+\infrule
+	{{\tt G}\neq{\tt H}}
+	{{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H}\vdashX\false}
+In this example, we only need to add entailment relations inside the constraint system. In general, we may want to derive \false{} from the typing judgments as well.
+
 \item We specify well-formedness conditions:
 \infrule
 	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
@@ -795,10 +799,6 @@ We need to make several additions to \FXG to make this work.
 \infrule[S-Bound]
 	{\cj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
-\item We deal with inconsistent bounds, for instance by means of:
-\infrule
-	{{\tt G}\neq{\tt H}}
-	{{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H}\vdash\false}
 \end{enumerate}
 
 The bounds we have just specified are very elementary. The X10 type system supports lower and upper bounds as well as a much more permissive notion of compatible bounds (i.e., bounds are compatible if they have a common subtype). But the critical observation here is that a more elaborate extension would proceed from the exact same methodology: first add constraints, then subtyping rules and lookup rules, finally worry about inconsistent constraints.
@@ -814,6 +814,7 @@ Formally, if $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,
 Formally, if $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parameters.
 \end{enumerate}
 
+Since, the two properties holds for this extension, all results from Section~\ref{sec:results} apply.
 
 
 \paragraph{Structural subtyping constraints}
@@ -821,7 +822,7 @@ To conclude this section, we illustrate this methodology with another language e
 
 This time, we actually need the constraint system to satisfy a new inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program.
 
-
+Rule {\sc KO-Struct} precludes constraints inconsistent with requirements 1 and 2 above; all results from Section~\ref{sec:results} apply.
 
 \eat{
 
