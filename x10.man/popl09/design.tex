@@ -152,15 +152,13 @@ its parameters implement an interface such as \xcd"Comparable".
 
 \subsubsection{Default values}
 
-\Xten's type system provides both reference types and value
-types.  An instance of a reference type is an object on the
-heap.  Variables of reference type may be \xcd"null".
-In contrast, an instance of a value type might live on the stack
-and can never be \xcd"null".  In languages like Java with
+Recall that \Xten's type system provides both reference types and value
+types.
+In languages like Java with
 primitive types, every type has a default value---\xcd"null" for
-reference types and \xcd"false" or \xcd"0" for primitive
+reference types, \xcd"false" or \xcd"0" for primitive
 types---used to initialize arrays of that type.
-In \Xten, some types do not have a default.  For example,
+In \Xten, some types do not have an obvious default value.  For example,
 \xcd"int{self>0}" does not contain the value \xcd"0".
 Consequently, a useful constraint is \xcd"T has default", which
 holds if the type \xcd"T" has a default value.
@@ -469,10 +467,9 @@ other methods with that name should be overridden as well.
 
 Finally, one could support a form of predicate
 dispatch~\cite{jpred}, selecting the method to invoke by
-\emph{dynamically} evaluating the method guard.  Predicate
-dispatch generalizes multi-method dispatch.  With type
-constraints, multi-method dispatch can be simulated.
-\todo{example}
+\emph{dynamically} evaluating the method guard. 
+With type constraints and predicate dispatch, multi-method
+dispatch can be implemented.  \todo{example}
 
 \subsection{Implementation}
 
@@ -496,6 +493,10 @@ parameters cannot be instantiated on primitive types and by
 using nominal subtyping bounds on types.
 These restrictions ensure type parameters can be represented
 with their type bound, or \xcd"Object" if unbounded.
+Since, in \Xten, it should be possible to instantiate a generic
+type on both value types and reference types, a homogeneous translation
+must box value types so that both kinds of types have the same
+representation.
 
 PolyJ~\cite{java-popl97} supports structural bounds and uses a
 homogeneous translation with adapter objects to allow generic
