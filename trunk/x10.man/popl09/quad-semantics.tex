@@ -749,16 +749,16 @@ If $\vdash {\tt e}\ty{\tt T}$ and {\tt e}
 reduces to a normal form ${\tt e'}$ then either ${\tt e'}$ contains a stuck cast sub-expression of the form ``${\tt v}~\as~{\tt G}$'' or ${\tt e'}$ is a value {\tt v} and there exists {\tt S} such that $\vdash {\tt v}\ty{\tt S}$. Moreover, in that case, ${\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$.
 \end{theorem}
 
-The proof of these results in available in a technical report, which is available for download at {\tt x10-lang.org}.
+The proof of these results is detailed in a technical report, which is available for download at {\tt x10-lang.org}.
 
-It relies on the following to pivotal lemmas:
+It relies on the following two pivotal lemmas:
 
 \begin{lemma}
 If $\Gamma,{\tt x}\ty{\tt T}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parameters.
 \end{lemma}
 
 \begin{lemma}
-If $\Gamma,{\tt x}\ty{\tt T}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll {\tt I}$.
+If $\Gamma,{\tt x}\ty{\tt T}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt T}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll {\tt I}$.
 \end{lemma}
 
 These lemmas makes it possible to separate the main body of the proof from the concrete treatment of type parameters. In the following section, we will further axiomatize type parameters. By making sure these language extensions preserve the two lemmas, we ensure the type system remain sound with minimal additions to the proof.
