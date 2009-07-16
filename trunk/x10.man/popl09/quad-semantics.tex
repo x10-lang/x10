@@ -865,7 +865,7 @@ Whatever the extension, in order to preserve the soundness of the type system an
 
 Formally, if $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll {\tt I}$. That is,
 
-\item If a variable of type parameter $\tt X$ is established to have two members with the same name then the must have the same signature.
+\item If a variable of type parameter $\tt X$ is established to have two members with the same name then they must have the same signature.
 
 Formally, if $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parameters.
 \end{enumerate}
