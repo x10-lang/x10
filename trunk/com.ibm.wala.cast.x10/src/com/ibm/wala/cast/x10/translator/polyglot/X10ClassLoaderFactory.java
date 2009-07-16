@@ -13,7 +13,7 @@ import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.translator.JavaFilteredSourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
-import com.ibm.wala.eclipse.util.EclipseProjectPath;
+import com.ibm.wala.ide.util.EclipseProjectPath;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
