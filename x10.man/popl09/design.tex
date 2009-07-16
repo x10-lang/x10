@@ -207,22 +207,22 @@ Consider the following subtypes of \xcd"List" with type property
 \item \xcd"List".  This type has no constraints on the type
 property \xcd"T".
 Any type that constrains \xcd"T"
-is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
-\xcd"List{true}".
+is a subtype of \xcd"List".
+\eat{
+The type \xcd"List" is equivalent to \xcd"List{true}".
 %
 For a \xcd"List" \xcd"v", the return type of the \xcd"get" method
 is \xcd"v.T".
 Since the property \xcd"T" is unconstrained,
 the caller can only assign the return value of \xcd"get"
 to a variable of type \xcd"v.T".
+}
 
 \item \xcd"List{T==float}".
 The type property \xcd"T" is bound to \xcd"float".
 For a final expression \xcd"v" of this type,
 \xcd"v.T" and \xcd"float" are equivalent types and can be used
 interchangeably.
-The syntax \xcd"List[float]" may be used as
-shorthand for \xcd"List{T==float}".
 
 \item \xcdmath"List{T$\extends$Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
@@ -231,19 +231,10 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcd"List{T==Set}") is a subtype of
 \xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
 \xcdmath"T$\extends$Collection".
-%
-If \xcd"v" has the type \xcdmath"List{T$\extends$Collection}",
-then the return type of \xcd"get" has type \xcd"v.T", which is an unknown but
-fixed subtype of \xcd"Collection"; the return value can be
-assigned into a variable of type \xcd"Collection".
 
 \item \xcdmath"List{T$\super$String}".  This type bounds the type property
 \xcd"T"
-from below.  For a \xcd"List" \xcd"v" of this type, any
-supertype of \xcd"String" may flow into a variable of type \xcd"v.T".
-The return type of the \xcd"get"
-method is known to be a
-supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
+from below. 
 \end{itemize}
 
 While expressive,
@@ -372,7 +363,7 @@ class Object(type:*){type <= Object} { $\dots$ }
 For any final path expression \Xcd{p}, the type
 $\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
 but statically unknown, run-time class referred to by \Xcd{p}.
-Scala's path-dependent types~\cite{scala-book} and J\&'s
+Scala's path-dependent types~\cite{scala} and J\&'s
 dependent classes~\cite{nqm06}
 take a similar approach.
 
@@ -433,33 +424,34 @@ compile-time error occurs.
 Another option is to allow the
 overloading: methods are resolved at compile-time, based on the
 constraints.  It is an error if a call could resolve to more
-than one method.  One consideration is whether to rule out overlapping
-methods (e.g., \xcd"m(int{self>=0})" and \xcd"m(int{self==1})")
-or to permit them and either to have the caller resolve the
-ambiguity (which might not be possible), or to prioritize the
-methods.
+than one method.  One question is whether to rule out overlapping
+methods (e.g., \xcd"m(int{self>=0})" and \xcd"m(int{self==1})"),
+or to permit them and have the caller resolve any
+ambiguities.
 
 \todo{Use type constraints, not value constraints}
 
-Allowing the overloading complicates method overriding by
-introducing partial overrides.
+Allowing the overloading on constraints can also complicate method
+overriding by introducing partial overrides.
 Consider:
 \begin{xtennoindent}
-class A {
-  def m(x:int{self<=0}) = ...; // 1
-  def m(x:int{self>=0}) = ...; // 2
-}
-class B {
-  def m(x:int{self==0}) = ...; // 3
-}
+  class A {
+    def m(x:int{self<=0}) = ...; // 1
+    def m(x:int{self>=0}) = ...; // 2
+  }
+  class B {
+    def m(x:int{self==0}) = ...; // 3
+  }
 \end{xtennoindent}
 \noindent
 \xcd"B.m"'s constraint on \xcd"x" partially overrides the
 constraint on both \xcd"m" methods of \xcd"A".  Given a variable
 \xcd"b" of type \xcd"B": \xcd"b.m(-1)" invokes \xcd"A.m" (method 1),
 \xcd"b.m(0)" invokes \xcd"B.m" (method 3), and \xcd"b.m(1)"
-invokes \xcd"A.m" (method 2).  Users can be confused by the
-semantics.
+invokes \xcd"A.m" (method 2).  Clients of \xcd"B" could get
+confused about which method gets invoked.  One option is to
+require that when a method with a given name is overridden, all
+other methods with that name should be overridden as well.
 
 Finally, one could support a form of predicate
 dispatch~\cite{jpred}, selecting the method to invoke by
@@ -474,8 +466,7 @@ Finally, we turn to the implementation of generics.
 To implement a generic class \xcd"C[X]" one can either generate a single 
 class for \xcd"C" in the target language (homogeneous translation)
 or generate one class per instantiation
-\xcdmath"C[T$_1$]",
-\xcdmath"C[T$_2$]", \dots,
+\xcdmath"C[T$_1$]", \dots,
 \xcdmath"C[T$_k$]" (heterogeneous translation).
 The former approach reduces the amount of generated code; the
 latter enables specialization based on the type arguments to
@@ -508,17 +499,17 @@ A compromise approach is to specialize for only a few parameter
 types, for example the primitive types, but to use a homogeneous
 translation otherwise.
 
-\Xten's generic implementation also does not erase type
-parameters.  This allows \Xten to support run-time casts to 
-generic types, including types instantiated on constrained
-types.
+Representing type variables at run-time allows the language
+to support run-time casts to generic types,
+including possibly types instantiated on constrained types.
+
 With
 non-generic constrained types, casts like
 \xcd"r"~\xcd"as"~\xcd"Region{rank==k}" can be implemented by
 checking the run-time class of the value being
 cast---\xcd"r"~\xcd"instanceof"~\xcd"Region"---and then
 evaluating the constraint---\xcd"r.rank==k".
-
+%
 However, the issue is more subtle with generic casts.
 For instance, to implement
 \xcd"a"~\xcd"as"~\xcd"Array[int{self>=0}]"
@@ -528,46 +519,6 @@ the \xcd"Array"'s type parameter is equivalent to
 entailment check, 
 breaking the phase distinction between
 compile time and run time for constraint solving.
-
-\subsubsection{Run-time casts}
-\label{sec:casts}
-
-While constraints are normally solved at compile time, 
-constraints can be evaluated at run time by using casts.
-The expression 
-\xcd"xs as List{length==n}" checks not only 
-that \xcd"xs"
-is an instance of
-the \xcd"List" class, but also that \xcd"xs.length" equals \xcd"n".
-A \xcd"ClassCastException" is thrown if the check fails.
-%
-In this example, the test of the constraint does not require
-run-time constraint
-solving; the constraint can be checked by simply
-evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
-
-However, the situation is more complicated when casting to a
-generic type when co- or contravariant
-type parameters are permitted.  Consider a declaration of class
-\xcd"C" with a definition-site covariant type parameter \xcd"X":
-\begin{xtenmath}
-class C[+X](x: X) { }
-\end{xtenmath}
-\noindent
-Because the static type of an expression may involve one or more
-type parameters,
-checking if an expression is an instance of, say, \xcd"C[A{c}]"
-may require a run-time constraint entailment test.  That is,
-if a value \xcd"v"
-has run-time type \xcd"C[B{d}]", then because \xcd"C"'s
-parameter is covariant,
-\xcd"v" \xcd"as" \xcd"C[A{c}]" must check that \xcd"B" is a subclass of
-\xcd"A" and that \xcd"d" entails \xcd"c".\footnote{If the
-\xcd"X" parameter were declared invariant, the cast would only
-need to check that \xcd"A" and \xcd"B" are the same class and
-that \xcd"d" and \xcd"c" are equivalent, which might be
-accomplished by representing constraints at run-time in a
-canonical form.}
 
 One approach is to restrict the language 
 to rule out casts to type parameters 
