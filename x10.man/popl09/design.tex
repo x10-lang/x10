@@ -566,9 +566,7 @@ generic type when co- or contravariant
 type parameters are permitted.  Consider a declaration of class
 \xcd"C" with a definition-site covariant type parameter \xcd"X":
 \begin{xtenmath}
-class C[+X](x: X) {
-   def this(y: X) { property(y); }
-}
+class C[+X](x: X) { }
 \end{xtenmath}
 \noindent
 Because the static type of an expression may involve one or more
