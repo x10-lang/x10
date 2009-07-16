@@ -150,7 +150,9 @@ We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\
 In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} entails \false{} if {\tt C} and {\tt D} are not related by the subclassing relation.
 
 
-\paragraph{2. Well-formedness.} The rules of well-formedness are specified in Figure~\ref{fig:well}. A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$ iff its free variables are declared in $\Gamma$ and all the type parameters of all the generic classes in $\alpha$ satisfy the guards of these classes. Notice this depends on $\cal X$ but not on any typing judgments. We say a context $\Gamma$ is well-formed if each $\alpha$ in $\Gamma$ is well-formed w.r.t.\ the sequence of $\Gamma$ to its left, that a judgment is well-formed iff its context is well-formed and the consequent is well-formed w.r.t.\ the context.
+\paragraph{2. Well-formedness.} A constraint term, constraint, or type $\alpha$ is well formed in context $\Gamma$ iff its free variables are declared in $\Gamma$ and all the type parameters of all the generic classes in $\alpha$ satisfy the guards of these classes. Notice this depends on $\cal X$ but not on any typing judgments. The rules of well-formedness of terms and constraints are straightforward and omitted those for types are specified in Figure~\ref{fig:well}. 
+
+We say a context $\Gamma$ is well-formed if each $\alpha$ in $\Gamma$ is well-formed w.r.t.\ the sequence of $\Gamma$ to its left, that a judgment is well-formed iff its context is well-formed and the consequent is well-formed w.r.t.\ the context.
 
 In all inference rules presented below (except for {\sc OK-Method} and {\sc OK-Class}), we make the implicit assumption that every lookup, subtyping, or typing judgment is well-formed. If it is not then the rule cannot be used.
 
