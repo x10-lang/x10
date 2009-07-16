@@ -1,0 +1,165 @@
+\todo{emph interactions with data constraints}
+
+\subsection{Type variables}
+
+To permit genericity, variables \Xcd{X} must be admitted over types.
+Languages such as Java~\cite{Java3} and
+Scala~\cite{scala} introduce type parameters on classes
+and methods.  Constrained types suggest another approach:
+generalizing properties to include type-valued
+properties---object members initialized at construction
+time with concrete types.
+
+Constraints can be used to specify conditions on such parameters.
+In class-based OO languages such as Java,
+types are equipped with a partial
+order (the \emph{subtyping} order) generated from the user program
+through the ``\Xcd{extends}'' relationship.  Further, each type is
+associated with member fields and methods, each with their
+name and signature.
+This motivates a very natural constraint system on types.  For a type
+variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
+$\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
+this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
+
+As an example, consider the simple \xcd"Pair"
+class, shown in Figure~\ref{fig:vector}.
+The \xcd"Pair" class has type parameters \xcd"X" and \xcd"Y" and
+properties \xcd"x" and \xcd"y" of the component types (line 1).
+
+\begin{figure}
+{\footnotesize
+\begin{numberedxten}
+class Pair[X,Y](x: X, y: Y) {
+  def reduce[Z](f: (X,Y)=>Z): Z = f(x,y);
+
+  def print(){X $\extends$ Printable, Y $\extends$ Printable} {
+      x.print();
+      Console.OUT.print(", ");
+      y.print();
+    }
+  }
+}
+\end{numberedxten}}
+\caption{A Pair class in \Xten}
+\label{fig:vector}
+\end{figure}
+
+Methods in \Xten may have type parameters.
+For instance, the \xcd"reduce" method (line 2)
+has a type parameter \xcd"Z" and takes a function that maps
+\xcd"X" and \xcd"Y" to \xcd"Z".
+A parametrized method is invoked by giving type arguments before the
+expression arguments, e.g., \xcd"v.reduce[int](f)".\footnote{In \Xten, actual type
+arguments can be inferred from the types of the value arguments.  However, type
+inference is out of the scope of this paper.}
+
+Method and constructors
+may also have additional
+constraints, or \emph{guards}, on their parameters.  A
+guard must be satisfied by the caller of the method and
+holds throughout the body.  Guards may be constraints over both
+values and types, and may refer to both the method's parameters
+and to other final variables or types in scope.
+For instance, the \xcd"print" method (lines 18--24) can be invoked only if
+the type parameters are instantiated on types that implement
+\xcd"Printable".  Since the guard holds throughout the body of the
+method, the \xcd"print" method can be invoked on the elements.
+This feature is similar to optional methods in CLU~\cite{clu} and to generlized type constraints in C$\sharp$~\cite{emir06}.
+Constraints on types can specify either subtype (\xcd"<="),
+supertype (\xcd">="), or equality bounds (\xcd"==").
+
+We considered other constraints on types as well.
+For instance, one should
+be able to require that a type have a
+particular member---a field with a given name and type, or a method
+with a given name and signature.
+We introduce the constraints 
+\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
+\Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+These
+constraints allow one to define \xcd"Pair.print" as:
+\begin{xtenmathnoindent}
+  def print(){X has print(): void, Y has print(): void} {
+    x.print();
+    Console.OUT.print(", ");
+    y.print();
+  }
+\end{xtenmathnoindent}
+
+
+
+
+
+
+properties vs. parameters
+
+\subsection{Type constraints}
+
+structural vs. nominal
+
+use- vs. def site variance
+
+X{x instanceof self}
+
+X{self.f instanceof T}
+
+
+\subsection{Overloading and dispatch}
+
+overloading on constraints
+
+predicate dispatch
+
+\begin{xtennoindent}
+class List[T] {
+  head: T;
+  tail: List[T];
+
+  def print() {T <= Printable} {
+    head.print();
+    tail.print();
+  }
+
+  def print() {
+    print("unprintable");
+  }
+}
+\end{xtennoindent}
+
+
+\subsection{Implementation}
+
+erasure
+
+parameterized closures
+
+homo- or heterogeneous translation
+
+        complicated by struct types
+
+run-time constraint solving
+
+Unlike Java's generics, the \Xten does not erase type
+parameters.  This allows \Xten to support run-time casts to 
+generic types, including types instantiated on constrained
+types.
+With
+non-generic constrained types, casts like \xcd"r" \xcd"as"
+\xcd"Region{rank==k}" can be implemented by
+checking the run-time class of the value being cast---\xcd"r" \xcd"instanceof" \xcd"Region"---and then
+evaluating the constraint---\xcd"r.rank==k".
+
+However, the issue is more subtle with generic casts.
+For instance, to implement
+\xcd"a" \xcd"as" \xcd"Array[int{self>=0}]"
+one must check at run time that the concrete type used to instantiate
+the \xcd"Array"'s type parameter is equivalent to
+\xcd"int{self>=0}".  This check could involve a run-time
+entailment check, 
+breaking the phase distinction between
+compile time and run time for constraint solving.
+
+\subsection{X10 design decisions}
+
+
