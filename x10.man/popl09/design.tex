@@ -1,20 +1,28 @@
+\Xten{} is a class-based object-oriented language.
+that provides both dependent and generic types.
+The language has a sequential core similar to Java or Scala, but
+also
+constructs for concurrency and distribution.
+This section describes the design of generics for \Xten,
+including several alternative designs.
+
+%\footnote{We plan
+%to support traits in a future version of the language.}
 \todo{emph interactions with data constraints}
 
 \subsection{Type constraints}
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
-The choice of type variables is discussed below.
+The choice of type variables is discussed below.  We assume here
+that classes have a means of introducing new type variables.
+For instance,
+the class \xcd"List" introduces a type variable \xcd"X"
+representing the list's element type.
 Here, we ask: how should type variables be constrained?
+\Xten already supports constraints over values, so it is natural
+to extend these to constraints over types.
 
-structural vs. nominal
-
-use- vs. def site variance
-
-X{x instanceof self}
-
-X{self.f instanceof T}
-
-Constraints can be used to specify conditions on such parameters.
+\paragraph{Subtyping and equality constraints.}
 In class-based OO languages such as Java,
 types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
@@ -25,55 +33,133 @@ This motivates a very natural constraint system on types.  For a type
 variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
 $\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
 this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
+Constraints on types can specify either subtype (\xcd"<="),
+supertype (\xcd">="), or equality bounds (\xcd"==").
 
+Constraints occur in several places in the \Xten syntax.  They
+are of course permitted in constrained types \xcd"C{c}".
+Constraints may also be used as \emph{class invariants}, 
+which are constraints on the class's properties and other
+final variables in scope.
+The class invariant must be established by the class's
+constructor and subsequently holds for all instances of the
+class.
 
+Using subtyping constraints in the class invariant provides a
+means to bound the type variables introduced by the class
+declaration.  Subtyping constraints in constrained types
+\xcd"C{c}", can bound
+type-valued members of the base type \xcd"C".
 
-For example, the \xcd"Vector" class of Figure~\ref{fig:vector}
-could be written as shown in Figure~\ref{fig:vprop}.
-The class has a type-valued property \xcd"T" and a value property \xcd"len".
-\begin{figure}
+Methods and constructors
+may also have additional
+constraints, or \emph{guards}, on their parameters.  A
+guard must be satisfied by the caller of the method and
+will hold throughout its body.  Type constraints used in the
+method guard restrict the types of the arguments or the method
+receiver.  
+This feature is similar to optional methods in CLU~\cite{clu} and to generlized type constraints in C$\sharp$~\cite{emir06}.
+
+For instance, given a list of \xcd"T", one could define a
+method \xcd"print" with a guard that requires that \xcd"T" be a
+subtype of \xcd"Printable":
+\begin{xtenmathnoindent}
+  def print(){T <= Printable} {
+    head.print();
+    Console.OUT.print(" ");
+    tail.print();
+  }
+\end{xtenmathnoindent}
+This constraint ensures that the \xcd"head" field of type
+\xcd"T" has a \xcd"print()" method.
+
+\paragraph{Structural consraints.}
+We considered other constraints on types as well.
+One should
+be able to require that a type have a
+particular member---a field with a given name and type, or a method
+with a given name and signature.
+We introduce the constraints 
+\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
+\Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+These
+constraints allow one to define \xcd"List.print" as:
+\begin{xtenmathnoindent}
+  def print(){T has print(): void} {
+    head.print();
+    Console.OUT.print(" ");
+    tail.print();
+  }
+\end{xtenmathnoindent}
+
+Structural constraints on types are found in many languages.
+For instance,
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
+%
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence is structural
+rather than nominal as in object-oriented languages of the C
+family (e.g., C++, Java, and \Xten{}).
+Unity~\cite{malayeriIntegrating08}
+is a Java-like language with both nominal and structural subtyping.
+
+In the class invariant, a structural constraint can bound the
+class's type variables, similarly to 
+the language PolyJ~\cite{java-popl97}, which allows type
+parameters to be
+bounded using
+structural \emph{where clauses}~\cite{where-clauses}.
+For example, a sorted list class
+could be written as follows in PolyJ:
 {
 \begin{xtennoindent}
-class List(T: *, len: int) {
-  val data: Rail(T);
-
-  def this(S: *, n: int, init: (int) => T):
-      Vector{self.T==S,self.len==n} {
-    super();
-    property(S, n);
-    ...
-  }
-
-  def map(S: *, f: T => S):
-      Vector{self.T==S,self.len==this.len} { ... }
-
-  def get(i: int{0 <= self, self < len}): this.T { ... }
-
+class SortedList[T]
+    where T {int compareTo(T)} {
+  void add(T x) {... x.compareTo(y) ...}
   ...
 }
-\end{xtennoindent}
+\end{xtennoindent}}
+The \xcd"where" clause states that the type parameter
+\xcd"T" must have a
+method \xcd"compareTo" with the given signature.
+\xcd"SortedList" can be instantiated on any type
+that provides the method with the given signature.
+With nominal bounds, \xcd"SortedList" could only require that
+its parameters implement an interface such as \xcd"Comparable".
+
+\paragraph{Defaults.}
+\Xten's type system provides both reference types and value
+types.  An instance of a reference type is an object on the
+heap.  Variables of reference type may be \xcd"null".
+In contrast, an instance of a value type might live on the stack
+and can never be \xcd"null".  In languages like Java with
+primitive types, every type has a default value---\xcd"null" for
+reference types and \xcd"false" or \xcd"0" for primitive
+types---used to initialize arrays of that type.
+In \Xten, some types do not have a default.  For example
+\xcd"int{self>0}" does not contain the value \xcd"0".
+Consequently, a useful constraint is \xcd"T has default", which
+holds if the type \xcd"T" has a default value.
+
+\paragraph{instanceof.}
+Lastly, we consider constraints of the form \xcd"x" \xcd"instanceof" \xcd"T".
+By relating types and values in a single constraint, 
+these constraints provide considerable expressive power.
+For instance, 
+consider the class declaration:
+\begin{xtennoindent}
+class Cell {
+  var value: Object;
+  def increment() {value instanceof Number} { value += 1; }
 }
-\caption{Vector example, with type properties}
-\label{fig:vprop}
-\end{figure}
+\end{xtennoindent}
+The \xcd"increment" method can be called only if the value
+stored in the \xcd"Cell" is an instance of \xcd"Number".
 
-The constructor of \xcd"Vector" takes an additional type-valued
-argument \xcd"S", which is used to initialize the type property
-\xcd"T".  The \xcd"map" method takes a type argument \xcd"S" among its
-formal parameters and returns a \xcd"Vector" whose \xcd"T"
-property is constrained to be equal to \xcd"S".
-
-Subtyping constraints on type properties may be used to
-provide \emph{use-site variance} constraints.
-Use-site variance based on structural virtual types was proposed by
-Thorup and Torgerson~\cite{unifying-genericity} and extended for
-parametrized type systems by Igarashi and
-Viroli~\cite{variant-parametric-types}.  The latter type system lead
-to the development of wildcards in
-Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
-type properties
-have similar expressive power.
-
+\xcd"instanceof" constraints can be used to build intersection
+types, e.g., \xcd"Object{self instanceof A, self instanceof B}"
 
 \subsection{Type variables}
 \label{sec:type-properties}
@@ -98,8 +184,17 @@ can be used in constrained types through the variable \xcd"self".
 This immediately suggests use-site constraints on type
 properties.
 The type of a list of integers, say, can be written as
-\xcd"List{self.T==int}".  Subtyping constraints, then, provide
-similar power to Java's wildcards~\cite{adding-wildcards,Java3}.
+\xcd"List{self.T==int}".  
+Subtyping constraints, then, may be used to
+provide \emph{use-site variance} constraints.
+Use-site variance based on structural virtual types was proposed by
+Thorup and Torgerson~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type system lead
+to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
+type properties
+have similar expressive power.
 
 Consider the following subtypes of \xcd"List":
 \begin{itemize}
@@ -444,39 +539,6 @@ expression arguments, e.g., \xcd"v.reduce[int](f)".\footnote{In \Xten, actual ty
 arguments can be inferred from the types of the value arguments.  However, type
 inference is out of the scope of this paper.}
 
-Method and constructors
-may also have additional
-constraints, or \emph{guards}, on their parameters.  A
-guard must be satisfied by the caller of the method and
-holds throughout the body.  Guards may be constraints over both
-values and types, and may refer to both the method's parameters
-and to other final variables or types in scope.
-For instance, the \xcd"print" method (lines 18--24) can be invoked only if
-the type parameters are instantiated on types that implement
-\xcd"Printable".  Since the guard holds throughout the body of the
-method, the \xcd"print" method can be invoked on the elements.
-This feature is similar to optional methods in CLU~\cite{clu} and to generlized type constraints in C$\sharp$~\cite{emir06}.
-Constraints on types can specify either subtype (\xcd"<="),
-supertype (\xcd">="), or equality bounds (\xcd"==").
-
-We considered other constraints on types as well.
-For instance, one should
-be able to require that a type have a
-particular member---a field with a given name and type, or a method
-with a given name and signature.
-We introduce the constraints 
-\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
-\Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
-These
-constraints allow one to define \xcd"Pair.print" as:
-\begin{xtenmathnoindent}
-  def print(){X has print(): void, Y has print(): void} {
-    x.print();
-    Console.OUT.print(", ");
-    y.print();
-  }
-\end{xtenmathnoindent}
-
 
 
 
@@ -543,4 +605,12 @@ compile time and run time for constraint solving.
 
 \subsection{X10 design decisions}
 
+Nominal bounds.
+
+Use closures if you want structural bounds.
+
+Type variables: parameters.  Properties are just too unfamiliar.
+Usability outweights expressive power. 
+
+Variance: def site.
 
