@@ -1,6 +1,16 @@
-\begin{lem}
+In the following lemmas and theorems, $\Gamma$ is assumed to well formed.
+
+\begin{lem}\label{uni}
 If $\Gamma,x:T\vdash x~{\tt has}~I,x~{\tt has}~J$ where $I$ and $J$ are both fields or both methods with the same name then $I=J$ modulo alpha-renaming of the type and value parameters.
 \end{lem}
+
+\begin{proof}
+By induction on the structure of $T$.
+\item If $T=U\{c\}$ then I and J must be both obtained by rule {\sc H-Dep}, hence the result by the induction hypothesis.
+\item If $T=\exists x:U.V$ then I and J must be both obtained by rule {\sc H-Exists}, hence the result by the induction hypothesis.
+\item If $T=X$ then T has no fields and no methods in FXG.
+\end{proof}
+
 
 \begin{lem}
 If $\Gamma,x:T\vdash x<:G$ and $\Gamma,x:G\vdash x~{\tt has}~I$ then there exists $J$ such that $\Gamma,x:T\vdash x~{\tt has}~J,J \ll I$.
@@ -8,12 +18,12 @@ If $\Gamma,x:T\vdash x<:G$ and $\Gamma,x:G\vdash x~{\tt has}~I$ then there exist
 
 
 
-\begin{lem}\label{uni}
-If $\Gamma$ is well formed and $\Gamma\vdash e:T,e:S$ then $S=T$.
-\end{lem}
+\begin{thm}\label{pri}
+If $\Gamma\vdash e:T,e:S$ then $S=T$.
+\end{thm}
 
-\begin{proof}[Sketch]
-There is exactly one typing rule for each kind of expression. Each type ``{\tt has}'' at most one field with name $f$ and method with name $m$ (modulo alpha-renaming of the type parameters and formals).
+\begin{proof}
+By induction on the structure of $e$. There is exactly one typing rule for each kind of expression. Moreover, by Lemma~\ref{uni}, each type ``{\tt has}'' at most one field with name $f$ and method with name $m$, hence there is only one way the {\sc T-Field} and {\sc T-Invk} rules can be used to respectively type a field access or a method invocation.
 \end{proof}
 
 \begin{lem}\label{sub}

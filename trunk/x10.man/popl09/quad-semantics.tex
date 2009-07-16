@@ -258,6 +258,48 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \vspace{-\bigskipamount}
 \begin{minipage}{.24\textwidth}
 \quad\typicallabel{XXXX}
+\infax[W-Object]
+  {\wj{}{\Object}}
+
+\infax[W-Type]
+	{\wj{{\tt X}\ty*}{\tt X}}
+\end{minipage}%
+\begin{minipage}{.38\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[W-Dep]
+  {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma,\self\ty{\tt T}}{\tt c}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
+\end{minipage}%
+\begin{minipage}{.38\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[W-Exists]
+  {\wj{\Gamma}{\tt T} \andalso \wj{\Gamma,{\tt x}\ty{\tt T}}{\tt U}}
+	{\wj{\Gamma}{\exty{\tt x}{\tt T}{\tt U}}}
+\end{minipage}%
+
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[W-Class]
+  {\cdecl\in{\tt P} \andalso
+    \wj{\Gamma}{\tbar{A}} \andalso
+    \cj{\tbar{X}\ty*}{{\tt c}} \andalso 
+    \theta=\tbar{A}/\tbar{X} \andalso
+    \sigma(\Gamma)\vdashX{\tt c}\theta}
+  {\wj{\Gamma}{\tt C}[\tbar{A}]}
+\end{minipage}%
+\caption{\FXG well-formedness.}
+\label{fig:well}
+\end{figure*}
+
+
+
+
+
+\eat{
+\begin{figure*}
+\vspace{-\bigskipamount}
+\begin{minipage}{.24\textwidth}
+\quad\typicallabel{XXXX}
 \infax[W-Var]
   {\tj{{\tt x}\ty{\tt T}}{\tt x}}
 
@@ -315,7 +357,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \caption{\FXG well-formedness.}
 \label{fig:well}
 \end{figure*}
-
+}
 
 \begin{figure*}
 \vspace{-\bigskipamount}
@@ -598,9 +640,10 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \begin{minipage}{.55\textwidth}
 \vspace{-\bigskipamount}
 \quad\typicallabel{XXXXXX}
-\infrule[X-Struct]
-  {\methods({\tt C}[\tbar{A}])\ni\minst{Y}{y}{G}{c}{H}{e}}
-  {\vdashS{\tt C}[\tbar{A}]~\underline\has~\msign{Y}{y}{G}{c}{H}}
+\infrule[H-Struct]
+  {\vdash{\tt X}~\underline\has~{\msign{Y}{y}{G}{c}{H}} \andalso
+    \theta={\tt x},\tbar{Z},\tbar{z}/\this,\tbar{Y},\tbar{y}}
+  {\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~\msign{Z}{z}{G\theta}{c\theta}{H\theta}}
 \end{minipage}%
 
 \begin{minipage}{\textwidth}
@@ -610,12 +653,16 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	  \cj{\Gamma,\this\ty{\tt X},\tbar{Y}\ty*,\tbar{y}\ty\tbar{G}}{\tt c} \andalso
 	  \wj{\Gamma,\this\ty{\tt X},\tbar{Y}\ty*,\tbar{y}\ty\tbar{G},{\tt c}}{\tbar{G},\tbar{H}}}
 	{\cj{\Gamma}{{\tt X}~\underline\has~\msign{Y}{y}{G}{c}{H}}}
+\end{minipage}%
 
-\infrule[H-Struct]
-  {\vdash{\tt X}~\underline\has~{\msign{Y}{y}{G}{c}{H}} \andalso
-    \theta={\tt x},\tbar{Z},\tbar{z}/\this,\tbar{Y},\tbar{y}}
-  {\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}~\has~\msign{Z}{z}{G\theta}{c\theta}{H\theta}}
-
+\begin{minipage}{.4\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[X-Struct]
+  {\methods({\tt C}[\tbar{A}])\ni\minst{Y}{y}{G}{c}{H}{e}}
+  {\vdashS{\tt C}[\tbar{A}]~\underline\has~\msign{Y}{y}{G}{c}{H}}
+\end{minipage}%
+\begin{minipage}{.6\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[KO-Struct]
 	{\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~\msign{Y}{y}{G}{c}{H}\comma{\tt x}~\has~\msign{Y}{y}{G'}{c'}{H'} \\
 	  \tbar{G}\neq\tbar{G'} ~\rm{or}~
@@ -633,13 +680,17 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 
 \paragraph{4. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
 Because we deal with dependent and existential types, we choose a somewhat unconventional notation for the subtyping relation that makes formal developments less verbose. Rather than judgments of the form $\Gamma\vdash{\tt S}\subtype{\tt T}$, we consider judgments of the form $\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype{\tt T}$ which permit {\tt T} to depend on {\tt x}, hence make codependent types easier to work with. In fact, one could define classical subtyping as the following:
+\vspace{-\medskipamount}
 \infrule
 	{\wj{\Gamma}{\tt S} \andalso \Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T} \andalso {\tt x}~\rm not~free~in~{\tt T}}
 	{\Gamma\vdash{\tt S}\subtype{\tt T}}
+\vspace{-\medskipamount}
 or derive our relation from subtyping:
+\vspace{-\medskipamount}
 \infrule
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt S}\{\self=={\tt x}\}\subtype{\tt T}}
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T}}
+\vspace{-\medskipamount}
 
 The intent of the subtyping relation is to combine subclassing and constraint entailment: type ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt D}[\tbar{A}]\{{\tt c}\}$ iff {\tt C} is a subclass of {\tt D} and {\tt c} entails {\tt d} in the underlying constraint system. In the formal model, subtyping is invariant in the type parameters, that is, ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt C}[\tbar{B}]\{{\tt c}\}$ only if $\tbar{A}=\tbar{B}$.
 
@@ -780,23 +831,31 @@ We need to make several additions to \FXG to make this work.
 \end{tabular}
 \end{center}
 \item We adopt a constraint system that can handle the new constraints and add inference rules about entailment if necessary---none in this case (see structural subtyping constraints below for an example). We also deal with inconsistent bounds, here by means of:
+\vspace{-\medskipamount}
 \infrule
 	{{\tt G}\neq{\tt H}}
 	{{\tt X}\extends{\tt G}\comma{\tt X}\extends{\tt H}\vdashX\false}
+\vspace{-\medskipamount}
 In this example, we only need to add entailment relations inside the constraint system. In general, we may want to derive \false{} from the typing judgments as well.
 
 \item We specify well-formedness conditions:
+\vspace{-\medskipamount}
 \infrule
 	{\wj{\Gamma}{\tt X} \andalso \wj{\Gamma}{\tt G}}
 	{\cj{\Gamma}{{\tt X}\extends{\tt G}}}
+\vspace{-\medskipamount}
 \item We specify subtyping:
-\infrule[S-Bound]
+\vspace{-\medskipamount}
+\infrule
 	{\cj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
+\vspace{-\medskipamount}
 \item We specify lookup:
-\infrule[S-Bound]
+\vspace{-\medskipamount}
+\infrule
 	{\cj{\Gamma}{{\tt X}\extends{\tt G}} \andalso \Gamma\vdash {\tt X}\extends {\tt G}}
 	{\Gamma,{\tt x}\ty{\tt X}\vdash {\tt x}\subtype {\tt G}}
+\vspace{-\medskipamount}
 \end{enumerate}
 
 The bounds we have just specified are very elementary. The X10 type system supports lower and upper bounds as well as a much more permissive notion of compatible bounds (i.e., bounds are compatible if they have a common subtype). But the critical observation here is that a more elaborate extension would proceed from the exact same methodology: first add constraints, then subtyping rules and lookup rules, finally worry about inconsistent constraints.
