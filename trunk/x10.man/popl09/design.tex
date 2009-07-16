@@ -181,7 +181,8 @@ The \xcd"equals" method can be called with any object
 that is a supertype of \xcd"C".
 
 \xcd"instanceof" constraints can be used to build intersection
-types, e.g., \xcd"Object{self instanceof A, self instanceof B}".
+types, e.g., \xcd"Object{self instanceof A,self instanceof B}"
+should be a subtype of \xcd"A" and \xcd"B"..
 
 \subsection{Type variables}
 \label{sec:type-properties}
@@ -191,7 +192,7 @@ Languages such as Java~\cite{Java3} and
 Scala~\cite{scala} introduce \emph{type parameters} on classes
 and methods.
 An alternative approach, used by BETA~\cite{beta}, 
-Scala~\cite{scala}, and other languages is to use type members.
+Scala~\cite{scala}, and other languages is, to use type members.
 In \Xten, one can
 generalize properties to include type-valued properties:
 A \emph{type property}
