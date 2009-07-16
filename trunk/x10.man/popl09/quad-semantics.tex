@@ -123,24 +123,21 @@ strips out all type information from the $\Gamma$. It also uses
 information in the program {\tt P} to translate constraints in the source
 program into constraints understood by the constraint system.
  
-%
-\begin{center}
-\begin{tabular}{ll}
-$\sigma(\epsilon)={\tt true}$\\
+\begin{quote}
+\noindent $\sigma(\epsilon)={\tt true}$\\
 $\sigma(\new~{\tt C}[\tbar{A}](\tbar{t}))={\tt C}(\tbar{f}=\tbar{t})$ 
-& where $\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{G}$\\
+ where $\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{G}$\\
 $\sigma({\tt t.f}) = {\tt t.f}$\\
-$\sigma({\tt f}(\tbar{t}))={\tt f}(\sigma(\tbar{t}))$ & for all other functions $f$\\
+$\sigma({\tt f}(\tbar{t}))={\tt f}(\sigma(\tbar{t}))$  for all other functions $f$\\
 $\sigma({\tt t==s})=\sigma({\tt t})==\sigma(\tt {s})$\\
-$\sigma({\tt p}(\tbar{t}))={\tt p}(\sigma(\tbar{t}))$ & for all other predicates $p$\\
+$\sigma({\tt p}(\tbar{t}))={\tt p}(\sigma(\tbar{t}))$  for all other predicates $p$\\
 $\sigma({\tt c},\Gamma) = \sigma(\tt c), \sigma(\Gamma)$\\
 $\sigma({\tt X}\ty*, \Gamma)=\sigma(\Gamma)$\\
 $\sigma({\tt x}\ty{\tt C}[\tbar{A}], \Gamma)=\sigma(\Gamma)$\\
 $\sigma({\tt x}\ty{\tt X}, \Gamma)=\sigma(\Gamma)$\\
-$\sigma({\tt x}\ty{\tt T\{c\}}, \Gamma)={\tt c}\theta,\sigma({\tt x}\ty{\tt T},\Gamma)$ & where $\theta={\tt x}/\self$\\
-$\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\tt T}, {\tt x}\ty{\tt U}\theta,\Gamma)$ & where $\theta={\tt z}/{\tt y}$\\
-\end{tabular}
-\end{center}
+$\sigma({\tt x}\ty{\tt T\{c\}}, \Gamma)={\tt c}\theta,\sigma({\tt x}\ty{\tt T},\Gamma)$  where $\theta={\tt x}/\self$\\
+$\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\tt T}, {\tt x}\ty{\tt U}\theta,\Gamma)$  where $\theta={\tt z}/{\tt y}$
+\end{quote}
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
