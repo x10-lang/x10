@@ -107,30 +107,34 @@ A program is well typed iff all its classes are. We now describe in more detail 
 
 
 \paragraph{1. Constraints.}
-The type system of the \FXG language is parametrized in the constraint system $\cal X$ that is used to decide constraint entailment. $\cal X$ must be expressive enough to handle the constraints permitted by the \FXG grammar and provide judgments of the form $\tbar{c} \vdashX {\tt d}$.
 
-A minimal $\cal X$ would simply have function symbols ``$.{\tt f}$''$\,:{\tt t}\mapsto{\tt t}.{\tt f}$ and ``$\new~{\tt C}[\tbar{A}]$''$\,:\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$ and satisfy\footnote{Formally, we consider a constraint system generator $\mathcal{X}$ that given a program {\tt P} produces a constraint system $\mathcal{X}_{\tt P}$ that satisfies {\sc X-Sel}.} the {\sc X-Sel} inference rule of Figure~\ref{fig:object}. TODO: axiomatization.
+{}\FXG{} is parametrized by an {\em object constraint system} $\cal
+X$.  Such a constraint system is required to have terms {\tt t} of the
+form ${\tt C}(\tbar{f}=\tbar{t})$ and {\tt t.f}, and an equality
+predicate on such terms. (It may have other predicates and terms whose interpretation is left unconstrained, see Section~\ref{sec:Q}.)
+The entailment relation for $\cal X$ must respect the interpretation of
+(a)~${\tt C}(\tbar{f}=\tbar{t})$ as a finite tree with root
+labeled with {\tt C}, $i$th branch labeled with $\tt f_i$ and leading to
+$\tt t_i$, and (b)~{\tt t.f} as selection of the child labeled
+$\tt f$ for the tree $\tt t$.\footnote{A complete axiomitazation of the algebra of finite trees is provided in \cite{maher-tree}.}
 
-\eat{
- and decide about the term equality
-
-. Formally, $\cal X$ has variables, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$ an
-
-$\cal X$ axiomatization...
-family is defined over a given untyped input constraint system that is required to support the constraint permitted by the \FXGL{L} grammar---\true{}, \false{}, conjunction, and equality constraints for \FXGL{X}.
-
-Formally, $\cal X$ %has nullary predicates $\true$ and $\false$, a 2-ary conjunction predicate over constraints, a 2-ary equality predicate over terms. Moreover, $\cal X$ 
-has variable symbols $\tt x$, unary function symbols $.{\tt f}\ty{\tt t}\mapsto{\tt t}.{\tt f}$ and n-ary function symbols $\new~{\tt C}[\tbar{A}]\ty\ty\tbar{t}\mapsto\new~{\tt C}[\tbar{A}](\tbar{t})$.
-
-Equality is to be understood as structural equality over terms. In particular, $\new~{\tt C}[\tbar{G}](\tbar{v})==\new~{\tt C}[\tbar{G}](\tbar{w})$ holds iff $\tbar{v}==\tbar{w}$.
-}
-
-In order to expose the current typing context to $\cal X$, we define the {\em constraint projection} $\sigma(\Gamma)$ that, in essence, strips out all type information from the $\Gamma$.
+In order to expose the current typing context to $\cal X$, we define
+the {\em constraint projection} $\sigma(\Gamma)$ that, in essence,
+strips out all type information from the $\Gamma$. It also uses
+information in the program $P$ to translate constraints in the source
+program into constraints understood by the constraint system.
+ 
 %
 \begin{center}
 \begin{tabular}{ll}
 $\sigma(\epsilon)={\tt true}$\\
-$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$\\
+$\sigma(\new~{\tt C}[\tbar{A}](\tbar{t}))={\tt C}(\tbar{f}=\tbar{t})$ 
+& where $\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{G}$\\
+$\sigma({\tt t.f}) = {\tt t.f}$\\
+$\sigma({\tt f}(\tbar{t}))={\tt f}(\sigma(\tbar{t}))$ & for all other functions $f$\\
+$\sigma({\tt t==s})=\sigma){\tt t})==\sigma(\tt {s})$\\
+$\sigma({\tt p}(\tbar{t}))={\tt p}(\sigma(\tbar{t}))$ & for all other predicates $p$\\
+$\sigma({\tt c},\Gamma) = \sigma(\tt c), \sigma(\Gamma)$\\
 $\sigma({\tt X}\ty*, \Gamma)=\sigma(\Gamma)$\\
 $\sigma({\tt x}\ty{\tt C}[\tbar{A}], \Gamma)=\sigma(\Gamma)$\\
 $\sigma({\tt x}\ty{\tt X}, \Gamma)=\sigma(\Gamma)$\\
@@ -713,7 +717,7 @@ Fields cannot be overridden thanks to the premise $\tbar{f}\cap\tbar{g}=\emptyse
 {\sc OK-Method} and {\sc OK-Class} ensure that all types and constraints are well formed, that overriding rules are observed, and that the body of a method has a type that is a subtype of its declared type. Moreover, the guard on a class must entail the well-formedness of its supertype. which includes entailing the guard of the superclass.
 
 
-\subsection{\FXG+primitive types}
+\subsection{\FXG+primitive types}\label{sec:Q}
 
 Since the \FXG design is parametric in the constraint language and system we can easily extend it to support, say, arithmetic constraints, or constraints on primitive types.
 
