@@ -167,6 +167,13 @@ public final class ITable {
 		cw.write(")");
 	}
 
+
+	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
+		String interfaceCType = emitter.translateType(interfaceType, false);
+		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+"::itable _itable_"+itableNum+";"); h.newline();
+	}
+	
 	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCTypeRef = emitter.translateType(interfaceType, true);
 		String clsCTypeRef = emitter.translateType(cls, true);
@@ -193,25 +200,24 @@ public final class ITable {
 		}
 	}
 
-	public void emitInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
+	public void emitITableInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCType = emitter.translateType(interfaceType, false);
 		String clsCType = emitter.translateType(cls, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
 		String itableCType = interfaceCType+"::itable";
-
-		h.write((doubleTemplate ? "static typename " : "static ")+itableCType+" _it"+itableNum+";"); h.newline();
-
 		String thunkRoot = "_itable_thunk_"+itableNum+"_";
-	
-		sw.write((doubleTemplate ? "new typename ":"new ")+interfaceCType+"::itable(");
+		
+		if (!cls.typeArguments().isEmpty()) {
+            emitter.printTemplateSignature(cls.typeArguments(), sw);
+		}	
+		sw.write((doubleTemplate ? "typename " : "")+itableCType+" "+clsCType+"::_itable_"+itableNum+"(");
 		for (int i=0; i<methods.length; i++) {
 			if (i > 0) sw.write(", ");
 			sw.write("&"+clsCType+"::"+thunkRoot+i);
 		}
-		sw.write(")"); sw.newline();
+		sw.write(");"); sw.newline();
 	}
 
-	
 	/**
 	 * Helper class to impose a canonical ordering on the methods of an interface.
 	 */
@@ -242,5 +248,4 @@ public final class ITable {
 			return m1.returnType().toString().compareTo(m2.returnType().toString());
 		}
 	}
-
 }
