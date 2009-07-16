@@ -224,6 +224,27 @@ initialized with arbitrary values; run-time constants (i.e., final expressions)
 can be used in constraints.  Fortress allows parameters to be hidden, reducing
 the programmer burden by allowing the compiler to infer the arguments.
 
+\emph{Virtual classes} and \emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+are another mechanism for supporting genericity, using nested types
+rather than parametrization.
+Thorup~\cite{thorup97} proposed using virtual types to provide genericity in
+Java, and much of the developemnt of Java's generics followed from virtual
+classes:
+use-site variance based on structural virtual types was proposed by
+Thorup and Torgersen~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}; the latter type system lead
+to the development of wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
+Dependent classes~\cite{dependent-classes} generalize virtual
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only on their enclosing
+instance; dependent classes, in contrast, depend on all the
+objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
+rather properties are members and types are constructed by
+constraining these properties.  Parametrization can be 
+encoded with type properties using equality constraints.
+
 \eat{
 \Xten{}'s generics have a hybrid implementation, adopting PolyJ's
 adapter object approach for dependent types and for 

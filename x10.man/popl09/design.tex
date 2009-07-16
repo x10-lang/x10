@@ -200,12 +200,6 @@ The type of a list of integers, say, can be written as
 \xcd"List{self.T==int}".  
 Nominal subtyping constraints, then, may be used to
 provide use-site variance constraints.
-Use-site variance based on structural virtual types was proposed by
-Thorup and Torgersen~\cite{unifying-genericity} and extended for
-parametrized type systems by Igarashi and
-Viroli~\cite{variant-parametric-types}.  The latter type system lead
-to the development of wildcards in
-Java~\cite{Java3,adding-wildcards,wildcards-safe}.  
 %
 Consider the following subtypes of \xcd"List" with type property
 \xcd"T":
@@ -264,19 +258,14 @@ type parameters, as we shall describe below; however, because they
 provide similar functionality with often subtle distinctions,
 type properties can be difficult to use, especially for novices,
 and require more care in the design.
-
-The usability issues stem from the exposure of type properties
-so that they are accessible from outside their declaring class.
-Since type properties are inherited,
+For instance,
+since type properties are inherited,
 the language design needs
 to account for ambiguities introduced when the same name is
 used for different type properties declared in or inherited into a class.
 
-Another issue is the interaction of type properties and run-time
-type representation.  If type properties are not erased from
-the run-time representation (as
-type parameters as in Java, for instance), then a na{\"\i}ve user
-might waste storage by unnecessarily declaring properties.
+\eat{
+Inheriting type properties may also lead to confusion
 As an example, in the following hypothetical code extended with
 type properties (declared as normal properties with the ``type''
 \xcd"*"),
@@ -307,12 +296,14 @@ named \xcd"K" and
 A na{\"\i}ve implementation of type properties would store run-time
 type information for all four properties in each instance
 of \xcd"HashMap".
+}
 
 \paragraph{\normalfont\bf\em Virtual types.}
 
 Type properties provide expressive power much like 
-\emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
-, but they can also
+\emph{virtual
+types}~\cite{beta,mp89-virtual-classes,ernst06-virtual};
+moreover, they can also
 be constrained at the use-site,
 can be refined on a per-object basis without explicit subclassing,
 and can be refined contravariantly as well as covariantly.
@@ -348,7 +339,7 @@ The analogous definition of
 \xcd"List" in \Xten{} using type properties is as follows:
 {
 \begin{xten}
-class List[T] {
+class List(T:*) {
   def get(i: int): T { ... }
 }
 \end{xten}}
@@ -364,16 +355,6 @@ one uses the constrained subtypes
 
 Type properties can also be refined contravariantly.
 For instance, one can write the type \xcdmath"List{T$\super$Integer}".
-
-Dependent classes~\cite{dependent-classes} generalize virtual
-classes to express similar semantics via parametrization rather
-than nesting.  Virtual classes depend only on their enclosing
-instance; dependent classes, in contrast, depend on any number
-of objects in which they are parametrized.  With type
-properties, classes are not parametrized on their values;
-rather properties are members and types are constructed by
-constraining these properties.  Parametrization can be 
-encoded with type properties using equality constraints.
 
 \paragraph{Self types.}
 
@@ -418,20 +399,21 @@ system with type parameters is now standard (cf.  FGJ~\cite{FJ}).
 
 Scala~\cite{scala} supports definition-site variance
 annotations:
-a parameter may be declared invariant, covariant, or
+a parameter may be declared in-, co-, or
 contravariant.
 If the parameter \xcd"X" of a class \xcd"C" is covariant,
-then if \xcd"S" is a subtype of
-\xcd"T", the type \xcd"C[S]" is a subtype of \xcd"C[T]".
+then \xcd"S" a subtype of
+\xcd"T" implies  \xcd"C[S]" is a subtype of \xcd"C[T]".
 Similarly, if \xcd"X" is contravariant,
 \xcd"C[T]" is a subtype of \xcd"C[S]".
 Invariant parameters are the default; a covariant parameter is
 declared by prepending ``\xcd"+"'' to the parameter name in the
 class header; a contravariant parameter is declared by
-prepending ``\xcd"-"''.  The usage of variant parameter types is
+prepending ``\xcd"-"''.  The usage of variant parameter types in
+the body of their class must be
 restricted to ensure the subtyping relation holds.
 
-Java~\cite{Java3}, by contrast, supports use-site variance through wildcards.
+Java, by contrast, supports use-site variance through wildcards.
 This has a number of usability problems~\cite{wildcards-are-evil},
 which also occur with constrained type properties, above.
 
@@ -510,7 +492,7 @@ using nominal subtyping bounds on types.
 These restrictions ensure type parameters can be represented
 with their type bound, or \xcd"Object" if unbounded.
 
-PolyJ~\cite{java-poly97} supports structural bounds and uses a
+PolyJ~\cite{java-popl97} supports structural bounds and uses a
 homogeneous translation with adapter objects to allow generic
 code to invoke methods on values of its type parameters.
 
