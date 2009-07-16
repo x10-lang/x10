@@ -859,7 +859,7 @@ In this example, we only need to add entailment relations inside the constraint 
 
 The bounds we have just specified are very elementary. The X10 type system supports lower and upper bounds as well as a much more permissive notion of compatible bounds (i.e., bounds are compatible if they have a common subtype). But the critical observation here is that a more elaborate extension would proceed from the exact same methodology: first add constraints, then subtyping rules and lookup rules, finally worry about inconsistent constraints.
 
-Whatever the extension, to preserve the soundness of the type system and the property of principal types---that is, the proof structure we have previously described---one need only ensure the following:
+Whatever the extension, to preserve the soundness of the type system and the property of principal types---that is, the proof structure we have previously described---one need only ensure that:
 \begin{enumerate}
 \item If a type parameter $\tt X$ is established to be a subtype of type $\tt G$ then each member $\tt I$ of $\tt G$ must be matched by a member $\tt J$ of $\tt X$ whose signature overrides that of $\tt I$.
 

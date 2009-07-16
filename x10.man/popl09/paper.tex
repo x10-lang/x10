@@ -208,6 +208,12 @@ capture many features of generics in object-oriented languages
 and then to extend these features with more
 expressive power.  We have proved the type system sound.
 
+We plan to extend the type system to account for mutable state.
+We believe the extension is straightforward, although
+cumbersome, because
+constraints are only immutable state only and because the formalism
+carefully controls occurrences of existential types.
+
 The type system of \FXG formalizes the semantics of the \Xten{}
 programming language.  The design admits an efficient
 implementation for generics and dependent types in \Xten{},
