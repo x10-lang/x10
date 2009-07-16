@@ -10,6 +10,19 @@ including several alternative designs.
 %to support traits in a future version of the language.}
 \todo{emph interactions with data constraints}
 
+\subsection{Handling value types}
+
+\Xten's type system provides both reference types and value
+types.  An instance of a reference type is an object on the
+heap.  Variables of reference type may be \xcd"null".
+In contrast, an instance of a value type might live on the call stack
+and can never be \xcd"null".  Java's generics support only 
+instantiation on reference types (subtypes of \xcd"Object") and
+not primitives.  Languages like C$\sharp$ and  PolyJ~\cite{java-popl97}, in contrast, supports
+instantiation on both kinds of type.
+
+\todo{common base type}
+
 \subsection{Type constraints}
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
@@ -131,6 +144,7 @@ With nominal bounds, \xcd"SortedList" could only require that
 its parameters implement an interface such as \xcd"Comparable".
 
 \subsubsection{Default values}
+
 \Xten's type system provides both reference types and value
 types.  An instance of a reference type is an object on the
 heap.  Variables of reference type may be \xcd"null".
@@ -152,13 +166,12 @@ these constraints provide considerable expressive power.
 For instance, 
 consider the class declaration:
 \begin{xtennoindent}
-class Cell {
-  var value: Object;
-  def increment() {value instanceof Number} { value += 1; }
+class C {
+  def equals[T](x:T) {this instanceof T} = (this==x);
 }
 \end{xtennoindent}
-The \xcd"increment" method can be called only if the value
-stored in the \xcd"Cell" is an instance of \xcd"Number".
+The \xcd"equals" method can be called with any object
+that is a supertype of \xcd"C".
 
 \xcd"instanceof" constraints can be used to build intersection
 types, e.g., \xcd"Object{self instanceof A, self instanceof B}"
@@ -267,7 +280,8 @@ used for different type properties declared in or inherited into a class.
 These can be disambiguated
 by ``casting'' the target up to the desired supertype,
 e.g., \xcd"(e as C).X" specifies
-the property \xcd"X" inherited from \xcd"C".
+the property \xcd"X" inherited from \xcd"C", or by introducing a
+renaming mechanism.
 
 Another issue is the interaction of type properties and run-time
 type representations.  If type properties are not erased from
@@ -305,7 +319,7 @@ A na{\"\i}ve implementation of type properties would store run-time
 type information for all four properties in each instance
 of \xcd"HashMap".
 
-\subsubsection{Virtual types}
+\paragraph{Virtual types.}
 
 Type properties provide expressive power much like 
 \emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
@@ -371,6 +385,41 @@ rather properties are members and types are constructed by
 constraining these properties.  Parameterization can be 
 encoded with type properties using equality constraints.
 
+\paragraph{Self types.}
+
+Type properties can also be used to support a form of self
+type~\cite{bruce-binary,bsg95}.
+%
+Self types can be implemented by introducing a
+type property \Xcd{type} to the root of the class hierarchy,
+\Xcd{Object}:
+\begin{xtenmath}
+class Object(type:*){type <= Object} { $\dots$ }
+\end{xtenmath}
+
+\noindent
+For any final path expression \Xcd{p}, the type
+$\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by \Xcd{p}.
+Scala's path-dependent types~\cite{scala-book} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+constraining types so that if a path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{type} \subtype \Xcd{C}$.
+In particular, one can add the class invariant
+$\Xcd{this}.\Xcd{type} \subtype \Xcd{C}$ to every class \Xcd{C}.
+This invariant ensures that
+$\Xcd{this}.\Xcd{type}$ is a subtype
+of the lexically enclosing class.
+
+The property must be initialized to the given class, so, without
+further language support, one must create an instance of
+\xcd"Object" with \xcd"new" \xcd"Object(Object)" to initialize
+the \xcd"type" property.
+
 \subsubsection{Type parameters}
 
 Most OO languages provide genericity through type parameters on
@@ -396,40 +445,84 @@ Java~\cite{Java3}, by contrast, supports use-site variance through wildcards.
 This has a number of usability problems~\cite{wildcards-are-evil},
 which also occur with constrained type properties, above.
 
-
 \subsection{Overloading and dispatch}
 
-overloading on constraints
+The next question to address is the overloading semantics for
+methods with constraints on formal parameters and with method
+guards.  This issue was considered in non-generic \Xten but was
+revisited in light of type constraints.
 
-predicate dispatch
+One option is to ignore constraints when checking for
+overloading.  This means that \xcd"m(int{self==0})" and
+\xcd"m(int{self==1})", for instance, are considered to have the
+same signature; if both occur within the same class, a
+compile-time error occurs.
 
+Another option is to allow the
+overloading: methods are resolved at compile-time, based on the
+constraints.  It is an error if a call could resolve to more
+than one method.  One consideration is whether to rule out overlapping
+methods (e.g., \xcd"m(int{self>=0})" and \xcd"m(int{self==1})")
+or to permit them and either to have the caller resolve the
+ambiguity (which might not be possible), or to prioritize the
+methods.
+
+\todo{Use type constraints, not value constraints}
+
+Allowing the overloading complicates method overriding by
+introducing partial overrides.
+Consider:
 \begin{xtennoindent}
-class List[T] {
-  head: T;
-  tail: List[T];
-
-  def print() {T <= Printable} {
-    head.print();
-    tail.print();
-  }
-
-  def print() {
-    print("unprintable");
-  }
+class A {
+  def m(x:int{self>=0}) = ...; // 1
+  def m(x:int{self<=0}) = ...; // 2
+}
+class B {
+  def m(x:int{self==0}) = ...; // 3
 }
 \end{xtennoindent}
+\noindent
+\xcd"B.m"'s constraint on \xcd"x" partially overrides the
+constraint on both \xcd"m" methods of \xcd"A".  Given a variable
+\xcd"b" of type \xcd"B": \xcd"b.m(-1)" invokes \xcd"A.m" (method 1),
+\xcd"b.m(0)" invokes \xcd"B.m" (method 3), and \xcd"b.m(1)"
+invokes \xcd"A.m" (method 2).  Users can be confused by the
+semantics.
+
+Finally, one could support a form of predicate
+dispatch~\cite{jpred}, selecting the method to invoke by
+\emph{dynamically} evaluating the method guard.  Predicate
+dispatch generalizes multi-method dispatch.  With type
+constraints, multi-method dispatch can be simulated.
+\todo{example}
 
 \subsection{Implementation}
 
-erasure -- erase everything, erase constraints only, etc
+Finally, we turn to the implementation of generics.
+\Xten's compiler targets both Java and C++ output.
+To implement a generic class \xcd"C[X]" one can either generate a single 
+class for \xcd"C" in the target language or can generate a class per
+instantiation
+\xcdmath"C[T$_1$]",
+\xcdmath"C[T$_2$]", \dots.
+\xcdmath"C[T$_k$]".
+The former approach reduces the amount of generated code; the
+latter enables specialization based on the type arguments to
+\xcd"C".  Hybrid approaches are possible, also.
 
-parameterized closures
+Java's approach is to erase type parameters and to use the homogenous
+translation.  Erasure admits more dynamic errors because
+it permits, for instance, a \xcd"C<A>" to be cast to \xcd"C<B>".
+Retrieving a field of static type \xcd"B" could cause a run-time
+type error when an \xcd"A" is returned instead.
 
-homo- or heterogeneous translation
+Other languages, such as C++, use the heterogeneous
+translation.  Following NextGen~\cite{nextgen},
+Fortress~\cite{fortress} takes this approach as well, reducing
+(static) code bloat by instantiating generics at run time.
 
-        complicated by struct types
-
-run-time constraint solving
+A compromise approach is to specialized for only a few parameter
+types, for example the primitive types.
 
 Unlike Java's generics, the \Xten does not erase type
 parameters.  This allows \Xten to support run-time casts to 
@@ -438,7 +531,8 @@ types.
 With
 non-generic constrained types, casts like \xcd"r" \xcd"as"
 \xcd"Region{rank==k}" can be implemented by
-checking the run-time class of the value being cast---\xcd"r" \xcd"instanceof" \xcd"Region"---and then
+checking the run-time class of the value being
+cast---\xcd"r" \xcd"instanceof" \xcd"Region"---and then
 evaluating the constraint---\xcd"r.rank==k".
 
 However, the issue is more subtle with generic casts.
@@ -461,6 +555,8 @@ Use closures if you want structural bounds.
 
 Type variables: parameters.  Properties are just too unfamiliar.
 Usability outweights expressive power. 
+
+Erase constraints.
 
 Variance: def site.
 
