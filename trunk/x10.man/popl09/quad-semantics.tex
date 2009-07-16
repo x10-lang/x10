@@ -678,7 +678,7 @@ or derive our relation from subtyping:
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt S}\{\self=={\tt x}\}\subtype{\tt T}}
 	{\Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T}}
 
-As explained in the previous section, the intend of the subtyping relation is to combine subclassing and constraint entailment: type ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt D}[\tbar{A}]\{{\tt c}\}$ iff {\tt C} is a subclass of {\tt D} and {\tt c} entails {\tt d} in the underlying constraint system. In the formal model, subtyping is invariant in the type parameters, that is, ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt C}[\tbar{B}]\{{\tt c}\}$ only if $\tbar{A}=\tbar{B}$.
+As explained in the previous section, the intent of the subtyping relation is to combine subclassing and constraint entailment: type ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt D}[\tbar{A}]\{{\tt d}\}$ iff {\tt C} is a subclass of {\tt D} and {\tt c} entails {\tt d} in the underlying constraint system. In the formal model, subtyping is invariant in the type parameters, that is, ${\tt C}[\tbar{A}]\{{\tt c}\}$ is a subtype of ${\tt C}[\tbar{B}]\{{\tt c}\}$ only if $\tbar{A}=\tbar{B}$.
 
 Rules {\sc S-Const-L} and {\sc S-Const-R} let us manipulate constraints in types and prove lemmas such as ${\tt T}\{{\tt c},{\tt d}\}\subtype {\tt T}\{{\tt c}\}\{{\tt d}\}$ (assuming well-formedness).
 
@@ -780,7 +780,7 @@ In order to preserve the well-formedness of the type system and its proof one ne
 \begin{enumerate}
 \item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}\subtype{\tt G}$ and $\Gamma,{\tt x}\ty{\tt G}\vdash{\tt x}~\has~{\tt I}$ then there exists $\tt J$ such that $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt J}, {\tt J} \ll {\tt I}$. That is, if a type parameter $\tt X$ is established to be a subtype of type $\tt G$ then each member $\tt I$ of $\tt G$ must be matched by a member $\tt J$ of $\tt X$ whose signature overrides that of $\tt I$.
 
-\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parametes. That is, if a variable of type parameter $\tt X$ is established to have two members with the same name then the must have the same signature.
+\item If $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\tt J}$ where $\tt I$ and $\tt J$ are both fields or both methods with the same name then ${\tt I}={\tt J}$ modulo alpha-renaming of the type and value parameters. That is, if a variable of type parameter $\tt X$ is established to have two members with the same name then the must have the same signature.
 \end{enumerate}
 In order to comply with these two requirements one can use rules of the form:
 \infrule {\Gamma\vdash \phi}{\Gamma\vdash\false} whenever $\phi$ (or its consequences) would violate any of the above.
