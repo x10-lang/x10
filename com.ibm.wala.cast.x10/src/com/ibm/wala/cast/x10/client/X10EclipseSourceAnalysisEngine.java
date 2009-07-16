@@ -20,7 +20,7 @@ import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.collections.HashSetFactory;
-import com.ibm.wala.eclipse.util.EclipseProjectPath;
+import com.ibm.wala.ide.util.EclipseProjectPath;
 
 import java.io.*;
 import java.util.Set;
