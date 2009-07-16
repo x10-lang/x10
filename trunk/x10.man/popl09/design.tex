@@ -1,10 +1,10 @@
-\Xten{} is a class-based object-oriented language.
+\Xten{} is a class-based object-oriented language
 that provides both dependent and generic types.
 The language has a sequential core similar to Java or Scala, but
 also
 constructs for concurrency and distribution.
 
-One key feature that interacts with generics is that the type
+A key feature that interacts with generics is that the type
 system provides both reference types and value types.
 An instance of a reference type is an object on the
 heap.  All reference types are subclasses of \xcd"Object".
@@ -12,6 +12,8 @@ Variables of reference type may be \xcd"null".
 In contrast, an instance of a value type might be represented in
 unboxed form on the call stack
 and can never be \xcd"null".
+Ideally, the design should support instantiation of generics on both 
+reference and value types.
 
 This section describes the design of generics for \Xten,
 including several alternative designs.  These alternatives
@@ -35,7 +37,23 @@ representing the list's element type.
 to extend these to constraints over types.
 Here, we ask: how should type variables be constrained?
 
-\subsubsection{Subtyping and equality constraints}
+Constraints occur in several places in the \Xten syntax.  They
+are of course permitted in constrained types \xcd"C{c}".
+Constraints may also be used as \emph{class invariants}, 
+which are constraints on the class's properties and other
+final variables in scope.
+The class invariant must be established by the class's
+constructor and subsequently holds for all instances of the
+class.
+
+Methods and constructors
+may also have constraints, or \emph{guards}, on their parameters.
+A guard must be satisfied by the caller of the method and
+will hold throughout its body.  Type constraints used in the
+method guard restrict the types of the arguments or of the method
+receiver.  
+
+\subsubsection{Nominal subtyping and equality constraints}
 
 In class-based OO languages such as Java,
 types are equipped with a partial
@@ -48,29 +66,14 @@ this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
 Constraints on types can specify either subtype (\xcd"<="),
 supertype (\xcd">="), or equality bounds (\xcd"==").
 
-Constraints occur in several places in the \Xten syntax.  They
-are of course permitted in constrained types \xcd"C{c}".
-Constraints may also be used as \emph{class invariants}, 
-which are constraints on the class's properties and other
-final variables in scope.
-The class invariant must be established by the class's
-constructor and subsequently holds for all instances of the
-class.
-
 Using subtyping constraints in the class invariant provides a
 means to bound the type variables introduced by the class
-declaration.  Subtyping constraints in constrained types
+declaration.  Constraints in constrained types
 \xcd"C{c}", can bound
 type-valued members of the base type \xcd"C".
 
-Methods and constructors
-may also have constraints, or \emph{guards}, on their parameters.
-A guard must be satisfied by the caller of the method and
-will hold throughout its body.  Type constraints used in the
-method guard restrict the types of the arguments or of the method
-receiver.  
+These constraints also can be used in method guards.
 This feature is similar to optional methods in CLU~\cite{clu} and to generalized type constraints in C$\sharp$~\cite{emir06}.
-
 For instance, given a list of \xcd"T", one could define a
 method \xcd"print" with a guard that requires that \xcd"T" be a
 subtype of \xcd"Printable":
@@ -93,13 +96,23 @@ We introduce the constraints
 \Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
 \Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
 These
-constraints allow one to define \xcd"List.print" as:
+constraints allow one to define an alternative version of the
+\xcd"print" methods above  as:
 \begin{xtenmathnoindent}
   def print(){T has print(): void} {
     head.print();
     tail.print();
   }
 \end{xtenmathnoindent}
+Rather than restricting the actual receiver to lists whose
+element type implements \xcd"Printable", with structural
+constraints, any list whose element type has a \xcd"print"
+method may be used.
+\eat{
+This feature makes it easier to integrate
+third-party libraries, where interface names might not be
+compatible.
+}
 
 Structural constraints on types are found in many languages.
 For instance,
