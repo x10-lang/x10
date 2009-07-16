@@ -8,7 +8,7 @@ including several alternative designs.
 
 %\footnote{We plan
 %to support traits in a future version of the language.}
-\todo{emph interactions with data constraints}
+\todo{\emph interactions with data constraints}
 
 \subsection{Handling value types}
 
@@ -18,7 +18,7 @@ heap.  Variables of reference type may be \xcd"null".
 In contrast, an instance of a value type might live on the call stack
 and can never be \xcd"null".  Java's generics support only 
 instantiation on reference types (subtypes of \xcd"Object") and
-not primitives.  Languages like C$\sharp$ and  PolyJ~\cite{java-popl97}, in contrast, supports
+not primitives.  Languages like C$\sharp$ and  PolyJ~\cite{java-popl97}, in contrast, support
 instantiation on both kinds of type.
 
 \todo{common base type}
@@ -41,11 +41,11 @@ In class-based OO languages such as Java,
 types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
 through the ``\Xcd{extends}'' relationship.  Further, each type is
-associated with member fields and methods, each with their
+associated with member fields and methods, each with a
 name and signature.
 This motivates a very natural constraint system on types.  For a type
-variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
-$\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
+variable \Xcd{X} we should be able to assert the constraint
+\Xcd{X}~$\extends$~\Xcd{T}: a valuation (mapping from variables to types) realizes
 this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
 Constraints on types can specify either subtype (\xcd"<="),
 supertype (\xcd">="), or equality bounds (\xcd"==").
@@ -72,7 +72,9 @@ guard must be satisfied by the caller of the method and
 will hold throughout its body.  Type constraints used in the
 method guard restrict the types of the arguments or the method
 receiver.  
-This feature is similar to optional methods in CLU~\cite{clu} and to generlized type constraints in C$\sharp$~\cite{emir06}.
+This feature is similar to optional methods in CLU~\cite{clu} and to generalized type constraints in C$\sharp$~\cite{emir06}.
+
+\todo{Need to define a list class before this point.}
 
 For instance, given a list of \xcd"T", one could define a
 method \xcd"print" with a guard that requires that \xcd"T" be a
@@ -80,7 +82,6 @@ subtype of \xcd"Printable":
 \begin{xtenmathnoindent}
   def print(){T <= Printable} {
     head.print();
-    Console.OUT.print(" ");
     tail.print();
   }
 \end{xtenmathnoindent}
@@ -101,7 +102,6 @@ constraints allow one to define \xcd"List.print" as:
 \begin{xtenmathnoindent}
   def print(){T has print(): void} {
     head.print();
-    Console.OUT.print(" ");
     tail.print();
   }
 \end{xtenmathnoindent}
@@ -154,11 +154,11 @@ primitive types, every type has a default value---\xcd"null" for
 reference types and \xcd"false" or \xcd"0" for primitive
 types---used to initialize arrays of that type.
 In \Xten, some types do not have a default.  For example
-\xcd"int{self>0}" does not contain the value \xcd"0".
+\xcd"int{self>0}" \todo{(define self in a footnote)} does not contain the value \xcd"0".
 Consequently, a useful constraint is \xcd"T has default", which
 holds if the type \xcd"T" has a default value.
 
-\subsubsection{instanceof constraints}
+\subsubsection{{\tt instanceof} constraints}
 
 Lastly, we consider constraints of the form \xcd"x" \xcd"instanceof" \xcd"T".
 By relating types and values in a single constraint, 
@@ -174,20 +174,21 @@ The \xcd"equals" method can be called with any object
 that is a supertype of \xcd"C".
 
 \xcd"instanceof" constraints can be used to build intersection
-types, e.g., \xcd"Object{self instanceof A, self instanceof B}"
+types, e.g., \xcd"Object{self instanceof A, self instanceof B}".
 
 \subsection{Type variables}
 \label{sec:type-properties}
 \label{sec:variance}
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
+\todo{FIXME: repeated from section on type constraints above.}
 Languages such as Java~\cite{Java3} and
 Scala~\cite{scala} introduce \emph{type parameters} on classes
 and methods.
 Constrained types suggest another approach:
 generalizing properties to include type-valued properties.
 A \emph{type property}
-is a final object member initialized at construction-time with a
+is a final object member initialized at construction time with a
 concrete type.  
 
 \subsubsection{Type properties}
@@ -205,7 +206,7 @@ The type of a list of integers, say, can be written as
 Subtyping constraints, then, may be used to
 provide \emph{use-site variance} constraints.
 Use-site variance based on structural virtual types was proposed by
-Thorup and Torgerson~\cite{unifying-genericity} and extended for
+Thorup and Torgersen~\cite{unifying-genericity} and extended for
 parametrized type systems by Igarashi and
 Viroli~\cite{variant-parametric-types}.  The latter type system lead
 to the development of wildcards in
@@ -232,7 +233,7 @@ The type property \xcd"T" is bound to \xcd"float".
 For a final expression \xcd"v" of this type,
 \xcd"v.T" and \xcd"float" are equivalent types and can be used
 interchangeably.
-The syntax \xcd"List[float]" is used as
+The syntax \xcd"List[float]" may be used as
 shorthand for \xcd"List{T==float}".
 
 \item \xcdmath"List{T$\extends$Collection}".
@@ -241,9 +242,7 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcd"Collection"; for example \xcd"List[Set]" (i.e.,
 \xcd"List{T==Set}") is a subtype of
 \xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
-\xcdmath"T"
-\xcdmath"$\extends$"
-\xcdmath"Collection".
+\xcdmath"T$\extends$Collection".
 %
 If \xcd"v" has the type \xcdmath"Vector{T$\extends$Collection}",
 then the return type of \xcd"get" has type \xcd"v.T", which is an unknown but
@@ -266,11 +265,11 @@ is that type properties are
 instance \emph{members} bound during object construction.  Type
 properties are thus accessible through expressions---\xcd"e.T" is
 a legal type (if \xcd"e" is final)---and are inherited by subclasses.
-These features gives type properties more expressive power than
+These features give type properties more expressive power than
 type parameters, as we shall describe below; however, because they 
 provide similar functionality with often subtle distinctions,
 type properties can be difficult to use, especially for novices,
-and requires more care in the design.
+and require more care in the design.
 
 One usability issue is that
 type properties, like normal value properties, are inherited.
@@ -284,9 +283,9 @@ the property \xcd"X" inherited from \xcd"C", or by introducing a
 renaming mechanism.
 
 Another issue is the interaction of type properties and run-time
-type representations.  If type properties are not erased from
+type representation.  If type properties are not erased from
 the run-time representation (as
-type parameters as in Java, for instance), then a naive user
+type parameters as in Java, for instance), then a na{\"\i}ve user
 might waste storage by unnecessarily declaring properties.
 As an example, in the following hypothetical code extended with
 type properties (declared as normal properties with the ``type''
@@ -367,7 +366,7 @@ class List[T] {
 Unlike the virtual-type version,
 the \Xten{} version of \xcd"List" is not abstract;
 \xcd"T" need not be instantiated by a subclass because it can be
-instantiated on a per-object basis.
+instantiated (constrained) on a per-object basis.
 Rather than declaring subclasses of \xcd"List",
 one uses the constrained subtypes
 \xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
@@ -376,13 +375,13 @@ Type properties can also be refined contravariantly.
 For instance, one can write the type \xcdmath"List{T$\super$Integer}".
 
 Dependent classes~\cite{dependent-classes} generalize virtual
-classes to express similar semantics via parameterization rather
-than nesting.  Virtual classes depend only other their enclosing
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only on their enclosing
 instance; dependent classes, in contrast, depend on any number
-of objects in which they are parameterized.  With type
-properties, classes are not parameterized on their values;
+of objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
 rather properties are members and types are constructed by
-constraining these properties.  Parameterization can be 
+constraining these properties.  Parametrization can be 
 encoded with type properties using equality constraints.
 
 \paragraph{Self types.}
@@ -700,4 +699,8 @@ Usability outweights expressive power.
 Erase constraints.
 
 Variance: def site.
+
+\subsection{Related work}
+\label{sec:related}
+\input{related}
 

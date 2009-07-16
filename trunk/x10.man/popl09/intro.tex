@@ -137,7 +137,7 @@ there is a partial order (the {\em inheritance} relation) on such
 names, and an association of (typed) members (fields, methods) to
 these names. This structure raises some natural candidates for
 constraints: e.g.{} \xcd"X <= T" (realized by any type \xcd"S" that
-inherits from \xcd"T"), \xcd"X \uhas m(T1,\ldots, Tn):T", (realized by
+inherits from \xcd"T"), \xcdmath{$X \uhas \mbox{m(T1,\ldots,Tn):T}$}, (realized by
 any type \xcd"S" that has a method named \xcd"m" with the given
 signature), \xcd"x instanceof X" (realized by any type
 \xcd"S" to which the final variable 
@@ -145,7 +145,7 @@ signature), \xcd"x instanceof X" (realized by any type
 
 Third, these constraints can be used to specify {\em constrained
 kinds} in the same way that constraints over values can be used to
-specify {\em constrained types}. Thus \xcd"X:type{self <= Printable}"
+specify {\em constrained types}. Thus \xcd"X:*{self <= Printable}"
 would declare a type variable \xcd"X" which could only be bound to
 those types \xcd"S" which satisfy \xcd"S <= Printable".
 
