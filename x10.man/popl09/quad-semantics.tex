@@ -629,7 +629,7 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 	{\wj{\Gamma}{\tt X} \andalso
 	  \cj{\Gamma,\this\ty{\tt X},\tbar{Y}\ty*,\tbar{y}\ty\tbar{G}}{\tt c} \andalso
 	  \wj{\Gamma,\this\ty{\tt X},\tbar{Y}\ty*,\tbar{y}\ty\tbar{G},{\tt c}}{\tbar{G},\tbar{H}}}
-	{\wj{\Gamma}{{\tt X}~\underline\has~\msign{Y}{y}{G}{c}{H}}}
+	{\cj{\Gamma}{{\tt X}~\underline\has~\msign{Y}{y}{G}{c}{H}}}
 
 \infrule[H-Struct]
   {\vdash{\tt X}~\underline\has~{\msign{Y}{y}{G}{c}{H}} \andalso
