@@ -22,7 +22,8 @@ Here, we ask: how should type variables be constrained?
 \Xten already supports constraints over values, so it is natural
 to extend these to constraints over types.
 
-\paragraph{Subtyping and equality constraints.}
+\subsubsection{Subtyping and equality constraints}
+
 In class-based OO languages such as Java,
 types are equipped with a partial
 order (the \emph{subtyping} order) generated from the user program
@@ -73,7 +74,7 @@ subtype of \xcd"Printable":
 This constraint ensures that the \xcd"head" field of type
 \xcd"T" has a \xcd"print()" method.
 
-\paragraph{Structural consraints.}
+\subsubsection{Structural consraints}
 We considered other constraints on types as well.
 One should
 be able to require that a type have a
@@ -129,7 +130,7 @@ that provides the method with the given signature.
 With nominal bounds, \xcd"SortedList" could only require that
 its parameters implement an interface such as \xcd"Comparable".
 
-\paragraph{Defaults.}
+\subsubsection{Default values}
 \Xten's type system provides both reference types and value
 types.  An instance of a reference type is an object on the
 heap.  Variables of reference type may be \xcd"null".
@@ -143,7 +144,8 @@ In \Xten, some types do not have a default.  For example
 Consequently, a useful constraint is \xcd"T has default", which
 holds if the type \xcd"T" has a default value.
 
-\paragraph{instanceof.}
+\subsubsection{instanceof constraints}
+
 Lastly, we consider constraints of the form \xcd"x" \xcd"instanceof" \xcd"T".
 By relating types and values in a single constraint, 
 these constraints provide considerable expressive power.
@@ -175,13 +177,15 @@ A \emph{type property}
 is a final object member initialized at construction-time with a
 concrete type.  
 
+\subsubsection{Type properties}
+
 \label{sec:usability}
 \label{sec:parameters-vs-fields}
 
 Like normal value properties, type properties
 can be used in constrained types through the variable \xcd"self".
-
-This immediately suggests use-site constraints on type
+%
+This immediately suggests use-site variance constraints on type
 properties.
 The type of a list of integers, say, can be written as
 \xcd"List{self.T==int}".  
@@ -242,7 +246,6 @@ method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
 
-
 However,
 type properties have a number of usability issues.
 The key difference between type parameters and type properties
@@ -302,36 +305,12 @@ A na{\"\i}ve implementation of type properties would store run-time
 type information for all four properties in each instance
 of \xcd"HashMap".
 
-
 \subsubsection{Virtual types}
 
-\emph{Virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
-are a language-based extensibility
-mechanism 
-originally introduced in the language
-BETA~\cite{beta} that---along with
-similar constructs built on path-dependent types found in
-languages such as Scala~\cite{scala}, J\&~\cite{nqm06},
-and Tribe~\cite{cdnw07-tribe}---share many similarities with type properties.
-A virtual type is a type binding nested within an enclosing instance.
-Subclasses are permitted to override the binding of inherited virtual types. 
-
-Virtual types
-may be used to provide genericity; indeed,
-one of the first proposals for genericity in Java was based on
-virtual types~\cite{thorup97}, and
-Java
-wildcards (i.e., parameters with use-site variance)
-were developed from a line of work beginning with virtual
-types~\cite{unifying-genericity,variant-parametric-types,adding-wildcards}.
-
-%Igarashi and Pierce~\cite{ip99-virtual-types}
-%model the semantics of virtual types
-%and several variants
-%in a typed lambda-calculus with subtyping and dependent types.
-
-Constrained types are more expressive than virtual
-types in that they can be constrained at the use-site,
+Type properties provide expressive power much like 
+\emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+, but they can also
+be constrained at the use-site,
 can be refined on a per-object basis without explicit subclassing,
 and can be refined contravariantly as well as covariantly.
 
@@ -392,159 +371,30 @@ rather properties are members and types are constructed by
 constraining these properties.  Parameterization can be 
 encoded with type properties using equality constraints.
 
-\subsubsection{Wildcards}
-\label{sec:wildcards}
+\subsubsection{Type parameters}
 
-Constraints on type properties can also provide a characterization of
-wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
-We leave to future work a formal proof of this
-characterization.
-Wildcards can be  motivated
-by the following example from Torgersen et al.~\cite{adding-wildcards}:
-Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
-the empty set.  What should be the type of \xcd"EMPTY"?
-In Java, one can use a wildcard and 
-assign the type \xcd"Set<?>", i.e., the type of all \xcd"Set"
-instantiated on \emph{some} parameter.  Clients of this
-type do not know what parameter to which the actual instance of \xcd"Set"
-is bound.
-With type properties,
-a similar effect is achieved simply by leaving the
-element type property of \xcd"Set" unconstrained.
+Most OO languages provide genericity through type parameters on
+classes and methods.  The development of a nominal OO type
+system with type parameters is now standard (cf.  FGJ~\cite{FJ}).
 
-Wildcards can
-also be bounded above and below with
-``\Xcd{?} \Xcd{extends} \Xcd{T}'' and ``\Xcd{?} \Xcd{super} \Xcd{T}'',
-respectively.
-%
-Again, with type properties, 
-a similar effect is achieved by constraining
-the
-element type property \xcd"X" of \xcd"Set" with subtyping constraints,
-e.g., \xcd"Set{X<=T}" and \xcd"Set{X>=T}".
+Scala~\cite{scala} supports definition-site variance
+annotations:
+a parameter may be declared invariant, covariant, or
+contravariant.
+If the parameter \xcd"X" of a class \xcd"C" is covariant,
+then if \xcd"S" is a subtype of
+\xcd"T", the type \xcd"C[S]" is a subtype of \xcd"C[T]".
+Similarly, if \xcd"X" is contravariant,
+\xcd"C[T]" is a subtype of \xcd"C[S]".
+Invariant parameters are the default; a covariant parameter is
+declared by prepending ``\xcd"+"'' to the parameter name in the
+class header; a contravariant parameter is declared by
+prepending ``\xcd"-"''.  The usage of variant parameter types is
+restricted to ensure the subtyping relation holds.
 
-\eat{
-Finally,
-one can also specify lower bounds on types.  These are useful for
-comparators:
-{\footnotesize
-\begin{xtenmath}
-class TreeSet[T] {
-  def this[T](cmp: Comparator{T $\super$ this.T}) { ... }
-}
-\end{xtenmath}}
-Here, the comparator for any supertype of \xcd"T" can be used as
-to compare \xcd"TreeSet" elements.
-
-Another use of lower bounds is for list operations.
-The \xcd"map" method below takes a function that maps a supertype
-of the class parameter \xcd"T" to the method type parameter \xcd"S":
-{\footnotesize
-\begin{xtenmath}
-class List[T] {
-  def map[S](fun: Object{self $\super$ T} => S) : List[S] { ... }
-}
-\end{xtenmath}}
-}
-
-Like wildcards,
-constrained types support
-\emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
-\xcd"reverse"
-operation can operate on \xcd"List" of any type:
-{
-\begin{xten}
-def reverse(list: List) {
-  for (i: int in 0..list.length-1)
-    swap(list, i, list.length-1-i);
-}
-\end{xten}}
-
-\noindent
-The client of \xcd"reverse" need not provide the concrete type
-on which the list is instantiated; the \xcd"list" itself
-provides the element type---it is stored in the \xcd"list"
-to implement run-time type introspection.
-
-In Java, this method would be written with a type parameter on
-the method; the type system permits it to be called with any
-\xcd"List".
-However,
-the method parameter cannot be omitted: declaring a parameterless version
-of \xcd"reverse" requires delegating to a private parametrized version that
-``opens up'' the parameter.
-
-%\input{self-types.tex}
-
-\subsubsection{Self types}
-
-Type properties can also be used to support a form of self
-types~\cite{bruce-binary,bsg95}.
-%
-Self types can be implemented by introducing a
-type property \Xcd{type} to the root of the class hierarchy, \Xcd{Object}:
-\begin{xtenmath}
-class Object(type:*){type <= Object} { $\dots$ }
-\end{xtenmath}
-
-\noindent
-For any final path expression \Xcd{p}, the type
-$\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
-but statically unknown, run-time class referred to by \Xcd{p}.
-Scala's path-dependent types~\cite{scala-book} and J\&'s
-dependent classes~\cite{nqm06}
-take a similar approach.
-
-Self types are achieved by
-constraining types so that if a path expression \Xcd{p}
-has type \Xcd{C}, then
-$\Xcd{p}.\Xcd{type} \subtype \Xcd{C}$.
-In particular, one can add the class invariant
-$\Xcd{this}.\Xcd{type} \subtype \Xcd{C}$ to every class \Xcd{C}.
-This invariant ensures that
-$\Xcd{this}.\Xcd{type}$ is a subtype
-of the lexically enclosing class.
-
-\subsection{Type parameters}
-
-As an example, consider the simple \xcd"Pair"
-class, shown in Figure~\ref{fig:vector}.
-The \xcd"Pair" class has type parameters \xcd"X" and \xcd"Y" and
-properties \xcd"x" and \xcd"y" of the component types (line 1).
-
-\begin{figure}
-{\footnotesize
-\begin{numberedxten}
-class Pair[X,Y](x: X, y: Y) {
-  def reduce[Z](f: (X,Y)=>Z): Z = f(x,y);
-
-  def print(){X $\extends$ Printable, Y $\extends$ Printable} {
-      x.print();
-      Console.OUT.print(", ");
-      y.print();
-    }
-  }
-}
-\end{numberedxten}}
-\caption{A Pair class in \Xten}
-\label{fig:vector}
-\end{figure}
-
-Methods in \Xten may have type parameters.
-For instance, the \xcd"reduce" method (line 2)
-has a type parameter \xcd"Z" and takes a function that maps
-\xcd"X" and \xcd"Y" to \xcd"Z".
-A parametrized method is invoked by giving type arguments before the
-expression arguments, e.g., \xcd"v.reduce[int](f)".\footnote{In \Xten, actual type
-arguments can be inferred from the types of the value arguments.  However, type
-inference is out of the scope of this paper.}
-
-
-
-
-
-
-properties vs. parameters
+Java~\cite{Java3}, by contrast, supports use-site variance through wildcards.
+This has a number of usability problems~\cite{wildcards-are-evil},
+which also occur with constrained type properties, above.
 
 
 \subsection{Overloading and dispatch}
