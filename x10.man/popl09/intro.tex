@@ -125,21 +125,21 @@ type \Xcd{Array} discussed above is generic on its element type.
 
 This paper lays out a framework to extend constrained types to handle
 (type-)genericity. The general outlines of the approach seem clear
-enough. First some mechanism must be found to introduce {\em type
+enough. First, some mechanism must be found to introduce {\em type
 variables}, for instance as {\em type parameters} (cf. Java) or as
-{\em type properties} (cf. Scala). 
+{\em type members} (cf. Scala). 
 
 Second, a suitable vocabulary of constraints over types must be
 chosen. This raises the fundamental question: What is the structure of
 types in (nominal) OO languages?  The answer to this is fairly
-clear. A type is a {\em name} (e.g. class name or interface name),
+clear. A type is a {\em name} (e.g., class name or interface name),
 there is a partial order (the {\em inheritance} relation) on such
 names, and an association of (typed) members (fields, methods) to
 these names. This structure raises some natural candidates for
-constraints: e.g.{} \xcd"X <= T" (realized by any type \xcd"S" that
+constraints: e.g., \xcd"X <= T" (realized by any type \xcd"S" that
 inherits from \xcd"T"), \xcdmath{$X \uhas \mbox{m(T1,\ldots,Tn):T}$}, (realized by
 any type \xcd"S" that has a method named \xcd"m" with the given
-signature), \xcd"x instanceof X" (realized by any type
+signature), \xcd"x" \xcd"instanceof" \xcd"X" (realized by any type
 \xcd"S" to which the final variable 
 \xcd"x" can be cast), etc. 
 
@@ -151,7 +151,7 @@ those types \xcd"S" which satisfy \xcd"S <= Printable".
 
 Fourth a type variable could then be declared as a (kinded) class
 property, field, or method parameter. Within the scope of its
-declaration, the type variable can be used wherever a type can (e.g.{}
+declaration, the type variable can be used wherever a type can (e.g.,
 to specify the type of method parameters and return values, local
 variables, fields, as targets of cast etc).
 
@@ -163,7 +163,7 @@ While the outline is clear, a number of important issues remain untouched:
 
 \item Should constrained kinds be used to differentiate overloaded methods? During dynamic method lookup?
 
-\item Can constrained kinds be used to express variance declarations (e.g.{} contravariance, covariance, invariance)? Java ``wildcards''?
+\item Can constrained kinds be used to express variance declarations (e.g., contravariance, covariance, invariance)? Java ``wildcards''?
 
 \item How are constrained kinds implemented? What kind of runtime representation of types is needed, and how does it interact with the constraint solver?
 \end{itemize}
