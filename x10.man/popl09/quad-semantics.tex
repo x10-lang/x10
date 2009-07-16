@@ -144,7 +144,7 @@ $\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\t
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
-By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails that of $\tt c$ in the input constraint system. %In \FXG, there is no other way to prove entailment.
+We specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails that of $\tt c$ in the input constraint system. %In \FXG, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
 In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} entails \false{} if {\tt C} and {\tt D} are not related by the subclassing relation.
