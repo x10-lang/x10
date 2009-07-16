@@ -189,6 +189,8 @@ public class X10Unary_c extends Unary_c {
         if (methodName != null) {
             // Check if there is a method with the appropriate name and type with the operand as receiver.   
             X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+            if (n.isConstant())
+                n2 = n2.constantValue(n.constantValue());
             
             try {
                 n2 = X10Cast_c.check(n2, tc);
@@ -203,6 +205,8 @@ public class X10Unary_c extends Unary_c {
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
             X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+            if (n.isConstant())
+                n4 = n4.constantValue(n.constantValue());
             
             try {
                 n4 = X10Cast_c.check(n4, tc);
