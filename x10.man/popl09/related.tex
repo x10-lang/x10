@@ -271,10 +271,10 @@ Dynamic enforcement enables a more expressive assertion language
 at the cost of possible run-time failures.
 Integration of constrained types and generic types
 effectively allow parametrization of classes on constraints.
-Consider the \xcd"Vector" class in Figure~\ref{fig:vector}.
+Consider a \xcd"List" class parametrized on the element type.
 If the class is instantiated on a constrained type \xcd"C{c}",
-i.e., \xcd"Vector[C{c}]",
-then all elements of the vector satisfy \xcd"c".
+i.e., \xcd"List[C{c}]",
+then all elements of the list satisfy \xcd"c".
 Guha et al.~\cite{GMFK07} 
 explore polymorphic contracts as a way to achieve this
 parametrization in a functional language.
