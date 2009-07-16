@@ -124,8 +124,7 @@ For example, a sorted list class
 could be written as follows in PolyJ:
 {
 \begin{xtennoindent}
-class SortedList[T]
-    where T {int compareTo(T)} {
+class SortedList[T] where T {int compareTo(T)} {
   void add(T x) {... x.compareTo(y) ...}
   ...
 }
@@ -134,7 +133,7 @@ The \xcd"where" clause states that the type parameter
 \xcd"T" must have a
 method \xcd"compareTo" with the given signature.
 \xcd"SortedList" can be instantiated on any type
-that provides the method with the given signature.
+that provides the method.
 With nominal bounds, \xcd"SortedList" could only require that
 its parameters implement an interface such as \xcd"Comparable".
 
@@ -148,8 +147,11 @@ and can never be \xcd"null".  In languages like Java with
 primitive types, every type has a default value---\xcd"null" for
 reference types and \xcd"false" or \xcd"0" for primitive
 types---used to initialize arrays of that type.
-In \Xten, some types do not have a default.  For example
-\xcd"int{self>0}" \todo{(define self in a footnote)} does not contain the value \xcd"0".
+In \Xten, some types do not have a default.  For example,
+\xcd"int{self>0}"\footnote{\xcd"self" is a special variable
+available only in constraints that is bound to the value being
+constrained.  \Xcd{int\{self>0\}} is the type of all positive
+\xcd"int"s.} does not contain the value \xcd"0".
 Consequently, a useful constraint is \xcd"T has default", which
 holds if the type \xcd"T" has a default value.
 
@@ -178,8 +180,10 @@ types, e.g., \xcd"Object{self instanceof A, self instanceof B}".
 Languages such as Java~\cite{Java3} and
 Scala~\cite{scala} introduce \emph{type parameters} on classes
 and methods.
-Constrained types suggest another approach:
-generalizing properties to include type-valued properties.
+An alternative approach, used by BETA~\cite{beta}, 
+Scala~\cite{scala}, and other languages is to use type members.
+In \Xten, one can
+generalize properties to include type-valued properties:
 A \emph{type property}
 is a final object member initialized at construction time with a
 concrete type.  
@@ -192,22 +196,22 @@ concrete type.
 Like normal value properties, type properties
 can be used in constrained types through the variable \xcd"self".
 %
-This immediately suggests use-site variance constraints on type
-properties.
+This immediately suggests use-site variance
+constraints~\cite{unifying-genericity,variant-parametric-types}
+on type properties.
 The type of a list of integers, say, can be written as
 \xcd"List{self.T==int}".  
-Subtyping constraints, then, may be used to
-provide \emph{use-site variance} constraints.
+Nominal subtyping constraints, then, may be used to
+provide use-site variance constraints.
 Use-site variance based on structural virtual types was proposed by
 Thorup and Torgersen~\cite{unifying-genericity} and extended for
 parametrized type systems by Igarashi and
 Viroli~\cite{variant-parametric-types}.  The latter type system lead
 to the development of wildcards in
-Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
-type properties
-have similar expressive power.
-
-Consider the following subtypes of \xcd"List":
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  
+%
+Consider the following subtypes of \xcd"List" with type property
+\xcd"T":
 \begin{itemize}
 \item \xcd"List".  This type has no constraints on the type
 property \xcd"T".
@@ -251,7 +255,7 @@ method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
 
-However,
+While expressive,
 type properties have a number of usability issues.
 The key difference between type parameters and type properties
 is that type properties are
@@ -264,16 +268,12 @@ provide similar functionality with often subtle distinctions,
 type properties can be difficult to use, especially for novices,
 and require more care in the design.
 
-One usability issue is that
-type properties, like normal value properties, are inherited.
-The language design needs
+The usability issues stem from the exposure of type properties
+so that they are accessible from outside their declaring class.
+Since type properties are inherited,
+the language design needs
 to account for ambiguities introduced when the same name is
 used for different type properties declared in or inherited into a class.
-These can be disambiguated
-by ``casting'' the target up to the desired supertype,
-e.g., \xcd"(e as C).X" specifies
-the property \xcd"X" inherited from \xcd"C", or by introducing a
-renaming mechanism.
 
 Another issue is the interaction of type properties and run-time
 type representation.  If type properties are not erased from
@@ -311,7 +311,7 @@ A na{\"\i}ve implementation of type properties would store run-time
 type information for all four properties in each instance
 of \xcd"HashMap".
 
-\paragraph{Virtual types.}
+\paragraph{\normalfont\bf\em Virtual types.}
 
 Type properties provide expressive power much like 
 \emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
