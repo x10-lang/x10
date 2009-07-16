@@ -754,7 +754,7 @@ Since the \FXG design is parametric in the constraint language and system we can
 First, we assume we are given a constraint system $\cal X$ with a vocabulary of primitive types ${\tt R}\in\cal R$, predicates ${\tt p}\in\cal P$, functions ${\tt q}\in\cal Q$, and literals ${\tt l}\in\cal L$ of these primitive types. Second, we extend the productions, operational semantics and type system of \FXG with the productions and inference rules of Figure~\ref{fig:FXGQ}.
 
 We denote $\Dom({\tt l})$ the primitive type of the literal {\tt l}. We assume each function {\tt q}
-is a total mapping from ${\sf Dom}({\tt q})$ (a $n$-tuple of primitive types) to $\Img({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})=\Img({\tt q})$.
+is a total mapping from ${\sf Dom}({\tt q})$ (an $n$-tuple of primitive types) to $\Img({\tt q})$, that is, if $\vdash \tbar{v}\ty{\sf Dom}({\tt q})$ then there exists a unique literal $\tt l$ such that $\vdashQ {\tt q}(\tbar{v})=={\tt l}$ and moreover $\Dom({\tt l})=\Img({\tt q})$.
 
 For instance, if $\cal X$ defines the type {\tt int}, integer literals, and the usual arithmetic operators, we can declare:
 
