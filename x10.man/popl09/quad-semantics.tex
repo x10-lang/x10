@@ -24,7 +24,7 @@ We first describe the base \FXG language and its type system and prove it sound.
 
 REVISE
 
-We now describe the semantics of languages in the \FXG family. We start with the \FXGL{X,\bullet} language that is the common core of all languages  in the family. Each language \FXGL{X',T} of the family is rigourously derived from the core language by:
+We now describe the semantics of languages in the \FXG family. We start with the \FXGL{X,\bullet} language that is the common core of all languages  in the family. Each language \FXGL{X',T} of the family is rigorously derived from the core language by:
 \begin{itemize}
 \item replacing the object constraint system $\cal X$ in use in the core type system with a richer object constraint denoted $\cal X'$;
 \item extending the core type systems with a set of inference rules denoted $\cal T$.
@@ -32,7 +32,7 @@ We now describe the semantics of languages in the \FXG family. We start with the
 
 We first specify the grammar, static, and dynamic semantics of \FXGL{X,\bullet}. While its \FGJ-like syntax enables the declaration of generic classes and methods, it does not allow constraints on type parameters. Types in \FXGL{X,\bullet} are therefore are isomorphic to those of \CFJ~\cite{constrained-types}. We then demonstrate other languages in the family with features such as dependent types, \FGJ-like generic types, or structural subtyping constraints. 
 
-We state and prove the soundness of the \FXGL{X,\bullet}. We describe the methodology by which extensions of the languages such as the one we presented can be formalized. We identify the requirements an extension must satify to ensure the soundness of its type system (i.e., its proof) can be derived from the soudness of the core type system.
+We state and prove the soundness of the \FXGL{X,\bullet}. We describe the methodology by which extensions of the languages such as the one we presented can be formalized. We identify the requirements an extension must satisfy to ensure the soundness of its type system (i.e., its proof) can be derived from the soundness of the core type system.
 }
 
 \subsection{The \FXG language}
@@ -890,9 +890,9 @@ The key idea is that information about type parameters can be accumulated throug
 constraint system $\cal B$ that permits propagating such
 constraints viewed as atoms. We then
 add four rules to the type system respectively about
-well-formedness, inconsitent constraints, subtyping, and member
+well-formedness, inconsistent constraints, subtyping, and member
 lookup. {\sc X-Bound} ensures we do not type check programs
-that specify mutiple bounds for a given type
+that specify multiple bounds for a given type
 parameter.%\footnote{More precisely, multiple bounds can be specified provided they are syntactically identical.}
 
 \subsection{Methodology}
@@ -900,10 +900,10 @@ parameter.%\footnote{More precisely, multiple bounds can be specified provided t
 While elementary, this last extension demonstrates the extensibility of the \FXGL{X} language and type system and its mechanisms. One can extend the \FXGL{X} language and the following by:
 \begin{itemize}
 \item extending the vocabulary of constraints;
-\item specifing the well-formedness conditions for these constraints;
+\item specifying the well-formedness conditions for these constraints;
 \item extending the constraint system with constraints on types (or constraints relating types and values);
-\item specifing the subtyping relation for variables of parameter type; and
-\item specifing the members of variables of parameter type.
+\item specifying the subtyping relation for variables of parameter type; and
+\item specifying the members of variables of parameter type.
 \end{itemize}
 
 In order to preserve the well-formedness of the type system and its proof one need only ensure that:
@@ -915,7 +915,7 @@ In order to preserve the well-formedness of the type system and its proof one ne
 In order to comply with these two requirements one can use rules of the form:
 \infrule {\Gamma\vdash \phi}{\Gamma\vdash\false} whenever $\phi$ (or its consequences) would violate any of the above.
 
-Formally, the proof of the soudness result is built on top of lemmas so that the main body of the proof does not directly depend on member lookup rules and subtyping rules for types parameters, but do it through lemmas that exactly formalize points 1 and 2 above.
+Formally, the proof of the soundness result is built on top of lemmas so that the main body of the proof does not directly depend on member lookup rules and subtyping rules for types parameters, but do it through lemmas that exactly formalize points 1 and 2 above.
 
 }
 
@@ -1156,7 +1156,7 @@ admits a new kind of expressions: {\tt C}\{{\tt c}\}. But these are also values,
 \eat{
  {\tt d} ~$|$~ {\tt q}(\tbar{e}) ~$|$~ {\tt C}\{{\tt c}\}.
 Both literals and class types are values, we just have to establish progress in the case of function calls (in the context of a proof by induction on the structure of the expression {\tt e}).
-Assume ${\tt q}(tbar{e})$ is well typed then if all \tbar{e} are values progress is possible by rule {\sc R-Fun}. If not, then at leat one of the expressions is not a value and by induction hypothesis applied to this expression we can conclude that it is either stuck on a cast or can make a step of execution step. We conclude using rule {\sc RC-Fun} in the second case.}
+Assume ${\tt q}(\tbar{e})$ is well typed then if all \tbar{e} are values progress is possible by rule {\sc R-Fun}. If not, then at least one of the expressions is not a value and by induction hypothesis applied to this expression we can conclude that it is either stuck on a cast or can make a step of execution step. We conclude using rule {\sc RC-Fun} in the second case.}
 \item{Type soundness}. Direct consequence of the previous two theorems.
 \end{itemize}
 
@@ -1260,7 +1260,7 @@ ${\tt T}\{\exists {\tt x}:{\tt U}.~{\tt c}\}$ is equivalent to $\exists {\tt y}:
 }
 
 \eat{
-Because of existential and dependent types we adopt a nonconventional notation for subtyping that we explain and motivate below. 
+Because of existential and dependent types we adopt a non-conventional notation for subtyping that we explain and motivate below. 
 \{\infrule[S-Sub]
 	{\wj{\Gamma}{\tt S} \andalso \Gamma,{\tt x}\ty{\tt S}\vdash{\tt x}\subtype {\tt T} \andalso {\tt x}~\rm not~free~in~{\tt T}}
 	{\Gamma\vdash{\tt S}\subtype{\tt T}}
