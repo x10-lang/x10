@@ -148,10 +148,7 @@ primitive types, every type has a default value---\xcd"null" for
 reference types and \xcd"false" or \xcd"0" for primitive
 types---used to initialize arrays of that type.
 In \Xten, some types do not have a default.  For example,
-\xcd"int{self>0}"\footnote{\xcd"self" is a special variable
-available only in constraints that is bound to the value being
-constrained.  \Xcd{int\{self>0\}} is the type of all positive
-\xcd"int"s.} does not contain the value \xcd"0".
+\xcd"int{self>0}" does not contain the value \xcd"0".
 Consequently, a useful constraint is \xcd"T has default", which
 holds if the type \xcd"T" has a default value.
 
@@ -467,8 +464,8 @@ introducing partial overrides.
 Consider:
 \begin{xtennoindent}
 class A {
-  def m(x:int{self>=0}) = ...; // 1
-  def m(x:int{self<=0}) = ...; // 2
+  def m(x:int{self<=0}) = ...; // 1
+  def m(x:int{self>=0}) = ...; // 2
 }
 class B {
   def m(x:int{self==0}) = ...; // 3
