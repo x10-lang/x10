@@ -17,7 +17,7 @@ Our framework models many, but not all, relevant features of \Xten.
 Following \FJ, our framework does not account for mutations. Proving the soundness of the type system for an imperative calculus is beyond the scope of this paper.
 Other features of \Xten not modeled in the framework include interfaces, constructors, and method overloading. Class invariants are simplified and may constrain only type parameters, but not properties of the class.  We believe none of these restrictions affect the type system in a fundamental way. Finally, our subtyping relation is invariant in the type parameters. We leave modeling the definition-site variance annotations of \Xten for future work.
 
-We first describe the base \FXG language and its type system, which we prove sound. While its \FGJ-like syntax enables the declaration of generic classes and methods, it does not allow constraints on type parameters. We then demonstrate other languages in the family with features such as \FGJ-like generic types, or structural subtyping constraints.
+We first describe the base \FXG language and its type system and prove it sound. While its \FGJ-like syntax enables the declaration of generic classes and methods, it does not allow constraints on type parameters. We then demonstrate other languages in the family with features such as \FGJ-like generic types, or structural subtyping constraints.
 
 \eat{
 \subsection{The \FXG family}
@@ -106,8 +106,7 @@ Notice these judgments depend on the particular program {\tt P}. For readability
 A program is well typed iff all its classes are. We now describe in more detail each of these judgments, in turn. 
 
 
-\paragraph{1. Constraints.}
-
+\paragraph{\normalfont\bf\em 1. Constraints.}
 {}\FXG{} is parametrized by an {\em object constraint system} $\cal
 X$.  Such a constraint system is required to have terms {\tt t} of the
 form ${\tt C}(\tbar{f}=\tbar{t})$ and {\tt t.f}, and an equality
@@ -121,7 +120,7 @@ $\tt f$ for the tree $\tt t$.\footnote{A complete axiomitazation of the algebra 
 In order to expose the current typing context to $\cal X$, we define
 the {\em constraint projection} $\sigma(\Gamma)$ that, in essence,
 strips out all type information from the $\Gamma$. It also uses
-information in the program $P$ to translate constraints in the source
+information in the program {\tt P} to translate constraints in the source
 program into constraints understood by the constraint system.
  
 %
@@ -132,7 +131,7 @@ $\sigma(\new~{\tt C}[\tbar{A}](\tbar{t}))={\tt C}(\tbar{f}=\tbar{t})$
 & where $\fields({\tt C}[\tbar{A}])=\tbar{f}:\tbar{G}$\\
 $\sigma({\tt t.f}) = {\tt t.f}$\\
 $\sigma({\tt f}(\tbar{t}))={\tt f}(\sigma(\tbar{t}))$ & for all other functions $f$\\
-$\sigma({\tt t==s})=\sigma){\tt t})==\sigma(\tt {s})$\\
+$\sigma({\tt t==s})=\sigma({\tt t})==\sigma(\tt {s})$\\
 $\sigma({\tt p}(\tbar{t}))={\tt p}(\sigma(\tbar{t}))$ & for all other predicates $p$\\
 $\sigma({\tt c},\Gamma) = \sigma(\tt c), \sigma(\Gamma)$\\
 $\sigma({\tt X}\ty*, \Gamma)=\sigma(\Gamma)$\\
@@ -145,7 +144,7 @@ $\sigma({\tt x}\ty\exty{{\tt y}}{{\tt T}}{{\tt U}}, \Gamma)=\sigma({\tt z}\ty{\t
 %
 In the last rule, we assume that alpha-equivalence is used to choose a variable {\tt z} that does not occur in the context under construction.
 
-By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails $c$ in the input constraint system. %In \FXG, there is no other way to prove entailment.
+By rule {\sc X-Proj} in Figure~\ref{fig:object}, we specify that $\Gamma\vdash{\tt c}$ if the constraint projection of $\Gamma$ entails that of $\tt c$ in the input constraint system. %In \FXG, there is no other way to prove entailment.
 
 We say that a context $\Gamma$ is {\em consistent} if it is not the case that $\Gamma\vdash\false$.
 In all inference rules presented below, we make the implicit assumption that the context $\Gamma$ of every premise is consistent; if one is inconsistent, the rule cannot be used. In the sequel, we will permit type system extensions to mark contexts as inconsistent, e.g., {\tt X} extends class {\tt C}, {\tt X} extends class {\tt D} entails \false{} if {\tt C} and {\tt D} are not related by the subclassing relation.
@@ -252,25 +251,6 @@ By design, if the program {\tt P} is well typed then all the constraints and typ
 \end{minipage}
 \caption{\FXG operational semantics. \tbar{A} and \tbar{B} are lists of ground types (no type variables, no existentials).}
 \label{fig:sos}
-\end{figure*}
-
-
-\begin{figure*}
-\vspace{-\bigskipamount}
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[X-Sel]
-  {\fields({\tt C}[\tbar{A}])=\tbar{f}\ty\tbar{F}}
-  {\vdashX \new~{\tt C}[\tbar{A}](\tbar{t}).{\tt f}_i=={\tt t}_i}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[X-Proj]
-  {\sigma(\Gamma)\vdashX c}
-  {\Gamma\vdash c}
-\end{minipage}%
-\caption{{\sf FXG} object constraint system.}
-\label{fig:object}
 \end{figure*}
 
 
@@ -789,7 +769,7 @@ In the base \FXG language, if a variable $\tt x$ has type-parameter type $\tt X$
 
 The key idea is that information about type parameters can be accumulated through constraints. Then typing rules make use of these constraints to lookup members of variables of type-parameter types or establish subtyping relation about them.
 
-\paragraph{Bounds}~ \FGJ-style bounds on type parameters can be supported in the \FXG family by introducing an ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$} on type parameters.
+\paragraph{\normalfont\bf\em Bounds.} \FGJ-style bounds on type parameters can be supported in the \FXG family by introducing an ``extends'' constraint \mbox{${\tt X}\extends{\tt G}$} on type parameters.
 
 We need to make several additions to \FXG to make this work.
 \begin{enumerate}
@@ -835,7 +815,7 @@ Formally, if $\Gamma,{\tt x}\ty{\tt X}\vdash{\tt x}~\has~{\tt I},{\tt x}~\has~{\
 Since, the two properties holds for this extension, all results from Section~\ref{sec:results} apply.
 
 
-\paragraph{Structural subtyping constraints}
+\paragraph{Structural subtyping constraints.}
 To conclude this section, we illustrate this methodology with another language extension: structural subtyping constraints. For brevity, we only consider constraint ${\tt X}~\underline{\has}~\msign{Y}{y}{G}{c}{H}$ and forget about fields. We use the underline notation ``$\underline{\has}$'' to distinguish the constraint on types from the predicate on variables. Of course, the two are closely related (by {\sc H-Struct}).
 
 This time, we actually need the constraint system to satisfy a new inference rule {\sc X-Struct} so that generic classes and methods may be instantiated upon the actual class types of the program.
