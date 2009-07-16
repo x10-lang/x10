@@ -242,14 +242,14 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
 \xcdmath"T$\extends$Collection".
 %
-If \xcd"v" has the type \xcdmath"Vector{T$\extends$Collection}",
+If \xcd"v" has the type \xcdmath"List{T$\extends$Collection}",
 then the return type of \xcd"get" has type \xcd"v.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
-\item \xcdmath"Vector{T$\super$String}".  This type bounds the type property
+\item \xcdmath"List{T$\super$String}".  This type bounds the type property
 \xcd"T"
-from below.  For a \xcd"Vector" \xcd"v" of this type, any
+from below.  For a \xcd"List" \xcd"v" of this type, any
 supertype of \xcd"String" may flow into a variable of type \xcd"v.T".
 The return type of the \xcd"get"
 method is known to be a
