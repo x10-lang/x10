@@ -2902,6 +2902,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("public:") ; inc.newline(); inc.forceNewline();
         
 		/* ITables declarations */
+        inc.write("static "+(in_template_closure ? "typename " : "")+superType+"::itable _itable;"); inc.newline();
 		inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
 		inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
 		inc.write("static "+emitter.translateType(retType, true)+" _itable_thunk("+superTypeRef+" this_");
@@ -3024,8 +3025,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
+        inc.write((in_template_closure ? "typename ": "")+superType+"::itable "+cnamet+"::_itable(&"+cnamet+"::_itable_thunk);");
+        
+        if (in_template_closure)
+            emitter.printTemplateSignature(freeTypeParams, inc);
 		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		inc.write("x10aux::itable_entry(&"+superType+"::rtt, new "+(in_template_closure ? "typename ": "")+superType+"::itable(&"+cnamet+"::_itable_thunk)),"); 
+		inc.write("x10aux::itable_entry(&"+superType+"::rtt, &"+cnamet+"::_itable),"); 
 		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
 
         if (in_template_closure)
