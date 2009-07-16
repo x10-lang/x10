@@ -137,7 +137,8 @@ there is a partial order (the {\em inheritance} relation) on such
 names, and an association of (typed) members (fields, methods) to
 these names. This structure raises some natural candidates for
 constraints: e.g., \xcd"X <= T" (realized by any type \xcd"S" that
-inherits from \xcd"T"), \xcdmath{$X \uhas \mbox{m(T1,\ldots,Tn):T}$}, (realized by
+inherits from \xcd"T"), \xcd"X" \xcdmath"$\uhas$"
+\xcdmath"m(T$_1$,$\ldots$,T$_n$):T", (realized by
 any type \xcd"S" that has a method named \xcd"m" with the given
 signature), \xcd"x" \xcd"instanceof" \xcd"X" (realized by any type
 \xcd"S" to which the final variable 
