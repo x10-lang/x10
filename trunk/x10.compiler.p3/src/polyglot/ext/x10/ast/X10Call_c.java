@@ -456,6 +456,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return super.typeCheck(tc);
 	}
 
+	Object constantValue;
+	public Object constantValue() { return constantValue; }
+	public boolean isConstant() { return constantValue != null; }
+
+	public X10Call_c constantValue(Object value) {
+		X10Call_c n = (X10Call_c) copy();
+		n.constantValue = value;
+		return n;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

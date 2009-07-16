@@ -426,6 +426,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (methodName != null) {
             // Check if there is a method with the appropriate name and type with the left operand as receiver.   
             X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(right));
+            if (n.isConstant())
+                n2 = n2.constantValue(n.constantValue());
         
             try {
                 n2 = X10Cast_c.check(n2, tc);
@@ -440,6 +442,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
             X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+            if (n.isConstant())
+                n4 = n4.constantValue(n.constantValue());
         
             try {
                 n4 = X10Cast_c.check(n4, tc);
@@ -454,6 +458,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (methodName != null) {
             // Check if there is a static method of the right type with the appropriate name and type.   
             X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+            if (n.isConstant())
+                n3 = n3.constantValue(n.constantValue());
         
             try {
                 n3 = X10Cast_c.check(n3, tc);
@@ -468,6 +474,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (invMethodName != null) {
             // Check if there is a method with the appropriate name and type with the left operand as receiver.   
             X10Call_c n5 = (X10Call_c) nf.X10Call(pos, right, nf.Id(pos, invMethodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+            if (n.isConstant())
+                n5 = n5.constantValue(n.constantValue());
         
             try {
                 n5 = X10Cast_c.check(n5, tc);
