@@ -2687,6 +2687,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline(4); sw.begin(0);
 
 		String name = "__i" + form.name();
+		String itableName = name+"_itable";
 		String iteratorType = emitter.translateType(xts.Iterator(form.type().type()), false);
 		String iterableType = emitter.translateType(xts.Iterable(form.type().type()), false);
 		String iterableTypeRef = emitter.translateType(xts.Iterable(form.type().type()), true);
@@ -2696,12 +2697,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("(__extension__ ({"+iterableTypeRef+" _1 = ");
 		n.print(domain, sw, tr);
 		sw.write("; "+iteratorTypeRef+" _2 = x10aux::findITable"+chevrons(iterableType)+"(_1)->iterator(_1); _2; }));"); sw.newline();
-
+		if (((X10ClassType)context.currentClass()).typeArguments().size() > 0) {
+			sw.write("typename ");
+		}
+		sw.write(iteratorType+"::itable *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+");"); sw.newline();
+		
 		sw.write("for (");
 		sw.begin(0);
 
 		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write("x10aux::findITable"+chevrons(iteratorType)+"("+name+")->hasNext("+name+");");
+		sw.write(itableName+"->hasNext("+name+");");
 		sw.allowBreak(2, " ");
 
 		sw.end();
@@ -2712,7 +2717,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(";");
 		sw.newline();
 		sw.write(mangled_non_method_name(form.name().id().toString()));
-        sw.write(" = x10aux::findITable"+chevrons(iteratorType)+"("+name+")->next("+name+");");
+        sw.write(" = "+itableName+"->next("+name+");");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 			Stmt l = (Stmt) li.next();
