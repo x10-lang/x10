@@ -1,3 +1,13 @@
+\begin{lem}
+If $\Gamma,x:T\vdash x~{\tt has}~I,x~{\tt has}~J$ where $I$ and $J$ are both fields or both methods with the same name then $I=J$ modulo alpha-renaming of the type and value parameters.
+\end{lem}
+
+\begin{lem}
+If $\Gamma,x:T\vdash x<:G$ and $\Gamma,x:G\vdash x~{\tt has}~I$ then there exists $J$ such that $\Gamma,x:T\vdash x~{\tt has}~J,J \ll I$.
+\end{lem}
+
+
+
 \begin{lem}\label{uni}
 If $\Gamma$ is well formed and $\Gamma\vdash e:T,e:S$ then $S=T$.
 \end{lem}
