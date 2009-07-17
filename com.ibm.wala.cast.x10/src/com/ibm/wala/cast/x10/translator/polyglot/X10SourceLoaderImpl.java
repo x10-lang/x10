@@ -66,17 +66,17 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
      * IMethod here inside the loader, where we can actually trap defineFunction().
      * Gack.
      */
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
+    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
 	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
 	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
 
-	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
 	    X10ClosureObject closureObject= (X10ClosureObject) fTypeMap.get(n);
 
-	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else
-	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo);
+	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
     }
 
     public String toString() {
