@@ -3,13 +3,11 @@
 
 import harness.x10Test;
 
-
 /**
  * 
  *
  * @author vj 09/2008
  */
-
 public class DefaultRefTypeDefTest extends x10Test {
 
     static class Foo[T](n:int, s:T) {
