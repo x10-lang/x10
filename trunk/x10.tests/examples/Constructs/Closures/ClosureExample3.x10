@@ -14,8 +14,8 @@ import x10.util.Collection;
 
 public class ClosureExample3 extends x10Test {
     var result: Boolean = true;
-    def allPositive(c: Collection): Boolean {
-        c.applyToAll((x: Int) => { if (x < result) atomic {result=false;}});
+    def allPositive(c: Collection[Int]): Boolean {
+        c.applyToAll((x: Int) => { if (x < 0) atomic {result=false;}});
         return result;
     }
 

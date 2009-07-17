@@ -15,7 +15,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefNew05 extends TypedefTest {
+public class TypedefNew05_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
@@ -35,6 +35,6 @@ public class TypedefNew05 extends TypedefTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefNew05().execute();
+        new TypedefNew05_MustFailCompile().execute();
     }
 }

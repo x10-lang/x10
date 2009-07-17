@@ -11,7 +11,7 @@ import harness.x10Test;
  * An await statement cannot occur in an atomic.
  * @vj
  */
-public class NoAwaitInAtomic_MustFailTest extends x10Test {
+public class NoAwaitInAtomic_MustFailCompile extends x10Test {
 
 	var b: boolean;
 	
@@ -23,6 +23,6 @@ public class NoAwaitInAtomic_MustFailTest extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new NoAwaitInAtomic_MustFailTest().execute();
+		new NoAwaitInAtomic_MustFailCompile().execute();
 	}
 }

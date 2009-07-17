@@ -22,6 +22,6 @@ public class PrimitiveHasLocation_MustFailCompile extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new PrimitiveHasLocation().execute();
+		new PrimitiveHasLocation_MustFailCompile().execute();
 	}
 }

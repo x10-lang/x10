@@ -14,7 +14,7 @@ import harness.x10Test;
  * @author vcave
  
  **/
-public class Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile extends x10Test {
+public class Long_ConstrainedDeclaredAsIntegerOverFlow2_MustFailCompile extends x10Test {
 
 	 public def run(): boolean = {
 		var result: boolean = false;
@@ -33,7 +33,7 @@ public class Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile extends x
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new  Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile().execute();
+		new  Long_ConstrainedDeclaredAsIntegerOverFlow2_MustFailCompile().execute();
 	}
 
 }
