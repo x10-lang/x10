@@ -22,9 +22,9 @@ namespace x10 {
             public:
             RTT_H_DECLS_INTERFACE
 
-            struct itable {
-                itable(void(*apply)(x10aux::ref<VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8> >, P1,P2,P3,P4,P5,P6,P7,P8)) : apply(apply) {}
-                void (*apply)(x10aux::ref<VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8> >, P1,P2,P3,P4,P5,P6,P7,P8);
+            template <class I> struct itable {
+                itable(void(I::*apply)(P1,P2,P3,P4,P5,P6,P7,P8)) : apply(apply) {}
+                void (I::*apply)(P1,P2,P3,P4,P5,P6,P7,P8);
             };
         };
 

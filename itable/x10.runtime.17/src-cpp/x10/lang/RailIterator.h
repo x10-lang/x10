@@ -25,21 +25,10 @@ namespace x10 {
         public:
             RTT_H_DECLS
 
-            static typename Iterator<T>::itable _itable_iterator;
-            
+            static typename Iterator<T>::template itable<RailIterator<T> > _itable_iterator;
             static x10aux::itable_entry _railItITables[2];
             virtual x10aux::itable_entry* _getITables() { return _railItITables; }
     
-            static x10_boolean _itable_thunk_hasNext(x10aux::ref<Iterator<T> > this_) {
-                x10aux::ref<RailIterator<T> > tmp = this_;
-                return tmp->hasNext();
-            }
-
-            static T _itable_thunk_next(x10aux::ref<Iterator<T> > this_) {
-                x10aux::ref<RailIterator<T > > tmp = this_;
-                return tmp->next();
-            }
-                
             RailIterator(x10_int length_, T* data_) : index(0), length(length_), data(data_) { }
 
             virtual x10_boolean hasNext() {
@@ -79,8 +68,9 @@ namespace x10 {
             _initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Iterator<T> >());
         }
 
-        template <class T> typename Iterator<T>::itable RailIterator<T>::_itable_iterator(&RailIterator<T>::_itable_thunk_hasNext,
-                                                                                          &RailIterator<T>::_itable_thunk_next);
+        template <class T>
+            typename Iterator<T>::template itable<RailIterator<T> >
+            RailIterator<T>::_itable_iterator(&RailIterator<T>::hasNext, &RailIterator<T>::next);
 
         template<class T> x10aux::itable_entry RailIterator<T>::_railItITables[2] = {
             x10aux::itable_entry(&Iterator<T>::rtt, &RailIterator<T>::_itable_iterator),

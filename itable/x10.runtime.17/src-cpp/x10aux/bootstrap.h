@@ -33,15 +33,10 @@ namespace x10aux {
         ref<x10::lang::Rail<ref<x10::lang::String> > > args;
         public:
 
-        static x10::lang::VoidFun_0_0::itable _itable;
+        static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
         static x10aux::itable_entry _itables[2];
         
         virtual x10aux::itable_entry* _getITables() { return _itables; }
-        
-        static void _itable_thunk(x10aux::ref<x10::lang::VoidFun_0_0> this_) {
-            x10aux::ref<BootStrapClosure> tmp = this_;
-            tmp->apply();
-        }
         
         // closure body
         void apply () {

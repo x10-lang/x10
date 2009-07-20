@@ -15,9 +15,9 @@ namespace x10 {
             public:
             RTT_H_DECLS_INTERFACE
 
-            struct itable {
-                itable(void(*apply)(x10aux::ref<VoidFun_0_1<P1> >, P1)) : apply(apply) {}
-                void (*apply)(x10aux::ref<VoidFun_0_1<P1> >, P1);
+            template <class I> struct itable {
+                itable(void(I::*apply)(P1)) : apply(apply) {}
+                void (I::*apply)(P1);
             };
         };
 
