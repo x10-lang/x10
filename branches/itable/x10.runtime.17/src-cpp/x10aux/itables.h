@@ -64,12 +64,12 @@ namespace x10aux {
      * Find the itable for obj that matches the given id
      */
     extern void* findITable(ref<x10::lang::Object> obj, RuntimeType *id);
-    
+
     /*
      * Find the I itable for obj
      */
-    template<class I> inline typename I::itable* findITable(ref<I> obj) {
-        return (typename I::itable*)findITable(obj, &I::rtt);
+    template<class I> inline typename I::template itable<x10::lang::Object>* findITable(ref<x10::lang::Object> obj) {
+        return (typename I::template itable<x10::lang::Object>*)findITable(obj, &I::rtt);
     }
 }
 #endif

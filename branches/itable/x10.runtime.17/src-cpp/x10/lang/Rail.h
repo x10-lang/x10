@@ -26,21 +26,11 @@ namespace x10 {
             public:
             RTT_H_DECLS
 
-            static typename Iterable<T>::itable _itable_iterable;
-            static typename Settable<x10_int, T>::itable _itable_settable;
+            static typename Iterable<T>::template itable<Rail<T> > _itable_iterable;
+            static typename Settable<x10_int, T>::template itable<Rail<T> > _itable_settable;
             static x10aux::itable_entry _itables[3];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
-            static x10aux::ref<Iterator<T> >_itable_thunk_iterable(x10aux::ref<Iterable<T> > this_) {
-                x10aux::ref<Rail<T> > tmp = this_;
-                return tmp->iterator();
-            }
-
-            static T _itable_thunk_settable(x10aux::ref<Settable<x10_int, T> > this_, T arg0, x10_int arg1) {
-                x10aux::ref<Rail<T> > tmp = this_;
-                return tmp->set(arg0, arg1);
-            }
-            
             private:
 
             Rail(const Rail<T>& arr); // disabled
@@ -97,9 +87,9 @@ namespace x10 {
                                            x10aux::getRTT<Iterable<T> >());
         }
 
-        template <class T> typename Iterable<T>::itable Rail<T>::_itable_iterable(&Rail<T>::_itable_thunk_iterable);
+        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::iterator);
 
-        template <class T> typename Settable<x10_int, T>::itable Rail<T>::_itable_settable(&Rail<T>::_itable_thunk_settable);
+        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::set);
         
         template <class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
             x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
@@ -121,9 +111,10 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            typename Fun_0_1<x10_int,T>::itable *it = x10aux::findITable<Fun_0_1<x10_int,T> >(init);
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(init);
+            x10aux::ref<x10::lang::Object> initAsObj = init;
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = it->apply(init, i);
+                (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
             }
             return rail;
         }

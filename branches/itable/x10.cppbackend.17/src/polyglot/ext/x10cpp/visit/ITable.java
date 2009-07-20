@@ -27,6 +27,7 @@ public final class ITable {
 	private final X10ClassType interfaceType;
 	private final MethodInstance[] methods;
 	private final boolean hasOverloadedMethods;
+	private final boolean[] overloaded;
 
 	/**
 	 * Construct the ITable instance for the given X10 interface type
@@ -38,8 +39,14 @@ public final class ITable {
 		methods = collectMethods(interfaceType);
 		Arrays.sort(methods, new MethodComparator());
 		boolean foundOverload = false;
+		overloaded = new boolean[methods.length];
 		for (int i=1; i<methods.length; i++) {
-			foundOverload |= methods[i-1].name().toString().equals(methods[i].name().toString());
+			boolean ol = methods[i-1].name().toString().equals(methods[i].name().toString());
+			if (ol) {
+				overloaded[i-1] = true;
+				overloaded[i] = true;
+				foundOverload = true;
+			}
 		}
 		hasOverloadedMethods = foundOverload;
 	}
@@ -146,7 +153,11 @@ public final class ITable {
 		if (hasOverloadedMethods) {
 			for (int i=0; i<methods.length; i++) {
 				if (MethodComparator.compareTo(methods[i], meth) == 0) {
-					return "_m"+i+"__"+Emitter.mangled_method_name(meth.name().toString());
+					if (overloaded[i]) {
+						return "_m"+i+"__"+Emitter.mangled_method_name(meth.name().toString());
+					} else {
+						return Emitter.mangled_method_name(meth.name().toString());
+					}
 				}
 			}
 			assert false : "Method "+meth+" is not a member of interface "+interfaceType;
@@ -156,64 +167,76 @@ public final class ITable {
 		}
 	}
 
-	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth) {
+	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String memberPtr, boolean includeName) {
 		String returnType = emitter.translateType(meth.returnType(), true);
 		String name = mangledName(meth);
-		cw.write(returnType+" (*"+name+") ("+emitter.translateType(interfaceType, true));
+		cw.write(returnType+" ("+memberPtr+"::*"+(includeName ? name : "")+") (");
+		boolean first = true;
 		for (Type f : meth.formalTypes()) {
-			cw.write(", ");
+			if (!first) cw.write(", ");
 			cw.write(emitter.translateType(f, true));
+			first = false;
 		}
 		cw.write(")");
 	}
 
-
-	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
-		String interfaceCType = emitter.translateType(interfaceType, false);
-		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+"::itable _itable_"+itableNum+";"); h.newline();
-	}
-	
-	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
-		String interfaceCTypeRef = emitter.translateType(interfaceType, true);
+	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
 		String clsCTypeRef = emitter.translateType(cls, true);
 
-		// Static thunks.
-		// Trying to be clever with templates and member function pointers tends to result in ICEs in postcompilers. Sigh.
+		// Using thunks to resolve overloaded functions when filling in itable addresses.  
+		// TODO: There really should be some way to avoid needing this.
 		String thunkRoot = "_itable_thunk_"+itableNum+"_";
 		for (int i=0; i<methods.length; i++) {
-			MethodInstance meth = methods[i];
-			h.write("static "+emitter.translateType(meth.returnType(), true)+" "+thunkRoot+i+"("+interfaceCTypeRef+" this_");
-			List<Type> formals = meth.formalTypes();			
-			int argNum = 0;
-			for (Type argType : formals) {
-				h.write(", "+emitter.translateType(argType, true)+" arg"+argNum++);
+			if (overloaded[i]) {
+				MethodInstance meth = methods[i];
+				h.write(emitter.translateType(meth.returnType(), true)+" "+thunkRoot+i+"(");
+				List<Type> formals = meth.formalTypes();			
+				int argNum = 0;
+				for (Type argType : formals) {
+					if (argNum > 0) h.write(", ");
+					h.write(emitter.translateType(argType, true)+" arg"+argNum++);
+				}
+				h.write(") {"); h.newline(4); h.begin(0); 
+				h.write((!meth.returnType().isVoid() ? "return this->":"this->")+emitter.mangled_method_name(meth.name().toString())+"(");
+				for (argNum = 0; argNum<formals.size(); argNum++) {
+					h.write((argNum>0?", arg":"arg")+argNum);
+				}
+				h.write(");"); h.end(); h.newline();
+				h.write("}"); h.newline();
 			}
-			h.write(") {"); h.newline(4); h.begin(0); 
-			h.write(clsCTypeRef+" tmp = this_;"); h.newline();
-			h.write((!meth.returnType().isVoid() ? "return ":"")+"tmp->"+emitter.mangled_method_name(meth.name().toString())+"(");
-			for (argNum = 0; argNum<formals.size(); argNum++) {
-				h.write((argNum>0?", arg":"arg")+argNum);
-			}
-			h.write(");"); h.end(); h.newline();
-			h.write("}"); h.newline();
 		}
 	}
 
+	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
+		if (hasOverloadedMethods) {
+			emitThunks(cls, itableNum, emitter, h);
+		}
+		String interfaceCType = emitter.translateType(interfaceType, false);
+		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
+		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
+				(doubleTemplate ? "::template itable<":"::itable<")+emitter.translateType(cls, false)+" > _itable_"+itableNum+";"); 
+		h.newline();
+	}
+	
 	public void emitITableInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCType = emitter.translateType(interfaceType, false);
 		String clsCType = emitter.translateType(cls, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-		String itableCType = interfaceCType+"::itable";
-		String thunkRoot = "_itable_thunk_"+itableNum+"_";
 		
 		if (!cls.typeArguments().isEmpty()) {
             emitter.printTemplateSignature(cls.typeArguments(), sw);
 		}	
-		sw.write((doubleTemplate ? "typename " : "")+itableCType+" "+clsCType+"::_itable_"+itableNum+"(");
-		for (int i=0; i<methods.length; i++) {
-			if (i > 0) sw.write(", ");
-			sw.write("&"+clsCType+"::"+thunkRoot+i);
+		sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
+				emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"(");
+		int methodNum = 0;
+		for (MethodInstance meth : methods) {
+			if (methodNum > 0) sw.write(", ");
+			if (overloaded[methodNum]) {
+				sw.write("&"+clsCType+"::"+"_itable_thunk_"+itableNum+"_"+methodNum);
+			} else {			
+				sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
+			}
+			methodNum++;
 		}
 		sw.write(");"); sw.newline();
 	}
@@ -243,7 +266,6 @@ public final class ITable {
 				int fcompare = f1.toString().compareTo(f2.toString());
 				if (fcompare != 0) return fcompare;
 			}
-			// Formals all equal. Use return type as final comparison.
 			// TODO:  Does X10 also allow method overloading based on constraints or # of type parameters?
 			return m1.returnType().toString().compareTo(m2.returnType().toString());
 		}

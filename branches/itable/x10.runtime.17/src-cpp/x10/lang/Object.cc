@@ -35,7 +35,7 @@ x10_boolean Object::equals(x10aux::ref<Object> other) {
     return false;
 }
 
-itable_entry Object::_itables[1] = { itable_entry(0, NULL) };
+itable_entry Object::_itables[1] = { itable_entry(NULL, NULL) };
 
 
 // vim:tabstop=4:shiftwidth=4:expandtab
