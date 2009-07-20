@@ -1,4 +1,5 @@
-In the following lemmas and theorems, $\Gamma$ is assumed to well formed.
+In the statement of the following lemmas and theorems, $\Gamma$ is assumed well formed.
+We first start with the two pivotal lemmas that isolate the main body of the proof form the details of the axiomatization of type parameters.
 
 \begin{lem}\label{uni}
 If $\Gamma,x:T\vdash x~{\tt has}~I,x~{\tt has}~J$ where $I$ and $J$ are both fields or both methods with the same name then $I=J$ modulo alpha-renaming of the type and value parameters.
@@ -6,19 +7,25 @@ If $\Gamma,x:T\vdash x~{\tt has}~I,x~{\tt has}~J$ where $I$ and $J$ are both fie
 
 \begin{proof}
 By induction on the structure of $T$.
-\item If $T=U\{c\}$ then I and J must be both obtained by rule {\sc H-Dep}, hence the result by the induction hypothesis.
-\item If $T=\exists x:U.V$ then I and J must be both obtained by rule {\sc H-Exists}, hence the result by the induction hypothesis.
+\item If $T=U\{c\}$ then I and J must be both obtained by rule {\sc H-Dep}, hence I=J by induction hypothesis.
+\item If $T=\exists x:U.V$ then I and J must be both obtained by rule {\sc H-Exists}, hence I=J by induction hypothesis.
 \item If $T=X$ then T has no fields and no methods in FXG.
+\item If $T=C[\overline{A}]$ then I=J by definition of the overriding rules.
 \end{proof}
 
 
-\begin{lem}
+\begin{lem}\label{sum}\label{suf}
 If $\Gamma,x:T\vdash x<:G$ and $\Gamma,x:G\vdash x~{\tt has}~I$ then there exists $J$ such that $\Gamma,x:T\vdash x~{\tt has}~J,J \ll I$.
 \end{lem}
 
+\begin{proof}
+By induction on the structure of the proof of $\Gamma,x:T\vdash x<:G$. If the last rule used is:
+\item {\sc S-Class}: by rule {\sc L-Fields-I} and {\sc L-Method-I}.
+\item {\sc S-Const-L}: because $\ll$ is reflexive.
+\item Other rules: by induction hypothesis.
+\end{proof}
 
-
-\begin{thm}\label{pri}
+\begin{thm}[Principal Types]\label{pri}
 If $\Gamma\vdash e:T,e:S$ then $S=T$.
 \end{thm}
 
@@ -26,21 +33,15 @@ If $\Gamma\vdash e:T,e:S$ then $S=T$.
 By induction on the structure of $e$. There is exactly one typing rule for each kind of expression. Moreover, by Lemma~\ref{uni}, each type ``{\tt has}'' at most one field with name $f$ and method with name $m$, hence there is only one way the {\sc T-Field} and {\sc T-Invk} rules can be used to respectively type a field access or a method invocation.
 \end{proof}
 
+The following lemmas permit replacing one type by a subtype in various contexts.
+
 \begin{lem}\label{sub}
 If $\Gamma,x:X\vdash e:T$ and $\Gamma\vdash f:Y$ and $\Gamma,x:Y\vdash x<:X$ then there exists $S$ such that $\Gamma\vdash e[f/x]:S$ and $\Gamma,x:S\vdash x<:\exists y:Y.T$.
-\end{lem}
-
-\begin{lem}\label{suf}
-If $\Gamma,x:T\vdash x~{\tt has}~f:F$ and $\Gamma,x:S\vdash x<:T$ then $\Gamma,x:S\vdash x~{\tt has}~f:F$.
 \end{lem}
 
 \begin{lem}\label{suc}
 If $\Gamma,x:T\vdash c$ and $\Gamma,x:S\vdash x<:T$ then $\Gamma,x:S\vdash c$.
 \end{lem}
-
-\begin{lem}\label{sum}
-	If $\Gamma,x:T\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c\}:M$ and $\Gamma,x:S\vdash x<:T$ then $\Gamma,x:S\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{F})\{c'\}:M'$ and $\Gamma,x:S,\overline{f}:\overline{F},c',y:M'\vdash y<:M$ and $\Gamma,x:S,\overline{f}:\overline{F},c\vdash c'$.
-	\end{lem}
 
 \begin{lem}\label{sue}
 If $\Gamma,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exists y:S.U\vdash x<:\exists y:T.U$.
@@ -49,6 +50,10 @@ If $\Gamma,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exists y:
 \begin{lem}\label{sud}
 If $\Gamma,y:U,x:S\vdash x<:T$ and $\Gamma,x:T\vdash_W U$ then $\Gamma, x:\exists y:U.S\vdash x<:\exists y:U.T$.
 \end{lem}
+
+\begin{proof}
+Straightforward inductions.
+\end{proof}
 
 
 \begin{thm}[Subject Reduction]\label{sr}
@@ -152,7 +157,7 @@ let $t$ be & ${\tt new}~C[\overline{A}](\overline{v}[y/v_i])$
 where & $R'$ is $\exists\overline{x}:\overline{V}[V_i\{self==y\}/V_i].$\\
 & $~~C[\overline{A}]\{self=={\tt new}~C(\overline{x})\}$
 \\
-{\sc X-Sel} & $\sigma(\Gamma)\vdash_X y==t.f_i$
+ & $\sigma(\Gamma)\vdash_X y==t.f_i$
 \\
 {\sc X-Proj} & $\Gamma,y:V_i\vdash y==t.f_i$
 \\
@@ -292,7 +297,7 @@ Ind. hyp. & $\Gamma\vdash e':E'$
 \end{proof}
 
 
-\begin{thm}[Progress]
+\begin{thm}[Progress]\label{pro}
 If $\vdash e:T$ then one of the following conditions holds:
 \begin{enumerate}
 \item $e$ is a value,
@@ -319,11 +324,27 @@ Otherwise, if $a$ is a value then $e$ can make a step by rule {\sc R-Cast} since
 \end{itemize}
 \end{proof}
 
+
+\begin{thm}[Type Soundness]
+If $\vdash e:T$ and e reduces to a normal form $e'$ then either $e'$ contains a stuck cast sub-expression of the form $v~{\tt as}~G$ or $e'$ is a value $v$ and there exists $S$ such that $\vdash v:S$. Moreover, in that case, $x:S\vdash x<:T$.
+\end{thm}
+
+\begin{proof}
+Straightforward by Theorems~\ref{sr} and ~\ref{pro}.
+\end{proof}
+
+
+
 \begin{thm}[Method guards] If $\Gamma$ is a well-formed context and $\Gamma \vdash e.m[\overline{B}](\overline{a}):T$ and $e \rightarrow^*{\tt new}~C[\overline{A}](\overline{v})$ and $\overline{a} \rightarrow^* \overline{w}$ and ${\sf methods}(C[\overline{A}])\ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$ then $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{x}]$.
 \end{thm}
 
 \begin{proof}
+Straightforward.
+\end{proof}
+
+
+\eat{
 By {\sc T-Invk}, $\Gamma\vdash e:E, \overline{a}:\overline{A}$.
 By Th.~\ref{sr}, $\Gamma \vdash{\tt new}~C[\overline{A}](\overline{v}):R, \overline{w}:\overline{W}$ and 
-$\Gamma, x:R\vdash x<:E$ and $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$. By Lemma~\ref{sum},
-\end{proof}
+$\Gamma, x:R\vdash x<:E$ and $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$. By Lemma~\ref{sum}, ${\tt new}~C[\overline{A}]
+}
