@@ -32,6 +32,6 @@ x10aux::findITable(ref<Object> obj, RuntimeType *id) {
         }
     } while (itables[++i].id != 0);
     
-    fprintf(stderr, "ITable search failed: receiver class %s, target interface %s\n", obj->_type()->name(), *id->name());
+    fprintf(stderr, "ITable search failed: receiver class %s, target interface %s\n", obj->_type()->name(), id->name());
     abort();
 }
