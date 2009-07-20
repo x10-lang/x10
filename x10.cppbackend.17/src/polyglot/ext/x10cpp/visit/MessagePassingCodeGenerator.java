@@ -3129,7 +3129,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		// Optimization: if the target is a closure literal, inline the body
-		Closure_c lit = null;//getClosureLiteral(target); //FIXME
+		Closure_c lit = getClosureLiteral(target);
 		if (lit != null && inlineClosureCall(c, lit, args)) {
 		    return;
 		}
