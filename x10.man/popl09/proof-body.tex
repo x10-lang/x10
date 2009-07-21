@@ -335,16 +335,36 @@ Straightforward by Theorems~\ref{sr} and ~\ref{pro}.
 
 
 
-\begin{thm}[Method guards] If $\Gamma$ is a well-formed context and $\Gamma \vdash e.m[\overline{B}](\overline{a}):T$ and $e \rightarrow^*{\tt new}~C[\overline{A}](\overline{v})$ and $\overline{a} \rightarrow^* \overline{w}$ and ${\sf methods}(C[\overline{A}])\ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$ then $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{x}]$.
+\begin{thm}[Method guards] If $P$ is well-typed and $\Gamma$ is a well-formed context and $\Gamma \vdash e.m[\overline{B}](\overline{a}):T$ and $e \rightarrow^*{\tt new}~C[\overline{A}](\overline{v})$ and $\overline{a} \rightarrow^* \overline{w}$ and ${\sf methods}(C[\overline{A}])\ni m[\overline{B}](\overline{f}:\overline{F})\{c\}:M=e$ then $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{f}]$.
 \end{thm}
 
-\begin{proof}
-Straightforward.
+\begin{proof}Using subject reduction and overriding rules.\\
+\begin{tabular}{ll}
+{\sc T-Invk} & $\Gamma\vdash e:E, \overline{a}:\overline{A}$
+\\
+& $\Gamma, x:E,\overline{f}:\overline{A}\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{G})\{d\}:N$
+\\
+& $\Gamma, x:E,\overline{f}:\overline{A}\vdash d, \overline{f}<:\overline{G}$
+\\
+Th.~\ref{sr} & $\Gamma \vdash{\tt new}~C[\overline{A}](\overline{v}):R, \overline{w}:\overline{W}$
+\\
+& $\Gamma, x:R\vdash x<:E$
+\\
+& $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$
+\\
+{\sc T-New} & $R$ is $\exty{\overline{y}}{\overline{W}}{C[\overline{A}]}\{k\}$
+\\
+{\sc H-*} & $\Gamma,x:R\vdash x~{\tt has}~m[\overline{B}](\overline{f}:\overline{F\theta})\{c\theta\}:M\theta$
+\\
+where & $\theta$ is $x/this$
+\\
+Lemma~\ref{sum} & $\Gamma,x:R\vdash m[\overline{B}](\overline{f}:\overline{F\theta})\{c\theta\}:M\theta\ll m[\overline{B}](\overline{f}:\overline{G})\{d\}:N$
+\\
+{\sc O*-Method} & $\Gamma,x:R, \overline{f}:\overline{G}, d\vdash c\theta$ since $P$ is well-typed
+\\
+Lemma~\ref{suc} & $\Gamma,x:R, \overline{f}:\overline{W} \vdash c\theta$
+\\
+& $\Gamma\vdash c[{\tt new}~C[\overline{A}](\overline{v}),\overline{w}/this,\overline{f}]$
+\end{tabular}
+
 \end{proof}
-
-
-\eat{
-By {\sc T-Invk}, $\Gamma\vdash e:E, \overline{a}:\overline{A}$.
-By Th.~\ref{sr}, $\Gamma \vdash{\tt new}~C[\overline{A}](\overline{v}):R, \overline{w}:\overline{W}$ and 
-$\Gamma, x:R\vdash x<:E$ and $\Gamma, \overline{f}:\overline{W}\vdash \overline{f}<:\overline{A}$. By Lemma~\ref{sum}, ${\tt new}~C[\overline{A}]
-}
