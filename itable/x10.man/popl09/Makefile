@@ -10,7 +10,7 @@ TARGETS = generics.pdf
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
 TEXS = paper.tex \
-abstract.tex discussion.tex quad-semantics.tex related.tex self-types.tex translation.tex intro.tex x10-overview.tex cast.tex struct.tex \
+abstract.tex discussion.tex quad-semantics.tex related.tex self-types.tex translation.tex intro.tex x10-overview.tex cast.tex struct.tex design.tex \
        $(X10TEXS) $(STY)
 STY = defs.sty utils.sty
 #
@@ -71,5 +71,5 @@ PDFLATEX = TEXINPUTS=$(TEXDIR)${SEP} pdflatex
 	perl process-x10 -l $< > $@
 $(X10_FILES:.x10=.tex): process-x10
 
-DIRT += $(JXTEXS)
+DIRT += $(JXTEXS) paper.pdf $(TARGETS)
 

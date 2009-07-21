@@ -21,6 +21,12 @@ dependent types.
 We consider object-oriented languages with constraint-based type systems when 
 we discuss generic types, below.
 
+\eat{
+Ancona and Zucca~\cite{principal-typings}
+describe a type system for separate compilation in Java-like languages that uses an entailment relation on type environments.
+XXX
+}
+
 \paragraph{Dependent types.}
 
 Dependent type
@@ -111,7 +117,7 @@ form of separation logic.
 Constrained types permit a more natural expression of constraints
 than Coq formulas; however, unlike Ynot, they do not capture
 side-effects since they constrain
-only mutable object state.
+only immutable object state.
 
 \eat{
 Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
@@ -190,7 +196,7 @@ to Java.
 Genericity in object-oriented languages is usually
 supported through
 type parametrization.
-%Type parameterization is common
+%Type parametrization is common
 %in functional languages~\cite{ml,haskell}.
 
 A number of proposals 
@@ -198,19 +204,53 @@ for adding genericity to Java quickly followed
 the initial release of
 the language~\cite{GJ,java-popl97,thorup97,allen03}.
 GJ~\cite{GJ} implements invariant type
-parameters via type erasure.
-PolyJ~\cite{java-popl97} supports run-time representation of types
-via adapter objects, and also permits instantiation of
+parameters via type erasure.  Java5~\cite{Java3} adopted the same
+implementation approach, incorporating wildcards and raw types.
+Other proposals~\cite{java-popl97,nextgen,reflective-generics,type-passing-generics} support run-time representation of type parameters.
+PolyJ~\cite{java-popl97} permits instantiation of
 parameters on primitive types and structural parameter bounds.
-Viroli and Natali~\cite{reflective-generics,type-passing-generics}
-also support
-a run-time representation of types, using Java's reflection API.
-NextGen~\cite{nextgen,allen03} was implemented using run-time 
-instantiation.
+MixGen~\cite{allen03} supported mixins through type parametrization.
+
+Like \Xten's generics, Scala~\cite{scala}'s generic types provide
+definition-site variance annotations and polymorphic methods.  Type parameters
+definitions can specify bounds.  Scala also provides mixins and self types,
+abstract type members, and virtual types.
+
+Fortress~\cite{fortress} also support generic types.  Traits and objects may be
+parametrized on values as well as types.  Parametrization on values is
+limited to integers, naturals, booleans, and operators that are compile-time
+constants.  Value properties in \Xten can be of arbitrary type and can be
+initialized with arbitrary values; run-time constants (i.e., final expressions)
+can be used in constraints.  Fortress allows parameters to be hidden, reducing
+the programmer burden by allowing the compiler to infer the arguments.
+
+\emph{Virtual classes} and \emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+are another mechanism for supporting genericity, using nested types
+rather than parametrization.
+Thorup~\cite{thorup97} proposed using virtual types to provide genericity in
+Java, and much of the developemnt of Java's generics followed from virtual
+classes:
+use-site variance based on structural virtual types was proposed by
+Thorup and Torgersen~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}; the latter type system lead
+to the development of wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
+Dependent classes~\cite{dependent-classes} generalize virtual
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only on their enclosing
+instance; dependent classes, in contrast, depend on all the
+objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
+rather properties are members and types are constructed by
+constraining these properties.  Parametrization can be 
+encoded with type properties using equality constraints.
+
+\eat{
 \Xten{}'s generics have a hybrid implementation, adopting PolyJ's
 adapter object approach for dependent types and for 
 type introspection and using NextGen's run-time
 instantiation approach for greater efficiency.
+}
 % MixGen~\cite{allen04} extends NextGen with mixins.
 
 \csharp also supports generic types via run-time instantiation in the
@@ -252,7 +292,7 @@ Dynamic enforcement enables a more expressive assertion language
 at the cost of possible run-time failures.
 Integration of constrained types and generic types
 effectively allow parametrization of classes on constraints.
-Consider the \xcd"List" class in Figure~\ref{fig:list0}.
+Consider a \xcd"List" class parametrized on the element type.
 If the class is instantiated on a constrained type \xcd"C{c}",
 i.e., \xcd"List[C{c}]",
 then all elements of the list satisfy \xcd"c".

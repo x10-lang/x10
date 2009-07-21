@@ -27,7 +27,7 @@ import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.core.tests.callGraph.CallGraphTestUtil;
-import com.ibm.wala.eclipse.util.CancelException;
+import com.ibm.wala.util.CancelException;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.CallGraph;

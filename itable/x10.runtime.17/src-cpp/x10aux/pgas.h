@@ -55,6 +55,8 @@ namespace x10aux {
     	return (x10_boolean) (here() == place);
     }
 
+    extern volatile x10_long asyncs_sent;
+    extern volatile x10_long asyncs_received;
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 

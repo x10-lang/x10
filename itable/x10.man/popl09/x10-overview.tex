@@ -1,3 +1,4 @@
+
 \Xten{} is a class-based object-oriented language.
 that provides both dependent and generic types.
 The language has a sequential core similar to Java or Scala, but
@@ -8,226 +9,126 @@ inheritance and multiple interface inheritance.
 %\footnote{We plan
 %to support traits in a future version of the language.}
 
-A constrained type in \Xten{} is written \xcd"C{c}", where \xcd"C" is the
-name of a class and \xcd"c" is a constraint on the properties
-of \xcd"C" and the immutable state in scope at the type.  The
-constraint \xcd"c" may refer to the value being constrained through
-the special variable \xcd"self", which has type \xcd"C" in the
-constraint.  Constraints are drawn from a constraint language that,
-syntactically, is a subset of the boolean expressions of \Xten{}.  For
-brevity, the constraint may be omitted and interpreted as \xcd"true".
-
-Constraints may also be used as \emph{class invariants}, 
-which are constraints on the class's members and type parameters 
-that must be established by the class's
-constructor and that subsequently hold for all instances of the class.
-Methods and constructors may also be guarded by constraints on
-their formal parameters---including type parameters. The
-caller of a guarded method must ensure the constraint is
-satisfied.
-
-To illustrate the features of dependent types in \Xten{}, we
-develop a \xcd"List"
-class.  We will present several versions of \xcd"List" as we
-introduce new features.
-A \xcd"List" class with a type parameter \xcd"T" and an \xcd"int"
-property \xcd"len" is declared as in Figure~\ref{fig:list0}.
+To illustrate the features of \Xten{}, we
+develop a simple \xcd"Vector"
+class, shown in Figure~\ref{fig:vector}.
+The \xcd"Vector" class has a type parameter \xcd"T" and an \xcd"int"
+property \xcd"len" (line 1).
 Classes in \Xten{} may be declared with any number of type
 parameters and properties.
 
-\begin{figure}
-{
-\begin{xtennoindent}
-      class List[T](len: int) {
-        var head: T;
-        val tail: List[T];
-        def get(i: int): T {
-          if (i == 0) return head;
-          else return tail.get(i-1);
-        }
-        def this(hd: T, tl: List[T]):
-            List[T]{len==tl.len+1} {
-          super();
-          property(tl.len+1);
-          head = hd; tail = tl;
-        }
-      }
-\end{xtennoindent}
-}
-\caption{List example, simplified}
-\label{fig:list0}
-\end{figure}
-
-As in Scala, fields are declared using the keywords \xcd"var"
-or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
-field with type \xcd"T" (which resolves to \xcd"this.T"), and an
-immutable (final) \xcd"tail" field with type \xcd"List[T]".
+\xcd"Vector" has a single
+immutable (final) \xcd"data" field (line 2), of type \xcd"Rail[T]"---a ``rail'' in \Xten is a zero-based, one-dimensional array similar to Java's \xcd"T[]".
+The type of \xcd"data" is
+has a constraint specifying that the length of
+the \xcd"data" rail is the same as the vector length.
 Note that \xcd"this" occurring
 in the constraint refers to the instance of the enclosing
-\xcd"List" class,
+\xcd"Vector" class,
 and \xcd"self" refers to the value being
-constrained---\xcd"this.tail" in this case.
+constrained---\xcd"this.data" in this case.
 
-Methods are declared with the \xcd"def" keyword.
-The method \xcd"get" takes an integer \xcd"i" argument
-and returns the element at that position.
+\begin{figure}
+{\footnotesize
+\begin{numberedxten}
+class Pair[X,Y](x: X, y: Y) {
+  def this(xx: X, yy: Y): Pair[X,Y]{x==xx,y==yy} {
+    super();
+    property(xx, yy);
+  }
+
+  def reduce[Z](f: (X,Y)=>Z): Z = f(x,y);
+
+  def get(){x==y} = x;
+
+  def print(){X $\extends$ Printable, Y $\extends$ Printable} {
+      x.print();
+      Console.OUT.print(", ");
+      y.print();
+    }
+  }
+}
+\end{numberedxten}}
+\caption{A Vector class in \Xten}
+\label{fig:vector}
+\end{figure}
+
+Structural typing with print.
+
+
+
+Constraints may be used as \emph{class invariants}, 
+which are constraints on the class's properties and type
+parameters.  The invariant must be established by the class's
+constructor and subsequently holds for all instances of the
+class.
+\xcd"Vector"'s class invariant (line 1, in curly braces)
+specifies that the length of
+the vector be non-negative.
+The class invariant may also place constraints on the type
+parameters, as discussed below.
 
 Objects in \Xten{} are initialized with constructors, which
 must ensure that all properties of the new object
 are initialized and that the class invariants of the object's
 class and its superclasses and superinterfaces hold.
-\Xten{} uses method syntax with the name
-\xcd"this" for constructors.
+\Xten{} uses the syntax \xcd"def" \xcd"this" for constructors.
 In \Xten{}, constructors have a ``return type'', which constrains
 the properties of the new object.  The constructor in
-Figure~\ref{fig:list0} takes a type argument \xcd"T"
-and two value arguments \xcd"hd" and \xcd"tl".  The constructor
-return type specifies that the constructor initializes the
-object to have type \xcd"List[T]{len==tl.len+1}".
-The formal parameter types and return types of both methods and
-constructors may refer to final parameters of the same
-declaration.
+Figure~\ref{fig:vector} (lines 4--8) takes
+two arguments---an integer \xcd"n", and a function from integers
+to \xcd"T", \xcd"init"---and 
+initializes the
+object to have type \xcd"Vector[T]{len==n}".
 
 The body of the constructor
-begins with a \xcd"super" call that invokes the superclass
-constructor.  In the case of \xcd"List", the superclass is
+invokes the superclass constructor through a \xcd"super" call.
+In this case, the superclass is
 \xcd"Object" and its constructor takes no arguments.
-Nullary \xcd"super" calls can be elided from the X10 programs.
-A \xcd"property" statement that initializes the
+A \xcd"property" statement then initializes the
 properties of the new instance.  All properties are initialized
 simultaneously and it is required that the property assignment
 entails the constraint in the constructor return type.
 The remainder of the constructor assigns the fields of the
-instance with the constructor arguments.
+instance from the constructor arguments.
 
-We next illustrate more advanced features of \Xten by
-presenting a new version of \xcd"List", shown
-in Figure~\ref{fig:list}.
-
-\begin{figure}
-{\footnotesize
-\begin{xtenmathnoindent}
-class List[T](len: int){len >= 0) {
-  var head: T;
-  val tail: List[T]{self.len==this.len-1};
-
-  def map[S](f: T => S): List[S]{self.len==this.len} {
-    return new List[S](f(head), tail.map[S](f));
-  }
-
-  def get(i: int{0 <= self, self < len}){len > 0}: T {
-    if (i == 0)
-      return head;
-    val tl = tail as List{len>0};
-    val i1 = i-1 as int{0 <= self,self < tail.len};
-    return tl.get(i1);
-  }
-
-  def this(hd: T, tl: List[T]):
-      List[T]{len==tl.len+1} {
-    super();
-    property(tl.len+1);
-    head = hd; tail = tl;
-  }
-
-  def print(){T $\extends$ Printable} {
-    head.print();
-    println(", ");
-    tail.print();
-  }
-}
-\end{xtenmathnoindent}}
-\caption{List example, extended}
-\label{fig:list}
-\end{figure}
-
-\subsection{Class invariants}
-
-Properties of a class may be constrained with 
-a \emph{class invariant}.
-\xcd"List"'s class invariant in
-Figure~\ref{fig:list} specifies that the length of
-the list be non-negative.
-The class invariant must be established by all constructors of
-the class and subsequently can be assumed for all instances of the class.
-
-For generic types, the invariant is used to provide 
-bounds on the type parameters.
-For example, in the following code,
-\xcd"SortedList" 
-specifies that the element type \xcd"T"
-be a subtype of \xcd"Comparable[T]":
-\begin{xtenmath}
-class SortedList[T] {T$\extends$Comparable[T]} {
-  def sort() { ... x.compare(y) ... }
-}
-\end{xtenmath}
-Constraints can specify either subtype (\xcd"<="), supertype (\xcd">="),
-or equality bounds (\xcd"==").
-
-\subsection{Methods}
-
+Methods are declared with the \xcd"def" keyword.
 Methods in \Xten may have type parameters.  
-For instance, the \xcd"map" method in Figure~\ref{fig:list} 
+For instance, the \xcd"map" method (lines 10--12)
 has a type parameter \xcd"S" and a value parameter that is a
 function from \xcd"T" to \xcd"S".
 A parametrized method is invoked by giving type arguments before the
-expression arguments (see the recursive call to
-\xcd"map").\footnote{In \Xten, actual type arguments can be
-inferred from the types of the value arguments.  However, type
+expression arguments, e.g., \xcd"v.map[int](f)".\footnote{In \Xten, actual type
+arguments can be inferred from the types of the value arguments.  However, type
 inference is out of the scope of this paper.}
 
-Method declarations in \Xten
-may also have additional
-constraints, or \emph{guards}, on the method parameters.  A
-method guard must be satisfied by the caller of the method, and
-the guard holds throughout the method body.
-The guard may constrain both the value and type parameters of
-the method; it may also constrain other types in
-scope at the declaration, including the enclosing class's type parameters.
+The method \xcd"get" (lines 14--16) takes an integer argument \xcd"i"
+and returns the element at that position.  The type of \xcd"i"
+is constrained to be within the bounds of the vector. 
 
-The method \xcd"get" in Figure~\ref{fig:list}
-has a constraint on the type of \xcd"i" that requires
-that it be within the list bounds.
-The method also has a guard that
+Method and constructors
+may also have additional
+constraints, or \emph{guards}, on their parameters.  A
+guard must be satisfied by the caller of the method and
+holds throughout the body.
+For instance, 
+\xcd"get"
+has a guard that requires that the 
 requires that the actual
 receiver's
-\xcd"len" property must be positive---calls to \xcd"get" on empty
-lists are not permitted.
-A method with a guard is called a \emph{conditional method}.
-The constraint on \xcd"get" ensures that the guard on 
-\xcd"tail" is satisfied in the method body.
-In the method body, the \xcd"head" of the list is returned for
-position \xcd"0"; otherwise, the call recurses on \xcd"tail".
-For this example to type-check, the constraint system
-must establish
-the guard on the recursive call to \xcd"get".
-This is done explicitly by performing run-time casts using the
-\xcd"as" operator.\footnote{Support for flow-sensitive constraints
-would obviate the need for
-run-time casts in this context.}
-\eat{
-The constraint solver must prove
-{\footnotesize
-$$
-\begin{array}[t]{l}
-\tt len > 0, tail.len=len-1, 0 \leq i, i < len, i \not= 0 \\
-\tt \quad\vdash tail.len > 0, 0 \leq i-1,i-1 < tail.len 
-\end{array}
-$$}
-}
+\xcd"len" property be positive---calls to \xcd"get" on empty
+vectors are not permitted.
+The guard may constrain not only the value and type parameters of
+the method, but also other types in
+scope at the declaration, including the enclosing class's type parameters.
 
 Method guards can also constrain type parameters.
-For instance, the \xcd"print" method can be invoked only if
-\xcd"T" is instantiated on a type that implements
-\xcd"Printable".  Since the guard holds in the body of the
-method, the \xcd"print" method can be invoked on \xcd"head"---it
+For instance, the \xcd"print" method (lines 18--24) can be invoked only if
+the type parameter \xcd"T" is instantiated on a type that implements
+\xcd"Printable".  Since the guard holds throughout the body of the
+method, the \xcd"print" method can be invoked on each element of \xcd"data"---it
 is guaranteed to implement \xcd"Printable".
-This feature is similar to optional methods in CLU~\cite{clu}.
-Using structural constraints on \xcd"T" would give more
-expressive power; optional methods are discussed further in
-Section~\ref{sec:discussion}.
-Constructors in \Xten may also have guards.
+This feature is similar to optional methods in CLU~\cite{clu} and to generlized type constraints in C$\sharp$~\cite{emir06}.
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
@@ -252,8 +153,22 @@ The second constructor takes an argument for the head of the
 list; the third takes both a head and tail.
 }
 
-\subsection{Type constraints and variance}
+\paragraph{Type constraints and variance}
 \label{sec:variance-overview}
+
+For generic types, the class invariant may also be used to provide 
+bounds on the type parameters.
+For example, in the following code,
+\xcd"SortedList" 
+specifies that the element type \xcd"T"
+be a subtype of \xcd"Comparable[T]":
+\begin{xtenmathnoindent}
+ class SortedList[T] {T$\extends$Comparable[T]} extends List[T] {
+   def sort() { ... x.compare(y) ... }
+ }
+\end{xtenmathnoindent}
+Constraints can specify either subtype (\xcd"<="), supertype (\xcd">="),
+or equality bounds (\xcd"==").
 
 \Xten supports definition-site variance annotations.
 Parameters may be declared invariant, covariant, or
@@ -274,85 +189,4 @@ parameter to occur in a positive position.  A position is
 negative if it is a formal parameter type, or occurs in a method
 where clause.  A position is positive if it is a return type or
 occurs in a method constraint.
-
-\todo{
-Variant type parameters used in method guards and in other
-constraints in method signatures must also be
-restricted.  
-}
-
-\eat{
-\subsection{Methods}
-
-Methods in \Xten{} are declared with the \xcd"def" keyword.
-The \xcd"List" class in Figure~\ref{fig:list} declares methods
-\xcd"get" and \xcd"map".
-
-Like Java, \Xten{} supports both instance and static methods.
-Since a type property is an instance member, a static method may
-not refer to a type property of the class.
-
-Interfaces are also permitted to have static methods.  Classes
-implementing the interface must provide an implementation of the
-static methods of the interface.
-This feature is
-useful when a type property \xcd"T" is constrained to implement
-an interface \xcd"I"; static methods of \xcd"I" can be invoked
-through \xcd"T".
-}
-
-\eat{
-\subsection{Interfaces}
-
-optional interfaces
-value properties in interfaces
-static methods in interfaces
-
-\subsubsection{Optional methods and interfaces}
-
-Method constraints also provide support for optional methods.
-
-{
-\begin{xtenmath}
-class List[T] {
-  ...
-  def print(){T $\extends$ Printable} {
-    for (x: T in this)
-      x.print();
-}
-}
-\end{xtenmath}}
-
-\xcd"List.print" may only be called on lists instantiated on
-subtypes of the \xcd"Printable" interface.
-
-Optional methods generalize to optional interfaces.
-
-{\footnotesize
-\begin{xtenmath}
-interface Printable { def print(); }
-
-class List[T] implements Printable if {T $\extends$ Printable} {
-  ...
-  def print(){T $\extends$ Printable} {
-    for (x: T in this)
-      x.print();
-  }
-}
-\end{xtenmath}}
-
-In this case \xcd"List" implements the \xcd"Printable" interface
-only if \xcd"List.T" implements \xcd"Printable".
-Thus \xcd"List{T==String}"
-and \xcd"List{T==List[String]}"
-are subtypes of \xcd"Printable", but
-\xcd"List{T" \xcd"==FourLetterWord}" is not.
-
-
-Without optional interfaces, \xcd"List" cannot be a subtype
-of \xcd"Printable".  The constraint \xcdmath"{T $\extends$ Printable}" on
-the \xcd"print" method is more restrictive than the 
-constraint (i.e., \xcd"true") on 
-\xcd"Printable.print".
-}
 

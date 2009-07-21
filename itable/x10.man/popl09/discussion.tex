@@ -7,34 +7,45 @@ different approach to adding generics to \Xten based on a
 generlization of properties.
 A \emph{type property}
 is a final object member initialized at construction-time with a
-concrete type.  Like normal value properties, type properties
+concrete type.  Type properties and other type-valued variables
+are declared just as normal variables but with type \xcd"*".
+Like normal value properties, type properties
 can be used in constrained types through the variable \xcd"self".
 
-For example, the \xcd"List" class of Figure~\ref{fig:list0}
-could be written as shown in Figure~\ref{fig:list0prop}.
+For example, the \xcd"Vector" class of Figure~\ref{fig:vector}
+could be written as shown in Figure~\ref{fig:vprop}.
 The class has a type-valued property \xcd"T" and a value property \xcd"len".
 \begin{figure}
 {
 \begin{xtennoindent}
-      class List(T: *, len: int) {
-        var head: T;
-        val tail: List{self.T==this.T}
-        def get(i: int): T {
-          if (i == 0) return head;
-          else return tail.get(i-1);
-        }
-        def this(S: *, hd: T, tl: List{self.T==S}):
-            List{self.T==S,len==tl.len+1} {
-          super();
-          property(S, tl.len+1);
-          head = hd; tail = tl;
-        }
-      }
+class List(T: *, len: int) {
+  val data: Rail(T);
+
+  def this(S: *, n: int, init: (int) => T):
+      Vector{self.T==S,self.len==n} {
+    super();
+    property(S, n);
+    ...
+  }
+
+  def map(S: *, f: T => S):
+      Vector{self.T==S,self.len==this.len} { ... }
+
+  def get(i: int{0 <= self, self < len}): this.T { ... }
+
+  ...
+}
 \end{xtennoindent}
 }
-\caption{List example, with type properties}
-\label{fig:list0prop}
+\caption{Vector example, with type properties}
+\label{fig:vprop}
 \end{figure}
+
+The constructor of \xcd"Vector" takes an additional type-valued
+argument \xcd"S", which is used to initialize the type property
+\xcd"T".  The \xcd"map" method takes a type argument \xcd"S" among its
+formal parameters and returns a \xcd"Vector" whose \xcd"T"
+property is constrained to be equal to \xcd"S".
 
 Subtyping constraints on type properties may be used to
 provide \emph{use-site variance} constraints.
@@ -47,47 +58,47 @@ Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
 type properties
 have similar expressive power.
 
-Consider the following subtypes of \xcd"List":
+Consider the following subtypes of \xcd"Vector":
 \begin{itemize}
-\item \xcd"List".  This type has no constraints on the type
+\item \xcd"Vector".  This type has no constraints on the type
 property \xcd"T".
 Any type that constrains \xcd"T"
-is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
-\xcd"List{true}".
+is a subtype of \xcd"Vector".  The type \xcd"Vector" is equivalent to
+\xcd"Vector{true}".
 %
-For a \xcd"List" \xcd"xs", the return type of the \xcd"get" method
-is \xcd"xs.T".
+For a \xcd"Vector" \xcd"v", the return type of the \xcd"get" method
+is \xcd"v.T".
 Since the property \xcd"T" is unconstrained,
 the caller can only assign the return value of \xcd"get"
-to a variable of type \xcd"xs.T" or of type \xcd"Object".
+to a variable of type \xcd"v.T" or of type \xcd"Object".
 
-\item \xcd"List{T==float}".
+\item \xcd"Vector{T==float}".
 The type property \xcd"T" is bound to \xcd"float".
-For a final expression \xcd"xs" of this type,
-\xcd"xs.T" and \xcd"float" are equivalent types and can be used
+For a final expression \xcd"v" of this type,
+\xcd"v.T" and \xcd"float" are equivalent types and can be used
 interchangeably.
-The syntax \xcd"List[float]" is used as
-shorthand for \xcd"List{T==float}".
+The syntax \xcd"Vector[float]" is used as
+shorthand for \xcd"Vector{T==float}".
 
-\item \xcdmath"List{T$\extends$Collection}".
+\item \xcdmath"Vector{T$\extends$Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
 All instances of this type must bind \xcd"T" to a subtype of
-\xcd"Collection"; for example \xcd"List[Set]" (i.e.,
-\xcd"List{T==Set}") is a subtype of
-\xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcd"Collection"; for example \xcd"Vector[Set]" (i.e.,
+\xcd"Vector{T==Set}") is a subtype of
+\xcdmath"Vector{T$\extends$Collection}" because \xcd"T==Set" entails
 \xcdmath"T"
 \xcdmath"$\extends$"
 \xcdmath"Collection".
 %
-If \xcd"xs" has the type \xcdmath"List{T$\extends$Collection}",
-then the return type of \xcd"get" has type \xcd"xs.T", which is an unknown but
+If \xcd"v" has the type \xcdmath"Vector{T$\extends$Collection}",
+then the return type of \xcd"get" has type \xcd"v.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
-\item \xcdmath"List{T$\super$String}".  This type bounds the type property
+\item \xcdmath"Vector{T$\super$String}".  This type bounds the type property
 \xcd"T"
-from below.  For a \xcd"List" \xcd"xs" of this type, any
-supertype of \xcd"String" may flow into a variable of type \xcd"xs.T".
+from below.  For a \xcd"Vector" \xcd"v" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"v.T".
 The return type of the \xcd"get"
 method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
@@ -224,6 +235,16 @@ one uses the constrained subtypes
 Type properties can also be refined contravariantly.
 For instance, one can write the type \xcdmath"List{T$\super$Integer}".
 
+Dependent classes~\cite{dependent-classes} generalize virtual
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only other their enclosing
+instance; dependent classes, in contrast, depend on any number
+of objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
+rather properties are members and types are constructed by
+constraining these properties.  Parametrization can be 
+encoded with type properties using equality constraints.
+
 \subsection{Wildcards}
 \label{sec:wildcards}
 
@@ -321,11 +342,10 @@ class Object(type:*){type <= Object} { $\dots$ }
 \end{xtenmath}
 
 \noindent
-The type
 For any final path expression \Xcd{p}, the type
 $\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
 but statically unknown, run-time class referred to by \Xcd{p}.
-Scala's path-dependent types~\cite{scala-book} and J\&'s
+Scala's path-dependent types~\cite{scala} and J\&'s
 dependent classes~\cite{nqm06}
 take a similar approach.
 

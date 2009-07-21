@@ -31,8 +31,8 @@ TO_STRING(12, x10_int, signed long, "%ld")
 TO_STRING(20, x10_ulong, unsigned long long, "%llu")
 TO_STRING(21, x10_long, signed long long, "%lld")
 
-ref<String> x10aux::to_string(float v) {
-    return x10aux::to_string((double)v);
+ref<String> x10aux::to_string(x10_float v) {
+    return x10aux::to_string((x10_double)v);
 }
 
 
@@ -45,7 +45,8 @@ void kill_excess_zeroes(char *buf, size_t sz) {
 }   
 
 
-ref<String> x10aux::to_string(double v) {
+ref<String> x10aux::to_string(x10_double v_) {
+    double v = (double)v_;
     char buf[120] = "";
     if (x10aux::math::isnan(v)) {
         ::snprintf(buf, sizeof(buf), "NaN");
@@ -81,10 +82,10 @@ ref<String> x10aux::to_string(double v) {
 }   
     
 
-ref<String> x10aux::to_string(bool v) {
+ref<String> x10aux::to_string(x10_boolean v) {
     static ref<String> t = String::Lit("true");
     static ref<String> f = String::Lit("false");
-    return v ? t : f;
+    return ((bool)v) ? t : f;
 }   
     
 ref<String> x10aux::to_string(x10_char v) {

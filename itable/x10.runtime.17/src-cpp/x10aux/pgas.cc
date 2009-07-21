@@ -16,6 +16,8 @@ using namespace x10::lang;
 using namespace x10aux;
 
 // keep a counter for the session.
+volatile x10_long x10aux::asyncs_sent = 0;
+volatile x10_long x10aux::asyncs_received = 0;
 volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
@@ -34,6 +36,7 @@ void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
         <<" to place: "<<place);
     buf.write(body,m);
     serialized_bytes += buf.length();
+    asyncs_sent++;
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<buf.length());
 
     void *handle = x10rt_async_spawn(place, buf.get(), buf.length(), QUEUED_ASYNC);
@@ -75,6 +78,7 @@ static void deserialize_remote_closure(void *cl, int) {
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
         _X_("The deserialised async was: "<<ref<Object>(async)->toString()->c_str());
         deserialized_bytes += buf.length();
+        asyncs_received++;
         (ref<Object>(async).get()->*(findITable<VoidFun_0_0>(async)->apply))();
 }
 #endif

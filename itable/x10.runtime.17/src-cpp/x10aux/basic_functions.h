@@ -242,30 +242,20 @@ namespace x10aux {
         return x.toString();
     }
 
-    // [DC] importing the old code requires me to put these back to what they
-    // were.  Please add more options if types are not found, but do not use
-    // the x10_ typedefs since this will break the implementation in unpleasant
-    // ways (e.g. by using the wrong printf format specifier).
-    
-    ref<x10::lang::String> to_string(bool v);
-    ref<x10::lang::String> to_string(unsigned char v);
-    ref<x10::lang::String> to_string(signed char v);
-    ref<x10::lang::String> to_string(unsigned short v);
-    ref<x10::lang::String> to_string(signed short v);
-    ref<x10::lang::String> to_string(unsigned int v);
-    ref<x10::lang::String> to_string(signed int v);
-    ref<x10::lang::String> to_string(unsigned long v);
-    ref<x10::lang::String> to_string(signed long v);
-    ref<x10::lang::String> to_string(unsigned long long v);
-    ref<x10::lang::String> to_string(signed long long v);
-    
-    ref<x10::lang::String> to_string(float v);
-    ref<x10::lang::String> to_string(double v);
+    ref<x10::lang::String> to_string(x10_boolean v);
+    ref<x10::lang::String> to_string(x10_ubyte v);
+    ref<x10::lang::String> to_string(x10_byte v);
+    ref<x10::lang::String> to_string(x10_ushort v);
+    ref<x10::lang::String> to_string(x10_short v);
+    ref<x10::lang::String> to_string(x10_uint v);
+    ref<x10::lang::String> to_string(x10_int v);
+    ref<x10::lang::String> to_string(x10_ulong v);
+    ref<x10::lang::String> to_string(x10_long v);
 
-    // special case -- we want a static error if it conflicts with any of the above
+    ref<x10::lang::String> to_string(x10_float v);
+    ref<x10::lang::String> to_string(x10_double v);
+
     ref<x10::lang::String> to_string(x10_char v);
-
-
 
 }
 
