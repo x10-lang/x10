@@ -1774,13 +1774,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (e == null) {
 			sw.write("return;");
 		} else {
-			// Hack around g++ 4.1 bug with expression statements. See XTENLANG-461.
-			sw.write("{"); sw.newline(4); sw.begin(0);
-			sw.write(emitter.translateType(e.type(), true)+" _returnVal = ");
+			sw.write("return ");
 			ret.print(e, sw, tr); 
 			sw.write(";"); sw.newline();
-			sw.write("return _returnVal;"); sw.newline(); sw.end();
-			sw.write("};"); sw.newline();
 		}
 	}
 
@@ -2135,19 +2131,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		ITable itable= ITable.getITable(clsType);
                     		targetMethodName = itable.mangledName(mi);
                     		isInterfaceInvoke = true;
-                    		if (mi.returnType().isVoid()) {
+                    		if (ret_type.isVoid()) {
                     			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
                         		n.printSubExpr((Expr) target, assoc, sw, tr);
                         		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                         		dangling = "; }))";                    			
                     		} else {
-                    			// Note: working around g++ 4.1.2 bug in statement expressions by declaring
-                    			//       a variable to hold the result of the interface call, then using the variable
-                    			//       as the type of the expression.
-                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = ");
+                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
                     			n.printSubExpr((Expr) target, assoc, sw, tr);
-                    			sw.write("; "+emitter.translateType(mi.returnType(), true)+" _2 = (_1.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_1->_getITables())->"+itable.mangledName(mi)+"))");
-                    			dangling = "; _2; }))";
+                    			sw.write("; x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(ret_type, true))+"::_((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                    			dangling = "); }))";
                     		}
                     	}
                    }
@@ -2695,10 +2688,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String iteratorTypeRef = emitter.translateType(xts.Iterator(form.type().type()), true);
 		boolean doubleTemplate = ((X10ClassType)context.currentClass()).typeArguments().size() > 0;
 		
-		sw.write("x10aux::ref<x10::lang::Object> " + name + " = ");
+		sw.write("x10aux::ref<x10::lang::Object> " + name + " = "+iteratorTypeRef);
 		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = ");
 		n.print(domain, sw, tr);
-		sw.write("; x10aux::ref<x10::lang::Object> _2 = (_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))(); _2; }));"); sw.newline();
+		sw.write("; x10aux::GXX_ICE_Workaround"+chevrons(iteratorTypeRef)+"::_((_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))()); }));"); sw.newline();
 		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 		
 		sw.write("for (");
@@ -3260,7 +3253,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
 		c.printSubExpr(target, sw, tr);
-		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");
+		sw.write("; "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");
 		sw.begin(0);
 
 		List l = args;
@@ -3273,7 +3266,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			first = false;
 		}
 		sw.end();
-		sw.write(");}))");
+		sw.write("));}))");
 	}
 
 
