@@ -59,17 +59,17 @@ namespace x10aux {
         void* itable;
     };
 
-
     /*
-     * Find the itable for obj that matches the given id
+     * Search itables to find the itable that matches I and return it.
      */
-    extern void* findITable(ref<x10::lang::Object> obj, RuntimeType *id);
-
-    /*
-     * Find the I itable for obj
-     */
-    template<class I> inline typename I::template itable<x10::lang::Object>* findITable(ref<x10::lang::Object> obj) {
-        return (typename I::template itable<x10::lang::Object>*)findITable(obj, &I::rtt);
+    template<class I> inline typename I::template itable<x10::lang::Object>* findITable(itable_entry* itables) {
+        RuntimeType *id = &I::rtt;
+        for (int i=0; true; i++) {
+            if (itables[i].id == id) {
+                return (typename I::template itable<x10::lang::Object>*)(itables[i].itable);
+            }
+            assert(itables[++i].id != 0); // Implies we ran off the end of the itable array without a match
+        }
     }
 }
 #endif

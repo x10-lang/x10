@@ -2138,7 +2138,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		if (mi.returnType().isVoid()) {
                     			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
                         		n.printSubExpr((Expr) target, assoc, sw, tr);
-                        		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_)->"+itable.mangledName(mi)+"))");
+                        		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                         		dangling = "; }))";                    			
                     		} else {
                     			// Note: working around g++ 4.1.2 bug in statement expressions by declaring
@@ -2146,7 +2146,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     			//       as the type of the expression.
                     			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = ");
                     			n.printSubExpr((Expr) target, assoc, sw, tr);
-                    			sw.write("; "+emitter.translateType(mi.returnType(), true)+" _2 = (_1.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_1)->"+itable.mangledName(mi)+"))");
+                    			sw.write("; "+emitter.translateType(mi.returnType(), true)+" _2 = (_1.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_1->_getITables())->"+itable.mangledName(mi)+"))");
                     			dangling = "; _2; }))";
                     		}
                     	}
@@ -2698,8 +2698,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("x10aux::ref<x10::lang::Object> " + name + " = ");
 		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = ");
 		n.print(domain, sw, tr);
-		sw.write("; x10aux::ref<x10::lang::Object> _2 = (_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1)->iterator))(); _2; }));"); sw.newline();
-		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+");"); sw.newline();
+		sw.write("; x10aux::ref<x10::lang::Object> _2 = (_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))(); _2; }));"); sw.newline();
+		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 		
 		sw.write("for (");
 		sw.begin(0);
@@ -3260,7 +3260,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
 		c.printSubExpr(target, sw, tr);
-		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_)->apply))(");
+		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");
 		sw.begin(0);
 
 		List l = args;
