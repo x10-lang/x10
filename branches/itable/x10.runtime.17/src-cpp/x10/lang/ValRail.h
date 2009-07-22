@@ -149,8 +149,8 @@ namespace x10 {
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(init);
             x10aux::ref<x10::lang::Object> initAsObj = init;
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
             }
