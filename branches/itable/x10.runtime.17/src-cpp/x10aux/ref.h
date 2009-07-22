@@ -218,6 +218,15 @@ namespace x10aux {
         return location(ptr.get());
     }
 
+    // Hack around g++ 4.1 bugs with statement expression.
+    // See XTENLANG-461.
+#if defined(__GNUC__)
+    template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
+    template<class T> class GXX_ICE_Workaround<ref<T> > { public: static inline T* _(ref<T> v) { return v.get(); } };
+#else
+    template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
+#endif
+    
 } //namespace x10
 
 
