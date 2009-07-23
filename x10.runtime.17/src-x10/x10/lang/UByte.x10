@@ -18,111 +18,111 @@ import x10.compiler.NativeRep;
 public final value UByte {
     @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:UByte) < (y:UByte): Boolean;
+    public native static safe operator (x:UByte) < (y:UByte): Boolean;
 
     @Native("java", "x10.core.Unsigned.gt(#1, #2)")
     @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:UByte) > (y:UByte): Boolean;
+    public native static safe operator (x:UByte) > (y:UByte): Boolean;
 
     @Native("java", "x10.core.Unsigned.le(#1, #2)")
     @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:UByte) <= (y:UByte): Boolean;
+    public native static safe operator (x:UByte) <= (y:UByte): Boolean;
 
     @Native("java", "x10.core.Unsigned.ge(#1, #2)")
     @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:UByte) >= (y:UByte): Boolean;
+    public native static safe operator (x:UByte) >= (y:UByte): Boolean;
 
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((#1) + (#2))")
-    public native static operator (x:UByte) + (y:UByte): UInt;
+    public native static safe operator (x:UByte) + (y:UByte): UInt;
 
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:UByte) - (y:UByte): Int;
+    public native static safe operator (x:UByte) - (y:UByte): Int;
 
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((#1) * (#2))")
-    public native static operator (x:UByte) * (y:UByte): UInt;
+    public native static safe operator (x:UByte) * (y:UByte): UInt;
 
     @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((#1) / (#2))")
-    public native static operator (x:UByte) / (y:UByte): UInt;
+    public native static safe operator (x:UByte) / (y:UByte): UInt;
 
     @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((#1) % (#2))")
-    public native static operator (x:UByte) % (y:UByte): UInt;
+    public native static safe operator (x:UByte) % (y:UByte): UInt;
     
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((#1) & (#2))")
-    public native static operator (x:UByte) & (y:UByte): UInt;
+    public native static safe operator (x:UByte) & (y:UByte): UInt;
     
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((#1) ^ (#2))")
-    public native static operator (x:UByte) ^ (y:UByte): UInt;
+    public native static safe operator (x:UByte) ^ (y:UByte): UInt;
     
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((#1) | (#2))")
-    public native static operator (x:UByte) | (y:UByte): UInt;
+    public native static safe operator (x:UByte) | (y:UByte): UInt;
     
     @Native("java", "((#1) << (#2))")
     @Native("c++",  "((#1) << (#2))")
-    public native static operator (x:UByte) << (y:Int): UInt;
+    public native static safe operator (x:UByte) << (y:Int): UInt;
     
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((#1) >> (#2))")
-    public native static operator (x:UByte) >> (y:Int): UInt;
+    public native static safe operator (x:UByte) >> (y:Int): UInt;
 
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((#1) >> (#2))")
-    public native static operator (x:UByte) >>> (y:Int): UInt;
+    public native static safe operator (x:UByte) >>> (y:Int): UInt;
     
     @Native("java", "+(#1)")
     @Native("c++",  "+(#1)")
-    public native static operator + (x:UByte): UInt;
+    public native static safe operator + (x:UByte): UInt;
     
     @Native("java", "-(#1)")
     @Native("c++",  "-(#1)")
-    public native static operator - (x:UByte): Int;
+    public native static safe operator - (x:UByte): Int;
     
     @Native("java", "~(#1)")
     @Native("c++",  "~(#1)")
-    public native static operator ~ (x:UByte): UInt;
+    public native static safe operator ~ (x:UByte): UInt;
     
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:UShort) as UByte;
+    public native static safe operator (x:UShort) as UByte;
 
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:UInt) as UByte;
+    public native static safe operator (x:UInt) as UByte;
 
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:ULong) as UByte;
+    public native static safe operator (x:ULong) as UByte;
     
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Byte) as UByte;
+    public native static safe operator (x:Byte) as UByte;
 
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Short) as UByte;
+    public native static safe operator (x:Short) as UByte;
 
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Int) as UByte;
+    public native static safe operator (x:Int) as UByte;
 
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Long) as UByte;
+    public native static safe operator (x:Long) as UByte;
     
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Float) as UByte;
+    public native static safe operator (x:Float) as UByte;
     
     @Native("java", "((byte) (#1))")
     @Native("c++",  "((uint8_t) (#1))")
-    public native static operator (x:Double) as UByte;
+    public native static safe operator (x:Double) as UByte;
     
 
     @Native("java", "0")

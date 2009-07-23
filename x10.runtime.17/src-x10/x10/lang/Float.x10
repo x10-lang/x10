@@ -16,67 +16,67 @@ import x10.compiler.NativeRep;
 public final value Float {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Float) < (y:Float): Boolean;
+    public native static safe operator (x:Float) < (y:Float): Boolean;
 
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Float) > (y:Float): Boolean;
+    public native static safe operator (x:Float) > (y:Float): Boolean;
 
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Float) <= (y:Float): Boolean;
+    public native static safe operator (x:Float) <= (y:Float): Boolean;
 
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Float) >= (y:Float): Boolean;
+    public native static safe operator (x:Float) >= (y:Float): Boolean;
     
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((#1) + (#2))")
-    public native static operator (x:Float) + (y:Float): Float;
+    public native static safe operator (x:Float) + (y:Float): Float;
 
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:Float) - (y:Float): Float;
+    public native static safe operator (x:Float) - (y:Float): Float;
 
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((#1) * (#2))")
-    public native static operator (x:Float) * (y:Float): Float;
+    public native static safe operator (x:Float) * (y:Float): Float;
 
     @Native("java", "((#1) / (#2))")
     @Native("c++",  "((#1) / (#2))")
-    public native static operator (x:Float) / (y:Float): Float;
+    public native static safe operator (x:Float) / (y:Float): Float;
 
     @Native("java", "((#1) % (#2))")
     @Native("c++",  "x10aux::mod(#1, #2)")
-    public native static operator (x:Float) % (y:Float): Float;
+    public native static safe operator (x:Float) % (y:Float): Float;
 
     @Native("java", "+(#1)")
     @Native("c++",  "+(#1)")
-    public native static operator + (x:Float): Float;
+    public native static safe operator + (x:Float): Float;
 
     @Native("java", "-(#1)")
     @Native("c++",  "-(#1)")
-    public native static operator - (x:Float): Float;
+    public native static safe operator - (x:Float): Float;
     
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static operator (x:Byte): Float;
+    public native static safe operator (x:Byte): Float;
 
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static operator (x:Short): Float;
+    public native static safe operator (x:Short): Float;
 
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static operator (x:Int): Float;
+    public native static safe operator (x:Int): Float;
 
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static operator (x:Long): Float;
+    public native static safe operator (x:Long): Float;
     
     @Native("java", "((float) (#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static operator (x:Double) as Float;
+    public native static safe operator (x:Double) as Float;
 
 
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")

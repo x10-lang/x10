@@ -16,48 +16,48 @@ import x10.compiler.NativeRep;
 public final value Char {
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
-    public native static operator (x:Byte) as Char;
+    public native static safe operator (x:Byte) as Char;
     
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
-    public native static operator (x:Short) as Char;
+    public native static safe operator (x:Short) as Char;
     
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
-    public native static operator (x:Int) as Char;
+    public native static safe operator (x:Int) as Char;
     
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
-    public native static operator (x:Long) as Char;
+    public native static safe operator (x:Long) as Char;
     
     @Native("java", "((char) ((#1) + (#2)))")
     @Native("c++",  "((x10_char) (char) ((#1) + (#2)))")
-    public native static operator (x:Char) + (y:Int): Char;
+    public native static safe operator (x:Char) + (y:Int): Char;
 
     @Native("java", "((char) ((#1) + (#2)))")
     @Native("c++",  "((x10_char) (char) ((#1) + (#2)))")
-    public native static operator (x:Int) + (y:Char): Char;
+    public native static safe operator (x:Int) + (y:Char): Char;
 
     @Native("java", "((char) ((#1) - (#2)))")
     @Native("c++",  "((x10_char) (char) ((#1) - (#2)))")
-    public native static operator (x:Char) - (y:Int): Char;
+    public native static safe operator (x:Char) - (y:Int): Char;
 
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static operator (x:Char) - (y:Char): Int;
+    public native static safe operator (x:Char) - (y:Char): Int;
 
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static operator (x:Char) < (y:Char): Boolean;
+    public native static safe operator (x:Char) < (y:Char): Boolean;
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static operator (x:Char) > (y:Char): Boolean;
+    public native static safe operator (x:Char) > (y:Char): Boolean;
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static operator (x:Char) <= (y:Char): Boolean;
+    public native static safe operator (x:Char) <= (y:Char): Boolean;
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static operator (x:Char) >= (y:Char): Boolean;
+    public native static safe operator (x:Char) >= (y:Char): Boolean;
     
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.
