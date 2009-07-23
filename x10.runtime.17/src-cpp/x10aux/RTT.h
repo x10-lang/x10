@@ -2,7 +2,7 @@
 #define X10AUX_RTT_H
 
 #include <x10aux/config.h>
-#include <x10aux/alloc.h>
+//#include <x10aux/alloc.h>
 
 #include <pthread.h>
 
@@ -121,12 +121,14 @@ namespace x10aux {
         return t->name();
     } };
 
+/*
     template<class T> struct TypeName<ref<T> > { static const char *_() {
         const RuntimeType *t = getRTT<T>();
         if (t == NULL) return "Uninitialized RTT";
         static const char *with_star = alloc_printf("%s*",t->name());
         return with_star;
     } };
+*/
 
     template<class T> const char *typeName() {
         return TypeName<T>::_();

@@ -43,7 +43,7 @@ namespace x10aux {
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         // broken until we fix closure RTT (see also dealloc)
-        _M_("Allocating " << size << " bytes of unknown type " /*<< TYPENAME(T)*/);
+        _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC        
         T* ret = (T*)GC_MALLOC(size);
 #else        
@@ -73,7 +73,7 @@ namespace x10aux {
     template<class T> void dealloc(const T* obj_) {
         T *obj = const_cast<T*>(obj_); // free does not take const void *
         // broken until we fix closure RTT (see also alloc)
-        _M_("Freeing chunk " << (void*)obj << " of unknown type " /*<< TYPENAME(T)*/);
+        _M_("Freeing chunk " << (void*)obj << " of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC
         GC_FREE(obj);
 #else        
