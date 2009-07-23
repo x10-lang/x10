@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10MethodDef;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Context;
@@ -168,7 +170,10 @@ public final class ITable {
 	}
 
 	public void emitFunctionPointerDecl(CodeWriter cw, Emitter emitter, MethodInstance meth, String memberPtr, boolean includeName) {
-		String returnType = emitter.translateType(meth.returnType(), true);
+		X10MethodInstance mi = (X10MethodInstance) meth;
+		X10MethodDef md = mi.x10Def();
+		Type rootReturnType = emitter.findRootMethodReturnType(md, null, mi);
+		String returnType = emitter.translateType(rootReturnType, true);
 		String name = mangledName(meth);
 		cw.write(returnType+" ("+memberPtr+"::*"+(includeName ? name : "")+") (");
 		boolean first = true;
@@ -183,20 +188,20 @@ public final class ITable {
 	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
 		String clsCTypeRef = emitter.translateType(cls, true);
 
-		// Using thunks to resolve overloaded functions when filling in itable addresses.  
+		// Using thunks to resolve overloaded functions when filling in itable addresses.
 		// TODO: There really should be some way to avoid needing this.
 		String thunkRoot = "_itable_thunk_"+itableNum+"_";
 		for (int i=0; i<methods.length; i++) {
 			if (overloaded[i]) {
 				MethodInstance meth = methods[i];
 				h.write(emitter.translateType(meth.returnType(), true)+" "+thunkRoot+i+"(");
-				List<Type> formals = meth.formalTypes();			
+				List<Type> formals = meth.formalTypes();
 				int argNum = 0;
 				for (Type argType : formals) {
 					if (argNum > 0) h.write(", ");
 					h.write(emitter.translateType(argType, true)+" arg"+argNum++);
 				}
-				h.write(") {"); h.newline(4); h.begin(0); 
+				h.write(") {"); h.newline(4); h.begin(0);
 				h.write((!meth.returnType().isVoid() ? "return this->":"this->")+emitter.mangled_method_name(meth.name().toString())+"(");
 				for (argNum = 0; argNum<formals.size(); argNum++) {
 					h.write((argNum>0?", arg":"arg")+argNum);
@@ -214,18 +219,18 @@ public final class ITable {
 		String interfaceCType = emitter.translateType(interfaceType, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
-				(doubleTemplate ? "::template itable<":"::itable<")+emitter.translateType(cls, false)+" > _itable_"+itableNum+";"); 
+				(doubleTemplate ? "::template itable<":"::itable<")+emitter.translateType(cls, false)+" > _itable_"+itableNum+";");
 		h.newline();
 	}
-	
+
 	public void emitITableInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
 		String interfaceCType = emitter.translateType(interfaceType, false);
 		String clsCType = emitter.translateType(cls, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-		
+
 		if (!cls.typeArguments().isEmpty()) {
             emitter.printTemplateSignature(cls.typeArguments(), sw);
-		}	
+		}
 		sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
 				emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"(");
 		int methodNum = 0;
@@ -233,7 +238,7 @@ public final class ITable {
 			if (methodNum > 0) sw.write(", ");
 			if (overloaded[methodNum]) {
 				sw.write("&"+clsCType+"::"+"_itable_thunk_"+itableNum+"_"+methodNum);
-			} else {			
+			} else {
 				sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
 			}
 			methodNum++;
@@ -267,7 +272,11 @@ public final class ITable {
 				if (fcompare != 0) return fcompare;
 			}
 			// TODO:  Does X10 also allow method overloading based on constraints or # of type parameters?
-			return m1.returnType().toString().compareTo(m2.returnType().toString());
+
+			// X10 allows covariant return types, but not overloading based on return type.
+			// Therefore we ignore return type in comparing methods and if we get to this point the
+			// methods are considered to be equal.
+			return 0;
 		}
 	}
 }
