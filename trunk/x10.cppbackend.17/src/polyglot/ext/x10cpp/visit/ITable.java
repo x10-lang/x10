@@ -185,37 +185,7 @@ public final class ITable {
 		cw.write(")");
 	}
 
-	public void emitThunks(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
-		String clsCTypeRef = emitter.translateType(cls, true);
-
-		// Using thunks to resolve overloaded functions when filling in itable addresses.
-		// TODO: There really should be some way to avoid needing this.
-		String thunkRoot = "_itable_thunk_"+itableNum+"_";
-		for (int i=0; i<methods.length; i++) {
-			if (overloaded[i]) {
-				MethodInstance meth = methods[i];
-				h.write(emitter.translateType(meth.returnType(), true)+" "+thunkRoot+i+"(");
-				List<Type> formals = meth.formalTypes();
-				int argNum = 0;
-				for (Type argType : formals) {
-					if (argNum > 0) h.write(", ");
-					h.write(emitter.translateType(argType, true)+" arg"+argNum++);
-				}
-				h.write(") {"); h.newline(4); h.begin(0);
-				h.write((!meth.returnType().isVoid() ? "return this->":"this->")+emitter.mangled_method_name(meth.name().toString())+"(");
-				for (argNum = 0; argNum<formals.size(); argNum++) {
-					h.write((argNum>0?", arg":"arg")+argNum);
-				}
-				h.write(");"); h.end(); h.newline();
-				h.write("}"); h.newline();
-			}
-		}
-	}
-
 	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
-		if (hasOverloadedMethods) {
-			emitThunks(cls, itableNum, emitter, h);
-		}
 		String interfaceCType = emitter.translateType(interfaceType, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
@@ -236,11 +206,7 @@ public final class ITable {
 		int methodNum = 0;
 		for (MethodInstance meth : methods) {
 			if (methodNum > 0) sw.write(", ");
-			if (overloaded[methodNum]) {
-				sw.write("&"+clsCType+"::"+"_itable_thunk_"+itableNum+"_"+methodNum);
-			} else {
-				sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
-			}
+			sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
 			methodNum++;
 		}
 		sw.write(");"); sw.newline();
