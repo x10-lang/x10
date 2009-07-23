@@ -17,19 +17,19 @@ public final value Boolean {
 
     @Native("java", "!(#1)")
     @Native("c++",  "!(#1)")
-    public native static operator ! (x:Boolean): Boolean;
+    public native static safe operator ! (x:Boolean): Boolean;
     
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) & ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) & (y:Boolean): Boolean;
+    public native static safe operator (x:Boolean) & (y:Boolean): Boolean;
     
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) ^ ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) ^ (y:Boolean): Boolean;
+    public native static safe operator (x:Boolean) ^ (y:Boolean): Boolean;
     
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) | ((#2) ? 1 : 0)))")
-    public native static operator (x:Boolean) | (y:Boolean): Boolean;
+    public native static safe operator (x:Boolean) | (y:Boolean): Boolean;
     
     
     @Native("java", "true")
@@ -53,9 +53,9 @@ public final value Boolean {
 
 //    @Native("java", "((#0) && (#1))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) && ((#2) ? 1 : 0)))")
-//    public native static operator (x:Boolean) && (y:Boolean): Boolean;
+//    public native static safe operator (x:Boolean) && (y:Boolean): Boolean;
 //
 //    @Native("java", "((#0) || (#1))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) || ((#2) ? 1 : 0)))")
-//    public native static operator (x:Boolean) || (y:Boolean): Boolean;
+//    public native static safe operator (x:Boolean) || (y:Boolean): Boolean;
 }
