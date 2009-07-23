@@ -28,14 +28,14 @@ void Object::_serialize(x10aux::ref<Object> this_,
 
 x10_boolean Object::equals(x10aux::ref<Object> other) {
     if (x10aux::instanceof<Value>(other))
-        return this->equals(x10aux::ref<Value>(dynamic_cast<Value*>(other.get())));
+        return this->equals(x10aux::ref<Value>(reinterpret_cast<Value*>(other.get())));
     if (x10aux::instanceof<Ref>(other))
-        return this->equals(x10aux::ref<Ref>(dynamic_cast<Ref*>(other.get())));
+        return this->equals(x10aux::ref<Ref>(reinterpret_cast<Ref*>(other.get())));
     assert (false && "Unknown reference type");
     return false;
 }
 
-itable_entry Object::_itables[1] = { itable_entry(0, NULL) };
+itable_entry Object::_itables[1] = { itable_entry(NULL, NULL) };
 
 
 // vim:tabstop=4:shiftwidth=4:expandtab

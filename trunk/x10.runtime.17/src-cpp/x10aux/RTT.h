@@ -13,6 +13,17 @@
     static void _initRTT(); \
     virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
+#define RTT_H_DECLS_CLASS \
+    static x10aux::RuntimeType rtt; \
+    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
+    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+
+#define RTT_H_DECLS_INTERFACE \
+    static x10aux::RuntimeType rtt; \
+    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
+
 #define RTT_CC_DECLS1(TYPE,NAME,P1) \
     x10aux::RuntimeType TYPE::rtt; \
     void TYPE::_initRTT() { rtt.parentsc = -2; rtt.init(NAME, 1, P1::getRTT()); }

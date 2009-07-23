@@ -9,7 +9,7 @@ x10aux::ref<FileReader__FileInputStream> FileReader__FileInputStream::STANDARD_I
 
 x10aux::ref<FileReader__FileInputStream>
 FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
-    return new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (FILEPtrStream::open_file(name, "r"));
+    return new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (x10aux::io::FILEPtrStream::open_file(name, "r"));
 }
 
 RTT_CC_DECLS1(FileReader__FileInputStream, "x10.io.FileReader.FileReader__FileInputStream", InputStreamReader__InputStream)

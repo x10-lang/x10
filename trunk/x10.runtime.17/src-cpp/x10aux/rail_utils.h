@@ -11,62 +11,24 @@
 #include <x10aux/ref.h>
 
 namespace x10 { namespace lang {
-    class String;
-} }
+        class String;
+    }
+}
 
 namespace x10aux {
 
     void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
-
-    template<class T> class AnyRail { 
-        public:
-
-        // 32 bit array indexes
-        const x10_int FMGL(length);
-
-        // The Rail's data.
-        // As a locality optimization, we are going to allocate all of the storage for the
-        // Rail object and its data array contiguously (ie, in a single allocate call),
-        // but to avoid making assumptions about the C++ object model, we will always
-        // access it via this pointer instead of using the data[1] "struct hack."
-        // This may cost us an extra load instruction (but no extra cache misses).
-        // By declaring the pointer const, we should enable the C++ compiler to be reasonably
-        // effective at hoisting this extra load out of loop nests.
-        T* const _data;
-
-        private: AnyRail(const AnyRail<T> &arr); // disabled
-
-        public:
-
-        AnyRail(x10_int length_, T* storage)
-            : FMGL(length)(length_),  _data(storage) { }
-
-        void _check_bounds(x10_int index) const {
-            #ifndef NO_BOUNDS_CHECKS
-            // Since we know length is non-negative and Rails are zero-based,
-            // the bounds check can be optimized to a single unsigned comparison.
-            // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
-            if (((x10_uint)index) >= ((x10_uint)FMGL(length))) {
-                x10aux::throwArrayIndexOutOfBoundsException(index, FMGL(length));
-            }
-            #endif
+    
+    inline void checkRailBounds(x10_int index, x10_int length) {
+        #ifndef NO_BOUNDS_CHECKS
+        // Since we know length is non-negative and Rails are zero-based,
+        // the bounds check can be optimized to a single unsigned comparison.
+        // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
+        if (((x10_uint)index) >= ((x10_uint)length)) {
+            x10aux::throwArrayIndexOutOfBoundsException(index, length);
         }
-
-        ref<x10::lang::String> toString();
-
-        GPUSAFE T apply(x10_int index) {
-            // do bounds check
-            return operator[](index);
-        }   
-
-        GPUSAFE T& operator[](x10_int index) {
-            _check_bounds(index);
-            return _data[index];
-        }
-      
-        T* raw() { return _data; }
-
-    };
+        #endif
+    }
 
     template<class T, class R> R* alloc_rail(x10_int length);
     template<class T, class R> R* alloc_rail(x10_int length, T v0);
@@ -82,15 +44,15 @@ namespace x10aux {
 
 namespace x10aux {
 
-    template<class T> ref<x10::lang::String> AnyRail<T>::toString() {
-        if (this->FMGL(length)==0) {
+    template<class T, class R> ref<x10::lang::String> railToString(R* rail) {
+        if (rail->FMGL(length)==0) {
             return x10::lang::String::Lit("[]");
         }
         #ifndef NO_IOSTREAM
         std::stringstream ss;
         const char *prefix = "[";
-        for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
-            T element = (*this)[i];
+        for (x10_int i=0 ; i<rail->FMGL(length) ; ++i) {
+            T element = (*rail)[i];
             ss << prefix << x10aux::safe_to_string(element);
             prefix = ",";
         }
@@ -124,15 +86,17 @@ namespace x10aux {
 
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
+        T* data = rail->raw();
+        data[0] = v0;
         return rail;
     }
 
     template<class T, class R> R *alloc_rail(x10_int length, T v0,
                                                              T v1) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
         return rail;
     }
 
@@ -140,9 +104,10 @@ namespace x10aux {
                                                              T v1,
                                                              T v2) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
-        (*rail)[2] = v2;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
+        data[2] = v2;
         return rail;
     }
 
@@ -151,10 +116,11 @@ namespace x10aux {
                                                              T v2,
                                                              T v3) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
-        (*rail)[2] = v2;
-        (*rail)[3] = v3;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
+        data[2] = v2;
+        data[3] = v3;
         return rail;
     }
 
@@ -164,11 +130,12 @@ namespace x10aux {
                                                              T v3,
                                                              T v4) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
-        (*rail)[2] = v2;
-        (*rail)[3] = v3;
-        (*rail)[4] = v4;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
+        data[2] = v2;
+        data[3] = v3;
+        data[4] = v4;
         return rail;
     }
 
@@ -179,79 +146,80 @@ namespace x10aux {
                                                              T v4,
                                                              T v5) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
-        (*rail)[2] = v2;
-        (*rail)[3] = v3;
-        (*rail)[4] = v4;
-        (*rail)[5] = v5;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
+        data[2] = v2;
+        data[3] = v3;
+        data[4] = v4;
+        data[5] = v5;
         return rail;
     }
 
     // init elements 7 though length
-    template<class T> inline void init_rail(AnyRail<T> *rail,
+    template<class T> inline void init_rail(T *data,
                                             x10_int length,
                                             va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = va_arg(init, T);
+            data[i] = va_arg(init, T);
     }
     // init elements 7 though length: specialize for x10_ubyte
-    template<> inline void init_rail<x10_ubyte>(AnyRail<x10_ubyte> *rail,
-                                               x10_int length,
-                                               va_list init) {
+    template<> inline void init_rail<x10_ubyte>(x10_ubyte *data,
+                                                x10_int length,
+                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_ubyte)va_arg(init, int);
+            data[i] = (x10_ubyte)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_ushort
-    template<> inline void init_rail<x10_ushort>(AnyRail<x10_ushort> *rail,
-                                               x10_int length,
-                                               va_list init) {
+    template<> inline void init_rail<x10_ushort>(x10_ushort *data,
+                                                 x10_int length,
+                                                 va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_ushort)va_arg(init, int);
+            data[i] = (x10_ushort)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_uint
-    template<> inline void init_rail<x10_uint>(AnyRail<x10_uint> *rail,
+    template<> inline void init_rail<x10_uint>(x10_uint *data,
                                                x10_int length,
                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_uint)va_arg(init, int);
+            data[i] = (x10_uint)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_ulong
-    template<> inline void init_rail<x10_ulong>(AnyRail<x10_ulong> *rail,
-                                               x10_int length,
-                                               va_list init) {
+    template<> inline void init_rail<x10_ulong>(x10_ulong *data,
+                                                x10_int length,
+                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_ulong)va_arg(init, int);
+            data[i] = (x10_ulong)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_byte
-    template<> inline void init_rail<x10_byte>(AnyRail<x10_byte> *rail,
+    template<> inline void init_rail<x10_byte>(x10_byte *data,
                                                x10_int length,
                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_byte)va_arg(init, int);
+            data[i] = (x10_byte)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_char
-    template<> inline void init_rail<x10_char>(AnyRail<x10_char> *rail,
+    template<> inline void init_rail<x10_char>(x10_char *data,
                                                x10_int length,
                                                va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_char) (char) va_arg(init, int);
+            data[i] = (x10_char)(char)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_short
-    template<> inline void init_rail<x10_short>(AnyRail<x10_short> *rail,
+    template<> inline void init_rail<x10_short>(x10_short *data,
                                                 x10_int length,
                                                 va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_short)va_arg(init, int);
+            data[i] = (x10_short)va_arg(init, int);
     }
     // init elements 7 though length: specialize for x10_float
-    template<> inline void init_rail<x10_float>(AnyRail<x10_float> *rail,
+    template<> inline void init_rail<x10_float>(x10_float *data,
                                                 x10_int length,
                                                 va_list init) {
         for (int i = 7; i < length; i++)
-            (*rail)[i] = (x10_float)va_arg(init, double);
+            data[i] = (x10_float)va_arg(init, double);
     }
-
+    
     template<class T, class R> R *alloc_rail(x10_int length, T v0,
                                                              T v1,
                                                              T v2,
@@ -261,19 +229,20 @@ namespace x10aux {
                                                              T v6,
                                                              ...) {
         R* rail = alloc_rail<T,R>(length);
-        (*rail)[0] = v0;
-        (*rail)[1] = v1;
-        (*rail)[2] = v2;
-        (*rail)[3] = v3;
-        (*rail)[4] = v4;
-        (*rail)[5] = v5;
-        (*rail)[6] = v6;
+        T* data = rail->raw();
+        data[0] = v0;
+        data[1] = v1;
+        data[2] = v2;
+        data[3] = v3;
+        data[4] = v4;
+        data[5] = v5;
+        data[6] = v6;
         va_list init;
         va_start(init, v6);
         // Need to specialize this loop
         //for (int i = 7; i < length; i++)
-        //    (*rail)[i] = va_arg(init, T);
-        init_rail(rail, length, init);
+        //    data[i] = va_arg(init, T);
+        init_rail(data, length, init);
         va_end(init);
         return rail;
     }

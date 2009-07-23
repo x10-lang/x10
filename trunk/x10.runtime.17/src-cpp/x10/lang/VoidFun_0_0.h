@@ -4,17 +4,18 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
-
-#include <x10/lang/Object.h>
+#include <x10aux/fun_utils.h>
 
 namespace x10 {
     namespace lang {
-        class VoidFun_0_0 : public virtual Object {
+        class VoidFun_0_0 : public x10aux::AnyFun {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_INTERFACE
 
-            virtual ~VoidFun_0_0() { }
-            virtual void apply() = 0;
+            template <class I> struct itable {
+                itable(void(I::*apply)()) : apply(apply) {}
+                void (I::*apply)();
+            };
         };
     }
 }

@@ -65,7 +65,10 @@ x10::runtime::Thread::thread_start_routine(void *arg)
     pthread_mutex_unlock(&(tp->__thread_start_lock));
     // this thread is now running
     tp->__thread_running = true;
-    tp->__taskBody->apply();
+
+    ref<Object> taskBody = tp->__taskBody;
+    (taskBody.get()->*(x10aux::findITable<VoidFun_0_0>(taskBody->_getITables())->apply))();
+
     // finished running
     tp->__thread_running = false;
     __xrxDPrEnd();

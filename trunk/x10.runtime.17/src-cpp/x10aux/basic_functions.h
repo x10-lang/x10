@@ -127,11 +127,15 @@ namespace x10aux {
 
     template<class T, class U>
     inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
-        if (x.isNull())
+        if (x.isNull()) {
             return y.isNull();
-        if (y.isNull())
+        } else if (y.isNull()) {
             return false; // x != null, needed for remote refs
-        return x->_struct_equals(y);
+        } else {
+            ref<x10::lang::Object> xAsObj = x;
+            ref<x10::lang::Object> yAsObj = y;
+            return xAsObj->_struct_equals(yAsObj);
+        }
     }
 
     template<class T, class U>
@@ -230,7 +234,8 @@ namespace x10aux {
 
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
-        return x->toString();
+        ref<x10::lang::Object> asObj = x;
+        return asObj->toString();
     }
 
     template<class T> ref<x10::lang::String> to_string(T x) {
