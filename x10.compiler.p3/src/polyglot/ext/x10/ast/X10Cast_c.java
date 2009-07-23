@@ -257,7 +257,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         XConstraint cTo = X10TypeMixin.xclause(toType);
 
         if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
-            if (! ts.isParameterType(fromType) && ts.isCastValid(fromType, toType, context)) {
+            if (! ts.isParameterType(fromType) && ! ts.isParameterType(toType) && ts.isCastValid(fromType, toType, context)) {
                 X10Cast_c n = (X10Cast_c) copy();
                 n.convert = ConversionType.CHECKED;
                 return n.type(toType);
@@ -322,14 +322,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
             }
         }
 
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
-            if (ts.isParameterType(fromType) && ts.isCastValid(fromType, toType, context)) {
-                X10Cast_c n = (X10Cast_c) copy();
-                n.convert = ConversionType.CHECKED;
-                return n.type(toType);
-            }
-        }
-
         //          if (ts.isValueType(fromType) && ts.isReferenceOrInterfaceType(toType)) {
         //          if (ts.isSubtypeWithValueInterfaces(fromType, toType, Collections.EMPTY_LIST)) {
         //              Expr boxed = wrap(expr, toType, tc);
@@ -346,13 +338,13 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         // (v as Box[Ref]).value as Value
         if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isValueType(toType, context) || ts.isParameterType(toType))) {
             Expr boxed = expr;
-            if (! ts.typeEquals(fromType, boxOfTo, context)) {
+            if (! ts.typeEquals(baseFrom, boxOfTo, context)) {
                 boxed = check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), boxOfTo), expr, convert), tc);
                 return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), boxed, convert), tc);
             }
         }
 
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(fromType, boxOfTo, context)) {
+        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(baseFrom, boxOfTo, context)) {
             //            System.out.println("UNBOXING " + expr + " from " + fromType + " to " + toType);
             Expr unboxed = check(nf.Field(position(), expr, nf.Id(position(), Name.make("value"))), tc);
             return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), unboxed, convert), tc);
