@@ -175,7 +175,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/io/FILEPtrOutputStream.o \
 	x10aux/io/FILEPtrStream.o \
 	x10aux/float_utils.o \
-	x10aux/itables.o \
 	x10aux/long_utils.o \
 	x10aux/math_utils.o \
 	x10aux/pgas.o \
@@ -197,6 +196,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
+	x10/lang/RailIterator.o \
 	x10/lang/Ref.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \

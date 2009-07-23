@@ -14,7 +14,7 @@ namespace x10 {
 
         class String;
 
-        class Ref : public virtual Object {
+        class Ref : public Object {
         public:
             RTT_H_DECLS;
 

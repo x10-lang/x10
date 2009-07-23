@@ -25,8 +25,7 @@ namespace x10aux {
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
-    class BootStrapClosure : public x10::lang::Value,
-                             public virtual x10::lang::VoidFun_0_0
+    class BootStrapClosure : public x10::lang::Value 
     {
         protected:
 
@@ -34,6 +33,11 @@ namespace x10aux {
         ref<x10::lang::Rail<ref<x10::lang::String> > > args;
         public:
 
+        static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
+        static x10aux::itable_entry _itables[2];
+        
+        virtual x10aux::itable_entry* _getITables() { return _itables; }
+        
         // closure body
         void apply () {
             // Initialise the static fields of x10 classes.
@@ -84,9 +88,9 @@ namespace x10aux {
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
-                new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
-                    x10aux::BootStrapClosure(T::main,args);
-
+                x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
+                                              x10aux::BootStrapClosure(T::main,args));
+            
             Runtime::start(main_closure); // use XRX
             //main_closure->apply(); // bypass XRX
             //sleep(3);

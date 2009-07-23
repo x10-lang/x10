@@ -3,7 +3,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10/lang/Object.h>
+#include <x10aux/fun_utils.h>
 
 namespace x10 {
     namespace lang {
@@ -11,12 +11,14 @@ namespace x10 {
         void _initRTTHelper_VoidFun_0_1(x10aux::RuntimeType *location,
                                         const x10aux::RuntimeType *rtt1);
 
-        template<class P1> class VoidFun_0_1 : public virtual Object {
+        template<class P1> class VoidFun_0_1 : public x10aux::AnyFun {
             public:
-            RTT_H_DECLS
+            RTT_H_DECLS_INTERFACE
 
-            virtual ~VoidFun_0_1() { }
-            virtual void apply(P1 p1) = 0;
+            template <class I> struct itable {
+                itable(void(I::*apply)(P1)) : apply(apply) {}
+                void (I::*apply)(P1);
+            };
         };
 
         template<class P1> void VoidFun_0_1<P1>::_initRTT() {

@@ -3,19 +3,21 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10/lang/Object.h>
+#include <x10aux/fun_utils.h>
 
 namespace x10 {
     namespace lang {
 
         void _initRTTHelper_Fun_0_0(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt0);
 
-        template<class R> class Fun_0_0 : public virtual Object {
+        template<class R> class Fun_0_0 : public x10aux::AnyFun {
             public:
-            RTT_H_DECLS
+            RTT_H_DECLS_INTERFACE
 
-            virtual ~Fun_0_0() { }
-            virtual R apply() = 0;
+            template <class I> struct itable {
+                itable(R(I::*apply)()) : apply(apply) {}
+                R (I::*apply)();
+            };
         };
 
         template<class R> void Fun_0_0<R>::_initRTT() {

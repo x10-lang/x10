@@ -749,7 +749,7 @@ public class X10CPPTranslator extends Translator {
             super.addPreArgs(cxxCmd);
             for (int i = 0; i < preArgsAIX.length; i++) {
                 cxxCmd.add(preArgsAIX[i]);
-            }
+            }           
         }
 
         protected void addPostArgs(ArrayList<String> cxxCmd) {

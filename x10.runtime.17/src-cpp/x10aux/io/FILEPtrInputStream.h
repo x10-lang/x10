@@ -13,15 +13,10 @@ namespace x10aux {
     namespace io {
 
         class FILEPtrInputStream : public FILEPtrStream {
-
-        protected:
+        public:
+            explicit FILEPtrInputStream(FILE* stream) : FILEPtrStream(stream) { }
 
             char* gets(char* s, int num);
-
-        public:
-
-            explicit FILEPtrInputStream(FILE* stream)
-              : FILEPtrStream(stream) { }
 
             x10_int read(const x10aux::ref<x10::lang::Rail<x10_byte> > &b,
                          x10_int off, x10_int len);
@@ -29,9 +24,7 @@ namespace x10aux {
             x10_int read();
 
             void skip(x10_int bytes);
-
         };
-
     }
 }
 

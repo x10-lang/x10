@@ -12,22 +12,18 @@ namespace x10 {
 }
 
 namespace x10aux {
-
     namespace io {
 
-        // FILEPtrOutputStream
         class FILEPtrOutputStream : public FILEPtrStream {
-        protected:
-            virtual void _vprintf(const char* format, va_list parms);
-            virtual void write(const char* s);
         public:
-            explicit FILEPtrOutputStream(FILE* stream)
-                : FILEPtrStream(stream) { }
-            virtual void flush();
-            virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
-            virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
-            virtual void write(x10_int b);
-            //friend class PrintStream;
+            explicit FILEPtrOutputStream(FILE* stream) : FILEPtrStream(stream) { }
+
+            void _vprintf(const char* format, va_list parms);
+            void write(const char* s);
+            void flush();
+            void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
+            void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
+            void write(x10_int b);
         };
     }
 }

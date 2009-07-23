@@ -12,7 +12,7 @@ x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD
 
 x10aux::ref<FileWriter__FileOutputStream>
 FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
-    return new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream (FILEPtrStream::open_file(name, "w"));
+    return new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream (x10aux::io::FILEPtrStream::open_file(name, "w"));
 }
 
 RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", OutputStreamWriter__OutputStream)

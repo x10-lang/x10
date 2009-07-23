@@ -5,99 +5,74 @@
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
-
+#include <x10aux/rail_utils.h>
+#include <x10aux/basic_functions.h>
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Iterable.h>
-
-#include <x10aux/rail_utils.h>
-#include <x10aux/basic_functions.h>
+#include <x10/lang/RailIterator.h>
 
 namespace x10 {
 
     namespace lang {
 
         void _initRTTHelper_ValRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
-                                                                 const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
-        void _initRTTHelper_ValRailIterator(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
-                                                                         const x10aux::RuntimeType *p1);
+                                    const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
 
-        template<class T> class ValRail : public Value,
-                                          public virtual Fun_0_1<x10_int,T>,
-                                          public virtual x10::lang::Iterable<T>,
-                                          public x10aux::AnyRail<T>
-        {
+        template<class T> class ValRail : public Value {
 
             public:
             RTT_H_DECLS
 
+            static typename Iterable<T>::template itable<ValRail<T> > _itable_iterable;
+            static typename Fun_0_1<x10_int, T>::template itable<ValRail<T> > _itable_fun;
+            static x10aux::itable_entry _itables[3];
+            virtual x10aux::itable_entry* _getITables() { return _itables; }
+    
             private:
 
             ValRail(const ValRail<T>& arr); // disabled
 
             public:
 
-            ValRail() : x10aux::AnyRail<T>(0, NULL) { }
-            ValRail(x10_int length_, T* storage) : x10aux::AnyRail<T>(length_, storage) { }
+            // 32 bit array indexes
+            const x10_int FMGL(length);
+
+            // The ValRail's data.
+            // As a locality optimization, we are going to allocate all of the storage for the
+            // Rail object and its data array contiguously (ie, in a single allocate call),
+            // but to avoid making assumptions about the C++ object model, we will always
+            // access it via this pointer instead of using the data[1] "struct hack."
+            // This may cost us an extra load instruction (but no extra cache misses).
+            // By declaring the pointer const, we should enable the C++ compiler to be reasonably
+            // effective at hoisting this extra load out of loop nests.
+            T* const _data;
+
+            ValRail() : FMGL(length)(0),  _data(NULL) { }
+            ValRail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) {}
 
             GPUSAFE T apply(x10_int index) {
-                // do bounds check
-                return x10aux::AnyRail<T>::apply(index);
+                return operator[](index);
+            }   
+
+            GPUSAFE T& operator[](x10_int index) {
+                x10aux::checkRailBounds(index, FMGL(length));
+                return _data[index];
             }
-
-            class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
-
-                protected:
-
-                x10_int i;
-                x10aux::ref<ValRail<T> > rail;
-
-                public:
-                RTT_H_DECLS
-
-                Iterator (const x10aux::ref<ValRail> &rail_)
-                        : i(0), rail(rail_) { }
-
-                virtual x10_boolean hasNext() {
-                    return i < rail->FMGL(length);
-                }
-
-                virtual T next() {
-                    return (*rail)[i++];
-                }
-
-                virtual x10_int hashCode() { return 0; }
-
-                virtual x10aux::ref<String> toString() {
-                    return new (x10aux::alloc<String>()) String();
-                }
-
-                virtual x10_boolean equals(x10aux::ref<Ref> other) {
-                    if (!x10aux::concrete_instanceof<Iterator>(other)) return false;
-                    x10aux::ref<Iterator> other_i = other;
-                    if (other_i->rail != rail) return false;
-                    if (other_i->i != i) return false;
-                    return true;
-                }
-
-                virtual x10_boolean equals(x10aux::ref<Value> other) {
-                    return this->Ref::equals(other);
-                }
-
-            };
+      
+            T* raw() { return _data; }
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new (x10aux::alloc<Iterator>()) Iterator(this);
+                x10aux::ref<x10::lang::RailIterator<T> > tmp = new (x10aux::alloc<x10::lang::RailIterator<T> >()) x10::lang::RailIterator<T>(this->FMGL(length), this->raw());
+                return tmp;
             }
 
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
 
             virtual x10_int hashCode() { return 0; }
 
-            virtual x10aux::ref<String> toString() {
-                return x10aux::AnyRail<T>::toString();
-            }
+            virtual x10aux::ref<x10::lang::String> toString() { return x10aux::railToString<T,ValRail<T> >(this); }
 
             static x10aux::ref<ValRail<T> > make(x10_int length);
 
@@ -128,14 +103,17 @@ namespace x10 {
                                                      x10aux::getRTT<Iterable<T> >());
         }
 
-        template<class T> void ValRail<T>::Iterator::_initRTT() {
-            rtt.parentsc = -2;
-            x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
-        }
-
         template<class T> x10aux::RuntimeType ValRail<T>::rtt;
 
-        template<class T> x10aux::RuntimeType ValRail<T>::Iterator::rtt;
+        template <class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::iterator);
+
+        template <class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply);
+
+        template <class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
+            x10aux::itable_entry(&Iterable<T>::rtt, &ValRail<T>::_itable_iterable),
+            x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt, &ValRail<T>::_itable_fun),
+            x10aux::itable_entry(NULL, NULL)
+        };
 
         template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
             if (other.get() == this) return true; // short-circuit trivial equality
@@ -171,8 +149,10 @@ namespace x10 {
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            x10aux::ref<x10::lang::Object> initAsObj = init;
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = init->apply(i);
+                (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
             }
             return rail;
         }

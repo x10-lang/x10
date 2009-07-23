@@ -32,7 +32,7 @@ void x10aux::run_at(x10_int place, x10aux::ref<VoidFun_0_0> body) {
     serialization_buffer buf;
 
     addr_map m;
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET<<body->toString()->c_str()
+    _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET<<ref<Object>(body)->toString()->c_str()
         <<" to place: "<<place);
     buf.write(body,m);
     serialized_bytes += buf.length();
@@ -75,11 +75,11 @@ x10_boolean x10aux::no_steals() {
 static void deserialize_remote_closure(void *cl, int) {
         _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
         x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
-        ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
+        ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf));
         _X_("The deserialised async was: "<<async->toString()->c_str());
         deserialized_bytes += buf.length();
         asyncs_received++;
-        async->apply();
+        (async.get()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
 }
 #endif
 #if 0
@@ -102,9 +102,9 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
         _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
         x10aux::serialization_buffer buf;
         buf.set(reinterpret_cast<const char*>(cl));
-        ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
+        ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf));
         _X_("The deserialised async was: "<<async->toString()->c_str());
-        async->apply();
+        (async->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
         
 #ifndef NO_EXCEPTIONS
     /* TODO: need some other mechanism for calling exit() from another place

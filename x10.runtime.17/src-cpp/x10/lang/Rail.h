@@ -10,6 +10,7 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Settable.h>
+#include <x10/lang/RailIterator.h>
 #include <x10/lang/ValRail.h>
 
 namespace x10 {
@@ -18,74 +19,56 @@ namespace x10 {
 
         void _initRTTHelper_Rail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
-        void _initRTTHelper_RailIterator(x10aux::RuntimeType *location,
-                                         const x10aux::RuntimeType *element,
-                                         const x10aux::RuntimeType *p1);
-        
+
         template<class P1, class R> class Fun_0_1;
 
-        template<class T> class Rail : public Ref,
-                                       public virtual x10::lang::Settable<x10_int,T>,
-                                       public virtual x10::lang::Iterable<T>,
-                                       public x10aux::AnyRail<T> {
+        template<class T> class Rail : public Ref {
             public:
             RTT_H_DECLS
+
+            static typename Iterable<T>::template itable<Rail<T> > _itable_iterable;
+            static typename Settable<x10_int, T>::template itable<Rail<T> > _itable_settable;
+            static x10aux::itable_entry _itables[3];
+            virtual x10aux::itable_entry* _getITables() { return _itables; }
 
             private:
 
             Rail(const Rail<T>& arr); // disabled
 
             public:
+            // 32 bit array indexes
+            const x10_int FMGL(length);
 
-            Rail(x10_int length_, T* storage) : x10aux::AnyRail<T>(length_, storage) { }
+            // The Rail's data.
+            // As a locality optimization, we are going to allocate all of the storage for the
+            // Rail object and its data array contiguously (ie, in a single allocate call),
+            // but to avoid making assumptions about the C++ object model, we will always
+            // access it via this pointer instead of using the data[1] "struct hack."
+            // This may cost us an extra load instruction (but no extra cache misses).
+            // By declaring the pointer const, we should enable the C++ compiler to be reasonably
+            // effective at hoisting this extra load out of loop nests.
+            T* const _data;
+            
+            Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
 
             GPUSAFE virtual T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
             } 
 
-            class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
+            GPUSAFE T apply(x10_int index) {
+                return operator[](index);
+            }   
 
-                protected:
+            GPUSAFE T& operator[](x10_int index) {
+                x10aux::checkRailBounds(index, FMGL(length));
+                return _data[index];
+            }
+      
+            T* raw() { return _data; }
 
-                x10_int i;
-                x10aux::ref<Rail<T> > rail;
-
-                public:
-                RTT_H_DECLS
-
-                Iterator (x10aux::ref<Rail> rail_)
-                        : i(0), rail(rail_) { }
-
-                virtual x10_boolean hasNext() {
-                    return i < rail->FMGL(length);
-                }
-             
-                virtual T next() {
-                    return (*rail)[i++];
-                }
-
-                virtual x10_int hashCode() { return 0; }
-
-                virtual x10_boolean equals(x10aux::ref<Ref> other) {
-                    if (!x10aux::concrete_instanceof<Iterator>(other)) return false;
-                    x10aux::ref<Iterator> other_i = other;
-                    if (other_i->rail != rail) return false;
-                    if (other_i->i != i) return false;
-                    return true;
-                }   
-
-                virtual x10_boolean equals(x10aux::ref<Value> other) {
-                    return this->Ref::equals(other);
-                }
-
-                virtual x10aux::ref<String> toString() {
-                    return new (x10aux::alloc<String>()) String();
-                }
-
-            };  
-
-            virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new (x10aux::alloc<Iterator>()) Iterator (this);
+            virtual x10aux::ref<Iterator<T> > iterator() {
+                x10aux::ref<RailIterator<T> > tmp = new (x10aux::alloc<RailIterator<T> >()) RailIterator<T> (this->FMGL(length), this->raw());
+                return tmp;
             }   
 
             static x10aux::ref<Rail<T> > make(x10_int length);
@@ -93,25 +76,26 @@ namespace x10 {
                                               x10aux::ref<Fun_0_1<x10_int,T> > init);
             static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
-            virtual x10aux::ref<String> toString() {
-                return x10aux::AnyRail<T>::toString();
-            }
-
+            virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
         };
 
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
-        template<class T> x10aux::RuntimeType Rail<T>::Iterator::rtt;
 
         template<class T> void Rail<T>::_initRTT() {
             rtt.parentsc = -2;
             x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
-                                                  x10aux::getRTT<Iterable<T> >());
+                                           x10aux::getRTT<Iterable<T> >());
         }
 
-        template<class T> void Rail<T>::Iterator::_initRTT() {
-            rtt.parentsc = -2;
-            x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
-        }        
+        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::iterator);
+
+        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::set);
+        
+        template <class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
+            x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
+            x10aux::itable_entry(&x10::lang::Settable<x10_int, T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
+            x10aux::itable_entry(NULL, NULL)
+        };
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
@@ -127,8 +111,10 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            x10aux::ref<x10::lang::Object> initAsObj = init;
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = init->apply(i);
+                (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
             }
             return rail;
         }
