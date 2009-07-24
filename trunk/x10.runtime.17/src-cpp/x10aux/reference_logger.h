@@ -36,6 +36,8 @@ namespace x10aux {
         static void log(void *x) { it->log_(x); }
     };
 
+    template<> inline const char *typeName<ReferenceLogger>() { return "ReferenceLogger"; }
+    template<> inline const char *typeName<ReferenceLogger::Bucket*>() { return "ReferenceLogger::Bucket *"; }
 #endif
 
 }

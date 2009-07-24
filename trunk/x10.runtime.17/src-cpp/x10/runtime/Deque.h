@@ -35,6 +35,7 @@ namespace x10 {
                 x10_int capacity;
                 volatile void** data;
             };
+            template<class T> friend const char *x10aux::typeName();
 
             
             /**
@@ -139,7 +140,11 @@ namespace x10 {
         };
     }
 }
-        
+
+namespace x10aux {
+    template<> inline const char *typeName<x10::runtime::Deque::Slots>() { return "x10::runtime::Deque::Slots"; }
+}
+
 #endif /* X10_RUNTIME_DEQUE_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab
