@@ -39,6 +39,7 @@ namespace x10aux {
 
     template<> inline const char *typeName<ReferenceLogger>() { return "ReferenceLogger"; }
     template<> inline const char *typeName<ReferenceLogger::Bucket*>() { return "ReferenceLogger::Bucket *"; }
+    template<> inline const char *typeName<ReferenceLogger::Bucket>() { return "ReferenceLogger::Bucket"; }
 #endif
 
 }
