@@ -31,6 +31,7 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.DelFactory;
 import polyglot.ast.Disamb;
+import polyglot.ast.Do;
 import polyglot.ast.Expr;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
@@ -712,6 +713,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		Call n = new RegionMaker_c(pos, nf.TypeNodeFromQualifiedName(pos, QName.make("x10.lang.Region")), nf.Id(pos, "makeRectangular"), l);
 		n = (Call) n.ext(extFactory().extExpr());
 		n = (Call) n.del(delFactory().delExpr());
+		return n;
+	}
+	public Do Do(Position pos, Stmt body, Expr cond) {
+		Do n = new X10Do_c(pos, body, cond);
+		n = (Do)n.ext(extFactory().extDo());
+		n = (Do)n.del(delFactory().delDo());
 		return n;
 	}
 	public While While(Position pos, Expr cond, Stmt body) {
