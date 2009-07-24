@@ -22,6 +22,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.DerefTransform;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
@@ -1472,6 +1473,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         boolean allEqual = false;
 
+
+        List<LocalInstance> miFormals = mi.formalNames();
+        assert miFormals.size() ==  mj.formalNames().size();
+        
+        mj = (X10MethodInstance) mi.formalNames(miFormals);
+      
+     
         if (mi.typeParameters().size() == mj.typeParameters().size() && mi.formalTypes().size() == mj.formalTypes().size()) {
             allEqual = true;
             List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
