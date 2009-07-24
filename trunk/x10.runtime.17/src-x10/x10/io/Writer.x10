@@ -1,3 +1,15 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
+package x10.io;
+
+import x10.compiler.Native;
+
 /**
  * Usage:
  *
@@ -12,10 +24,6 @@
  * }
  * catch (IOException e) { }
  */    
-package x10.io;
-
-import x10.compiler.Native;
-
 public abstract value Writer {
     public abstract def close(): Void throws IOException;
     public abstract def flush(): Void throws IOException;

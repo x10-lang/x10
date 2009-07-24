@@ -1,4 +1,19 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+package x10.io;
+
+import x10.compiler.NativeRep;
+import x10.compiler.Native;
+
 /**
+ * Represents a file path.
+ * Modeled after java.nio.file.Path.
+ *
  * Usage:
  *
  * try {
@@ -12,13 +27,6 @@
  * }
  * catch (IOException) { }
  */
-package x10.io;
-
-import x10.compiler.NativeRep;
-import x10.compiler.Native;
-
-/** Represents a file path. */
-/* model after java.nio.file.Path */
 public class File {
     @NativeRep("java", "java.io.File", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)

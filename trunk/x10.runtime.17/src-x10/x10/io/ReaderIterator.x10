@@ -1,3 +1,15 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
+package x10.io;
+
+import x10.util.NoSuchElementException;
+
 /**
  * Usage:
  *
@@ -12,10 +24,6 @@
  * }
  * catch (IOException e) { }
  */    
-package x10.io;
-
-import x10.util.NoSuchElementException;
-
 public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     val r: Reader;
     val m: Marshal[T];

@@ -1,3 +1,15 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
+package x10.io;
+
+import x10.compiler.Native;
+
 /**
  * Usage:
  *
@@ -12,10 +24,6 @@
  * }
  * catch (IOException e) { }
  */    
-package x10.io;
-
-import x10.compiler.Native;
-
 public value Printer extends FilterWriter {
     public def this(w: Writer) { super(w); }
 

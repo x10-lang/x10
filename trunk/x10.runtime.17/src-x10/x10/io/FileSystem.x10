@@ -1,3 +1,13 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
+package x10.io;
+
 /**
  * Usage:
  *
@@ -12,8 +22,6 @@
  * }
  * catch (IOException e) { }
  */    
-package x10.io;
-
 public abstract class FileSystem {
     const SEPARATOR_CHAR: Char = '/'; // System.getProperty("x10.io.fileSeparator")(0);
     const SEPARATOR: String = "/"; // System.getProperty("x10.io.fileSeparator");
