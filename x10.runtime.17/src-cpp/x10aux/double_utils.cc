@@ -25,9 +25,9 @@ const ref<String> x10aux::double_utils::toString(x10_double value) {
 }
 
 x10_double x10aux::double_utils::parseDouble(const ref<String>& s) {
-    (void) s;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return 0;
+    // FIXME: what about null?
+    // FIXME: NumberFormatException
+    return strtod(s->c_str(), NULL);
 }
 
 x10_boolean x10aux::double_utils::isNaN(x10_double x) {
