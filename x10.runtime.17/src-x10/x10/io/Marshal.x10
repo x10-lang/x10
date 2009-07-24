@@ -1,3 +1,15 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
+package x10.io;
+
+import x10.util.StringBuilder;
+
 /**
  * Usage:
  *
@@ -12,10 +24,6 @@
  * }
  * catch (IOException e) { }
  */    
-package x10.io;
-
-import x10.util.StringBuilder;
-
 public interface Marshal[T] {
     public def read(r: Reader): T throws IOException;
     public def write(w: Writer, T): Void throws IOException;
