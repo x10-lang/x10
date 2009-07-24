@@ -59,6 +59,10 @@ namespace x10aux {
         void* itable;
     };
 
+#ifndef NDEBUG
+    void reportITableLookupFailure(itable_entry* itables, RuntimeType* targetInterface);
+#endif
+    
     /*
      * Search itables to find the itable that matches I and return it.
      */
@@ -68,7 +72,10 @@ namespace x10aux {
             if (itables[i].id == id) {
                 return (typename I::template itable<x10::lang::Object>*)(itables[i].itable);
             }
-            assert(itables[i].id != 0); // Implies we ran off the end of the itable array without a match
+#ifndef NDEBUG
+            x10aux::reportITableLookupFailure(itables, id);
+            assert(false);
+#endif
         }
     }
 }
