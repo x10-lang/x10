@@ -34,7 +34,6 @@ namespace x10aux {
         ReferenceLogger();
         void log_(void *x);
         static void log(void *x) { it->log_(x); }
-        template<class T> friend const char *x10aux::typeName();
     };
 
 #endif
