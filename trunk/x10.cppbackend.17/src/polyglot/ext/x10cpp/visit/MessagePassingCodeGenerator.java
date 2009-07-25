@@ -1108,10 +1108,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write("x10aux::itable_entry "+emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 				itableNum = 0;
 				for (Type interfaceType : allInterfaces) {
-					sw.write("x10aux::itable_entry(&"+emitter.translateType(interfaceType)+"::rtt, &_itable_"+itableNum+"), ");
+					sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
 					itableNum += 1;
 				}
-				sw.write("x10aux::itable_entry(NULL, NULL)};"); sw.newline();
+				sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(emitter.translateType(currentClass, false))+"())};"); sw.newline();
 			}
 		}
 
