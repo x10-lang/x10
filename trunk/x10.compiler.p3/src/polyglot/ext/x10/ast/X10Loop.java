@@ -28,7 +28,7 @@ public interface X10Loop extends CompoundStmt {
 	X10Loop formal(Formal formal);
 	Expr domain();
 	X10Loop domain(Expr domain);
-	List/*<Stmt>*/ locals();
-	X10Loop locals(List/*<Stmt>*/ locals);
+	List<Stmt> locals();
+	X10Loop locals(List<Stmt> locals);
 }
 
