@@ -582,6 +582,9 @@ public XConstraint_c() {
         XVar[] vars2 = null;
         if (p2 instanceof XPromise_c) {
             r2Count = ((XPromise_c) p2).lookupReturnValue();
+            if (! (t2 instanceof XVar)) {
+            	assert false: "Internal Error:" + t2 + "expected to be an XVar.";
+            }
             vars2 = ((XVar) t2).vars();
         }
 
