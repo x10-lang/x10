@@ -105,7 +105,7 @@ public class Emitter {
         return false;
     }
     private static String mangle_to_cpp(String str) {
-        str = X10PrettyPrinterVisitor.mangleIdentifier(str);
+        str = x10.emitter.Emitter.mangleIdentifier(str);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
         return str.replace("$", "__");
