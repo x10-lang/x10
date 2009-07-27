@@ -83,7 +83,7 @@ import x10.constraint.XVar;
 
 /**
  * A TypeSystem implementation for X10.
- * 
+ *
  * @author Christian Grothoff
  * @author Christoph von Praun
  * @author vj
@@ -704,7 +704,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert_(container);
 
         // Named n = classContextResolver(container, currClass).find(name);
-        //	    
+        //
         // if (n instanceof MacroType) {
         // return (MacroType) n;
         // }
@@ -1004,10 +1004,43 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new ClosureInstance_c(this, pos, def);
     }
 
+	public List<X10ClassType> allImplementedInterfaces(X10ClassType c) {
+		ArrayList<X10ClassType> ans =  new ArrayList<X10ClassType>();
+		allImplementedInterfaces(c, ans);
+		return ans;
+	}
+
+	private void allImplementedInterfaces(X10ClassType c, ArrayList<X10ClassType> l) {
+		Context context = createContext();
+		if (c.typeEquals(Object(), context)) {
+			return;
+		}
+
+		for (Type old : l) {
+			if (c.typeEquals(old, context)) {
+				return; /* Already been here */
+			}
+		}
+
+		if (c.flags().isInterface()) {
+			l.add(c);
+		}
+
+		if (c.superClass() != null) {
+			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(c.superClass()), l);
+		}
+
+		for (Type parent : c.interfaces()) {
+			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(parent), l);
+		}
+	}
+
+
+
     public final Context createContext() {
         return emptyContext();
     }
-    
+
     public Context emptyContext() {
         return new X10Context_c(this);
     }
@@ -1060,12 +1093,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
-    
+
     @Override
     public Flags legalFieldFlags() {
         return X10Flags.toX10Flags(super.legalFieldFlags()).Property();
     }
-    
+
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
 
     @Override
@@ -1166,7 +1199,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     // protected final PrimitiveType USHORT_ = createPrimitive("ushort");
     // protected final PrimitiveType UINT_ = createPrimitive("uint");
     // protected final PrimitiveType ULONG_ = createPrimitive("ulong");
-    //	
+    //
     // public Type UByte() { return UBYTE_; }
     // public Type UShort() { return USHORT_; }
     // public Type UInt() { return UINT_; }
@@ -1603,7 +1636,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public boolean numericConversionValid(Type t, java.lang.Object value, Context context) {
         return env(context).numericConversionValid(t, value);
     }
-    
+
     public boolean numericConversionValid(Type t, Type fromType, java.lang.Object value, Context context) {
         return env(context).numericConversionValid(t, fromType, value);
     }
@@ -1946,7 +1979,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         if (isByte(t1) || isByte(t2))
             return Int();
-	        
+
         if (isUShort(t1) || isUShort(t2))
             return Int();
 

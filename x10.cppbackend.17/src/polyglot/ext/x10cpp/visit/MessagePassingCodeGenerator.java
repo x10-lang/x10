@@ -1013,6 +1013,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10ClassType currentClass = (X10ClassType) context.currentClass();
         X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(currentClass.superClass());
         boolean isInterface = currentClass.flags().isInterface();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 
 		ClassifiedStream h = sw.header();
 
@@ -1080,7 +1081,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write("return x10::lang::Object::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
             h.write("}"); h.newline(); h.forceNewline();
 		} else {
-			List<X10ClassType> allInterfaces = ITable.allImplementedInterfaces(currentClass);
+			List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
 			int numInterfaces = allInterfaces.size();
 			if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
 				/* ITables declarations */
@@ -1117,7 +1118,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (!members.isEmpty()) {
 			String className = emitter.translateType(currentClass);
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 
 			h.write(VOID + " " + INSTANCE_INIT + "();");
 			h.newline(); h.forceNewline();

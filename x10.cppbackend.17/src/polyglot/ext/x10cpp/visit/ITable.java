@@ -11,6 +11,7 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Context;
 import polyglot.types.MethodInstance;
@@ -57,7 +58,7 @@ public final class ITable {
 		ArrayList<MethodInstance> uniqueMethods = new ArrayList<MethodInstance>();
 		uniqueMethods.addAll(interfaceType.methods());
 
-		for (X10ClassType superInterface : allImplementedInterfaces(interfaceType)) {
+		for (X10ClassType superInterface : ((X10TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
 			for (MethodInstance newMethod : superInterface.methods()) {
 				boolean duplicate = false;
 				for (MethodInstance oldMethod : uniqueMethods) {
@@ -85,43 +86,6 @@ public final class ITable {
 			cachedITables.put(interfaceType, ans);
 		}
 		return ans;
-	}
-
-	/**
-	 * Return a list of all interfaces directly and indirectly
-	 * implemented by the argument class, excluding x10.lang.Object.
-	 * If c is an interface, this method does not include c in the result!
-	 */
-	public static List<X10ClassType> allImplementedInterfaces(X10ClassType c) {
-		ArrayList<X10ClassType> ans =  new ArrayList<X10ClassType>();
-		allImplementedInterfaces(c, ans);
-		return ans;
-	}
-
-	private static void allImplementedInterfaces(X10ClassType c, ArrayList<X10ClassType> l) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) c.typeSystem();
-		Context context = xts.createContext();
-		if (c.typeEquals(xts.Object(), context)) {
-			return;
-		}
-
-		for (X10ClassType old : l) {
-			if (c.typeEquals(old, context)) {
-				return; /* Already been here */
-			}
-		}
-
-		if (c.flags().isInterface()) {
-			l.add(c);
-		}
-
-		if (c.superClass() != null) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(c.superClass()), l);
-		}
-
-		for (Type parent : c.interfaces()) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(parent), l);
-		}
 	}
 
 	/**
