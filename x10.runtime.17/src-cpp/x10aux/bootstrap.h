@@ -67,7 +67,6 @@ namespace x10aux {
     void initialize_xrx();
 
     template<class Runtime, class T> int template_main(int ac, char **av) {
-    
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
 

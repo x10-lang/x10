@@ -22,10 +22,7 @@ namespace x10 {
             static x10aux::itable_entry _itables[1];
             
             public:
-
-            /* Note special RTT code block because Object is predefined by RuntimeType */
-            static const x10aux::RuntimeType* getRTT() { return &x10aux::RuntimeType::ObjectType; }
-            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+            RTT_H_DECLS
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             
