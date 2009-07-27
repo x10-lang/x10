@@ -35,6 +35,13 @@ x10_boolean Object::equals(x10aux::ref<Object> other) {
     return false;
 }
 
+x10aux::RuntimeType x10::lang::Object::rtt;
+
+void Object::_initRTT() {
+    rtt.init("x10.lang.Object", 0);
+}
+
+
 itable_entry Object::_itables[1] = { itable_entry(NULL, NULL) };
 
 

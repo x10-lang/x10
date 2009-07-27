@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 #include <x10aux/alloc.h>
+#include <x10aux/atomic_ops.h>
 
 #include <x10/lang/Object.h>
 
@@ -10,6 +11,12 @@ using namespace x10aux;
 using namespace x10::lang;
 
 bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
+    // Checks to try to catch partially initialized RTT objects before we use them.
+    assert(typeName != NULL);
+    assert(other->typeName != NULL);
+    assert(parentsc != 0 || this == x10::lang::Object::getRTT());
+    assert(other->parentsc != 0 || other == x10::lang::Object::getRTT());
+
     if (equals(other)) return true; // trivial case
     for (int i = 0; i < parentsc; ++i) {
         if (parents[i]->subtypeOf(other)) return true;
@@ -38,27 +45,47 @@ void RuntimeType::init(const char* n, int pc, ...) {
     for (int i=0 ; i<parentsc ; ++i)
         parents[i] = va_arg(parentsv,const RuntimeType*);
     va_end(parentsv);
+    x10aux::atomic_ops::store_load_barrier();
 }
     
-void
-RuntimeType::bootstrap() {
-    /* Initialize RTTs for Object and builtin primitive types */
-    ObjectType.init("x10.lang.Object", 0);
-    BooleanType.init("x10.lang.Boolean", 1, &ObjectType);
-    ByteType.init("x10.lang.Byte", 1, &ObjectType);
-    CharType.init("x10.lang.Char", 1, &ObjectType);
-    ShortType.init("x10.lang.Short", 1, &ObjectType);
-    IntType.init("x10.lang.Int", 1, &ObjectType);
-    FloatType.init("x10.lang.Float", 1, &ObjectType);
-    LongType.init("x10.lang.Long", 1, &ObjectType);
-    DoubleType.init("x10.lang.Double", 1, &ObjectType);
-    UByteType.init("x10.lang.UByte", 1, &ObjectType);
-    UShortType.init("x10.lang.UShort", 1, &ObjectType);
-    UIntType.init("x10.lang.UInt", 1, &ObjectType);
-    ULongType.init("x10.lang.ULong", 1, &ObjectType);
+void RuntimeType::initBooleanType() {
+    BooleanType.init("x10.lang.Boolean", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initByteType() {
+    ByteType.init("x10.lang.Byte", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initCharType() {
+    CharType.init("x10.lang.Char", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initShortType() {
+    ShortType.init("x10.lang.Short", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initIntType() {
+    IntType.init("x10.lang.Int", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initFloatType() {
+    FloatType.init("x10.lang.Float", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initLongType() {
+    LongType.init("x10.lang.Long", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initDoubleType() {
+    DoubleType.init("x10.lang.Double", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initUByteType() {
+    UByteType.init("x10.lang.UByte", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initUShortType() {
+    UShortType.init("x10.lang.UShort", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initUIntType() {
+    UIntType.init("x10.lang.UInt", 1, x10::lang::Object::getRTT());
+}
+void RuntimeType::initULongType() {
+    ULongType.init("x10.lang.ULong", 1, x10::lang::Object::getRTT());
 }
 
-RuntimeType RuntimeType::ObjectType;
+
 RuntimeType RuntimeType::BooleanType;
 RuntimeType RuntimeType::ByteType;
 RuntimeType RuntimeType::CharType;

@@ -144,7 +144,6 @@ PGASInitializer::PGASInitializer() {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-        RuntimeType::bootstrap();
         _X_("PGAS initialization starting");
         x10rt_register_async_callback(deserialize_remote_closure);
         x10rt_init();

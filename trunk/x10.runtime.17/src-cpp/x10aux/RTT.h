@@ -9,24 +9,24 @@
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS \
     static x10aux::RuntimeType rtt; \
-    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.typeName) _initRTT(); return &rtt; } \
     static void _initRTT(); \
     virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
 #define RTT_H_DECLS_CLASS \
     static x10aux::RuntimeType rtt; \
-    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.typeName) _initRTT(); return &rtt; } \
     static void _initRTT(); \
     virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
 #define RTT_H_DECLS_INTERFACE \
     static x10aux::RuntimeType rtt; \
-    static const x10aux::RuntimeType* getRTT() { if (-1==rtt.parentsc) _initRTT(); return &rtt; } \
+    static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.typeName) _initRTT(); return &rtt; } \
     static void _initRTT(); \
 
 #define RTT_CC_DECLS1(TYPE,NAME,P1) \
     x10aux::RuntimeType TYPE::rtt; \
-    void TYPE::_initRTT() { rtt.parentsc = -2; rtt.init(NAME, 1, P1::getRTT()); }
+    void TYPE::_initRTT() { rtt.typeName = "CYCLIC RTT INIT\n"; rtt.init(NAME, 1, P1::getRTT()); }
 
 namespace x10 {
     namespace lang {
@@ -46,7 +46,6 @@ namespace x10aux {
     public:
         /*
          * RTT objects for all builtin primitive types.
-         * These are created by the bootstrap method
          */
         static RuntimeType BooleanType;
         static RuntimeType ByteType;
@@ -61,21 +60,11 @@ namespace x10aux {
         static RuntimeType UIntType;
         static RuntimeType ULongType;
 
-
-        /**
-         * RTT object for x10::lang::Object
-         * Created by the bootstrap method because it
-         * is needed as the parent object for the primitive RTT's
-         */
-        static RuntimeType ObjectType;
-        
     public:
         int parentsc;
         const RuntimeType **parents;
         const char* typeName;
 
-        RuntimeType () : parentsc(-1) { }
-        
         void init(const char* n, int pc, ...);
 
         const char *name() const { return typeName; }
@@ -92,7 +81,18 @@ namespace x10aux {
             return other == this;
         }
 
-        static void bootstrap();
+        static void initBooleanType();
+        static void initByteType();
+        static void initCharType();
+        static void initShortType();
+        static void initIntType();
+        static void initFloatType();
+        static void initLongType();
+        static void initDoubleType();
+        static void initUByteType();
+        static void initUShortType();
+        static void initUIntType();
+        static void initULongType();
     };
 
 
@@ -101,18 +101,78 @@ namespace x10aux {
         return T::getRTT();
     }
     // specializations of getRTT template for primitive types
-	template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() { return &x10aux::RuntimeType::BooleanType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() { return &x10aux::RuntimeType::ByteType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_short>() { return &x10aux::RuntimeType::ShortType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_char>() { return &x10aux::RuntimeType::CharType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_int>() { return &x10aux::RuntimeType::IntType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return &x10aux::RuntimeType::FloatType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return &x10aux::RuntimeType::LongType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return &x10aux::RuntimeType::DoubleType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() { return &x10aux::RuntimeType::UByteType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() { return &x10aux::RuntimeType::UShortType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() { return &x10aux::RuntimeType::UIntType; }
-	template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() { return &x10aux::RuntimeType::ULongType; }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() {
+        if (NULL == x10aux::RuntimeType::BooleanType.typeName) {
+            x10aux::RuntimeType::initBooleanType();
+        }
+        return &x10aux::RuntimeType::BooleanType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() {
+        if (NULL == x10aux::RuntimeType::ByteType.typeName) {
+            x10aux::RuntimeType::initByteType();
+        }
+        return &x10aux::RuntimeType::ByteType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_char>() {
+        if (NULL == x10aux::RuntimeType::CharType.typeName) {
+            x10aux::RuntimeType::initCharType();
+        }
+        return &x10aux::RuntimeType::CharType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_short>() {
+        if (NULL == x10aux::RuntimeType::ShortType.typeName) {
+            x10aux::RuntimeType::initShortType();
+        }
+        return &x10aux::RuntimeType::ShortType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_int>() {
+        if (NULL == x10aux::RuntimeType::IntType.typeName) {
+            x10aux::RuntimeType::initIntType();
+        }
+        return &x10aux::RuntimeType::IntType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_float>() {
+        if (NULL == x10aux::RuntimeType::FloatType.typeName) {
+            x10aux::RuntimeType::initFloatType();
+        }
+        return &x10aux::RuntimeType::FloatType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_long>() {
+        if (NULL == x10aux::RuntimeType::LongType.typeName) {
+            x10aux::RuntimeType::initLongType();
+        }
+        return &x10aux::RuntimeType::LongType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_double>() {
+        if (NULL == x10aux::RuntimeType::DoubleType.typeName) {
+            x10aux::RuntimeType::initDoubleType();
+        }
+        return &x10aux::RuntimeType::DoubleType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_ubyte>() {
+        if (NULL == x10aux::RuntimeType::UByteType.typeName) {
+            x10aux::RuntimeType::initUByteType();
+        }
+        return &x10aux::RuntimeType::UByteType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_ushort>() {
+        if (NULL == x10aux::RuntimeType::UShortType.typeName) {
+            x10aux::RuntimeType::initUShortType();
+        }
+        return &x10aux::RuntimeType::UShortType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_uint>() {
+        if (NULL == x10aux::RuntimeType::UIntType.typeName) {
+            x10aux::RuntimeType::initUIntType();
+        }
+        return &x10aux::RuntimeType::UIntType;
+    }
+    template<> inline const x10aux::RuntimeType *getRTT<x10_ulong>() {
+        if (NULL == x10aux::RuntimeType::ULongType.typeName) {
+            x10aux::RuntimeType::initULongType();
+        }
+        return &x10aux::RuntimeType::ULongType;
+    }
 
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
