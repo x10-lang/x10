@@ -59,9 +59,7 @@ namespace x10aux {
         void* itable;
     };
 
-#ifndef NDEBUG
     void reportITableLookupFailure(itable_entry* itables, RuntimeType* targetInterface);
-#endif
     
     /*
      * Search itables to find the itable that matches I and return it.
