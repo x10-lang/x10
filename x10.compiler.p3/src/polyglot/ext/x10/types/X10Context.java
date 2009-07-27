@@ -100,6 +100,15 @@ public interface X10Context extends Context {
     boolean inAnnotation();
     void setAnnotation();
     void clearAnnotation();
+    
+    /**
+     * Set that the body of a new Object() {...} has been entered. This is done
+     * during code generation, e.g. for dep type casts. Now, references to this
+     * must be fully qualified.
+     */
+    void setAnonObjectScope();
+    boolean inAnonObjectScope();
+    void restoreAnonObjectScope(boolean anonObjectScope);
 
     CodeDef definingCodeDef(Name name);
 

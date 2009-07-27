@@ -13,6 +13,7 @@ import java.util.List;
 
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.ConstrainedType;
@@ -34,7 +35,9 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.TypeChecker;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode {
@@ -54,6 +57,26 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	return n;
     }
     
+    /** Visit the children of the expression. Added so as to permit arbitrary visitors
+     * to traverse the link from this to the DepExpr child. For instance, the InnerClassRemover 
+     * needs to rewrite occurrences of this in DepExpr with  reference to the appropriate field
+     * (out$ for the appropriate outer class.)
+     * vj 27 Jul 09
+     * 
+     * */
+    public Node visitChildren(NodeVisitor v) {
+    	// vj: Hack. Need a better way of handling this.
+    	// The TypeChecker should not visit children during the visitChildren 
+    	// phase. It will get its chance during the leaveCall phase, at which 
+    	// point the context will be set up properly so that the check that self
+    	// can only be referenced from within a depexpr can be performed accurately.
+    	if (v instanceof TypeChecker) {
+    		return this;
+    	}
+    	DepParameterExpr e = (DepParameterExpr) visitChild(this.expr, v);
+    	return constraintExpr(e);
+    }
+
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	X10Context c = (X10Context) tc.context();
@@ -79,7 +102,8 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	        }
 	    }
 	    if (c.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
-	        throw new SemanticException("Cannot refer to type parameter " + pt.fullName() + " of " + def + " from a static context.", position());
+	        throw new SemanticException("Cannot refer to type parameter " 
+	        		+ pt.fullName() + " of " + def + " from a static context.", position());
 	    }
 	}
 	
