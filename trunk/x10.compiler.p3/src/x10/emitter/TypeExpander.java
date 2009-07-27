@@ -22,8 +22,11 @@ public class TypeExpander extends Expander {
 	        this.flags = flags;
 	    }
 	    
-	    public TypeExpander(Emitter er, Type t, boolean printGenerics, boolean boxPrimitives, boolean inSuper) {
-	        this(er, t, (printGenerics ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS: 0) | (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0) | (inSuper ? X10PrettyPrinterVisitor.NO_VARIANCE : 0));
+	    public TypeExpander(Emitter er, Type t, boolean printGenerics, boolean boxPrimitives, 
+	    		boolean inSuper) {
+	        this(er, t, (printGenerics ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS: 0) 
+	        		| (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0) 
+	        		| (inSuper ? X10PrettyPrinterVisitor.NO_VARIANCE : 0));
 	    }
 	    
 	    public String toString() {

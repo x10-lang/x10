@@ -21,21 +21,21 @@ public class Loop extends Expander {
 
 	private final String id;
 	//private final String template;
-	private final List[] lists;
+	private final List<?>[] lists;
 	private final int N;
-	public Loop(Emitter er, String id, List arg) {
+	public Loop(Emitter er, String id, List<?> arg) {
 		this(er, id, new List[] { arg });
 	}
-	public Loop(Emitter er, String id, List arg1, List arg2) {
+	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2) {
 		this(er, id, new List[] { arg1, arg2 });
 	}
-	public Loop(Emitter er, String id, List arg1, List arg2, List arg3) {
+	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2, List<?> arg3) {
 		this(er, id, new List[] { arg1, arg2, arg3 });
 	}
-	public Loop(Emitter er, String id, List arg1, List arg2, List arg3, List arg4) {
+	public Loop(Emitter er, String id, List<?> arg1, List<?> arg2, List<?> arg3, List<?> arg4) {
 		this(er, id, new List[] { arg1, arg2, arg3, arg4 });
 	}
-	public Loop(Emitter er, String id, List[] components) {
+	public Loop(Emitter er, String id, List<?>[] components) {
 		super(er);
 	
 		this.id = id;
@@ -65,5 +65,14 @@ public class Loop extends Expander {
 			er.dump(id, args, tr);
 		}
 		er.w.write("/* } */");
+	}
+	public String toString() {
+		StringBuffer sb = new StringBuffer("Loop ");
+		for (int i=0; i < lists.length; ++i) {
+			sb.append(er.convertToString(lists[i]));
+			if (i+1 < lists.length) 
+				sb.append(" ");
+		}
+		return sb.toString();
 	}
 }

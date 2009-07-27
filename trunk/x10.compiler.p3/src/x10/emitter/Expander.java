@@ -21,7 +21,7 @@ public abstract class Expander {
 	}
 
 	public void expand() {
-		expand(this.er.tr);
+		expand(er.tr);
 	}
 
 	public abstract void expand(Translator tr);

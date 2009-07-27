@@ -30,6 +30,8 @@ public class Template extends Expander {
 	public void expand(Translator tr) {
 		er.dump(id, args, tr);
 	}
-	
+	public String toString() {
+		return id + " " + er.convertToString(args);
+	}
 	
 }
