@@ -40,21 +40,21 @@ import x10.constraint.XTerm;
 /**
  * Parts of this code are taken from the pao extension in the polyglot
  * framework.
- * 
+ *
  * @author Christoph von Praun
  * @author vj
  */
 public interface X10TypeSystem extends TypeSystem {
 	public Name DUMMY_PACKAGE_CLASS_NAME = Name.make("_");
-	
+
     boolean isSubtype(Type t1, Type t2, Context context);
-    
+
     /**
      * Add an annotation to a type object, optionally replacing existing
      * annotations that are subtypes of annoType.
      */
     void addAnnotation(X10Def o, Type annoType, boolean replace);
-    
+
     AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
     Type boxOf(Position p, Ref<? extends Type> t);
@@ -71,7 +71,7 @@ public interface X10TypeSystem extends TypeSystem {
      * found because the method we find depends on whether the method is
      * accessible from that class. We also check if the field is accessible from
      * the context 'c'.
-     * 
+     *
      * @exception SemanticException
      *                    if the method cannot be found or is inaccessible.
      */
@@ -81,7 +81,7 @@ public interface X10TypeSystem extends TypeSystem {
      * Find a constructor. We need to pass the class from which the constructor
      * is being found because the constructor we find depends on whether the
      * constructor is accessible from that class.
-     * 
+     *
      * @exception SemanticException
      *                    if the constructor cannot be found or is inaccessible.
      */
@@ -91,6 +91,16 @@ public interface X10TypeSystem extends TypeSystem {
      * Create a <code>ClosureType</code> with the given signature.
      */
     ClosureInstance createClosureInstance(Position pos, Ref<? extends ClosureDef> def);
+
+    /**
+     * Returns an immutable list of all the interfaces
+     * which the type implements excluding itself and x10.lang.Object.
+     * This is different from {@link #Interface()} in that this method
+     * traverses the class hierarchy to collect all implemented interfaces
+     * instead of shallowly returning just the interfaces directly implemented
+     * by the type.
+     */
+    List<X10ClassType> allImplementedInterfaces(X10ClassType type);
 
     XTerm here();
 
@@ -157,14 +167,14 @@ public interface X10TypeSystem extends TypeSystem {
 
     /**
      * Return the ClassType object for the x10.lang.Rail interface.
-     * 
+     *
      * @return
      */
     Type Rail();
 
     /**
      * Return the ClassType object for the x10.lang.ValRail interface.
-     * 
+     *
      * @return
      */
     Type ValRail();
@@ -195,7 +205,7 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isValueType(Type me, X10Context context);
 
     boolean isReferenceType(Type me, X10Context context);
-    
+
     boolean isUByte(Type t);
     boolean isUShort(Type t);
     boolean isUInt(Type t);
@@ -226,7 +236,7 @@ public interface X10TypeSystem extends TypeSystem {
     /**
      * Is a type constrained (i.e. its depClause is != null) If me is a
      * nullable, then the basetype is checked.
-     * 
+     *
      * @param me
      *                Type to check
      * @return true if type has a depClause.
@@ -244,14 +254,14 @@ public interface X10TypeSystem extends TypeSystem {
      * True if the two types are equal, ignoring their dep clauses.
      * @param other
      * @param context TODO
-     * 
+     *
      * @return
      */
 
     boolean typeBaseEquals(Type me, Type other, Context context);
     /**
      * True if the two types are equal, ignoring their dep clauses and the dep clauses of their type arguments recursively.
-     * 
+     *
      * @param other
      * @return
      */
@@ -299,7 +309,7 @@ public interface X10TypeSystem extends TypeSystem {
     ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes);
 
-    
+
     Type expandMacros(Type arg);
 
 //    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
@@ -311,7 +321,7 @@ public interface X10TypeSystem extends TypeSystem {
     boolean consistent(XConstraint c);
     boolean consistent(TypeConstraint c, X10Context context);
 
-    /** Return true if constraints in the type are all consistent. 
+    /** Return true if constraints in the type are all consistent.
      * @param context TODO*/
     boolean consistent(Type t, X10Context context);
 
@@ -324,7 +334,7 @@ public interface X10TypeSystem extends TypeSystem {
     Type Region();
 
     Type Iterator(Type formalType);
-    
+
     X10FieldDef fieldDef(Position pos,
             Ref<? extends StructType> container, Flags flags,
             Ref<? extends Type> type, Name name, XRoot thisVar);
@@ -334,6 +344,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isSigned(Type l);
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
-    
+
 
 }
