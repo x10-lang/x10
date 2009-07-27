@@ -13,5 +13,6 @@ Export-Package: polyglot.ext.x10,
  polyglot.ext.x10.extension,
  polyglot.ext.x10.types,
  polyglot.ext.x10.visit,
- x10.parser
+ x10.parser,
+ x10.emitter
 Bundle-Vendor: rfuhrer@watson.ibm.com
