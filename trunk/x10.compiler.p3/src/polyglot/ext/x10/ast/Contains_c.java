@@ -117,7 +117,7 @@ public class Contains_c extends Expr_c implements Contains {
 		    List<Type> args = Collections.singletonList(itemType);
 		    Context context = tc.context();
 		    ClassDef curr = context.currentClassDef();
-		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("$in"), args, context));
+		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("contains"), args, context));
 		    return type(mi.returnType());
 		}
 		catch (SemanticException e) {
