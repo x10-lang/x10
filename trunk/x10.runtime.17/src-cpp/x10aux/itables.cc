@@ -5,6 +5,7 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+#ifndef NDEBUG
 void x10aux::reportITableLookupFailure(itable_entry* itables, RuntimeType* targetInterface) {
     fprintf(stderr, "\nITable lookup failure!!\n");
     fprintf(stderr, "\tTarget interface was %s\n", targetInterface->name());
@@ -17,3 +18,4 @@ void x10aux::reportITableLookupFailure(itable_entry* itables, RuntimeType* targe
     fprintf(stderr, "\n");
     fflush(stderr);
 }
+#endif
