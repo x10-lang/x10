@@ -30,15 +30,15 @@ package polyglot.ext.x10.types;
  * This is a property of the X10 language.
  *
  * Certain methods should not be called if depType is set, e.g. methods to add names,
- * push scopes etc. These through an assertion error.
+ * push scopes etc. These throw an assertion error.
  *
- * Certain methods can be alled within a deptype, but the result should be as if they are called
- * on the outer context. So this is easily dealt with using the pattern
+ * Certain methods can be called within a deptype, but the result should be as if they 
+ * are called on the outer context. So this is easily dealt with using the pattern
  * depType == null ? super.Foo(..) : pop.Foo(...)
  * That is, if this context is not deptype context, run the usual code.  Otherwise
  * delegate to the outer context.
  *
- * @author vj
+ * @author nystrom
  * @see Context
  */
 import java.util.ArrayList;
@@ -326,6 +326,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inNonBlockingCode;
 	protected boolean inLoopHeader;
 	protected boolean inAnnotation;
+	protected boolean inAnonObjectScope;
 	
 	public boolean inSafeCode() { return inSafeCode; }
 	public boolean inSequentialCode() { return inSequentialCode; }
@@ -333,6 +334,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean inLocalCode() { return inLocalCode; }
 	public boolean inLoopHeader() { return inLoopHeader; }
 	public boolean inAnnotation() { return inAnnotation; }
+	public boolean inAnonObjectScope() { return inAnonObjectScope;}
+	public void restoreAnonObjectScope(boolean s) { inAnonObjectScope=s;}
 
 	public void setSafeCode() { inSafeCode = true; }
 	public void setSequentialCode() { inSequentialCode = true; }
@@ -340,6 +343,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public void setLocalCode() { inLocalCode = true; }
 	public void setLoopHeader() { inLoopHeader = true; }
 	public void setAnnotation() { inAnnotation = true; }
+	public void setAnonObjectScope() { inAnonObjectScope = true;}
 	public void clearAnnotation() { inAnnotation = false; }
 
 	protected Context_c push() {

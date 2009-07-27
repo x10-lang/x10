@@ -144,6 +144,7 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
+import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 import x10.constraint.XAnd_c;
 import x10.constraint.XConstraint;
@@ -655,7 +656,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 				DepParameterExpr dep = xtn.constraintExpr();
 				if (dep != null) {
-					new Template(er, template, ex, expr, rt, new Join(er, " && ", dep.condition())).expand();
+					List<Expr> conds = dep.condition();
+					X10Context xct = (X10Context) tr.context();
+					boolean inAnonObjectScope = xct.inAnonObjectScope();
+					assert (! inAnonObjectScope)
+					: "Internal error: Recursive entry into  anon object scope not supported.";
+					xct.setAnonObjectScope();
+					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
+					xct.restoreAnonObjectScope(inAnonObjectScope);
 				}
 				else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
 					w.begin(0);
@@ -733,8 +741,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(Special_c n) {
-		polyglot.types.Context c = tr.context();
-		if (((X10Translator) tr).inInnerClass() && n.qualifier() == null && n.kind() != X10Special.SELF) {
+		X10Context c = (X10Context) tr.context();
+		/*
+		 * The InnerClassRemover will have replaced the
+		 */
+		if (c.inAnonObjectScope() && n.kind() == Special.THIS
+				&& c.inStaticContext()) {
+			w.write(InnerClassRemover.OUTER_FIELD_NAME.toString());
+			return;
+		}
+		if ((((X10Translator) tr).inInnerClass() || c.inAnonObjectScope() )
+				&& n.qualifier() == null && n.kind() != X10Special.SELF) {
 			er.printType(n.type(), 0);
 			w.write(".");
 		}

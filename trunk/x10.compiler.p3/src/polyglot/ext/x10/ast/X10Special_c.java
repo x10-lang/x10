@@ -13,6 +13,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ProcedureDef;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.XTypeTranslator;
@@ -168,5 +169,21 @@ public class X10Special_c extends Special_c implements X10Special {
 
         return result;
     }
+    
+    public String toString() {
+    	String typeString = null;
+    	if (qualifier != null)
+    		typeString = qualifier.toString();
+    	else {
+    		X10Type type = (X10Type) type();
+    		if (type != null) {
+    			ClassType k = type.toClass();
+    			if (k != null)
+    				typeString = k.toString();
+    		}
+    	}
+    	
+    	return (typeString == null ? "" : typeString + ".") + kind;
+        }
 
 }
