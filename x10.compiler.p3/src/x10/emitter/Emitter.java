@@ -215,6 +215,15 @@ public class Emitter {
 		dumpRegex(id, components, tr, regex);
 	}
 
+	/**
+	 * Support  "inline" .xcd so that you dont have to create a separate xcd file for a short 
+	 * code fragment.
+	 * @param components
+	 * @param regex
+	 */
+	public void dumpCodeString(Object[] components, String regex) {
+		dumpRegex("internal", components, tr, regex);
+	}
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
 		for (int i = 0; i < components.length; i++) {
 			assert ! (components[i] instanceof Object[]);
@@ -1660,6 +1669,8 @@ public class Emitter {
 	    return true;
 	}
 	public boolean needsHereCheck( Receiver target, X10Context context) {
+		return false;
+		/*
         boolean needsHereCheck = true;
         // calls on new objects
         needsHereCheck &= ! (target instanceof New);
@@ -1674,7 +1685,7 @@ public class Emitter {
                 }
             }
         }
-    return needsHereCheck;
+    return needsHereCheck;*/
 }
 	
 	private Template processClocks(Clocked c) {
@@ -1707,5 +1718,28 @@ public class Emitter {
                         		 X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES),
                          /* #8 */ l.position().nameAndLineString().replace("\\", "\\\\")
 					 ).expand(tr2);
+	}
+	public String convertToString(Object[] a) {
+		StringBuffer s = new StringBuffer("[");
+		for (int i=0; i < a.length; ++i) {
+			s.append(a[i].toString());
+			if (i+1 < a.length) {
+				s.append(", ");
+			}
+		}
+		s.append("]");
+		return s.toString();
+	}
+	public String convertToString(List<?> a) {
+		StringBuffer s = new StringBuffer("[");
+		final int size = a.size();
+		for (int i=0; i < size; ++i) {
+			s.append(a.get(i).toString());
+			if (i+1 < size) {
+				s.append(", ");
+			}
+		}
+		s.append("]");
+		return s.toString();
 	}
 }

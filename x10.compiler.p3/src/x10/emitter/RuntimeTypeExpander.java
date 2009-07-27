@@ -41,6 +41,9 @@ final public class RuntimeTypeExpander extends Expander {
         this.at = at;
     }
 
+    public String toString() {
+    	return "RuntimeTypeExpander{#" + hashCode() + ", " + at.toString() + "}";
+    }
     public void expand(Translator tr) {
         String s = typeof(at);
         if (s != null) {
