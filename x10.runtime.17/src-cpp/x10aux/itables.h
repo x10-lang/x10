@@ -73,8 +73,10 @@ namespace x10aux {
                 return (typename I::template itable<x10::lang::Object>*)(itables[i].itable);
             }
 #ifndef NDEBUG
-            x10aux::reportITableLookupFailure(itables, id);
-            assert(false);
+            if (NULL == itables[i].id) {
+                x10aux::reportITableLookupFailure(itables, id);
+                assert(false);
+            }
 #endif
         }
     }
