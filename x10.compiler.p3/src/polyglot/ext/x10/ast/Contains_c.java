@@ -35,6 +35,8 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 
 /**
+ * AST node corresponding to the RHS of the production
+ * RelationalExpression ::= RelationalExpression in ShiftExpression
  * @author vj Feb 4, 2005
  * 
  */
