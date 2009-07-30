@@ -277,7 +277,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	return n;
     }
-    
+    @Override
+    public Context enterScope(Context c) {
+    	return c.pushBlock();
+    }
     public Context enterChildScope(Node child, Context c) {
     	X10Context xc = (X10Context) c;
     	

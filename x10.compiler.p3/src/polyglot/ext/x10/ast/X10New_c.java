@@ -80,7 +80,8 @@ public class X10New_c extends New_c implements X10New {
         List<Expr> arguments = visitList(this.arguments, v);
         ClassBody body = (ClassBody) visitChild(this.body, v);
         X10New_c n = (X10New_c) typeArguments(typeArguments);
-        return n.reconstruct(qualifier, tn, arguments, body);
+        Node result = n.reconstruct(qualifier, tn, arguments, body);
+        return result;
     }
 
     @Override
@@ -455,7 +456,7 @@ public class X10New_c extends New_c implements X10New {
         typeCheckNested(tc);
 
         Type t = tn.type();
-        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+        X10ClassType ct = (X10ClassType) t; //  X10TypeMixin.baseType(t);
 
         X10ConstructorInstance ci;
         List<Expr> args;
