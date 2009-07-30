@@ -684,6 +684,9 @@ public class X10CPPTranslator extends Translator {
             "-Wl,-export-dynamic",
             USE_BFD ? "-lbfd" : DUMMY,
             "-lrt",
+            !TRANSPORT.equals("lapi") ? DUMMY : "-llapi",
+            !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_ibm",
+            !TRANSPORT.equals("lapi") ? DUMMY : "-lpoe",
         };
 
         public Linux_CXXCommandBuilder(Options options) {
