@@ -1,7 +1,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/ref.h>
-#include <x10aux/pgas.h>
+#include <x10aux/network.h>
 #include <x10aux/throw.h>
 #include <x10/lang/NullPointerException.h>
 #include <x10/lang/BadPlaceException.h>

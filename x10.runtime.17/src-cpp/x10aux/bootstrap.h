@@ -2,7 +2,7 @@
 #define X10AUX_BOOTSTRAP_H
 
 #include <x10aux/config.h>
-#include <x10aux/pgas.h>
+#include <x10aux/network.h>
 #include <x10aux/alloc.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/system_utils.h>
