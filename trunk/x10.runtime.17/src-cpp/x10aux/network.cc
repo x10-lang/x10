@@ -1,6 +1,6 @@
 #include <x10aux/config.h>
 
-#include <x10aux/pgas.h>
+#include <x10aux/network.h>
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 

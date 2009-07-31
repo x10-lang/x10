@@ -178,7 +178,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/float_utils.o \
 	x10aux/long_utils.o \
 	x10aux/math_utils.o \
-	x10aux/pgas.o \
+	x10aux/network.o \
 	x10aux/ref.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \

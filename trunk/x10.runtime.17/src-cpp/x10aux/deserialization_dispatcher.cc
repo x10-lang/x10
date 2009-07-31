@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 #include <x10aux/deserialization_dispatcher.h>
 #include <x10aux/serialization.h>
+#include <x10aux/network.h>
 
 #include <assert.h>
 

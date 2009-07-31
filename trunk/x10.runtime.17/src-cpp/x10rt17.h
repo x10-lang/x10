@@ -6,7 +6,7 @@
 #include <x10aux/config.h>
 
 // has to be first to ensure initialisation of pgas occurs before uses of x10aux::alloc
-#include <x10aux/pgas.h>
+#include <x10aux/network.h>
 
 #include <x10aux/class_cast.h>
 #include <x10aux/ref.h>
