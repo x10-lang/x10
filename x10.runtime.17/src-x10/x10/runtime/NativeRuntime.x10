@@ -66,7 +66,6 @@ public value NativeRuntime {
    * Return true if place(id) is in the current node.
    */
   @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
-  @Native("c++", "x10aux::local(#1)")
   public static def local(id:Int):Boolean = id == here.id;
 
   /**
@@ -82,4 +81,31 @@ public value NativeRuntime {
    */
   @Native("c++", "x10aux::event_loop()")
   public static def event_loop():Void {}
+
+  /** Accessors for native performance counters
+   */
+  @Native("c++","x10aux::asyncs_sent")
+  static def getAsyncsSent() = 0 as Long;
+
+  @Native("c++","x10aux::asyncs_sent = #1")
+  static def setAsyncsSent(v:Long) { }
+
+  @Native("c++","x10aux::asyncs_received")
+  static def getAsyncsReceived() = 0 as Long;
+
+  @Native("c++","x10aux::asyncs_received = #1")
+  static def setAsyncsReceived(v:Long) { }
+
+  @Native("c++","x10aux::serialized_bytes")
+  static def getSerializedBytes() = 0 as Long;
+
+  @Native("c++","x10aux::serialized_bytes = #1")
+  static def setSerializedBytes(v:Long) { }
+
+  @Native("c++","x10aux::deserialized_bytes")
+  static def getDeserializedBytes() = 0 as Long;
+
+  @Native("c++","x10aux::deserialized_bytes = #1")
+  static def setDeserializedBytes(v:Long) { }
+
 }
