@@ -23,4 +23,7 @@ public abstract value Future[T] implements ()=>T {
      * Return true if this activity has completed.
      */
     public abstract def forced(): boolean;
+
+    // Workaround XTENLANG-481
+    public abstract def apply():T;
 }
