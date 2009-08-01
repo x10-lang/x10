@@ -112,7 +112,7 @@ namespace x10 {
         template <class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
             x10aux::itable_entry(&Iterable<T>::rtt, &ValRail<T>::_itable_iterable),
             x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt, &ValRail<T>::_itable_fun),
-            x10aux::itable_entry(NULL, NULL)
+            x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<ValRail<T> >())
         };
 
         template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
