@@ -74,7 +74,7 @@ namespace x10 {
 
         template<class T> x10aux::itable_entry RailIterator<T>::_railItITables[2] = {
             x10aux::itable_entry(&Iterator<T>::rtt, &RailIterator<T>::_itable_iterator),
-            x10aux::itable_entry(NULL, NULL)
+            x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<RailIterator<T> >())
         };
     }
 }

@@ -42,7 +42,7 @@ void Object::_initRTT() {
 }
 
 
-itable_entry Object::_itables[1] = { itable_entry(NULL, NULL) };
+itable_entry Object::_itables[1] = { itable_entry(NULL,  (void*)x10aux::getRTT<Object>()) };
 
 
 // vim:tabstop=4:shiftwidth=4:expandtab
