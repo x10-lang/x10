@@ -8,7 +8,6 @@ Bundle-Vendor: IBM Watson Research Center
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  com.ibm.wala.cast.x10,
- org.junit,
  polyglot,
  x10.compiler,
  com.ibm.wala.core,
@@ -17,5 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.wala.cast.java.test,
  com.ibm.wala.cast.java,
  com.ibm.wala.cast.java.polyglot.test;bundle-version="1.0.0",
- com.ibm.wala.cast.java.polyglot;bundle-version="1.0.0"
+ com.ibm.wala.cast.java.polyglot;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.3.1"
 Eclipse-AutoStart: true
