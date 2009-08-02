@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 
+import org.junit.Test;
+
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.test.IRTests;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
@@ -44,8 +46,8 @@ public class X10IRTests extends IRTests {
 	}
     }
 
-    public X10IRTests(String name) {
-    	super(name,  null);
+    public X10IRTests() {
+    	super("X10IRTests", null);
     	setTestSrcPath("." + File.separator + "testSrc");
     }
 
@@ -85,31 +87,31 @@ public class X10IRTests extends IRTests {
         }
     }
 
-    public void testAsync1() {
+    @Test public void testAsync1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
-    public void testAsyncInvoke() {
+    @Test public void testAsyncInvoke() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testFuture1() {
+    @Test public void testFuture1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testFinish1() {
+    @Test public void testFinish1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
-    public void testFor1() {
+    @Test public void testFor1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
-    public void testForEach1() {
+    @Test public void testForEach1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
-    public void testWhen1() {
+    @Test public void testWhen1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
@@ -117,31 +119,31 @@ public class X10IRTests extends IRTests {
 //	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(), emptyList, true);
 //    }
 
-    public void testArrayAccess1() {
+    @Test public void testArrayAccess1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testArrayAccess2D() {
+    @Test public void testArrayAccess2D() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testArrayAccess3D() {
+    @Test public void testArrayAccess3D() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testArrayCtor1() {
+    @Test public void testArrayCtor1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
     
-    public void testPlaces() {
+    @Test public void testPlaces() {
     	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
-    public void testx10ForLoopBreakTest() {
+    @Test public void testx10ForLoopBreakTest() {
     	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-    public void testHashTable() {
+    @Test public void testHashTable() {
     	runTest(singlePkgTestSrc("p"), rtJar, simplePkgTestEntryPoint("p"), emptyList, false);
     }
 }
