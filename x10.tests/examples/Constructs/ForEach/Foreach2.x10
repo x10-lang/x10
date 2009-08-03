@@ -18,12 +18,12 @@ public class Foreach2 extends x10Test {
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
-		val P0: Place = here; // save current place
-		val r: Region = [0..N-1];
-		val d: Dist = r->P0;
+		val P0 = here; // save current place
+		val r = [0..N-1];
+		val d = r->P0;
 
 		finish
-			foreach (val p: Point in d.region) {
+			foreach (p in d.region) {
 				// Ensure each activity spawned by foreach
 				// runs at P0
 				// and that the hasbug array was

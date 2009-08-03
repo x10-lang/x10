@@ -20,6 +20,12 @@ public interface X10TypeEnv extends TypeEnv {
     /** Return true if constraints in the type are all consistent. */
     boolean consistent(Type t);
 
+    /**
+     * Return a lit of upper bounds for type t.
+     * @param t
+     * @param includeObject
+     * @return
+     */
     List<Type> upperBounds(Type t, boolean includeObject);
 
     List<Type> lowerBounds(Type t);
@@ -31,7 +37,7 @@ public interface X10TypeEnv extends TypeEnv {
     boolean isSubtypeWithValueInterfaces(Type t1, Type t2);
 
     boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces);
-
+   
     boolean entails(XConstraint c1, XConstraint c2);
 
     boolean hasSameClassDef(Type t1, Type t2);

@@ -87,4 +87,10 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     public void setProperty() {
         isProperty = true;        
     }
+    /** A field declaration cannot have a type guard.
+     * 
+     */
+    public Ref<TypeConstraint> typeGuard() {
+    	return null;
+    }
 }

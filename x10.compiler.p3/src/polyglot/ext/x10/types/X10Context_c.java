@@ -181,6 +181,7 @@ public class X10Context_c extends Context_c implements X10Context {
         /* sigma(Gamma) restricted to the variables mentioned in c */
         private XConstraint constraintProjection(XConstraint c, Map<XTerm,XConstraint> m) throws XFailure {
             XConstraint r = new XConstraint_c();
+            if (c != null)
                 for (XTerm t : c.constraints()) {
                     XConstraint tc = constraintProjection(t, m);
                     if (tc != null)
@@ -283,18 +284,33 @@ public class X10Context_c extends Context_c implements X10Context {
         return null;
     }
     
-    
-    
     protected TypeConstraint currentTypeConstraint;
-    public TypeConstraint currentTypeConstraint() { if (currentTypeConstraint == null) return new TypeConstraint_c(); return currentTypeConstraint; }
-    public void setCurrentTypeConstraint(TypeConstraint c) { currentTypeConstraint = c; }
+    public TypeConstraint currentTypeConstraint() { 
+    	if (currentTypeConstraint == null) 
+    		return new TypeConstraint_c(); 
+    	return currentTypeConstraint; }
+    public void setCurrentTypeConstraint(TypeConstraint c) { 
+    	currentTypeConstraint = c; 
+    }
 
     protected XConstraint currentPlaceConstraint;
-    public XConstraint currentPlaceConstraint() { if (currentPlaceConstraint == null) return new XConstraint_c(); return currentPlaceConstraint; }
-    public void setCurrentPlaceConstraint(XConstraint c) { currentPlaceConstraint = c; }
+    public XConstraint currentPlaceConstraint() { 
+    	if (currentPlaceConstraint == null) 
+    		return new XConstraint_c(); 
+    	return currentPlaceConstraint; 
+    }
+    public void setCurrentPlaceConstraint(XConstraint c) { 
+    	currentPlaceConstraint = c;
+    }
     protected XConstraint currentConstraint;
-	public XConstraint currentConstraint() { if (currentConstraint == null) return new XConstraint_c(); return currentConstraint; }
-	public void setCurrentConstraint(XConstraint c) { currentConstraint = c; }
+    public XConstraint currentConstraint() { 
+    	if (currentConstraint == null) 
+    		return new XConstraint_c(); 
+    	return currentConstraint; 
+    }
+    public void setCurrentConstraint(XConstraint c) { 
+    	currentConstraint = c; 
+    }
 
 	public CodeDef definingCodeDef(Name name) {
 	    if ((isBlock() || isCode()) &&
@@ -305,7 +321,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	    if (outer instanceof X10Context) {
 	        return ((X10Context) outer).definingCodeDef(name);
 	    }
-
 	    return null;
 	}
 
@@ -752,7 +767,8 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	public String toString() {
 		return "(" + (depType != null ? "depType " + depType : kind.toString()) +
-		       " " + mapsToString() + " " + outer + ")";
+		  (currentConstraint !=null ? " constraint " + currentConstraint : "") + 
+		      " "+  mapsToString() + " " + outer + ")";
 	}
 
 	static protected int varCount = 0;

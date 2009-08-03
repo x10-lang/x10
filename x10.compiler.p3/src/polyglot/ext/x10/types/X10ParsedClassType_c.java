@@ -128,7 +128,7 @@ implements X10ParsedClassType
 	    return def().fromJavaClassFile();
 	}
 	
-	boolean hasParams() {
+	public boolean hasParams() {
 	    return x10Def().typeParameters() != null && x10Def().typeParameters().size() != 0;
 	}
 	

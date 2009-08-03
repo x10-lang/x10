@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ext.x10.ast.X10Special;
+import polyglot.ext.x10.types.ParameterType.Variance;
 import polyglot.ext.x10.types.X10TypeSystem_c.Bound;
 import polyglot.ext.x10.types.X10TypeSystem_c.Kind;
 import polyglot.main.Report;
@@ -229,7 +231,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see polyglot.ext.x10.types.X10TypeEnv#upperBounds(polyglot.types.Type, boolean)
      */
     public List<Type> upperBounds(Type t, boolean includeObject) {
-        return bounds(t, Bound.UPPER, includeObject);
+    	List<Type> bounds = bounds(t, Bound.UPPER, includeObject);
+        return bounds;
+    }
+    public List<Type> upperTypeBounds(Type t, boolean includeObject) {
+    	List<Type> bounds = typeBounds(t, Bound.UPPER, includeObject);
+        return bounds;
+    }
+    public List<Type> lowerTypeBounds(Type t) {
+    	List<Type> bounds = typeBounds(t, Bound.LOWER, false);
+        return bounds;
     }
     /* (non-Javadoc)
      * @see polyglot.ext.x10.types.X10TypeEnv#lowerBounds(polyglot.types.Type)
@@ -334,6 +345,95 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return Kind.NEITHER;
     }
 
+    List<Type> typeBounds(Type t, Bound kind, boolean includeObject) {
+        List<Type> result = new ArrayList<Type>();
+        Set<Type> visited = new HashSet<Type>();
+        
+        LinkedList<Type> worklist = new LinkedList<Type>();
+        worklist.add(t);
+        
+        while (! worklist.isEmpty()) {
+            Type w = worklist.removeFirst();
+        
+            // Expand macros, remove constraints
+            Type expanded = X10TypeMixin.baseType(w);
+        
+            if (visited.contains(expanded)) {
+                continue;
+            }
+        
+            visited.add(expanded);
+        
+//            // Get constraints from the type's where clause.
+//            XConstraint wc = X10TypeMixin.xclause(w);
+//            if (wc != null) {
+//                List<Type> b = getBoundsFromConstraint(t, wc, kind);
+//                worklist.addAll(b);
+//            }
+        
+            if (expanded instanceof ParameterType) {
+                ParameterType pt = (ParameterType) expanded;
+                X10Def def = (X10Def) Types.get(pt.def());
+                Ref<TypeConstraint> ref = def.typeGuard();
+                if (ref != null) {
+                	 TypeConstraint c = Types.get(def.typeGuard());
+                     List<Type> b = getBoundsFromConstraint(pt, c, kind);
+                     worklist.addAll(b);
+                }
+                continue;
+            }
+            // vj:
+            // If U is an upperbound of Ti, then
+            // C[T1,..,Ti-1,U,Ti+1,...,Tn] is an upperbound of C[T1,.., Tn]
+            if (expanded instanceof X10ClassType && kind == Bound.UPPER) {
+            	X10ClassType ct = (X10ClassType) expanded;
+
+            	if (ct.hasParams()) {
+            		List<Type> typeArgs = ct.typeArguments();
+            		X10ClassDef def = ct.x10Def();
+            		List<Variance> variances = def.variances();
+
+            		for (int i=0; i < typeArgs.size(); i++) {
+            			ParameterType.Variance v = variances.get(i);
+            			switch (v) {
+            			case COVARIANT:
+            				for (Type type : upperBounds(typeArgs.get(i), true)) {
+            					X10ClassType ct1 = (X10ClassType) ct.copy();
+            					List<Type> typeArgs1 = new ArrayList<Type>(typeArgs); //copy
+            					typeArgs1.set(i,type);
+            					ct1 = ct1.typeArguments(typeArgs1);
+            					result.add(ct1);
+            				}
+            				break;
+            			case CONTRAVARIANT:
+            				for (Type type : lowerBounds(typeArgs.get(i))) {
+            					X10ClassType ct1 = (X10ClassType) ct.copy();
+            					List<Type> typeArgs1 = new ArrayList<Type>(typeArgs); //copy
+            					typeArgs1.set(i,type);
+            					ct1 = ct1.typeArguments(typeArgs1);
+            					result.add(ct1);
+            				}
+            				break;
+
+            			case INVARIANT:
+            				break;
+            			}
+
+            		}
+            	}
+            }
+            result.add(expanded);
+        }
+        
+        if (kind == Bound.UPPER && result.isEmpty())
+            if (includeObject)
+                return Collections.<Type>singletonList(ts.Object());
+            else
+                return Collections.<Type>emptyList();
+        
+        return new ArrayList<Type>(result);
+    }
+
     List<Type> bounds(Type t, Bound kind, boolean includeObject) {
         List<Type> result = new ArrayList<Type>();
         Set<Type> visited = new HashSet<Type>();
@@ -362,40 +462,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         
             if (expanded instanceof ParameterType) {
                 ParameterType pt = (ParameterType) expanded;
-                Def def = Types.get(pt.def());
-                if (def instanceof X10ClassDef) {
-                    X10ClassDef cd = (X10ClassDef) def;
-                    TypeConstraint c = X10TypeMixin.parameterBounds(cd.asType());
-                    List<Type> b = getBoundsFromConstraint(pt, c, kind);
-                    worklist.addAll(b);
-                }
-                if (def instanceof X10MethodDef) {
-                    X10MethodDef md = (X10MethodDef) def;
-                    TypeConstraint c = Types.get(md.typeGuard());
-                    List<Type> b = getBoundsFromConstraint(pt, c, kind);
-                    worklist.addAll(b);
-                }
-                if (def instanceof ClosureDef) {
-                    ClosureDef md = (ClosureDef) def;
-                    TypeConstraint c = Types.get(md.typeGuard());
-                    List<Type> b = getBoundsFromConstraint(pt, c, kind);
-                    worklist.addAll(b);
-                }
-                if (def instanceof TypeDef) {
-                    TypeDef md = (TypeDef) def;
-                    TypeConstraint c = Types.get(md.typeGuard());
-                    List<Type> b = getBoundsFromConstraint(pt, c, kind);
-                    worklist.addAll(b);
-                }
-                if (def instanceof X10ConstructorDef) {
-                    X10ConstructorDef cd = (X10ConstructorDef) def;
-                    TypeConstraint c = Types.get(cd.typeGuard());
-                    List<Type> b = getBoundsFromConstraint(pt, c, kind);
-                    worklist.addAll(b);
+                X10Def def = (X10Def) Types.get(pt.def());
+                Ref<TypeConstraint> ref = def.typeGuard();
+                if (ref != null) {
+                	 TypeConstraint c = Types.get(def.typeGuard());
+                     List<Type> b = getBoundsFromConstraint(pt, c, kind);
+                     worklist.addAll(b);
                 }
                 continue;
             }
-        
             result.add(expanded);
         }
         
@@ -560,210 +635,263 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      * @see polyglot.ext.x10.types.X10TypeEnv#isSubtypeWithValueInterfaces(polyglot.types.Type, polyglot.types.Type)
      */
     public boolean isSubtypeWithValueInterfaces(Type t1, Type t2) {
-        return isSubtype(t1, t2, true);
+        return isSubtype(null, t1, t2, true);
+    }
+   
+    public boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces) {
+    	return isSubtype(null, t1, t2, allowValueInterfaces);
     }
 
     /* (non-Javadoc)
      * @see polyglot.ext.x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
-    public boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces) {
-        assert t1 != null;
-        assert t2 != null;
-        t1 = ts.expandMacros(t1);
-        t2 = ts.expandMacros(t2);
-        
-        if (t1 == t2)
-            return true;
+    public boolean isSubtype(XVar x, Type t1, Type t2, boolean allowValueInterfaces) {
+    	assert t1 != null;
+    	assert t2 != null;
+    	t1 = ts.expandMacros(t1);
+    	t2 = ts.expandMacros(t2);
+    	X10Context xcontext = (X10Context) context;
 
-        if (t1.isVoid() || t2.isVoid())
-            return false;
 
-        if (t1.isNull() && (t2.isNull() || ts.isReferenceOrInterfaceType(t2, (X10Context) context))) {
-            return true;
-        }
+    	if (t1 == t2)
+    		return true;
 
-        if (t2.isNull()) {
-            return false;
-        }
-        
-        // HACK: treat (S) => T as a subtype of Value.
-        if (ts.isFunction(t1, (X10Context) context) && ts.typeEquals(t2, ts.Value(), context))
-            return true;
+    	if (t1.isVoid() || t2.isVoid())
+    		return false;
 
-        if (ts.isValueType(t1, (X10Context) context) && ts.isReferenceType(t2, (X10Context) context))
-            return false;
+    	if (t1.isNull() && (t2.isNull() 
+    			|| ts.isReferenceOrInterfaceType(t2, xcontext))) {
+    		return true;
+    	}
 
-        if (ts.isValueType(t2, (X10Context) context) && ts.isReferenceType(t1, (X10Context) context))
-            return false;
+    	if (t2.isNull()) {
+    		return false;
+    	}
 
-        if (! allowValueInterfaces) {
-            if (ts.isValueType(t1, (X10Context) context) && ts.isReferenceOrInterfaceType(t2, (X10Context) context))
-                return false;
+    	// HACK: treat (S) => T as a subtype of Value.
+    	if (ts.isFunction(t1, xcontext) 
+    			&& ts.typeEquals(t2, ts.Value(), xcontext))
+    		return true;
 
-            if (ts.isValueType(t2, (X10Context) context) && ts.isReferenceOrInterfaceType(t1, (X10Context) context))
-                return false;
-        }
+    	if (ts.isValueType(t1, xcontext) 
+    			&& ts.isReferenceType(t2, xcontext))
+    		return false;
 
-        if (typeEquals(t1, t2))
-            return true;
+    	if (ts.isValueType(t2, xcontext) 
+    			&& ts.isReferenceType(t1, xcontext))
+    		return false;
 
-        List<SubtypeConstraint> env;
-        X10Context xc = (X10Context) this.context;
-        if (xc.currentTypeConstraint() != null)
-            env = xc.currentTypeConstraint().terms();
-        else
-            env = Collections.EMPTY_LIST;
+    	if (! allowValueInterfaces) {
+    		if (ts.isValueType(t1, xcontext) 
+    				&& ts.isReferenceOrInterfaceType(t2, xcontext))
+    			return false;
 
-        // DO NOT check if env.entails(t1 <: t2); it would be recursive
-        // Instead, iterate through the environment.
-        for (int i = 0; i < env.size(); i++) {
-            SubtypeConstraint term = env.get(i);
-            List<SubtypeConstraint> newEnv = new ArrayList<SubtypeConstraint>();
-            if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
-            if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
-            //                    newEnv = env;
-            //                    newEnv = Collections.EMPTY_LIST;
+    		if (ts.isValueType(t2, xcontext) 
+    				&& ts.isReferenceOrInterfaceType(t1, xcontext))
+    			return false;
+    	}
 
-            X10Context xc2 = (X10Context) xc.pushBlock();
-            TypeConstraint ec = new TypeConstraint_c();
-            for (SubtypeConstraint tt : newEnv) {
-                ec.addTerm(tt);
-            }
-            xc2.setCurrentTypeConstraint(ec);
-            
-            X10TypeEnv_c tenv = copy();
-            tenv.context = xc2;
-            
-            if (term.isEqualityConstraint()) {
-                SubtypeConstraint eq = term;
-                Type l = eq.subtype();
-                Type r = eq.supertype();
-                if (tenv.isSubtype(t1, l, allowValueInterfaces) && tenv.isSubtype(r, t2, allowValueInterfaces)) {
-                    return true;
-                }
-                if (tenv.isSubtype(t1, r, allowValueInterfaces) && tenv.isSubtype(l, t2, allowValueInterfaces)) {
-                    return true;
-                }
+    	if (typeEquals(t1, t2))
+    		return true;
 
-            }
-            else {
-                SubtypeConstraint s = term;
-                Type l = s.subtype();
-                Type r = s.supertype();
-                if (tenv.isSubtype(t1, l, allowValueInterfaces) && tenv.isSubtype(r, t2, allowValueInterfaces)) {
-                    return true;
-                }
-            }
-        }
+    	TypeConstraint typeConst = xcontext.currentTypeConstraint();
+    	List<SubtypeConstraint> env;
+    	if (typeConst != null)
+    		env =  typeConst.terms();
+    	else 
+    		env = Collections.emptyList();
+    	
+    	
+    	// DO NOT check if env.entails(t1 <: t2); it would be recursive
+    	// Instead, iterate through the environment.
+    	for (int i = 0; i < env.size(); i++) {
+    		SubtypeConstraint term = env.get(i);
+    		List<SubtypeConstraint> newEnv = new ArrayList<SubtypeConstraint>();
+    		if (0 <= i-1 && i-1 < env.size()) 
+    			newEnv.addAll(env.subList(0, i-1));
+    		if (0 <= i+1 && i+1 < env.size()) 
+    			newEnv.addAll(env.subList(i+1, env.size()));
+    		//                    newEnv = env;
+    		//                    newEnv = Collections.EMPTY_LIST;
 
-        Type baseType1 = X10TypeMixin.baseType(t1);
-        Type baseType2 = X10TypeMixin.baseType(t2);
-        XConstraint c1 = X10TypeMixin.realX(t1);
-        XConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    		X10Context xc2 = (X10Context) xcontext.pushBlock();
+    		TypeConstraint ec = new TypeConstraint_c();
+    		for (SubtypeConstraint tt : newEnv) {
+    			ec.addTerm(tt);
+    		}
+    		xc2.setCurrentTypeConstraint(ec);
 
-        if (c1 != null && c1.valid()) { c1 = null; }
-        if (c2 != null && c2.valid()) { c2 = null; }
+    		X10TypeEnv_c tenv = copy();
+    		tenv.context = xc2;
 
-        if (! entails(c1, c2))
-            return false;
+    		if (term.isEqualityConstraint()) {
+    			SubtypeConstraint eq = term;
+    			Type l = eq.subtype();
+    			Type r = eq.supertype();
+    			if (tenv.isSubtype(t1, l, allowValueInterfaces) 
+    					&& tenv.isSubtype(r, t2, allowValueInterfaces)) {
+    				return true;
+    			}
+    			if (tenv.isSubtype(t1, r, allowValueInterfaces) 
+    					&& tenv.isSubtype(l, t2, allowValueInterfaces)) {
+    				return true;
+    			}
 
-        if (baseType1 != t1 || baseType2 != t2)
-            if (isSubtype(baseType1, baseType2, allowValueInterfaces))
-                return true;
+    		}
+    		else {
+    			SubtypeConstraint s = term;
+    			Type l = s.subtype();
+    			Type r = s.supertype();
+    			if (tenv.isSubtype(t1, l, allowValueInterfaces) 
+    					&& tenv.isSubtype(r, t2, allowValueInterfaces)) {
+    				return true;
+    			}
+    		}
+    	}
+    	Type baseType1 = X10TypeMixin.baseType(t1);
+    	
+    	if (typeEquals(baseType1,t2))
+    		return true;
+    	
+    	Type baseType2 = X10TypeMixin.baseType(t2);
+    	XConstraint c1 = X10TypeMixin.realX(t1);
+    	XConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    	if (c2 != null && c2.valid()) { 
+    		c2 = null; 
+    	}
+    	if (c1 != null && c1.valid()) 
+    		c1 = null; 
+    	
+    	if (x == null) {
+    		x = X10TypeMixin.selfVar(c1);
+    		if (x == null) {
+    			x = XTerms.makeFreshLocal();
+    		}
+    		XConstraint c = xcontext.currentConstraint();
+    		if (! (c1 == null || entails(c, c1))) {
+    			// Now add the real clause of t1 to the context, and proceed.
+    			// Must do this even if c2==null. 
+    			try {
 
-        if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
-            return true;
-        }
+    				c1 = c1.substitute(x, c1.self());
+    				xcontext = (X10Context) xcontext.pushBlock();	
+    				xcontext.setCurrentConstraint(c1.addIn(c));
+    				X10TypeEnv_c tenv = copy();
+    				tenv.context = xcontext;
+    				if (c2 != null)
+                    t2 = Subst.subst(t2, x, c2.self());
+    				return tenv.isSubtype(x, baseType1, t2, allowValueInterfaces);
+    			} catch (XFailure z) {
+    				throw new InternalCompilerError("Unexpected ", z);
+    			} catch (SemanticException z) {
+    				throw new InternalCompilerError("Unexpected ", z);
+    			}
+    		}
+    	}
+    	assert x != null;
+    	t1=baseType1;
+    	
+    	
+    	if (baseType2 != t2)
+    	if (isSubtype(x, t1, baseType2, allowValueInterfaces) && entails(c1,c2))
+    		return true;
 
-        if (t1 instanceof X10ClassType && t2 instanceof X10ClassType) {
-            X10ClassType ct1 = (X10ClassType) t1;
-            X10ClassType ct2 = (X10ClassType) t2;
-            if (ct1.def() == ct2.def()) {
-                X10ClassDef def = ct1.x10Def();
-                if (ct1.typeArguments().size() != def.typeParameters().size())
-                    return false;
-                if (ct2.typeArguments().size() != def.typeParameters().size())
-                    return false;
-                if (def.variances().size() != def.typeParameters().size())
-                    return false;
-                for (int i = 0; i < def.typeParameters().size(); i++) {
-                    Type a1 = ct1.typeArguments().get(i);
-                    Type a2 = ct2.typeArguments().get(i);
-                    if (a1 == null || a2 == null)
-                        assert false;
-                    ParameterType.Variance v = def.variances().get(i);
-                    switch (v) {
-                    case COVARIANT:
-                        if (! isSubtype(a1, a2, allowValueInterfaces)) return false;
-                        break;
-                    case CONTRAVARIANT:
-                        if (! isSubtype(a2, a1, allowValueInterfaces)) return false;
-                        break;
-                    case INVARIANT:
-                        if (! typeEquals(a1, a2)) return false;
-                        break;
-                    }
-                }
-                return true;
-            }
+    	if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
+    		return true;
+    	}
 
-            Type child = t1;
-            Type ancestor = t2;
+    	// Handle parametrized types and interfaces
+    	if (baseType1 instanceof X10ClassType && baseType2 instanceof X10ClassType) {
+    		X10ClassType ct1 = (X10ClassType) baseType1;
+    		X10ClassType ct2 = (X10ClassType) baseType2;
+    		if (ct1.def() == ct2.def()) { // so the base types are identical
+    			X10ClassDef def = ct1.x10Def();
+    			int numArgs = def.typeParameters().size();
+    			if (numArgs > 0) {
+    				if (ct2.typeArguments().size()!= numArgs)
+    					return false;
+    				if (ct2.typeArguments().size() != numArgs)
+    					return false;
+    				if (def.variances().size() != numArgs)
+    					return false;
+    				for (int i = 0; i < numArgs; i++) {
+    					Type a1 = ct1.typeArguments().get(i);
+    					Type a2 = ct2.typeArguments().get(i);
+    					if (a1 == null || a2 == null)
+    						assert false;
+    					ParameterType.Variance v = def.variances().get(i);
+    					switch (v) {
+    					case COVARIANT:
+    						if (! isSubtype(a1, a2, allowValueInterfaces)) 
+    							return false;
+    						break;
+    					case CONTRAVARIANT:
+    						if (! isSubtype(a2, a1, allowValueInterfaces)) 
+    							return false;
+    						break;
+    					case INVARIANT:
+    						if (! typeEquals(a1, a2)) 
+    							return false;
+    						break;
+    					}
+    				}
+    				return true;
+    			}
+    		}
 
-            //	                if (child instanceof ClassType) {
-            //	                    if (X10Flags.toX10Flags(((ClassType) child).flags()).isValue())
-            //	                        if (typeEquals(ancestor, Value())) {
-            //	                            return true;
-            //	                        }
-            //	                    if (! X10Flags.toX10Flags(((ClassType) child).flags()).isValue())
-            //	                        if (typeEquals(ancestor, Ref())) {
-            //	                            return true;
-            //	                        }
-            //	                }
+    		Type child = t1;
+    		Type ancestor = t2;
 
-            if (child instanceof ObjectType) {
-                ObjectType childRT = (ObjectType) child;
+    		if (child instanceof X10ClassType) {
+    			X10ClassType childRT = (X10ClassType) child;
 
-                // Check subclass relation.
-                if (childRT.superClass() != null) {
-                    if (isSubtype(childRT.superClass(), ancestor, allowValueInterfaces)) {
-                        return true;
-                    }
-                }
+    			// Check subclass relation.
+    			if (childRT.superClass() != null) {
+    				if (this.isSubtype(x, childRT.superClass(), ancestor, allowValueInterfaces)) {
+    					return true;
+    				}
+    			}
 
-                //	                    if (baseType2 instanceof ClosureType && baseType1 instanceof ClassType && ((ClassType) baseType1).isAnonymous())
-                //	                        System.out.println("closure " + baseType2);
-                boolean allowValueInterfacesHere = allowValueInterfaces;
+    			boolean allowValueInterfacesHere = allowValueInterfaces;
+    			if (ts.isReferenceOrInterfaceType(childRT, xcontext))
+    				allowValueInterfacesHere = true;
 
-                if (ts.isReferenceOrInterfaceType(childRT, (X10Context) context))
-                    allowValueInterfacesHere = true;
+    			// Next check interfaces.
+    			List<Type> l = childRT.interfaces();
+    			for (Type parentType : l) {
+    				boolean tryIt = false;
+    				X10Type pt = (X10Type) parentType;
+    				XRoot thisVar = childRT.x10Def().thisVar();
+    				try {
+    					parentType = Subst.subst(parentType, x, thisVar);
+    				} catch (SemanticException z) {
+    					throw new InternalCompilerError("Unexpected semantic exception " + z);
+    				}
 
-                // Next check interfaces.
-                for (Type parentType : childRT.interfaces()) {
-                    boolean tryIt = false;
-                    if (allowValueInterfacesHere || ts. isValueType(parentType, (X10Context) context)) {
-                        if (isSubtype(parentType, ancestor, allowValueInterfaces)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
+    				if (allowValueInterfacesHere 
+    						|| ts. isValueType(parentType, xcontext)) {
+    					if (isSubtype(x, parentType, ancestor, allowValueInterfaces)) {
+    						return true;
+    					}
+    				}
+    			}
+    		}
+    	}
 
-        if (t1 instanceof ParameterType) {
-            for (Type s1 : upperBounds(t1, allowValueInterfaces)) {
-                if (isSubtype(s1, t2, allowValueInterfaces))
-                    return true;
-            }
-        }
-        if (t2 instanceof ParameterType) {
-            for (Type s2 : lowerBounds(t2)) {
-                if (isSubtype(t1, s2, allowValueInterfaces))
-                    return true;
-            }
-        }
+    	if (t1 instanceof ParameterType) {
+    		for (Type s1 : upperTypeBounds(t1, allowValueInterfaces)) {
+    			if (isSubtype(x, s1, t2, allowValueInterfaces))
+    				return true;
+    		}
+    	}
+    	if (t2 instanceof ParameterType) {
+    		for (Type s2 : lowerTypeBounds(t2)) {
+    			if (isSubtype(x, t1, s2, allowValueInterfaces))
+    				return true;
+    		}
+    	}
 
-        return false;
+    	return false;
     }
 
     /* (non-Javadoc)
@@ -942,12 +1070,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean entails(XConstraint c1, XConstraint c2) {
         if (c1 != null || c2 != null) {
             boolean result = true;
-
-            if (c1 != null && c2 != null) {
+ 
                 try {
-                    X10Context xc = (X10Context) context;
-                    XConstraint sigma = xc.constraintProjection(c1, c2);
-                    result = c1.entails(c2, sigma);
+                	 X10Context xc = (X10Context) context;
+                     XConstraint sigma = xc.constraintProjection(c1,c2);
+                     sigma.addIn(c1);
+                     result = sigma.entails(c2);
+                   /*  result = c1 == null ? 
+                    		 (sigma == null ? c2.valid() : sigma.entails(c2))
+                    		 : c1.entails(c2, sigma);
+                   */
                     
                     if (Report.should_report("sigma", 1)) {
                         System.out.println("c1 = " + c1);
@@ -958,10 +1090,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 catch (XFailure e) {
                     result = false;
                 }
-            }
-            else if (c2 != null) {
-                result = c2.valid();
-            }
+          
 
             return result;
         }

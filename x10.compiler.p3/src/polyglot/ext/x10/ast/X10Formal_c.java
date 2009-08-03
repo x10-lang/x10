@@ -177,7 +177,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 
 	                     try {
 	                         // Find the most-specific closure type.
-	                         X10MethodInstance mi = ts.findMethod(containerType, ts.MethodMatcher(containerType, Name.make("apply"), Collections.EMPTY_LIST, actualTypes, context));
+	                         X10MethodInstance mi = ts.findMethod(containerType, 
+	                        		 ts.MethodMatcher(containerType, Name.make("apply"), 
+	                        				 Collections.EMPTY_LIST, actualTypes, context));
 	                         indexType = mi.returnType();
 	                     }
 	                     catch (SemanticException e) {
