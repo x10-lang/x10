@@ -46,7 +46,8 @@ final public value class Point(rank: nat) implements (nat) => int {
 
     public static def make(cs: Rail[int]): Point(cs.length) {
         // (i:nat)=>cs(i) is workaround for XTENLANG-32
-        val a: ValRail[int](cs.length) = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
+	//        val a: ValRail[int](cs.length) = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
+	val a = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
         return make(a);
     }
 
