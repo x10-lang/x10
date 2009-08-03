@@ -28,7 +28,7 @@ value class UnionRegion extends BaseRegion {
     // value
     //
 
-    val regions: ValRail[PolyRegion/*(rank)*/]; // XTENLANG-118
+    val regions: ValRail[PolyRegion(rank)]; // XTENLANG-118
 
 
     //
@@ -37,7 +37,8 @@ value class UnionRegion extends BaseRegion {
 
     protected def this(rs: PolyRegionListBuilder): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
-        this.regions = (rs as PolyRegionListBuilder(rank)).toValRail();
+        this.regions = rs.toValRail() as ValRail[PolyRegion(rank)]; 
+	//(rs as PolyRegionListBuilder(rank)).toValRail();
         cache = new Cache(this, false);
     }
 
