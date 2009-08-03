@@ -21,5 +21,7 @@ import polyglot.types.Type;
  *
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType {
+	
+	
 
 }

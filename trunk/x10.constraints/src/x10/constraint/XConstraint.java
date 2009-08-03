@@ -221,7 +221,7 @@ public interface XConstraint extends java.io.Serializable {
 
 	/**
 	 * Generate a new existentially quantified variable scoped to this
-	 * constraint, with the given type.
+	 * constraint.
 	 * 
 	 * @return
 	 */

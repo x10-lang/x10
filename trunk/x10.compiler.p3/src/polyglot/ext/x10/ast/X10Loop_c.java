@@ -208,14 +208,14 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		    }
 		}
 		
-		if (true)
-		    return this;
+		/*if (true)
+		    return this;*/
 		
 		try {
-		    throw new SemanticException("Loop domain " + domainType + " is not Iterable[" + formalType + "].", position());
+		    throw new SemanticException("Loop domain " + domainType + " is not a subtype of Iterable[" + formalType + "].", position());
 		}
 		catch (SemanticException e) {
-		    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but type-checker is broken): " + e.getMessage(), position());
+		    tc.errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "ERROR: " + e.getMessage(), position());
 		    return this;
 		}
 	}

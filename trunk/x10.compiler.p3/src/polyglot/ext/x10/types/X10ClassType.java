@@ -56,6 +56,7 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
     List<Type> typeArguments();
     X10ClassType typeArguments(List<Type> typeArgs);
     
+    boolean hasParams();
     List<Type> typeMembers();
 
     MacroType typeMemberMatching(Matcher<Named> matcher);

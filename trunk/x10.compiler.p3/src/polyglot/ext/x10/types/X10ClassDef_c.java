@@ -16,8 +16,10 @@ import java.util.List;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef_c;
 import polyglot.types.FieldDef;
+import polyglot.types.LazyRef_c;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -316,5 +318,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
     public void addMemberType(TypeDef t) {
     	typeMembers.add(t);
+    }
+    public Ref<TypeConstraint> typeGuard() {
+    	return new LazyRef_c<TypeConstraint>(X10TypeMixin.parameterBounds(asType()));
     }
 }

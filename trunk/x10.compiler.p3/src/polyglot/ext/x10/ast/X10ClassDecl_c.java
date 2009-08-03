@@ -30,6 +30,8 @@ import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.TypeConstraint;
+import polyglot.ext.x10.types.TypeConstraint_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassDef_c;
 import polyglot.ext.x10.types.X10ClassType;
@@ -50,6 +52,7 @@ import polyglot.types.LazyRef_c;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Ref_c;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -427,6 +430,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	    if (ci != null) {
         		XConstraint xi = ci.valueConstraint().get();
         		x.addIn(xi);
+        		TypeConstraint ti = ci.typeConstraint().get();
         	    }
         	    if (nn.superClass != null) {
         		Type t = nn.superClass.type();
@@ -449,6 +453,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         });
         
         def.setClassInvariant(c);
+        
+        final Ref<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint_c());
+
+        
+        // Set the type bounds for the def.
+        c.setResolver(new Runnable() {
+        	public void run() {
+        		TypeConstraint x = new TypeConstraint_c();
+
+        		if (ci != null) {
+
+        			TypeConstraint ti = ci.typeConstraint().get();
+        			x.addIn(ti);
+        		} 
+
+
+        		tc.update(x);
+        	}
+        });
+
+        def.setTypeBounds(tc);
 
         return n;
     }

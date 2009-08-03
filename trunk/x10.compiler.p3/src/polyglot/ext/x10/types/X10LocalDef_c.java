@@ -86,4 +86,10 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
         return X10TypeObjectMixin.annotationsNamed(this, fullName);
     }
     // END ANNOTATION MIXIN
+    /** An X10 Local definition cannot have a type guard.
+     * 
+     */
+    public Ref<TypeConstraint> typeGuard() {
+    	return null;
+    }
 }

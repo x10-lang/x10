@@ -56,4 +56,10 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     }
     // END ANNOTATION MIXIN
 
+    /** An X10 Initializer cannot have an explicit typeguard.
+     * 
+     */
+    public Ref<TypeConstraint> typeGuard() {
+    	return null;
+    }
 }

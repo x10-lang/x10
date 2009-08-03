@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Test #2 for for loop with for (point p: D) syntax
+ * Test #2 for for loop with for (Point p: D) syntax
  *
  * @author kemal, 1/2005
  */
@@ -26,7 +26,7 @@ public class ForLoop2 extends x10Test {
 
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
-		var prev: Box[point] = null;
+		var prev: Box[Point] = null;
 		for (val p: Point in d3) {
 			if (!successor(prev, p)) return false;
 			prev = p;
@@ -43,8 +43,9 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[point], var p: Point): boolean = {
+	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
+		val p = prev to Point;
 		var i: int = prev(0);
 		var j: int = prev(1);
 		var k: int = prev(2);
