@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.types.Type;
-
 /**
    Collection of static methods to create different kinds of XTerms
    (names, vars, atomic formulas, literals, local variables, fields
