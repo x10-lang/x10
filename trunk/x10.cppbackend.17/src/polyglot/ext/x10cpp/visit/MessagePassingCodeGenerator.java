@@ -1583,7 +1583,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        // [IP] re-enabled for a very limited set of cases, namely literal inits
 	        if (dec.init() != null && dec.flags().flags().isFinal() &&
 	            dec.init().isConstant() &&
-	            (dec.init().type().isNumeric() || dec.init().type().isBoolean() || dec.init().type().isNull()))
+	            (dec.init().type().isNumeric() || dec.init().type().isBoolean() ||
+	             dec.init().type().isNull() || dec.init().type().isChar()))
 	        {
 	            sw.write(" =");
 	            sw.allowBreak(2, " ");
