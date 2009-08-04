@@ -22,19 +22,19 @@ remote_ref remote_ref::make (void *ptr) {
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     ReferenceLogger::log(ptr);
     #endif
-    remote_ref r = { x10aux::here(), (size_t)ptr };
+    remote_ref r = { x10aux::here, (size_t)ptr };
     return r;
 }
 
 void *remote_ref::take (remote_ref r) {
-    if (r.loc==x10aux::here()) return (void*)(size_t)r.addr;
+    if (r.loc==x10aux::here) return (void*)(size_t)r.addr;
     if (r.addr==0) return NULL;
     return mask(new remote_ref(r));
 }
 
 x10_int x10aux::location (void *ptr) {
     if (remote_ref::is_remote(ptr)) return remote_ref::strip(ptr)->loc;
-    return x10aux::here();
+    return x10aux::here;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

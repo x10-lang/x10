@@ -103,7 +103,7 @@ XRX_ARCHIVE = libx10.a
 XRX_MANIFEST = libx10.mft
 
 # if this doesn't exist, we need to build pgas first
-PGAS_SANITY_CHECK=$(X10LIB)/include/x10/pgasrt_x10.h
+PGAS_SANITY_CHECK=$(X10LIB)/include/x10/x10rt_api.h
 
 # this builds everything
 xrx: $(XRX_ARCHIVE) $(PGAS_SANTIY_CHECK)

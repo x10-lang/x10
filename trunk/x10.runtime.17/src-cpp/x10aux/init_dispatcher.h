@@ -19,7 +19,7 @@ namespace x10aux {
 
         public:
         InitDispatcher () : initv(NULL), initc(0), initsz(0) { }
-        ~InitDispatcher () { dealloc(initv); }
+        ~InitDispatcher () { ::free(initv); }
         
         static void runInitializers();
         void runInitializers_(); 

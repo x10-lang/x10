@@ -4,6 +4,7 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
 
 #include <x10/lang/Object.h>
 
@@ -21,7 +22,7 @@ namespace x10 {
 
             x10aux::ref<Ref> _constructor() { return this; }
 
-            static const x10aux::serialization_id_t serialization_id;
+            static const x10aux::serialization_id_t _serialization_id;
 
             static void _serialize(x10aux::ref<Ref> this_,
                                    x10aux::serialization_buffer &buf,
@@ -31,16 +32,14 @@ namespace x10 {
                 buf.write(x10aux::remote_ref::make(this_.get()),m);
             }
 
-            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                buf.write(serialization_id,m);
-            };
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 _S_("Serialising a local Ref object of type "<<_type()->name());
                 buf.write(x10aux::remote_ref::make(this),m);
             };
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf){
                 return (T*)x10aux::remote_ref::take(buf.read<x10aux::remote_ref>());
             }
 

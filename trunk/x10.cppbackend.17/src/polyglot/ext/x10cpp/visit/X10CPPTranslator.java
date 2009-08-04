@@ -482,7 +482,7 @@ public class X10CPPTranslator extends Translator {
             "-L"+X10LANG,
             "-L"+X10LANG+"/lib", // dist
             "-lx10",
-            "-lupcrts_"+TRANSPORT,
+            "-lxlpgas_"+TRANSPORT,
             "-ldl",
             "-lm",
             "-lpthread",

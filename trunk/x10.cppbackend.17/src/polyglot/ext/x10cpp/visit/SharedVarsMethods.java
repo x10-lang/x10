@@ -71,10 +71,11 @@ public class SharedVarsMethods {
 	static final String STATIC_INIT = "_static_init"; // static field initialisers
 	static final String SERIALIZATION_ID_FIELD = "_serialization_id";
 	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
-	static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
+    static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
 	static final String SERIALIZE_METHOD = "_serialize";
-	static final String SERIALIZE_ID_METHOD = "_serialize_id";
+	static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
 	static final String SERIALIZE_BODY_METHOD = "_serialize_body";
+    static final String DESERIALIZATION_BUFFER = "x10aux::deserialization_buffer";
 	static final String DESERIALIZE_METHOD = "_deserialize";
 	static final String DESERIALIZER_METHOD = "_deserializer";
 	static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";

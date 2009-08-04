@@ -15,13 +15,13 @@ void Object::_serialize(x10aux::ref<Object> this_,
 {
     if (x10aux::remote_ref::is_remote(this_.get()) || this_.isNull()) {
         // cannot dispatch for these "addresses", handle here
-        buf.write(Ref::serialization_id,m);
+        buf.write(Ref::_serialization_id,m);
         buf.write(x10aux::remote_ref::make(this_.get()),m);
         return;
     }
     _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
         " (i.e. serializing the id) to buf: "<<&buf);
-    this_->_serialize_id(buf, m);
+    buf.write(this_->_get_serialization_id(),m);
     _S_("Serializing the "<<ANSI_SER<<"body"<<ANSI_RESET<<" of the interface to buf: "<<&buf);
     this_->_serialize_body(buf, m);
 }

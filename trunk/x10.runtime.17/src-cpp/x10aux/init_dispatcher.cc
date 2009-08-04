@@ -40,7 +40,8 @@ InitDispatcher::addInitializer_(Initializer init) {
         // grow slowly as this is init phase and we don't want to take
         // up RAM unnecessarily
         size_t newsz = initsz+1;
-        initv = realloc(initv,initsz*sizeof(Initializer),newsz*sizeof(Initializer));
+        // do not use GC
+        initv = (Initializer*)::realloc(initv, newsz*sizeof(Initializer));
         initsz = newsz;
     }
     initv[initc++] = init;

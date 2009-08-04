@@ -86,11 +86,9 @@ namespace x10 {
             static void _serialize(x10aux::ref<ValRail<T> > this_,
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
-            void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                buf.write(_serialization_id, m);
-            }
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
             void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
-            template<class S> static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf);
+            template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
         };
 
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
@@ -185,7 +183,7 @@ namespace x10 {
             }
         }
 
-        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::serialization_buffer &buf) {
+        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
             x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
             for (x10_int i=0 ; i<length ; ++i) {

@@ -42,7 +42,6 @@ namespace x10aux {
     void throwOOME() X10_PRAGMA_NORETURN;
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
-        // broken until we fix closure RTT (see also dealloc)
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC        
         T* ret = (T*)GC_MALLOC(size);
@@ -61,18 +60,26 @@ namespace x10aux {
         return ret;
     }
 
-    // FIXME:  There is a GC_REALLOC macro, which we could use when this is actually calling realloc..
-    template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
-        T *dest = alloc<T>(dsz);
-        if (dest!=NULL && src!=NULL)
-            memcpy(dest, src, ssz<dsz ? ssz : dsz);
-        dealloc(src);
-        return dest;
+    template<class T> T* realloc(T* src, size_t dsz) {
+        _M_("Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
+#ifdef X10_USE_BDWGC
+        T *ret = (T*)GC_REALLOC(src, dsz);
+#else
+        T *ret = (T*)realloc(src, dsz);
+#endif
+        if (ret==NULL && dsz>0) {
+            _M_("Out of memory reallocating " << dsz << " bytes");
+            #ifndef NO_EXCEPTIONS
+            throwOOME();
+            #else
+            assert(false && "Out of memory");
+            #endif
+        }
+        return ret;
     }
 
     template<class T> void dealloc(const T* obj_) {
         T *obj = const_cast<T*>(obj_); // free does not take const void *
-        // broken until we fix closure RTT (see also alloc)
         _M_("Freeing chunk " << (void*)obj << " of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC
         GC_FREE(obj);

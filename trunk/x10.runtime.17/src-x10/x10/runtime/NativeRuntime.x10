@@ -39,7 +39,7 @@ public value NativeRuntime {
   public const NO_STEALS = false;
 
   @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-  @Native("c++", "x10aux::num_places()")
+  @Native("c++", "x10aux::num_places")
   public const MAX_PLACES = 4;
 
   @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
@@ -73,14 +73,6 @@ public value NativeRuntime {
    */
   @Native("c++", "x10aux::event_probe()")
   public static def event_probe():Void {}
-
-  /**
-   * Process all incoming messages (busy wait).
-   * Only to be used if here != FIRST_PLACE.
-   * Return when FIRST_PLACE trigger app finalizer.
-   */
-  @Native("c++", "x10aux::event_loop()")
-  public static def event_loop():Void {}
 
   /** Accessors for native performance counters
    */

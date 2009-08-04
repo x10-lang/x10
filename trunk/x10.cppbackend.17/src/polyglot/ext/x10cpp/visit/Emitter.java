@@ -5,6 +5,7 @@ import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
@@ -173,7 +174,6 @@ public class Emitter {
 		String dest = "";
 		int fromIndex = 0;
 		while (true) {
-			boolean finished=false;
 			int toIndex = src.indexOf('.', fromIndex);
 			if (fromIndex != 0 && toIndex >= 0)
 				dest += ".";
@@ -846,9 +846,9 @@ public class Emitter {
             h.write("public: ");
             if (!type.flags().isFinal())
                 h.write("virtual ");
-            h.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+            h.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
             h.newline(4); h.begin(0);
-            h.write("buf.write(this->"+SERIALIZATION_ID_FIELD+",m);"); h.end(); h.newline();
+            h.write(" return "+SERIALIZATION_ID_FIELD+";"); h.end(); h.newline();
             h.write("}"); h.newline();
             h.forceNewline();
         }
@@ -886,7 +886,7 @@ public class Emitter {
 		if (!type.flags().isAbstract()) {
             // _deserialize()
             h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+            h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             h.newline(4) ; h.begin(0);
             h.write(make_ref(klass)+" this_ = "+
                         "new (x10aux::alloc<"+klass+" >()) "+klass+"();"); h.newline();
@@ -900,7 +900,7 @@ public class Emitter {
             if (type.flags().isFinal()) {
                 // _deserialize()
                 h.write("public: template<class __T> static ");
-                h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+                h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
                 h.newline(4) ; h.begin(0);
                 h.write("return "+DESERIALIZER_METHOD+"<__T>(buf);");
                 h.end(); h.newline();
@@ -910,9 +910,9 @@ public class Emitter {
 
 		// _deserialize_body()
 		h.write("public: ");
-		h.write("void "+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
+		h.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); h.newline(0);
 		printTemplateSignature(ct.typeArguments(), w);
-		w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+		w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
 		w.newline(4); w.begin(0);
 		if (parent != null && ts.isValueType(parent, context)) {
 			w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
