@@ -82,8 +82,9 @@ namespace x10 {
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
 
         template<class T> void Rail<T>::_initRTT() {
-            rtt.parentsc = -2;
-            x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
+            rtt.typeName = "CYCLIC RTT INIT\n";
+            x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(),
+                                           x10aux::getRTT<Settable<x10_int,T> >(),
                                            x10aux::getRTT<Iterable<T> >());
         }
 

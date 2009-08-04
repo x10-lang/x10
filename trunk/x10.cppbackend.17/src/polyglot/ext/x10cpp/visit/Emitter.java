@@ -583,40 +583,64 @@ public class Emitter {
           h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
           h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
           h.write("rtt.typeName = \"CYCLIC RTT INIT\";"); h.newline();
-          h.write("rtt.init(\""+ct.fullName()+"\", "+num_parents);
-          h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+          h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
+          h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
           for (Type iface : ct.interfaces()) {
               h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
           }
-          h.write(");"); h.end(); h.newline();
+          h.write("};"); h.newline();          
+          h.write("rtt.init(\""+ct.fullName()+"\", "+num_parents+ ", parents, 0, NULL, NULL);"); h.end(); h.newline();
           h.write("}"); h.newline();
         } else {
+        	int numTypeParams = ct.typeArguments().size();
             printTemplateSignature(ct.typeArguments(), h);
             h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
 
             printTemplateSignature(ct.typeArguments(), h);
             h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
             h.write("rtt.typeName = \"CYCLIC RTT INIT\";"); h.newline();
-            h.write("const char *name ="); h.newline(4);
+            h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
+            h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+            for (Type iface : ct.interfaces()) {
+                h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
+            }
+            h.write("};"); h.newline();
+            
+            h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
+            boolean first = true;
+            for (Type param : ct.typeArguments()) {
+            	if (!first) h.write(", ");
+                h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");
+                first = false;
+            }
+            h.write("};"); h.newline();
+            
+            h.write("x10aux::RuntimeType::Variance variances["+numTypeParams+"] = { ");
+            first = true;
+            for (ParameterType.Variance v : ct.x10Def().variances()) {
+            	if (!first) h.write(", ");
+            	switch(v) {
+            	case COVARIANT: h.write("x10aux::RuntimeType::covariant"); break;
+            	case CONTRAVARIANT: h.write("x10aux::RuntimeType::contravariant"); break;
+            	case INVARIANT: h.write("x10aux::RuntimeType::invariant"); break;
+            	default: assert false : "Unexpected Variance";
+            	}
+                first = false;
+            }
+            h.write("};"); h.newline();          
+            
+            h.write("const char *name = "); h.newline(4);
             h.write("x10aux::alloc_printf("); h.begin(0);
             h.write("\""+x10name+"[");
-            String comma = "";
-            for (Type param : ct.typeArguments()) {
-                h.write(comma+"%s");
-                comma = ",";
+            for (int i=0; i<numTypeParams; i++) {
+                h.write(i > 0 ? ",%s" : "%s");
             }
             h.write("]\"");
-            for (Type param : ct.typeArguments()) {
-                h.write(","); h.newline();
-                h.write("x10aux::getRTT"+chevrons(translateType(param))+"()->name()");
+            for (int i=0; i<numTypeParams; i++) {
+                h.write(", params["+i+"]->name()"); h.newline();
             }
             h.write(");") ; h.end(); h.newline();
-            h.write("rtt.init(name, "+num_parents);
-            h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
-            for (Type iface : ct.interfaces()) {
-              h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
-            }
-            h.write(");"); h.end(); h.newline();
+            h.write("rtt.init(name, "+num_parents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
             h.write("}"); h.newline();
 		}
 		h.newline();

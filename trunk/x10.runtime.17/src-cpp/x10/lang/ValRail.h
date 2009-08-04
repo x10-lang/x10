@@ -98,9 +98,10 @@ namespace x10 {
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
-            rtt.parentsc = -2;
-            x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Fun_0_1<x10_int,T> >(),
-                                                     x10aux::getRTT<Iterable<T> >());
+            rtt.typeName = "CYCLIC RTT INIT\n";
+            x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(),
+                                              x10aux::getRTT<Fun_0_1<x10_int,T> >(),
+                                              x10aux::getRTT<Iterable<T> >());
         }
 
         template<class T> x10aux::RuntimeType ValRail<T>::rtt;

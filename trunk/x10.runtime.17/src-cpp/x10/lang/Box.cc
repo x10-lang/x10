@@ -10,9 +10,11 @@ namespace x10 {
     namespace lang {
         void
         _initRTTHelper_Box(RuntimeType *location, const RuntimeType *rtt) {
-            const char *name = alloc_printf("x10.lang.Box[%s]",rtt->name());
-            const RuntimeType *parent = Ref::getRTT();
-            location->init(name, 1, parent);
+            const RuntimeType* parents[1] = { Ref::getRTT()};
+            const RuntimeType* params[1] = { rtt };
+            RuntimeType::Variance variances[1] = { RuntimeType::covariant };
+            const char *name = alloc_printf("x10.lang.Box[+%s]",rtt->name());
+            location->init(name, 1, parents, 1, params, variances);
         }
     }
 }

@@ -22,11 +22,15 @@
 #define RTT_H_DECLS_INTERFACE \
     static x10aux::RuntimeType rtt; \
     static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.typeName) _initRTT(); return &rtt; } \
-    static void _initRTT(); \
+    static void _initRTT();
 
-#define RTT_CC_DECLS1(TYPE,NAME,P1) \
-    x10aux::RuntimeType TYPE::rtt; \
-    void TYPE::_initRTT() { rtt.typeName = "CYCLIC RTT INIT\n"; rtt.init(NAME, 1, P1::getRTT()); }
+#define RTT_CC_DECLS1(TYPE,NAME,P1)                             \
+    x10aux::RuntimeType TYPE::rtt;                              \
+    void TYPE::_initRTT() {                                     \
+        rtt.typeName = "CYCLIC RTT INIT\n";                     \
+        const x10aux::RuntimeType* parents[1] = {P1::getRTT()}; \
+        rtt.init(NAME, 1, parents, 0, NULL, NULL);              \
+    }
 
 namespace x10 {
     namespace lang {
@@ -60,12 +64,18 @@ namespace x10aux {
         static RuntimeType UIntType;
         static RuntimeType ULongType;
 
+        enum Variance { covariant, contravariant, invariant };
+        
     public:
         int parentsc;
+        int paramsc;
         const RuntimeType **parents;
+        const RuntimeType **params;
+        Variance *variances;
         const char* typeName;
 
-        void init(const char* n, int pc, ...);
+        void init(const char* typeName_, int parsentsc_, const RuntimeType** parents_,
+                  int paramsc_, const RuntimeType** params_, Variance* variances_);
 
         const char *name() const { return typeName; }
 
@@ -204,6 +214,7 @@ namespace x10aux {
     template<> inline const char *typeName<volatile void*>() { return "volatile void *"; }
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
+    template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
 
     template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
         return false;

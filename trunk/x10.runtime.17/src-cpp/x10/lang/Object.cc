@@ -38,7 +38,7 @@ x10_boolean Object::equals(x10aux::ref<Object> other) {
 x10aux::RuntimeType x10::lang::Object::rtt;
 
 void Object::_initRTT() {
-    rtt.init("x10.lang.Object", 0);
+    rtt.init("x10.lang.Object", 0, NULL, 0, NULL, NULL);
 }
 
 

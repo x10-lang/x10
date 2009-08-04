@@ -64,7 +64,7 @@ namespace x10 {
         template<class T> x10aux::RuntimeType RailIterator<T>::rtt;
         
         template<class T> void RailIterator<T>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             _initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Iterator<T> >());
         }
 

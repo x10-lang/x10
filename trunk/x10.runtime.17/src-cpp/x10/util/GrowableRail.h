@@ -134,7 +134,7 @@ namespace x10 {
         };
 
         template<class T> void GrowableRail<T>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
         }
         

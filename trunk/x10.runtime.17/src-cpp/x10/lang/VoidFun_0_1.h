@@ -22,7 +22,7 @@ namespace x10 {
         };
 
         template<class P1> void VoidFun_0_1<P1>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
         }
 

@@ -36,53 +36,80 @@ bool RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
     return other->_type()->equals(this);
 }
 
-void RuntimeType::init(const char* n, int pc, ...) {
-    parentsc = pc;
-    typeName = n;
-    parents = alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
-    va_list parentsv;
-    va_start(parentsv, pc);
-    for (int i=0 ; i<parentsc ; ++i)
-        parents[i] = va_arg(parentsv,const RuntimeType*);
-    va_end(parentsv);
+void RuntimeType::init(const char* typeName_, int parentsc_, const RuntimeType** parents_,
+                       int paramsc_, const RuntimeType** params_, Variance* variances_) {
+    typeName = typeName_;
+    parentsc = parentsc_;
+    paramsc = paramsc_;
+    if (parentsc > 0) {
+        parents = alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
+        for (int i=0; i<parentsc; i++) {
+            parents[i] = parents_[i];
+        }
+    } else {
+        parents = NULL;
+    }
+    if (paramsc > 0) {
+        params = alloc<const RuntimeType*>(paramsc * sizeof(const RuntimeType*));
+        variances = alloc<Variance>(paramsc * sizeof(Variance));
+        for (int i=0; i<paramsc; i++) {
+            params[i] = params_[i];
+            variances[i] = variances_[i];
+        }
+    } else {
+        params = NULL;
+        variances = NULL;
+    }
     x10aux::atomic_ops::store_load_barrier();
 }
     
 void RuntimeType::initBooleanType() {
-    BooleanType.init("x10.lang.Boolean", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    BooleanType.init("x10.lang.Boolean", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initByteType() {
-    ByteType.init("x10.lang.Byte", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    ByteType.init("x10.lang.Byte", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initCharType() {
-    CharType.init("x10.lang.Char", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    CharType.init("x10.lang.Char", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initShortType() {
-    ShortType.init("x10.lang.Short", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    ShortType.init("x10.lang.Short", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initIntType() {
-    IntType.init("x10.lang.Int", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    IntType.init("x10.lang.Int", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initFloatType() {
-    FloatType.init("x10.lang.Float", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    FloatType.init("x10.lang.Float", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initLongType() {
-    LongType.init("x10.lang.Long", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    LongType.init("x10.lang.Long", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initDoubleType() {
-    DoubleType.init("x10.lang.Double", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    DoubleType.init("x10.lang.Double", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initUByteType() {
-    UByteType.init("x10.lang.UByte", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    UByteType.init("x10.lang.UByte", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initUShortType() {
-    UShortType.init("x10.lang.UShort", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    UShortType.init("x10.lang.UShort", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initUIntType() {
-    UIntType.init("x10.lang.UInt", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    UIntType.init("x10.lang.UInt", 1, parents, 0, NULL, NULL);
 }
 void RuntimeType::initULongType() {
-    ULongType.init("x10.lang.ULong", 1, x10::lang::Object::getRTT());
+    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
+    ULongType.init("x10.lang.ULong", 1, parents, 0, NULL, NULL);
 }
 
 
