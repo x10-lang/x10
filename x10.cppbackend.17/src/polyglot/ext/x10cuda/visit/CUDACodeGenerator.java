@@ -225,8 +225,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         public SHMDecl (LocalDecl ast) { this.ast = ast; }
     }
     private class RailSHMDecl extends SHMDecl {
-        
         public RailSHMDecl (LocalDecl ast) { super(ast); }
+    }
+    private class VarSHMDecl extends SHMDecl {
+        public VarSHMDecl (LocalDecl ast) { super(ast); }
     }
     
     public void visit(Block_c b) {
@@ -271,7 +273,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 // TODO: support other types
                 assert rail_type_arg.isFloat();
                 assert init_call.arguments().size()==2;
-                
+                Expr num_elements = init_call.arguments().get(0);
+                Expr rail_init_closure = init_call.arguments().get(1);
                 /*
                 Type typ = ld.declType();
                 assert typ.isClass();
