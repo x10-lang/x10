@@ -345,12 +345,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				emitter.printHeader(fd, w, tr, false);
 				sw.popCurrentStream();
 				w.write(";");
-                // [DC] want these to occur in the static initialiser
-                // [IP] except for the ones that use a literal init - otherwise switch is broken
+				// [IP] HACK for XTENLANG-486.  The only way a native field init would be marked a constant
+				// is if it's a field access.
+				String pat = fd.init() instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) fd.init()).fieldInstance().def()) : null;
+				// [DC] want these to occur in the static initialiser
+				// [IP] except for the ones that use a literal init - otherwise switch is broken
 				if (fd.init() != null &&
 						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-						  fd.init().isConstant() &&
-						  (fd.init().type().isNumeric() || fd.init().type().isBoolean() || fd.init().type().isNull())))
+						  fd.init().isConstant() && pat == null &&
+						  (fd.init().type().isNumeric() || fd.init().type().isBoolean() ||
+						   fd.init().type().isChar() || fd.init().type().isNull())))
 				{
 					hasInits = true;
 				}
