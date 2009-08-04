@@ -123,6 +123,11 @@ public class HashMap[-K,V] implements Map[K,V] {
                         shouldRehash = true;
                     return e;
                 }
+                if (i - h > table.length) {
+                    if (i - h > MAX_PROBES)
+                        shouldRehash = true;
+                    return null;
+                }
             }
         }
     }
