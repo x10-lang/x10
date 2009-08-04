@@ -13,6 +13,7 @@ package polyglot.ext.x10cuda.types;
  *
  * @author Dave Cunningham
  */
+import polyglot.ast.Formal;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.TypeSystem;
@@ -32,6 +33,17 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private boolean generatingCuda;
     public boolean generatingCuda() { return generatingCuda; }
     public void generatingCuda(boolean v) { generatingCuda = v; }
+    
+    private long blocks; public long blocks() { return blocks; }
+    private long threads; public long threads() { return threads; }
+    private Formal blocksVar; public Formal blocksVar() { return blocksVar; }
+    private Formal threadsVar; public Formal threadsVar() { return threadsVar; }
+    public void setCudaKernelCFG(long blocks, Formal blocksVar, long threads, Formal threadsVar) {
+        this.blocks = blocks;
+        this.blocksVar = blocksVar;
+        this.threads = threads;
+        this.threadsVar = threadsVar;
+    }
 
     private ClassifiedStream cudaStream = null;
 

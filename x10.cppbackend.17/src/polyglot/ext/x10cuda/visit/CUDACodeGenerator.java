@@ -14,6 +14,7 @@
 package polyglot.ext.x10cuda.visit;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.ArrayInit_c;
@@ -51,6 +52,7 @@ import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Labeled_c;
 import polyglot.ast.LocalClassDecl_c;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl_c;
@@ -66,6 +68,7 @@ import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
 import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.ext.x10.ast.AssignPropertyBody_c;
@@ -84,12 +87,14 @@ import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.X10Binary_c;
+import polyglot.ext.x10.ast.X10Call;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10LocalDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.extension.X10Ext;
@@ -97,6 +102,8 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10cpp.visit.MessagePassingCodeGenerator;
 import polyglot.ext.x10cuda.types.X10CUDAContext_c;
+import polyglot.types.ClassType;
+import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -195,12 +202,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         Expr domain = loop.domain();
         assert domain instanceof RegionMaker; // FIXME: proper error
         RegionMaker region = (RegionMaker) domain;
-        assert region.isTargetImplicit(); // FIXME: proper error
-        assert region.name().equals("makeRectangular"); // FIXME: proper error
+        assert region.name().toString().equals("makeRectangular") : region.name(); // FIXME: proper error
         Receiver target = region.target();
         assert target instanceof CanonicalTypeNode; // FIXME: proper error
         CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
-        assert target_type_node.nameString().equals("x10.lang.Region"); // FIXME: proper error
+        assert target_type_node.nameString().equals("Region") : target_type_node.nameString(); // FIXME: proper error
         assert region.arguments().size() == 2; // FIXME: proper error
         Expr from_ = region.arguments().get(0);
         Expr to_ = region.arguments().get(1);
@@ -214,6 +220,15 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return r;
     }
 
+    private class SHMDecl {
+        LocalDecl ast;
+        public SHMDecl (LocalDecl ast) { this.ast = ast; }
+    }
+    private class RailSHMDecl extends SHMDecl {
+        
+        public RailSHMDecl (LocalDecl ast) { super(ast); }
+    }
+    
     public void visit(Block_c b) {
         if (nodeHasCudaAnnotation(b)) {
             assert !generatingCuda() : "Nesting of cuda annotation makes no sense.";
@@ -229,10 +244,47 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             MultipleValues outer = processLoop(loop);
             //System.out.println("outer loop: "+outer.var+" "+outer.iterations);
             b = (Block_c) outer.body;
-            
+
             Stmt last = b.statements().get(b.statements().size()-1);
             assert last instanceof ForLoop; // FIXME: proper error
             loop = (ForLoop) last;
+
+            List<SHMDecl> shm_decls = new ArrayList<SHMDecl>();
+            // look at all but the last statement to find shm decls
+            for (Stmt st : b.statements())  {
+                if (st == last) continue;
+                assert st instanceof LocalDecl; // FIXME: proper error
+                LocalDecl ld = (LocalDecl) st;
+                Expr init_expr = ld.init();
+                // TODO: primitive vals and shared vars
+                assert init_expr instanceof X10Call_c; // FIXME: proper error
+                X10Call_c init_call = (X10Call_c) init_expr;
+                // TODO: makeVal too
+                Receiver init_call_target = init_call.target();
+                assert init_call_target instanceof CanonicalTypeNode; // FIXME: proper error
+                CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+                assert init_call_target_node.nameString().equals("Rail");
+                assert init_call.name().toString().equals("makeVar") : init_call.name(); // FIXME: proper error
+                assert init_call.typeArguments().size()==1;
+                TypeNode rail_type_arg_node = init_call.typeArguments().get(0);
+                Type rail_type_arg = rail_type_arg_node.type();
+                // TODO: support other types
+                assert rail_type_arg.isFloat();
+                assert init_call.arguments().size()==2;
+                
+                /*
+                Type typ = ld.declType();
+                assert typ.isClass();
+                assert typ instanceof X10ClassType;
+                X10ClassType ctyp = (X10ClassType)typ;
+                assert ctyp.name().toString().equals("Rail");
+                assert ctyp.typeArguments().size() == 1;
+                Type rail_arg = ctyp.typeArguments().get(0);
+                assert rail_arg.isFloat();
+                //assert type.nameString().equals("Rail") : ld.type().nameString();
+                */
+                shm_decls.add(new RailSHMDecl(ld));
+            }
             
             MultipleValues inner = processLoop(loop);
             //System.out.println("outer loop: "+outer.var+" "+outer.iterations);
@@ -245,13 +297,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             Expr async_expr = async_eval.expr();
             assert async_expr instanceof Call; // FIXME: proper error
             Call async_call = (Call)async_expr;
-            assert async_call.isTargetImplicit(); // FIXME: proper error
-            assert async_call.name().equals("runAsync"); // FIXME: proper error
+            assert async_call.name().toString().equals("runAsync") : async_call.name(); // FIXME: proper error
             Receiver async_target = async_call.target();
             assert async_target instanceof CanonicalTypeNode; // FIXME: proper error
             CanonicalTypeNode async_target_type_node = (CanonicalTypeNode) async_target;
-            assert async_target_type_node.nameString().equals("x10.runtime.Runtime"); // FIXME: proper error
-            assert async_call.arguments().size() == 2; // FIXME: proper error
+            assert async_target_type_node.nameString().equals("Runtime"); // FIXME: proper error
+            assert async_call.arguments().size() == 1 : async_call.arguments(); // FIXME: proper error
             Expr async_arg = async_call.arguments().get(0);
             assert async_arg instanceof Closure; // FIXME: proper error
             Closure async_closure = (Closure) async_arg;
@@ -260,6 +311,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             
             b = (Block_c) async_body;
             
+            context().setCudaKernelCFG(outer.iterations, outer.var, inner.iterations, inner.var);            
             generatingCuda(true);
             handleCuda(b);
             generatingCuda(false);
@@ -500,8 +552,18 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(Local_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
+        if (generatingCuda()) {
+            ClassifiedStream out = cudaStream();
+            if (n.name().toString().equals(context().blocksVar().name().toString())) {
+                out.write("blockIdx.x");
+            } else if (n.name().toString().equals(context().threadsVar().name().toString())) {
+                out.write("threadIdx.x");
+            } else {
+                super.visit(n);
+            }
+        } else {
+            super.visit(n);
+        }
     }
 
 
