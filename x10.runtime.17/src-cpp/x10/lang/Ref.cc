@@ -29,7 +29,7 @@ x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
     return String::Lit(alloc_printf("%s@%x",this->_type()->name(),(std::size_t)this));
 }
 
-const serialization_id_t Ref::serialization_id =
+const serialization_id_t Ref::_serialization_id =
     DeserializationDispatcher::addDeserializer(Ref::_deserialize<Object>);
 
 RTT_CC_DECLS1(Ref, "x10.lang.Ref", Object)

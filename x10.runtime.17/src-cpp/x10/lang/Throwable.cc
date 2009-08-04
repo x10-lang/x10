@@ -41,7 +41,7 @@ Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &
 }
 
 void
-Throwable::_deserialize_body(x10aux::serialization_buffer &buf) {
+Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     FMGL(cause) = buf.read<x10aux::ref<Box<x10aux::ref<Throwable> > > >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
 }

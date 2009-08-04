@@ -22,8 +22,7 @@ import static polyglot.ext.x10cpp.visit.Emitter.translateFQN;
 import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 import static polyglot.ext.x10cpp.visit.Emitter.voidTemplateInstantiation;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.CONSTRUCTOR;
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZER_METHOD;
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_BODY_METHOD;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.INSTANCE_INIT;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.MAKE;
@@ -74,7 +73,6 @@ import polyglot.ast.CharLit_c;
 import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
-import polyglot.ast.CodeDecl;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl_c;
@@ -101,7 +99,6 @@ import polyglot.ast.LocalClassDecl_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.Loop_c;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
@@ -187,7 +184,6 @@ import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.types.ClassType;
-import polyglot.types.ClassType_c;
 import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -1089,7 +1085,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write("}"); h.newline(); h.forceNewline();
 
             h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
+            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
 			h.write("return x10::lang::Object::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
             h.write("}"); h.newline(); h.forceNewline();
 		} else {
@@ -2917,7 +2913,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("class "+cname+" : "); inc.begin(0);
         inc.write("public "+emitter.translateType(xts.Value()));
-        inc.write("{") ; inc.newline(4); inc.begin(0);
+        inc.write("{") ; inc.end() ; inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
 		/* ITables declarations */
@@ -2941,9 +2937,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         emitter.printDeclarationList(inc, c, c.variables);
         inc.forceNewline();
 
-        inc.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+        inc.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
         inc.newline(4); inc.begin(0);
-        inc.write("buf.write(_serialization_id, m);"); inc.end(); inc.newline();
+        inc.write("return "+SERIALIZATION_ID_FIELD+";"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
 
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
@@ -2961,7 +2957,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
 
-        inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
+        inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
                   cnamet+"("+SERIALIZATION_MARKER+"());");

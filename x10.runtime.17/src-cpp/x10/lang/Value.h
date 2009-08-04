@@ -23,17 +23,15 @@ namespace x10 {
 
             static const x10aux::serialization_id_t _serialization_id;
 
-            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                buf.write(_serialization_id,m);
-            }
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) {
                 // there are no fields
             }
 
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &);
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &);
 
-            void _deserialize_body(x10aux::serialization_buffer &) {
+            void _deserialize_body(x10aux::deserialization_buffer &) {
                 // there are no fields
             }
 
@@ -55,7 +53,7 @@ namespace x10 {
             static void _static_init() { }
         };
 
-        template<class T> x10aux::ref<T> Value::_deserializer(x10aux::serialization_buffer &) {
+        template<class T> x10aux::ref<T> Value::_deserializer(x10aux::deserialization_buffer &) {
             x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
             return this_;
         }

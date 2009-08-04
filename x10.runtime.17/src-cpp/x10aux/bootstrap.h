@@ -1,6 +1,13 @@
 #ifndef X10AUX_BOOTSTRAP_H
 #define X10AUX_BOOTSTRAP_H
 
+#ifdef X10_USE_BDWGC
+#ifdef __linux__
+#define GC_LINUX_THREADS
+#endif 
+#include "gc.h"
+#endif
+
 #include <x10aux/config.h>
 #include <x10aux/network.h>
 #include <x10aux/alloc.h>
@@ -67,17 +74,19 @@ namespace x10aux {
     void initialize_xrx();
 
     template<class Runtime, class T> int template_main(int ac, char **av) {
+#ifdef X10_USE_BDWGC
+        GC_INIT();
+#endif
+
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
-
-        x10aux::init_config_bools();
 
 #ifndef NO_EXCEPTIONS
         try {
 #endif
             setlinebuf(stdout);
 
-            x10aux::barrier();
+            x10aux::registration_complete();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
@@ -106,7 +115,7 @@ namespace x10aux {
             x10aux::ref<x10::lang::Throwable> &e_ =
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
-            fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here(),
+            fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
                                                                     e_->toString()->c_str());
 
             e_->printStackTrace();
@@ -115,7 +124,7 @@ namespace x10aux {
 
         } catch(...) {
 
-            fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here());
+            fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here);
             x10aux::exitCode = 1;
 
         }
@@ -127,7 +136,7 @@ namespace x10aux {
 
         if (getenv("X10_RXTX")!=NULL)
             fprintf(stderr, "Place: %ld   rx: %lld/%lld   tx: %lld/%lld\n",
-                (long)x10aux::here(),
+                (long)x10aux::here,
                 (long long)x10aux::deserialized_bytes, (long long)x10aux::asyncs_received,
                 (long long)x10aux::serialized_bytes, (long long)x10aux::asyncs_sent);
 

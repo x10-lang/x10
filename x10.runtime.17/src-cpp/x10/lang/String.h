@@ -86,13 +86,11 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf);
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
             static const x10aux::serialization_id_t _serialization_id;
 
-            virtual void _serialize_id(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
-                buf.write(_serialization_id, m);
-            }
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m);
 
@@ -130,7 +128,7 @@ namespace x10 {
         }
         #endif
 
-        template<class T> x10aux::ref<T> String::_deserialize(x10aux::serialization_buffer &buf){
+        template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf){
             x10_int sz = buf.read<x10_int>();
             char *content = x10aux::alloc<char>(sz+1);
             for (x10_int i=0 ; i<sz ; ++i) {

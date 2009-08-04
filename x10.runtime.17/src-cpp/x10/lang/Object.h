@@ -31,7 +31,7 @@ namespace x10 {
             virtual ~Object() { }
 
 
-            virtual void _serialize_id(x10aux::serialization_buffer &, x10aux::addr_map &) = 0;
+            virtual x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) = 0;
 
             // This pair of functions should be overridden to not emit/extract the id in subclasses
@@ -51,7 +51,7 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf);
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
             x10_boolean equals(x10aux::ref<Object> other);
 
@@ -68,7 +68,7 @@ namespace x10 {
 
         };
 
-        template<class T> x10aux::ref<T> Object::_deserialize(x10aux::serialization_buffer &buf){
+        template<class T> x10aux::ref<T> Object::_deserialize(x10aux::deserialization_buffer &buf){
             // extract the id and execute a callback to instantiate the right concrete class
             _S_("Deserializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
                 " (expecting id) from buf: "<<&buf);

@@ -118,10 +118,16 @@ namespace x10 {
 
 namespace x10aux {
 
+    // Used to allow us to define 'do-nothing' constructors for classes that already have default
+    // constructors.  Currently only used in closures.
     class SERIALIZATION_MARKER { };
 
-    // Allows runtime detection of Value cycles
+
+    // addr_map can be used to detect and properly handle cycles when serialising object graphs
+    // it can also be used to avoid serialising two copies of an object when serialising a DAG.
     class addr_map {
+#if 0
+NOT USED AT PRESENT
         int _size;
         const void** _ptrs;
         int _top;
@@ -129,72 +135,78 @@ namespace x10aux {
         void _add(const void* ptr);
         bool _find(const void* ptr);
     public:
-        addr_map(int init_size = 4) : _size(init_size), _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
+        addr_map(int init_size = 4) : _size(init_size), _ptrs(new (x10aux::alloc<const
+void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         template<class T> bool ensure_unique(const ref<T>& r) {
             return ensure_unique((void*) r.get());
         }
         bool ensure_unique(const void* p);
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
+#endif
     };
 
 
 
-    // A growable buffer for serialising into and out of
+    // Endian encoding/decoding support
+    template<class T> void code_bytes(T *x) {
+        (void) x;
+        #if defined(__i386__) || defined(__x86_64__)
+        unsigned char *buf = (unsigned char*) x;
+        for (int i=0,j=sizeof(T)-1 ; i<j ; ++i,--j) {
+            std::swap(buf[i], buf[j]);
+        }
+        #endif
+    }
+
+
+    // A growable buffer for serialising into
     class serialization_buffer {
+
     private:
-        static const int GROW_PERCENT = 200; // can't use float but don't want extra .cc file
-        static const size_t INITIAL_SIZE = 16;
-        char* buffer;
-        char* limit;
-        char* cursor;
-        static char* alloc(size_t size) { return x10aux::alloc<char>(size); }
-        static void dealloc(char* buf) { x10aux::dealloc<char>(buf); }
-        char* grow();
+        char *buffer;
+        char *limit;
+        char *cursor;
+
     public:
 
-        // we use the same buffers for serializing and deserializing so the
-        // const cast is necessary
-        // note that a serialization_buffer created this way can only be used for deserializing
-        serialization_buffer(const char *buffer_)
-            : buffer(const_cast<char*>(buffer_)), limit(NULL), cursor(buffer)
+        serialization_buffer (void)
+            // do not use GC
+            : buffer(NULL), limit(NULL), cursor(NULL)
         { }
 
-        serialization_buffer()
-            : buffer(alloc(INITIAL_SIZE)), limit(buffer + INITIAL_SIZE), cursor(buffer)
-        { }
-
-        ~serialization_buffer() {
-            if (limit!=NULL)
-                dealloc(buffer);
+        ~serialization_buffer (void) {
+            // do not use GC
+            ::free(buffer);
         }
 
-        const char *get() const { return buffer; }
+        void grow (void);
 
-        size_t length() { return cursor - buffer; }
+        size_t length (void) { return cursor - buffer; }
+        size_t capacity (void) { return limit - buffer; }
 
+        char *steal() { char *buf = buffer; buffer = NULL; return buf; }
 
         // default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
         template<typename T> void write(const T &val, addr_map &m);
 
-        // default case for primitives and other things that never contain pointers
-        template<class T> struct Read;
-        template<class T> struct Read<ref<T> >;
-        template<typename T> GPUSAFE T read();
     };
     
     // default case for primitives and other things that never contain pointers
     template<class T> struct serialization_buffer::Write {
-        static void _(serialization_buffer &buf, const T &val, addr_map &);
+        static void _(serialization_buffer &buf, const T &val, addr_map &m);
     };
 
-    template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf, const T &val, addr_map &) {
+    template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf,
+                                                             const T &val, addr_map &m) {
         // FIXME: assumes all places are same endian
         _S_("Serializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
         //*(T*) buf.cursor = val; // Cannot do this because of alignment
+        if (buf.cursor + sizeof(T) >= buf.limit) buf.grow();
         memcpy(buf.cursor, &val, sizeof(T));
+        code_bytes((T*)buf.cursor);
         buf.cursor += sizeof(T);
     }
     
@@ -204,46 +216,69 @@ namespace x10aux {
     };
 
     // case for references e.g. ref<Object>, 
-    template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf, ref<T> val, addr_map &m) {
+    template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
+                                                                   ref<T> val, addr_map &m) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
         //depends what T is (interface/Ref/Value/FinalValue/Closure)
         T::_serialize(val,buf,m);
     }
     
     template<typename T> void serialization_buffer::write(const T &val, addr_map &m) {
-        if (cursor + sizeof(T) >= limit) grow();
         Write<T>::_(*this,val,m);
     }
 
 
 
+    // A buffer from which we can deserialise x10 objects
+    class deserialization_buffer {
+    private:
+        const char* buffer;
+        const char* cursor;
+    public:
+
+        // we use the same buffers for serializing and deserializing so the
+        // const cast is necessary
+        // note that a serialization_buffer created this way can only be used for deserializing
+        deserialization_buffer(const char *buffer_)
+            : buffer(buffer_), cursor(buffer_)
+        { }
+
+        size_t consumed (void) { return cursor - buffer; }
+
+        // default case for primitives and other things that never contain pointers
+        template<class T> struct Read;
+        template<class T> struct Read<ref<T> >;
+        template<typename T> GPUSAFE T read();
+    };
+    
     // default case for primitives and other things that never contain pointers
-    template<class T> struct serialization_buffer::Read {
-        GPUSAFE static T _(serialization_buffer &buf);
+    template<class T> struct deserialization_buffer::Read {
+        GPUSAFE static T _(deserialization_buffer &buf);
     };
 
-    template<class T> T serialization_buffer::Read<T>::_(serialization_buffer &buf) {
+    template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf) {
         // FIXME: assumes all places are same endian
         //T &val = *(T*) buf.cursor; // Cannot do this because of alignment
         T val;
         memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
         _S_("Deserializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
+        code_bytes(&val);
         return val;
     }
         
     // case for references e.g. ref<Object>, 
-    template<class T> struct serialization_buffer::Read<ref<T> > {
-        GPUSAFE static ref<T> _(serialization_buffer &buf);
+    template<class T> struct deserialization_buffer::Read<ref<T> > {
+        GPUSAFE static ref<T> _(deserialization_buffer &buf);
     };
 
-    template<class T> ref<T> serialization_buffer::Read<ref<T> >::_(serialization_buffer &buf) {
+    template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
         //dispatch because we don't know what it is
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
         return T::template _deserialize<T>(buf);
     }
 
-    template<typename T> GPUSAFE T serialization_buffer::read() {
+    template<typename T> GPUSAFE T deserialization_buffer::read() {
         return Read<T>::_(*this);
     }
 }
