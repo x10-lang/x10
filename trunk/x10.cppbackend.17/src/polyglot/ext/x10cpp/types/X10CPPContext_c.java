@@ -177,6 +177,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 
     private void addVar(String name) {
 		VarInstance vi = lookup(name);
+        assert vi != null : name.toString();
 		boolean contains = false;
         for (VarInstance vi2 : variables) {
             // [DC]: what is wrong with vi2.equals(vi)?
