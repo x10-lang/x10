@@ -110,7 +110,7 @@ namespace x10 {
                 }
                 
                 template<class T> void AtomicReference<T >::_initRTT() {
-                    rtt.parentsc = -2;
+                    rtt.typeName = "CYCLIC RTT INIT\n";
                     x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 

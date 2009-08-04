@@ -24,7 +24,7 @@ namespace x10 {
         };
 
         template<class P1, class P2, class P3> void VoidFun_0_3<P1,P2,P3>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             x10::lang::_initRTTHelper_VoidFun_0_3(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
                                                         x10aux::getRTT<P3>());
         }

@@ -25,9 +25,9 @@ namespace x10 {
         };
 
         template<class P1, class P2, class P3, class R> void Fun_0_3<P1,P2,P3,R>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             x10::lang::_initRTTHelper_Fun_0_3(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(),
-                                                    x10aux::getRTT<P3>(), x10aux::getRTT<R>());
+                                              x10aux::getRTT<P3>(), x10aux::getRTT<R>());
         }
         
         template<class P1, class P2, class P3, class R> x10aux::RuntimeType Fun_0_3<P1,P2,P3,R>::rtt;

@@ -51,7 +51,7 @@ namespace x10 {
         };
 
         template<class T> void Box<T>::_initRTT() {
-            rtt.parentsc = -2;
+            rtt.typeName = "CYCLIC RTT INIT\n";
             x10::lang::_initRTTHelper_Box(&rtt, x10aux::getRTT<T>());
         }
         

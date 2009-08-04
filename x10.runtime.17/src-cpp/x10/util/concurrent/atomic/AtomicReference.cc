@@ -10,9 +10,11 @@ namespace x10 {
             namespace atomic {
                 void
                 _initRTTHelper_AtomicReference(RuntimeType *location, const RuntimeType *rtt) {
+                    const RuntimeType* parents[1] = { Ref::getRTT() };
+                    const RuntimeType* params[1] = { rtt };
+                    RuntimeType::Variance variances[1] = { RuntimeType::invariant };
                     const char *name = alloc_printf("x10.util.concurrent.atomic.AtomicReference[%s]",rtt->name());
-                    const RuntimeType *parent = Ref::getRTT();
-                    location->init(name, 1, parent);
+                    location->init(name, 1, parents, 1, params, variances);
                 }
             }
         }
