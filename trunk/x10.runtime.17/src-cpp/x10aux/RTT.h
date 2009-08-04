@@ -4,8 +4,6 @@
 #include <x10aux/config.h>
 //#include <x10aux/alloc.h>
 
-#include <pthread.h>
-
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS \
     static x10aux::RuntimeType rtt; \
@@ -43,10 +41,6 @@ namespace x10aux {
     template<class T> class ref;
 
     class RuntimeType {
-    private:
-        static pthread_mutex_t installLock;
-        static pthread_mutexattr_t installLockAttr;
-        
     public:
         /*
          * RTT objects for all builtin primitive types.
