@@ -225,7 +225,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         public SHMDecl (LocalDecl ast) { this.ast = ast; }
     }
     private class RailSHMDecl extends SHMDecl {
-        public RailSHMDecl (LocalDecl ast) { super(ast); }
+        Expr numElements;
+        Expr init;
+        public RailSHMDecl (LocalDecl ast, Expr numElements, Expr init) {
+            super(ast);
+            this.numElements = numElements;
+            this.init = init;
+        }
     }
     private class VarSHMDecl extends SHMDecl {
         public VarSHMDecl (LocalDecl ast) { super(ast); }
@@ -275,6 +281,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 assert init_call.arguments().size()==2;
                 Expr num_elements = init_call.arguments().get(0);
                 Expr rail_init_closure = init_call.arguments().get(1);
+                
                 /*
                 Type typ = ld.declType();
                 assert typ.isClass();
@@ -286,7 +293,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 assert rail_arg.isFloat();
                 //assert type.nameString().equals("Rail") : ld.type().nameString();
                 */
-                shm_decls.add(new RailSHMDecl(ld));
+                shm_decls.add(new RailSHMDecl(ld, num_elements, rail_init_closure));
             }
             
             MultipleValues inner = processLoop(loop);
