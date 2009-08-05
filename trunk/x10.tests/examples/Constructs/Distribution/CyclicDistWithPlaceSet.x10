@@ -24,7 +24,7 @@ import harness.x10Test;
  */
 public class CyclicDistWithPlaceSet extends x10Test {
 
-	public const P: Dist = distmakeUnique();
+	public const P  = Dist.makeUnique();
 	public const COUNT: int = 200;
 	public const L: int = 5;
 
@@ -39,17 +39,17 @@ public class CyclicDistWithPlaceSet extends x10Test {
 			val r: randPlaceSet = createRandPlaceSet();
 			val np: int = r.np;
 			val placeNums: Array[int] = r.placeNums;
-			val placeSet: Set = r.placeSet;
-			val DCyclic: Dist = dist.factory.cyclic(R, placeSet);
+			val placeSet  = r.placeSet;
+			val DCyclic  = Dist.cyclic(R, placeSet);
 			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
 			var offsWithinPlace: int = 0;
 			var pn: int = 0;
 			//x10.io.Console.OUT.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints);
 
 			for (val (i,j): Point in R) {
-				x10.io.Console.OUT.println("placeNum = "+placeNums(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DCyclic[i,j] = "+DCyclic(i, j).id);
-				chk(P(placeNums(pn)).id == placeNums(pn));
-				chk(DCyclic(i, j) == P(placeNums(pn)));
+				x10.io.Console.OUT.println("placeNum = "+Place.place(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DCyclic[i,j] = "+DCyclic(i, j).id);
+				chk(P(placeNums(pn)).id == Place.place(pn));
+				chk(DCyclic(i, j) == P(Place.place(pn)));
 				pn++;
 				if (pn == np) {
 					//time to go to next offset
@@ -66,9 +66,9 @@ public class CyclicDistWithPlaceSet extends x10Test {
 	 */
 	static class randPlaceSet {
 		val np: int;
-		val placeSet: Set;
+		val placeSet: Set[Place];
 		val placeNums: Array[int];
-		def this(var n: int, var a: Array[int], var s: Set): randPlaceSet = {
+		def this(var n: int, var a: Array[int], var s: Set[Place]): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;
