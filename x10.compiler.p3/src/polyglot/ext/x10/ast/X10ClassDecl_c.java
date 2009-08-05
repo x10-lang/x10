@@ -69,6 +69,7 @@ import polyglot.types.LazyRef_c;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.Package;
@@ -516,7 +517,16 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return false;
     }
    
-    public Node adjustAbstractMethods(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    /**
+     * If the class is abstract, and does not implement a method specified by an interface,
+     * add an abstract declaration for this method.
+     * @param parent
+     * @param tc
+     * @param childtc
+     * @return
+     * @throws SemanticException
+     */
+    public Node adjustAbstractMethods( ContextVisitor tc) throws SemanticException {
     	X10ClassDecl_c n = this;
     	
     	if (n.flags().flags().isInterface())
@@ -524,55 +534,34 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-        // If any method specified by an interface is not defined in this class, add an abstract
-        // method definition.
+      
+    	Position CG = Position.COMPILER_GENERATED;
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
-        Position CG = Position.COMPILER_GENERATED;
-        Flags flags = n.flags().flags();
-        X10ClassDecl_c nConcrete = (X10ClassDecl_c) n.flags(xnf.FlagsNode(CG, flags.clearAbstract()));
-        ClassType targetType = nConcrete.classDef().asType();
+        ClassType targetType = n.classDef().asType();
        Set<Type> interfaces = xts.allInterfaces(targetType);
-       List<ClassMember> newMembers = new LinkedList<ClassMember>();
        
        for (Type intface : interfaces) {
     	   X10ClassDef type = (X10ClassDef) intface.toClass().def();
-           for (MethodDef md : type.methods()) {
+    	   List<MethodDef> oldMethods = TypedList.copyAndCheck(type.methods(), MethodDef.class, true);
+           for (MethodDef md : oldMethods) {
                X10MethodDef xmd = (X10MethodDef) md;
                X10MethodInstance mi = (X10MethodInstance) xmd.asInstance();
                MethodInstance mj = xts.findImplementingMethod(targetType, mi, tc.context());
              
               if (mj == null) { // This method is not already defined for this class
             	  Id name = xnf.Id(CG,mi.name());
-            	  newMembers.add(X10MethodDecl_c.make(n.type, 
+            	  n = n.addSyntheticMethod(
             			  mi.flags().Public().Abstract(),
             			  mi.name(),
             			  xmd.formalNames(),
             			  mi.returnType(),
-            			  md.throwTypes(),
+            			  mi.throwTypes(),
             			  null, xnf, xts
-            			  ));
+            			  );
             	  }
               }
        }// interfaces
-       if (newMembers.size() > 0) {
-    	   List<ClassMember> oldMembers = n.body().members();
-    	 
-    	   ClassBody classBody = xnf.ClassBody(n.body().position(), newMembers);
-           n = (X10ClassDecl_c) n.body(classBody);
-           // Typecheck only the new body, containing the new declarations.
-           // If you typecheck the old members again, you will get duplicate
-           // members.
-           body = (ClassBody) n.visitChild(n.body, childtc);
-           X10ClassDecl_c oldn = n;
-          n = (X10ClassDecl_c) tc.leave(parent, oldn, n, childtc);
-          // Now simply create the new X10ClassDecl_c with the old
-          // members and new members in it.
-          newMembers.addAll(oldMembers);
-          ClassBody cb = xnf.ClassBody(n.body().position(), newMembers);
-          n = (X10ClassDecl_c) n.body(cb);
-    	  
-       }
        return n;
        
     }
@@ -683,7 +672,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
             map.put(ct.x10Def(), ct);
         }
-    	n = (X10ClassDecl_c) n.adjustAbstractMethods(parent, oldtc, oldchildtc);
+    	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	return n;
     }
 
@@ -831,4 +820,53 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return ctor.name(nf.Id(ctor.name().position(), "this"));
     }
 
+    public X10ClassDecl_c addSyntheticMethod(Flags flags, Name name, List<LocalDef> fmls, 
+    		Type returnType, List<Type> trow, Block block,
+    		X10NodeFactory xnf, X10TypeSystem xts) {
+    	assert this.type != null;
+    	
+    	Position CG = Position.COMPILER_GENERATED;
+    	List<Expr> args = new ArrayList<Expr>();
+    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
+    	for (LocalDef f : fmls) {
+    		Id id = xnf.Id(CG, f.name()); 
+
+    		Formal ff = xnf.Formal(CG,xnf.FlagsNode(CG, Flags.NONE), 
+    				xnf.CanonicalTypeNode(CG, f.type()),
+    				id);
+    		Local loc = xnf.Local(CG, id);
+    		LocalDef li = xts.localDef(CG, ff.flags().flags(), ff.type().typeRef(), id.id());
+    		ff = ff.localDef(li);
+    		loc = loc.localInstance(li.asInstance());
+    		loc = (Local) loc.type(li.asInstance().type());
+    		formals.add(ff);
+    		args.add(loc);
+    		argTypes.add(li.type());
+    	}
+    	FlagsNode newFlags = xnf.FlagsNode(CG, flags);
+    	TypeNode rt = xnf.CanonicalTypeNode(CG, returnType);
+
+
+    	List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
+    	List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
+    	for (Type  t: trow) {
+    		Ref<Type> tref = Types.ref(t);
+    		throwTypes.add(tref);
+    		throwTypeNodes.add(xnf.CanonicalTypeNode(CG, t));
+    	}
+
+    	// Create the method declaration node and the CI.
+    	MethodDecl result = 
+    		xnf.MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), formals, throwTypeNodes, block);
+
+    	MethodDef rmi = xts.methodDef(CG, Types.ref(this.type.asType()), 
+    			newFlags.flags(), rt.typeRef(), name, argTypes, throwTypes);
+    	this.type.addMethod(rmi);
+    	result = result.methodDef(rmi);
+    
+    	ClassBody b = this.body();
+    	b = b.addMember(result);
+    	return (X10ClassDecl_c) body(b);
+    }
 } 
