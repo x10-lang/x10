@@ -9,7 +9,10 @@
 package x10.runtime;
 
 import x10.util.GrowableRail;
+import x10.util.HashMap;
 import x10.util.Stack;
+
+import x10.util.concurrent.atomic.AtomicInteger;
 
 import x10.io.Console;
 
@@ -18,12 +21,57 @@ import x10.io.Console;
  */
 public value Runtime {
 	// TODO place-cast of null?
-	
+
 	private def this():Runtime {}
 	
-	// one root finish state per process
-	const rootFinish = FinishState.makeRoot();
+	const latch = new Latch();
+
+	private const finishTables = ValRail.make[HashMap[IntValue, FinishState]](Place.MAX_PLACES, (Int)=>new HashMap[IntValue, FinishState]());
+	    
+	private const finishLock = new Lock();
 	
+	const finishCount = new AtomicInteger(0);
+	
+    static def putFinish(finishState:FinishState):Void {
+        if (finishState.key() == -1) {
+            val rootFinish = finishState as RootFinish;
+            rootFinish.key = finishCount.getAndIncrement();
+            finishLock.lock();
+            finishTables(here.id).put(new IntValue(rootFinish.key), rootFinish);
+            finishLock.unlock();
+        }
+    }
+    
+    static def findFinish(place:Place, key:Int):FinishState {
+        val k = new IntValue(key);
+        finishLock.lock();
+        val finishState = finishTables(here.id).getOrElse(k, null);
+        if (null != finishState) {
+            finishLock.unlock();
+            return finishState;
+        }
+        val remoteFinish = new RemoteFinish(place, key);
+        finishTables(here.id).put(k, remoteFinish);
+        finishLock.unlock();
+        return remoteFinish;
+    }
+    
+    static def findRoot(key:Int):RootFinish {
+        finishLock.lock();
+        val finishState = finishTables(here.id).getOrElse(new IntValue(key), null);
+        finishLock.unlock();
+        return finishState as RootFinish;
+    }
+    
+    static def removeRoot(rootFinish:RootFinish):Void{
+        val key = rootFinish.key;
+        if (key != -1) {
+            finishLock.lock();
+            finishTables(here.id).remove(new IntValue(key));
+            finishLock.unlock();
+        }
+    }
+    
 	/**
 	 * Master thread running the runtime
 	 */
@@ -68,9 +116,9 @@ public value Runtime {
 	 * Run main activity in a finish
 	 */
 	public static def start(body:()=>Void):Void {
-// temporary: printStackTrace call moved to Main template (native code) 
 		try {
 			if (master.loc() == 0) {
+	            val rootFinish = new RootFinish();
 				pool.execute(new Activity(body, rootFinish, true));
 				while (pool.worker().loop(rootFinish, true));
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
@@ -81,20 +129,18 @@ public value Runtime {
 				}
 				rootFinish.waitForFinish(false);
 			} else {
-				while (pool.worker().loop(rootFinish, true));
-				rootFinish.waitForFinish(false);
+				while (pool.worker().loop(latch, true));
+//				rootFinish.finishState.waitForFinish(false);
 			}
-//		} catch (t:Throwable) {
-//			t.printStackTrace();
-//		}
 		} finally {
 			pool.release();
+			NativeRuntime.println("ASYNC SENT AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsSent());
+            NativeRuntime.println("ASYNC RECV AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsReceived());
 		}
 	}
 
-
 	static def quit():Void {
-		rootFinish.notifySubActivityTermination();
+		latch.set();
 	}
 
 
@@ -107,26 +153,32 @@ public value Runtime {
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
-		state.notifySubActivitySpawn();
+		state.notifySubActivitySpawn(place);
 		if (place.id == Thread.currentThread().loc()) {
 			pool.execute(new Activity(body, state, clocks, phases));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, clocks, phases));
+		    putFinish(state);
+	        val p = state.place();
+	        val k = state.key();
+            val c = ()=>pool.execute(new Activity(body, p, k, clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
 
 	public static def runAsync(place:Place, body:()=>Void):Void {
 		val state = currentState();
-		state.notifySubActivitySpawn();
+		state.notifySubActivitySpawn(place);
 		val ok = safe();
 		if (place.id == Thread.currentThread().loc()) {
 			pool.execute(new Activity(body, state, ok));
 		} else {
+		    putFinish(state);
+	        val p = state.place();
+	        val k = state.key();
             if (ok) {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, true)));
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, p, k, true)));
             } else {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, false)));
+                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, p, k, false)));
             }
 		}
 	}
@@ -134,13 +186,13 @@ public value Runtime {
 	public static def runAsync(clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
-		state.notifySubActivitySpawn();
+		state.notifySubActivitySpawn(here);
 		pool.execute(new Activity(body, state, clocks, phases));
 	}
 
 	public static def runAsync(body:()=>Void):Void {
 		val state = currentState();
-		state.notifySubActivitySpawn();
+		state.notifySubActivitySpawn(here);
 		pool.execute(new Activity(body, state, safe()));
 	}
 	
@@ -290,7 +342,7 @@ public value Runtime {
 	public static def startFinish():Void {
 		val activity = current();
 		if (null == activity.finishStack) activity.finishStack = new Stack[FinishState]();
-		activity.finishStack.push(new FinishState());
+		activity.finishStack.push(new RootFinish());
 	}
 
 	/**
@@ -300,7 +352,9 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		current().finishStack.pop().waitForFinish(safe());
+		val finishState = current().finishStack.pop();
+		finishState.notifySubActivityTermination();
+		(finishState as RootFinish).waitForFinish(safe());
 	}
 
 	/** 

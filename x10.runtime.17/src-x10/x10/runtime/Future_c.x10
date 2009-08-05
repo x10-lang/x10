@@ -16,9 +16,9 @@ import x10.util.GrowableRail;
  */
 public value Future_c[T] extends Future[T] {
     /**
-     * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
+     * Latch for signaling and wait
      */
-    private val cdl = new ModCountDownLatch(1);
+    private val latch = new Latch();
 
     /**
      * Set if the activity terminated with an exception.
@@ -35,13 +35,13 @@ public value Future_c[T] extends Future[T] {
 		result = new GrowableRail[T]();
 	}
 	
-    public def forced():boolean = at (cdl.location) cdl.getCount() == 0;
+    public def forced():boolean = at (latch.location) latch.get();
     
     public def apply():T = force();
 
     public def force():T {
-    	return at (cdl.location) {
-	    	cdl.await();
+    	return at (latch.location) {
+	    	latch.await();
 	        if (exception.length() > 0) {
 	        	val e = exception(0);
 	            if (e instanceof Error)
@@ -57,10 +57,10 @@ public value Future_c[T] extends Future[T] {
 	def run():Void {
 		try {
         	finish result.add(eval());
-          	cdl.countDown();
+          	latch.set();
         } catch (t:Throwable) {
             exception.add(t);
-          	cdl.countDown();
+          	latch.set();
         }
 	}
 	

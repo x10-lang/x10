@@ -53,7 +53,7 @@ public value Pool {
 	
 	// submit an activity to the pool (global method)
 	def execute(activity:Activity):Void {
-		NativeRuntime.runAtLocal(that.location.id, ()=>{
+        NativeRuntime.runAtLocal(that.location.id, ()=>{
 			worker().push(activity);
 		});
 	}
@@ -71,6 +71,7 @@ public value Pool {
 				// allocate and start a new worker
 				val i = that.size++;
 				lock.unlock();
+//                NativeRuntime.println("INCREASE: " + i);
 				assert (i < MAX);
 				if (i >= MAX) {
 					NativeRuntime.println("TOO MANY THREADS... ABORTING");
@@ -107,9 +108,9 @@ public value Pool {
 	}
 
 	// run pending activities while waiting on conditioon (global method)
-	def join(cond:FinishState) {
+	def join(latch:Latch) {
 		NativeRuntime.runAtLocal(that.location.id, ()=>{
-			worker().join(cond);
+			worker().join(latch);
 		});
 	}
 	
@@ -122,16 +123,16 @@ public value Pool {
 	}
 
 	// scan workers for activity to steal
-	def scan(random:Random, cond:FinishState, block:Boolean):Activity {
+	def scan(random:Random, latch:Latch, block:Boolean):Activity {
 		var activity:Activity;
 		var next:Int = random.nextInt(that.size);
 		for (;;) {
 			activity = steal(next);
-			if (null != activity || check(cond)) return activity;
+			if (null != activity || latch.get()) return activity;
 			if (Thread.currentThread() == Runtime.listener) {
 				NativeRuntime.event_probe();
 				activity = worker().poll();
-				if (null != activity || check(cond)) return activity;
+				if (null != activity || latch.get()) return activity;
 			} else {
 				if (semaphore.available() < 0) {
 					if (block) {
@@ -145,7 +146,4 @@ public value Pool {
 			if (++next == that.size) next = 0;
 		}
 	}
-
-	@Native("java", "#1.latch.count == 0")
-	def check(cond:FinishState):Boolean = cond.latch.count == 0;
 }

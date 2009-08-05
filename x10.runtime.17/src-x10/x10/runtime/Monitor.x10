@@ -18,7 +18,7 @@ class Monitor {
  	/**
  	 * Set to false to interrupt listener thread
  	 */
-   	var park:Boolean;
+   	private var park:Boolean;
 
  	/**
  	 * Instance lock
