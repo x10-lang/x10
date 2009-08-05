@@ -1004,13 +1004,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new ClosureInstance_c(this, pos, def);
     }
 
-	public List<X10ClassType> allImplementedInterfaces(X10ClassType c) {
-		ArrayList<X10ClassType> ans =  new ArrayList<X10ClassType>();
-		allImplementedInterfaces(c, ans);
+    public List<X10ClassType> allImplementedInterfaces(X10ClassType c) {
+    	return allImplementedInterfaces(c, true);
+    }
+    
+	public List<X10ClassType> allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses) {
+		List<X10ClassType> ans =  new ArrayList<X10ClassType>();
+		allImplementedInterfaces(c, checkSuperClasses, ans);
 		return ans;
 	}
 
-	private void allImplementedInterfaces(X10ClassType c, ArrayList<X10ClassType> l) {
+	private void allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses, List<X10ClassType> l) {
 		Context context = createContext();
 		if (c.typeEquals(Object(), context)) {
 			return;
@@ -1026,12 +1030,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			l.add(c);
 		}
 
-		if (c.superClass() != null) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(c.superClass()), l);
+		if (checkSuperClasses && c.superClass() != null) {
+			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(c.superClass()), 
+					checkSuperClasses, l);
 		}
 
 		for (Type parent : c.interfaces()) {
-			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(parent), l);
+			allImplementedInterfaces((X10ClassType)X10TypeMixin.baseType(parent), 
+					checkSuperClasses, l);
 		}
 	}
 
@@ -2433,17 +2439,5 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10Context xc = (X10Context) context;
         return env(context).isSubtypeWithValueInterfaces(t1, t2);
     }
-    public Set<Type> allInterfaces(Type t) {
-    	Set<Type> result = new HashSet<Type>();
-    	 LinkedList<Type> worklist = new LinkedList<Type>();
-    	 worklist.add(t);
-    	 while (! worklist.isEmpty()) {
-    		 Type type = worklist.removeFirst();
-    		 if (type.toClass().flags().isInterface())
-    			 result.add(type);
-    		 worklist.addAll(interfaces(type));
-    	 }
-    	return result;
-    	
-    }
+   
 }
