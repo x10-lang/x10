@@ -173,6 +173,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         table = Rail.makeVar[HashEntry[K,V]](t.length*2);
         mask = table.length - 1;
         size = 0;
+        occupation = 0;
         shouldRehash = false;
 
         for (var i: int = 0; i < t.length; i++) {
