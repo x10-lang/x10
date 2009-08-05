@@ -10,9 +10,18 @@ package polyglot.ext.x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.TypeDef;
+import polyglot.types.Flags;
+import polyglot.types.LocalDef;
+import polyglot.types.Name;
+import polyglot.types.Ref;
+import polyglot.types.Type;
+import polyglot.visit.TypeChecker;
 
 public interface X10ClassDecl extends ClassDecl {
 	DepParameterExpr classInvariant();
@@ -23,4 +32,6 @@ public interface X10ClassDecl extends ClassDecl {
 	
 	List<PropertyDecl> properties();
 	X10ClassDecl properties(List<PropertyDecl> ps);
+	
+	
 }
