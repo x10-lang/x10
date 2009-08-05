@@ -346,6 +346,4 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
 
-    Set<Type> allInterfaces(Type t);
-
 }
