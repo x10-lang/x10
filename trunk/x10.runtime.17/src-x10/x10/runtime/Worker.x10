@@ -55,7 +55,7 @@ final class Worker(pool:Pool) implements ()=>Void {
 	// run pending activities
 	public def apply():Void {
 		try {
-			while (loop(Runtime.rootFinish, true));
+			while (loop(Runtime.latch, true));
 		} catch (t:Throwable) {
 			NativeRuntime.println("Uncaught exception in worker thread");
 			t.printStackTrace();
@@ -65,19 +65,19 @@ final class Worker(pool:Pool) implements ()=>Void {
 	}
 		
 	// run activities while waiting on finish 
-	def join(cond:FinishState):Void {
+	def join(latch:Latch):Void {
 		val tmp = activity; // save current activity
-		while (loop(cond, false));
+		while (loop(latch, false));
 		activity = tmp; // restore current activity
 	}
 
 	// inner loop to help j9 jit
-	def loop(cond:FinishState, block:Boolean):Boolean {
+	def loop(latch:Latch, block:Boolean):Boolean {
 		for (var i:Int = 0; i < BOUND; i++) {
-			if (pool.check(cond)) return false;
+			if (latch.get()) return false;
 			activity = poll();
 			if (activity == null) {
-				activity = pool.scan(random, cond, block);
+				activity = pool.scan(random, latch, block);
 				if (activity == null) return false;
 			}
 			NativeRuntime.runAtLocal(activity.location.id, ()=>activity.run());
@@ -85,5 +85,3 @@ final class Worker(pool:Pool) implements ()=>Void {
 		return true;
 	}
 }
-
-

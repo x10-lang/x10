@@ -21,82 +21,61 @@ class Activity(finishState:FinishState, safe:Boolean) {
 	 */
 	private val body:()=>Void;
 	
-	/**
-	 * The mapping from registered clocks to phases for this activity.
-	 * Lazily created.
-	 */
-	var clockPhases:ClockPhases;
-	
-	/**
-	 * The finish states for the finish statements currently executed by this activity.  
-	 * Lazily created.
-	 */
-	var finishStack:Stack[FinishState];
-	
+    /**
+     * The mapping from registered clocks to phases for this activity.
+     * Lazily created.
+     */
+    var clockPhases:ClockPhases;
+    
+    /**
+     * The finish states for the finish statements currently executed by this activity.  
+     * Lazily created.
+     */
+    var finishStack:Stack[FinishState];
+
 	/**
 	 * Create activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
-		property(finishState, safe);
-	    this.body = body;
+    def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
+        property(finishState, safe);
+        finishState.incr();
+        this.body = body;
+    }
+
+    def this(body:()=>Void, place:Place, key:Int, safe:Boolean) {
+		this(body, Runtime.findFinish(place, key), safe);
 	}
 
-	/**
+    /**
 	 * Create clocked activity.
 	 */
 	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
 		this(body, finishState, false);
 	    clockPhases = new ClockPhases();
-		clockPhases.register(clocks, phases);
+	    clockPhases.register(clocks, phases);
 	}
 
+    def this(body:()=>Void, place:Place, key:Int, clocks:ValRail[Clock], phases:ValRail[Int]) {
+        this(body, place, key, false);
+        clockPhases = new ClockPhases();
+        clockPhases.register(clocks, phases);
+    }
+
 	/**
-	 * Run asynchronous activity.
+	 * Run activity.
 	 */
 	def run():Void {
-		if (location.id == finishState.location.id) {
-			// local async
-			now();
-			finishState.notifySubActivityTermination();
-		} else {
-			// remote async
-			val state = finishState;
-			try {
-				// enclose computation in local finish to minimize traffic
-				Runtime.startFinish();
-				now();
-				Runtime.stopFinish();
-                val c = ()=>state.notifySubActivityTermination();
-				NativeRuntime.runAt(state.location.id, c);
-			} catch (t:Throwable) {
-				// report exception & termination atomically
-                val c = ()=>state.notifySubActivityTermination(t);
-				NativeRuntime.runAt(state.location.id, c);
-	    	}
-		}
+        try {
+            body();
+        } catch (t:Throwable) {
+            Runtime.pushException(t);
+        }
+        if (null != clockPhases) clockPhases.drop();
+		finishState.notifySubActivityTermination();
 	}
 	
-	/**
-	 * Run synchronous activity.
-	 */
-	def now():Void {
-		try {
-			body();
-		} catch (t:Throwable) {
-			Runtime.pushException(t);
-		}
-		drop();
-	}
-
-	/**
-	 * Drop all clocks.
-	 */
-	private def drop():Void {
-		if (null != clockPhases) clockPhases.drop();
-	}
-
     // [DC] The correct thing to do here is do toString() on the closure
-	//public def toString():String = name; 
+	// public def toString():String = name; 
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
