@@ -534,36 +534,31 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-      
     	Position CG = Position.COMPILER_GENERATED;
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
         ClassType targetType = n.classDef().asType();
-       Set<Type> interfaces = xts.allInterfaces(targetType);
+        Set<Type> interfaces = xts.allInterfaces(targetType);
        
-       for (Type intface : interfaces) {
-    	   X10ClassDef type = (X10ClassDef) intface.toClass().def();
-    	   List<MethodDef> oldMethods = TypedList.copyAndCheck(type.methods(), MethodDef.class, true);
-           for (MethodDef md : oldMethods) {
-               X10MethodDef xmd = (X10MethodDef) md;
-               X10MethodInstance mi = (X10MethodInstance) xmd.asInstance();
-               MethodInstance mj = xts.findImplementingMethod(targetType, mi, tc.context());
-             
-              if (mj == null) { // This method is not already defined for this class
-            	  Id name = xnf.Id(CG,mi.name());
-            	  n = n.addSyntheticMethod(
-            			  mi.flags().Public().Abstract(),
-            			  mi.name(),
-            			  xmd.formalNames(),
-            			  mi.returnType(),
-            			  mi.throwTypes(),
-            			  null, xnf, xts
-            			  );
-            	  }
-              }
-       }// interfaces
-       return n;
-       
+        for (Type intface : interfaces) {
+            X10ClassType type = (X10ClassType) intface.toClass();
+            List<MethodInstance> oldMethods = type.methods();
+            for (MethodInstance mi : oldMethods) {
+                MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+                if (mj == null) { // This method is not already defined for this class
+                    Id name = xnf.Id(CG,mi.name());
+                    n = n.addSyntheticMethod(
+                            mi.flags().Public().Abstract(),
+                            mi.name(),
+                            ((X10MethodDef) mi.def()).formalNames(),
+                            mi.returnType(),
+                            mi.throwTypes(),
+                            null, xnf, xts
+                    );
+                }
+            }
+        } // interfaces
+        return n;
     }
     
     
