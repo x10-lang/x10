@@ -2433,4 +2433,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10Context xc = (X10Context) context;
         return env(context).isSubtypeWithValueInterfaces(t1, t2);
     }
+    public Set<Type> allInterfaces(Type t) {
+    	Set<Type> result = new HashSet<Type>();
+    	 LinkedList<Type> worklist = new LinkedList<Type>();
+    	 worklist.add(t);
+    	 while (! worklist.isEmpty()) {
+    		 Type type = worklist.removeFirst();
+    		 if (type.toClass().flags().isInterface())
+    			 result.add(type);
+    		 worklist.addAll(interfaces(type));
+    	 }
+    	return result;
+    	
+    }
 }

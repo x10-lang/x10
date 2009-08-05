@@ -10,21 +10,32 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
+import polyglot.ast.MethodDecl_c;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.PackageNode;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Term;
+import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
@@ -38,18 +49,29 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodDef;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
+import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
+import polyglot.types.LocalDef;
+import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
+import polyglot.types.Named;
 import polyglot.types.ObjectType;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Ref_c;
@@ -66,6 +88,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
+import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -478,6 +501,83 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return n;
     }
     
+    boolean contains(List<ClassMember> list, Id xName, List<Formal> xf) {
+    	OUTER: for (ClassMember yy : list) {
+    		MethodDecl y = (MethodDecl) yy;
+    		List<Formal> yf = y.formals();
+    		if (xName.equals(y.name()) && xf.size() == yf.size()) {
+    			for (int i=0; i < xf.size(); ++i) {
+    				if (! (xf.get(i).equals(yf.get(i))))
+    					continue OUTER;
+    			}
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+   
+    public Node adjustAbstractMethods(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    	X10ClassDecl_c n = this;
+    	
+    	if (n.flags().flags().isInterface())
+    		return n;
+    	if (! n.flags().flags().isAbstract())
+    		return n;
+    	
+        // If any method specified by an interface is not defined in this class, add an abstract
+        // method definition.
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
+        Position CG = Position.COMPILER_GENERATED;
+        Flags flags = n.flags().flags();
+        X10ClassDecl_c nConcrete = (X10ClassDecl_c) n.flags(xnf.FlagsNode(CG, flags.clearAbstract()));
+        ClassType targetType = nConcrete.classDef().asType();
+       Set<Type> interfaces = xts.allInterfaces(targetType);
+       List<ClassMember> newMembers = new LinkedList<ClassMember>();
+       
+       for (Type intface : interfaces) {
+    	   X10ClassDef type = (X10ClassDef) intface.toClass().def();
+           for (MethodDef md : type.methods()) {
+               X10MethodDef xmd = (X10MethodDef) md;
+               X10MethodInstance mi = (X10MethodInstance) xmd.asInstance();
+               MethodInstance mj = xts.findImplementingMethod(targetType, mi, tc.context());
+             
+              if (mj == null) { // This method is not already defined for this class
+            	  Id name = xnf.Id(CG,mi.name());
+            	  newMembers.add(X10MethodDecl_c.make(n.type, 
+            			  mi.flags().Public().Abstract(),
+            			  mi.name(),
+            			  xmd.formalNames(),
+            			  mi.returnType(),
+            			  md.throwTypes(),
+            			  null, xnf, xts
+            			  ));
+            	  }
+              }
+       }// interfaces
+       if (newMembers.size() > 0) {
+    	   List<ClassMember> oldMembers = n.body().members();
+    	 
+    	   ClassBody classBody = xnf.ClassBody(n.body().position(), newMembers);
+           n = (X10ClassDecl_c) n.body(classBody);
+           // Typecheck only the new body, containing the new declarations.
+           // If you typecheck the old members again, you will get duplicate
+           // members.
+           body = (ClassBody) n.visitChild(n.body, childtc);
+           X10ClassDecl_c oldn = n;
+          n = (X10ClassDecl_c) tc.leave(parent, oldn, n, childtc);
+          // Now simply create the new X10ClassDecl_c with the old
+          // members and new members in it.
+          newMembers.addAll(oldMembers);
+          ClassBody cb = xnf.ClassBody(n.body().position(), newMembers);
+          n = (X10ClassDecl_c) n.body(cb);
+    	  
+       }
+       return n;
+       
+    }
+    
+    
 //    private X10ClassDecl_c disambiguateHeader(TypeBuilder tb) {
 //	X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 //	X10ClassDef_c type = (X10ClassDef_c) this.type;
@@ -520,10 +620,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
     	
     	TypeChecker childtc = (TypeChecker) v;
+    	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
+    	ContextVisitor oldtc = (ContextVisitor) tc.copy();
+    	
     	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
+    
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
 
@@ -579,7 +683,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
             map.put(ct.x10Def(), ct);
         }
-        
+    	n = (X10ClassDecl_c) n.adjustAbstractMethods(parent, oldtc, oldchildtc);
     	return n;
     }
 

@@ -11,6 +11,7 @@
 package polyglot.ext.x10.types;
 
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
@@ -345,5 +346,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
 
+    Set<Type> allInterfaces(Type t);
 
 }
