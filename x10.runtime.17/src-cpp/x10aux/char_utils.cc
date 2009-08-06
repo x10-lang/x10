@@ -1,7 +1,7 @@
 #include <x10aux/char_utils.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/String.h>                    \
+#include <x10/lang/String.h>
 
 #include <ctype.h>
 
