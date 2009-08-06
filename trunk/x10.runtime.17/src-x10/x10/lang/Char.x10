@@ -86,10 +86,6 @@ public final value Char {
     @Native("c++", "x10aux::char_utils::isLetterOrDigit(#0)")
     public native def isLetterOrDigit(): boolean;
 
-    @Native("java", "java.lang.Character.isSpace(#0)")
-    @Native("c++", "x10aux::char_utils::isSpace(#0)")
-    public native def isSpace(): boolean;
-
     @Native("java", "java.lang.Character.isSpaceChar(#0)")
     @Native("c++", "x10aux::char_utils::isSpaceChar(#0)")
     public native def isSpaceChar(): boolean;
@@ -123,7 +119,7 @@ public final value Char {
     public native static def ord(Char): Int;
 
     @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (char) (#1))")
+    @Native("c++", "((x10_char) (int) (#1))")
     public native static def chr(Int): Char;
         
     @Native("java", "java.lang.Character.reverseBytes(#0)")
