@@ -22,9 +22,8 @@ namespace x10aux {
         static x10_boolean isUnicodeIdentifierStart(x10_char value);
         static x10_boolean isUnicodeIdentifierPart(x10_char value);
         static x10_boolean isUnicodeIdentifierIgnorable(x10_char value);
-        static x10_boolean isSpace(x10_char value);
         static x10_boolean isSpaceChar(x10_char value);
-        static x10_boolean isWhiteSpace(x10_char value);
+        static x10_boolean isWhitespace(x10_char value);
         static x10_boolean isISOControl(x10_char value);
         static x10_char toLowerCase(x10_char value);
         static x10_char toUpperCase(x10_char value);

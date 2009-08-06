@@ -52,12 +52,8 @@ public final value Char {
     public native def isUnicodeIdentifierPart(): boolean;
 
     @Native("java", "java.lang.Character.isIdentifierIgnorable(#0)")
-    @Native("c++", "x10aux::char_utils::isIdentiferIgnorable(#0)")
+    @Native("c++", "x10aux::char_utils::isUnicodeIdentiferIgnorable(#0)")
     public native def isIdentifierIgnorable(): boolean;
-
-    @Native("java", "java.lang.Character.isSpace(#0)")
-    @Native("c++", "x10aux::char_utils::isSpace(#0)")
-    public native def isSpace(): boolean;
 
     @Native("java", "java.lang.Character.isSpaceChar(#0)")
     @Native("c++", "x10aux::char_utils::isSpaceChar(#0)")
@@ -87,8 +83,8 @@ public final value Char {
     @Native("c++", "((x10_int) (#0))")
     public native def ord(): Int;
 
-    @Native("java", "((char) (#1))")
-    @Native("c++", "((x10_char) (#1))")
+    @Native("java", "((int) (#1))")
+    @Native("c++", "((x10_int) (#1))")
     public native static def ord(Char): Int;
 
     @Native("java", "((char) (#1))")
