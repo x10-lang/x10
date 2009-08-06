@@ -14,7 +14,7 @@ import x10.util.concurrent.atomic.AtomicInteger;
 /**
  * @author tardieu 
  */
-class RemoteFinish(place:Place) implements FinishState {
+class RemoteFinish implements FinishState {
 	/**
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
@@ -33,14 +33,13 @@ class RemoteFinish(place:Place) implements FinishState {
     
     private var count:AtomicInteger = new AtomicInteger(0);
     
-    private val key:Int;
+    private val rid:RID;
     
-    def this(place:Place, key:Int) {
-        property(place);
-        this.key = key;
+    def this(rid:RID) {
+        this.rid = rid;
     }
     
-    public def key():Int = key;
+    public def rid():RID = rid;
     
     public def incr():Void {
         count.getAndIncrement();
@@ -71,7 +70,7 @@ class RemoteFinish(place:Place) implements FinishState {
         val e = exceptions;
         exceptions = null;
         lock.unlock();
-        val k = key;
+        val r = rid;
         if (null != e) {
             val t:Throwable;
             if (e.size() == 1) {
@@ -79,9 +78,9 @@ class RemoteFinish(place:Place) implements FinishState {
             } else {
                 t = new MultipleExceptions(e);
             }
-            NativeRuntime.runAt(place.id, ()=>Runtime.findRoot(k).notify(c, t));
+            NativeRuntime.runAt(rid.place.id, ()=>Runtime.findRoot(r).notify(c, t));
         } else {
-            NativeRuntime.runAt(place.id, ()=>Runtime.findRoot(k).notify(c));
+            NativeRuntime.runAt(rid.place.id, ()=>Runtime.findRoot(r).notify(c));
         }
     }
     

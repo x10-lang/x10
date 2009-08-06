@@ -42,8 +42,8 @@ class Activity(finishState:FinishState, safe:Boolean) {
         this.body = body;
     }
 
-    def this(body:()=>Void, place:Place, key:Int, safe:Boolean) {
-		this(body, Runtime.findFinish(place, key), safe);
+    static def make(body:()=>Void, rid:RID, safe:Boolean):Activity {
+		return new Activity(body, Runtime.findFinish(rid), safe);
 	}
 
     /**
@@ -55,10 +55,8 @@ class Activity(finishState:FinishState, safe:Boolean) {
 	    clockPhases.register(clocks, phases);
 	}
 
-    def this(body:()=>Void, place:Place, key:Int, clocks:ValRail[Clock], phases:ValRail[Int]) {
-        this(body, place, key, false);
-        clockPhases = new ClockPhases();
-        clockPhases.register(clocks, phases);
+    static def make(body:()=>Void, rid:RID, clocks:ValRail[Clock], phases:ValRail[Int]):Activity {
+        return new Activity(body, Runtime.findFinish(rid), clocks, phases);
     }
 
 	/**

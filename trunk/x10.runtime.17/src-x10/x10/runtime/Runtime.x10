@@ -26,48 +26,46 @@ public value Runtime {
 	
 	const latch = new Latch();
 
-	private const finishTables = ValRail.make[HashMap[IntValue, FinishState]](Place.MAX_PLACES, (Int)=>new HashMap[IntValue, FinishState]());
+	private const finishTables = ValRail.make[HashMap[RID, FinishState]](Place.MAX_PLACES, (Int)=>new HashMap[RID, FinishState]());
 	    
 	private const finishLock = new Lock();
 	
 	const finishCount = new AtomicInteger(0);
 	
     static def putFinish(finishState:FinishState):Void {
-        if (finishState.key() == -1) {
+        if (finishState.rid().id == -1) {
             val rootFinish = finishState as RootFinish;
-            rootFinish.key = finishCount.getAndIncrement();
+            rootFinish.rid = new RID(here, finishCount.getAndIncrement());
             finishLock.lock();
-            finishTables(here.id).put(new IntValue(rootFinish.key), rootFinish);
+            finishTables(here.id).put(rootFinish.rid, rootFinish);
             finishLock.unlock();
         }
     }
     
-    static def findFinish(place:Place, key:Int):FinishState {
-        val k = new IntValue(key);
+    static def findFinish(rid:RID):FinishState {
         finishLock.lock();
-        val finishState = finishTables(here.id).getOrElse(k, null);
+        val finishState = finishTables(here.id).getOrElse(rid, null);
         if (null != finishState) {
             finishLock.unlock();
             return finishState;
         }
-        val remoteFinish = new RemoteFinish(place, key);
-        finishTables(here.id).put(k, remoteFinish);
+        val remoteFinish = new RemoteFinish(rid);
+        finishTables(here.id).put(rid, remoteFinish);
         finishLock.unlock();
         return remoteFinish;
     }
     
-    static def findRoot(key:Int):RootFinish {
+    static def findRoot(rid:RID):RootFinish {
         finishLock.lock();
-        val finishState = finishTables(here.id).getOrElse(new IntValue(key), null);
+        val finishState = finishTables(here.id).getOrElse(rid, null);
         finishLock.unlock();
         return finishState as RootFinish;
     }
     
     static def removeRoot(rootFinish:RootFinish):Void{
-        val key = rootFinish.key;
-        if (key != -1) {
+        if (rootFinish.rid.id != -1) {
             finishLock.lock();
-            finishTables(here.id).remove(new IntValue(key));
+            finishTables(here.id).remove(rootFinish.rid);
             finishLock.unlock();
         }
     }
@@ -161,9 +159,8 @@ public value Runtime {
 			pool.execute(new Activity(body, state, clocks, phases));
 		} else {
 		    putFinish(state);
-	        val p = state.place();
-	        val k = state.key();
-            val c = ()=>pool.execute(new Activity(body, p, k, clocks, phases));
+	        val rid = state.rid();
+            val c = ()=>pool.execute(Activity.make(body, rid, clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -176,12 +173,11 @@ public value Runtime {
 			pool.execute(new Activity(body, state, ok));
 		} else {
 		    putFinish(state);
-	        val p = state.place();
-	        val k = state.key();
+	        val rid = state.rid();
             if (ok) {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, p, k, true)));
+                NativeRuntime.runAt(place.id, ()=>pool.execute(Activity.make(body, rid, true)));
             } else {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, p, k, false)));
+                NativeRuntime.runAt(place.id, ()=>pool.execute(Activity.make(body, rid, false)));
             }
 		}
 	}
