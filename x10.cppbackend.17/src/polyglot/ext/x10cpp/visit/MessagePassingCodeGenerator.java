@@ -294,12 +294,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return ct.typeArguments(args);
 	}
 
+	/**
+	 * Is the given expression constant and not a native field.
+	 */
+	private boolean isConstant(Expr e) {
+	    // [IP] HACK for XTENLANG-486.  The only way a native expression would be marked a constant
+	    // is if it's a field access.
+	    String pat = e instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) e).fieldInstance().def()) : null;
+	    return e.isConstant() && pat == null;
+	}
+
+	private boolean isGlobalInit(FieldDecl_c fd) {
+	    // [DC] want these to occur in the static initialiser
+	    // [IP] except for the ones that use a literal init - otherwise switch is broken
+	    return (fd.init() != null &&
+	            fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
+	            isConstant(fd.init()) &&
+	            (fd.init().type().isNumeric() || fd.init().type().isBoolean() ||
+	             fd.init().type().isChar() || fd.init().type().isNull()));
+	}
+
 	// FIXME: Consolidate with extractInits()
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (cd.typeParameters().size() == 0)
 			return false;
-		boolean hasInits = false;
 		w.write("template <> class ");
 		w.write(mangled_non_method_name(cd.name().toString()));
 		w.write(voidTemplateInstantiation(cd.typeParameters().size()));
@@ -341,19 +360,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				emitter.printHeader(fd, w, tr, false);
 				sw.popCurrentStream();
 				w.write(";");
-				// [IP] HACK for XTENLANG-486.  The only way a native field init would be marked a constant
-				// is if it's a field access.
-				String pat = fd.init() instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) fd.init()).fieldInstance().def()) : null;
-				// [DC] want these to occur in the static initialiser
-				// [IP] except for the ones that use a literal init - otherwise switch is broken
-				if (fd.init() != null &&
-						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-						  fd.init().isConstant() && pat == null &&
-						  (fd.init().type().isNumeric() || fd.init().type().isBoolean() ||
-						   fd.init().type().isChar() || fd.init().type().isNull())))
-				{
-					hasInits = true;
-				}
 				((X10CPPTranslator)tr).setContext(context); // FIXME
 			} else if (dec instanceof MethodDecl_c) {
 				MethodDecl_c md = (MethodDecl_c) dec;
@@ -395,22 +401,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.allowBreak(2, " ");
 	            sw.write(container+"::");
 	            sw.write(mangled_field_name(fd.name().id().toString()));
-	            if (fd.init() != null) {
-	                // [IP] HACK for XTENLANG-486.  The only way a native field init would be marked a constant
-	                // is if it's a field access.
-	                String pat = fd.init() instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) fd.init()).fieldInstance().def()) : null;
-	                // [DC] want these to occur in the static initialiser instead
-	                // [IP] except for the ones that use a literal init - otherwise switch is broken
-	                if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-	                    fd.init().isConstant() && pat == null &&
-	                    (fd.init().type().isNumeric() || fd.init().type().isBoolean() ||
-	                     fd.init().type().isChar() || fd.init().type().isNull()))
-	                {
-	                    sw.write(" =");
-	                    sw.allowBreak(2, " ");
-	                    fd.print(fd.init(), sw, tr);
-	                } else
-	                    inits.add(fd);
+	            // [DC] want these to occur in the static initialiser instead
+	            // [IP] except for the ones that use a literal init - otherwise switch is broken
+	            if (isGlobalInit(fd)) {
+	                sw.write(" =");
+	                sw.allowBreak(2, " ");
+	                fd.print(fd.init(), sw, tr);
+	            } else if (fd.init() != null) {
+	                inits.add(fd);
 	            }
 	            sw.write(";");
 	            sw.newline();
@@ -522,16 +520,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
 	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 	                    continue;
-	                // [IP] HACK for XTENLANG-486.  The only way a native field init would be marked a constant
-	                // is if it's a field access.
-	                String pat = dec.init() instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) dec.init()).fieldInstance().def()) : null;
-	                if (dec.init() != null && dec.flags().flags().isFinal() &&
-	                    dec.init().isConstant() && pat == null &&
-	                    (dec.init().type().isNumeric() || dec.init().type().isBoolean() ||
-	                     dec.init().type().isChar() || dec.init().type().isNull()))
-	                {
+	                if (isGlobalInit(dec))
 	                    continue;
-	                }
 	            }
 	        }
 	        sawInit = true;
@@ -1585,18 +1575,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // FIXME: the above breaks switch constants!
 	    h.write(";");
 	    h.newline(); h.forceNewline();
-	    // [IP] HACK for XTENLANG-486.  The only way a native field init would be marked a constant
-	    // is if it's a field access.
-	    String pat = dec.init() instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) dec.init()).fieldInstance().def()) : null;
 	    if (dec.flags().flags().isStatic()) {
 	        emitter.printHeader(dec, sw, tr, true);
 	        // [DC] disabled because I want this done through the static initialisation framework
 	        // [IP] re-enabled for a very limited set of cases, namely literal inits
-	        if (dec.init() != null && dec.flags().flags().isFinal() &&
-	            dec.init().isConstant() && pat == null &&
-	            (dec.init().type().isNumeric() || dec.init().type().isBoolean() ||
-	             dec.init().type().isNull() || dec.init().type().isChar()))
-	        {
+	        if (isGlobalInit(dec)) {
 	            sw.write(" =");
 	            sw.allowBreak(2, " ");
 	            dec.print(dec.init(), sw, tr);
@@ -1689,7 +1672,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		else {
 			sw.write("case ");
 			// FIXME: [IP] HACK HACK HACK! Substitute the actual constant if any
-			if (n.expr() instanceof Field_c && n.expr().isConstant()) {
+			if (n.expr() instanceof Field_c && isConstant(n.expr())) {
 				sw.write(""+n.expr().constantValue());
 				sw.write("/"+"*");
 				n.print(n.expr(), sw, tr);
