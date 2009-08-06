@@ -69,7 +69,6 @@ import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -537,57 +536,47 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-
     	Position CG = Position.COMPILER_GENERATED;
     	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
     	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
-    	LinkedList<MethodDef> candidates = new LinkedList<MethodDef>();
-    
+    	LinkedList<MethodInstance> candidates = new LinkedList<MethodInstance>();
 
-       
-       for (X10ClassType intface : interfaces) {
-    	   X10ClassDef type = (X10ClassDef) intface.toClass().def();
-    	   List<MethodDef> oldMethods = TypedList.copyAndCheck(type.methods(), MethodDef.class, true);
-           for (MethodDef md : oldMethods) {
-               X10MethodDef xmd = (X10MethodDef) md;
-               X10MethodInstance mi = (X10MethodInstance) xmd.asInstance();
-               MethodInstance mj = xts.findImplementingMethod(targetType, mi, tc.context());
-             
-              if (mj == null) { // This method is not already defined for this class
-            	  candidates.add(md);
-              }
-           }
-       }// interfaces
-       // Remove overridden methods -- happens with covariant return types.
-       List<MethodDef> results = new LinkedList<MethodDef>(); 
-       Context context = xts.createContext();
-       OUTER: while (! candidates.isEmpty()) {
-    	   MethodDef md = candidates.removeFirst();
-    	   MethodInstance mdi = md.asInstance();
-    	   for (MethodDef other : candidates) {
-    		   if (other.asInstance().canOverride(mdi, context))
-    			   continue OUTER;
-    	   }
-    	   results.add(md);
-    	   
-       }
-       for (MethodDef newMethod : results) {
-    	   X10MethodDef xmd = (X10MethodDef) newMethod;
-           X10MethodInstance mi = (X10MethodInstance) xmd.asInstance();
-    	   Id name = xnf.Id(CG,mi.name());
-     	  n = Synthesizer.addSyntheticMethod(n,
-     			  mi.flags().Public().Abstract(),
-     			  mi.name(),
-     			  ((X10MethodDef) mi.def()).formalNames(),
-     			  mi.returnType(),
-     			  mi.throwTypes(),
-     			  null, xnf, xts
-     			  );
-     	  }
-       return n;
-       
+    	for (X10ClassType intface : interfaces) {
+    	    List<MethodInstance> oldMethods = intface.methods();
+    	    for (MethodInstance mi : oldMethods) {
+    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+
+    	        if (mj == null) { // This method is not already defined for this class
+    	            candidates.add(mi);
+    	        }
+    	    }
+    	} // interfaces
+    	// Remove overridden methods -- happens with covariant return types.
+    	List<MethodInstance> results = new LinkedList<MethodInstance>(); 
+    	Context context = xts.createContext();
+    	OUTER: while (! candidates.isEmpty()) {
+    	    MethodInstance mi = candidates.removeFirst();
+    	    for (MethodInstance other : candidates) {
+    	        if (other.canOverride(mi, context))
+    	            continue OUTER;
+    	    }
+    	    results.add(mi);
+
+    	}
+    	for (MethodInstance mi : results) {
+    	    Id name = xnf.Id(CG, mi.name());
+    	    n = Synthesizer.addSyntheticMethod(n,
+    	            mi.flags().Public().Abstract(),
+    	            mi.name(),
+    	            ((X10MethodDef) mi.def()).formalNames(),
+    	            mi.returnType(),
+    	            mi.throwTypes(),
+    	            null, xnf, xts
+    	    );
+    	}
+    	return n;
     }
     
     
