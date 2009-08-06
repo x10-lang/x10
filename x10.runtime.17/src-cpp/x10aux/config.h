@@ -71,6 +71,7 @@ struct x10_char {
     unsigned short v;
     x10_char() : v(0) { }
     x10_char(const char x) : v(x) { }
+    x10_char(const int x) : v((unsigned short) x) { }
 };
 #ifndef NO_IOSTREAM
 inline std::ostream &operator << (std::ostream &o, const x10_char &c) {
