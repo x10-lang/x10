@@ -11,7 +11,7 @@ package x10.runtime;
 /**
  * @author tardieu 
  */
-interface FinishState(place:Place) {
+interface FinishState {
 
 	/** 
 	 * An activity created under this finish has been created. Increment the count
@@ -29,7 +29,7 @@ interface FinishState(place:Place) {
 	 */
     def pushException(t:Throwable):Void;
     
-    def key():Int;
+    def rid():RID;
 
     def incr():Void;
 }

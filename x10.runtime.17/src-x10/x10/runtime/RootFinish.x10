@@ -13,19 +13,18 @@ import x10.util.Stack;
 /**
  * @author tardieu 
  */
-class RootFinish(place:Place) extends Latch implements FinishState {
+class RootFinish extends Latch implements FinishState {
     private val counts = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
     
     private var exceptions:Stack[Throwable];
 
-    var key:Int = -1;
+    var rid:RID = new RID(here, -1);
     
-    public def key():Int = key; 
+    public def rid():RID = rid; 
     
     public def incr():Void {}
     
     def this() {
-        property(here);
         counts(here.id) = 1;
     }
     
