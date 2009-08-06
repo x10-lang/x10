@@ -109,6 +109,7 @@ public value Runtime {
 	 */
 	public static def here():Place = Thread.currentThread().location;
 
+	const PRINT_STATS = false;
 
 	// main
 	
@@ -134,8 +135,10 @@ public value Runtime {
 			}
 		} finally {
 			pool.release();
-			NativeRuntime.println("ASYNC SENT AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsSent());
-            NativeRuntime.println("ASYNC RECV AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsReceived());
+			if (PRINT_STATS) {
+				NativeRuntime.println("ASYNC SENT AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsSent());
+				NativeRuntime.println("ASYNC RECV AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsReceived());
+			}
 		}
 	}
 
