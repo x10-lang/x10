@@ -3253,11 +3253,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    return;
 		}
 
-		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
-		c.printSubExpr(target, sw, tr);
-		sw.write("; "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");
+		// Can be a non-interface dispatch for classes like Future, so we have to check.
+		Type t = target.type();
+		String terminate = "";
+		if (t.isClass() && t.toClass().flags().isInterface()) {
+			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
+			c.printSubExpr(target, sw, tr);
+			sw.write("; "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");;
+			terminate = ");}))";
+		} else {
+			c.printSubExpr(target, sw, tr);
+			sw.write("->apply(");
+		}
+		
 		sw.begin(0);
-
 		List l = args;
 		boolean first = true;
 		for (Iterator i = l.iterator(); i.hasNext(); ) {
@@ -3268,7 +3277,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			first = false;
 		}
 		sw.end();
-		sw.write("));}))");
+		sw.write(")"+terminate);
 	}
 
 
