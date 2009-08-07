@@ -59,10 +59,15 @@ namespace x10aux {
         void* itable;
     };
 
-    void reportITableLookupFailure(itable_entry* itables, RuntimeType* targetInterface);
+    void* outlinedITableLookup(itable_entry* itables, RuntimeType* targetInterface);
     
     /*
      * Search itables to find the itable that matches I and return it.
+     * The inline sequence simply does a series of == tests to handle the
+     * common case.  If that fails then either itable lookup failed, or
+     * I is a generic type and we need to do a more complex series of tests
+     * to find the desired interface. To avoid code space bloat, both of these
+     * cases are handled in the out-of-line outlinedITableLookup routine.
      */
     template<class I> inline typename I::template itable<x10::lang::Object>* findITable(itable_entry* itables) {
         RuntimeType *id = &I::rtt;
@@ -70,12 +75,10 @@ namespace x10aux {
             if (itables[i].id == id) {
                 return (typename I::template itable<x10::lang::Object>*)(itables[i].itable);
             }
-#ifndef NDEBUG
             if (NULL == itables[i].id) {
-                x10aux::reportITableLookupFailure(itables, id);
-                assert(false);
+                // Hit the end of itables, now deal with complex cases involving generic types.
+                return (typename I::template itable<x10::lang::Object>*)outlinedITableLookup(itables, id);
             }
-#endif
         }
     }
 }
