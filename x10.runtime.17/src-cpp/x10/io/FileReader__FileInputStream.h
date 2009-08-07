@@ -13,7 +13,7 @@ namespace x10 {
             x10aux::io::FILEPtrInputStream _inputStream;
             
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             FileReader__FileInputStream(FILE *f) : _inputStream(f) { } 
 

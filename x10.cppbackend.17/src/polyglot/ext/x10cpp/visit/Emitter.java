@@ -562,17 +562,7 @@ public class Emitter {
 
     void printRTT(X10ClassType ct, ClassifiedStream h) {
     	boolean isInterface = ct.flags().isInterface();
-        if (ct.typeArguments().isEmpty()) {
-        	h.write(isInterface ? "RTT_H_DECLS_INTERFACE" : "RTT_H_DECLS_CLASS"); h.newline(); h.forceNewline();
-        } else {
-            h.write("static x10aux::RuntimeType rtt;"); h.newline();
-            h.write("static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.typeName) _initRTT(); return &rtt; }"); h.newline();
-            h.write("static void _initRTT();"); h.newline();
-            if (!isInterface) {
-            	h.write("virtual const x10aux::RuntimeType *_type() const { return getRTT(); }"); h.newline();
-            }
-            h.forceNewline();
-        }
+    	h.write(isInterface ? "RTT_H_DECLS_INTERFACE" : "RTT_H_DECLS_CLASS"); h.newline(); h.forceNewline();
 	}
 
     void printRTTDefn(X10ClassType ct, CodeWriter h) {
@@ -582,14 +572,14 @@ public class Emitter {
 		if (ct.typeArguments().isEmpty()) {
           h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
           h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-          h.write("rtt.typeName = \"CYCLIC RTT INIT\";"); h.newline();
+          h.write("rtt.canonical = &rtt;"); h.newline();
           h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
           h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
           for (Type iface : ct.interfaces()) {
               h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
           }
           h.write("};"); h.newline();          
-          h.write("rtt.init(\""+ct.fullName()+"\", "+num_parents+ ", parents, 0, NULL, NULL);"); h.end(); h.newline();
+          h.write("rtt.init(&rtt, \""+ct.fullName()+"\", "+num_parents+ ", parents, 0, NULL, NULL);"); h.end(); h.newline();
           h.write("}"); h.newline();
         } else {
         	int numTypeParams = ct.typeArguments().size();
@@ -598,7 +588,7 @@ public class Emitter {
 
             printTemplateSignature(ct.typeArguments(), h);
             h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-            h.write("rtt.typeName = \"CYCLIC RTT INIT\";"); h.newline();
+            h.write("rtt.canonical = &rtt;"); h.newline();
             h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
             h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
             for (Type iface : ct.interfaces()) {
@@ -627,7 +617,10 @@ public class Emitter {
             	}
                 first = false;
             }
-            h.write("};"); h.newline();          
+            h.write("};"); h.newline();
+            
+            h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
+            h.newline();
             
             h.write("const char *name = "); h.newline(4);
             h.write("x10aux::alloc_printf("); h.begin(0);
@@ -640,7 +633,7 @@ public class Emitter {
                 h.write(", params["+i+"]->name()"); h.newline();
             }
             h.write(");") ; h.end(); h.newline();
-            h.write("rtt.init(name, "+num_parents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
+            h.write("rtt.init(canonical, name, "+num_parents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
             h.write("}"); h.newline();
 		}
 		h.newline();

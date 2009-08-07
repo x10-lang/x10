@@ -16,7 +16,7 @@ namespace x10 {
 
         class Ref : public Object {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             static x10aux::ref<Ref> _make();
 

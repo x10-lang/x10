@@ -13,7 +13,7 @@ namespace x10 {
 
         class InputStreamReader__InputStream : public x10::lang::Value {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
         protected:
 

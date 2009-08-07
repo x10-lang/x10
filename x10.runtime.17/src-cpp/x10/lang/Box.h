@@ -20,7 +20,7 @@ namespace x10 {
         
         template<class T> class Box : public Ref {
         public:
-            RTT_H_DECLS
+            RTT_H_DECLS_CLASS;
 
             static x10aux::ref<Box<T> > _make(T contents_) {
                 return (new (x10aux::alloc<Box<T> >())Box<T>())->_constructor(contents_);
@@ -51,7 +51,7 @@ namespace x10 {
         };
 
         template<class T> void Box<T>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Box(&rtt, x10aux::getRTT<T>());
         }
         

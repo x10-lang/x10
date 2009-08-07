@@ -3,6 +3,7 @@
 #include <x10aux/RTT.h>
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/Box.h>
 
 using namespace x10aux;
 
@@ -13,8 +14,9 @@ namespace x10 {
             const RuntimeType* parents[1] = { Ref::getRTT()};
             const RuntimeType* params[1] = { rtt };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
+            const RuntimeType *canonical = x10aux::getRTT<Box<void> >();
             const char *name = alloc_printf("x10.lang.Box[+%s]",rtt->name());
-            location->init(name, 1, parents, 1, params, variances);
+            location->init(canonical, name, 1, parents, 1, params, variances);
         }
     }
 }

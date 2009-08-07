@@ -23,7 +23,7 @@ namespace x10 {
         */
         class Deque : public x10::lang::Ref {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             static x10aux::ref<Deque> _make();
 

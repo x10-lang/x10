@@ -19,7 +19,7 @@ namespace x10 {
 
         class Throwable : public Value {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             x10aux::ref<Box<x10aux::ref<Throwable> > > FMGL(cause);
             x10aux::ref<String> FMGL(message);

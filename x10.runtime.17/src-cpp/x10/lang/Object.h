@@ -22,7 +22,7 @@ namespace x10 {
             static x10aux::itable_entry _itables[1];
             
             public:
-            RTT_H_DECLS
+            RTT_H_DECLS_CLASS
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             

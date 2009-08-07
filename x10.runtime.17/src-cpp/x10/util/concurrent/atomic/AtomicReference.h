@@ -31,7 +31,7 @@ namespace x10 {
                  */
                 template<class T> class AtomicReference : public x10::lang::Ref {
                 public:
-                    RTT_H_DECLS
+                    RTT_H_DECLS_CLASS;
 
                     static x10aux::ref<AtomicReference<T > > _make();
                     static x10aux::ref<AtomicReference<T > > _make(T val);
@@ -110,11 +110,17 @@ namespace x10 {
                 }
                 
                 template<class T> void AtomicReference<T >::_initRTT() {
-                    rtt.typeName = "CYCLIC RTT INIT\n";
+                    rtt.canonical = &rtt;
                     x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 
                 template<class T> x10aux::RuntimeType AtomicReference<T >::rtt;
+
+                template<> class AtomicReference<void> {
+                public:
+                    static x10aux::RuntimeType rtt;
+                    static const x10aux::RuntimeType* getRTT() { return &rtt; }
+                };
             }
         }
     }

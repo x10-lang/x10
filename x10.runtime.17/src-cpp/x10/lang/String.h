@@ -25,7 +25,7 @@ namespace x10 {
             public:
             const char *c_str() const { return FMGL(content); }
 
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
             
             // Set steal to true if you have just allocated the char * with
             // alloc_printf or it's otherwise OK if the String frees it.  Leave

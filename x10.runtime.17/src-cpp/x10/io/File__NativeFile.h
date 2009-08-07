@@ -17,7 +17,7 @@ namespace x10 {
 
         class File__NativeFile : public x10::lang::Ref {
             public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
         private:
 

@@ -23,7 +23,7 @@ namespace x10 {
         template<class T> class ValRail : public Value {
 
             public:
-            RTT_H_DECLS
+            RTT_H_DECLS_CLASS;
 
             static typename Iterable<T>::template itable<ValRail<T> > _itable_iterable;
             static typename Fun_0_1<x10_int, T>::template itable<ValRail<T> > _itable_fun;
@@ -96,13 +96,19 @@ namespace x10 {
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(),
                                               x10aux::getRTT<Fun_0_1<x10_int,T> >(),
                                               x10aux::getRTT<Iterable<T> >());
         }
 
         template<class T> x10aux::RuntimeType ValRail<T>::rtt;
+
+        template<> class ValRail<void> {
+        public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
 
         template <class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::iterator);
 

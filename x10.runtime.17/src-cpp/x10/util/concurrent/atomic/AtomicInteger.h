@@ -20,7 +20,7 @@ namespace x10 {
                  */
                 class AtomicInteger : public x10::lang::Ref {
                 public:
-                    RTT_H_DECLS;
+                    RTT_H_DECLS_CLASS;
 
                     static x10aux::ref<AtomicInteger> _make();
                     static x10aux::ref<AtomicInteger> _make(x10_int val);

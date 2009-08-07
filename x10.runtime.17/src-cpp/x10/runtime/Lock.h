@@ -26,7 +26,7 @@ namespace x10 {
         */
         class Lock : public x10::lang::Ref {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             static x10aux::ref<Lock> _make();
             ~Lock() { teardown(); }

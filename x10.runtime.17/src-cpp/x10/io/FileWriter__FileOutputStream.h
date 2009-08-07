@@ -13,7 +13,7 @@ namespace x10 {
             x10aux::io::FILEPtrOutputStream _outputStream;
             
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             FileWriter__FileOutputStream(FILE *f) : _outputStream(f) { }
 

@@ -20,7 +20,7 @@ namespace x10 {
                  */
                 class AtomicLong : public x10::lang::Ref {
                 public:
-                    RTT_H_DECLS;
+                    RTT_H_DECLS_CLASS;
 
                     static x10aux::ref<AtomicLong> _make();
                     static x10aux::ref<AtomicLong> _make(x10_long val);

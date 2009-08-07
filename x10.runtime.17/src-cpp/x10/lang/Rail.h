@@ -24,7 +24,7 @@ namespace x10 {
 
         template<class T> class Rail : public Ref {
             public:
-            RTT_H_DECLS
+            RTT_H_DECLS_CLASS;
 
             static typename Iterable<T>::template itable<Rail<T> > _itable_iterable;
             static typename Settable<x10_int, T>::template itable<Rail<T> > _itable_settable;
@@ -81,8 +81,14 @@ namespace x10 {
 
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
 
+        template<> class Rail<void> {
+        public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
+        
         template<class T> void Rail<T>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(),
                                            x10aux::getRTT<Settable<x10_int,T> >(),
                                            x10aux::getRTT<Iterable<T> >());
