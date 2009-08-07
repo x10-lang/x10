@@ -20,7 +20,7 @@ namespace x10 {
                  */
                 class AtomicBoolean : public x10::lang::Ref {
                 public:
-                    RTT_H_DECLS;
+                    RTT_H_DECLS_CLASS;
 
                     static x10aux::ref<AtomicBoolean> _make();
                     static x10aux::ref<AtomicBoolean> _make(x10_boolean val);

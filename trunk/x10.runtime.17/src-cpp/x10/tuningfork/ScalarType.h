@@ -16,7 +16,7 @@ namespace x10 {
         //       around the TuningFork C/C++ trace generation library.
         class ScalarType : public x10::lang::Value {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             static x10aux::ref<ScalarType> FMGL(INT);
             static x10aux::ref<ScalarType> FMGL(LONG);

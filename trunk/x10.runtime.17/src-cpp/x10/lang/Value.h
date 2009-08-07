@@ -15,7 +15,7 @@ namespace x10 {
 
         class Value : public Object {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS
 
             static x10aux::ref<Value> _make();
 

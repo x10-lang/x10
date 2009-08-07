@@ -22,11 +22,17 @@ namespace x10 {
         };
 
         template<class P1> void VoidFun_0_1<P1>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_VoidFun_0_1(&rtt, x10aux::getRTT<P1>());
         }
 
         template<class P1> x10aux::RuntimeType VoidFun_0_1<P1>::rtt;
+
+        template<> class VoidFun_0_1<void> {
+        public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
     }
 }
 #endif

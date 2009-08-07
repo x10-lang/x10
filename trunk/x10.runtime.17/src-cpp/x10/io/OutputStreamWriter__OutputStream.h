@@ -14,7 +14,7 @@ namespace x10 {
 
         class OutputStreamWriter__OutputStream : public x10::lang::Value {
             public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             virtual void write(const char* str) = 0;
 

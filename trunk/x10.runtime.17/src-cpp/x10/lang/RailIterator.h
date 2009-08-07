@@ -23,7 +23,7 @@ namespace x10 {
             T const* data;
 
         public:
-            RTT_H_DECLS
+            RTT_H_DECLS_CLASS;
 
             static typename Iterator<T>::template itable<RailIterator<T> > _itable_iterator;
             static x10aux::itable_entry _railItITables[2];
@@ -63,8 +63,14 @@ namespace x10 {
 
         template<class T> x10aux::RuntimeType RailIterator<T>::rtt;
         
+        template<> class RailIterator<void> {
+        public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
+
         template<class T> void RailIterator<T>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             _initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Iterator<T> >());
         }
 

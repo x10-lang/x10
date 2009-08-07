@@ -4,11 +4,14 @@
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/Value.h>
+#include <x10/lang/ValRail.h>
 
 using namespace x10aux;
 
 namespace x10 {
     namespace lang {
+
+        RuntimeType ValRail<void>::rtt;
 
         void
         _initRTTHelper_ValRail(RuntimeType *location, const RuntimeType *element,
@@ -16,8 +19,9 @@ namespace x10 {
             const RuntimeType *parents[3] = { Value::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
+            const RuntimeType *canonical = x10aux::getRTT<ValRail<void> >();
             const char *name = alloc_printf("x10.lang.ValRail[+%s]", element->name());
-            location->init(name, 3, parents, 1, params, variances);
+            location->init(canonical, name, 3, parents, 1, params, variances);
         }
     }
 }

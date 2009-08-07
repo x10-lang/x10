@@ -332,6 +332,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("{");
 		w.newline(4); w.begin(0);
         w.write("public:"); w.newline();
+        w.write("static x10aux::RuntimeType rtt;"); w.newline();
+        w.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); w.newline();
 		// First process all classes
 		for (ClassMember dec : context.pendingStaticDecls()) {
 			if (dec instanceof ClassDecl_c) {
@@ -393,6 +395,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
 	    String container = translate_mangled_FQN(cd.fullName().toString())+voidTemplateInstantiation(cd.typeParameters().size());
+	    sw.write("x10aux::RuntimeType "+container+"::rtt;");
 	    for (ClassMember dec : context.pendingStaticDecls()) {
 	        if (dec instanceof FieldDecl_c) {
 	            FieldDecl_c fd = (FieldDecl_c) dec;

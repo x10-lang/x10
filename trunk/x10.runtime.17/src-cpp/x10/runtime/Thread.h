@@ -51,7 +51,7 @@ namespace x10 {
         */
         class Thread : public x10::lang::Ref {
         public:
-            RTT_H_DECLS;
+            RTT_H_DECLS_CLASS;
 
             // [constructors] Allocates a new Thread object.
             static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::VoidFun_0_0> task,

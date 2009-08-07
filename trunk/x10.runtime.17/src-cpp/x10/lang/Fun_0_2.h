@@ -24,12 +24,18 @@ namespace x10 {
         };
 
         template<class P1, class P2, class R> void Fun_0_2<P1,P2,R>::_initRTT() {
-            rtt.typeName = "CYCLIC RTT INIT\n";
+            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Fun_0_2(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(),
                                                     x10aux::getRTT<R>());
         }
 
         template<class P1, class P2, class R> x10aux::RuntimeType Fun_0_2<P1,P2,R>::rtt;
+
+        template<> class Fun_0_2<void, void, void> {
+        public:
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { return &rtt; }
+        };
     }
 }
 #endif
