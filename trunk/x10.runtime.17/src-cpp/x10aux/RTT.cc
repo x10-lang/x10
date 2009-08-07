@@ -12,12 +12,36 @@ using namespace x10::lang;
 
 bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     // Checks to try to catch partially initialized RTT objects before we use them.
-    assert(typeName != NULL);
-    assert(other->typeName != NULL);
+    assert(canonical != NULL);
+    assert(other->canonical != NULL);
     assert(parentsc != 0 || this == x10::lang::Object::getRTT());
     assert(other->parentsc != 0 || other == x10::lang::Object::getRTT());
 
     if (equals(other)) return true; // trivial case
+    if (paramsc > 0 && canonical->equals(other->canonical)) {
+        // Different instances of the same generic type (since canonical is equal).
+        // this->subtypeOf(other) will be true exactly when the type parameters
+        // of have the subtyping relationship specified by the variances.
+        assert(other->paramsc == paramsc);
+        for (int i=0; i<paramsc; i++) {
+            assert(other->variances[i] == variances[i]);
+            assert(params[i] != NULL);
+            assert(other->params[i] != NULL);
+            switch(variances[i]) {
+            case covariant:
+                if (!params[i]->subtypeOf(other->params[i])) return false;
+                break;
+            case contravariant:
+                if (!other->params[i]->subtypeOf(params[i])) return false;
+                break;
+            case invariant:
+                if (!params[i]->equals(other->params[i])) return false;
+                break;
+            }
+        }
+        return true;
+    }
+
     for (int i = 0; i < parentsc; ++i) {
         if (parents[i]->subtypeOf(other)) return true;
     }
