@@ -20,9 +20,9 @@ package org.eclipse.imp.x10dt.core.wizards;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.eclipse.imp.wizards.NewProjectWizardFirstPage;
-import org.eclipse.imp.wizards.fields.LayoutUtil;
-import org.eclipse.imp.wizards.fields.SelectionButtonDialogField;
+import org.eclipse.imp.java.hosted.wizards.NewProjectWizardFirstPage;
+import org.eclipse.imp.java.hosted.wizards.fields.SelectionButtonDialogField;
+import org.eclipse.imp.java.hosted.wizards.utils.LayoutUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
