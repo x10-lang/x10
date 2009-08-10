@@ -122,12 +122,14 @@
     protected
     public
     return
+    rooted
     safe
     self
     sequential
     shared
     static
     strictfp
+    struct
     super
     switch
     synchronized
@@ -137,7 +139,7 @@
     transient
     true
     try
-    type
+    type  
     unsafe
     val
     value
@@ -501,6 +503,11 @@
                 $setResult($_return);
           $EndAction
         ./
+              | r o o t e d
+        /.$BeginAction
+                $setResult($_rooted);
+          $EndAction
+        ./
 
               | s t a t i c
         /.$BeginAction
@@ -511,6 +518,12 @@
               | s t r i c t f p
         /.$BeginAction
                 $setResult($_strictfp);
+          $EndAction
+        ./
+
+              | s t r u c t
+        /.$BeginAction
+                $setResult($_struct);
           $EndAction
         ./
 
