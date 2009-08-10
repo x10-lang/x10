@@ -12,6 +12,7 @@ package polyglot.ext.x10.types;
 
 import java.util.List;
 
+import polyglot.types.Flags;
 import polyglot.types.ParsedClassType;
 import polyglot.types.Type;
 
@@ -21,7 +22,5 @@ import polyglot.types.Type;
  *
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType {
-	
-	
 
 }

@@ -24,14 +24,17 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -42,7 +45,7 @@ import polyglot.visit.PrettyPrinter;
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of
  * dot-separated list of identifiers that must resolve to a type.
  */
-public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
+public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, AddFlags {
   public X10AmbTypeNode_c(Position pos, Prefix qual,
                        Id name) {
     super(pos, qual, name);
@@ -118,6 +121,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
           X10ParsedClassType typeDefContainer = null;
     
           if (prefix instanceof PackageNode || prefix == null) {
+        	  // TODO: vj check isf this should be uncommented.
 //              PackageNode pn = (PackageNode) prefix;
 //              String dummyName = DUMMY_PACKAGE_CLASS_NAME;
 //              String fullName = (pn != null ? Types.get(pn.package_()).fullName() + "." : "") + dummyName;
@@ -193,7 +197,15 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
       throw ex;
   }
   
-  static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {
+  static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) 
+  throws SemanticException {
+	  Flags  f = ((X10AmbTypeNode_c) n).flags;
+	  if (f != null) {
+		  LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
+		  X10Type t = (X10Type) Types.get(sym);
+		  t = t.setFlags(f);
+	      sym.update(t);
+	  }
       return AmbDepTypeNode_c.postprocess(result, n, childtc);
   }
 
@@ -212,4 +224,9 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
             ? name.toString()
             : prefix.toString() + "." + name.toString()) + "{amb}";
   }
+  Flags flags;
+  public void addFlags(Flags f) {
+	  this.flags = f;
+  }
+ 
 }

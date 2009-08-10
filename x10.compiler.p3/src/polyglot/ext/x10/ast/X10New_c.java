@@ -29,6 +29,7 @@ import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -456,9 +457,10 @@ public class X10New_c extends New_c implements X10New {
         typeCheckNested(tc);
 
         Type t = tn.type();
+         t = ((X10Type) t).setFlags(X10Flags.ROOTED);
         X10ClassType ct = (X10ClassType) t; //  X10TypeMixin.baseType(t);
 
-        X10ConstructorInstance ci;
+        X10ConstructorInstance ci=null;
         List<Expr> args;
 
         try {
@@ -491,7 +493,10 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        if (!ts.isSubtype(ci.returnType(), t, tc.context())) {
+        Type tp = ci.returnType();
+        tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
+        ci = (X10ConstructorInstance) ci.returnType(tp);
+        if (!ts.isSubtype(tp, t, tc.context())) {
             throw new SemanticException("Constructor return type is not a subtype of " + t + ".", position());
         }
 

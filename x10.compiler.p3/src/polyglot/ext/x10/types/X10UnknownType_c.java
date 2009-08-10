@@ -8,8 +8,10 @@
 
 package polyglot.ext.x10.types;
 
+import polyglot.types.Flags;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType_c;
+import polyglot.util.InternalCompilerError;
 
 public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	protected X10UnknownType_c() {}
@@ -21,9 +23,21 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	public boolean safe() {
 		return false;
 	}
+	
+	  public boolean isRooted() { return false; }
+	    public boolean isX10Struct() { return false; }
 
+	public Flags flags() {
+		return Flags.NONE;
+	}
+	public X10Type setFlags(Flags f) {
+		return this;
+	}
+	public X10Type clearFlags(Flags f) {
+		return this;
+	}
 	public String toString() {
-		return super.toString();
+		return  super.toString();
 	}
 
 }

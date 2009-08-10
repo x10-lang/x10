@@ -29,6 +29,7 @@ import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -401,6 +402,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// End inlined super call.
 		/////////////////////////////////////////////////////////////////////
 
+		if (X10Flags.toX10Flags(mi.flags()).isRooted() 
+				&& ! ((X10Type) target.type()).isRooted())
+			throw new SemanticException(mi 
+					+ " can only be called on a rooted receiver; " + 
+					target + " is not rooted.");
+		
 		// If we found a method, the call must type check, so no need to check
 		// the arguments here.
 		result.checkConsistency(c);
@@ -442,8 +449,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
 		                                        position());
 		        if (c.inLocalCode() 
-		                && ! (mi.isSafe() || flags.isLocal() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only local methods can be called from local code.", 
+		                && ! (mi.isSafe() || flags.isRooted() || flags.isExtern()))
+		            throw new SemanticException(mi + ": Only rooted methods can be called from rooted code.", 
 		                                        position());
 		    }
 		}

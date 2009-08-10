@@ -21,26 +21,33 @@ import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 
-public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode {
+public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode,
+AddFlags {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
@@ -57,6 +64,10 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	return n;
     }
     
+   Flags flags;
+    public void addFlags(Flags f) {
+    	flags = f;
+    }
     /** Visit the children of the expression. Added so as to permit arbitrary visitors
      * to traverse the link from this to the DepExpr child. For instance, the InnerClassRemover 
      * needs to rewrite occurrences of this in DepExpr with  reference to the appropriate field
@@ -77,6 +88,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
     	return constraintExpr(e);
     }
 
+ 
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	X10Context c = (X10Context) tc.context();
@@ -85,7 +97,18 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	Type t = Types.get(type);
 	
 	t = ts.expandMacros(t);
-	((Ref<Type>) type).update(t);
+	X10Type xt = (X10Type) t;
+	if (flags != null) {
+		X10Flags xflags = (X10Flags) flags;
+		X10Flags f = (X10Flags) xt.flags();
+		if (f  == null)
+			f = (X10Flags) X10Flags.toX10Flags(Flags.NONE);
+		xt.setFlags(flags);
+		flags = null;
+	}
+	((Ref<Type>) type).update(xt);
+	
+	
 	
 	if (t instanceof ParameterType) {
 	    ParameterType pt = (ParameterType) t;
@@ -105,7 +128,12 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	        throw new SemanticException("Cannot refer to type parameter " 
 	        		+ pt.fullName() + " of " + def + " from a static context.", position());
 	    }
+	    if (flags != null && ! flags.equals(Flags.NONE)) {
+	    	throw new SemanticException("Cannot qualify type parameter "
+	    			+ pt.fullName() + " of " + def + " with flags " + flags + ".", position());
+	    }
 	}
+	
 	
 	checkType(tc.context(), t);
 	
@@ -226,6 +254,11 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    }
 	}
     }
+    
+    public String toString() {
+    	return (flags == null ? "" : flags.toString()) + " " + super.toString();
+    }
+    
     
 
 }

@@ -21,9 +21,11 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.TypeConstraint;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -41,7 +43,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 
 
-public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
+public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddFlags {
    
     protected TypeNode base;
     protected DepParameterExpr dep;
@@ -127,6 +129,10 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         XConstraint c = Types.get(dep.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
+        if (flags != null) {
+        	((X10Type) t).setFlags(flags);
+        	flags = null;
+        }
 
         sym.update(t);
 
@@ -136,14 +142,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
     
     static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {
         n = (TypeNode) X10Del_c.visitAnnotations(n, childtc);
-        
-        result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
-	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
 
-	LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
-	sym.update(fixInnerParams(sym.get()));
-	      
-	return (TypeNode) result.del().typeCheck(childtc);
+        result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
+        result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
+
+        LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
+        sym.update(fixInnerParams(sym.get()));
+
+        return (TypeNode) result.del().typeCheck(childtc);
     }
     
     // Fix inner classes by adding type arguments from their enclosing classes.
@@ -184,5 +190,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
         tr.print(this, base, w);
         tr.print(this, dep, w);
+    }
+    Flags flags;
+    public void addFlags(Flags f) {
+  	  this.flags = f;
     }
 }

@@ -30,8 +30,10 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
 /**
- * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
- * maintains a returnType. If an explicit returnType is not declared in the constructor
+ * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it
+ * maintains a returnType. Note that in X10 2.0 the returnType is rooted.
+ * 
+ * If an explicit returnType is not declared in the constructor
  * then the returnType is simply a noClause variant of the container.
  * @author vj
  *
@@ -50,14 +52,15 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
             XRoot thisVar, List<LocalDef> formalNames,
-            Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes) {
+            Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, 
+            List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
         this.thisVar = thisVar;
-	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
-	this.guard = guard;
-	this.typeGuard = typeGuard;
+        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+        this.guard = guard;
+        this.typeGuard = typeGuard;
     }
 
     // BEGIN ANNOTATION MIXIN

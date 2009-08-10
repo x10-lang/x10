@@ -14,6 +14,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.types.ClassType;
+import polyglot.types.Flags;
 import polyglot.types.PrimitiveType;
 
 /**
@@ -22,4 +23,5 @@ import polyglot.types.PrimitiveType;
  */
 public interface X10PrimitiveType extends PrimitiveType, /* ClassType,*/ X10NamedType {
    String typeName();
+  
 }

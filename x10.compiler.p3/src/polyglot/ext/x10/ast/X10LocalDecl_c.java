@@ -54,8 +54,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 		if (type instanceof UnknownTypeNode && init == null)
 			throw new SemanticException("Cannot infer variable type; variable has no initializer.", position());
-		// TODO: For now, since there can be more than once assignment to a mutable variable, do not allow mutable variable types to be inferred.
-		// This can be fixed later for local variables by doing better type inference.  This should never be done for fields.
+		// TODO: For now, since there can be more than once assignment to a mutable variable, 
+		// do not allow mutable variable types to be inferred.
+		// This can be fixed later for local variables by doing better 
+		// type inference.  This should never be done for fields.
 		if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
 			throw new SemanticException("Cannot infer type of non-final variable.", position());
 		

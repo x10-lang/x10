@@ -79,6 +79,30 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) super.flags(flags);
 	}
 	
+	public boolean isRooted() {
+		return flags() == null ? false : ((X10Flags) flags()).isRooted();
+	}
+	public boolean isX10Struct() {
+		return flags() == null ? false : ((X10Flags) flags()).isStruct();
+	}
+	
+	public X10Type setFlags(Flags f) {
+		X10Flags xf = (X10Flags) f;
+		MacroType_c c = (MacroType_c) this.copy();
+		if (c.flags == null)
+			c.flags = X10Flags.toX10Flags(Flags.NONE);
+		c.flags = xf.isRooted() 
+				? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() : ((X10Flags) c.flags).Rooted())
+						: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
+		return c;
+	}
+	public X10Type clearFlags(Flags f) {
+		MacroType_c c = (MacroType_c) this.copy();
+		if (c.flags == null)
+			c.flags = X10Flags.toX10Flags(Flags.NONE);
+		c.flags = c.flags.clear(f);
+		return c;
+	}
 	@Override
 	public boolean equalsImpl(TypeObject t) {
 		if (t instanceof MacroType) {

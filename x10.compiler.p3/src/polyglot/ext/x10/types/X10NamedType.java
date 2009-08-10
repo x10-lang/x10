@@ -15,4 +15,5 @@ import polyglot.types.Named;
 
 public interface X10NamedType extends Named, X10Type {
 	
+	
 }

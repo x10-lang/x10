@@ -25,6 +25,7 @@ import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
@@ -347,16 +348,21 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	nn.visitList(nn.formals(),childtc1);
     	(( X10Context ) childtc1.context()).setVarWhoseTypeIsBeingElaborated(null);
     	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
+    	Ref<? extends Type> ref = r.typeRef();
+    	Type t = Types.get(ref);
+    	t = ((X10Type) t).setFlags(X10Flags.ROOTED);
+    	((Ref<Type>) ref).update(t);
     	if (childtc1.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) nn.returnType(r);
         ((Ref<Type>) nnci.returnType()).update(r.type());
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         
-        Type retTypeBase = X10TypeMixin.baseType(r.type());
-        Type clazz = X10TypeMixin.baseType(Types.get(nnci.container()));
+        Type retTypeBase =  X10TypeMixin.baseType(r.type());
+        //Type clazz = ((X10Type) X10TypeMixin.baseType(Types.get(nnci.container()))).addFlags(X10Flags.ROOTED);
+        Type clazz =  X10TypeMixin.baseType(Types.get(nnci.container()));
         if (! xts.typeEquals(retTypeBase, clazz, tc.context())) {
         	throw new SemanticException("The return type of the constructor (" + retTypeBase 
-        			+ " must be derived from"
+        			+ ") must be derived from"
         			+ " the type of the class (" + clazz + ") on which the constructor is defined.",
         			position());
         }
@@ -397,14 +403,15 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
-        Type retTypeBase = X10TypeMixin.baseType(n.returnType().type());
+        Type retTypeBase =  X10TypeMixin.baseType(n.returnType().type());
         XConstraint c =         X10TypeMixin.xclause(n.returnType().type());
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
-        Type clazz = nnci.asInstance().container();
+         Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
+        //Type clazz =  nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             throw new SemanticException("The return type of the constructor (" + retTypeBase 
-                                        + " must be derived from"
+                                        + ") must be derived from"
                                         + " the type of the class (" + clazz + ") on which the constructor is defined.",
                                         n.position());
         }

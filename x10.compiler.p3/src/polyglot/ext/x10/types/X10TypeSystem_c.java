@@ -55,6 +55,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.TopLevelResolver;
@@ -1054,20 +1055,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
-        x = x.Safe().Local().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic().Global();
+        x = x.Safe().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();//.Global();
+        x = x.Rooted();
         return x;
 
     }
 
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
-        x = x.Safe().Local().NonBlocking().Sequential().Property().Pure().Atomic().Global();
+        x = x.Safe().NonBlocking().Sequential().Property().Pure().Atomic(); //.Global();
+        x = x.Rooted();
         return x;
     }
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Value().Struct();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
@@ -1081,28 +1084,28 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     /** All flags allowed for a member class. */
     public Flags legalMemberClassFlags() {
-        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe().Value().Struct();
     }
 
     protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     public Flags legalLocalClassFlags() {
-        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Value().Struct();
     }
 
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
 
     @Override
     public Flags legalLocalFlags() {
-        return X10Flags.toX10Flags(super.legalLocalFlags()).Shared();
+        return X10Flags.toX10Flags(super.legalLocalFlags()).Shared().Rooted();
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
 
     @Override
     public Flags legalFieldFlags() {
-        return X10Flags.toX10Flags(super.legalFieldFlags()).Property();
+        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Rooted();
     }
 
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
@@ -1875,7 +1878,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     @Override
     protected void initFlags() {
         super.initFlags();
-        flagsForName.put("local", X10Flags.LOCAL);
+  //      flagsForName.put("local", X10Flags.LOCAL);
         flagsForName.put("nonblocking", X10Flags.NON_BLOCKING);
         flagsForName.put("safe", X10Flags.SAFE);
         flagsForName.put("sequential", X10Flags.SEQUENTIAL);
@@ -1883,12 +1886,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         flagsForName.put("property", X10Flags.PROPERTY);
         flagsForName.put("pure", X10Flags.PURE);
         flagsForName.put("atomic", X10Flags.ATOMIC);
-        flagsForName.put("global", X10Flags.GLOBAL);
+    //    flagsForName.put("global", X10Flags.GLOBAL);
         flagsForName.put("extern", X10Flags.EXTERN);
         flagsForName.put("value", X10Flags.VALUE);
         flagsForName.put("reference", X10Flags.REFERENCE);
         flagsForName.put("mutable", X10Flags.MUTABLE);
         flagsForName.put("shared", X10Flags.SHARED);
+        flagsForName.put("struct", X10Flags.STRUCT);
+        flagsForName.put("rooted", X10Flags.ROOTED);
     }
 
     /** All flags allowed for a constructor. */
@@ -2077,6 +2082,28 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return result;
     }
 
+    public ConstructorDef defaultConstructor(Position pos,
+    	    Ref<? extends ClassType> container) {
+    	assert_(container);
+
+    	// access for the default constructor is determined by the 
+    	// access of the containing class. See the JLS, 2nd Ed., 8.8.7.
+    	Flags access = Flags.NONE;
+    	Flags flags = container.get().flags();
+    	if (flags.isPrivate()) {
+    	    access = access.Private();
+    	}
+    	if (flags.isProtected()) {
+    	    access = access.Protected();            
+    	}
+    	if (flags.isPublic()) {
+    	    access = access.Public();            
+    	}
+    	return constructorDef(pos, container,
+    	                      access, Collections.<Ref<? extends Type>>emptyList(),
+    	                      Collections.<Ref<? extends Type>>emptyList());
+        }
+
     @Override
     public ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, List<Ref<? extends Type>> argTypes,
             List<Ref<? extends Type>> throwTypes) {
@@ -2087,7 +2114,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         String fullNameWithThis = "this#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
-
+		
         return constructorDef(pos, container, flags, container, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, throwTypes);
     }
 
@@ -2097,6 +2124,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         assert_(container);
         assert_(argTypes);
         assert_(excTypes);
+        
+        X10ClassType t = (X10ClassType) Types.get(returnType);
+		assert t != null : "Cannot set return type of constructor to " + t;
+		if (t==null)
+			throw new InternalCompilerError("Cannot set return type of constructor to " + t);
+		t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
+		((Ref<X10ClassType>)returnType).update(t);
+		//returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes);
     }
 
