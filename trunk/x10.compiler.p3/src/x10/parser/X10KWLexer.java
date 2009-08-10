@@ -12,7 +12,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[76 + 1];
+    private final int keywordKind[] = new int[78 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -527,94 +527,108 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 64:  KeyWord ::= s t a t i c
+        // Rule 64:  KeyWord ::= r o o t e d
         //
         
-            keywordKind[64] = (X10Parsersym.TK_static);
+            keywordKind[64] = (X10Parsersym.TK_rooted);
       
     
         //
-        // Rule 65:  KeyWord ::= s t r i c t f p
+        // Rule 65:  KeyWord ::= s t a t i c
         //
         
-            keywordKind[65] = (X10Parsersym.TK_strictfp);
+            keywordKind[65] = (X10Parsersym.TK_static);
       
     
         //
-        // Rule 66:  KeyWord ::= s u p e r
+        // Rule 66:  KeyWord ::= s t r i c t f p
         //
         
-            keywordKind[66] = (X10Parsersym.TK_super);
+            keywordKind[66] = (X10Parsersym.TK_strictfp);
       
     
         //
-        // Rule 67:  KeyWord ::= s w i t c h
+        // Rule 67:  KeyWord ::= s t r u c t
         //
         
-            keywordKind[67] = (X10Parsersym.TK_switch);
+            keywordKind[67] = (X10Parsersym.TK_struct);
       
     
         //
-        // Rule 68:  KeyWord ::= s y n c h r o n i z e d
+        // Rule 68:  KeyWord ::= s u p e r
         //
         
-            keywordKind[68] = (X10Parsersym.TK_synchronized);
+            keywordKind[68] = (X10Parsersym.TK_super);
       
     
         //
-        // Rule 69:  KeyWord ::= t h i s
+        // Rule 69:  KeyWord ::= s w i t c h
         //
         
-            keywordKind[69] = (X10Parsersym.TK_this);
+            keywordKind[69] = (X10Parsersym.TK_switch);
       
     
         //
-        // Rule 70:  KeyWord ::= t h r o w
+        // Rule 70:  KeyWord ::= s y n c h r o n i z e d
         //
         
-            keywordKind[70] = (X10Parsersym.TK_throw);
+            keywordKind[70] = (X10Parsersym.TK_synchronized);
       
     
         //
-        // Rule 71:  KeyWord ::= t h r o w s
+        // Rule 71:  KeyWord ::= t h i s
         //
         
-            keywordKind[71] = (X10Parsersym.TK_throws);
+            keywordKind[71] = (X10Parsersym.TK_this);
       
     
         //
-        // Rule 72:  KeyWord ::= t r a n s i e n t
+        // Rule 72:  KeyWord ::= t h r o w
         //
         
-            keywordKind[72] = (X10Parsersym.TK_transient);
+            keywordKind[72] = (X10Parsersym.TK_throw);
       
     
         //
-        // Rule 73:  KeyWord ::= t r u e
+        // Rule 73:  KeyWord ::= t h r o w s
         //
         
-            keywordKind[73] = (X10Parsersym.TK_true);
+            keywordKind[73] = (X10Parsersym.TK_throws);
       
     
         //
-        // Rule 74:  KeyWord ::= t r y
+        // Rule 74:  KeyWord ::= t r a n s i e n t
         //
         
-            keywordKind[74] = (X10Parsersym.TK_try);
+            keywordKind[74] = (X10Parsersym.TK_transient);
       
     
         //
-        // Rule 75:  KeyWord ::= v o l a t i l e
+        // Rule 75:  KeyWord ::= t r u e
         //
         
-            keywordKind[75] = (X10Parsersym.TK_volatile);
+            keywordKind[75] = (X10Parsersym.TK_true);
       
     
         //
-        // Rule 76:  KeyWord ::= w h i l e
+        // Rule 76:  KeyWord ::= t r y
         //
         
-            keywordKind[76] = (X10Parsersym.TK_while);
+            keywordKind[76] = (X10Parsersym.TK_try);
+      
+    
+        //
+        // Rule 77:  KeyWord ::= v o l a t i l e
+        //
+        
+            keywordKind[77] = (X10Parsersym.TK_volatile);
+      
+    
+        //
+        // Rule 78:  KeyWord ::= w h i l e
+        //
+        
+            keywordKind[78] = (X10Parsersym.TK_while);
       
     
         for (int i = 0; i < keywordKind.length; i++)
@@ -624,4 +638,5 @@ public class X10KWLexer extends X10KWLexerprs
         }
     }
 }
+
 

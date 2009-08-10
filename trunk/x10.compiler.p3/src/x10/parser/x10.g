@@ -78,6 +78,7 @@
     import polyglot.ast.Unary;
     import polyglot.ast.FlagsNode;
     import polyglot.parse.ParsedName;
+    import polyglot.ext.x10.ast.AddFlags;
     import polyglot.ext.x10.ast.AnnotationNode;
     import polyglot.ext.x10.ast.Closure;
     import polyglot.ext.x10.ast.ClosureCall;
@@ -288,12 +289,14 @@
     property
     public
     return
+    rooted
     safe
     self
     sequential
     shared
     static
     strictfp
+    struct
 --    super
     switch
 --    this
@@ -1244,11 +1247,23 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     -------------------------------------- Section:::Types
-
-        
     Type ::= FunctionType
-           | ConstrainedType
-           
+           |  ConstrainedType
+           |  struct ConstrainedType
+        /.$BeginJava
+            AddFlags tn = (AddFlags) ConstrainedType;
+            tn.addFlags(X10Flags.STRUCT);
+            setResult(tn);
+          $EndJava
+        ./
+           |  rooted ConstrainedType
+        /.$BeginJava
+            AddFlags tn = (AddFlags) ConstrainedType;
+            tn.addFlags(X10Flags.ROOTED);
+            setResult(tn);
+          $EndJava
+        ./
+
     FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
         /.$BeginJava
                     setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
@@ -1437,6 +1452,20 @@ public static class MessageHandler implements IMessageHandler {
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
         extractFlags(ClassModifiersopt, X10Flags.VALUE), Identifier,  TypeParametersopt,
+        props, ci, Superopt, Interfacesopt, ClassBody));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
+        setResult(cd);
+          $EndJava
+        ./
+
+    ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+        /.$BeginJava
+        checkTypeName(Identifier);
+                    List TypeParametersopt = TypeParamsWithVarianceopt;
+        List props = Propertiesopt;
+        DepParameterExpr ci = WhereClauseopt;
+        ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
+        extractFlags(ClassModifiersopt, X10Flags.STRUCT), Identifier,  TypeParametersopt,
         props, ci, Superopt, Interfacesopt, ClassBody));
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
         setResult(cd);
@@ -2747,6 +2776,11 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
           $EndJava
         ./
+                    | rooted
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ROOTED)));
+          $EndJava
+        ./
     
     ResultType ::= : Type
      /.$BeginJava
@@ -2997,11 +3031,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
           $EndJava
         ./
-                     | local
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.LOCAL)));
-          $EndJava
-        ./
                      | nonblocking
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
@@ -3015,6 +3044,11 @@ public static class MessageHandler implements IMessageHandler {
                      | property
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
+          $EndJava
+        ./
+                     | rooted
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ROOTED)));
           $EndJava
         ./
 
@@ -4591,6 +4625,13 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
                          | MethodModifiers
+
+    TypeModifieropt ::= %Empty
+        /.$BeginJava
+                    setResult(Collections.EMPTY_LIST);
+          $EndJava
+        ./
+                         | TypeModifier
 
     FieldModifiersopt ::= %Empty
         /.$BeginJava
