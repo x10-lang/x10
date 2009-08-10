@@ -30,13 +30,15 @@ public class X10Flags extends Flags {
     public static final Flags PURE = createFlag("pure", null);
     public static final Flags MUTABLE = createFlag("mutable", null);
     public static final Flags SAFE = createFlag("safe", null);
-    public static final Flags LOCAL = createFlag("local", null);
+ //   public static final Flags LOCAL = createFlag("local", null);
     public static final Flags NON_BLOCKING = createFlag("nonblocking", null);
     public static final Flags SEQUENTIAL = createFlag("sequential", null);
     public static final Flags INCOMPLETE = createFlag("incomplete", null);
     public static final Flags PROPERTY = createFlag("property", null);
     public static final Flags SHARED = createFlag("shared", null);
-    public static final Flags GLOBAL = createFlag("global", null);
+  //  public static final Flags GLOBAL = createFlag("global", null);
+    public static final Flags ROOTED = createFlag("rooted", null);
+    public static final Flags STRUCT = createFlag("struct", null);
 
     /**
      * Return a new Flags object with a new name. Should be called only once per
@@ -256,9 +258,9 @@ public class X10Flags extends Flags {
      * @param flags
      *            TODO
      */
-    public X10Flags Global() {
-        return setX(GLOBAL);
-    }
+  //  public X10Flags Global() {
+  //      return setX(GLOBAL);
+  //  }
 
     /**
      * Return a copy of this <code>this</code> with the <code>global</code> flag
@@ -267,9 +269,9 @@ public class X10Flags extends Flags {
      * @param flags
      *            TODO
      */
-    public X10Flags clearGlobal() {
-        return clearX(GLOBAL);
-    }
+  //  public X10Flags clearGlobal() {
+  //      return clearX(GLOBAL);
+  //  }
 
     /**
      * Return true if <code>this</code> has the <code>global</code> flag set.
@@ -277,9 +279,9 @@ public class X10Flags extends Flags {
      * @param flags
      *            TODO
      */
-    public boolean isGlobal() {
-        return contains(GLOBAL);
-    }
+  //  public boolean isGlobal() {
+  //      return contains(GLOBAL);
+ //  }
 
     /**
      * Return a copy of this <code>this</code> with the <code>pure</code> flag
@@ -323,18 +325,52 @@ public class X10Flags extends Flags {
     public X10Flags Safe() {
         return setX(SAFE);
     }
-
+    
     /**
-     * Return a copy of this <code>this</code> with the <code>safe</code> flag
-     * clear.
+     * Return a copy of this <code>this</code> with the <code>rooted</code> flag
+     * set.
      * 
      * @param flags
      *            TODO
      */
-    public X10Flags clearSafe() {
-        return clearX(SAFE);
+    public X10Flags clearRooted() {
+        return clearX(ROOTED);
+    }
+    
+    public X10Flags Rooted() {
+        return setX(ROOTED);
+    }
+    
+    /**
+     * Return true if <code>this</code> has the <code>struct</code> flag set.
+     */
+    public boolean isRooted() {
+        return contains(ROOTED);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>struct</code> flag
+     * set.
+     */
+    public X10Flags Struct() {
+        return setX(STRUCT);
     }
 
+    /**
+     * Return a copy of this <code>this</code> with the <code>struct</code> flag
+     * clear.
+     */
+    public X10Flags clearStruct() {
+        return clearX(STRUCT);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>struct</code> flag set.
+     */
+    public boolean isStruct() {
+        return contains(STRUCT);
+    }
+    
     /**
      * Return true if <code>this</code> has the <code>safe</code> flag set.
      * 
@@ -345,38 +381,7 @@ public class X10Flags extends Flags {
         return contains(SAFE);
     }
 
-    /**
-     * Return a copy of this <code>this</code> with the <code>local</code> flag
-     * set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags Local() {
-        return setX(LOCAL);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>local</code> flag
-     * clear.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags clearLocal() {
-        return clearX(LOCAL);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>local</code> flag set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public boolean isLocal() {
-        return contains(LOCAL) || contains(SAFE);
-    }
-
+   
     /**
      * Return a copy of this <code>this</code> with the <code>nonblocking</code>
      * flag set.
@@ -563,8 +568,9 @@ public class X10Flags extends Flags {
     }
 
     public boolean hasAllAnnotationsOf(X10Flags f) {
-        boolean result = ((!f.isSequential()) || isSequential() || isSafe()) && ((!f.isLocal()) || isLocal() || isSafe())
-                && ((!f.isNonBlocking()) || isNonBlocking() || isSafe()) && ((!f.isSafe()) || isSafe());
+        boolean result = ((!f.isSequential()) || isSequential() || isSafe()) 
+        && ((!f.isRooted()) || isRooted() || isSafe())
+        && ((!f.isNonBlocking()) || isNonBlocking() || isSafe()) && ((!f.isSafe()) || isSafe());
         // Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f +
         // ")? " + result);
         return result;

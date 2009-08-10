@@ -14,6 +14,7 @@ import java.util.List;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -27,8 +28,10 @@ import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -59,6 +62,35 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	
 	public Ref<? extends Type> baseType() {
 		return baseType;
+	}
+	
+	public X10Type clearFlags(Flags f) {
+		ConstrainedType_c c = (ConstrainedType_c) this.copy();
+		X10Type t = (X10Type) Types.get(c.baseType);
+		assert t != null : "Cannot remove flags " + f + " from null type.";
+		if (t==null)
+			throw new InternalCompilerError("Cannot remove flags " + f + " from null type.");
+		t = t.clearFlags(f);
+		((Ref<Type>)c.baseType).update(t);
+		return c;
+	}
+	public X10Type setFlags(Flags f) {
+		ConstrainedType_c c = (ConstrainedType_c) this.copy();
+		X10Type t = (X10Type) Types.get(c.baseType);
+		assert t != null : "Cannot set flags " + f + " on null type.";
+		if (t==null)
+			throw new InternalCompilerError("Cannot set flags " + f + " on null type.");
+		t = t.setFlags(f);
+		((Ref<Type>)c.baseType).update(t);
+		return c;
+	}
+	
+	public Flags flags() {
+		X10Type t = (X10Type) Types.get(this.baseType);
+		assert t != null : "Cannot get flags on null type.";
+		if (t==null)
+			throw new InternalCompilerError("Cannot get flags on null type.");
+		return t.flags();
 	}
 	
 	public ConstrainedType baseType(Ref<? extends Type> baseType) {
@@ -97,6 +129,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	public String translate(Resolver c) {
 		return baseType().get().translate(c);
 	}
+	
 
 	public boolean safe() {
 		return ((X10Type) baseType.get()).safe();
@@ -104,7 +137,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 	@Override
 	public String toString() {
-		return "" + baseType.getCached() + constraintString(); // + constraint.getCached();
+		return baseType.getCached() + constraintString(); // + constraint.getCached();
 	}
 	
 	private String constraintString() {
@@ -209,6 +242,18 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		Type base = baseType.get();
 		return base.isPrimitive();
 	}
+	
+	
+	public boolean isX10Struct() {
+		X10Type base = (X10Type) baseType.get();
+		return base.isX10Struct();
+	}
+	
+	public boolean isRooted() {
+		X10Type base = (X10Type) baseType.get();
+		return base.isRooted();
+	}
+	
 	@Override
 	public boolean isClass() {
 		Type base = baseType.get();
@@ -258,5 +303,6 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		Type base = baseType.get();
 		base.print(w);
 	}
+	
 
 }

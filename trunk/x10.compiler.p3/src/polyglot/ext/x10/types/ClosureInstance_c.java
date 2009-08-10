@@ -19,6 +19,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
+import polyglot.types.Flags;
 import polyglot.types.FunctionInstance_c;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -213,5 +214,11 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 	n.formalNames = formalNames;
 	return n;
     }
+    
+    // begin Flagged mixin
+    Flags flags;
+    public Flags flags() { return flags;}
+    public void setFlags(Flags flags) { this.flags = flags;}
+    // end Flagged mixin
 }
 

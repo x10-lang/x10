@@ -19,6 +19,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
@@ -57,6 +58,8 @@ implements X10ParsedClassType
         if (o instanceof X10ParsedClassType_c) {
             X10ParsedClassType_c t = (X10ParsedClassType_c) o;
             
+            if (! flags().equals(t.flags()))
+            	return false;
             if (def != t.def) {
                 if (def == null || t.def == null)
                     return false;
@@ -94,7 +97,27 @@ implements X10ParsedClassType
         super(ts, pos, def);
         subst = null;
     }
-    
+ 
+	public X10Type setFlags(Flags f) {
+		X10Flags xf = (X10Flags) f;
+		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
+		if (c.flags == null)
+			c.flags = X10Flags.toX10Flags(Flags.NONE);
+		c.flags = xf.isRooted() 
+				? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() 
+						: ((X10Flags) c.flags).Rooted())
+			    : ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
+		return c;
+	}
+	
+	public X10Type clearFlags(Flags f) {
+		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
+		if (c.flags == null)
+			c.flags = X10Flags.toX10Flags(Flags.NONE);
+		c.flags = c.flags.clear(f);
+		return c;
+	}
+	
     /** Property initializers, used in annotations. */
     List<Expr> propertyInitializers;
     public List<Expr> propertyInitializers() {
@@ -303,12 +326,32 @@ implements X10ParsedClassType
 	}
 	
 	public String toString() {
-	    if (propertyInitializers != null) {
-		String s = propertyInitializers.toString();
-		return super.toString() + "(" + s.substring(1, s.length()-1) + ")";
-	    }
-	    return super.toString() + (typeArguments == null || typeArguments.isEmpty() ? "" : typeArguments.toString());
+		StringBuffer sb = new StringBuffer();
+		if (flags() != null)
+			sb.append(flags().toString()).append(" ");
+
+		sb.append(super.toString());
+	
+		if (propertyInitializers != null) {
+			String s = propertyInitializers.toString();
+			sb.append("(").append(s.substring(1, s.length()-1)).append(")");
+			return sb.toString();
+		}
+		if (typeArguments != null && ! typeArguments.isEmpty()) {
+			sb.append(typeArguments.toString());
+			
+		}
+		return sb.toString();
 	}
 	    
+	public boolean isRooted() { 
+		return flags == null ? false 
+				: X10Flags.toX10Flags(flags).isRooted(); 
+		}
+	public boolean isX10Struct() { 
+		return flags == null ? false 
+				: X10Flags.toX10Flags(flags).isStruct(); 
+		}
+	
 }
 

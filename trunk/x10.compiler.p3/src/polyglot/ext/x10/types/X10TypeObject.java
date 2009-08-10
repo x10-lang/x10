@@ -14,4 +14,5 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 
 public interface X10TypeObject extends TypeObject {
+	
 }

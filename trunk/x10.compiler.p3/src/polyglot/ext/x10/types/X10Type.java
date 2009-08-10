@@ -13,6 +13,7 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.types.Flags;
 import polyglot.types.Type;
 
 
@@ -33,4 +34,20 @@ public interface X10Type extends Type, X10TypeObject {
      * @return
      */
     boolean safe();
+    
+    X10Type setFlags(Flags f);
+    X10Type clearFlags(Flags f);
+    Flags flags();
+    
+    /**
+     * Is this type rooted?
+     * @return
+     */
+    boolean isRooted();
+    
+    /**
+     * Is this type a struct type?
+     */
+    boolean isX10Struct();
+   
 }

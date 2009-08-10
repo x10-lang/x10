@@ -9,6 +9,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.types.Def;
+import polyglot.types.Flags;
 import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
 import polyglot.types.QName;
@@ -17,6 +18,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Name;
 import polyglot.types.TypeObject;
 import polyglot.types.Type_c;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 public class ParameterType_c extends Type_c implements ParameterType {
@@ -73,4 +75,17 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		n.def = def;
 		return n;
 	}
+	 // begin Flagged mixin
+    public Flags flags() { return Flags.NONE;}
+    public X10Type setFlags(Flags flags) { 
+    	assert false : "Canot set flags on ParameterType_c";
+    	throw new InternalCompilerError("Cannot set flags on " + this);
+    }
+    public X10Type clearFlags(Flags flags) { 
+    	return this;
+    }
+    
+    public boolean isRooted() { return false; }
+    public boolean isX10Struct() { return false; }
+    // end Flagged mixin
 }

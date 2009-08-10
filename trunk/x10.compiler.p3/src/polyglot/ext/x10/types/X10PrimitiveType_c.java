@@ -13,11 +13,14 @@
  */
 package polyglot.ext.x10.types;
 
+import polyglot.types.Flags;
 import polyglot.types.PrimitiveType;
 import polyglot.types.PrimitiveType_c;
 import polyglot.types.Name;
+import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 
 /** X10 has no primitive types. Types such as int etc are all value class types. 
  * However, this particular X10 implementation uses Java primitive types to implement some of
@@ -49,6 +52,9 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 
 	public String toString() {
 	    StringBuffer sb = new StringBuffer();
+	    if (flags != null && ! flags.equals(X10Flags.NONE)) {
+	    	sb.append(flags.toString()).append(" ");
+	    }
 	    sb.append(super.toString());
 	    return sb.toString();
 	}
@@ -64,4 +70,21 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 
 	/** All primitive types are safe. */
 	public boolean safe() { return true; }
+	public boolean isRooted() { return false; }
+	public boolean isX10Struct() { return true; }
+	/* All primitive types are structs. */
+
+	Flags flags = X10Flags.NONE;
+	public Flags flags() {
+		return flags;
+	}
+	// No flags can be added to primitives. They are struct and not rooted.
+	public X10Type setFlags(Flags flags) {
+		return this;
+	}
+	public X10Type clearFlags(Flags flags) {
+		X10PrimitiveType_c c = (X10PrimitiveType_c) copy();
+		c.flags = c.flags.clear(flags);
+		return c;
+	}
 }

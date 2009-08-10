@@ -652,11 +652,22 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	t2 = ts.expandMacros(t2);
     	X10Context xcontext = (X10Context) context;
 
+    	X10Type xt1 = (X10Type) t1;
+    	X10Type xt2 = (X10Type) t2;
 
+    	if (xt2.isRooted() && ! xt1.isRooted())
+    		return false;
+    	
+    	t1 = xt1.clearFlags(X10Flags.ROOTED);
+    	t2 = xt2.clearFlags(X10Flags.ROOTED);
+    
+    	
     	if (t1 == t2)
     		return true;
-
-    	if (t1.isVoid() || t2.isVoid())
+   
+    	if (t1.isVoid()) 
+    		return t2.isVoid();
+    	if (t2.isVoid())
     		return false;
 
     	if (t1.isNull() && (t2.isNull() 
@@ -910,6 +921,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t1.isVoid() || t2.isVoid())
             return false;
         
+        if (! ((X10Type) t1).flags().equals(((X10Type) t2).flags()))
+        	return false;
         X10Context xc = (X10Context) context;
         List<SubtypeConstraint> env = xc.currentTypeConstraint().terms();
 
@@ -1030,6 +1043,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t2 = X10TypeMixin.baseType(toType);
         XConstraint c1 = X10TypeMixin.realX(fromType);
         XConstraint c2 = X10TypeMixin.realX(toType);
+        
+        // Handle the rooted flag.
+        if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
+        	return false;
 
         Type baseType1 = t1;
         Type baseType2 = t2;
