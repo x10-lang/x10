@@ -27,6 +27,7 @@ String::_make(const char *content, bool steal) {
 x10aux::ref<String>
 String::_make(x10aux::ref<String> s) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    nullCheck(s);
     this_->_constructor(s->FMGL(content), s->FMGL(content_length));
     return this_;
 }
@@ -36,6 +37,7 @@ x10_int String::hashCode() {
 }
 
 x10_int String::indexOf(ref<String> str, x10_int i) {
+    nullCheck(str);
     const char *needle = str->FMGL(content);
     // TODO: bounds check
     const char *haystack = &FMGL(content)[i];
@@ -69,6 +71,7 @@ static const char *my_strrstr(const char *haystack, const char *needle, int give
 }
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
+    nullCheck(str);
     const char *needle = str->FMGL(content);
     const char *haystack = FMGL(content);
     // TODO: bounds check
@@ -132,6 +135,7 @@ ref<ValRail<x10_byte> > String::bytes() {
 // TODO: DG: itables: refactor to share the code.
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
     std::ostringstream ss;
+    nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
@@ -145,6 +149,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
             i--;
             continue;
         }
+        nullCheck(parms);
         const ref<Object> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull())
@@ -179,6 +184,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
 
 ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
     std::ostringstream ss;
+    nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
@@ -192,6 +198,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
             i--;
             continue;
         }
+        placeCheck(nullCheck(parms));
         const ref<Object> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull())
@@ -229,6 +236,7 @@ x10_boolean String::_struct_equals(ref<Object> p0) {
     if (!this->Value::_struct_equals(p0))
         return false;
     ref<String> that = (ref<String>) p0;
+    nullCheck(that);
     if (strcmp(this->FMGL(content), that->FMGL(content)))
         return false;
     return true;

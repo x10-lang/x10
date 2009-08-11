@@ -9,6 +9,7 @@
 namespace x10aux {
 
     template<class T> inline ref<x10::lang::String> class_name(ref<T> x) {
+        x10aux::nullCheck(x);
         return x10::lang::String::Lit(((const T*)x.get())->_type()->name());
     }
 
@@ -51,12 +52,12 @@ namespace x10aux {
 
     template<class T, class U>
     class Equals {
-        public: static inline x10_boolean _(ref<T> x, ref<U> y) { return x->equals(y); }
+      public: static inline x10_boolean _(ref<T> x, ref<U> y) { return nullCheck(x)->equals(y); }
     };
 
     template<class T>
     class Equals<T, x10::lang::Object> {
-        public: static inline x10_boolean _(ref<T> x, ref<x10::lang::Object> y) { return x->x10::lang::Object::equals(y); }
+      public: static inline x10_boolean _(ref<T> x, ref<x10::lang::Object> y) { return nullCheck(x)->x10::lang::Object::equals(y); }
     };
 
     template<class T, class U>
@@ -207,7 +208,7 @@ namespace x10aux {
     inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T> inline x10_int hash_code(ref<T> x) {
-        return x->hashCode();
+        return nullCheck(x)->hashCode();
     }
 
     inline x10_int hash_code(const x10_double x) {
@@ -235,7 +236,7 @@ namespace x10aux {
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         ref<x10::lang::Object> asObj = x;
-        return asObj->toString();
+        return nullCheck(asObj)->toString();
     }
 
     template<class T> ref<x10::lang::String> to_string(T x) {
