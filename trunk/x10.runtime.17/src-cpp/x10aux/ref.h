@@ -180,6 +180,20 @@ namespace x10aux {
     }
 #endif
 
+    template <class T> inline ref<T> nullCheck(ref<T> obj) {
+        #if !defined(NO_NULL_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (obj.isNull()) throwNPE();
+        #endif
+        return obj;
+    }
+
+    template <class T> inline ref<T> placeCheck(ref<T> obj) {
+        #if !defined(NO_PLACE_CHECKS) && !defined(NO_EXCEPTIONS)
+        if (remote_ref::is_remote(obj.get())) throwBPE();
+        #endif
+        return obj;
+    }
+    
     // will be initialised to null
     typedef ref<x10::lang::Object> NullType;
     static NullType null;

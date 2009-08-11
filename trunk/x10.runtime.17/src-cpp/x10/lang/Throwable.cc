@@ -416,7 +416,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 
 void Throwable::printStackTrace() {
     fprintf(stderr, "%s\n", this->toString()->c_str());
-    x10aux::ref<ValRail<x10aux::ref<String> > > trace = this->getStackTrace();
+    x10aux::ref<ValRail<x10aux::ref<String> > > trace = nullCheck(this->getStackTrace());
     for (int i = 0; i < trace->FMGL(length); ++i)
         fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
 }

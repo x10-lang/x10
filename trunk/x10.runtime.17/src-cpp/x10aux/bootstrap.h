@@ -116,7 +116,7 @@ namespace x10aux {
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
             fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
-                                                                    e_->toString()->c_str());
+                    nullCheck(nullCheck(e_)->toString())->c_str());
 
             e_->printStackTrace();
 

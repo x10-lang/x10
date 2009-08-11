@@ -125,6 +125,7 @@ namespace x10 {
             if (!this->Value::_struct_equals(other)) return false;
             x10aux::ref<ValRail> other_rail = other;
             // different sizes so false
+            x10aux::nullCheck(other);
             if (other_rail->FMGL(length) != this->FMGL(length)) return false;
             if (x10aux::getRTT<T>()->subtypeOf(x10aux::getRTT<Value>())) {
                 // Value type; structurally compare elements
@@ -163,6 +164,7 @@ namespace x10 {
         }
 
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10aux::ref<Rail<T> > other) {
+            x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
             for (x10_int i=0 ; i<length ; ++i) {
