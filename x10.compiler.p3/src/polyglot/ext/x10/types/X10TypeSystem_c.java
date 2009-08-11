@@ -441,6 +441,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         xts.systemResolver().install(fullName, ct);
 
         String fullNameWithThis = fullName + "#this";
+        //String fullNameWithThis = "this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 
@@ -2115,7 +2116,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 		
-        return constructorDef(pos, container, flags, container, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, throwTypes);
+        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, throwTypes);
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,

@@ -350,8 +350,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     	final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
     	Ref<? extends Type> ref = r.typeRef();
     	Type t = Types.get(ref);
-    	t = ((X10Type) t).setFlags(X10Flags.ROOTED);
-    	((Ref<Type>) ref).update(t);
+    	//t = ((X10Type) t).setFlags(X10Flags.ROOTED);
+    	//((Ref<Type>) ref).update(t);
     	if (childtc1.hasErrors()) throw new SemanticException();
         nn = (X10ConstructorDecl) nn.returnType(r);
         ((Ref<Type>) nnci.returnType()).update(r.type());
@@ -407,8 +407,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         XConstraint c =         X10TypeMixin.xclause(n.returnType().type());
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
-         Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
-        //Type clazz =  nnci.asInstance().container();
+        // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
+        Type clazz =  nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             throw new SemanticException("The return type of the constructor (" + retTypeBase 
                                         + ") must be derived from"

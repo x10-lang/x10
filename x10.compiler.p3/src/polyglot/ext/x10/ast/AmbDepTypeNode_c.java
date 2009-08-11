@@ -130,7 +130,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         XConstraint c = Types.get(dep.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
         if (flags != null) {
-        	((X10Type) t).setFlags(flags);
+        	t = ((X10Type) t).setFlags(flags);
         	flags = null;
         }
 

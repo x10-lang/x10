@@ -71,9 +71,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		if (t==null)
 			throw new InternalCompilerError("Cannot remove flags " + f + " from null type.");
 		t = t.clearFlags(f);
-		((Ref<Type>)c.baseType).update(t);
+		c.baseType = Types.ref(t);
+	//	((Ref<Type>)c.baseType).update(t);
 		return c;
 	}
+	
 	public X10Type setFlags(Flags f) {
 		ConstrainedType_c c = (ConstrainedType_c) this.copy();
 		X10Type t = (X10Type) Types.get(c.baseType);
@@ -303,6 +305,8 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		Type base = baseType.get();
 		base.print(w);
 	}
-	
+	public boolean equalsNoFlag(X10Type t2) {
+		return false;
+	}
 
 }

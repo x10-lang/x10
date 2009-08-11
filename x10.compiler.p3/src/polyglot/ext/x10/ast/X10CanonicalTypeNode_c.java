@@ -103,7 +103,7 @@ AddFlags {
 		X10Flags f = (X10Flags) xt.flags();
 		if (f  == null)
 			f = (X10Flags) X10Flags.toX10Flags(Flags.NONE);
-		xt.setFlags(flags);
+		xt = xt.setFlags(flags);
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);

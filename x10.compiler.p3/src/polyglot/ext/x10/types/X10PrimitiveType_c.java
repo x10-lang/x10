@@ -84,7 +84,12 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	}
 	public X10Type clearFlags(Flags flags) {
 		X10PrimitiveType_c c = (X10PrimitiveType_c) copy();
-		c.flags = c.flags.clear(flags);
+		if (c.flags != null) {
+			c.flags = c.flags.clear(flags);
+		}
 		return c;
 	}
+	 public boolean equalsNoFlag(X10Type t2) {
+			return this == t2;
+		}
 }

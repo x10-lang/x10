@@ -39,5 +39,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	public String toString() {
 		return  super.toString();
 	}
-
+	 public boolean equalsNoFlag(X10Type t2) {
+			return this == t2;
+		}
 }
