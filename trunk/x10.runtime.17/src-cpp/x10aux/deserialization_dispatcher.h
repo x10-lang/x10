@@ -41,6 +41,9 @@ namespace x10aux {
 
         static serialization_id_t addDeserializer(Deserializer init, bool is_async=false);
         serialization_id_t addDeserializer_(Deserializer init, bool is_async);
+
+        static void registerAsyncHandlers();
+        void registerAsyncHandlers_();
     };
 
     template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf,
