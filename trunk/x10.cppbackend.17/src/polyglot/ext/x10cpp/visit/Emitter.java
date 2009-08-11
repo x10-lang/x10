@@ -46,7 +46,6 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -268,7 +267,12 @@ public class Emitter {
 				}
 				else {
 					if (ct.def().isNested()) {
-						assert false : "Nested class: "+ct;
+						// This is a legitimate case.  We do not invoke StaticNestedClassRemover on
+						// classes for which we don't generate code.  Thus, while we cannot see a
+						// definition of a nested class, we may well see references to such classes.
+						// At the moment, we cannot make sure that StaticNestedClassRemover runs on
+						// all classes - when we can, we should re-enable this assert.
+						//assert false : "Nested class: "+ct;
 						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
 						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
 						QName full = QName.make(pkg, mangled);
