@@ -9,11 +9,11 @@
 #endif
 
 #include <x10aux/config.h>
-#include <x10aux/network.h>
 #include <x10aux/alloc.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/system_utils.h>
 #include <x10aux/init_dispatcher.h>
+#include <x10aux/deserialization_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h>
@@ -86,7 +86,7 @@ namespace x10aux {
 #endif
             setlinebuf(stdout);
 
-            x10aux::registration_complete();
+            x10aux::DeserializationDispatcher::registerAsyncHandlers();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).

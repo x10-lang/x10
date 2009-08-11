@@ -30,12 +30,21 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer ini
     serialization_id_t r = initc++;
     _S_("DeserializationDispatcher registered the following handler for id: "
         <<r<<": "<<std::hex<<(size_t)init<<std::dec);
-    if (true || is_async) {
-        // TODO: use a different numbering scheme for the asyncs since there are fewer of them
-        _S_("(DeserializationDispatcher also registered the above id as an async)");
-        x10aux::register_async_handler(r);
-    }
+    (void) is_async; // TODO: use two numbering schemes
     return r;
+}
+
+void DeserializationDispatcher::registerAsyncHandlers () {
+    if (NULL == it) return; // nothing registered
+    it->registerAsyncHandlers_();
+}
+
+void DeserializationDispatcher::registerAsyncHandlers_ () {
+    for (size_t i=0 ; i<initc ; ++i) {
+        x10aux::register_async_handler(i);
+        _S_("(DeserializationDispatcher registered id "<<i<<" as an async)");
+    }
+    x10aux::registration_complete();
 }
 
 
