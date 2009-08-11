@@ -63,4 +63,8 @@ public class X10ArrayType_c extends ArrayType_c implements X10ArrayType {
 	}
 	  public boolean isRooted() { return flags == null ? false : ((X10Flags) flags).isRooted(); }
 	    public boolean isX10Struct() { return flags == null ? false : ((X10Flags) flags).isStruct(); }
+
+	    public boolean equalsNoFlag(X10Type t2) {
+			return this == t2;
+		}
 }

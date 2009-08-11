@@ -357,7 +357,7 @@ public class XTypeTranslator {
 	private XTerm trans(XConstraint c, Binary t, X10Context xc) throws SemanticException {
 	    Expr left = t.left();
 	    Expr right = t.right();
-	    XTerm v;
+	    XTerm v = null;
 	    XTerm lt = trans(c, left, xc);
 	    XTerm rt = trans(c, right, xc);
 	    if (lt == null || rt == null)

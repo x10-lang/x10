@@ -30,6 +30,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -100,21 +101,25 @@ implements X10ParsedClassType
  
 	public X10Type setFlags(Flags f) {
 		X10Flags xf = (X10Flags) f;
-		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
-		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = xf.isRooted() 
-				? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() 
-						: ((X10Flags) c.flags).Rooted())
-			    : ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
-		return c;
+		if  (xf.isRooted() || xf.isStruct()) {
+			X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
+			if (c.flags == null)
+				c.flags = X10Flags.toX10Flags(c.def().flags());
+			if (c.flags == null)
+				c.flags = X10Flags.toX10Flags(Flags.NONE);
+			c.flags = xf.isRooted() 
+			? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() 
+					: ((X10Flags) c.flags).Rooted())
+					: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
+			return c;
+		}
+		return this;
 	}
 	
 	public X10Type clearFlags(Flags f) {
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
-		if (c.flags == null)
-			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = c.flags.clear(f);
+		if (c.flags != null)
+			c.flags = c.flags.clear(f);
 		return c;
 	}
 	
@@ -327,10 +332,19 @@ implements X10ParsedClassType
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		if (flags() != null)
-			sb.append(flags().toString()).append(" ");
+		if (flags() != null) {
+			X10Flags f = X10Flags.toX10Flags(flags());
+			if (f.isStruct()) {
+				sb.append("struct ");
+			}
+			if (f.isRooted()) {
+				sb.append("rooted ");
+			}
+		}
+		//	sb.append(flags().toString()).append(" ");
 
-		sb.append(super.toString());
+			String sup = super.toString();
+		sb.append(sup);
 	
 		if (propertyInitializers != null) {
 			String s = propertyInitializers.toString();
@@ -353,5 +367,12 @@ implements X10ParsedClassType
 				: X10Flags.toX10Flags(flags).isStruct(); 
 		}
 	
+	public boolean equalsNoFlag(X10Type o) {
+		if (! (o instanceof X10ParsedClassType_c))
+			return false;
+		X10ParsedClassType_c  other = (X10ParsedClassType_c) o;
+		return this == o;
+		
+	}
 }
 

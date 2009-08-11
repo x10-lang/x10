@@ -50,4 +50,5 @@ public interface X10Type extends Type, X10TypeObject {
      */
     boolean isX10Struct();
    
+    boolean equalsNoFlag(X10Type other);
 }

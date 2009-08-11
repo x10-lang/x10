@@ -267,7 +267,7 @@ public class X10New_c extends New_c implements X10New {
             return e;
         }
 
-        Expr e2;
+        Expr e2 = null;
         if (ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context())) {
             e2 = nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, X10Cast.ConversionType.UNKNOWN_CONVERSION);
         }
@@ -457,7 +457,7 @@ public class X10New_c extends New_c implements X10New {
         typeCheckNested(tc);
 
         Type t = tn.type();
-         t = ((X10Type) t).setFlags(X10Flags.ROOTED);
+        // t = ((X10Type) t).setFlags(X10Flags.ROOTED);
         X10ClassType ct = (X10ClassType) t; //  X10TypeMixin.baseType(t);
 
         X10ConstructorInstance ci=null;
@@ -494,10 +494,9 @@ public class X10New_c extends New_c implements X10New {
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
-        tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
-        ci = (X10ConstructorInstance) ci.returnType(tp);
+      
         if (!ts.isSubtype(tp, t, tc.context())) {
-            throw new SemanticException("Constructor return type is not a subtype of " + t + ".", position());
+            throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
         }
 
         if (anonType != null) {
@@ -507,9 +506,11 @@ public class X10New_c extends New_c implements X10New {
         }
 
         // Copy the method instance so we can modify it.
+        tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
+        ci = (X10ConstructorInstance) ci.returnType(tp);
         X10New_c result = (X10New_c) this.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
-
+      
         // ///////////////////////////////////////////////////////////////////
         // End inlined super call.
         // ///////////////////////////////////////////////////////////////////

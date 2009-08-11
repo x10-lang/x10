@@ -1027,9 +1027,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         fromType = ts.expandMacros(fromType);
         toType =ts. expandMacros(toType);
 
+        // Handle the rooted flag.
+        if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
+        	return false;
+        
+        
         if (fromType == toType)
             return true;
 
+       // if (((X10Type) fromType).equalsNoFlag((X10Type) toType))
+        //	return true;
+        
         if (fromType instanceof NullType) {
             return toType.isNull() || ! ts.isValueType(toType, (X10Context) context);
         }
@@ -1044,9 +1052,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         XConstraint c1 = X10TypeMixin.realX(fromType);
         XConstraint c2 = X10TypeMixin.realX(toType);
         
-        // Handle the rooted flag.
-        if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
-        	return false;
+       
 
         Type baseType1 = t1;
         Type baseType2 = t2;

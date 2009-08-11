@@ -230,7 +230,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public Type definedType() {
 		if (definedType == null)
 			return Types.get(def().definedType());
-		return Types.get(definedType);
+		return ((X10Type) Types.get(definedType)).setFlags(flags());
 	}
 	public Ref<? extends Type> definedTypeRef() {
 	    if (definedType == null)
@@ -407,5 +407,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public boolean throwsSubset(ProcedureInstance<TypeDef> pi) {
 	    return true;
+	}
+	public boolean equalsNoFlag(X10Type t2) {
+		return false;
 	}
 }
