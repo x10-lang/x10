@@ -1947,13 +1947,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.end();
 		sw.write(")");
 		sw.write("{");
-		sw.newline(0);
-
+    	sw.newline(4);
+        sw.begin(0);
+        
 		handleLabeledLoop(n);
 
 		sw.end(); sw.newline(0);
 		sw.write("}");
-		sw.newline(0);
+		sw.end(); sw.newline(0);
 
 		sw.write("}");
 		sw.newline(0);
