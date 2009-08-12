@@ -37,9 +37,6 @@ namespace x10aux {
 
         // closure body
         void apply () {
-            // Initialise the static fields of x10 classes.
-            x10aux::InitDispatcher::runInitializers();
-
             // Invoke the application main().
             main(args);
         }
@@ -79,6 +76,8 @@ namespace x10aux {
             // (e.g. make Thread::CurrentThread work properly).
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
             x10aux::initialize_xrx();
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
 
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
