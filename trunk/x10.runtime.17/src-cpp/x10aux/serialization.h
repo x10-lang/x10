@@ -262,7 +262,7 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         T val;
         memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
-        _S_("Deserializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
+        _S_("Deserializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" from buf: "<<&buf);
         code_bytes(&val);
         return val;
     }
