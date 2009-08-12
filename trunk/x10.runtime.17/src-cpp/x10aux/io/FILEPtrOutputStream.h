@@ -21,6 +21,7 @@ namespace x10aux {
             void _vprintf(const char* format, va_list parms);
             void write(const char* s);
             void flush();
+            void close();
             void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
             void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
             void write(x10_int b);

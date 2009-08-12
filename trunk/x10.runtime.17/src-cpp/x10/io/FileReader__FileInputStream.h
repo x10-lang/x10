@@ -23,6 +23,10 @@ namespace x10 {
                 return _inputStream.gets(buf,sz);
             }
 
+            virtual void close() {
+                _inputStream.close();
+            }
+
             virtual x10_int read() {
                 return _inputStream.read();
             }
