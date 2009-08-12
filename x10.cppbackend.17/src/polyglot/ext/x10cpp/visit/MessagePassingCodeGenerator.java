@@ -2130,22 +2130,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		targetMethodName = itable.mangledName(mi);
                     		isInterfaceInvoke = true;
                     		if (ret_type.isVoid()) {
-                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
+                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
                         		n.printSubExpr((Expr) target, assoc, sw, tr);
-                        		sw.write("; (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                        		sw.write(")); (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                         		dangling = "; }))";
                     		} else {
-                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
+                    			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
                     			n.printSubExpr((Expr) target, assoc, sw, tr);
-                    			sw.write("; x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(ret_type, true))+"::_((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                    			sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(ret_type, true))+"::_((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                     			dangling = "); }))";
                     		}
                     	}
                    }
 
                     if (!isInterfaceInvoke) {
+                    	sw.write("x10aux::placeCheck(x10aux::nullCheck(");
                     	n.printSubExpr((Expr) target, assoc, sw, tr);
-                        sw.write("->");
+                        sw.write("))->");
                     }
                 }
             } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -2272,7 +2273,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				boolean assoc =
 					!(target instanceof New_c ||
 							target instanceof Binary_c);
+				sw.write("x10aux::placeCheck(x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
+				sw.write("))");
 			}
 		}
 		else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -2481,9 +2484,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Throw_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		sw.write("x10aux::throwException(");
+		sw.write("x10aux::throwException(x10aux::nullCheck(");
 		n.print(n.expr(), sw, tr);
-		sw.write(");");
+		sw.write("));");
 	}
 
 	public void visit(Try_c n) {
@@ -2687,9 +2690,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean doubleTemplate = ((X10ClassType)context.currentClass()).typeArguments().size() > 0;
 
 		sw.write("x10aux::ref<x10::lang::Object> " + name + " = "+iteratorTypeRef);
-		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = ");
+		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = x10aux::placeCheck(x10aux::nullCheck(");
 		n.print(domain, sw, tr);
-		sw.write("; x10aux::GXX_ICE_Workaround"+chevrons(iteratorTypeRef)+"::_((_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))()); }));"); sw.newline();
+		sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(iteratorTypeRef)+"::_((_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))()); }));"); sw.newline();
 		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 
 		sw.write("for (");
@@ -2816,7 +2819,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     public void visit(Closure_c n) {
-
         X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
         emitter.enterClosure(c);
@@ -3257,13 +3259,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type t = target.type();
 		String terminate = "";
 		if (lit != null || (t.isClass() && t.toClass().flags().isInterface())) {
-			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
+			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
 			c.printSubExpr(target, sw, tr);
-			sw.write("; "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");;
+			sw.write(")); "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");;
 			terminate = ");}))";
 		} else {
+			sw.write("x10aux::placeCheck(x10aux::nullCheck(");
 			c.printSubExpr(target, sw, tr);
-			sw.write("->apply(");
+			sw.write("))->apply(");
 		}
 		
 		sw.begin(0);

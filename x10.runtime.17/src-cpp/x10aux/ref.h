@@ -33,10 +33,6 @@ namespace x10aux {
     }
     #endif
 
-    void throwNPE() X10_PRAGMA_NORETURN;
-
-    void throwBPE() X10_PRAGMA_NORETURN;
-
     class __ref {
         protected:
         #ifndef REF_STRIP_TYPE
@@ -112,27 +108,9 @@ namespace x10aux {
             return *this;
         }
 
-        inline void assertNonNull() const {
-            #ifndef NO_EXCEPTIONS
-            if (isNull()) throwNPE();
-            #endif
-        }
-
-        inline void assertLocal() const {
-            #ifndef NO_EXCEPTIONS
-            if (remote_ref::is_remote(_val)) throwBPE();
-            #endif
-        }
-
         T& GPUSAFE operator*() const {
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
-            #ifndef NO_NULL_CHECKS
-            assertNonNull();
-            #endif
-            #ifndef NO_PLACE_CHECKS
-            assertLocal();
-            #endif
             return *(T*)_val;
         }
 
@@ -143,12 +121,6 @@ namespace x10aux {
         T* GPUSAFE operator->() const { 
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
-            #ifndef NO_NULL_CHECKS
-            assertNonNull();
-            #endif
-            #ifndef NO_PLACE_CHECKS
-            assertLocal();
-            #endif
             return (T*)_val;
         }
 
@@ -180,6 +152,10 @@ namespace x10aux {
     }
 #endif
 
+    void throwNPE() X10_PRAGMA_NORETURN;
+
+    void throwBPE() X10_PRAGMA_NORETURN;
+
     template <class T> inline ref<T> nullCheck(ref<T> obj) {
         #if !defined(NO_NULL_CHECKS) && !defined(NO_EXCEPTIONS)
         if (obj.isNull()) throwNPE();
@@ -193,6 +169,18 @@ namespace x10aux {
         #endif
         return obj;
     }
+
+    // Hack around g++ 4.1 bugs with statement expression.
+    // See XTENLANG-461.
+#if defined(__GNUC__)
+    template <class T> inline ref<T> nullCheck(T* obj) {
+        return nullCheck(x10aux::ref<T>(obj));
+    }
+
+    template <class T> inline ref<T> placeCheck(T* obj) {
+        return placeCheck(x10aux::ref<T>(obj));
+    }
+#endif
     
     // will be initialised to null
     typedef ref<x10::lang::Object> NullType;
