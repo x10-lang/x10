@@ -18,6 +18,10 @@ void FILEPtrOutputStream::_vprintf(const char* format, va_list parms) {
     ::vfprintf(_stream, format, parms);
 }
 
+void FILEPtrOutputStream::close() {
+    ::fclose(_stream);
+}
+
 void FILEPtrOutputStream::flush() {
     ::fflush(_stream);
 }
