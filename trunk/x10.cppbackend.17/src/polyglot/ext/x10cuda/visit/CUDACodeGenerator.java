@@ -15,6 +15,7 @@ package polyglot.ext.x10cuda.visit;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import polyglot.ast.ArrayInit_c;
@@ -100,13 +101,18 @@ import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10cpp.debug.LineNumberMap;
 import polyglot.ext.x10cpp.visit.MessagePassingCodeGenerator;
+import polyglot.ext.x10cpp.visit.X10CPPTranslator;
+import polyglot.ext.x10cuda.types.SharedMem;
 import polyglot.ext.x10cuda.types.X10CUDAContext_c;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.visit.Translator;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
@@ -130,6 +136,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return (X10CUDAContext_c) tr.context();
     }
     
+    private void context(Context v) {
+        ((X10CPPTranslator)tr).setContext(v);
+    }
+    
     // defer to CUDAContext.cudaStream()
     private ClassifiedStream cudaStream() {
         return context().cudaStream(sw);
@@ -137,7 +147,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     
     private boolean generatingCuda() { return context().generatingCuda(); }
 
-    private void generatingCuda(boolean v) { context().generatingCuda(v); }
+    private void generatingKernel(boolean v) { context().generatingCuda(v); }
 
     private Type getType(String name) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
@@ -156,7 +166,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         }
     }
     
-    void handleCuda(Block_c b) {
+    void handleKernel(Block_c b) {
         X10ClassType hostClassType = (X10ClassType) context().wrappingClosure().closureDef().typeContainer().get();
         String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
         String kernel_name = getClosureName(hostClassName,context().closureId());
@@ -173,10 +183,17 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         //out.write("    var = *(*T)buf; buf += sizeof(T);")
         
         // body
+        //X10CUDAContext_c save_ctxt = context();
+
+        //TypeSystem ts = tr.typeSystem();        
+        //context(ts.emptyContext());
+        //context((Context)save_ctxt.copy());
         sw.pushCurrentStream(out);
         super.visit(b);
         sw.popCurrentStream();
         out.write(" // "+kernel_name);
+        //context(save_ctxt);
+        
         
         // end
         out.end(); out.newline();
@@ -220,24 +237,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return r;
     }
 
-    private class SHMDecl {
-        LocalDecl ast;
-        public SHMDecl (LocalDecl ast) { this.ast = ast; }
-    }
-    private class RailSHMDecl extends SHMDecl {
-        Expr numElements;
-        Expr init;
-        public RailSHMDecl (LocalDecl ast, Expr numElements, Expr init) {
-            super(ast);
-            this.numElements = numElements;
-            this.init = init;
-        }
-    }
-    private class VarSHMDecl extends SHMDecl {
-        public VarSHMDecl (LocalDecl ast) { super(ast); }
-    }
-    
+
     public void visit(Block_c b) {
+        super.visit(b);
         if (nodeHasCudaAnnotation(b)) {
             assert !generatingCuda() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
@@ -257,7 +259,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             assert last instanceof ForLoop; // FIXME: proper error
             loop = (ForLoop) last;
 
-            List<SHMDecl> shm_decls = new ArrayList<SHMDecl>();
+            SharedMem shm = new SharedMem();
+            context().shm(shm);
             // look at all but the last statement to find shm decls
             for (Stmt st : b.statements())  {
                 if (st == last) continue;
@@ -293,7 +296,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 assert rail_arg.isFloat();
                 //assert type.nameString().equals("Rail") : ld.type().nameString();
                 */
-                shm_decls.add(new RailSHMDecl(ld, num_elements, rail_init_closure));
+                shm.addRail(ld, num_elements, rail_init_closure);
             }
             
             MultipleValues inner = processLoop(loop);
@@ -322,11 +325,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             b = (Block_c) async_body;
             
             context().setCudaKernelCFG(outer.iterations, outer.var, inner.iterations, inner.var);            
-            generatingCuda(true);
-            handleCuda(b);
-            generatingCuda(false);
+            generatingKernel(true);
+            handleKernel(b);
+            generatingKernel(false);
         }
-        super.visit(b);
     }
 
     public void visit(Closure_c n) {
@@ -354,7 +356,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         // TODO Auto-generated method stub
         super.visit(n);
     }
-
+    private static boolean sameName (Name n1, Name n2) {
+        return n1.toString().equals(n2.toString());
+    }
+    
 
     @Override
     public void visit(Assign_c asgn) {
@@ -564,14 +569,18 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     public void visit(Local_c n) {
         if (generatingCuda()) {
             ClassifiedStream out = cudaStream();
-            if (n.name().toString().equals(context().blocksVar().name().toString())) {
+            Name ln = n.name().id();
+            if (ln == context().blocksVar().name().id()) {
                 out.write("blockIdx.x");
-            } else if (n.name().toString().equals(context().threadsVar().name().toString())) {
+            } else if (ln == context().threadsVar().name().id()) {
                 out.write("threadIdx.x");
+            } else if (context().shm().has(ln)) {
+                out.write("some_shm_var");
             } else {
                 super.visit(n);
             }
         } else {
+            System.out.println(n);
             super.visit(n);
         }
     }
@@ -727,6 +736,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     @Override
     public void visit(X10Call_c n) {
         // TODO Auto-generated method stub
+        System.out.println(n);
         super.visit(n);
     }
 

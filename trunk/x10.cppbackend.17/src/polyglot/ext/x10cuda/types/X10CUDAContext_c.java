@@ -13,6 +13,7 @@ package polyglot.ext.x10cuda.types;
  *
  * @author Dave Cunningham
  */
+
 import polyglot.ast.Formal;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
@@ -44,6 +45,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         this.threads = threads;
         this.threadsVar = threadsVar;
     }
+
+    private SharedMem shm;
+    public SharedMem shm() { return shm; }
+    public void shm(SharedMem v) { shm = v; }
 
     private ClassifiedStream cudaStream = null;
 
