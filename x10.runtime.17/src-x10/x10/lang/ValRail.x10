@@ -42,4 +42,8 @@ public final value class ValRail[+T](length: nat)
     @Native("java", "#0.iterator()")
     @Native("c++", "(#0)->iterator()")
     public native def iterator(): Iterator[T];
+
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1, #2, #3, #4, #5)")
+    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 }
