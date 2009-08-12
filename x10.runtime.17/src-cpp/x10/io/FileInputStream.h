@@ -23,6 +23,10 @@ namespace x10 {
                 return x10aux::io::FILEPtrInputStream::gets(buf,sz);
             }
 
+            virtual void close() {
+                x10aux::io::FILEPtrInputStream::close();
+            }
+
             virtual x10_int read() {
                 return x10aux::io::FILEPtrInputStream::read();
             }

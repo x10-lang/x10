@@ -24,6 +24,7 @@ namespace x10aux {
             explicit FILEPtrOutputStream(FILE* stream)
                 : FILEPtrStream(stream) { }
             virtual void flush();
+            void close();
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
             virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
             virtual void write(x10_int b);
