@@ -21,7 +21,7 @@ namespace x10aux {
         x10_ulong addr;
 
         // take a (possibly masked) pointer and provide a remote_ref struct for serialisation
-        static remote_ref make (void *ptr);
+        static remote_ref make (void *ptr, bool immortalize=true);
 
         // take a remote_ref struct (presumably from the wire) and create a local representation
         static void *take (remote_ref r);

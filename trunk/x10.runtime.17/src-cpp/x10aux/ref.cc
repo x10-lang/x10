@@ -17,10 +17,12 @@ void x10aux::throwNPE() { throwException<NullPointerException>(); }
 
 void x10aux::throwBPE() { throwException<BadPlaceException>(); }
 
-remote_ref remote_ref::make (void *ptr) {
+remote_ref remote_ref::make (void *ptr, bool immortalize) {
     if (remote_ref::is_remote(ptr)) return *strip(ptr);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-    ReferenceLogger::log(ptr);
+    if (immortalize) {
+        ReferenceLogger::log(ptr);
+    }
     #endif
     remote_ref r = { x10aux::here, (size_t)ptr };
     return r;
