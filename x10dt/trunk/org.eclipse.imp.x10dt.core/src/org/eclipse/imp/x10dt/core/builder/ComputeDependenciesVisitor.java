@@ -15,9 +15,6 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
@@ -30,7 +27,6 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.types.NullableType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
@@ -70,8 +66,8 @@ class ComputeDependenciesVisitor extends ContextVisitor {
             type= arrayType.base();
         }
         if (type.isClass()) {
-            if (type instanceof NullableType)
-                type = ((NullableType) type).base();
+            //if (type instanceof NullableType)
+            //    type = ((NullableType) type).base();
             ClassType classType= (ClassType) X10TypeMixin.baseType(type);
             if (!isBinary(classType) && !fFromType.typeEquals(type,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
