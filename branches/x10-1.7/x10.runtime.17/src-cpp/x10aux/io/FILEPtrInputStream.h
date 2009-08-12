@@ -21,6 +21,8 @@ namespace x10aux {
             x10_int read(const x10aux::ref<x10::lang::Rail<x10_byte> > &b,
                          x10_int off, x10_int len);
 
+            void close();
+
             x10_int read();
 
             void skip(x10_int bytes);

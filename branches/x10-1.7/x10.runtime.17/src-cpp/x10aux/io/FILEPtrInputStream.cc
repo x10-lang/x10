@@ -21,6 +21,10 @@ x10_int x10aux::io::FILEPtrInputStream::read(const ref<Rail<x10_byte> > &b,
     return (x10_int)res;
 }
 
+void x10aux::io::FILEPtrInputStream::close() {
+    ::fclose(_stream);
+}
+
 x10_int x10aux::io::FILEPtrInputStream::read() {
     int c = ::fgetc(_stream);
     return (x10_int)c;

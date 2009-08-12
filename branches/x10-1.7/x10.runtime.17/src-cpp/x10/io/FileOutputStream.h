@@ -40,6 +40,10 @@ namespace x10 {
                 x10aux::io::FILEPtrOutputStream::flush();
             }
 
+            virtual void close() {
+                x10aux::io::FILEPtrOutputStream::close();
+            }
+
             /* [DC] Not sure these are needed now
             x10aux::ref<FileOutputStream> _constructor(x10aux::ref<x10::lang::String> name)
             { return this->FILEPtrOutputStream::_constructor(FILEPtrStream::open_file(name, "w")); }
