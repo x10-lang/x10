@@ -15,7 +15,7 @@ import x10.compiler.ComparisonOps;
  * @author bdlucas
  */
 
-final public value class Point(rank: nat) implements (nat) => int {
+public value class Point(rank: nat) implements (nat) => int {
 
     /**
      * Returns the value of the ith coordinate.
@@ -27,7 +27,7 @@ final public value class Point(rank: nat) implements (nat) => int {
      * Returns the coordinates as a ValRail[int].
      */
 
-    public def coords(): ValRail[int] = coords;
+    public def coords(): ValRail[int]{self.length == rank} = coords;
 
 
     //
@@ -81,7 +81,7 @@ final public value class Point(rank: nat) implements (nat) => int {
     // arithmetic ops
     //
 
-    public operator + this: Point(rank) {
+    public operator + this: Point(rank){self == this} {
         return this;
     }
 
@@ -90,10 +90,10 @@ final public value class Point(rank: nat) implements (nat) => int {
         return Point.make(cs);
     }
 
-    public operator this + (that: Point(rank)): Point(rank) {
+    public operator this + (that: Point(rank)): Point(rank)/*{self == this + that}*/ {
         val init = (i:nat) => this.coords(i) + that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
-        return Point.make(cs);
+        return Point.make(cs) as Point(rank){self == this + that};
     }
 
     public operator this - (that: Point(rank)): Point(rank) {
@@ -114,10 +114,10 @@ final public value class Point(rank: nat) implements (nat) => int {
         return Point.make(cs);
     }
 
-    public operator this + (c: int): Point(rank) {
+    public operator this + (c: int): Point(rank){self == this + c} {
         val init = (i:nat) => this.coords(i) + c;
         val cs = Rail.makeVar[int](rank, init);
-        return Point.make(cs);
+        return Point.make(cs) as Point(rank){self == this + c};
     }
 
     public operator this - (c: int): Point(rank) {
@@ -126,10 +126,10 @@ final public value class Point(rank: nat) implements (nat) => int {
         return Point.make(cs);
     }
 
-    public operator this * (c: int): Point(rank) {
+    public operator this * (c: int): Point(rank){self == this * c} {
         val init = (i:nat) => this.coords(i) * c;
         val cs = Rail.makeVar[int](rank, init);
-        return Point.make(cs);
+        return Point.make(cs) as Point(rank){self == this * c};
     }
 
     public operator this / (c: int): Point(rank) {
@@ -138,10 +138,10 @@ final public value class Point(rank: nat) implements (nat) => int {
         return Point.make(cs);
     }
 
-    public operator (c: int) + this: Point(rank) {
+    public operator (c: int) + this: Point(rank){self == c + this} {
         val init = (i:nat) => c + this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
-        return Point.make(cs);
+        return Point.make(cs) as Point(rank){self == c + this};
     }
 
     public operator (c: int) - this: Point(rank) {
@@ -150,10 +150,10 @@ final public value class Point(rank: nat) implements (nat) => int {
         return Point.make(cs);
     }
 
-    public operator (c: int) * this: Point(rank) {
+    public operator (c: int) * this: Point(rank){self == c * this} {
         val init = (i:nat) => c * this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
-        return Point.make(cs);
+        return Point.make(cs) as Point(rank){self == c * this};
     }
 
     public operator (c: int) / this: Point(rank) {
@@ -227,9 +227,9 @@ final public value class Point(rank: nat) implements (nat) => int {
     //
     //
 
-    private val coords: ValRail[int];
+    private val coords: ValRail[int]{self.length == rank};
 
-    private def this(cs: ValRail[int]): Point(cs.length) {
+    protected def this(cs: ValRail[int]): Point(cs.length) {
         property(cs.length);
         this.coords = cs;
     }

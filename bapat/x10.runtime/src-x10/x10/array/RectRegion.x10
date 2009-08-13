@@ -11,7 +11,7 @@ package x10.array;
  * @author bdlucas
  */
 
-final value class RectRegion extends PolyRegion{rect} {
+value class RectRegion extends PolyRegion{rect} {
 
     val size: int;
 

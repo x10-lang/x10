@@ -31,7 +31,7 @@ final value class DistArray[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe def apply(i0: int): T {
+    final public safe def apply(i0: int{self in region}): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         return raw()(layout().offset(i0));
@@ -61,7 +61,7 @@ final value class DistArray[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe def set(v: T, i0: int): T {
+    final public safe def set(v: T, i0: int{self in region}): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         raw()(layout().offset(i0)) = v;

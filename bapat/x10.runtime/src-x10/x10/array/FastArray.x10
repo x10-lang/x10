@@ -44,7 +44,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     val offset3: int;
 
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
-    final public safe def apply(i0: int): T {
+    final public safe def apply(i0: int{self in region}): T {
         var offset:int = i0;
         return raw(-offset0 + offset);
     }
@@ -78,7 +78,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
 
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
-    final public safe def set(v: T, i0: int): T {
+    final public safe def set(v: T, i0: int{self in region}): T {
         var offset:int = i0;
         raw(offset - offset0) = v;
         return v;
@@ -126,7 +126,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     public def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
         return Array.make[T](dist, (p:Point):T => {
-            a.result = op(a.result, apply(p as Point(rank)));
+            a.result = op(a.result, apply(p as Point(rank){self in region}));
             return a.result;
         });
 

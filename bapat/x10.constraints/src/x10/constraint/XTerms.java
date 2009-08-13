@@ -196,4 +196,42 @@ public class XTerms {
 	public static XArrayElement makeArrayElement(XArray array, XTerm index) {
 		return new XArrayElement_c(array, index);
 	}
+	
+	/**
+	 * Create a term representing left + right.
+	 */
+	public static XPlus makePlus(XTerm left, XTerm right) {
+		assert left != null;
+		assert right != null;
+		return new XPlus(left, right);
+	}
+	
+	/**
+	 * Create a term representing left * right.
+	 */
+	public static XMul makeMul(XTerm left, XTerm right) {
+		assert left != null;
+		assert right != null;
+		return new XMul(left, right);
+	}
+	
+	/**
+	 * Create a term representing left.translate(right)
+	 * where left and right are x10.lang.Regions.
+	 */
+	public static XTranslate makeTranslate(XTerm left, XTerm right) {
+		assert left != null;
+		assert right != null;
+		return new XTranslate(left, right);
+	}
+	
+	/**
+	 * Create a term representing the region min..max.
+	 */
+	public static XRectRegion1 makeRectRegion1(Object min, boolean minIsConstant, Object max, boolean maxIsConstant) {
+		assert min != null;
+		assert max != null;
+		return new XRectRegion1(min, minIsConstant, max, maxIsConstant);
+	}
+	
 }

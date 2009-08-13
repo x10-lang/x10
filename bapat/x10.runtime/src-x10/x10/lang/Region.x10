@@ -5,6 +5,7 @@ package x10.lang;
 
 import x10.compiler.SetOps;
 import x10.array.BaseRegion;
+import x10.array.RectRegion1;
 
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
@@ -23,7 +24,7 @@ public abstract value class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements Iterable[Point{self.rank==this.rank}] {
+) implements Iterable[Point{self.rank==this.rank, self in this}] {
 
     property rail = rank==1 && rect && zeroBased;
     property region = this; // structural affinity w/ Dist, Array for compiler
@@ -79,7 +80,7 @@ public abstract value class Region(
      */
 
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular(min: int, max: int): Region{self.rank==1 && /*self.zeroBased==(min==0) &&*/ self.rect}
+    public static def makeRectangular(min: int, max: int): RectRegion1{self.intervalMin == min, self.intervalMax == max}
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -96,6 +97,12 @@ public abstract value class Region(
 
     public static def make(regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
         = BaseRegion.make1(regions as Rail[Region/*(1)*/]);
+    
+    /**
+     * Construct a region that contains the single point p.
+     */
+
+    public static def makeUnit(p: Point): RectRegion(p.rank) = BaseRegion.makeUnit(p);
 
 
     //
@@ -230,21 +237,21 @@ public abstract value class Region(
      * points that are in either this region or that region.
      */
 
-    abstract public def union(that: Region(rank)): Region(rank);
+    abstract public def union(that: Region(rank)): Region(rank){this in self, that in self};
 
     /**
      * Returns the union of two regions if they are disjoint,
      * otherwise throws an exception.
      */
 
-    abstract public def disjointUnion(that: Region(rank)): Region(rank);
+    abstract public def disjointUnion(that: Region(rank)): Region(rank){this in self, that in self};
 
     /**
      * Returns the intersection of two regions: a region that contains all
      * points that are in both this region and that region.
      */
 
-    abstract public def intersection(that: Region(rank)): Region(rank);
+    abstract public def intersection(that: Region(rank)): Region(rank){self in this, self in that};
 
     /**
      * Returns the difference between two regions: a region that
@@ -286,6 +293,18 @@ public abstract value class Region(
      */
 
     public abstract def disjoint(that: Region(rank)): boolean;
+    
+    /**
+     * Returns the translation of this regoin by the specified point.
+     */
+    // FIXME/TODO: Uncomment below once Vijay fixes the related bug.
+    public abstract def translate(p: Point/*(rank)*/): Region(rank){self == this.translate(p)};
+
+    /**
+     * Returns the translation of this regoin by the specified region.
+     */
+    // FIXME/TODO: Uncomment below once Vijay fixes the related bug.
+    public abstract def translate(other: Region/*(rank)*/): Region(rank){self == this.translate(other)};
 
 
     /**
@@ -320,7 +339,7 @@ public abstract value class Region(
      *        ... p ...
      */
 
-    public abstract def iterator(): Iterator[Point{self.rank==this.rank}];
+    public abstract def iterator(): Iterator[Point{self.rank==this.rank, self in this}];
 
 
     /**
@@ -364,8 +383,8 @@ public abstract value class Region(
     //
 
     public operator ! this: Region(rank) = complement();
-    public operator this && (that: Region(rank)): Region(rank) = intersection(that);
-    public operator this || (that: Region(rank)): Region(rank) = union(that);
+    public operator this && (that: Region(rank)): Region(rank){self in this, self in that} = intersection(that);
+    public operator this || (that: Region(rank)): Region(rank){this in self, that in self} = union(that);
     public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
     public operator this * (that: Region) = product(that);
