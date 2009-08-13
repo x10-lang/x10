@@ -63,8 +63,8 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.StaticNestedClassRemover;
-import x10c.util.ClassifiedStream;
-import x10c.util.StreamWrapper;
+import x10.util.ClassifiedStream;
+import x10.util.StreamWrapper;
 import x10cpp.types.X10CPPContext_c;
 
 public class Emitter {

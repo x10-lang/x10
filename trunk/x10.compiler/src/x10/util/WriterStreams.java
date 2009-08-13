@@ -1,7 +1,7 @@
 /**
  * 
  */
-package x10c.util;
+package x10.util;
 
 import java.io.File;
 import java.io.IOException;

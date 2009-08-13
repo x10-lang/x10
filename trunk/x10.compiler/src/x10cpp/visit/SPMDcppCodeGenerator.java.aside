@@ -166,10 +166,10 @@ import polyglot.util.TypedList;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeChecker;
-import x10c.util.ClassifiedStream;
-import x10c.util.StreamWrapper;
-import x10c.util.WriterStreams;
-import x10c.util.WriterStreams.StreamClass;
+import x10.util.ClassifiedStream;
+import x10.util.StreamWrapper;
+import x10.util.WriterStreams;
+import x10.util.WriterStreams.StreamClass;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template

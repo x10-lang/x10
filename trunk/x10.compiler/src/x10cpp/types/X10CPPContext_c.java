@@ -30,7 +30,7 @@ import x10.ast.PropertyDecl;
 import x10.types.X10ClassDef;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
-import x10c.util.ClassifiedStream;
+import x10.util.ClassifiedStream;
 
 public class X10CPPContext_c extends x10.types.X10Context_c implements X10Context {
 

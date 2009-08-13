@@ -19,7 +19,7 @@ import x10.ast.X10DelFactory_c;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.visit.X10DelegatingVisitor;
-import x10c.util.StreamWrapper;
+import x10.util.StreamWrapper;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.MessagePassingCodeGenerator;
 

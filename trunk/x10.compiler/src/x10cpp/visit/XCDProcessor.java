@@ -14,7 +14,7 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.Translator;
 import x10.Configuration;
-import x10c.util.StreamWrapper;
+import x10.util.StreamWrapper;
 
 /**
  * Extracted from X10PrettyPrinterProcessor. Helper class for instantiating and processing
