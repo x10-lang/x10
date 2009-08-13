@@ -11,7 +11,7 @@ svnUpdate() {
 		( \
 			cd $(dirname $1); \
 			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
-			svn co "$3 ${2}/$(basename $1)"; \
+			svn co "${2}/$(basename $1)"; \
 			exit $?; \
 		)
 		if (( $? != 0 )); then
@@ -25,7 +25,7 @@ svnUpdate() {
 		( \
 			cd $1; \
 			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
-			svn update $3; \
+			svn update; \
 			exit $?; \
 		)
 		if (( $? != 0 )); then
@@ -127,7 +127,7 @@ main() {
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
 	fi
-	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT "-r2571"
+	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
