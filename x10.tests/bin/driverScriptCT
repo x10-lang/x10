@@ -109,6 +109,13 @@ cleanUpExit() {
 	cat $DATADIR/build_configurationT.xml.tmpl >> $REPORTF
 	cat $DATADIR/build_targetT.xml.tmpl >> $REPORTF
 	cat $DATADIR/reportT.xml.tmpl >> $REPORTF
+	gzip -9 $REPORTF
+	#scp ${REPORTF}.gz regression@legato.watson.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
+	#ssh regression@legato.watson.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
+	#ssh regression@legato.watson.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
+    if [[ -d $LOGD ]]; then
+        mv ${REPORTF}.gz $LOGD
+    fi
 	# cleanup code, if any
 	rm -f $BLOGF $TLOGF
 	exit $rc
@@ -161,7 +168,7 @@ case "${__cat_system}" in
 	Darwin)
 		__cat_arch=$(uname -m)
 		__cat_target_address_size=$(getconf LONG_BIT)
-		;;
+        ;;
 	CYGWIN)
 		__cat_arch=$(uname -m)
 		__cat_target_address_size=32
@@ -224,11 +231,12 @@ ecode=$?
 if (( $ecode != 0 )); then
 	cleanUpExit $ecode
 fi
-$ABSDIR/preCompileScriptCT >> $BLOGF 2>&1
-ecode=$?
-if (( $ecode != 0 )); then
-	cleanUpExit $ecode
-fi
+# this step is no longer required as xrx classes are now built by default
+#$ABSDIR/preCompileScriptCT >> $BLOGF 2>&1
+#ecode=$?
+#if (( $ecode != 0 )); then
+#	cleanUpExit $ecode
+#fi
 __cat_build_result=SUCCESS
 if [[ "${__cat_system}" == SunOS ]]; then
 	__cat_build_end_time=$(perl -e 'print time;')
@@ -238,7 +246,8 @@ fi
 
 ##### cat feed - test (cases) compilation & execution
 __cat_feed_stage=TEST
-export EXTRA_CLASSPATH=$X10_HOME/x10.runtime.17/src-x10/classes
+#export EXTRA_CLASSPATH=$X10_HOME/x10.runtime.17/src-x10/classes
+export EXTRA_CLASSPATH=$X10_HOME/x10.runtime.17/classes/gen
 if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_extra_classpath=$EXTRA_CLASSPATH
 else
@@ -254,7 +263,7 @@ if [[ "${__cat_backend}" == x10c ]]; then
 fi
 __cat_x10c_version=$($X10_HOME/x10.dist/bin/x10c -version | \
 				egrep '^x10c' | awk '{print $3}')
-__cat_x10c_maxheap="128M"
+__cat_x10c_maxheap="1024M"
 __cat_x10c_time="true"
 __cat_x10c_verbose="true"
 __cat_x10c_commandlineonly="true"
@@ -291,3 +300,5 @@ export X10DIST=$X10_HOME/x10.dist
 	$ABSDIR/xtestScriptCT -clean -shiftLog; \
 )
 cleanUpExit $?
+
+# vim:tabstop=4:shiftwidth=4:expandtab
