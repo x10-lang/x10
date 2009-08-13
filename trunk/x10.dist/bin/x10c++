@@ -30,7 +30,7 @@ else
 fi
 
 
-export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10cpp.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
+export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
 export DEXT="x10cpp"
 export MAIN="polyglot.ext.x10cpp.main.Main"
 

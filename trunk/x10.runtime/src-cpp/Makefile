@@ -134,7 +134,7 @@ X10CPPFLAGS += -J-ea -rtdev -disable CheckNativeAnnotations -commandlineonly
 # this simply means there will be more symbols in the archive than there should
 # be.  This is harmless and equivalent to the old behaviour of this Makefile,
 # i.e. a make clean is needed.
-gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar
+gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10c.jar
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
 	@#prune .svn dirs (they probably don't contain *.x10 files so this is just an optimisation)
