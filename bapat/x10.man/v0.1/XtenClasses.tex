@@ -1,0 +1,178 @@
+\chapter{Classes}
+\label{XtenClasses}\index{class}
+
+{}\Xten{} classes are essentially the same as \java{} classes \cite[\S 8]{jls2}. Classes
+are structured in a single-inheritance code hierarchy, may implement
+multiple interfaces, may have static and instance fields, may have
+static and instance methods, may have constructors, may have static
+and instance initializers, may have static and instance inner classes
+and interfaces. Method signatures may specify checked
+exceptions. Method definitions may be overridden by subclasses; the
+overriding definition may have a declared return type that is a
+subclass of the return type of the definition being
+overridden. Multiple methods with the same name but different
+signatures may be provided on a class (ad hoc polymorphism). The
+public/private/protected/package-protected access modification
+framework may be used.
+
+\todo{Add the new rule for preventing leakage of this from a constructor.}
+
+Because of its different concurrency model, \Xten{} does not support
+{\tt transient} and {\tt volatile} field modifiers.
+
+\todo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
+
+\section{Reference classes}\index{class!reference class}\label{ReferenceClasses}
+
+A reference class is declared with the optional keyword {\tt
+reference} preceding {\tt class} in a class declaration. Reference
+class declarations may be used to construct reference types
+(\S~\ref{ReferenceTypes}). Reference classes may have mutable
+fields. Instances of a reference class are always created in a fixed
+place and in \XtenCurrVer{} stay there for the lifetime of the
+object. (Future versions of \Xten{} may support object migration.)
+Variables declared at a reference type always store a reference to the
+object, regardless of whether the object is local or remote.
+
+
+\section{Value classes}\index{class!value class}\label{ValueClasses}
+
+{}\Xten{} singles out a certain set of classes for additional
+support. A class is said to be {\em stateless} if all of its fields
+are declared to be {\cf final} (\S~\ref{FinalVariable}), otherwise it
+is {\em stateful}. (\Xten{} has syntax for specifying an array class
+with final fields, unlike \java{}.) A {\em stateless (stateful)
+object} is an instance of a stateless (stateful) class.
+
+{}\Xten{} allows the programmer to signify that a class (and all its
+descendents) are stateless. Such a class is called a {\em value
+class}.  The programmer specifies a value class by prefixing the
+modifier {\cf value} before the keyword {\cf class} in a class
+declaration.  (A class not declared to be a value class will be called
+a {\em reference class}.)  Each instance field of a value class is
+treated as {\cf final}. It is legal (but neither required nor recommended)
+for fields in a value class to be declared final. It is a compile-time
+error for a value class to inherit from a stateful class or for a
+reference class to inherit from a value class. For brevity, the \Xten{}
+compiler allows the programmer to omit the keyword class after value
+in a value class declaration.
+
+The {\cf nullable} type-constructor (\S~\ref{NullableTypeConstructor}) can
+be used to declare variables whose value may be {\cf null} or a value
+type.
+
+{}\Xten{} provides a built in definition for {\cf .equals()} for a
+value type, namely stable equality ({\tt ==},
+\S~\ref{StableEquality}). The programmer is free to override {\cf
+.equals} with his/her own definition. (The behavior of {\tt ==} cannot
+be overridden however.)
+
+Value types also support user-defined operators and constructors. 
+
+\subsection{Representation}
+
+Since value objects do not contain any updatable locations, they can
+be freely copied from place to place. An implementation may use
+copying techniques even within a place to implement value types,
+rather than references. This is transparent to the programmer.
+
+More explicitly, \Xten{} guarantees that an implementation must always
+behave as if a variable of a reference type takes up as much space as
+needed to store a reference that is either null or is bound to an
+object allocated on the (appropriate) heap. However, \Xten{} makes no
+such guarantees about the representation of a variable of value
+type. The implementation is free to behave as if the value is stored
+``inline'', allocated on the heap (and a reference stored in the
+variable) or use any other scheme (such as structure-sharing) it may
+deem appropriate. Indeed, an implementation may even dynamically
+change the representation of an object of a value type, or dynamically
+use different representations for different instances (that is,
+implement automatic box/unboxing of values).
+
+Implementations are strongly encouraged to implement value types as
+space-efficiently as possible (e.g.{} inlining them or passing them in
+registers, as appropriate).  Implementations are expected to cache
+values of remote final value variables by default. If a value is
+large, the programmer may wish to consider spawning a remote activity
+(at the place the value was created) rather than referencing the
+containing variable (thus forcing it to be cached).
+
+\todo{ Need to figure out whether we should let the programmer be
+aware of lazy pull vs full-value push of value objects. This is the
+idea of introducing a *-annotation. Need to make a decision on
+this. Could leave this for 0.7.}
+
+\subsection{Example}
+\begin{x10}
+ value LinkedList <Node> \{ 
+  Node first;
+  nullable LinkedList<Node> rest;
+  public
+     LinkedList(Node first) \{
+     this(first, null);
+  \}
+  public
+    LinkedList(Node first,  nullable LinkedList<Node> rest) \{
+    this.first = first;
+    this.rest = rest;
+  \}
+  public 
+    Node first() \{
+    return first;
+  \}
+  public 
+    nullable LinkedList<Node> rest() \{
+    return rest;
+  \} 
+  public
+    void append(LinkedList<Node> l) \{
+    return (this.rest == null) 
+        ? new LinkedList<Node>(this.first, l) 
+        : this.rest.append(l);
+  \}
+  public 
+    LinkedList<Node> reverse(LinkedList<Node> l) \{ 
+    return 
+      rest == null 
+      ? new LinkedList<Node>(first, l)  
+      : rest.reverse(new LinkedList<Node>(first, l));
+   \}
+  public
+    LinkedList<Node> reverse() \{
+    return (rest == null) 
+        ? this 
+        : rest.reverse(new LinkedList<Node>(first));
+  \}
+\}
+\end{x10}
+
+\section{Ranges}\label{XtenRanges}\index{ranges}
+
+\XtenCurrVer{} supports extremely simple forms of {\tt enums}, namely {\em ranges}. A range is a set of {\em points}.
+
+For two constants or final variables {\tt a} and {\tt b} of a fixed
+point type (e.g.{} {\cf long}), and a third constant or final variable
+{\tt k} of the same type, the literal {\tt a..b:k} (read: ``from {\tt
+a} to {\tt b} with stride {\tt k}'') represents the full range of
+values from {\tt a} to {\tt b} (inclusive), starting with {\tt a} and
+taking strides of length {\tt k}. That is, the range contains all the
+numbers {\tt a}, {\tt a+k}, {\tt a+2*k}, \ldots {\tt a+n*k} which are
+less than or equal to {\tt b}. The canonical order for elements of a
+range is the canonical order for the underlying fixed point type.
+
+The notation {\tt a..b} is read as shorthand for {\tt a..b:1}.
+
+\Xten{} allows ranges to be named:
+\begin{x10}
+   range   E = 0..100;
+\end{x10}
+
+Such ranges may be used in a {\tt for}/{\tt foreach} loop
+(\S~\ref{ForLoop}) or in a region declaration.
+
+
+\todo{Merge in JDK 1.5 enums.}
+
+
+
+
