@@ -31,8 +31,7 @@ fi
 
 
 export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
-export DEXT="x10cpp"
-export MAIN="x10cpp.main.Main"
+export DEXT="x10cpp.ExtensionInfo"
 
 exec "${X10}/bin/x10c" "$@"
 
