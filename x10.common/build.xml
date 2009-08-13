@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
-<project name="x10.common.17" default="build" basedir=".">
+<project name="x10.common" default="build" basedir=".">
     &buildfile;
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>

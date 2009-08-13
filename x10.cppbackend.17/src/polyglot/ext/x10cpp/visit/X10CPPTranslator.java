@@ -455,7 +455,7 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
-	public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
+	public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
 	public static final String MANIFEST = "libx10.mft";
 	public static final String[] MANIFEST_LOCATIONS = new String[] {
 	    X10LANG,

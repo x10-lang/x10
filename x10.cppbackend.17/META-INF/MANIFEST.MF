@@ -16,7 +16,7 @@ Export-Package: polyglot.ext.x10cpp,
  polyglot.ext.x10cuda.visit,
  x10c.util
 Require-Bundle: polyglot3,
- x10.common.17,
+ x10.common,
  x10.compiler.p3,
  x10.constraints
 Bundle-ActivationPolicy: lazy
