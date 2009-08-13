@@ -1,5 +1,5 @@
 
-//#line 18 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/x10.g"
+//#line 18 "C:/eclipsews/v7/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -9,7 +9,7 @@ package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 28 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/x10.g"
+//#line 28 "C:/eclipsews/v7/x10.compiler/src/x10/parser/x10.g"
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -287,7 +287,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //
     
 
-    //#line 320 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/x10.g"
+    //#line 320 "C:/eclipsews/v7/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -863,7 +863,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 1: {
                //#line 8 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 6 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 6 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 8 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -879,7 +879,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 2: {
                //#line 18 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 16 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 16 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
                 //#line 18 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -895,7 +895,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 3: {
                //#line 28 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 26 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 26 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 28 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -911,7 +911,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 4: {
                //#line 38 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 36 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 36 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 38 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -927,7 +927,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 5: {
                //#line 48 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 46 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 46 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
                 //#line 48 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -943,7 +943,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 6: {
                //#line 58 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 56 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 56 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 58 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -959,7 +959,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 7: {
                //#line 68 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 66 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 66 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 68 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary,
@@ -984,9 +984,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 9: {
                //#line 80 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 78 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 78 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 78 "C:/eclipsews/v7/x10.compiler.p3/src/x10/parser/MissingId.gi"
+                //#line 78 "C:/eclipsews/v7/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
                 //#line 80 "C:/eclipsews/v7/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
