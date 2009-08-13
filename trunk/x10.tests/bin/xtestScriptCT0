@@ -268,7 +268,11 @@ testForMain() {
     local f="$1"
     local tail="$2"
     if [[ "$tail" != *.x10 ]] ; then return 1; fi
-    egrep -E 'public[[:space:]]+static[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
+    if [[ "$(uname -s)" == Sun* ]]; then
+        egrep 'public[[:space:]]+static[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
+    else
+        egrep -E 'public[[:space:]]+static[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
+    fi
     return $?
 }
 
@@ -293,7 +297,7 @@ extractExtends() {
 		chkArgs 1 "$@"
 		local f="$1"
 
-		RESULT="`sed -ne 's|^.*extends\s*\(.*\)\s*[{]|\1|p' "$f"`"
+		RESULT="`sed -ne 's|^.*extends\s*\(.*\)\s*[{]|\1|p' "$f" | sed -n '1,1p'`"
 }
 
 extractOptions() {
@@ -340,9 +344,13 @@ findTests() {
 # Finds all the files in everything that matches $findpat
     chkArgs 1 "$@"
     local topDir="$1"
+    local dirlist=""
     #eval "find '$topDir' -type f -name '*.x10' $findpat -print"
     #eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"
-    eval "find $findpat -type d -name '.svn' -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print | sort"
+    dirlist="$(eval "find $topDir -type d -name '.svn' -prune -o -type d -name '*' -print | sort")"
+    dirlist="$(echo $dirlist | tr '\n' ' ')"
+    #eval "find $findpat -type d -name '.svn' -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print | sort"
+    eval "find $dirlist -maxdepth 1 -type f -name '*.x10' -print"
 }
 
 checkLink() {
@@ -703,8 +711,18 @@ recordTestResult() {
 	printf "\n\t<test>\n" >> $TLOGF
 	printf "\t\t<name>${__cat_test_name}</name>\n" >> $TLOGF
 	printf "\t\t<command>\n" >> $TLOGF
-	printf "## compilation:\n${__cat_test_x10c_command}\n" >> $TLOGF
-	printf "## execution:\n${__cat_test_x10_command}\n">> $TLOGF
+	printf "## compilation:\n" >> $TLOGF
+	echo "${__cat_test_x10c_command}" | sed -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' \
+		-e 's/&&/\&amp;\&amp;/g' \
+		-e 's/ & / \&amp; /g' >> $TLOGF
+	printf "\n\n" >> $TLOGF
+	printf "## execution:\n" >> $TLOGF
+	echo "${__cat_test_x10_command}" | sed -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' \
+		-e 's/&&/\&amp;\&amp;/g' \
+		-e 's/ & / \&amp; /g' >> $TLOGF
+	printf "\n\n" >> $TLOGF
 	printf "\t\t</command>\n" >> $TLOGF
 	printf "\t\t<parameters>\n" >> $TLOGF
 	printf "\t\t\t<parameter key=\"x10c.sourcepath\" value=\"${__cat_test_x10c_sourcepath}\"/>\n" >> $TLOGF
@@ -769,7 +787,8 @@ doTest() {
 	fi
 	for file in $depends
 	do
-		dependList="$dependList $testDir/$srcDir/$file"
+		local dependComp=`echo "$testDir/$srcDir/$file" | tr -d ' \r'`
+		dependList="$dependList $dependComp"
 	done
   changeSlashToDot "$srcDir/$test"
   local className="$RESULT"             #a.b.c
@@ -795,8 +814,8 @@ doTest() {
 	__cat_test_x10c_sourcepath="$x10lib:$testDir"
 	__cat_test_x10c_classpath="$extraClassPath"
 	__cat_test_x10c_directory="$testDir"
-  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $extendList ./x10lib/harness/x10Test.x10" "" "")"
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $extendList ./x10lib/harness/x10Test.x10" "" ""
+  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" "")"
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -commandlineonly -sourcepath $x10lib -sourcepath $testDir -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" ""
 	local runRC=$?
   if [[ $runRC != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
@@ -963,7 +982,11 @@ mailDiffFromLastRun() {
     echo "+++ Svn changes between $date1 ET and $date2 ET (times below are in UTC):" >> $logDiff
     echo "" >> $logDiff
 		( (cd ../..; svn log -q -r "{${date1}}:{${date2}}" ) 2>&1 |awk '{print}; END {if(NR==0) print "No changes."}' ) >> $logDiff
+    if [[ "$(uname -s)" == Sun* ]]; then
+    mailx -s "X10: ${newFailStr}Differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
+    else
     mail -s "X10: ${newFailStr}Differences between test runs started on $date1 vs. $date2" "$mailDest" < $logDiff
+    fi
     mv $logDiff logDiff
   fi
 }
@@ -983,7 +1006,11 @@ mailIt() {
   if [[ -n "$mailDest" ]]; then
     makeReadableDate "$startDate"
     local date2="$RESULT"
+    if [[ "$(uname -s)" == Sun* ]]; then
+    cat log | mailx -s "X10 (started $date2): $nPass tests out of $nRealTotal met expectations. $nFail did not meet expectations." "$mailDest"
+    else
     cat log | mail -s "X10 (started $date2): $nPass tests out of $nRealTotal met expectations. $nFail did not meet expectations." "$mailDest"
+    fi
     mailDiffFromLastRun "$mailDest"
   fi
 }
@@ -1055,7 +1082,9 @@ main() {
   genTest "." # run all tests in current directory and subdirectories
   generateAndMailFinalLog
   finalCleanUp
+  if [[ "${__cat_opened_group}" != "invalid" ]]; then
 	printf "</group>\n" >> $TLOGF
+  fi
   exit 0
 }
 
@@ -1080,3 +1109,5 @@ __cat_test_x10_timeout=""
 
 main "$@"
 exit 0
+
+# vim:tabstop=4:shiftwidth=4:expandtab
