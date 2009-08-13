@@ -14,12 +14,16 @@ package x10cuda.types;
  * @author Dave Cunningham
  */
 
+import java.util.ArrayList;
+
 import polyglot.ast.Formal;
-import polyglot.types.TypeSystem;
 import x10.ast.Closure_c;
+import x10cpp.types.X10CPPContext_c;
+import polyglot.types.Name;
+import polyglot.types.TypeSystem;
+import polyglot.types.VarInstance;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
-import x10cpp.types.X10CPPContext_c;
 
 public class X10CUDAContext_c extends X10CPPContext_c {
 
@@ -31,34 +35,43 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public Closure_c wrappingClosure() { return wrappingClosure; }
     public void wrappingClosure(Closure_c v) { wrappingClosure = v; }
 
-    private boolean generatingCuda;
-    public boolean generatingCuda() { return generatingCuda; }
-    public void generatingCuda(boolean v) { generatingCuda = v; }
+    private boolean generatingKernel;
+    public boolean generatingKernel() { return generatingKernel; }
+    public void generatingKernel(boolean v) { generatingKernel = v; }
     
     private long blocks; public long blocks() { return blocks; }
     private long threads; public long threads() { return threads; }
     private Formal blocksVar; public Formal blocksVar() { return blocksVar; }
     private Formal threadsVar; public Formal threadsVar() { return threadsVar; }
-    public void setCudaKernelCFG(long blocks, Formal blocksVar, long threads, Formal threadsVar) {
+    private SharedMem shm; public SharedMem shm() { return shm; }
+    private ArrayList<VarInstance> kernelParams; public ArrayList<VarInstance> kernelParams() { return kernelParams; }
+    public void setCudaKernelCFG(long blocks, Formal blocksVar, long threads, Formal threadsVar, SharedMem shm) {
         this.blocks = blocks;
         this.blocksVar = blocksVar;
         this.threads = threads;
         this.threadsVar = threadsVar;
+        this.shm = shm;
+        this.kernelParams = variables();
+    }
+    public boolean isKernelParam(Name n) {
+        for (VarInstance i : kernelParams) {
+            if (i.name()==n) return true;
+        }
+        return false;
     }
 
-    private SharedMem shm;
-    public SharedMem shm() { return shm; }
-    public void shm(SharedMem v) { shm = v; }
 
     private ClassifiedStream cudaStream = null;
 
     public ClassifiedStream cudaStream (StreamWrapper sw) {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
+            cudaStream.write("#include <x10aux/config.h>");
+            cudaStream.newline();
+            cudaStream.forceNewline();
         }
         return cudaStream;
     }
-
     
 }
 

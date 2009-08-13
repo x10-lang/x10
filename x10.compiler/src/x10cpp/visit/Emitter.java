@@ -767,7 +767,7 @@ public class Emitter {
 		return;
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
 		printDeclarationList(w, c, vars, true, false);
 	}
 
