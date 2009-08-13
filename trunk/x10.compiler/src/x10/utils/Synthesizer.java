@@ -12,9 +12,6 @@ import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -23,6 +20,9 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10NodeFactory;
+import x10.types.X10TypeSystem;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to

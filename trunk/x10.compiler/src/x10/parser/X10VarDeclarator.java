@@ -38,7 +38,7 @@ public class X10VarDeclarator extends VarDeclarator {
 	}
 
 	public X10VarDeclarator(JPGPosition pos, List/*<Name>*/ paramList) {
-		//this(pos, polyglot.ext.x10.visit.X10PrettyPrinterVisitor.getId(), paramList);
+		//this(pos, x10.visit.X10PrettyPrinterVisitor.getId(), paramList);
 		// TODO: use the below instead
 		this(pos, null, paramList);
 	}

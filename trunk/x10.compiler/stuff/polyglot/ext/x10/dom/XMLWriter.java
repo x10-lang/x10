@@ -5,7 +5,7 @@
  *  This file is part of X10 Compiler.
  *
  */
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 import java.io.File;
 import java.io.FileOutputStream;

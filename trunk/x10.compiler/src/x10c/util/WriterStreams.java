@@ -13,9 +13,9 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import polyglot.ast.SourceFile;
-import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.frontend.Job;
 import polyglot.util.SimpleCodeWriter;
+import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 
 /**
  * This class represents a collection of output streams. Each stream has an associated

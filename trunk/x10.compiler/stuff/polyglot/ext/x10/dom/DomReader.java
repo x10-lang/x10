@@ -5,7 +5,7 @@
  *  This file is part of X10 Compiler.
  *
  */
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +13,11 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import polyglot.ast.Node;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.dom.X10Dom.Lens;
-import polyglot.ext.x10.dom.X10Dom.NodeLens;
-import polyglot.ext.x10.dom.X10Dom.TypeObjectLens;
-import polyglot.ext.x10.types.X10TypeSystem;
+import x10.ast.X10NodeFactory;
+import x10.dom.X10Dom.Lens;
+import x10.dom.X10Dom.NodeLens;
+import x10.dom.X10Dom.TypeObjectLens;
+import x10.types.X10TypeSystem;
 import polyglot.frontend.Source;
 import polyglot.types.TypeObject;
 

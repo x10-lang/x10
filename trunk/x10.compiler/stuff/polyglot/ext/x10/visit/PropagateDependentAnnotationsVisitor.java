@@ -6,7 +6,7 @@
  *
  */
 
-package polyglot.ext.x10.visit;
+package x10.visit;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,17 +41,17 @@ import polyglot.ast.PackageNode_c;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.extension.X10Ext;
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ConstructorInstance;
-import polyglot.ext.x10.types.X10FieldInstance;
-import polyglot.ext.x10.types.X10LocalInstance;
-import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeObject;
+import x10.ExtensionInfo;
+import x10.ast.DepParameterExpr;
+import x10.extension.X10Ext;
+import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
+import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
+import x10.types.X10Type;
+import x10.types.X10TypeObject;
 import polyglot.frontend.Job;
 import polyglot.frontend.MissingDependencyException;
 import polyglot.frontend.Scheduler;

@@ -3,8 +3,8 @@ package x10.emitter;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.visit.Translator;
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Expand a given template in a loop with the given set of arguments.

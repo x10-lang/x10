@@ -6,10 +6,10 @@
  *
  */
 
-package polyglot.ext.x10.plugin;
+package x10.plugin;
 
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
+import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 

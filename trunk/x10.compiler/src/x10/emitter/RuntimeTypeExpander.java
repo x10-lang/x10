@@ -5,15 +5,15 @@ package x10.emitter;
 
 import java.util.List;
 
-import polyglot.ext.x10.types.ClosureType;
-import polyglot.ext.x10.types.ConstrainedType;
-import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.X10ClassDef;
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.constraint.XConstraint;
+import x10.types.ClosureType;
+import x10.types.ConstrainedType;
+import x10.types.ParameterType;
+import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
+import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
     /**

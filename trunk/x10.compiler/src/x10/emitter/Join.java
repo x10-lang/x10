@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.visit.Translator;
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Join a given list of arguments with a given delimiter.

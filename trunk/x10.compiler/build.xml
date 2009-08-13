@@ -66,7 +66,7 @@
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
-            <fileset dir="${build}" includes="org/**,polyglot/ext/x10/**,polyglot/ext/x10cpp/**,x10/parser/**,x10/emitter/**,x10/utils/**,x10c/**,data/**" excludes="${jar}"/>
+            <fileset dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,data/**" excludes="${jar}"/>
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
         </jar>
@@ -83,7 +83,7 @@
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="polyglot/**,x10/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10/**,x10c/**,x10cpp/**," excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>

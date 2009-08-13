@@ -6,14 +6,14 @@
  *
  */
 
-package polyglot.ext.x10.plugin;
+package x10.plugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
+import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
