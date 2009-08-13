@@ -6,7 +6,7 @@
  *
  */
 
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 
 import java.io.File;
@@ -18,12 +18,12 @@ import java.util.List;
 
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
-import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.plugin.CompilerPlugin;
-import polyglot.ext.x10.types.X10TypeSystem;
+import x10.Configuration;
+import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler;
+import x10.ast.X10NodeFactory;
+import x10.plugin.CompilerPlugin;
+import x10.types.X10TypeSystem;
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;

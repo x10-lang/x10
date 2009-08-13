@@ -3,9 +3,9 @@
  */
 package x10.emitter;
 
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.types.Type;
 import polyglot.visit.Translator;
+import x10.visit.X10PrettyPrinterVisitor;
 
 public class TypeExpander extends Expander {
 	    /**

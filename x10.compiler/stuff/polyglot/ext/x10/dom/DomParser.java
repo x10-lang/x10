@@ -5,7 +5,7 @@
  *  This file is part of X10 Compiler.
  *
  */
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -13,8 +13,8 @@ import java.io.Reader;
 import org.w3c.dom.Element;
 
 import polyglot.ast.Node;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.X10TypeSystem;
+import x10.ast.X10NodeFactory;
+import x10.types.X10TypeSystem;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Parser;
 import polyglot.util.ErrorInfo;

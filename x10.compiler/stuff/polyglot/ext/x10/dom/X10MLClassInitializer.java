@@ -5,20 +5,20 @@
  *  This file is part of X10 Compiler.
  *
  */
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Element;
 
-import polyglot.ext.x10.dom.X10Dom.ConstructorInstanceRefLens;
-import polyglot.ext.x10.dom.X10Dom.FieldInstanceRefLens;
-import polyglot.ext.x10.dom.X10Dom.ListLens;
-import polyglot.ext.x10.dom.X10Dom.MethodInstanceRefLens;
-import polyglot.ext.x10.dom.X10Dom.TypeRefLens;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10TypeSystem;
+import x10.dom.X10Dom.ConstructorInstanceRefLens;
+import x10.dom.X10Dom.FieldInstanceRefLens;
+import x10.dom.X10Dom.ListLens;
+import x10.dom.X10Dom.MethodInstanceRefLens;
+import x10.dom.X10Dom.TypeRefLens;
+import x10.types.X10ParsedClassType;
+import x10.types.X10TypeSystem;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.DeserializedClassInitializer;
 import polyglot.types.FieldInstance;

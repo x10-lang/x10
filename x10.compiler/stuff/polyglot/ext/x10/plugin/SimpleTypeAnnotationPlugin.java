@@ -6,7 +6,7 @@
  *
  */
 
-package polyglot.ext.x10.plugin;
+package x10.plugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,20 +26,20 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
-import polyglot.ext.x10.ast.ParExpr;
-import polyglot.ext.x10.ast.X10Cast;
-import polyglot.ext.x10.ast.X10Instanceof;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ConstructorInstance;
-import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10FieldInstance;
-import polyglot.ext.x10.types.X10LocalInstance;
-import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
+import x10.ExtensionInfo;
+import x10.ExtensionInfo.X10Scheduler;
+import x10.ast.ParExpr;
+import x10.ast.X10Cast;
+import x10.ast.X10Instanceof;
+import x10.ast.X10NodeFactory;
+import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10Context;
+import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
+import x10.types.X10MethodInstance;
+import x10.types.X10Type;
+import x10.types.X10TypeSystem;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;

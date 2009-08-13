@@ -23,7 +23,7 @@ while [ -n "$1" ]; do
         -classpath|-cp) shift; extra_cp="$1";;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
-        -ext) shift; ext=$1;;
+        -extclass) shift; ext=$1;;
         -dev) dev="true";;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
@@ -67,13 +67,7 @@ if [ -n "$extra_cp" ]; then
     extra_cp="${PATH_SEP}${extra_cp}"
 fi
 
-ext_cp=""
-if [ -z "$ext" ]; then
-    ext="$DEXT"
-else
-    ext_cp="${PATH_SEP}${LIB_DIR}${FILE_SEP}${ext}.jar"
-fi
-extargs="-ext ${ext}"
+extargs=""
 # [DC] assert should be off by default
 # extargs="$extargs -assert"
 # FIXME: HACK (at Vijay's request)
@@ -99,10 +93,10 @@ fi
 
 if [[ "$DEXT" = "x10cpp" ]]; then
   # C++ backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN $extargs $args"
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass x10cpp.ExtensionInfo $extargs $args"
 else
   # Java backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' $extargs $args"
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass x10.ExtensionInfo $extargs $args"
 fi
 
 [ -n "$verbose" ] && echo "$command"

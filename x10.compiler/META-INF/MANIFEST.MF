@@ -8,11 +8,11 @@ Require-Bundle: x10.common,
  x10.constraints,
  lpg.runtime,
  polyglot3
-Export-Package: polyglot.ext.x10,
- polyglot.ext.x10.ast,
- polyglot.ext.x10.extension,
- polyglot.ext.x10.types,
- polyglot.ext.x10.visit,
+Export-Package: x10,
+ x10.ast,
+ x10.emitter,
+ x10.extension,
  x10.parser,
- x10.emitter
+ x10.types,
+ x10.visit
 Bundle-Vendor: rfuhrer@watson.ibm.com

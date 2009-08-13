@@ -5,7 +5,7 @@
  *  This file is part of X10 Compiler.
  *
  */
-package polyglot.ext.x10.dom;
+package x10.dom;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -44,63 +44,63 @@ import polyglot.ast.Special;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.ast.AnnotationNode;
-import polyglot.ext.x10.ast.AssignPropertyBody;
-import polyglot.ext.x10.ast.AssignPropertyCall;
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Closure;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.ForLoop;
-import polyglot.ext.x10.ast.FutureNode;
-import polyglot.ext.x10.ast.NullableNode;
-import polyglot.ext.x10.ast.X10DelFactory_c;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.ast.X10Special;
-import polyglot.ext.x10.dom.DomReader.LazyTypeObject;
-import polyglot.ext.x10.extension.X10Del;
-import polyglot.ext.x10.extension.X10Ext;
-import polyglot.ext.x10.types.ClosureInstance;
-import polyglot.ext.x10.types.ClosureInstance_c;
-import polyglot.ext.x10.types.ClosureType;
-import polyglot.ext.x10.types.FutureType;
-import polyglot.ext.x10.types.NullableType;
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10ConstructorInstance;
-import polyglot.ext.x10.types.X10FieldInstance;
-import polyglot.ext.x10.types.X10Flags;
-import polyglot.ext.x10.types.X10LocalInstance;
-import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10NamedType;
-import polyglot.ext.x10.types.X10ParsedClassType;
-import polyglot.ext.x10.types.X10Type;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_BinaryTerm;
-import polyglot.ext.x10.types.constr.C_BinaryTerm_c;
-import polyglot.ext.x10.types.constr.C_EQV;
-import polyglot.ext.x10.types.constr.C_EQV_c;
-import polyglot.ext.x10.types.constr.C_Field;
-import polyglot.ext.x10.types.constr.C_Field_c;
-import polyglot.ext.x10.types.constr.C_Here_c;
-import polyglot.ext.x10.types.constr.C_Lit;
-import polyglot.ext.x10.types.constr.C_Lit_c;
-import polyglot.ext.x10.types.constr.C_Local;
-import polyglot.ext.x10.types.constr.C_Local_c;
-import polyglot.ext.x10.types.constr.C_Special;
-import polyglot.ext.x10.types.constr.C_Special_c;
-import polyglot.ext.x10.types.constr.C_Term;
-import polyglot.ext.x10.types.constr.C_Term_c;
-import polyglot.ext.x10.types.constr.C_Type;
-import polyglot.ext.x10.types.constr.C_Type_c;
-import polyglot.ext.x10.types.constr.C_UnaryTerm;
-import polyglot.ext.x10.types.constr.C_UnaryTerm_c;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.Constraint;
-import polyglot.ext.x10.types.constr.Constraint_c;
-import polyglot.ext.x10.types.constr.Promise;
-import polyglot.ext.x10.types.constr.Promise_c;
+import x10.ast.AnnotationNode;
+import x10.ast.AssignPropertyBody;
+import x10.ast.AssignPropertyCall;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.Closure;
+import x10.ast.DepParameterExpr;
+import x10.ast.Finish;
+import x10.ast.ForEach;
+import x10.ast.ForLoop;
+import x10.ast.FutureNode;
+import x10.ast.NullableNode;
+import x10.ast.X10DelFactory_c;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
+import x10.dom.DomReader.LazyTypeObject;
+import x10.extension.X10Del;
+import x10.extension.X10Ext;
+import x10.types.ClosureInstance;
+import x10.types.ClosureInstance_c;
+import x10.types.ClosureType;
+import x10.types.FutureType;
+import x10.types.NullableType;
+import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10FieldInstance;
+import x10.types.X10Flags;
+import x10.types.X10LocalInstance;
+import x10.types.X10MethodInstance;
+import x10.types.X10NamedType;
+import x10.types.X10ParsedClassType;
+import x10.types.X10Type;
+import x10.types.X10TypeSystem;
+import x10.types.constr.C_BinaryTerm;
+import x10.types.constr.C_BinaryTerm_c;
+import x10.types.constr.C_EQV;
+import x10.types.constr.C_EQV_c;
+import x10.types.constr.C_Field;
+import x10.types.constr.C_Field_c;
+import x10.types.constr.C_Here_c;
+import x10.types.constr.C_Lit;
+import x10.types.constr.C_Lit_c;
+import x10.types.constr.C_Local;
+import x10.types.constr.C_Local_c;
+import x10.types.constr.C_Special;
+import x10.types.constr.C_Special_c;
+import x10.types.constr.C_Term;
+import x10.types.constr.C_Term_c;
+import x10.types.constr.C_Type;
+import x10.types.constr.C_Type_c;
+import x10.types.constr.C_UnaryTerm;
+import x10.types.constr.C_UnaryTerm_c;
+import x10.types.constr.C_Var;
+import x10.types.constr.Constraint;
+import x10.types.constr.Constraint_c;
+import x10.types.constr.Promise;
+import x10.types.constr.Promise_c;
 import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -2077,14 +2077,14 @@ public class X10Dom {
 			}
 			
 			String[] names = new String[] {
-					"polyglot.ext.x10.ast." + tag + "_c",
-					"polyglot.ext.x10.ast." + tag,
-					"polyglot.ext.x10.extension." + tag + "_c",
-					"polyglot.ext.x10.extension." + tag,
+					"x10.ast." + tag + "_c",
+					"x10.ast." + tag,
+					"x10.extension." + tag + "_c",
+					"x10.extension." + tag,
 					"polyglot.ast." + tag + "_c",
 					"polyglot.ast." + tag,
-					"polyglot.ext.x10.types." + tag + "_c",
-					"polyglot.ext.x10.types." + tag,
+					"x10.types." + tag + "_c",
+					"x10.types." + tag,
 					"polyglot.types." + tag + "_c",
 					"polyglot.types." + tag,
 			};

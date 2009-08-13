@@ -1,8 +1,8 @@
 package x10.emitter;
 
-import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.Translator;
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * An abstract class for sub-template expansion.
