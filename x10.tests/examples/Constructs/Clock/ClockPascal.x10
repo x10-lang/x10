@@ -94,7 +94,7 @@ public class ClockPascal extends x10Test {
 				val n11: Clock = N(i, j);
 				val w11: Clock = W(i, j);
 				async clocked(n01, w10, n11, w11) {
-					for ((n) in 3..(i+j)) {
+					for ((n):Point(1) in 3..(i+j)) {
 						randDelay(DELAY);
 						pr1(i, j, n);
 						next;

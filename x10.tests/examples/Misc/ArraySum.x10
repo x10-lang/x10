@@ -24,7 +24,7 @@ public class ArraySum extends x10Test {
 
     def sum(val numThreads: int) {
         val mySize: int = size/numThreads;
-        finish foreach ((p) in 0..numThreads-1) {
+        finish foreach ((p):Point(1) in 0..numThreads-1) {
             var mySum: int = sum(data, p*mySize, (p+1)*mySize);
             atomic sum += mySum;
         }
