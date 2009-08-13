@@ -42,6 +42,16 @@ class Subst {
             Type base = X10TypeMixin.baseType(t);
             XConstraint c = X10TypeMixin.xclause(t);
             
+            if (t instanceof X10ParsedClassType) {
+                X10ParsedClassType ct = (X10ParsedClassType) t;
+                List<Type> newArgs = new ArrayList<Type>();
+                for (Type at : ct.typeArguments()) {
+                    Type at2 = subst(at, y, x);
+                    newArgs.add(at2);
+                }
+                if (! newArgs.isEmpty())
+                    return ct.typeArguments(newArgs);
+            } else 
             if (c != null) {
                 base = subst(base, y, x);
 
@@ -56,17 +66,7 @@ class Subst {
                 return X10TypeMixin.xclause(base, c);
             }
 
-            if (t instanceof X10ParsedClassType) {
-                X10ParsedClassType ct = (X10ParsedClassType) t;
-                List<Type> newArgs = new ArrayList<Type>();
-                for (Type at : ct.typeArguments()) {
-                    Type at2 = subst(at, y, x);
-                    newArgs.add(at2);
-                }
-                if (! newArgs.isEmpty())
-                    return ct.typeArguments(newArgs);
-            }
-
+            
             return t;
         }
         

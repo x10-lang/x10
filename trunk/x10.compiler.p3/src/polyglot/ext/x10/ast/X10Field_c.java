@@ -77,7 +77,9 @@ public class X10Field_c extends Field_c {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10Context c = (X10Context) tc.context();
-
+		if (c == null) {
+assert c != null : "pos=" + position();
+		}
 		Type tType = target.type();
 		if (tType == null)
 		    assert tType != null : "type of target of |" + this + "| is null";
@@ -208,6 +210,7 @@ public class X10Field_c extends Field_c {
 	
 	private static final boolean ENABLE_PLACE_TYPES = false;
 
+	// TODO: vj -- check this code 08/12/09
 	protected void checkFieldPlaceType(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 	    
@@ -231,7 +234,8 @@ public class X10Field_c extends Field_c {
 	        XConstraint_c pc = new XConstraint_c();
 	        XTerm target = ts.xtypeTranslator().trans(pc, result.target(), xc);
 	        if (target != null) {
-	            XTerm eloc = ts.xtypeTranslator().trans(pc, target, ((StructType) ts.Ref()).fieldNamed(Name.make("location")));
+	            XTerm eloc = ts.xtypeTranslator().trans(pc, target, 
+	            		((StructType) ts.Ref()).fieldNamed(Name.make("location")));
 	            Type t = result.target().type();
 
 	            XTerm here = ts.xtypeTranslator().transHere();

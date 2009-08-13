@@ -20,11 +20,15 @@ import java.util.List;
  * @author vj
  * 
  */
-public interface XConstraint extends java.io.Serializable {
+public interface XConstraint extends java.io.Serializable, ThisVar {
         /**
          * Variable to use for self in the constraint.
          */
         XRoot self();
+        
+        
+        void setThisVar(XVar thisVar);
+        void addThisBinding(XTerm term) throws XFailure;
     
 	/**
 	 * Is the consistent consistent? That is, does it have a solution?
@@ -128,6 +132,7 @@ public interface XConstraint extends java.io.Serializable {
 
 	/**
 	 * Add constraint c into this, and return this.
+	 * No change is made to this if c==null
 	 * 
 	 * @param c
 	 * @return

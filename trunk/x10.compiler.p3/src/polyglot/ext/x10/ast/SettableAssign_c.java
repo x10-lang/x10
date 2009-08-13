@@ -93,15 +93,18 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    return right.type();
 	}
 
-	@Override
 	public Expr left(NodeFactory nf) {
+		return left(nf, null);
+	}
+	//@Override
+	public Expr left(NodeFactory nf, ContextVisitor cv) {
 	    Name apply = Name.make("apply");
 	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
 	    if (mi != null) {
 	        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
 	        if (true) {
 	        ContextVisitor tc = new ContextVisitor(Globals.currentJob(), xts, nf);
-	        tc = tc.context(xts.emptyContext());
+	       tc = tc.context(cv == null? xts.emptyContext() : cv.context());
 	        try {
 	            return (Expr) c.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	        }
@@ -113,7 +116,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	        argTypes.remove(0);
 	        MethodInstance ami = null;
 	        try {
-	            Context context = xts.emptyContext(); // ### not right -- should do context(this)
+	            Context context = cv==null ? xts.emptyContext() : cv.context(); // ### not right -- should do context(this)
 	            ami = xts.findMethod(mi.container(),
 	                                 xts.MethodMatcher(mi.container(), apply, argTypes, context));
 	        } catch (SemanticException e) {

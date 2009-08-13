@@ -26,7 +26,9 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ext.x10.types.Subst;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
@@ -53,8 +55,11 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 
 /**
  * Captures the commonality of for, foreach and ateach loops in X10.
@@ -110,45 +115,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		return this;
 	}
 	
-//	Formal setClauses(Formal formal, Expr domain, X10NodeFactory nf) {
-//	    X10Type domainType = (X10Type) domain.type();
-//	    X10TypeSystem ts = (X10TypeSystem) domainType.typeSystem();
-//	    
-//	    if (formal.type().type().isInt() && domain instanceof RegionMaker) {
-//	        List<Expr> args = ((RegionMaker) domain).arguments();
-//	        if (args.size() == 2) {
-//	            Expr lo = args.get(0);
-//	            Expr hi = args.get(1);
-//	            if (lo.type().isIntOrLess() && hi.type().isIntOrLess()) {
-//	                X10Type t = (X10Type) formal.type().type();
-//					XConstraint c = X10TypeMixin.xclause(t);
-//	                if (c == null) c = new XConstraint_c();
-//	                else c = c.copy();
-//
-//	                Expr lbound = nf.Binary(lo.position(), nf.Self(lo.position()).type(ts.Int()), Binary.GE, lo).type(ts.Boolean());
-//	                Expr ubound = nf.Binary(hi.position(), nf.Self(hi.position()).type(ts.Int()), Binary.LE, hi).type(ts.Boolean());
-//	                
-//	                try {
-//	                    XConstraint lc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, lbound, thisVar);
-//	                    c.addIn(lc);
-//
-//	                    XConstraint uc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, ubound, thisVar);
-//	                    c.addIn(uc);
-//	                }
-//	                catch (SemanticException e) {
-//	                }
-//	                catch (XFailure e) {
-//	                }
-//	                
-//	                Type newType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
-//	                formal.localDef().setType(Types.ref(newType));
-//	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
-//	            }
-//	        }
-//	    }
-//
-//	    return formal;
-//	}
+
 	
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
@@ -176,16 +143,22 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
                 NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Type domainType = (X10Type) domain.type();
-		
+		X10Type domainType = (X10Type) domainTypeRef.get();
+		if (domainType == null ) {
+			// aha, in this case the type inferencer did not run, since an explicit type was givem.
+			domainType = (X10Type) domain.type();
+		}
 		Type formalType = formal.declType();
 		Type Iterable = ts.Iterable(formalType);
-		
+		assert domainType != null 
+		: "formal=" + formal + " domain = " + domain + " position = " + position();
 		if (ts.isSubtypeWithValueInterfaces(domainType, Iterable, tc.context())) {
+		//	if (X10TypeMixin.areConsistent(formalType, domainType)
 		    return this;
 		}
 
-//		// Check if there is a method with the appropriate name and type with the left operand as receiver.   
+//		// Check if there is a method with the appropriate name and type with the left 
+		// operand as receiver.   
 //		X10MethodInstance mi = ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST), tc.context().currentClassDef());
 //		Type rt = mi.returnType();
 //		if (! mi.flags().isStatic() && ts.isSubtype(rt, Iterator))
@@ -319,126 +292,142 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 	public Expr cond() { return null; }
 	
+	// Type inference works as follows. We first seek to establish that the domainType
+	// is a subtype of Iterable[T] for some T. If we can establish this, we then infer
+	// that the indexType is T. This must be consistent with the type for T that
+	// may have been declared or inferred from the structure of the index expression.
+	// For instance if the index expression is (i), then we will infer from this
+	// structure that its type is Point{self.rank==1}. 
+	//
+	// Used to record the domainType. Note that this may change as a result of 
+	// type inference -- We need to extract a proposed indexType from the domainType
+	// and later we will need to check that Iterable[indexType] is a subtype of
+	// domainType. Now we may need to create a new existentially quantified variable
+	// (standing for "this") to share between indexType and domainType. Hence the need
+	// to record this in domainTypeRef.
+	
+	// The canonical example for this is for ((i) in 0..9) S. Here 0..0 will have the
+	// type Region{self.zeroBased, self.rank=1, self.rectangular}. Now since
+	// Rectangular implements the interface Iterable[Point{self.rank=this.rank}]
+	// it is necessary to create a new variable, var, representing this, and update
+	// the domain type to be Region{self=var, self.zeroBased, self.rank=1, self.rectangular}
+	// and infer the indexType to be Point{self.rank=var.rank}. 
+	
+	// Subsequently the 
+	// type checker will be able to verify var:Region{self.zeroBased, self.rank=1} |-  
+	// var <: Iterable[Point{self.rank=var.rank}] and hence the for loop typechecking
+	// obligation (Iterable[indexType] <: domainType) is satisfied.
+	
+	LazyRef<Type> domainTypeRef = Types.lazyRef(null);
 	@Override
 	public Node setResolverOverride(final Node parent, final TypeCheckPreparer v) {
-	    final Expr domain = this.domain;
-	    final X10Loop loop = this;
-	    
-            Formal f = this.formal;
-            X10LocalDef li = (X10LocalDef) f.localDef();
-            if (f.type() instanceof UnknownTypeNode) {
-                UnknownTypeNode tn = (UnknownTypeNode) f.type();
+		final Expr domain = this.domain;
+		final X10Loop loop = this;
 
-                NodeVisitor childv = v.enter(parent, loop);
-                childv = childv.enter(loop, domain);
+		final Formal f = this.formal;
+		X10LocalDef li = (X10LocalDef) f.localDef();
+		if (f.type() instanceof UnknownTypeNode) {
+			UnknownTypeNode tn = (UnknownTypeNode) f.type();
 
-                if (childv instanceof TypeCheckPreparer) {
-                    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-                    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-                    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-                    tc = (TypeChecker) tc.context(tcp.context().freeze());
-                    
-                    // Create a ref and goal for computing the domain type.
-                    final LazyRef<Type> domainTypeRef = Types.lazyRef(null);
-                    domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
-                    
-                    final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-                    final ClassDef curr = v.context().currentClassDef();
-                    
-                    // Now, get the index type from the domain.
-                    // FIXME: Dist{self==d} index type is Point{rank==this.rank}
-                    // should be Point{rank==d.rank}
-                    r.setResolver(new Runnable() { 
-                        Type getIndexType(Type domainType) {
-                            Type base = X10TypeMixin.baseType(domainType);
-                            
-                            if (base instanceof X10ClassType) {
-                                if (ts.hasSameClassDef(base, ts.Iterable())) {
-                                    return X10TypeMixin.getParameterType(base, 0);
-                                }
-                                else {
-                                    Type sup = ts.superClass(domainType);
-                                    if (sup != null) {
-                                        Type t = getIndexType(sup);
-                                        if (t != null) return t;
-                                    }
-                                    for (Type ti : ts.interfaces(domainType)) {
-                                        Type t = getIndexType(ti);
-                                        if (t != null) {
-                                            return t;
-                                        }
-                                    }
-                                }
-                            }
+			NodeVisitor childv = v.enter(parent, loop);
+			childv = childv.enter(loop, domain);
 
-//                            // HACK: need to add iterable
-//                            try {
-//                                X10MethodInstance mi = (X10MethodInstance) ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST), curr);
-//                                return X10TypeMixin.getParameterType(mi.returnType(), 0);
-//                            }
-//                            catch (SemanticException e) {
-//                            }
-                            
-                            return null;
-                        }
+			if (childv instanceof TypeCheckPreparer) {
+				final TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+				TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), 
+						v.getMemo());
+				tc = (TypeChecker) tc.context(tcp.context().freeze());
 
-                        public void run() {
-                            Type domainType = domainTypeRef.get();
-                            Type indexType = getIndexType(domainType);    
-                            
-                            // subst self for this (from the domain type) in the index type.
-                            Type base = X10TypeMixin.baseType(domainType);
-                            XConstraint c = X10TypeMixin.xclause(domainType);
-                            XTerm selfVar = c != null ? c.bindingForVar(c.self()) : null;
-                            XRoot thisVar = base instanceof X10ClassType ? ((X10ClassType) base).x10Def().thisVar() : null;
-                            if (thisVar != null && selfVar != null)
-                                try {
-                                    indexType = Subst.subst(indexType, selfVar, thisVar);
-                                }
-                                catch (SemanticException e) {
-                                }
+				// Create a ref and goal for computing the domain type.
+				final LazyRef<Type> domainTypeRef = this.domainTypeRef;
+				domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
 
-                            if (indexType != null) {
-                                r.update(indexType);
-                            }
-                        }
-                    });
-                }
-            }
-            
-//            final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-//
-//	    formal.visitChildren(new NodeVisitor() {
-//	        @Override
-//	        public Node override(final Node parent, Node n) {
-//	            if (n instanceof Formal) {
-//	                Formal f = (Formal) n;
-//	                X10LocalDef li = (X10LocalDef) f.localDef();
-//	                if (f.type() instanceof UnknownTypeNode) {
-//	                    final UnknownTypeNode tn = (UnknownTypeNode) f.type();
-//	                    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-//	                    r.setResolver(new Runnable() {
-//	                        public void run() {
-//	                            if (parent instanceof Formal) {
-//	                                Formal ff = (Formal) parent;
-//	                                Ref<Type> fr = (Ref<Type>) ff.type().typeRef();
-//	                                Type ftype = fr.get();
-//	                                Type t = X10TypeMixin.getParameterType(ftype, 0);
-//	                                r.update(t);
-//	                            }
-//	                            else {
-//	                                r.update(ts.unknownType(tn.position()));
-//	                            }
-//	                        }
-//	                    });
-//	                }
-//	                return null;
-//	            }
-//	            return n;
-//	        }
-//	    });
+				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+				final ClassDef curr = v.context().currentClassDef();
 
-	    return super.setResolverOverride(parent, v);
+				// Now, get the index type from the domain.
+				r.setResolver(new Runnable() { 
+					Type getIndexType(Type domainType) {
+						Type base = X10TypeMixin.baseType(domainType);
+
+						if (base instanceof X10ClassType) {
+							if (ts.hasSameClassDef(base, ts.Iterable())) {
+								return X10TypeMixin.getParameterType(base, 0);
+							}
+							else {
+								Type sup = ts.superClass(domainType);
+								if (sup != null) {
+									Type t = getIndexType(sup);
+									if (t != null) return t;
+								}
+								for (Type ti : ts.interfaces(domainType)) {
+									Type t = getIndexType(ti);
+									if (t != null) {
+										return t;
+									}
+								}
+							}
+						}
+						return null;
+					}
+
+					public void run() {
+						Type domainType = domainTypeRef.get();
+						Type indexType = getIndexType(domainType);    
+
+						Type base = X10TypeMixin.baseType(domainType);
+						XConstraint c = X10TypeMixin.xclause(domainType);
+						
+						XVar selfVar = c != null ? c.self() : null;
+						XRoot thisVar = base instanceof X10ClassType ? 
+								((X10ClassType) base).x10Def().thisVar() 
+								: null;
+					
+						if (thisVar != null && selfVar != null)
+							try {
+								// Generate a new local variable
+								XVar var = c.genEQV(false);
+								// And substitute it for this in indexType
+								indexType = Subst.subst(indexType, var, thisVar);
+								if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
+									int length = ((X10Formal) f).vars().size();
+									if (length > 0) {
+										// Add a self.rank=n clause, if the formal
+										// has n components.
+										XVar self = X10TypeMixin.xclause(indexType).self();
+										X10FieldInstance fi = 
+											X10ArraysMixin.getProperty(ts.Point(), Name.make("rank"));
+										XName field = XTerms.makeName(fi.def(), 
+												Types.get(fi.def().container()) 
+												+ "#" + fi.name().toString());
+										
+										XTerm v = XTerms.makeField((XVar) self, field);
+										XTerm rank = XTerms.makeLit(new Integer(length));
+										indexType = X10TypeMixin.addBinding(indexType, v, rank);
+					
+									}
+					
+					
+								}
+										
+								// and add self=this in domainType, updating domainTypeRef.
+								domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
+								assert domainType !=null : "help!!";
+								domainTypeRef.update(domainType);
+							}
+						catch (SemanticException e) {
+						}
+
+						if (indexType != null) {
+							r.update(indexType);
+						}
+					}
+				});
+			}
+		}
+
+		return super.setResolverOverride(parent, v);
 	}
 
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {

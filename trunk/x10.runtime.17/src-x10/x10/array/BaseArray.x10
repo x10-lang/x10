@@ -198,7 +198,7 @@ public abstract value class BaseArray[T] extends Array[T] {
         	results(p) = at (ps(p)) {
         	    var result: T = unit;
                 val a = (this | here) as Array[T](rank);
-                for (pt:Point(rank) in a)
+                for (pt:Point(rank)  in a.region)
                     result = op(result, a(pt));
                 return result;
             };

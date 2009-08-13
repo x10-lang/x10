@@ -165,12 +165,14 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // Add in constraints from the supertypes.  This is
 				    // no need to change self, and no occurrence of this is possible in 
 				    // a type's base constraint.
+			    	// vj: 08/12/09. Incorrect. this can occur in a type's base constraint.
 				    {
 					    Type type = Types.get(superType());
 					    if (type != null) {
 						XConstraint rs = X10TypeMixin.realX(type);
 						if (rs != null) {
-//						    rs = rs.substitute(rs.self(), oldThis);
+							if (rs.thisVar() != null)
+								rs = rs.substitute(oldThis, (XRoot) rs.thisVar());
 						    result.addIn(rs);
 						}
 					    }
@@ -234,6 +236,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    // class Place extends Ref { ... }
 			    
 			    // Disable this for now since it can cause an infinite loop.
+			    // TODO: vj 08/12/09 Revisit this.
 			    if (false && result.consistent()) {
 				    // Verify that the realclause, as it stands, entails the assertions of the 
 				    // property.

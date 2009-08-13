@@ -568,6 +568,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             try {
                 ythis = xts.xtypeTranslator().genEQV(c, thisType, false);
                 c.addSelfBinding(ythis);
+                c.setThisVar(ythis);
             }
             catch (XFailure e) {
                 throw new SemanticException(e.getMessage(), me.position());
@@ -711,6 +712,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             XConstraint yc = X10TypeMixin.xclause(thisType);
             if (yc != null) {
                 XConstraint yc2 = yc.substitute(ythis, yc.self());
+                yc2.setThisVar(ythis);
                 env.addIn(yc2);
             }
         }
@@ -800,6 +802,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             XConstraint query = me.guard();
             if (query != null) {
                 XConstraint query2 = query.substitute(ythis, xthis);
+                query2.setThisVar(ythis);
                 //	                XConstraint query3 = query2.substitute(Y, X);
                 XConstraint query3 = query2;
                 XConstraint query4 = query3.substitute(y, x);
@@ -1013,6 +1016,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                         }
 
                         c.addSelfBinding(self);
+                        if (! flags.isStatic()) {
+                        	c.setThisVar((XVar) receiver);
+                        }
                         rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }
                     catch (XFailure f) {

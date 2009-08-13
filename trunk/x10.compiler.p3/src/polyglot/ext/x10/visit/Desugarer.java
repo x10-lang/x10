@@ -558,7 +558,7 @@ public class Desugarer extends ContextVisitor {
                     args).methodInstance(mi).type(mi.returnType());
         }
         X10Binary_c.Operator op = SettableAssign_c.binaryOp(n.operator());
-        X10Call left = (X10Call) n.left(xnf);
+        X10Call left = (X10Call) n.left(xnf, this);
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");

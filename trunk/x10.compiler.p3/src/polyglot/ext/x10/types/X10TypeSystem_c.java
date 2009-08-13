@@ -2271,8 +2271,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 oldThis = fi.x10Def().thisVar();
 
             Type t = fi.type();
-            Type newT = oldThis == null ? t : Subst.subst(t, (new XVar[] { v }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
-
+            Type newT = oldThis == null ? t 
+            		: Subst.subst(t, (new XVar[] { v }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
+            // TODO: vj: 08/11/09 
+            // Shouldnt we be setting thisVar on the type?
+          
             Type rt = fi.rightType();
             Type newRT = oldThis == null ? rt : Subst.subst(rt, (new XVar[] { v }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
 
