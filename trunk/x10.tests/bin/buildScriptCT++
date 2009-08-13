@@ -11,7 +11,7 @@ svnUpdate() {
 		( \
 			cd $(dirname $1); \
 			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
-			svn co "${2}/$(basename $1 $3)"; \
+			svn co "$3 ${2}/$(basename $1)"; \
 			exit $?; \
 		)
 		if (( $? != 0 )); then
