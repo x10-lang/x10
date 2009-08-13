@@ -56,11 +56,11 @@ value class UnionRegion extends BaseRegion {
     // algebra
     //
 
-    public def intersection(that: Region(rank)): Region(rank) {
+    public def intersection(that: Region(rank)): Region(rank)/*{self in this, self in that}*/ {
         val rs = new PolyRegionListBuilder(rank);
         for (r:Region(rank) in regions)
             rs.add(r.intersection(that));
-        return make(rs);
+        return make(rs)/* as Region(rank){self in this, self in that}*/;
     }
 
     public def complement(): Region(rank) {
@@ -126,7 +126,7 @@ value class UnionRegion extends BaseRegion {
     // iterator
     //
 
-    class It implements Iterator[Point(UnionRegion.this.rank)] {
+    class It implements Iterator[Point(UnionRegion.this.rank){self in UnionRegion.this}] {
 
         private var i: int = 0;
         var it: Iterator[Point/*(rank)*/] = null; // XTENLANG-118
@@ -141,12 +141,12 @@ value class UnionRegion extends BaseRegion {
             }
         }
         
-        final public def next(): Point(rank) = it.next() as Point(rank);  // XTENLANG-118
+        final public def next(): Point(rank){self in UnionRegion.this} = it.next() as Point(rank){self in UnionRegion.this};  // XTENLANG-118
 
         incomplete public def remove(): void;
     }
 
-    public def iterator(): Iterator[Point(rank)] {
+    public def iterator(): Iterator[Point(rank){self in this}] {
         return new It();
     }
 

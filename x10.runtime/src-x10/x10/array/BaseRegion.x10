@@ -56,8 +56,8 @@ abstract public value class BaseRegion extends Region {
     }        
 
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular1(min: int, max: int): Region{self.rank==1 && self.rect /*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
-        return RectRegion.make1(min, max);
+    public static def makeRectangular1(min: int, max: int): RectRegion1{self.intervalMin == min, self.intervalMax == max} {//Region{self.rank==1 && self.rect /*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
+        return RectRegion1.make(min, max);
     }        
 
     public static def makeBanded1(size: int, upper: int, lower: int): Region(2) { // XTENLANG-4
@@ -80,6 +80,8 @@ abstract public value class BaseRegion extends Region {
             r = r.product(regions(i));
         return r as RectRegion(regions.length);
     }
+    
+    public static def makeUnit(p: Point): RectRegion(p.rank) = makeRectangular(p.coords(), p.coords());
 
     //
     // basic information
@@ -94,20 +96,20 @@ abstract public value class BaseRegion extends Region {
     // region composition
     //
 
-    public def union(that: Region(rank)): Region(rank) {
+    public def union(that: Region(rank)): Region(rank){this in self, that in self} {
         val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that.difference(this));
-        return UnionRegion.make(rs);
+        return UnionRegion.make(rs) as Region(rank){this in self, that in self};
     }
 
-    public def disjointUnion(that: Region(rank)): Region(rank) {
+    public def disjointUnion(that: Region(rank)): Region(rank){this in self, that in self} {
         if (!this.intersection(that).isEmpty())
             throw U.illegal("regions are not disjoint");
         val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that);
-        return UnionRegion.make(rs);
+        return UnionRegion.make(rs) as Region(rank){this in self, that in self};
     }
 
     public def difference(that: Region(rank)): Region(rank) {
@@ -123,13 +125,30 @@ abstract public value class BaseRegion extends Region {
     }
 
     abstract public def complement(): Region(rank);
-    abstract public def intersection(that: Region(rank)): Region(rank);
+    abstract public def intersection(that: Region(rank)): Region(rank){self in this, self in that};
     abstract public def product(that: Region): Region;
     abstract public def projection(axis: int): Region(1);
 
     abstract public def boundingBox(): Region(rank);
     abstract protected def computeBoundingBox(): Region(rank);
-
+    
+    // TODO: Ugly hack: Implement in PolyRegion/UnionRegion and not here.
+    // FIXME/TODO: Uncomment below and remove casts once Vijay fixes the related bug.
+    public def translate(p: Point/*(rank)*/): Region(rank){self == this.translate(p)} {
+    	var r: Region(rank) = Region.makeEmpty(rank);
+    	for (val pt: Point(rank) in this) {
+    	    val newPoint = pt + (p as Point(rank)) as Point(rank);
+    	    r = r.union(Region.makeUnit(newPoint));
+    	}
+    	return r as Region(rank){self == this.translate(p)};
+    }
+    public def translate(other: Region/*(rank)*/): Region(rank){self == this.translate(other)} {
+    	var r: Region(rank) = Region.makeEmpty(rank);
+    	for (val p in other) {
+    	    r = r.union(translate(p) as Region(rank));
+    	}
+    	return r as Region(rank){self == this.translate(other)};
+    }
 
     //
     // low-performance bounds checking support
@@ -198,7 +217,7 @@ abstract public value class BaseRegion extends Region {
         throw U.unsupported(this, "scanners()");
     }
 
-    public def iterator(): Iterator[Point(rank)] {
+    public def iterator(): Iterator[Point(rank){self in this}] {
         throw U.unsupported(this, "iterator()");
     }
 

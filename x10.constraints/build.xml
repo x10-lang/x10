@@ -6,10 +6,19 @@
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
+	<property name="stp.url" value="http://sourceforge.net/projects/stp-fast-prover/files/stp-fast-prover/stp-ver-0.1/stp-ver-0.1-11-18-2008.tgz/download"/>
+	<property name="stp.sources" value="stp-ver-0.1-11-18-2008.tgz"/>
+	<property name="stp.dir" value="${basedir}/stp-ver-0.1-11-18-2008"/>
+	<property name="x10.constraints.lib" location="${basedir}/lib"/>
+	<property name="stp-java-bindings" location="${basedir}/stp-java-bindings"/>
+	<property name="stp-java-bindings.src" location="${stp-java-bindings}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10constraints.jar"/>
+    <property name="make.exe" value="make"/>
+    <property name="bash.exe" value="bash"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
+    	<pathelement location="${build}/libSTPJNI.so"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
@@ -19,9 +28,14 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
+    	<available file="${basedir}/${stp.sources}" property="stp.downloaded"/>
+    	<available file="${stp.dir}" type="dir" property="stp.unpacked"/>
     </target>
     <target name="clean">
         <delete dir="${build}"/>
+    	<delete dir="${stp.dir}"/>
+    	<delete file="${stp.sources}"/>
+    	<delete dir="${x10.constraints.lib}"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
         <mkdir dir="${lib}"/>
@@ -31,10 +45,47 @@
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
-            <fileset dir="${build}" includes="x10/**" excludes="${jar}"/>
+            <fileset dir="${build}" includes="x10/** stp/**" excludes="${jar}"/>
         </jar>
     </target>
-    <target name="build" depends="init">
+	<target name="stp-download" unless="stp.downloaded">
+        <get usetimestamp="true" ignoreerrors="true" src="${stp.url}" dest="${basedir}/${stp.sources}"/>
+	</target>
+	<target name="stp-unpack" depends="stp-download" unless="stp.unpacked">
+        <available property="stp.downloaded" file="${basedir}/${stp.sources}"/>
+        <fail message="Unable to get ${stp.sources}" unless="stp.downloaded"/>	
+        <sequential>
+            <echo message="Installing STP"/>
+        	<untar src="${basedir}/${stp.sources}" dest="${basedir}" compression="gzip"/>
+        	<chmod file="${stp.dir}/AST/genkinds.pl" perm="ugo+x"/>
+        	<chmod file="${stp.dir}/configure" perm="ugo+x"/>
+            <exec executable="${bash.exe}" dir="${stp.dir}" failonerror="true">
+                <arg value="${stp.dir}/configure" />
+            	<arg value="--with-prefix=${stp.dir}" />
+            </exec>
+            <exec executable="${make.exe}" dir="${stp.dir}" failonerror="true">
+            	<env key="CXX" value="g++ -fPIC"/>
+            	<env key="CC" value="gcc -fPIC"/>
+            </exec>
+        </sequential>
+	</target>
+	<target name="stp" depends="init,stp-unpack">
+		<mkdir dir="${x10.constraints.lib}"/>
+		<copy todir="${x10.constraints.lib}" file="${stp.dir}/lib/libstp.a"/>
+	</target>
+	<target name="stp-java-bindings" depends="stp">
+		<exec dir="${stp-java-bindings}" executable="${stp-java-bindings}/compile.sh"/>
+		<copy todir="${build}" file="${x10.constraints.lib}/libSTPJNI.so"/>
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+            <src path="${stp-java-bindings.src}"/>
+            <include name="stp/*.java"/>
+            <exclude name="stp/examples/**"/>
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+	</target>
+    <target name="build" depends="init,stp,stp-java-bindings">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>

@@ -1,0 +1,1 @@
+${CXX:-g++} src/stp/STPJNI.c -o ../lib/libSTPJNI.so -shared -I$JAVA_HOME/include/ -I$JAVA_HOME/include/linux ../lib/libstp.a -fPIC  
