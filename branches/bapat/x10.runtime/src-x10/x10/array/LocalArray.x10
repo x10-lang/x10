@@ -29,7 +29,7 @@ final value class LocalArray[T] extends BaseArray[T] {
     // NB: local array, so don't do place checking
     //
 
-    final public safe def apply(i0: int): T {
+    final public safe def apply(i0: int{self in region}): T {
         if (checkBounds) checkBounds(i0);
         return raw(layout.offset(i0));
     }
@@ -56,7 +56,7 @@ final value class LocalArray[T] extends BaseArray[T] {
     // NB: local array, so don't do place checking
     //
 
-    final public safe def set(v: T, i0: int): T {
+    final public safe def set(v: T, i0: int{self in region}): T {
         if (checkBounds) checkBounds(i0);
         raw(layout.offset(i0)) = v;
         return v;
@@ -95,7 +95,7 @@ final value class LocalArray[T] extends BaseArray[T] {
     public def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
         return Array.make[T](dist, (p:Point):T => {
-            a.result = op(a.result, apply(p as Point(rank)));
+            a.result = op(a.result, apply(p as Point(rank){self in region}));
             return a.result;
         });
 

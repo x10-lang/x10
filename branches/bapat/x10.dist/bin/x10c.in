@@ -93,10 +93,10 @@ fi
 
 if [[ "$DEXT" = "x10cpp" ]]; then
   # C++ backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass x10cpp.ExtensionInfo $extargs $args"
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" -Djava.library.path=${LIB_DIR} ${java_args} $MAIN -extclass x10cpp.ExtensionInfo $extargs $args"
 else
   # Java backend
-  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass x10.ExtensionInfo $extargs $args"
+  command="\"$JAVA\" -Xmx512m $config $profile -classpath \"$classpath\" -Djava.library.path=${LIB_DIR} ${java_args} $MAIN -post 'java -jar \"${LIB_DIR}${FILE_SEP}${ECJ_JAR}\" -1.5 -nowarn' -extclass x10.ExtensionInfo $extargs $args"
 fi
 
 [ -n "$verbose" ] && echo "$command"

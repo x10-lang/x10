@@ -519,9 +519,12 @@ public XConstraint_c() {
             XTerm left = f.left();
             XTerm right = f.right();
             
-            if (entails(left, right)) {
+            if (left.solver() == null && right.solver() == null && entails(left, right))
                 return true;
-            }
+            if (left.solver() != null && left.solver().entails(this, t, sigma))
+            	return true;
+            if (right.solver() != null && right.solver().entails(this, t, sigma))
+            	return true;
         } else if (t instanceof XDisEquals) {
             XDisEquals f = (XDisEquals) t;
             XTerm left = f.left();
@@ -531,7 +534,7 @@ public XConstraint_c() {
                 return true;
             }
         }
-        else if (t instanceof XFormula) {
+        else if (t instanceof XFormula && t.solver() == null) {
         	XFormula f = (XFormula) t;
         	XName op = f.operator();
         	List<XTerm> args = f.arguments();

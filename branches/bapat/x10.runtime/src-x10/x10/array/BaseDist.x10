@@ -36,7 +36,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public static def makeUnique1(ps: Rail[Place]): Dist(1) { // XTENLANG-4
 
         // regions
-        val init = (i:nat) => Region.makeRectangular(i, i);
+        val init = (i:nat) => Region.makeRectangular(i, i) as Region;  // FIXME: This cast shouldn't be needed, but it is.
         val regions = Rail.makeVal[Region](ps.length, init);
 
         // overall region

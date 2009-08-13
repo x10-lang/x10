@@ -20,8 +20,8 @@ import x10.array.FastArray;
  */
 
 public abstract value class Array[T](dist:Dist)
-    implements (Point{self.rank==dist.region.rank})=>T,
-               Iterable[Point{self.rank==dist.region.rank}]
+    implements (Point{self.rank==dist.region.rank, self in dist.region})=>T,
+               Iterable[Point{self.rank==dist.region.rank, self in dist.region}]
 {
 
     //
@@ -110,14 +110,14 @@ public abstract value class Array[T](dist:Dist)
     // operations
     //
 
-    public abstract safe def apply(pt: Point(rank)): T;
-    public abstract safe def apply(i0: int) {rank==1}: T;
+    public abstract safe def apply(pt: Point(rank){self in region}): T;
+    public abstract safe def apply(i0: int{self in region}) {rank==1}: T;
     public abstract safe def apply(i0: int, i1: int) {rank==2}: T;
     public abstract safe def apply(i0: int, i1: int, i2: int) {rank==3}: T;
     public abstract safe def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
     
-    public abstract safe def set(v:T, pt: Point(rank)): T;
-    public abstract safe def set(v:T, i0: int) {rank==1}: T;
+    public abstract safe def set(v:T, pt: Point(rank){self in region}): T;
+    public abstract safe def set(v:T, i0: int{self in region}) {rank==1}: T;
     public abstract safe def set(v:T, i0: int, i1: int) {rank==2}: T;
     public abstract safe def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
     public abstract safe def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;

@@ -67,7 +67,7 @@
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,data/**" excludes="${jar}"/>
-            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/** stp/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
         </jar>
     </target>

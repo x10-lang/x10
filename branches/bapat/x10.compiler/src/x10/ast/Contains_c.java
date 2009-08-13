@@ -111,11 +111,11 @@ public class Contains_c extends Expr_c implements Contains {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Type itemType = item.type();
 		Type collType = collection.type();
+	    Context context = tc.context();
 
 		// Check if there is a method with the appropriate name and type with the left operand as receiver.   
 		try {
 		    List<Type> args = Collections.singletonList(itemType);
-		    Context context = tc.context();
 		    ClassDef curr = context.currentClassDef();
 		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("contains"), args, context));
 		    return type(mi.returnType());
@@ -123,6 +123,15 @@ public class Contains_c extends Expr_c implements Contains {
 		catch (SemanticException e) {
 		    // Cannot find the method.  Fall through.
 		}
+		
+		if (itemType.isImplicitCastValid(ts.Point(), context) && collType.isImplicitCastValid(ts.Region(), context))
+		    return isSubsetTest(false).type(ts.Boolean());
+		
+		if (itemType.isImplicitCastValid(ts.Int(), context) && collType.isImplicitCastValid(ts.Region(), context))
+		    return isSubsetTest(false).type(ts.Boolean());
+		
+		if (itemType.isImplicitCastValid(ts.Region(), context) && collType.isImplicitCastValid(ts.Region(), context))
+		    return isSubsetTest(true).type(ts.Boolean());
 
 /*
 		if (itemType.isImplicitCastValid(ts.Point()) && collType.isImplicitCastValid(ts.Region()))

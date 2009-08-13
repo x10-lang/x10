@@ -30,6 +30,8 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -41,14 +43,17 @@ import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.X10Field_c;
 import x10.ast.X10Special;
+import x10.constraint.XCall;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV_c;
 import x10.constraint.XFailure;
+import x10.constraint.XIn;
 import x10.constraint.XLit;
 import x10.constraint.XLit_c;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
+import x10.constraint.XRectRegion1;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -368,10 +373,21 @@ public class XTypeTranslator {
 	    if (lt == null || rt == null)
 	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
 	    if (t.operator() == Binary.EQ) {
-	        v = XTerms.makeEquals(lt, rt);
+	    	if (lt instanceof XVar && rt instanceof XCall)
+	    		v = transCall((XVar) lt, (XCall) rt, xc);
+	    	else if (lt instanceof XCall && rt instanceof XVar)
+	    		v = transCall((XVar) rt, (XCall) lt, xc);
+	    	if (v == null)
+	    		v = XTerms.makeEquals(lt, rt);
 	    }
 	    else if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        v = XTerms.makeAnd(lt, rt);
+	    }
+	    else if (t.operator() == Binary.ADD) {
+	    	v = XTerms.makePlus(lt, rt);
+	    } 
+	    else if (t.operator() == Binary.MUL) {
+	    	v = XTerms.makeMul(lt, rt);
 	    }
 	    else {
 			v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
@@ -391,59 +407,85 @@ public class XTypeTranslator {
 	private XTerm trans(XConstraint c, Contains t, X10Context xc) throws SemanticException {
 	    Expr left = t.item();
 	    Expr right = t.collection();
-	    boolean containsAll = t.isSubsetTest();
-	    if (containsAll)
-		return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
+	    if (left.type().isImplicitCastValid(ts.Region(), xc))
+	    	return XIn.makeRegionIn(trans(c, left, xc), trans(c, right, xc));
+	    else if (left.type().isImplicitCastValid(ts.Point(), xc))
+	    	return XIn.makePointIn(trans(c, left, xc), trans(c, right, xc));
+	    else if (left.type().isImplicitCastValid(ts.Int(), xc))
+	    	return XIn.makeIntIn(trans(c, left, xc), trans(c, right, xc));
 	    else
-		return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
+	    	return XIn.makeUnknownIn(trans(c, left, xc), trans(c, right, xc));
 	}
 	
 	private XTerm trans(XConstraint c, Call t, X10Context xc) throws SemanticException {
 	    X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 	    Flags f = xmi.flags();
 	    if (X10Flags.toX10Flags(f).isProperty()) {
-		XTerm r = trans(c, t.target(), xc);
-		// FIXME: should just return the atom, and add atom==body to the real clause of the class
-		// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
-		XTerm body = xmi.body();
-		if (body != null) {
-		    if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
-		        body = body.subst(r, xmi.x10Def().thisVar());
-		    }
-		    for (int i = 0; i < t.arguments().size(); i++) {
-			XRoot x = (XRoot) X10TypeMixin.selfVar(xmi.formalTypes().get(i));
-			XTerm y = trans(c, t.arguments().get(i), xc);
-			body = body.subst(y, x);
-		    }
-		    addTypeToEnv(body, xmi.returnType());
-		    return body;
-		}
-		else {
-		    if (t.arguments().size() == 0) {
-			XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
-			XTerm v;
-			if (r instanceof XVar) {
-				v = XTerms.makeField((XVar) r, field);
-			}
-			else {
-				v = XTerms.makeAtom(field, r);
-			}
-			addTypeToEnv(v, xmi.returnType());
-			return v;
-		    }
-		    else {
-			List<XTerm> terms = new ArrayList<XTerm>();
-			terms.add(r);
-			for (Expr e : t.arguments()) {
-			    terms.add(trans(c, e, xc));
-			}
-			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
-			addTypeToEnv(v, xmi.returnType());
-			return v;
-		    }
-		}
+	    	XTerm r = trans(c, t.target(), xc);
+	    	// FIXME: should just return the atom, and add atom==body to the real clause of the class
+	    	// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
+	    	XTerm body = xmi.body();
+	    	if (body != null) {
+	    		if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
+	    			body = body.subst(r, xmi.x10Def().thisVar());
+	    		}
+	    		for (int i = 0; i < t.arguments().size(); i++) {
+	    			XRoot x = (XRoot) X10TypeMixin.selfVar(xmi.formalTypes().get(i));
+	    			XTerm y = trans(c, t.arguments().get(i), xc);
+	    			body = body.subst(y, x);
+	    		}
+	    		addTypeToEnv(body, xmi.returnType());
+	    		return body;
+	    	}
+	    	else {
+	    		if (t.arguments().size() == 0) {
+	    			XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
+	    			XTerm v;
+	    			if (r instanceof XVar) {
+	    				v = XTerms.makeField((XVar) r, field);
+	    			}
+	    			else {
+	    				v = XTerms.makeAtom(field, r);
+	    			}
+	    			addTypeToEnv(v, xmi.returnType());
+	    			return v;
+	    		}
+	    		else {
+	    			List<XTerm> terms = new ArrayList<XTerm>();
+	    			terms.add(r);
+	    			for (Expr e : t.arguments()) {
+	    				terms.add(trans(c, e, xc));
+	    			}
+	    			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
+	    			addTypeToEnv(v, xmi.returnType());
+	    			return v;
+	    		}
+	    	} 
+	    } else {
+	    	// Allow calls to Region.makeRectangular(Int, Int) (desugared form of x..y).
+	    	List<Type> makeRectangularArgTypes = new ArrayList<Type>(2);
+	    	makeRectangularArgTypes.add(ts.Int());
+	    	makeRectangularArgTypes.add(ts.Int());
+	    	MethodInstance makeRectangularMI = ts.findMethod(ts.Region(), ts.MethodMatcher(ts.Region(), Name.make("makeRectangular"), makeRectangularArgTypes, xc));
+	    	if (xmi.isSameMethod(makeRectangularMI, xc)) {
+	    		List<Expr> args = t.arguments();
+	    		Expr lExpr = args.get(0), rExpr = args.get(1);
+	    		Object l = lExpr.isConstant() ? lExpr.constantValue() : lExpr.toString();
+	    		Object r = rExpr.isConstant() ? rExpr.constantValue() : rExpr.toString();
+	    		return XTerms.makeRectRegion1(l, lExpr.isConstant(), r, rExpr.isConstant());
+	    	}
+	    	// Allow calls to Region.translate(Point).
+	    	List<Type> translateArgType = new ArrayList<Type>(1);
+	    	translateArgType.add(ts.Point());
+	    	MethodInstance translateMI = ts.findMethod(ts.Region(), ts.MethodMatcher(ts.Region(), Name.make("translate"), translateArgType, xc));
+	    	if (xmi.isSameMethod(translateMI, xc))
+	    		return XTerms.makeTranslate(trans(c, t.target(), xc), trans(c, t.arguments().get(0), xc));
+	    	// Allow calls to Region.translate(Region).
+	    	translateArgType.set(0, ts.Region());
+	    	translateMI = ts.findMethod(ts.Region(), ts.MethodMatcher(ts.Region(), Name.make("translate"), translateArgType, xc));
+	    	if (xmi.isSameMethod(translateMI, xc))
+	    		return XTerms.makeTranslate(trans(c, t.target(), xc), trans(c, t.arguments().get(0), xc));
 	    }
-	
 	    return null;
 //	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
 	}
@@ -503,6 +545,29 @@ public class XTypeTranslator {
 
 		return null;
 //		throw new SemanticException("Cannot translate type or expression |" + term + "| (" + term.getClass().getName() + ")" + " to a term.");
+	}
+	
+	/**
+	 * Translates calls that requires special handling.  For instance, constraints
+	 * like x == a..b turns into multiple constraints, while calls to + are handled normally.
+	 */
+	private XTerm transCall(XVar left, XCall call, X10Context xc) throws SemanticException {
+		if (call instanceof XRectRegion1) {
+			XRectRegion1 c = (XRectRegion1) call;
+			Type rectRegion1Type = ts.typeForName(QName.make("x10.array.RectRegion1"));
+			XTerm minRHS = c.minIsConstant() ? XTerms.makeLit(c.getMin()) : XTerms.makeLocal(XTerms.makeName(c.getMin()));
+			FieldInstance minField = ts.findField(rectRegion1Type, ts.FieldMatcher(rectRegion1Type, Name.make("intervalMin"), xc));
+			XTerm minEquals = XTerms.makeEquals(trans(null, left, minField), minRHS);
+			XTerm maxRHS = c.maxIsConstant() ? XTerms.makeLit(c.getMax()) : XTerms.makeLocal(XTerms.makeName(c.getMax()));
+			FieldInstance maxField = ts.findField(rectRegion1Type, ts.FieldMatcher(rectRegion1Type, Name.make("intervalMax"), xc));
+			XTerm maxEquals = XTerms.makeEquals(trans(null, left, maxField), maxRHS);
+			FieldInstance rankField = ts.findField(ts.Region(), ts.FieldMatcher(ts.Region(), Name.make("rank"), xc));
+			XTerm rankEquals = XTerms.makeEquals(trans(null, left, rankField), XTerms.makeLit(1));
+			FieldInstance rectField = ts.findField(ts.Region(), ts.FieldMatcher(ts.Region(), Name.make("rect"), xc));
+			XTerm rectEquals = XTerms.makeEquals(trans(null, left, rectField), XTerms.makeLit(true));
+			return XTerms.makeAnd(XTerms.makeAnd(XTerms.makeAnd(minEquals, maxEquals), rankEquals), rectEquals);
+		}
+		return null;
 	}
 	
 	/**

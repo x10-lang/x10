@@ -78,10 +78,10 @@ public value class PolyRegion extends BaseRegion {
     }
 
 
-    public def iterator(): Iterator[Point(rank)] {
+    public def iterator(): Iterator[Point(rank){self in this}] {
         //return new PointIt();
         //return scanner().iterator();
-        return new PolyScanner(mat).iterator() as Iterator[Point(rank)]; // XXXX cast
+        return new PolyScanner(mat).iterator() as Iterator[Point(rank){self in this}]; // XXXX cast
     }
 
 
@@ -89,7 +89,7 @@ public value class PolyRegion extends BaseRegion {
     // Region methods
     //
 
-    public def intersection(t: Region(rank)): Region(rank) {
+    public def intersection(t: Region(rank)): Region(rank){self in this, self in t} {
 
         if (t instanceof PolyRegion) {
 
@@ -107,11 +107,11 @@ public value class PolyRegion extends BaseRegion {
 
             // done
             val pm = pmb.toSortedPolyMat(false);
-            return PolyRegion.make(pm) as Region(rank); // XXXX why?
+            return PolyRegion.make(pm) as Region(rank){self in this, self in t}; // XXXX why?
 
         } else if (t instanceof UnionRegion) {
 
-            return (t as Region(rank)).intersection(this);
+            return t.intersection(this);
 
         } else {
             throw U.unsupported(this, "intersection(" + t/*.getClass().getName()*/ + ")");

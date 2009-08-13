@@ -77,16 +77,16 @@ public abstract value class BaseArray[T] extends Array[T] {
     // high-performance methods are in subclass to facilitate inlining
     //     
 
-    public final safe def apply(pt: Point(rank)): T {
+    public final safe def apply(pt: Point(rank){self in region}): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
 
-    public final safe def get(pt: Point(rank)): T = apply(pt);
+    public final safe def get(pt: Point(rank){self in region}): T = apply(pt);
 
     // XXXX settable order
-    public final safe def set(v: T, pt: Point(rank)): T {
+    public final safe def set(v: T, pt: Point(rank){self in region}): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         raw()(layout().offset(pt)) = v;
@@ -180,7 +180,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     //
 
     public def lift(op:(T)=>T): Array[T](dist)
-        = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
+        = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank){self in region})));
 
     //    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
 
@@ -198,7 +198,7 @@ public abstract value class BaseArray[T] extends Array[T] {
         	results(p) = at (ps(p)) {
         	    var result: T = unit;
                 val a = (this | here) as Array[T](rank);
-                for (pt:Point(rank)  in a.region)
+                for (pt:Point(rank){self in a.region}  in a.region)
                     result = op(result, a(pt));
                 return result;
             };
