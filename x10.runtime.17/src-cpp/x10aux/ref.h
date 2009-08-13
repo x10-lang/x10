@@ -114,10 +114,6 @@ namespace x10aux {
             return *(T*)_val;
         }
 
-        T* GPUSAFE get() const { 
-            return (T*)_val;
-        }
-
         T* GPUSAFE operator->() const { 
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
@@ -165,7 +161,7 @@ namespace x10aux {
 
     template <class T> inline ref<T> placeCheck(ref<T> obj) {
         #if !defined(NO_PLACE_CHECKS) && !defined(NO_EXCEPTIONS)
-        if (remote_ref::is_remote(obj.get())) throwBPE();
+        if (remote_ref::is_remote(obj.operator->())) throwBPE();
         #endif
         return obj;
     }
@@ -217,14 +213,14 @@ namespace x10aux {
     x10_int location (void *ptr);
 
     template<class T> x10_int location (x10aux::ref<T> ptr) {
-        return location(ptr.get());
+        return location(ptr.operator->());
     }
 
     // Hack around g++ 4.1 bugs with statement expression.
     // See XTENLANG-461.
 #if defined(__GNUC__)
     template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
-    template<class T> class GXX_ICE_Workaround<ref<T> > { public: static inline T* _(ref<T> v) { return v.get(); } };
+    template<class T> class GXX_ICE_Workaround<ref<T> > { public: static inline T* _(ref<T> v) { return v.operator->(); } };
 #else
     template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
 #endif

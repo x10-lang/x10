@@ -66,7 +66,7 @@ void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
     Slots *q = queue;
     int mask = q->capacity - 1;
     int s = sp;
-    setSlot(q, s & mask, t.get());
+    setSlot(q, s & mask, t.operator->());
     storeSp(++s);
     if ((s -= base) == 1) {
         ;

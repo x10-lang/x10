@@ -1277,7 +1277,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 emitter.printType(xts.Object(), sw);
                 sw.write(" p0");
                 sw.write(") {"); sw.newline(4); sw.begin(0);
-                sw.write("if (p0.get() == this) return true; // short-circuit trivial equality");
+                sw.write("if (p0.operator->() == this) return true; // short-circuit trivial equality");
                 sw.newline();
                 sw.write("if (!this->" + emitter.translateType(superClass) + "::" +
                          mangled_method_name(STRUCT_EQUALS_METHOD) + "(p0))");
@@ -2133,12 +2133,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     		if (ret_type.isVoid()) {
                     			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
                         		n.printSubExpr((Expr) target, assoc, sw, tr);
-                        		sw.write(")); (_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                        		sw.write(")); (_.operator->()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                         		dangling = "; }))";
                     		} else {
                     			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
                     			n.printSubExpr((Expr) target, assoc, sw, tr);
-                    			sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(ret_type, true))+"::_((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                    			sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(ret_type, true))+"::_((_.operator->()->*(x10aux::findITable"+chevrons(emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
                     			dangling = "); }))";
                     		}
                     	}
@@ -2693,14 +2693,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("x10aux::ref<x10::lang::Object> " + name + " = "+iteratorTypeRef);
 		sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _1 = x10aux::placeCheck(x10aux::nullCheck(");
 		n.print(domain, sw, tr);
-		sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(iteratorTypeRef)+"::_((_1.get()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))()); }));"); sw.newline();
+		sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(iteratorTypeRef)+"::_((_1.operator->()->*(x10aux::findITable"+chevrons(iterableType)+"(_1->_getITables())->iterator))()); }));"); sw.newline();
 		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 
 		sw.write("for (");
 		sw.begin(0);
 
 		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write("("+name+".get()->*("+itableName+"->hasNext))();");
+		sw.write("("+name+".operator->()->*("+itableName+"->hasNext))();");
 		sw.allowBreak(2, " ");
 
 		sw.end();
@@ -2711,7 +2711,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(";");
 		sw.newline();
 		sw.write(mangled_non_method_name(form.name().id().toString()));
-        sw.write(" = ("+name+".get()->*("+itableName+"->next))();");
+        sw.write(" = ("+name+".operator->()->*("+itableName+"->next))();");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 			Stmt l = (Stmt) li.next();
@@ -3216,7 +3216,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            (xts.isSubtype(retType, xts.Ref(), tr.context()) ||
 	             retType.toClass().flags().isInterface()))
 	        {
-	            sw.write(".get()");
+	            sw.write(".operator->()");
 	        }
 	        sw.write(";");
 	    }
@@ -3262,7 +3262,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (lit != null || (t.isClass() && t.toClass().flags().isInterface())) {
 			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
 			c.printSubExpr(target, sw, tr);
-			sw.write(")); "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.get()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");;
+			sw.write(")); "+(mi.returnType().isVoid() ? "" : "x10aux::GXX_ICE_Workaround"+chevrons(emitter.translateType(mi.returnType(), true))+"::_")+"((_.operator->()->*(x10aux::findITable"+chevrons(emitter.translateType(target.type(), false))+"(_->_getITables())->apply))(");;
 			terminate = ");}))";
 		} else {
 			sw.write("x10aux::placeCheck(x10aux::nullCheck(");

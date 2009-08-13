@@ -10,7 +10,7 @@ namespace x10aux {
 
     template<class T> inline ref<x10::lang::String> class_name(ref<T> x) {
         x10aux::nullCheck(x);
-        return x10::lang::String::Lit(((const T*)x.get())->_type()->name());
+        return x10::lang::String::Lit(((const T*)x.operator->())->_type()->name());
     }
 
     inline ref<x10::lang::String> class_name(const x10_double) {

@@ -13,10 +13,10 @@ void Object::_serialize(x10aux::ref<Object> this_,
                         x10aux::serialization_buffer &buf,
                         x10aux::addr_map &m) 
 {
-    if (x10aux::remote_ref::is_remote(this_.get()) || this_.isNull()) {
+    if (x10aux::remote_ref::is_remote(this_.operator->()) || this_.isNull()) {
         // cannot dispatch for these "addresses", handle here
         buf.write(Ref::_serialization_id,m);
-        buf.write(x10aux::remote_ref::make(this_.get()),m);
+        buf.write(x10aux::remote_ref::make(this_.operator->()),m);
         return;
     }
     _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
@@ -28,9 +28,9 @@ void Object::_serialize(x10aux::ref<Object> this_,
 
 x10_boolean Object::equals(x10aux::ref<Object> other) {
     if (x10aux::instanceof<Value>(other))
-        return this->equals(x10aux::ref<Value>(reinterpret_cast<Value*>(other.get())));
+        return this->equals(x10aux::ref<Value>(reinterpret_cast<Value*>(other.operator->())));
     if (x10aux::instanceof<Ref>(other))
-        return this->equals(x10aux::ref<Ref>(reinterpret_cast<Ref*>(other.get())));
+        return this->equals(x10aux::ref<Ref>(reinterpret_cast<Ref*>(other.operator->())));
     assert (false && "Unknown reference type");
     return false;
 }

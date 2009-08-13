@@ -75,7 +75,7 @@ void x10aux::receive_async (void *the_buf, void *) {
     assert(buf.consumed()==sz);
     // FIXME: assert that buf.sofar() == sz
     deserialized_bytes += sz; asyncs_received++;
-    (async.get()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
+    (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

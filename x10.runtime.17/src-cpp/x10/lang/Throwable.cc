@@ -422,7 +422,7 @@ void Throwable::printStackTrace() {
 }
 
 x10_boolean Throwable::_struct_equals(ref<Object> p0) {
-    if (p0.get() == this) return true; // short-circuit trivial equality
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
     if (!this->Value::_struct_equals(p0))
         return false;
     ref<Throwable> that = (ref<Throwable>) p0;
