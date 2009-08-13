@@ -55,9 +55,9 @@ function mailResults {
 	mailsubj="${mailsubj} ${tctime} @ $(hostname)]: ${mesg}"
 	# send mail
 	if [[ -n "${tcmaillist}" ]]; then
-		mail -s "${mailsubj}" -c "${tcmaillist}" ${tcmailaddr} < ${tcrlogfile}
+		${MAILCMD} -s "${mailsubj}" -c "${tcmaillist}" ${tcmailaddr} < ${tcrlogfile}
 	else
-		mail -s "${mailsubj}" ${tcmailaddr} < ${tcrlogfile}
+		${MAILCMD} -s "${mailsubj}" ${tcmailaddr} < ${tcrlogfile}
 	fi
 }
 
@@ -102,6 +102,10 @@ function printUsage {
 		printf "  Alternatively, use this option to indicate the file"
 		printf " pattern(s)\nfor the tests to run.  With these options,"
 		printf " only the specified tests\nare run.\n\n"
+		printf -- "-runFile file\n"
+		printf "  Additional information about test cases during execution"
+		printf " can be\nprovided through this data file. Please look into"
+		printf " the sample\nruntime data file provided for details.\n\n"
 		printf -- "-mailAddr user@host\n"
 		printf "  Test harness administrator mail address.\n\n"
 		printf -- "-mailList user1@host ... usern@host\n"
@@ -149,6 +153,13 @@ function parseCmdLine {
 			fi
 			tcpatfile=$2
 			shift 2
+		elif [[ "$1" == "-runFile" && $# -ge 2 ]]; then
+			if [[ ! -r "$2" ]]; then
+				printf "\n[${prog}: err]: Run file $2 must exist & be readable\n"
+				cleanUpExitHarness 1
+			fi
+			tcrunfile=$2
+			shift 2
 		elif [[ "$1" == "-list" || "$1" == "-l" ]]; then
 			if (( $# >= 2 )); then
 				tcpatlist="$2"
@@ -166,7 +177,7 @@ function parseCmdLine {
 			fi
 		elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 			printUsage 0 1
-		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-mailAddr" || "$1" == "-mailList" ]]; then
+		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-runFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-mailAddr" || "$1" == "-mailList" ]]; then
 			printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 			printUsage 1 0
 		elif [[ "$1" == -* ]]; then
@@ -287,10 +298,10 @@ function execTimeOut {
 	shift
 	printf "\n===> $@ >> $outfile &\n\n" 1>&2
 	printf "\n" >> $outfile
-	"$MYDIR"/newpgrp "$@" >> $outfile 2>&1 &
+	"$MYDIR"/xnewpgrp "$@" >> $outfile 2>&1 &
 	typeset cmd_pid=$!
 	printf "\n===> sleep $timeout && kill -9 -$cmd_pid >/dev/null 2>&1 &\n\n" 1>&2
-	"$MYDIR"/newpgrp "sleep $timeout && kill -9 -$cmd_pid" >/dev/null 2>&1 &
+	"$MYDIR"/xnewpgrp "sleep $timeout && kill -9 -$cmd_pid" >/dev/null 2>&1 &
 	typeset sleep_pid=$!
 	printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
 	wait $cmd_pid >/dev/null 2>&1
@@ -313,8 +324,12 @@ prog=x10c++th
 # platform independent abstraction for certain commands
 EGREP=egrep
 egrep --version 2>/dev/null 1>/dev/null
-if [[ $? == 0 ]]; then
+if [[ $? == 0 && $(uname -s) != Sun* ]]; then
 	EGREP="egrep -E"
+fi
+MAILCMD=mail
+if [[ $(uname -s) == Sun* ]]; then
+	MAILCMD=mailx
 fi
 
 # generate unique timestamp (tctimestamp)
@@ -345,6 +360,8 @@ function cleanUpExitHarness {
 			fi
 			cat ${tctmpelog} > ${tcelogfile}
 			mailResults
+			gzip -9 ${tcrlogfile}
+			gzip -9 ${tcelogfile}
 		fi
 		rm -rf $tctmpdir
 	fi
@@ -352,12 +369,13 @@ function cleanUpExitHarness {
 }
 
 # exit gracefully upon receiving these signals
-trap 'cleanUpExitHarness 1' INT QUIT TERM
+trap 'cleanUpExitHarness 1' INT QUIT TERM HUP
 
 # default values
 DEFAULT_TIMEOUT=360
 DEFAULT_LOGPATH="log"
 DEFAULT_NPLACES=1
+MAX_NPLACES=4
 
 # the value will be set later
 export X10CPP_LOGLOC=""
@@ -392,6 +410,10 @@ typeset tclogpath=$DEFAULT_LOGPATH
 # test case pattern file
 # default: none
 typeset tcpatfile=""
+
+# test case run data file
+# default: none
+typeset tcrunfile=""
 
 # test pattern list
 # default: none
@@ -568,11 +590,11 @@ function main {
 	if [[ -z "$X10LIB" ]]; then
 		X10LIB=$X10_HOME/pgas/common/work
 	fi
-	if [[ ! -f $X10LIB/include/x10/x10.h ]]; then
+	if [[ ! -f $X10LIB/include/x10/x10rt_api.h ]]; then
 		printf "\n[$prog: err]: unable to locate pgas header files!\n"
 		cleanUpExitHarness 2
 	fi
-	if [[ ! (-f $X10LIB/lib/libupcrts_lapi.a || -f $X10LIB/lib/libupcrts_sockets.a || -f $X10LIB/lib/libupcrts_smp.a) ]]; then
+	if [[ ! (-f $X10LIB/lib/libxlpgas_lapi.a || -f $X10LIB/lib/libxlpgas_sockets.a || -f $X10LIB/lib/libxlpgas_smp.a) ]]; then
 		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
 		cleanUpExitHarness 2
 	fi
@@ -610,14 +632,6 @@ function main {
 	printf "#\tE - execution step\n\n"
 	printf "#\tX - test failed\n"
 	printf "#\tY - test passed\n"
-
-	if [[ `uname -s` != "AIX" ]]; then
-		export MP_CHILD=0
-		export MP_PROCS=1
-		export PGASRT_HOME_NODE=127.0.0.1
-		export PGAS_NTHREADS=1
-		export UPC_NTHREADS=1
-	fi
 
 	for tc in ${tclist[*]}; do
 		let 'tcproccnt += 1'
@@ -668,7 +682,8 @@ function main {
 		__cat_test_x10c_sourcepath="$tcroot"
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
-		comp_cmd="${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		#comp_cmd="${X10CPP} -t -v -commandlineonly -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} -t -v -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 
@@ -717,16 +732,24 @@ function main {
 		# the actual output will be logged here
 		#tcoutdat=${tcroot}/${tctarget}.out
 		tcoutdat=${tccompdat}
+		# extract additional execution details, if available
+		my_nplaces=$DEFAULT_NPLACES
+		if [[ -n "$tcrunfile" ]]; then
+			${EGREP} ${tctarget}\.x10 $tcrunfile >/dev/null 2>&1
+			if (( $? == 0 )); then
+				my_nplaces=$MAX_NPLACES
+			fi
+		fi
 		if [[ `uname -s` == "AIX" ]]; then
 			tchostfile=$tcroot/host.list
-			for (( i = 0; i < DEFAULT_NPLACES; i++ )); do
+			for (( i = 0; i < my_nplaces; i++ )); do
 				printf "$(hostname)\n" >> $tchostfile
 			done
-			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $DEFAULT_NPLACES -msg_api lapi -hostfile $tchostfile"
+			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $my_nplaces -msg_api lapi -hostfile $tchostfile"
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		else
-			run_cmd="/usr/bin/time -p ./${tctarget}"
-			printf "\nMP_CHILD=$MP_CHILD MP_PROCS=$MP_PROCS PGASRT_HOME_NODE=$PGASRT_HOME_NODE PGAS_NTHREADS=$PGAS_NTHREADS UPC_NTHREADS=$UPC_NTHREADS ${run_cmd}\n" >> $tcoutdat
+			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
+			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi
 
 		__cat_test_x10_classpath="$EXTRA_CLASSPATH"
@@ -957,3 +980,5 @@ init "$@"
 writeLogHead > ${tctmprhlog} 2>${tctmpelog}
 main > ${tctmprlog} 2>>${tctmpelog}
 cleanUpExitHarness 0
+
+# vim:tabstop=4:shiftwidth=4:expandtab

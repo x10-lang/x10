@@ -6,6 +6,37 @@
 # $Id$
 # Script that sources and builds all components required for regression.
 
+svnUpdate2() {
+	if [[ ! -d $1 ]]; then
+		( \
+			cd $(dirname $1); \
+			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
+			svn co -r 2571 "${2}/$(basename $1)"; \
+			exit $?; \
+		)
+		if (( $? != 0 )); then
+			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
+			return 1
+		else
+			printf "\n## done.\n"
+			return 0
+		fi
+	else
+		( \
+			cd $1; \
+			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
+			svn update; \
+			exit $?; \
+		)
+		if (( $? != 0 )); then
+			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
+			return 1
+		else
+			printf "\n## done.\n"
+			return 0
+		fi
+	fi
+}
 svnUpdate() {
 	if [[ ! -d $1 ]]; then
 		( \
@@ -105,14 +136,7 @@ buildX10Module() {
 			( \
 				cd $1; \
 				gmake squeakyclean; \
-				gmake all; \
-				exit $?; \
-			)
-			;;
-		"x10lib")
-			( \
-				cd $1; \
-				gmake xrx; \
+				gmake; \
 				exit $?; \
 			)
 			;;
@@ -127,13 +151,14 @@ buildX10Module() {
 }
 
 main() {
+    # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
 
 	POLYGLOT_HOME=$X10_HOME/polyglot
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
 	fi
-	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
+	svnUpdate2 $POLYGLOT_HOME $POLYGLOT_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
@@ -188,6 +213,13 @@ main() {
 	if (( $status != 0 )); then
 		return $status
 	fi
+    # post-checkout patch -- required on some platforms during batch compilation
+	(cd $X10_DIST/bin; \
+	mv x10c.in x10c.in.orig; \
+	sed -e 's/-Xmx512m/-Xmx1024m/g' x10c.in.orig > x10c.in; \
+	mv setupX10.in setupX10.in.orig; \
+	sed -e 's/-Xmx128m/-Xmx1024m/g' setupX10.in.orig > setupX10.in; \
+	)
 
 	X10_TESTS=$X10_HOME/x10.tests
 	if [[ -d $X10_TESTS ]]; then
@@ -209,13 +241,7 @@ main() {
 		return $status
 	fi
 
-	#X10_WEB=$X10_HOME/x10.web
-	#svnUpdate $X10_WEB $X10_SVNROOT
-	#status=$?
-	#if (( $status != 0 )); then
-	#	return $status
-	#fi
-	
+    # build modules in the listed order -- some builds may be redundant
 	buildX10Module $POLYGLOT_HOME polyglot
 	status=$?
 	if (( $status != 0 )); then
@@ -225,43 +251,46 @@ main() {
 	if [[ "${__cat_system}" == CYGWIN ]]; then
 		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
 	fi
+
 	buildX10Module $X10_CONSTRAINTS x10
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
+
 	buildX10Module $X10_COMMON x10
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
+
 	buildX10Module $X10_DIST x10j
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
+
 	buildX10Module $X10_COMPILER x10
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
+
 	buildX10Module $X10_CPP x10
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
-	export ENABLE_GC=yes
-	export INCLUDE_DIRS=-I${X10GC}/include
+
+    if [[ -n "$X10GC" ]]; then
+	    export INCLUDE_DIRS=-I${X10GC}/include
+    fi
 	buildX10Module $X10_RUNTIME/src-cpp x10rt
 	status=$?
 	if (( $status != 0 )); then
 		return $status
 	fi
-	buildX10Module $X10_RUNTIME/src-cpp x10lib
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
+
 	buildX10Module $X10_TESTS x10
 	return $?
 }
@@ -289,8 +318,10 @@ if [[ -z "$POLYGLOT_SVNROOT" ]]; then
 	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 fi
 
-if [[ -z "$X10GC" ]]; then
+if [[ -n "$ENABLE_GC" && -z "$X10GC" ]]; then
 	export X10GC=${X10_HOME}/x10.runtime.17/src-cpp/bdwgc/install
 fi
 
 main
+
+# vim:tabstop=4:shiftwidth=4:expandtab

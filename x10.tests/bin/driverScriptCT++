@@ -110,15 +110,21 @@ cleanUpExit() {
 	cat $DATADIR/build_targetT.xml.tmpl >> $REPORTF
 	cat $DATADIR/reportT.xml.tmpl >> $REPORTF
 	gzip -9 $REPORTF
-	scp ${REPORTF}.gz regression@legato.watson.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
-	ssh regression@legato.watson.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
-	ssh regression@legato.watson.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
+	#if (( $rc != 128 )); then
+	#scp ${REPORTF}.gz regression@legato.watson.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
+	#ssh regression@legato.watson.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
+	#ssh regression@legato.watson.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
+	#fi
 	# cleanup code, if any
+    if [[ -d "$LOGD" ]]; then
+        mv ${REPORTF}.gz $LOGD
+    fi
 	rm -f $BLOGF $TLOGF
 	exit $rc
 }
 
-trap 'cleanUpExit 1' INT QUIT TERM
+trap 'cleanUpExit 1' QUIT HUP
+trap 'cleanUpExit 128' INT TERM
 
 prog=$(basename $0)
 MYDIR=$(dirname $0)
@@ -141,7 +147,7 @@ if [[ -z "$X10LANG" ]]; then
 fi
 
 X10GC=$X10GC
-if [[ -z "$X10GC" ]]; then
+if [[ -n "$ENABLE_GC" && -z "$X10GC" ]]; then
 	export X10GC=${X10_HOME}/x10.runtime.17/src-cpp/bdwgc/install
 fi
 
@@ -155,7 +161,7 @@ fi
 
 export CVS_RSH=ssh
 export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
-export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
+export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
 
 ##### cat feed - init
 __cat_feed_stage=INIT
@@ -182,6 +188,10 @@ case "${__cat_system}" in
 		__cat_target_address_size=$(isainfo -b)
 		;;
 	Linux)
+		__cat_arch=$(uname -m)
+		__cat_target_address_size=$(getconf LONG_BIT)
+		;;
+	Darwin)
 		__cat_arch=$(uname -m)
 		__cat_target_address_size=$(getconf LONG_BIT)
 		;;
@@ -224,12 +234,24 @@ if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_config_debug=NA
 	__cat_config_gc=NA
 else
-	__cat_config_compiler="g++"
+    if [[ "$(uname -s)" == AIX ]]; then
+        __cat_config_compiler="xlc"
+    else
+	    __cat_config_compiler="gcc"
+    fi
 	__cat_config_pgas="yes"
-	__cat_config_transport="sockets"
+    if [[ "$(uname -s)" == AIX ]]; then
+        __cat_config_transport="lapi"
+    else
+	    __cat_config_transport="sockets"
+    fi
 	__cat_config_checks="place|null|bounds|exceptions"
 	__cat_config_debug="none"
-	__cat_config_gc="yes"
+    if [[ "$(uname -s)" == Linux ]]; then
+	    __cat_config_gc="yes"
+    else
+        __cat_config_gc="no"
+    fi
 fi
 __cat_svn_revision=$(svn info $X10_SVNROOT | egrep '^Revision:' | \
 		awk '{print $2}')
@@ -288,7 +310,7 @@ else
 fi
 __cat_x10c_version=$($X10_HOME/x10.dist/bin/x10c -version | \
 				egrep '^x10c' | awk '{print $3}')
-__cat_x10c_maxheap="128M"
+__cat_x10c_maxheap="1024M"
 __cat_x10c_time="true"
 __cat_x10c_verbose="true"
 __cat_x10c_commandlineonly="true"
@@ -319,10 +341,11 @@ __cat_x10_PRELOAD_CLASSES="false"
 __cat_x10_PRELOAD_STRINGS="false"
 __cat_x10_LOAD=""
 
-#$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com -mailList 'igorp@us.ibm.com vsaraswa@us.ibm.com groved@us.ibm.com'; \
 export X10LANG=$X10LANG
 ( \
 	cd $X10_HOME/x10.tests/examples; \
-	$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com
+	$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com -runFile $DATADIR/testrun.dat; \
 )
 cleanUpExit $?
+
+# vim:tabstop=4:shiftwidth=4:expandtab
