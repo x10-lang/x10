@@ -36,6 +36,12 @@ class Simple {
     a(5) = 42;
   }
 
+  def unionTest(val r1: Region, val r2: Region(r1.rank), val a: Array[Int](r1 || r2)) {
+    // Bug (likely same as already reported ones): type inference fails
+    for (val p: Point(r1.rank){self in r1} in r1) a(p) = 42;
+    for (val p: Point(r2.rank){self in r2} in r2) a(p) = 42;
+  }
+
   def syntaxTest(r: RectRegion1{self == 1..10}) {
     val r2: RectRegion1{self.intervalMin == 1, self.intervalMax == 10, self.rank == 1, self.rect} = r;
   }
