@@ -220,7 +220,7 @@ ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
-	$(MAKE) $(MAKEFLAGS) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
+	$(MAKE) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
 	touch $@
 
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
