@@ -14,10 +14,6 @@
 package x10cuda.visit;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
@@ -72,14 +68,6 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
-import polyglot.types.ClassType;
-import polyglot.types.Context;
-import polyglot.types.Name;
-import polyglot.types.QName;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.visit.Translator;
 import x10.ast.AssignPropertyBody_c;
 import x10.ast.Await_c;
 import x10.ast.Closure;
@@ -96,26 +84,30 @@ import x10.ast.SubtypeTest_c;
 import x10.ast.Tuple_c;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Binary_c;
-import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
-import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
-import x10.util.ClassifiedStream;
-import x10.util.StreamWrapper;
-import x10cpp.debug.LineNumberMap;
+import x10cpp.visit.Emitter;
 import x10cpp.visit.MessagePassingCodeGenerator;
-import x10cpp.visit.X10CPPTranslator;
 import x10cuda.types.SharedMem;
 import x10cuda.types.X10CUDAContext_c;
+import polyglot.types.Name;
+import polyglot.types.QName;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.VarInstance;
+import polyglot.visit.Translator;
+import x10.util.ClassifiedStream;
+import x10.util.StreamWrapper;
 
 /**
  * Visitor that prettyprints an X10 AST to the CUDA subset of c++.
@@ -136,18 +128,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return (X10CUDAContext_c) tr.context();
     }
     
-    private void context(Context v) {
-        ((X10CPPTranslator)tr).setContext(v);
-    }
-    
     // defer to CUDAContext.cudaStream()
     private ClassifiedStream cudaStream() {
         return context().cudaStream(sw);
     }
     
-    private boolean generatingCuda() { return context().generatingCuda(); }
+    private boolean generatingKernel() { return context().generatingKernel(); }
 
-    private void generatingKernel(boolean v) { context().generatingCuda(v); }
+    private void generatingKernel(boolean v) { context().generatingKernel(v); }
 
     private Type getType(String name) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
@@ -166,18 +154,64 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         }
     }
     
+    private String env = "__env";
+    
+    private Type railCargo(Type typ) {
+        if (typ instanceof ConstrainedType) {
+            typ = ((ConstrainedType)typ).baseType().get();
+        }
+        if (!typ.isClass()) return null;
+        assert typ instanceof X10ClassType : typ.getClass();
+        X10ClassType ctyp = (X10ClassType)typ;
+        String name = ctyp.name().toString();
+        if (!name.equals("Rail") && !name.equals("ValRail")) return null;
+        assert ctyp.typeArguments().size() == 1;
+        return ctyp.typeArguments().get(0);
+    }
+    private boolean isFloatRail(Type typ) {
+        Type cargo = railCargo(typ);
+        return cargo!=null && cargo.isFloat();
+    }
+    private boolean isIntRail(Type typ) {
+        Type cargo = railCargo(typ);
+        return cargo!=null && cargo.isInt();
+    }
+    
     void handleKernel(Block_c b) {
         X10ClassType hostClassType = (X10ClassType) context().wrappingClosure().closureDef().typeContainer().get();
-        String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+        String hostClassName = Emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
         String kernel_name = getClosureName(hostClassName,context().closureId());
         sw.write("/* block split-compiled to cuda as "+kernel_name+" */ ");
 
         ClassifiedStream out = cudaStream();
         // disable name-mangling which seems to be inconsistent across cuda versions
-        out.write("extern \"C\" {"); out.newline(4); out.begin(0);
-        
-        // kernel
-        out.write("__global__ void "+kernel_name+"(char *buf)"); out.newline();
+        out.write("struct "+kernel_name+"_env {"); out.newline(4); out.begin(0);
+        emitter.printDeclarationList(out, context(), context().kernelParams());
+        /*
+        for (VarInstance var : context().kernelParams()) {
+            Type t = var.type();
+            String type = emitter.translateType(t, true);
+            
+            if (isIntRail(t)) {
+                type = "x10_int **";
+            } else if (isFloatRail(t)) {
+                type = "x10_float **";
+            }
+            String name = var.name().toString();
+            if (name.equals(THIS)) {
+                name = SAVED_THIS;
+            }
+            
+            else {
+                name = emitter.mangled_non_method_name(name);
+            }
+            out.write(type + name + ";");
+            out.newline();
+        }
+        */
+        out.end(); out.newline();
+        out.write("};"); out.newline(); out.forceNewline();
+        out.write("extern \"C\" __global__ void "+kernel_name+"("+kernel_name+"_env *"+env+")"); out.newline();
         
         // decode buffer
         //out.write("    var = *(*T)buf; buf += sizeof(T);")
@@ -196,8 +230,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         
         
         // end
-        out.end(); out.newline();
-        out.write("} // extern \"C\""); out.newline();
         out.forceNewline();
     }
     
@@ -241,7 +273,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     public void visit(Block_c b) {
         super.visit(b);
         if (nodeHasCudaAnnotation(b)) {
-            assert !generatingCuda() : "Nesting of cuda annotation makes no sense.";
+            assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
             
             assert b.statements().size() == 1; // FIXME: proper error
@@ -260,7 +292,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             loop = (ForLoop) last;
 
             SharedMem shm = new SharedMem();
-            context().shm(shm);
             // look at all but the last statement to find shm decls
             for (Stmt st : b.statements())  {
                 if (st == last) continue;
@@ -285,17 +316,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 Expr num_elements = init_call.arguments().get(0);
                 Expr rail_init_closure = init_call.arguments().get(1);
                 
-                /*
-                Type typ = ld.declType();
-                assert typ.isClass();
-                assert typ instanceof X10ClassType;
-                X10ClassType ctyp = (X10ClassType)typ;
-                assert ctyp.name().toString().equals("Rail");
-                assert ctyp.typeArguments().size() == 1;
-                Type rail_arg = ctyp.typeArguments().get(0);
-                assert rail_arg.isFloat();
-                //assert type.nameString().equals("Rail") : ld.type().nameString();
-                */
                 shm.addRail(ld, num_elements, rail_init_closure);
             }
             
@@ -323,8 +343,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             Block async_body = async_closure.body();
             
             b = (Block_c) async_body;
-            
-            context().setCudaKernelCFG(outer.iterations, outer.var, inner.iterations, inner.var);            
+            context().setCudaKernelCFG(outer.iterations, outer.var, inner.iterations, inner.var, shm);            
             generatingKernel(true);
             handleKernel(b);
             generatingKernel(false);
@@ -339,7 +358,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
     
     public void visit(New_c n) {
-        assert !generatingCuda() : "New not allowed in @Cudable code.";
+        assert !generatingKernel() : "New not allowed in @Cudable code.";
         super.visit(n);
     }
 
@@ -356,10 +375,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         // TODO Auto-generated method stub
         super.visit(n);
     }
-    private static boolean sameName (Name n1, Name n2) {
-        return n1.toString().equals(n2.toString());
-    }
-    
+
 
     @Override
     public void visit(Assign_c asgn) {
@@ -567,7 +583,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     @Override
     public void visit(Local_c n) {
-        if (generatingCuda()) {
+        if (generatingKernel()) {
             ClassifiedStream out = cudaStream();
             Name ln = n.name().id();
             if (ln == context().blocksVar().name().id()) {
@@ -575,12 +591,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             } else if (ln == context().threadsVar().name().id()) {
                 out.write("threadIdx.x");
             } else if (context().shm().has(ln)) {
-                out.write("some_shm_var");
+                out.write(ln.toString());
+            } else if (context().isKernelParam(ln)) {
+                out.write(env+"->"+ln);
             } else {
                 super.visit(n);
             }
         } else {
-            System.out.println(n);
             super.visit(n);
         }
     }
@@ -736,7 +753,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     @Override
     public void visit(X10Call_c n) {
         // TODO Auto-generated method stub
-        System.out.println(n);
         super.visit(n);
     }
 

@@ -129,6 +129,18 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 
 	public ArrayList<VarInstance> variables = new ArrayList<VarInstance>();
 
+    private void putYourVariablesHere(ArrayList<VarInstance> vars) {
+        vars.addAll(variables);
+        if (inClosure) return;
+        ((X10CPPContext_c) outer).putYourVariablesHere(vars);
+    }
+
+    public ArrayList<VarInstance> variables() {
+        ArrayList<VarInstance> r = new ArrayList<VarInstance>();
+        putYourVariablesHere(r);
+        return r;
+    }
+
     
     public X10CPPContext_c(TypeSystem ts) {
         super(ts);
