@@ -205,6 +205,12 @@ public class TypeParamSubst {
 
 	public ClosureInstance reinstantiateClosure(ClosureInstance t) {
 		final ClosureInstance fi = (ClosureInstance) t.copy();
+//		ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));
+//		res = (ClosureInstance) res.returnType(reinstantiate(fi.returnType()));
+//		res = (ClosureInstance) res.formalTypes(reinstantiate(fi.formalTypes()));
+//		res = (ClosureInstance) res.throwTypes(reinstantiate(fi.throwTypes()));
+//		res = (ClosureInstance) res.guard(reinstantiate(fi.guard()));
+//		return res;
 		return new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def())) {
 			@Override
 			public Ref<? extends Type> returnTypeRef() {
@@ -368,6 +374,13 @@ public class TypeParamSubst {
 
 	public X10ConstructorInstance reinstantiateCI(X10ConstructorInstance t) {
 		final X10ConstructorInstance fi = (X10ConstructorInstance) t.copy();
+//		X10ConstructorInstance res = new X10ConstructorInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()));
+//		res = (X10ConstructorInstance) res.returnType(reinstantiate(fi.returnType()));
+//		res = (X10ConstructorInstance) res.formalTypes(reinstantiate(fi.formalTypes()));
+//		res = (X10ConstructorInstance) res.throwTypes(reinstantiate(fi.throwTypes()));
+//		res = (X10ConstructorInstance) res.container(reinstantiate(fi.container()));
+//		res = (X10ConstructorInstance) res.guard(reinstantiate(fi.guard()));
+//		return res;
 		return new X10ConstructorInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
 			@Override
 			public Ref<? extends Type> returnTypeRef() {
@@ -405,10 +418,18 @@ public class TypeParamSubst {
 					return reinstantiate(fi.container());
 				return container;
 			}
-		};    }
+		};
+	}
 
 	public X10MethodInstance reinstantiateMI(X10MethodInstance t) {
 		final X10MethodInstance fi = (X10MethodInstance) t.copy();
+//		X10MethodInstance res = new X10MethodInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()));
+//		res = (X10MethodInstance) res.returnType(reinstantiate(fi.returnType()));
+//		res = (X10MethodInstance) res.formalTypes(reinstantiate(fi.formalTypes()));
+//		res = (X10MethodInstance) res.throwTypes(reinstantiate(fi.throwTypes()));
+//		res = (X10MethodInstance) res.container(reinstantiate(fi.container()));
+//		res = (X10MethodInstance) res.guard(reinstantiate(fi.guard()));
+//		return res;
 		return new X10MethodInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
 			@Override
 			public Ref<? extends Type> returnTypeRef() {
@@ -451,6 +472,11 @@ public class TypeParamSubst {
 
 	public X10FieldInstance reinstantiateFI(X10FieldInstance t) {
 		final X10FieldInstance fi = (X10FieldInstance) t.copy();
+//		X10FieldInstance res = new X10FieldInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def()));
+//		res = (X10FieldInstance) res.type(reinstantiate(fi.type()));
+//		res = (X10FieldInstance) res.container(reinstantiate(fi.container()));
+//		res = (X10FieldInstance) res.guard(reinstantiate(fi.guard()));
+//		return res;
 		return new X10FieldInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.x10Def())) {
 			@Override
 			public Type type() {

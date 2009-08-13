@@ -13,7 +13,7 @@ package x10cuda.ast;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
 import x10.visit.X10DelegatingVisitor;
-import x10c.util.StreamWrapper;
+import x10.util.StreamWrapper;
 import x10cpp.ast.X10CPPDelFactory_c;
 import x10cuda.visit.CUDACodeGenerator;
 

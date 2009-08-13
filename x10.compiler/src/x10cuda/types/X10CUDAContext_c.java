@@ -17,8 +17,8 @@ package x10cuda.types;
 import polyglot.ast.Formal;
 import polyglot.types.TypeSystem;
 import x10.ast.Closure_c;
-import x10c.util.ClassifiedStream;
-import x10c.util.StreamWrapper;
+import x10.util.ClassifiedStream;
+import x10.util.StreamWrapper;
 import x10cpp.types.X10CPPContext_c;
 
 public class X10CUDAContext_c extends X10CPPContext_c {
