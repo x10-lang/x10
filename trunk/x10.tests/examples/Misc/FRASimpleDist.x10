@@ -114,10 +114,10 @@ class FRASimpleDist {
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
 	val result = Array.make[Int](Dist.makeUnique(), (Point)=>0);
-        for ((i) in  0..Place.MAX_PLACES-1) {
+        for ((i):Point(1) in  0..Place.MAX_PLACES-1) {
             val table = tables(i);
             async (Place.places(i)) {
-                for ((j) in 0 .. table.a.length-1)
+                for ((j):Point(1) in 0 .. table.a.length-1)
                     if (table.a(j) != j) {
 			result(i)++;
 			println("Found error at j=" + j + " " + table.a(j));

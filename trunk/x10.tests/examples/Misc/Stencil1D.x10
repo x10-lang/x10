@@ -27,7 +27,7 @@ public class Stencil1D {
 	   val blocks = DistUtil.block(1..N, P);
 	   for (; delta > epsilon; iters++) {
 	      delta = 0;
-	      finish foreach ((p) in 0..P-1) {
+	      finish foreach ((p):Point(1) in 0..P-1) {
 		     val myDelta  = step(A, blocks(p));
 		     atomic  delta= Math.max(delta, myDelta);
 	      }

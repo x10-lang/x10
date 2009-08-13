@@ -85,7 +85,7 @@ public class ClockPascal2 extends x10Test {
 
 			foreach ((i,j) in Dinner.region)
 			 	clocked(N(i-1,j), W(i,j-1), N(i,j), W(i,j)) {
-					for ((n) in 3..(i+j)) {
+					for ((n):Point(1) in 3..(i+j)) {
 						randDelay(DELAY);
 						pr1(i, j, n);
 						next;

@@ -40,7 +40,7 @@ public class NQueensPar {
 
     	def safe(j: int) {
             val n = q.length; 
-            for ((k) in 0..n-1) {
+            for ((k):Point(1) in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k))) 
                     return false;
             }
