@@ -28,6 +28,7 @@ import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -195,7 +196,14 @@ public class X10Disamb_c extends Disamb_c {
 
 	    // Must be a package then...
 	    if (packageOK()) {
-	        return nf.PackageNode(pos, Types.ref(ts.packageForName(QName.make(null, name.id()))));
+	        try {
+	            Package p = ts.packageForName(QName.make(null, name.id()));
+	            return nf.PackageNode(pos, Types.ref(p));
+	        }
+	        catch (SemanticException e) {
+	        }
+	        Package p = ts.createPackage(QName.make(null, name.id()));
+	        return nf.PackageNode(pos, Types.ref(p));
 	    }
 	    
 	    return null;
