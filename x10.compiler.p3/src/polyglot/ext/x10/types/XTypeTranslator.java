@@ -69,6 +69,7 @@ public class XTypeTranslator {
 		ts = xts;
 	}
 
+	// TODO: vj 08/11/09 -- why does this do nothing? 
 	public void addTypeToEnv(XTerm self, final Type t) throws SemanticException {
 	}
 
@@ -161,11 +162,15 @@ public class XTypeTranslator {
 		    }
 		    XRoot thisVar = xc == null ? null : xc.thisVar();
 		    if (thisVar == null) {
-		        SemanticException e = new SemanticException("Cannot refer to this from this context.");
+		        SemanticException e = new SemanticException("Cannot refer to |this| from the context "
+		        		+ xc);
 		        if (true)
 		        throw new InternalCompilerError(e.getMessage());
 		        throw e;
 		    }
+		    // vj: Need to set the thisVar for the constraint.
+		    if (c != null)
+		    	c.setThisVar(thisVar);
 		    return thisVar;
 		}
 	}

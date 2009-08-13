@@ -28,6 +28,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
 /**
@@ -121,6 +122,10 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         // otherwise, we'll get called recursively.
                         XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         c.addSelfBinding(self);
+                        if (receiver instanceof XRoot) {
+                        	// this is the case if we are not in static context.
+                        	c.setThisVar((XRoot) receiver);
+                        }
 
                         rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }

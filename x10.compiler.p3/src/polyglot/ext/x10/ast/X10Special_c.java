@@ -124,7 +124,9 @@ public class X10Special_c extends Special_c implements X10Special {
             XConstraint cc = X10TypeMixin.xclause(t);
             cc = cc == null ? new XConstraint_c() : cc.copy();
             try {
-                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
+            	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
+                cc.addSelfBinding(var);
+            	cc.setThisVar(var);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());

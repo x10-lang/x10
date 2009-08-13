@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Expr;
+import polyglot.ext.x10.ast.SemanticError;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -31,14 +32,24 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XVar;
 
-/** 6/2006 Modified so that every type is now potentially generic and dependent.
+/** 08/011/09 An X10ParsedClassType_c represents a type C[T1,..., Tn], where
+ * C is a class and T1,..., Tn are type parameters. Almost all the information
+ * supplied by an X10ParsedClassType_c is obtained from the x10ClassDef(), a reference
+ * to the ClassDef object with which this object is created and that represents the
+ * underlying class definition.
+ * 
+ * TODO: 
  * @author vj
  */
 public class X10ParsedClassType_c extends ParsedClassType_c
@@ -264,6 +275,8 @@ implements X10ParsedClassType
 	    return new TransformingList<X10FieldDef, FieldInstance>(x10Def().properties(), new X10FieldAsTypeTransform());
 	}
 
+	// TODO: vj 08/11/09. Why are properties not obtained through the ClassDef, just like
+	// other class members?
 	public List<FieldInstance> properties() {
 	    Type superType = superClass();
 	    if (superType instanceof X10ClassType) {
@@ -293,9 +306,19 @@ implements X10ParsedClassType
 	    return typeArguments;
 	}
 	
+	/**
+	 * thisVar is set based on the types used to instantiate this type. All
+	 * the types used must agree on their thisVar. That is the thisVar
+	 * for this type.
+	 */
 	public X10ParsedClassType typeArguments(List<Type> typeArgs) {
 	    X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 	    n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
+	    try {
+	    n.thisVar = X10TypeMixin.getThisVar(typeArgs);
+	    } catch (XFailure z) {
+	    	throw new InternalCompilerError(z.toString() + " for type " + this);
+	    }
 	    n.subst = null;
 	    return n;
 	}
@@ -373,6 +396,25 @@ implements X10ParsedClassType
 		X10ParsedClassType_c  other = (X10ParsedClassType_c) o;
 		return this == o;
 		
+	}
+	
+	XVar thisVar;
+	public XVar thisVar() {
+		return thisVar;
+	}
+	
+	XConstraint xClause;
+	
+	public XConstraint getXClause() {
+		if (xClause == null) {
+			xClause = new XConstraint_c();
+			try {
+			xClause.setThisVar(X10TypeMixin.getThisVar(typeArguments()));
+			} catch (XFailure f) {
+				xClause.setInconsistent();
+			}
+		}
+		return xClause;
 	}
 }
 

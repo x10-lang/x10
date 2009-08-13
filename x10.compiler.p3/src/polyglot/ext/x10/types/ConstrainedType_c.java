@@ -43,11 +43,21 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
+/**
+ * 09/11/09
+ * A ConstrainedType_c represents the type T{c}. It has a basetype (of type Ref<? extends Type>)
+ * and a constraint (of type Ref<XConstraint>).
+ * 
+ * @author njnystrom
+ * @author vj
+ *
+ */
 public class ConstrainedType_c extends ReferenceType_c implements ConstrainedType {
 	private Ref<x10.constraint.XConstraint> constraint;
 	private Ref<? extends Type> baseType;
 
-	public ConstrainedType_c(X10TypeSystem ts, Position pos, Ref<? extends Type> baseType, Ref<x10.constraint.XConstraint> constraint) {
+	public ConstrainedType_c(X10TypeSystem ts, Position pos, 
+			Ref<? extends Type> baseType, Ref<x10.constraint.XConstraint> constraint) {
 		super(ts, pos);
 		assert ts != null;
 		this.baseType = baseType;
@@ -58,6 +68,17 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 	public boolean isGloballyAccessible() {
 	    return false;
+	}
+	
+	/**
+	 * Check that the basetype and constraint agree on thisVar.
+	 */
+	public XVar thisVar() {
+		if (realXClause == null)
+			realXClause = realX();
+		if (! realXClause.consistent())
+			return null;
+		return realXClause.thisVar();
 	}
 	
 	public Ref<? extends Type> baseType() {
@@ -114,17 +135,64 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	protected XConstraint realXClause;
 	protected SemanticException realClauseInvalid;
 	
-	public XConstraint getRealXClause() { return realXClause; }
-	public void setRealXClause(XConstraint c, SemanticException error) {
+	public XConstraint getRealXClause() { 
+		if (realXClause == null) {
+			realXClause = realX();
+		}
+		return realXClause; 
+	}
+	/*public void setRealXClause(XConstraint c, SemanticException error) {
 		this.realXClause = c;
 		this.realClauseInvalid = error;
+	}*/
+	
+	protected XConstraint realX() {
+		// Now get the root clause and join it with the dep clause.
+		XConstraint rootClause = X10TypeMixin.realX(Types.get(this.baseType()));
+		if (rootClause == null)
+			assert rootClause != null;
+
+		XConstraint depClause = X10TypeMixin.xclause(this);
+
+		try {
+			X10TypeMixin.getThisVar(rootClause, depClause);
+		} catch (XFailure z) {
+			try {
+				rootClause = rootClause.copy().addIn(depClause);
+			} catch (XFailure z1) {
+			}
+			rootClause.setInconsistent();
+			return rootClause;
+		}
+		if (depClause == null) 
+			return rootClause;
+
+		XConstraint realClause = rootClause.copy();
+
+		try {
+			realClause.addIn(depClause);
+			realClause.setThisVar(XConstraint_c.getThisVar(rootClause, depClause));
+		}
+		catch (XFailure f) {
+			realClause.setInconsistent();
+		}
+	
+		return realClause;
+
 	}
 	
 	public void checkRealClause() throws SemanticException {
 		// Force real clause to be computed.
-		X10TypeMixin.realX(this);
-		if (realClauseInvalid != null)
+		if (realXClause == null)
+			realXClause = realX();
+		if (! realXClause.consistent()) {
+			if (realClauseInvalid != null) {
+				realClauseInvalid = new SemanticException(this 
+						+ " has an inconsistent real clause " + realXClause);
+
+			}
 			throw realClauseInvalid;
+		}
 	}
 	
 	@Override
@@ -152,6 +220,9 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return sb.toString();
 	}
 
+	// vj 08/11/09
+	// For each FieldInstance fi of baseType, need to return a new FieldInstance fi' obtained
+	// by adding this: this.constraint.
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = baseType.get();
@@ -161,32 +232,41 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return Collections.emptyList();
 	}
 
+	// vj: Revised substantially 08/11/09
+	
 	@Override
 	public List<Type> interfaces() {
 		final Type base = baseType.get();
-		if (base instanceof ObjectType) {
-		    List<Type> l = ((ObjectType) base).interfaces();
-		        XConstraint c = constraint.get();
-		        final XTerm t = c.bindingForVar(c.self());
-		        if (t != null) {
-		            return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
-		                public Type transform(Type o) {
-		                    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
-		                    XConstraint c2 = X10TypeMixin.xclause(o);
-		                    c2 = c2 != null ? c2.copy() : new XConstraint_c();
-		                    try {
-		                        c2.addSelfBinding(t);
-		                        return X10TypeMixin.xclause(o, c2);
-		                    }
-		                    catch (XFailure e) {
-		                    }
-		                    return o;
-		                }
-		            });
-		        }
-		        return l;
+		if (! (base instanceof ObjectType))
+			return Collections.emptyList();
+
+		List<Type> l = ((ObjectType) base).interfaces();
+		XConstraint c = constraint.get();
+		// Get or make a name tt for self.
+		XTerm t = c.bindingForVar(c.self());
+		if (t == null) {
+			t = c.genEQV(true);
+			
 		}
-		return Collections.emptyList();
+		final XTerm tt = t;
+
+		return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
+			public Type transform(Type o) {
+				X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+				XConstraint c2 = X10TypeMixin.xclause(o);
+				c2 = c2 != null ? c2.copy() : new XConstraint_c();
+				try {
+					if (c2.thisVar() != null)
+						c2.addBinding(c2.thisVar(), tt);
+					//c2.addSelfBinding(tt);
+					//  c2.substitute(tt, XTerms.)
+					return X10TypeMixin.xclause(o, c2);
+				}
+				catch (XFailure e) {
+				}
+				return o;
+			}
+		});
 	}
 
 	@Override

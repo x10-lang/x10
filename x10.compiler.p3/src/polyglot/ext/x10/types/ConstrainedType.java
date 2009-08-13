@@ -20,7 +20,7 @@ import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 
-public interface ConstrainedType extends ObjectType, X10NamedType {
+public interface ConstrainedType extends ObjectType, X10NamedType, X10ThisVar {
 	Ref<? extends Type> baseType();
 	ConstrainedType baseType(Ref<? extends Type> baseType);
 	
@@ -28,7 +28,9 @@ public interface ConstrainedType extends ObjectType, X10NamedType {
 	ConstrainedType constraint(Ref<XConstraint> constraint);
 	
 	XConstraint getRealXClause();
-	void setRealXClause(XConstraint c, SemanticException error);
+	//void setRealXClause(XConstraint c, SemanticException error);
 	
 	void checkRealClause() throws SemanticException;
+	
+	//XConstraint realX();
 }

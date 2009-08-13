@@ -303,9 +303,15 @@ public class X10Context_c extends Context_c implements X10Context {
     	currentPlaceConstraint = c;
     }
     protected XConstraint currentConstraint;
+    // vj: TODO: check if this is the right thing to do.
     public XConstraint currentConstraint() { 
-    	if (currentConstraint == null) 
-    		return new XConstraint_c(); 
+    	if (currentConstraint == null) {
+    		XConstraint c = new XConstraint_c();
+    		if (! inStaticContext()) {
+    			c.setThisVar(thisVar());
+    		}
+    		return c;
+    	}
     	return currentConstraint; 
     }
     public void setCurrentConstraint(XConstraint c) { 

@@ -38,6 +38,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.X10PrettyPrinterVisitor;
+import polyglot.ext.x10.visit.X10Translator;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
@@ -181,6 +182,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                        		 ts.MethodMatcher(containerType, Name.make("apply"), 
 	                        				 Collections.EMPTY_LIST, actualTypes, context));
 	                         indexType = mi.returnType();
+	                    
 	                     }
 	                     catch (SemanticException e) {
 	                     }

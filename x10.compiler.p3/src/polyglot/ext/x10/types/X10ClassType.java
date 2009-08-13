@@ -24,8 +24,10 @@ import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.util.TransformingList;
 
-/** The representative of ClassType in the X10 type hierarchy. A class is a
- * reference; arrays are examples of references which are not classes.
+/** The representative of ClassType in the X10 type hierarchy. 
+ * 
+ * A class is a reference; arrays are examples of references which are not classes.
+ * (This is inherited from Java. Needs to be fixed in The Great X01 2.0 Type Redesign.
  * 
  * @author vj
  *

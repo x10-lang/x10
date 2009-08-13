@@ -18,6 +18,7 @@ import java.util.List;
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
+import polyglot.ext.x10.ast.SemanticError;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
@@ -38,11 +39,12 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 /** 
- * An X10 dependent type.
+ * Utilities for dealing with X10 dependent types.
  * @author nystrom
  */
 public class X10TypeMixin {
@@ -96,29 +98,7 @@ public class X10TypeMixin {
 	    return new XConstraint_c();
 	}
 	else if (t instanceof ConstrainedType) {
-			ConstrainedType	ct = (ConstrainedType) t;
-
-			// Now get the root clause and join it with the dep clause.
-			XConstraint rootClause = realX(Types.get(ct.baseType()));
-			if (rootClause == null)
-			assert rootClause != null;
-
-			XConstraint depClause = xclause(ct);
-
-			if (depClause == null) {
-			    return rootClause;
-			}
-			else {
-			    XConstraint realClause = rootClause.copy();
-
-			    try {
-				realClause.addIn(depClause);
-			    }
-			    catch (XFailure f) {
-				realClause.setInconsistent();
-			    }
-			    return realClause;
-			}
+            return ((ConstrainedType) t).getRealXClause();
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
@@ -157,6 +137,10 @@ public class X10TypeMixin {
 			ConstrainedType ct = (ConstrainedType) t;
 			return Types.get(ct.constraint());
 		}
+		if (t instanceof X10ParsedClassType) {
+			X10ParsedClassType ct = (X10ParsedClassType) t;
+			return ct.getXClause();
+		}
 		return null;
 	}
 	public static Type baseType(Type t) {
@@ -190,13 +174,15 @@ public class X10TypeMixin {
         return t;
     }
 	public static Type xclause(Type t, XConstraint c) {
-	    if (t == null)
-	        return null;
-	        if (c == null || c.valid()) {
-	            return baseType(t);
-	        }
-	        return xclause(Types.ref(t), Types.ref(c));
+		if (t == null)
+			return null;
+		if (c == null || c.valid()) {
+			return baseType(t);
+		}
+		return xclause(Types.ref(t), Types.ref(c));
 	}
+	// vj: 08/11/09 -- have to recursively walk the 
+	// type parameters and add the constraint to them.
 	public static Type xclause(final Ref<? extends Type> t, final Ref<XConstraint> c) {
 	    if (t == null) {
 	        return null;
@@ -272,7 +258,7 @@ public class X10TypeMixin {
 	    return t instanceof ConstrainedType;
     }
     
-    public static Type addBinding(Type t, XVar t1, XVar t2) {
+    public static Type addBinding(Type t, XTerm t1, XTerm t2) {
         try {
             XConstraint c = xclause(t);
             if (c == null) {
@@ -319,6 +305,19 @@ public class X10TypeMixin {
 	catch (XFailure e) {
 		throw new SemanticException(e.getMessage(), t.position());
 	}
+        return xclause(X10TypeMixin.baseType(t), c);
+    }
+    
+    public static Type setThisVar(Type t, XVar v) throws SemanticException {
+        XConstraint c = xclause(t);
+        if (c == null) {
+            c = new XConstraint_c();
+        }
+        else {
+            c = c.copy();
+        }
+        
+		c.setThisVar(v);
         return xclause(X10TypeMixin.baseType(t), c);
     }
 
@@ -399,5 +398,50 @@ public class X10TypeMixin {
 	        return ct.properties();
 	    }
 	    return Collections.EMPTY_LIST;
+	}
+	
+	/**
+	 * Returns the var that is thisvar of all the terms in {t1,t2} that have a thisvar.
+	 * If none do, return null. Else throw a SemanticError.
+	 * @param t1
+	 * @param t2
+	 * @return
+	 * @throws SemanticError
+	 */
+	public static XVar getThisVar(Type t1, Type t2) throws XFailure {
+		XVar thisVar = t1 == null ? null : ((X10ThisVar) t1).thisVar();
+		if (thisVar == null)
+			return t2==null ? null : ((X10ThisVar) t2).thisVar();
+		if (t2 != null && ! thisVar.equals(((X10ThisVar) t2).thisVar()))
+			throw new XFailure("Inconsistent this vars " + thisVar + " and "
+					+ ((X10ThisVar) t2).thisVar());
+		return thisVar;
+	}
+	public static XVar getThisVar(XConstraint t1, XConstraint t2) throws XFailure {
+		XVar thisVar = t1 == null ? null : t1.thisVar();
+		if (thisVar == null)
+			return t2==null ? null : t2.thisVar();
+		if (t2 != null && ! thisVar.equals( t2.thisVar()))
+			throw new XFailure("Inconsistent this vars " + thisVar + " and "
+					+ ((X10ThisVar) t2).thisVar());
+		return thisVar;
+	}
+	public static XVar getThisVar(List<Type> typeArgs) throws XFailure {
+		XVar thisVar = null;
+		if (typeArgs != null)
+			for (Type type : typeArgs) {
+				if (type instanceof X10ThisVar) {
+					X10ThisVar xtype = (X10ThisVar)type;
+					XVar o = xtype.thisVar();
+					if (thisVar == null) {
+						thisVar = o;
+					} else {
+						if (! thisVar.equals(o))
+							throw new XFailure("Inconsistent thisVars in " + typeArgs
+									+ "; cannot instantiate ");
+					}
+				}
+			}
+		return thisVar;
 	}
 }

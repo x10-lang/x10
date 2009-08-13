@@ -31,6 +31,7 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
     /** Variable to use for self in the constraint. */
     XRoot self;
 
+    XVar thisVar;
     // Maps XTerms to nodes.
     protected HashMap<XTerm, XPromise> roots;
 
@@ -51,6 +52,9 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         return self;
     }
 
+    public XVar thisVar() {
+    	return thisVar;
+    }
     boolean consistent = true;
     boolean valid = true;
 
@@ -71,10 +75,16 @@ public XConstraint_c() {
     /**
      * Copy this constraint logically; that is, create a new constraint
      * that contains the same equalities (if any) as the current one.
+     * vj: 08/12/09
+     * Copying also the consistency, and validity status, and thisVar and self.
      */
     public XConstraint_c copy() {
         XConstraint_c c = new XConstraint_c();
         try {
+        	c.thisVar = thisVar();
+        	c.self = self();
+        	c.consistent = consistent;
+        	c.valid = valid;
             return copyInto(c);
         }
         catch (XFailure f) {
@@ -95,7 +105,7 @@ public XConstraint_c() {
         return c;
     }
 
-    /** Add in a constraint, unifying this.self and c.self */
+    /** Add in a constraint, substituting this.self for c.self */
     public XConstraint addIn(XConstraint c)  throws XFailure {
         if (c != null) {
             List<XTerm> result = c.constraints();
@@ -105,9 +115,20 @@ public XConstraint_c() {
                 addTerm(t.subst(self(), c.self()));
             }
         }
+        // vj: What about thisVar for c? Should that be added?
+       // thisVar = getThisVar(this, c);
         return this;
     }
 
+    public static XVar getThisVar(XConstraint t1, XConstraint t2) throws XFailure {
+		XVar thisVar = t1 == null ? null : t1.thisVar();
+		if (thisVar == null)
+			return t2==null ? null : t2.thisVar();
+		if (t2 != null && ! thisVar.equals( t2.thisVar()))
+			throw new XFailure("Inconsistent this vars " + thisVar + " and "
+					+ t2.thisVar());
+		return thisVar;
+	}
     public XVar bindingForVar(XVar v) {
         try {
             XPromise p = lookup(v);
@@ -121,7 +142,7 @@ public XConstraint_c() {
         return null;
     }
 
-    public XConstraint removeVarBindings(XVar v) {
+ /*   public XConstraint removeVarBindings(XVar v) {
         try {
             XConstraint c = new XConstraint_c();
             for (XTerm t : constraints()) {
@@ -141,7 +162,7 @@ public XConstraint_c() {
             return this;
         }
     }
-
+*/
     public List<XFormula> atoms() {
     	List<XFormula> r = new LinkedList<XFormula>();
     	for (XTerm t : roots.keySet()) {
@@ -444,10 +465,7 @@ public XConstraint_c() {
         }
         return result;
     }
-    static final boolean D = false;
-    static void debug(String s) {
-        		System.out.println(s);
-    }
+   
 
     private boolean entails(List<XTerm> conjuncts, XRoot self, final XConstraint sigma) throws XFailure {
         
@@ -947,6 +965,17 @@ public XConstraint_c() {
         addBinding(self(), var);
     }
 
+    public void addThisBinding(XTerm term) throws XFailure {
+    	addBinding(thisVar(), term);
+    }
+    
+    public void setThisVar(XVar var) {
+    	if (var == null) return;
+    	if (thisVar != null && ! thisVar.equals(var))
+    		System.err.println("Thisvar for " + this + " was " + thisVar + " (#"  + thisVar.hashCode() 
+    				+ ") being now set to " + var + " (#" + var.hashCode());
+    	thisVar = var;
+    }
     // FIXME: need to convert f(g(x)) into \exists y. f(y) && g(x) = y when f and g both atoms
     // This is needed for Nelson-Oppen to work correctly.
     // Each atom should be a root.

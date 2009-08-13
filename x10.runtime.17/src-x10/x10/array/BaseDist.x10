@@ -202,7 +202,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
-        for (r:Region(rank) in rs)
+        for (r in rs)
             overall = overall.union(r) as Region(rank);
 
         return new BaseDist(overall, ps, rs);

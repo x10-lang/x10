@@ -207,8 +207,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		            }
 
 		            // bind this==self; sup clause may constrain this.
-		            if (thisVar != null)
+		            if (thisVar != null) {
 		                known.addSelfBinding(thisVar);
+		                known.setThisVar(thisVar);
+		            }
 
 		            if (! known.entails(result, ctx.constraintProjection(known, result))) {
 		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
