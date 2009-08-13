@@ -200,16 +200,6 @@ main() {
 		return $status
 	fi
 
-	X10_CPP=$X10_HOME/x10.cppbackend.17
-	if [[ -d $X10_CPP ]]; then
-		rm -rf $X10_CPP
-	fi
-	svnUpdate $X10_CPP $X10_SVNROOT
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
     # build modules in the listed order -- some builds may be redundant
 	buildX10Module $POLYGLOT_HOME polyglot
 	status=$?
@@ -240,12 +230,6 @@ main() {
 	fi
 
 	buildX10Module $X10_COMPILER x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_CPP x10
 	status=$?
 	if (( $status != 0 )); then
 		return $status
