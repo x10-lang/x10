@@ -22,7 +22,7 @@
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="common.jar" value="x10common.jar"/>
-    <property name="x10.compiler.location" location="${x10.home}/x10.compiler.p3"/>
+    <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
     <property name="x10.cppbackend.location" location="${x10.home}/x10.cppbackend.17"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="cppbackend.jar" value="x10cpp.jar"/>
@@ -427,7 +427,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
             <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
-            <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.cppbackend.17" dir="${x10.cppbackend.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>

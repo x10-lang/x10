@@ -134,7 +134,7 @@ main() {
 		return $status
 	fi
 
-	X10_COMPILER=$X10_HOME/x10.compiler.p3
+	X10_COMPILER=$X10_HOME/x10.compiler
 	if [[ -d $X10_COMPILER ]]; then
 		rm -rf $X10_COMPILER
 	fi

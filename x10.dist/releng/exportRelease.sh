@@ -72,7 +72,7 @@ echo
 echo getting distrib
 for i in \
 	x10.common \
-	x10.compiler.p3 \
+	x10.compiler \
 	x10.constraints \
 	x10.cppbackend.17 \
 	x10.dist \
