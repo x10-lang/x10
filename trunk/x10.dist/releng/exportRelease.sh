@@ -71,12 +71,12 @@ cd $workdir/x10-$X10_VERSION
 echo
 echo getting distrib
 for i in \
-	x10.common.17 \
+	x10.common \
 	x10.compiler.p3 \
 	x10.constraints \
 	x10.cppbackend.17 \
 	x10.dist \
-	x10.runtime.17 \
+	x10.runtime \
 	x10.tests
 do
     svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/tags/$X10_TAG/$i

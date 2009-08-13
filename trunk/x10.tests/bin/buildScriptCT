@@ -124,7 +124,7 @@ main() {
 		return $status
 	fi
 
-	X10_COMMON=$X10_HOME/x10.common.17
+	X10_COMMON=$X10_HOME/x10.common
 	if [[ -d $X10_COMMON ]]; then
 		rm -rf $X10_COMMON
 	fi
@@ -144,7 +144,7 @@ main() {
 		return $status
 	fi
 
-	X10_RUNTIME=$X10_HOME/x10.runtime.17
+	X10_RUNTIME=$X10_HOME/x10.runtime
 	if [[ -d $X10_RUNTIME ]]; then
 		rm -rf $X10_RUNTIME
 	fi

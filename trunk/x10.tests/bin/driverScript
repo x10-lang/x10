@@ -42,7 +42,7 @@ printf "\n##### End xrx classes pre-compilation: `date` #####\n\n"
 
 printf "\n##### Begin regression tests: `date` #####\n\n"
 cd $X10_HOME/x10.tests/examples
-export EXTRA_CLASSPATH=$X10_HOME/x10.runtime.17/src-x10/classes
+export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/src-x10/classes
 export X10DIST=$X10_HOME/x10.dist
 #$X10_HOME/x10.tests/bin/xtestScript -clean -shiftLog -m 'vsaraswa@us.ibm.com nystrom@us.ibm.com igorp@us.ibm.com bdlucas@us.ibm.com groved@us.ibm.com tardieu@us.ibm.com tibbitts@us.ibm.com srkodali@linux.vnet.ibm.com'
 $X10_HOME/x10.tests/bin/xtestScript -clean -shiftLog -m 'x10-regression@lists.sourceforge.net'

@@ -14,9 +14,9 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-SRC_X10=$X10_HOME/x10.runtime.17/src-x10
+SRC_X10=$X10_HOME/x10.runtime/src-x10
 if [[ ! -d $SRC_X10 ]]; then
-	printf "[$prog: err]: checkout x10.runtime.17 and rerun this script!\n"
+	printf "[$prog: err]: checkout x10.runtime and rerun this script!\n"
 	exit 1
 fi
 

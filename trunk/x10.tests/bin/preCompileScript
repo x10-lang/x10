@@ -14,7 +14,7 @@ if [[ -z "$X10_HOME" ]]; then
 	X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-X10_RUNTIME=$X10_HOME/x10.runtime.17
+X10_RUNTIME=$X10_HOME/x10.runtime
 if [[ ! -d $X10_RUNTIME ]]; then
 	printf "[$prog: err]: checkout $X10_RUNTIME and rerun this script!\n"
 	exit 1

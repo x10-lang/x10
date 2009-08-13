@@ -4,7 +4,7 @@ Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler.p3
 Bundle-Version: 1.7.4.0
 Bundle-Localization: plugin
-Require-Bundle: x10.common.17,
+Require-Bundle: x10.common,
  x10.constraints,
  lpg.runtime,
  polyglot3
