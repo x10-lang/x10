@@ -1,4 +1,4 @@
-package polyglot.ext.x10cuda.types;
+package x10cuda.types;
 
 import java.util.ArrayList;
 
