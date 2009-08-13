@@ -121,7 +121,7 @@ namespace x10 {
         };
 
         template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
-            if (other.get() == this) return true; // short-circuit trivial equality
+            if (other.operator->() == this) return true; // short-circuit trivial equality
             if (!this->Value::_struct_equals(other)) return false;
             x10aux::ref<ValRail> other_rail = other;
             // different sizes so false
@@ -158,7 +158,7 @@ namespace x10 {
             x10aux::ref<x10::lang::Object> initAsObj = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
+                (*rail)[i] = (initAsObj.operator->()->*(it->apply))(i);
             }
             return rail;
         }

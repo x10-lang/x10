@@ -121,7 +121,7 @@ namespace x10 {
             x10aux::ref<x10::lang::Object> initAsObj = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (initAsObj.get()->*(it->apply))(i);
+                (*rail)[i] = (initAsObj.operator->()->*(it->apply))(i);
             }
             return rail;
         }

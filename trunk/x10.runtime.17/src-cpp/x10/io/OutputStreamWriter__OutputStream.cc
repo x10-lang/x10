@@ -36,7 +36,7 @@ void OutputStreamWriter__OutputStream::write(ref<ValRail<x10_byte> > b,
 }
 
 x10_boolean OutputStreamWriter__OutputStream::_struct_equals(ref<Object> p0) {
-    if (p0.get() == this) return true; // short-circuit trivial equality
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
     if (!this->Value::_struct_equals(p0))
         return false;
 //    ref<OutputStreamWriter__OutputStream> that = (ref<OutputStreamWriter__OutputStream>) p0;

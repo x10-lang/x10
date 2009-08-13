@@ -232,7 +232,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
 }
 
 x10_boolean String::_struct_equals(ref<Object> p0) {
-    if (p0.get() == this) return true; // short-circuit trivial equality
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
     if (!this->Value::_struct_equals(p0))
         return false;
     ref<String> that = (ref<String>) p0;

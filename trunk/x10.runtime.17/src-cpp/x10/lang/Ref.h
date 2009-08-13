@@ -29,7 +29,7 @@ namespace x10 {
                                    x10aux::addr_map &m)
             {
                 // don't send an id, just serialise the ref (null/local/remote -- we don't care)
-                buf.write(x10aux::remote_ref::make(this_.get()),m);
+                buf.write(x10aux::remote_ref::make(this_.operator->()),m);
             }
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
