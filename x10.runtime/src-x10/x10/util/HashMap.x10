@@ -179,6 +179,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         for (var i: int = 0; i < t.length; i++) {
             if (t(i) != null && ! t(i).removed) {
                 put(t(i).key, t(i).value);
+                shouldRehash = false;
             }
         }
         
