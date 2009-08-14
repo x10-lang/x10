@@ -301,6 +301,7 @@ public class BAPATSolver implements Solver {
 			vc.assertFormula(e);
 	}
 
+	// TODO: This functionality is untested due to existing bugs.
 	private void addExtraAssertions(List<Var> allVars) {
 		// Add each term's assertion.
 		for (Var v: allVars) {
