@@ -73,6 +73,7 @@ import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.Event;
+import com.sun.jdi.event.EventSet;
 import com.sun.jdi.event.ThreadDeathEvent;
 import com.sun.jdi.event.ThreadStartEvent;
 import com.sun.jdi.event.ModificationWatchpointEvent;
@@ -186,6 +187,25 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		public void wonSuspendVote(Event event, JDIDebugTarget target) {
 			// do nothing
 		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public void eventSetComplete(Event event, JDIDebugTarget target,
+				boolean suspend, EventSet eventSet) {
+			// TODO Auto-generated method stub
+			System.out.println("X10DebugTargetAlt.eventSetComplete, Do something here.");		
+		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public boolean handleEvent(Event event, JDIDebugTarget target,
+				boolean suspendVote, EventSet eventSet) {
+			// TODO Auto-generated method stub
+			System.out.println("X10DebugTargetAlt.handleEvent, Do something here. ");
+			return false;
+		}
 	
 	}
 
@@ -298,6 +318,25 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		protected void setRequest(EventRequest request) {
 			fRequest = request;
 		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public void eventSetComplete(Event event, JDIDebugTarget target,
+				boolean suspend, EventSet eventSet) {
+				System.out.println("X10DebugTargetAlt, added unimplemented method, do something here.");
+			// TODO Auto-generated method stub		
+		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public boolean handleEvent(Event event, JDIDebugTarget target,
+				boolean suspendVote, EventSet eventSet) {
+			// TODO Auto-generated method stub
+			System.out.println("X10DebugTargetAlt, added unimplemented method, do something here.");
+			return false;
+		}
 }
 class X10ModWatchpointHandler implements IJDIEventListener {
 		
@@ -376,6 +415,25 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 
 		protected void setRequest(EventRequest request) {
 			fRequest = request;
+		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public void eventSetComplete(Event event, JDIDebugTarget target,
+				boolean suspend, EventSet eventSet) {
+			// TODO Auto-generated method stub
+			System.out.println("X10DebugTargetAlt, added unimplemented method, do something here.");
+		}
+
+		/**
+		 * BRT 8/14/09, added unimplemented method req'd for Eclipse 3.5 change
+		 */
+		public boolean handleEvent(Event event, JDIDebugTarget target,
+				boolean suspendVote, EventSet eventSet) {
+			// TODO Auto-generated method stub
+			System.out.println("X10DebugTargetAlt, added unimplemented method, do something here.");
+			return false;
 		}
 }
 		
