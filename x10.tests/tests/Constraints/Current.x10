@@ -3,18 +3,19 @@ import x10.array.Point1;
 
 class Current {
 
-  def pointArithmeticTest(r: Region, a: Array[Int](r), p1: Point(r.rank), p2: Point(p1.rank), p3: Point(p1.rank){self == p1 + p2, self in r}, p4: Point(p1.rank){self == p1 * 42}) {
-    for (p in r) a(p);
-    a(p3);
-    a(p1 + p2);
-  }
-
-  def translateTestEasy(r: Int, p1: Point(r), p2: Point(r)) {
+  def translateTestTrivial(r: Int, p1: Point(r), p2: Point(r)) {
     val p: Point(r) = p1 + p2;
   }
 
+  /*def pointArithmeticTest(r: Region, a: Array[Int](r), p1: Point(r.rank), p2: Point(p1.rank), p3: Point(p1.rank){self == p1 + p2, self in r}, p4: Point(p1.rank){self == p1 * 42}) {
+    for (p: Point(r.rank){self in r} in r) a(p);
+    a(p3);
+    // Next line relies on known bug
+    //a(p1 + p2);
+  }
+
   def translateTest(a1: Array[Int], p: Point(a1.rank), a2: Array[Int](a1.rank){a1.region.translate(p) in self.region}) {
-    for (val p2: Point(a1.rank) in a1) {
+    for (val p2: Point(a1.rank){self in a1.region} in a1) {
       val target: Point(a1.rank){self == p2 + p} = p2 + p;
       //a2(target) = 42;
     }
@@ -30,6 +31,6 @@ class Current {
       }
       inner(p1) = sum / count;
     }
-  }
+  }*/
 
 }

@@ -12,5 +12,10 @@ public class XMul extends XFormula_c {
 	public Solver solver() {
 		return BAPATSolver.solver;
 	}
+	
+	@Override
+	public String toString() {
+		return left().toString() + " * " + right().toString();
+	}
 
 }

@@ -12,5 +12,10 @@ public class XTranslate extends XFormula_c implements XCall {
 	public Solver solver() {
 		return BAPATSolver.solver;
 	}
+	
+	@Override
+	public String toString() {
+		return left().toString() + ".translate(" + right().toString() + ")";
+	}
 
 }
