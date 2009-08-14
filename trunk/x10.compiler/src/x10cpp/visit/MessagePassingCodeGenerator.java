@@ -119,6 +119,7 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -2302,16 +2303,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(New_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
+		X10TypeSystem xts = (X10TypeSystem)context.typeSystem();
+		ConstructorInstance constructor = n.constructorInstance();
+		
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
-
-		sw.write(emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
+		
+		List<Expr> coercedArgs = new ArrayList<Expr>();
+		int counter = 0;
+		for (Expr a : n.arguments()) {
+		    Type fType = constructor.formalTypes().get(counter);
+		    if (!xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
+		        a = cast(a, fType);
+		    }
+		    coercedArgs.add(a);
+		    counter++;
+		}
+		
+		sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		sw.begin(0);
-		for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
-			Expr e = (Expr) i.next();
+		for (Iterator<Expr> i = coercedArgs.iterator(); i.hasNext(); ) {
+			Expr e = i.next();
 			n.print(e, sw, tr);
 			if (i.hasNext()) {
 				sw.write(",");
