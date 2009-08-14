@@ -8,6 +8,7 @@ namespace x10aux {
     public:
         static x10_double pow(x10_double x, x10_double y);
         static x10_double exp(x10_double x);
+        static x10_double expm1(x10_double x);
         static x10_double cos(x10_double x);
         static x10_double sin(x10_double x);
         static x10_double tan(x10_double x);
@@ -22,6 +23,8 @@ namespace x10aux {
         static x10_double log10(x10_double x);
         static x10_double log1p(x10_double x);
         static x10_double sqrt(x10_double x);
+        static x10_double cbrt(x10_double x);
+        static x10_double hypot(x10_double x, x10_double y);
         static x10_double ceil(x10_double x);
         static x10_double floor(x10_double x);
         static x10_double round(x10_double x);

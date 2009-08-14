@@ -39,6 +39,10 @@ public final value Math {
    @Native("c++", "x10aux::math_utils::exp(#1)")
    public static native def exp(a:Double):Double;
 
+   @Native("java", "java.lang.Math.expm1(#1)")
+   @Native("c++", "x10aux::math_utils::expm1(#1)")
+   public static native def expm1(a:Double):Double;
+
    @Native("java", "java.lang.Math.cos(#1)")
    @Native("c++", "x10aux::math_utils::cos(#1)")
    public static native def cos(a:Double):Double;
@@ -82,6 +86,14 @@ public final value Math {
    @Native("java", "java.lang.Math.sqrt(#1)")
    @Native("c++", "x10aux::math_utils::sqrt(#1)")
    public static native def sqrt(a:Double):Double;
+
+   @Native("java", "java.lang.Math.cbrt(#1)")
+   @Native("c++", "x10aux::math_utils::cbrt(#1)")
+   public static native def cbrt(a:Double):Double;
+
+   @Native("java", "java.lang.Math.hypot(#1,#2)")
+   @Native("c++", "x10aux::math_utils::hypot(#1,#2)")
+   public static native def hypot(a:Double, b:Double):Double;
 
    @Native("java", "java.lang.Math.log(#1)")
    @Native("c++", "x10aux::math_utils::log(#1)")
