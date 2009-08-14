@@ -35,8 +35,8 @@ public class System {
     static def copyTo[T] (src:ValRail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst.location) {
-            val hack = 0..len-1;
-            for ((i) in hack) {
+            val hack = Rail.makeVal(len, (p:nat) => p);
+            for (i in hack) {
                 dst(dst_off+i) = src(src_off+i);
             }
         }
@@ -49,8 +49,8 @@ public class System {
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
         at (dst.location) {
-            val hack = 0..len-1;
-            for ((i) in hack) {
+            val hack = Rail.makeVal(len, (p:nat) => p);
+            for (i in hack) {
                 dst(dst_off+i) = to_serialize(src_off+i);
             }
         }

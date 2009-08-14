@@ -193,8 +193,8 @@ public abstract value class BaseArray[T] extends Array[T] {
         // scatter
         val ps = dist.places();
         val results = Rail.makeVar[T](ps.length, (p:nat) => unit);
-        val r = 0..(ps.length-1);
-	finish foreach (val (p) in r) {
+        val r = Rail.makeVal(ps.length, (p:nat) => p);
+	finish foreach (val p in r) {
         	results(p) = at (ps(p)) {
         	    var result: T = unit;
                 val a = (this | here) as Array[T](rank);
