@@ -7,16 +7,16 @@
 		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar" />
 
 		<antcall target="copyjar">
-			<param name="proj" value="x10.common.17" />
+			<param name="proj" value="x10.common" />
 		</antcall>
 		<antcall target="copyjar">
-			<param name="proj" value="x10.compiler.p3" />
+			<param name="proj" value="x10.compiler" />
 		</antcall>
 		<antcall target="copyjar">
 			<param name="proj" value="x10.constraints" />
 		</antcall>
 		<antcall target="copyjar">
-			<param name="proj" value="x10.runtime.17" />
+			<param name="proj" value="x10.runtime" />
 		</antcall>
 
 		<echo message="X10 jars copied" />
