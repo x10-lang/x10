@@ -181,9 +181,6 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		    }
 		}
 		
-		/*if (true)
-		    return this;*/
-		
 		try {
 		    throw new SemanticException("Loop domain " + domainType + " is not a subtype of Iterable[" + formalType + "].", position());
 		}
@@ -379,6 +376,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 						Type base = X10TypeMixin.baseType(domainType);
 						XConstraint c = X10TypeMixin.xclause(domainType);
 						
+						XVar selfValue = X10TypeMixin.selfVar(domainType);
 						XVar selfVar = c != null ? c.self() : null;
 						XRoot thisVar = base instanceof X10ClassType ? 
 								((X10ClassType) base).x10Def().thisVar() 
@@ -386,8 +384,9 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 					
 						if (thisVar != null && selfVar != null)
 							try {
-								// Generate a new local variable
-								XVar var = c.genEQV(false);
+								
+								// Generate a new local variable if needed
+								XVar var = selfValue != null ? selfValue : c.genEQV(false);
 								// And substitute it for this in indexType
 								indexType = Subst.subst(indexType, var, thisVar);
 								if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
@@ -412,9 +411,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 								}
 										
 								// and add self=this in domainType, updating domainTypeRef.
-								domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
-								assert domainType !=null : "help!!";
-								domainTypeRef.update(domainType);
+								if (selfValue == null) {
+									domainType = X10TypeMixin.addBinding(domainType, var, selfVar);
+									domainTypeRef.update(domainType);
+								}
 							}
 						catch (SemanticException e) {
 						}
