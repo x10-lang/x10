@@ -968,11 +968,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
-    protected ArrayType createArrayType(Position pos, Ref<? extends Type> type) {
-        return new X10ArrayType_c(this, pos, type);
-    }
-
-    @Override
     public ClassDef createClassDef(Source fromSource) {
         return new X10ClassDef_c(this, fromSource);
     }
