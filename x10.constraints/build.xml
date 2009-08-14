@@ -12,6 +12,7 @@
 	<property name="x10.constraints.lib" location="${basedir}/lib"/>
 	<property name="stp-java-bindings" location="${basedir}/stp-java-bindings"/>
 	<property name="stp-java-bindings.src" location="${stp-java-bindings}/src"/>
+	<property name="stp-java-bindings.lib" location="${stp-java-bindings}/lib"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10constraints.jar"/>
     <property name="make.exe" value="make"/>
@@ -28,13 +29,25 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
-    	<available file="${basedir}/${stp.sources}" property="stp.downloaded"/>
-    	<available file="${stp.dir}" type="dir" property="stp.unpacked"/>
+    	<available file="${stp-java-bindings.lib}/libstp.a" property="stp.compiled"/>
+    	<condition property="stp.nodownload">
+    		<or>
+    			<isset property="stp.compiled"/>
+    			<available file="${basedir}/${stp.sources}" property="stp.downloaded"/>
+    		</or>
+    	</condition>
+    	<condition property="stp.nounpack">
+    		<or>
+    			<isset property="stp.compiled"/>
+    			<available file="${stp.dir}" type="dir" property="stp.unpacked"/>
+    		</or>
+    	</condition>
     </target>
     <target name="clean">
         <delete dir="${build}"/>
     	<delete dir="${stp.dir}"/>
     	<delete file="${stp.sources}"/>
+    	<delete file="${stp-java-bindings.lib}/libstp.a"/>
     	<delete dir="${x10.constraints.lib}"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
@@ -48,10 +61,10 @@
             <fileset dir="${build}" includes="x10/** stp/**" excludes="${jar}"/>
         </jar>
     </target>
-	<target name="stp-download" unless="stp.downloaded">
+	<target name="stp-download" unless="stp.nodownload">
         <get usetimestamp="true" ignoreerrors="true" src="${stp.url}" dest="${basedir}/${stp.sources}"/>
 	</target>
-	<target name="stp-unpack" depends="stp-download" unless="stp.unpacked">
+	<target name="stp-unpack" depends="stp-download" unless="stp.nounpack">
         <available property="stp.downloaded" file="${basedir}/${stp.sources}"/>
         <fail message="Unable to get ${stp.sources}" unless="stp.downloaded"/>	
         <sequential>
@@ -69,11 +82,12 @@
             </exec>
         </sequential>
 	</target>
-	<target name="stp" depends="init,stp-unpack">
+	<target name="stp" depends="stp-unpack" unless="stp.compiled">
 		<mkdir dir="${x10.constraints.lib}"/>
-		<copy todir="${x10.constraints.lib}" file="${stp.dir}/lib/libstp.a"/>
+		<copy todir="${stp-java-bindings.lib}" file="${stp.dir}/lib/libstp.a"/>
 	</target>
 	<target name="stp-java-bindings" depends="stp">
+		<mkdir dir="${x10.constraints.lib}"/>
 		<exec dir="${stp-java-bindings}" executable="${stp-java-bindings}/compile.sh"/>
 		<copy todir="${build}" file="${x10.constraints.lib}/libSTPJNI.so"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
@@ -85,7 +99,7 @@
             </classpath>
         </javac>
 	</target>
-    <target name="build" depends="init,stp,stp-java-bindings">
+    <target name="build" depends="init,stp-java-bindings">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>
