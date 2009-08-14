@@ -38,6 +38,7 @@ public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 	 */
 	public ForEach_c(Position pos) {
 		super(pos);
+		loopKind=LoopKind.FOREACH;
 	}
 
 	/**
@@ -49,6 +50,7 @@ public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 	 */
 	public ForEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
 		super(pos, formal, domain, clocks, body);
+		loopKind=LoopKind.FOREACH;
 	}
 
 	public String toString() {

@@ -27,6 +27,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
+import x10.ast.X10Loop.LoopKind;
 import x10.types.X10MethodInstance;
 import x10.types.X10Type;
 import x10.types.X10TypeSystem;
@@ -43,6 +44,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	 */
 	public ForLoop_c(Position pos) {
 		super(pos);
+		loopKind=LoopKind.FOR;
 	}
 
 	/**
@@ -53,6 +55,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	 */
 	public ForLoop_c(Position pos, Formal formal, Expr domain, Stmt body) {
 		super(pos, formal, domain, body);
+		loopKind=LoopKind.FOR;
 	}
 
 	/* (non-Javadoc)

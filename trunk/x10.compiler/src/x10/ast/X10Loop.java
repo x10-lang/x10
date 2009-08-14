@@ -22,6 +22,11 @@ import polyglot.ast.Stmt;
  * @author igor Jan 19, 2006
  */
 public interface X10Loop extends CompoundStmt {
+	public enum LoopKind {
+		FOR,
+		FOREACH,
+		ATEACH
+	}
 	Stmt body();
 	X10Loop body(Stmt body);
 	Formal formal();

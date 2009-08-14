@@ -274,6 +274,23 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    
+    public static Type addTerm(Type t, XTerm term) {
+        try {
+            XConstraint c = xclause(t);
+            if (c == null) {
+                c = new XConstraint_c();
+            }
+            else {
+                c = c.copy();
+            }
+            c.addTerm(term);
+            return xclause(X10TypeMixin.baseType(t), c);
+        }
+        catch (XFailure f) {
+            throw new InternalCompilerError("Cannot add term " + term + " to " + t + ".", f);
+        }
+    }
 
     public static boolean consistent(X10Type t) {
 	    XConstraint c = xclause(t);
@@ -443,5 +460,12 @@ public class X10TypeMixin {
 				}
 			}
 		return thisVar;
+	}
+	public static XTerm getRegionLowerBound(Type type) {
+		return null;
+	}
+	
+	public static XTerm getRegionUpperBound(Type type) {
+		return null;
 	}
 }

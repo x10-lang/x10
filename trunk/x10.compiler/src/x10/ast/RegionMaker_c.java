@@ -41,7 +41,10 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 	
 	}
-//	
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		return super.typeCheck(tc);
+	}
+//	 
 //	public node typecheck(typechecker tc) throws semanticexception {
 //        x10typesystem xts = (x10typesystem) tc.typesystem();
 //        regionmaker_c n = (regionmaker_c) super.typecheck(tc);
