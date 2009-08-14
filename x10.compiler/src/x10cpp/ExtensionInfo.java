@@ -186,6 +186,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
             CodeGenerated(job).addPrereq(NewCodeGenBarrier());
             CodeGenerated(job).addPrereq(Desugarer(job));
+            CodeGenerated(job).addPrereq(Optimizer(job));
             return res;
         }
 	}
