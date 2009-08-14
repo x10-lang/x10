@@ -24,7 +24,7 @@ public value Runtime {
 
 	private def this():Runtime {}
 	
-	const latch = new Latch();
+	const latch = new RootFinish();
 
 	private const finishTables = ValRail.make[HashMap[RID, FinishState]](Place.MAX_PLACES, (Int)=>new HashMap[RID, FinishState]());
 	    
@@ -34,10 +34,12 @@ public value Runtime {
 	
     static def putFinish(finishState:FinishState):Void {
         if (finishState.rid().id == -1) {
-            val rootFinish = finishState as RootFinish;
-            rootFinish.rid = new RID(here, finishCount.getAndIncrement());
             finishLock.lock();
-            finishTables(here.id).put(rootFinish.rid, rootFinish);
+            if (finishState.rid().id == -1) {
+                val rootFinish = finishState as RootFinish;
+                rootFinish.rid = new RID(here, finishCount.getAndIncrement());
+                finishTables(here.id).put(rootFinish.rid, rootFinish);
+            }
             finishLock.unlock();
         }
     }
@@ -117,16 +119,15 @@ public value Runtime {
 	public static def start(body:()=>Void):Void {
 		try {
 			if (master.loc() == 0) {
-	            val rootFinish = new RootFinish();
-				pool.execute(new Activity(body, rootFinish, true));
-				while (pool.worker().loop(rootFinish, true));
+				pool.execute(new Activity(body, latch, true));
+				while (pool.worker().loop(latch, true));
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					val c = ()=>Runtime.quit();
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
 						NativeRuntime.runAt(i, c);						
 					}
 				}
-				rootFinish.waitForFinish(false);
+				latch.waitForFinish(false);
 			} else {
 				while (pool.worker().loop(latch, true));
 //				rootFinish.finishState.waitForFinish(false);
