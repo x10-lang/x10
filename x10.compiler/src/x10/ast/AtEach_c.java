@@ -22,6 +22,7 @@ import polyglot.types.Name;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
+import x10.ast.X10Loop.LoopKind;
 
 /**
  * An immutable representation of the X10 statement: ateach (i : D) S
@@ -35,6 +36,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	 */
 	public AtEach_c(Position pos) {
 		super(pos);
+		loopKind=LoopKind.ATEACH;
 	}
 
 	/**
@@ -46,6 +48,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	 */
 	public AtEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
 		super(pos, formal, domain, clocks, body);
+		loopKind=LoopKind.ATEACH;
 	}
 
 	public Expr getDomain(Expr d) {

@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Loop;
@@ -54,12 +55,16 @@ import x10.constraint.XVar;
 import x10.types.Subst;
 import x10.types.X10ArraysMixin;
 import x10.types.X10ClassType;
+import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10Type;
+import x10.types.X10TypeEnv;
+import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.util.Synthesizer;
 
 /**
  * Captures the commonality of for, foreach and ateach loops in X10.
@@ -88,7 +93,9 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	protected Expr domain;
 	protected Stmt body;
 	protected List locals;
+	
 
+	protected LoopKind loopKind;
 	/**
 	 * @param pos
 	 */
@@ -141,6 +148,47 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
 	/** Type check the statement. */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+		X10Loop_c n = (X10Loop_c) typeCheckNode(tc);
+		return n.transformIndices(tc);
+	
+	}
+	
+	public Node transformIndices(ContextVisitor tc) throws SemanticException {
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10Type domainType = (X10Type) domainTypeRef.get();
+		if (domainType == null ) {
+			// aha, in this case the type inferencer did not run, since an explicit type was givem.
+			domainType = (X10Type) domain.type();
+		}
+		XVar var = XTerms.makeEQV("self");
+		Type regionType =  Synthesizer.addRankConstraint(ts.Region(), var, 1, ts);
+		regionType = Synthesizer.addRectConstraint(regionType, var, ts);
+		X10TypeMixin.setSelfVar(regionType, var);
+		
+		
+		if (ts.isSubtypeWithValueInterfaces(domainType, regionType, tc.context())) {
+			// Now check if domain is actually a RegionMaker, i.e. a parsing of e1..e2
+			if (domain instanceof RegionMaker) {
+				List<Expr> args = ((RegionMaker) domain).arguments();
+				if (args.size() == 2) {
+					Expr low = args.get(0);
+					Expr high = args.get(1);
+					X10Formal xf = (X10Formal) formal;
+					// Only handle the case |for ((i) in e1..e2) S| for now
+					if (xf.isUnnamed()) {
+						X10Formal index = (X10Formal) xf.vars().get(0);
+						Node n = Synthesizer.makeForLoop(position(),  index, low, high, body,
+								tc.nodeFactory(), ts, (X10Context) tc.context());
+						return n;
+					}
+				
+				}
+				
+			}
+		}
+		return this;
+	}
+	public Node typeCheckNode(ContextVisitor tc) throws SemanticException {
                 NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Type domainType = (X10Type) domainTypeRef.get();
@@ -395,13 +443,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 										// Add a self.rank=n clause, if the formal
 										// has n components.
 										XVar self = X10TypeMixin.xclause(indexType).self();
-										X10FieldInstance fi = 
-											X10ArraysMixin.getProperty(ts.Point(), Name.make("rank"));
-										XName field = XTerms.makeName(fi.def(), 
-												Types.get(fi.def().container()) 
-												+ "#" + fi.name().toString());
-										
-										XTerm v = XTerms.makeField((XVar) self, field);
+										XTerm v = Synthesizer.makeRegionRankTerm((XVar) self, ts);
 										XTerm rank = XTerms.makeLit(new Integer(length));
 										indexType = X10TypeMixin.addBinding(indexType, v, rank);
 					
