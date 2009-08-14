@@ -10,6 +10,10 @@ x10_double x10aux::math_utils::exp(x10_double x) {
     return ::exp(x);
 }
 
+x10_double x10aux::math_utils::expm1(x10_double x) {
+    return ::expm1(x);
+}
+
 x10_double x10aux::math_utils::cos(x10_double x) {
     return ::cos(x);
 }
@@ -64,6 +68,14 @@ x10_double x10aux::math_utils::log1p(x10_double x) {
 
 x10_double x10aux::math_utils::sqrt(x10_double x) {
     return ::sqrt(x);
+}
+
+x10_double x10aux::math_utils::cbrt(x10_double x) {
+    return ::cbrt(x);
+}
+
+x10_double x10aux::math_utils::hypot(x10_double x, x10_double y) {
+    return ::hypot(x,y);
 }
 
 x10_double x10aux::math_utils::ceil(x10_double x) {
