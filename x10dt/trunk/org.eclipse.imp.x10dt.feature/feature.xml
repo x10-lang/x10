@@ -21,14 +21,14 @@
    </requires>
 
    <plugin
-         id="x10.compiler.p3"
+         id="x10.compiler"
          download-size="910"
          install-size="910"
          version="1.7.5.0"
          unpack="false"/>
 
    <plugin
-         id="x10.runtime.17"
+         id="x10.runtime"
          download-size="319"
          install-size="319"
          version="1.7.5.0"
@@ -70,7 +70,7 @@
          unpack="false"/>
 
    <plugin
-         id="x10.common.17"
+         id="x10.common"
          download-size="0"
          install-size="0"
          version="1.7.5.0"
