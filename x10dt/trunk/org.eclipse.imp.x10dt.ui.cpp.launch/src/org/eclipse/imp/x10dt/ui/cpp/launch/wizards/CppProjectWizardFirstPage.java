@@ -127,9 +127,9 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
   private Button fGenHelloProgBt;
   
   
-  private static final String X10_RUNTIME_BUNDLE = "x10.runtime.17"; //$NON-NLS-1$
+  private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
   
-  private static final String X10_COMMON_BUNDLE = "x10.common.17"; //$NON-NLS-1$
+  private static final String X10_COMMON_BUNDLE = "x10.common"; //$NON-NLS-1$
   
   private static final String X10_CONSTRAINTS_BUNDLE = "x10.constraints"; //$NON-NLS-1$
   

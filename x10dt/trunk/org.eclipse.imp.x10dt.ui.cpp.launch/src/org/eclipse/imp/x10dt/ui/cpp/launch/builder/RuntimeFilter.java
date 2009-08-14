@@ -21,6 +21,6 @@ public final class RuntimeFilter implements IFilter<IPath> {
   
   // --- Fields
   
-  private static final String X10_RUNTIME = "x10.runtime.17"; //$NON-NLS-1$
+  private static final String X10_RUNTIME = "x10.runtime"; //$NON-NLS-1$
 
 }

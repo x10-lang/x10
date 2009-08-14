@@ -11,9 +11,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.osgi.util.NLS;
 
-import polyglot.ext.x10cpp.ExtensionInfo;
-import polyglot.ext.x10cpp.ExtensionInfo.X10CPPScheduler;
-import polyglot.ext.x10cpp.visit.X10CPPTranslator;
+import x10cpp.ExtensionInfo;
+import x10cpp.ExtensionInfo.X10CPPScheduler;
+import x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;

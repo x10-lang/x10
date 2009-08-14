@@ -73,8 +73,8 @@ import org.eclipse.ptp.rm.remote.core.AbstractRemoteResourceManagerConfiguration
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10cpp.X10CPPCompilerOptions;
+import x10.ExtensionInfo;
+import x10cpp.X10CPPCompilerOptions;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;

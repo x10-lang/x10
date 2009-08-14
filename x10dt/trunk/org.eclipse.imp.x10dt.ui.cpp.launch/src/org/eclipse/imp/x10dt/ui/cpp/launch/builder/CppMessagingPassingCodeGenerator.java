@@ -7,10 +7,10 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.launch.builder;
 
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10cpp.visit.MessagePassingCodeGenerator;
+import x10.types.X10ClassType;
+import x10cpp.visit.MessagePassingCodeGenerator;
 import polyglot.visit.Translator;
-import x10c.util.StreamWrapper;
+import x10.util.StreamWrapper;
 
 
 final class CppMessagingPassingCodeGenerator extends MessagePassingCodeGenerator {

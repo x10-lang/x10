@@ -10,15 +10,15 @@ package org.eclipse.imp.x10dt.ui.cpp.launch.builder;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import polyglot.ast.NodeFactory;
-import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.visit.X10DelegatingVisitor;
-import polyglot.ext.x10cpp.ExtensionInfo;
-import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
-import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
+import x10.ast.X10NodeFactory_c;
+import x10.visit.X10DelegatingVisitor;
+import x10cpp.ExtensionInfo;
+import x10cpp.ast.X10CPPDelFactory_c;
+import x10cpp.ast.X10CPPExtFactory_c;
 import polyglot.frontend.Scheduler;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
-import x10c.util.StreamWrapper;
+import x10.util.StreamWrapper;
 
 
 final class CppBuilderExtensionInfo extends ExtensionInfo {
