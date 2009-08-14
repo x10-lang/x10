@@ -14,10 +14,10 @@ import harness.x10Test;
 
 public class ArrayIndexWithPoint extends x10Test {
 
-    public def run(): boolean = {
+    public def run() {
         val e = 1..10;
         val ia = Array.make[int](e->here, (Point)=>0);
-        for (val p in ia.region) // should infer p:Point(region.rank).
+        for (p in ia.region) 
             chk(ia(p)==0);
         return true;
     }
