@@ -220,6 +220,9 @@ public class Synthesizer {
 	/**
 	 * Create a new local variable with the given flags, with initializer e. Add the variable declaration to stmtList.
 	 * Return a reference to the variable.
+	 * 
+	 * Returns null if the type is Void.
+	 * 
 	 * @param pos
 	 * @param e
 	 * @param stmtList

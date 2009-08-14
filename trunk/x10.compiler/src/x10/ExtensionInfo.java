@@ -66,6 +66,7 @@ import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
 import x10.visit.Inliner;
+import x10.visit.Optimizer;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
@@ -282,6 +283,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckNativeAnnotations(job));
            goals.add(InnerClassRemover(job));
            goals.add(Desugarer(job));
+           goals.add(Optimizer(job));
            goals.add(Inlined(job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
@@ -464,6 +466,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
+       
+       public Goal Optimizer(Job job) {
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new VisitorGoal("Optimizer", job, new Optimizer(job, ts, nf)).intern(this);
        }
        
        public Goal InnerClassRemover(Job job) {
