@@ -25,7 +25,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.X10MethodDecl;
+import x10.ast.X10MethodDecl;
 
 public abstract class X10RefactoringBase extends Refactoring {
     /**

@@ -23,7 +23,7 @@ import polyglot.ast.Block;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.X10MethodDecl;
+import x10.ast.X10MethodDecl;
 import x10.effects.constraints.Effect;
 
 public class ExtractAsyncRefactoring extends X10RefactoringBase {

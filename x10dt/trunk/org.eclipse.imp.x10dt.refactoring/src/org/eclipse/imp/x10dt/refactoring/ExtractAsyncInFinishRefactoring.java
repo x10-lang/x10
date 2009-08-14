@@ -21,8 +21,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.X10MethodDecl;
+import x10.ast.Finish;
+import x10.ast.X10MethodDecl;
 import x10.effects.constraints.Effect;
 
 public class ExtractAsyncInFinishRefactoring extends X10RefactoringBase {
