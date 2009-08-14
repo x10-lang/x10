@@ -1357,7 +1357,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container);
-        xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
+        sw.write("#include <x10/runtime/Runtime.h>");
+        sw.newline();
+        sw.write("#include <x10aux/bootstrap.h>");
+        sw.newline();
+        String mainTypeArgs = "x10::runtime::Runtime," + emitter.translateType(container);
+        sw.write("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }");
+        sw.newline();
+        sw.forceNewline(0);
     }
 
 	public void visit(MethodDecl_c dec) {
