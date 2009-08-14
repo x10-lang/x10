@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
+* Copyright (c) 2008,2009 IBM Corporation.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -22,25 +22,21 @@ import org.eclipse.imp.services.base.TreeModelBuilderBase;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TopLevelDecl;
-//import polyglot.ext.x10.ast.ArrayConstructor;          //PORT1.7 --- ask bob, lots here but probably ok initially
-//import polyglot.ext.x10.ast.ArrayConstructor_c;        //PORT1.7 remove?
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Atomic;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.Future;
-import polyglot.ext.x10.ast.Next;
-import polyglot.ext.x10.ast.X10Loop;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.Atomic;
+import x10.ast.Finish;
+import x10.ast.ForEach;
+import x10.ast.Future;
+import x10.ast.Next;
+import x10.ast.X10Loop;
 import polyglot.util.Position;
-//import polyglot.visit.HaltingVisitor;//PORT1.7 remove
 import polyglot.visit.NodeVisitor;
 
 public class X10TreeModelBuilder extends TreeModelBuilderBase {

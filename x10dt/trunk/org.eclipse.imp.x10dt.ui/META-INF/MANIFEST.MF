@@ -29,7 +29,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.imp.x10dt.core,
  org.eclipse.help,
- x10.compiler.p3,
+ x10.compiler,
  org.eclipse.imp.analysis.p3,
  org.eclipse.imp.java.hosted;bundle-version="0.1.1"
 Bundle-Vendor: tibbitts@us.ibm.com

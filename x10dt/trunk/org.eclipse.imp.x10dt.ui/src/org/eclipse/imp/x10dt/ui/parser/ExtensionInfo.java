@@ -47,7 +47,7 @@ import x10.parser.X10Parser;
  * @author beth
  * @author rfuhrer@watson.ibm.com
  */
-public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
+public class ExtensionInfo extends x10.ExtensionInfo {
     private X10Lexer x10_lexer;
     private X10Parser x10_parser;
     private final Monitor monitor;

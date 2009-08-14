@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
+* Copyright (c) 2008,2009 IBM Corporation.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -34,7 +34,6 @@ import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
-//import org.eclipse.imp.x10dt.ui.views.Outliner;  //PORT1.7 remove Outliner
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -53,16 +52,15 @@ import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
-//import polyglot.ext.x10.ast.ArrayConstructor; //PORT1.7 ArrayConstructor no longer exists
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Atomic;
-import polyglot.ext.x10.ast.Finish;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.Future;
-import polyglot.ext.x10.ast.Next;
-import polyglot.ext.x10.ast.TypeDecl_c;
-import polyglot.ext.x10.ast.X10Loop;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.Atomic;
+import x10.ast.Finish;
+import x10.ast.ForEach;
+import x10.ast.Future;
+import x10.ast.Next;
+import x10.ast.TypeDecl_c;
+import x10.ast.X10Loop;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;

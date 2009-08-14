@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
+* Copyright (c) 2008,2009 IBM Corporation.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -26,12 +26,10 @@ import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
-import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IFoldingUpdater;
 import org.eclipse.imp.x10dt.core.X10Util;
-import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
@@ -51,15 +49,13 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
 import polyglot.ast.Try;
-import polyglot.ext.x10.ast.Async;
-import polyglot.ext.x10.ast.AtEach;
-import polyglot.ext.x10.ast.Atomic;
-import polyglot.ext.x10.ast.ForEach;
-import polyglot.ext.x10.ast.Now;
-//import polyglot.ext.x10.ast.ValueClassDecl;  //PORT1.7  ValueClassDecl is gone
-import polyglot.ext.x10.ast.When;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.Atomic;
+import x10.ast.ForEach;
+import x10.ast.Now;
+import x10.ast.When;
 import polyglot.visit.NodeVisitor;
-import x10.parser.X10Parser.JPGPosition;
 
 public class X10FoldingUpdater implements IFoldingUpdater
 {
