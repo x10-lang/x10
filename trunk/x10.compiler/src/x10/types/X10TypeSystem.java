@@ -345,5 +345,7 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isSigned(Type l);
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
+    
+    public Long size(Type t);
 
 }
