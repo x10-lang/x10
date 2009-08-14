@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (c) 2008,2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+
+*******************************************************************************/
 package org.eclipse.imp.x10dt.core.builder;
 
 import java.io.IOException;
@@ -17,7 +28,7 @@ import polyglot.util.Position;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
-public class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
+public class BuilderExtensionInfo extends x10.ExtensionInfo {
     private final X10Builder fBuilder;
 
     public BuilderExtensionInfo(X10Builder builder) {

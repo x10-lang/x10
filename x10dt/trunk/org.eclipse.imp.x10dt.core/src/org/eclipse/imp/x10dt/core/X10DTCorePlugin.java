@@ -61,10 +61,10 @@ public class X10DTCorePlugin extends PluginBase {
     public static final String kLanguageName = "X10";
     
     /** Plugin id of version of X10 runtime used for this X10DT */
-    public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime.17";      //PORT1.7 provide constant here for runtime
+    public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime";      //PORT1.7 provide constant here for runtime
     /** Plugin id of version of X10 compiler used for this X10DT */
-    public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler.p3";   //PORT1.7 provide constant here for compiler
-    public static final String X10_COMMON_BUNDLE_ID="x10.common.17";  //PORT1.7 added
+    public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler";   //PORT1.7 provide constant here for compiler
+    public static final String X10_COMMON_BUNDLE_ID="x10.common";  //PORT1.7 added
     public static final String X10_CONSTRAINTS_BUNDLE_ID="x10.constraints"; //PORT1.7 added
     /**
      * The unique instance of this plugin class

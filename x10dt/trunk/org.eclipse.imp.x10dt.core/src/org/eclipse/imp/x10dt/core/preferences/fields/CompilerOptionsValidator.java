@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (c) 2008,2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+
+*******************************************************************************/
 package org.eclipse.imp.x10dt.core.preferences.fields;
 
 import java.util.HashSet;
@@ -30,7 +41,7 @@ public class CompilerOptionsValidator implements Validator {
         
         
         // TODO need api to list the possible options?  to have field specific content assist here
-        polyglot.ext.x10.X10CompilerOptions options = new polyglot.ext.x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
+        x10.X10CompilerOptions options = new x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
         try {
             for(int i=0; i<args.length; i++) {
                 if (args[i].length() == 0) {

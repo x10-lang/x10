@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
+* Copyright (c) 2008,2009 IBM Corporation.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import polyglot.ext.x10.Configuration;
+import x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
