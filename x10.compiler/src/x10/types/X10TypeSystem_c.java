@@ -2478,5 +2478,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10Context xc = (X10Context) context;
         return env(context).isSubtypeWithValueInterfaces(t1, t2);
     }
+    
+    // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
+    public Long size(Type t) {
+        if (t.isFloat()) return 4l;
+        if (t.isDouble()) return 8l;
+        if (t.isChar()) return 2l;
+        if (t.isByte()) return 1l;
+        if (t.isShort()) return 2l;
+        if (t.isInt()) return 4l;
+        if (t.isLong()) return 8l;
+        // TODO: rails & valrails
+        return null;
+    }
    
 }

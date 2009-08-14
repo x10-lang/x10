@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import polyglot.ast.Expr;
 import polyglot.ast.LocalDecl;
 import polyglot.types.Name;
+import polyglot.types.Type;
+import x10.types.X10TypeSystem;
 
 public class SharedMem {
     
@@ -12,6 +14,13 @@ public class SharedMem {
     
     private abstract static class Decl {
         public final LocalDecl ast;
+        public long bytes() {
+            Type t = ast.type().type();
+            X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+            Long bytes = xts.size(t);
+            assert bytes != null : t;
+            return bytes.longValue();
+        }
         public Decl (LocalDecl ast) { this.ast = ast; }
     }
     

@@ -63,8 +63,8 @@ public class SharedVarsMethods {
 	static final boolean refsAsPointers = false;
 	static final String VOID = "void";
 	static final String VOID_PTR = "void*";
-	static final String SAVED_THIS = "saved_this";
-    static final String THIS = "this";
+	public static final String SAVED_THIS = "saved_this";
+    public static final String THIS = "this";
 	static final String INSTANCE_INIT = "_instance_init"; // instance field initialisers
 	static final String CONSTRUCTOR = "_constructor";
 	static final String MAKE = "_make";
@@ -84,7 +84,8 @@ public class SharedVarsMethods {
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
 
-	static final String NATIVE_STRING = "c++";
+    public static final String CPP_NATIVE_STRING = "c++";
+    public static final String CUDA_NATIVE_STRING = "cuda";
 
     public static String chevrons(String type) {
         return "<" + type + (type.endsWith(">")?" ":"")+">";

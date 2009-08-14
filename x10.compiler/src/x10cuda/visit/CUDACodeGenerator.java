@@ -13,7 +13,10 @@
 
 package x10cuda.visit;
 
-
+import static x10cpp.visit.SharedVarsMethods.CUDA_NATIVE_STRING;
+import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
+import static x10cpp.visit.SharedVarsMethods.THIS;
+import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
@@ -123,6 +126,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         super(sw,tr);
     }
 
+    protected String[] getCurrentNativeStrings() {
+        if (!generatingKernel()) return new String[] { CPP_NATIVE_STRING };
+        return new String[] { CUDA_NATIVE_STRING, CPP_NATIVE_STRING };
+    }
     
     private X10CUDAContext_c context() {
         return (X10CUDAContext_c) tr.context();
@@ -184,52 +191,58 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         sw.write("/* block split-compiled to cuda as "+kernel_name+" */ ");
 
         ClassifiedStream out = cudaStream();
-        // disable name-mangling which seems to be inconsistent across cuda versions
+        
+        // environment (passed into kernel via pointer)
         out.write("struct "+kernel_name+"_env {"); out.newline(4); out.begin(0);
-        emitter.printDeclarationList(out, context(), context().kernelParams());
-        /*
+        //emitter.printDeclarationList(out, context(), context().kernelParams());
         for (VarInstance var : context().kernelParams()) {
             Type t = var.type();
-            String type = emitter.translateType(t, true);
+            String type = Emitter.translateType(t, true);
             
             if (isIntRail(t)) {
-                type = "x10_int **";
+                type = "x10_int *";
             } else if (isFloatRail(t)) {
-                type = "x10_float **";
+                type = "x10_float *";
+            } else {
+                type = type + " ";
             }
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 name = SAVED_THIS;
-            }
-            
-            else {
-                name = emitter.mangled_non_method_name(name);
+            } else {
+                name = Emitter.mangled_non_method_name(name);
             }
             out.write(type + name + ";");
             out.newline();
         }
-        */
         out.end(); out.newline();
-        out.write("};"); out.newline(); out.forceNewline();
-        out.write("extern \"C\" __global__ void "+kernel_name+"("+kernel_name+"_env *"+env+")"); out.newline();
+        out.write("};"); out.newline();
         
-        // decode buffer
-        //out.write("    var = *(*T)buf; buf += sizeof(T);")
+        out.forceNewline();
+        
+        // kernel (extern "C" to disable name-mangling which seems to be inconsistent across cuda versions)
+        out.write("extern \"C\" __global__ void "+kernel_name+"("+kernel_name+"_env *"+env+") {"); out.newline(4); out.begin(0);
+        
+        // shm
+        out.write("// shm"); out.newline();
+        /*
+        for (context().shm()) {
+            out.write();
+        }
+        */
+/*
+    float *new_clusterv = (float*) dyn_shm; // [DIM*clusterc_odd]
+    int *new_counterv = (int*)&new_clusterv[DIM*clusterc_odd]; // [clusterc]
+*/
         
         // body
-        //X10CUDAContext_c save_ctxt = context();
-
-        //TypeSystem ts = tr.typeSystem();        
-        //context(ts.emptyContext());
-        //context((Context)save_ctxt.copy());
         sw.pushCurrentStream(out);
         super.visit(b);
         sw.popCurrentStream();
-        out.write(" // "+kernel_name);
-        //context(save_ctxt);
-        
         
         // end
+        out.end(); out.newline();
+        out.write("} // "+kernel_name);
         out.forceNewline();
     }
     

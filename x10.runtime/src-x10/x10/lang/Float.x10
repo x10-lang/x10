@@ -93,10 +93,12 @@ public final value Float {
 
     @Native("java", "java.lang.Float.MAX_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f7fffff)")
+    @Native("cuda", "FLT_MAX")
     public const MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
 
     @Native("java", "java.lang.Float.MIN_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x00800000)")
+    @Native("cuda", "FLT_MIN")
     public const MIN_VALUE: Float = Float.fromIntBits(0x00800000);
     
     @Native("java", "java.lang.Float.toHexString(#0)")

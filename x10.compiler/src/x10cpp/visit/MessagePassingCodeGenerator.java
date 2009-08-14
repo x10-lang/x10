@@ -26,7 +26,7 @@ import static x10cpp.visit.SharedVarsMethods.DESERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.DESERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.INSTANCE_INIT;
 import static x10cpp.visit.SharedVarsMethods.MAKE;
-import static x10cpp.visit.SharedVarsMethods.NATIVE_STRING;
+import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 import static x10cpp.visit.SharedVarsMethods.SAVED_THIS;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_BUFFER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_ID_FIELD;
@@ -3491,20 +3491,26 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (false) : ("Function assign should have been desugared earlier");
 	}
 
+    // allow overriding in subclasses
+    // [DC] FIXME: ASTQuery.getCppRepParam still uses CPP_NATIVE_STRING directly
+    protected String[] getCurrentNativeStrings() { return new String[] {CPP_NATIVE_STRING}; }
 
-	private static String getCppImplForDef(X10Def o) {
+	private String getCppImplForDef(X10Def o) {
 	    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 	    try {
-	        Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
-	        List<Type> as = o.annotationsMatching(java);
-	        for (Type at : as) {
-	            assertNumberOfInitializers(at, 2);
-	            String lang = getPropertyInit(at, 0);
-	            if (lang != null && lang.equals(NATIVE_STRING)) {
-	                String lit = getPropertyInit(at, 1);
-	                return lit;
-	            }
-	        }
+	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+            String[] our_langs = getCurrentNativeStrings();
+            for (String our_lang : our_langs) {
+    	        List<Type> as = o.annotationsMatching(annotation);
+    	        for (Type at : as) {
+    	            assertNumberOfInitializers(at, 2);
+    	            String lang = getPropertyInit(at, 0);
+    	            if (lang != null && lang.equals(our_lang)) {
+    	                String lit = getPropertyInit(at, 1);
+    	                return lit;
+    	            }
+    	        }
+            }
 	    }
 	    catch (SemanticException e) {}
 	    return null;

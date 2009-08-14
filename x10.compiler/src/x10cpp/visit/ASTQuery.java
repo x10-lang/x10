@@ -1,6 +1,6 @@
 package x10cpp.visit;
 
-import static x10cpp.visit.SharedVarsMethods.NATIVE_STRING;
+import static x10cpp.visit.SharedVarsMethods.CPP_NATIVE_STRING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -296,7 +296,7 @@ public class ASTQuery {
 			for (Type at : as) {
 				assertNumberOfInitializers(at, 4);
 				String lang = getPropertyInit(at, 0);
-				if (lang != null && lang.equals(NATIVE_STRING)) {
+				if (lang != null && lang.equals(CPP_NATIVE_STRING)) {
 					return getPropertyInit(at, i);
 				}
 			}

@@ -50,10 +50,12 @@ public final class Rail[T](length: nat)
 
     @Native("java", "#0.apply(#1)")
     @Native("c++", "(*#0)[#1]")
+    @Native("cuda", "(#0)[#1]")
     public native safe def apply(i: nat): T;
 
     @Native("java", "#0.set(#1, #2)")
     @Native("c++", "(*#0)[#2] = #1")
+    @Native("cuda", "(#0)[#2] = #1")
     public native safe def set(v: T, i: nat): T;
     
     @Native("java", "#0.iterator()")
