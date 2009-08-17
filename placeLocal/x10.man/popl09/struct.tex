@@ -1,0 +1,143 @@
+\subsection{Structural constraints}
+\label{sec:structural}
+\label{sec:structural-typing}
+
+Constraints on types need not be limited to subtyping.
+By introducing structural constraints on types, one can
+instantiate
+type properties on any type with a given set
+of methods or fields.
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.
+This feature is useful for reusing code
+from separate libraries; it does not require
+code of one library to implement a named interface of the other
+library to interoperate.
+
+Here, we consider an extension, not yet implemented, of the \Xten{} type system
+that supports structural type constraints.
+Formally, the extension
+is straightforward; indeed the \FXG{} family already supports structural
+constraints
+via the rules for ``{\tt x \underline{has} I}'' in
+Figure~\ref{fig:lookup}.
+
+Structural constraints on types are found in many languages.
+For instance,
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
+%
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence is structural
+rather than nominal as in object-oriented languages of the C
+family (e.g., C++, Java, and \Xten{}).
+Unity~\cite{malayeriIntegrating08}
+is another language with structural subtyping.
+
+Using structural constraints in \Xten was inspired by 
+the language PolyJ~\cite{java-popl97}, which allows type parameters to be
+bounded using
+structural \emph{where clauses}~\cite{where-clauses}.
+For example, a sorted list class % from Figure~\ref{fig:sorted}
+could
+be written as follows in PolyJ:
+{
+\begin{xten}
+class SortedList[T]
+  where T {int compareTo(T)} {
+    void add(T x) {... x.compareTo(y) ...}
+    ... }
+\end{xten}}
+The \xcd"where" clause states that the type parameter \xcd"T" must have a
+method \xcd"compareTo" with the given signature.
+
+The analogous code for \xcd"SortedList" in the structural
+extension of \Xten{} would be:
+{
+\begin{xten}
+class SortedList[T]
+  {T has compareTo(T): int} {
+    def add(x: T) {... x.compareTo(y) ...}
+    ... }
+\end{xten}}
+
+Another use of structural constraints is to permit the
+introduction of 
+CLU-style optional methods~\cite{clu}.  Consider the following
+\xcd"Array" class:
+{
+\begin{xten}
+class Array[T] {
+  def add(a: Array[S])
+    {T has add(S): U}: Array[U] {
+    return new Array[U](
+      (p:Point) => this(p)+a(p));
+  }
+  ... }
+\end{xten}}
+
+\noindent
+The \xcd"Array" class defines an \xcd"add" method that takes 
+an array of \xcd"S", adds each element of the array to the
+corresponding element of \xcd"this", and returns an array of the
+results.  The method guard specifies that the method may
+only be invoked if \xcd"T" has an \xcd"add" method of the
+appropriate type.  Thus, for example, an \xcd"Array[int]"
+can be added to an \xcd"Array[double]" because \xcd"int"
+has a method \xcd"add" (corresponding to the \xcd"+" operation)
+that adds an \xcd"int" and a \xcd"double", retuning a
+\xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
+the \xcd"add" operation because \xcd"Rabbit" does not have an
+\xcd"add" method.
+%\footnote{It may have a \xcd"multiply" method.}
+
+\eat{
+\subsection{Definition-site variance}
+
+\subsection{Conditional methods and generalized constraints}
+
+For type parameters, method constraints are 
+similar to generalized constraints proposed for
+\csharp~\cite{emir06}.
+%
+In the following code, the \xcd"T" parameter is covariant
+and so the \xcd"append" methods below are illegal:
+{\footnotesize
+\begin{xten}
+class List[+T] {
+  def append(other: T): List[T] { ... }
+      // illegal
+  def append(other: List[T]): List[T] { ... }
+      // illegal
+}
+\end{xten}}
+%
+However, one can introduce a method parameter and then constrain
+the parameter from below by the class's parameter:
+For example, in the following code,
+{\footnotesize
+\begin{xtenmath}
+class List[+T] {
+  def append[U](other: U)
+      {T $\extends$ U}: List[U] { ... }
+  def append[U](other: List[U])
+      {T $\extends$ U}: List[U] { ... }
+}
+\end{xten}}
+
+The constraints must be satisfied by the callers of \xcd"append".
+For example, in the following code:
+{\footnotesize
+\begin{xten}
+xs: List[Number];
+ys: List[Integer];
+xs = ys; // ok
+xs.append(1.0); // legal
+ys.append(1.0); // illegal
+\end{xten}}
+the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
+the call to \xcd"ys.append" is not allowed because the caller cannot show that
+$\Xcd{Number} \subtype \Xcd{Double}$.
+
+}

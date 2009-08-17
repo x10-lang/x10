@@ -1,0 +1,199 @@
+\documentclass[10pt]{sigplanconf}
+
+\newif\iflncs
+\lncsfalse
+
+\usepackage{times-lite}
+\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+\usepackage{bcprules}
+%\usepackage{ttquot}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{floatflt}
+\usepackage{defs}
+\usepackage{pldefs}
+\usepackage{utils}
+\usepackage[pdftex]{graphicx}
+\usepackage{xspace}
+\usepackage{ifpdf}
+\newif\iflstworks
+\lstworkstrue
+\iflstworks
+\usepackage{x10}
+\fi
+
+\hfuzz=1pt
+
+\iflstworks
+\else
+\newcommand{\xcd}[1]{{\tt #1}}
+\newcommand{\tcd}[1]{{\tt #1}}
+\fi
+
+\pagestyle{empty}
+
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+
+% \input{../../../../vj/res/pagesizes}
+% \input{../../../../vj/res/vijay-macros}
+\newcommand\alt{\bnf}
+
+\newcommand\Implies{\Rightarrow}
+
+\iflncs
+\else
+\newtheorem{example}{Example}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newenvironment{proof}{
+\trivlist
+\item[\hskip \labelsep \textsc{Proof.}]
+\selectfont
+\ignorespaces}{$\Box$}
+
+%\newtheorem{proof}[theorem]{Proof}
+\fi
+
+%\newcommand\Xten{{\sf X10}}
+\newcommand\DML{{DML}}
+%\newcommand\FJ{{FJ}}
+%\newcommand\CFJ{{CFJ}}
+\newcommand\java{{Java}}
+%\newcommand\Java{{\java}}
+%\newcommand\csharp{{C$\sharp$}}
+\newcommand\FXten{{FX10}}
+
+\renewcommand\andalso{\quad}
+
+\begin{document}
+
+\iflncs
+\title{Constrained Types for Object-Oriented Languages}
+\titlerunning{Constrained Types}
+
+\author{Nathaniel Nystrom\inst{1} \and Vijay Saraswat\inst{1}
+\and Jens Palsberg\inst{2} \and Christian Grothoff\inst{3}}
+\authorrunning{Vijay Saraswat et al.}
+
+\institute{IBM T.~J. Watson Research~Center, P.O.~Box~704, Yorktown~Heights NY 10598 USA,
+\email{\{nystrom,vsaraswa\}@us.ibm.com}
+\and
+UCLA~Computer~Science~Department,
+Boelter~Hall, Los~Angeles CA 90095 USA,
+\email{palsberg@cs.ucla.edu}
+\and
+Department~of~Computer~Science, University~of~Denver,
+2360~S.~Gaylord~Street, John~Green~Hall, Room~214, Denver~CO, 80208 USA,
+\email{christian@grothoff.org}}
+
+\else
+
+\title{Constrained Types for Object-Oriented Languages}
+\authorinfo{Nathaniel Nystrom\titlenote{IBM T.~J. Watson Research
+Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
+  {nystrom@us.ibm.com}
+\authorinfo{Vijay Saraswat$^{\;*}$}{}
+  {vsaraswa@us.ibm.com}
+%\authorinfo{Radha Jagadeesan\titlenote{School of CTI, DePaul
+%University, 243 S. Wabash Avenue, Chicago IL 60604 USA}}{}
+  %{rjagadeesan@cs.depaul.edu}
+\authorinfo{Jens Palsberg\titlenote{UCLA Computer Science
+Department, Boelter Hall, Los Angeles CA 90095 USA}}{}
+  {palsberg@cs.ucla.edu}
+\authorinfo{Christian Grothoff\titlenote{
+Department of Computer Science, University of Denver,
+2360 S. Gaylord Street, John
+Green Hall, Room 214, Denver CO, 80208 USA}}{}
+  {christian@grothoff.org}
+
+\conferenceinfo{OOPSLA'08,} {October 19--23, 2008, Nashville,
+Tennessee, USA.}
+\CopyrightYear{2008}
+\copyrightdata{978-1-60558-215-3/08/10} 
+
+\fi
+
+\maketitle
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\iflncs
+\else
+\category{D.3.2}{Language Classifications}{Object-oriented languages}
+\category{D.3.3}{Language Constructs and Features}{Classes and objects, Constraints}
+\terms{Languages}
+%\keywords{Object-oriented programming languages, dependent types, constraints}
+\fi
+
+\iflstworks
+\section{Introduction}\label{sec:intro}
+\input{intro}
+
+\section{Constrained types}\label{sec:lang}
+%II. Language design and rules (CFJ) (3.5 pages)
+
+\label{method-sec}
+\input{lang}
+
+\section{Examples}\label{sec:examples}
+\input{examples}
+
+\section{Implementation}\label{sec:implementation}
+\label{sec:impl}
+\input{impl}
+
+\section{Formal semantics}
+\label{sec:semantics}
+\input{quad-semantics}
+
+\section{Related work}\label{sec:related}
+\input{related2}
+
+\section{Conclusion and future work}\label{sec:future}\label{sec:conclusions}
+%\input{future}
+\input{conclusion}
+\fi
+
+\section*{Acknowledgments}
+
+The authors thank Radha Jagadeesan,
+Norman Cohen, Pra\-deep Varma,
+Satish Chandra, Martin Hirzel, Igor Peshansky,
+Lex Spoon, Vincent Cave, Vivek Sarkar,
+and the \Xten\ team for fruitful discussions and implementation of
+the \Xten\ compiler and examples.
+This material is based upon work supported by the Defense
+Advanced Research Projects Agency under its Agreement No.
+HR0011-07-9-0002.
+
+
+\bibliographystyle{plain}
+\bibliography{master}
+
+\appendix
+
+\section{Soundness}
+\label{sec:proof}
+\input{proof}
+
+\balance
+
+% \appendix
+% \onecolumn
+
+% \section{An extended example}
+% \input{longex}
+
+\end{document}

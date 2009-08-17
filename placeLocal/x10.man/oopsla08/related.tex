@@ -1,0 +1,323 @@
+Constraint-based type systems enjoy a long history.
+The use of constraints for type inference and subtyping were
+developed by
+Mitchell~\cite{mitchell84}
+and
+Reynolds~\cite{reynolds85}.
+%
+Trifonov and Smith~\cite{trifonov96}
+proposed a type system where types are refined by subtyping
+constraints.  Dependent types are not supported.
+%
+Pottier~\cite{pottier96simplifying,pottier01b}
+presents a constraint-based type system for an ML-like language with
+subtyping.
+
+HM(X)~\cite{sulzmann97type,pottier01a,pottier-remy-attapl}
+is a constraint-based framework
+for Hindley--Milner style type systems.
+The framework is parameterized on the specific constraint system
+X; instantiating X yields extensions of the HM type system.
+Constraints in HM(X) are over types, not values.
+%
+% XXX HM(X) introduced {\em term constraint systems}; constraints in
+% CFJ are term constraints?
+
+% Cardelli~\cite{cardelli86}, type checking dependent types and
+% subtypes.
+
+% Russell
+% \cite{fuh88}
+% \cite{curtis90}
+% \cite{aiken93}
+
+% Aiken, Wimmers, and Lakshman proposed {\em conditional
+% types}~\cite{conditional-types}, which have the ability to
+% encode control-flow analysis of {\tt case} expressions.
+% Conditional types are not dependent.
+
+% \cite{smith94}
+
+
+
+% \cite{palsberg95}
+% constraint-based inference algorithm for object calculus, 
+
+% Henglein (TAPOS) set constraints for OO language type-inference.
+
+% Bane~\cite{fahndrich99}
+
+% Pottier
+
+% CLP(X) framework in constraint logic programming (JM94)
+% HM(X)
+
+Several systems have been proposed that refine types in a base
+type system through constraints.
+%
+{\em Refinement types}~\cite{refinement-types} extend the 
+Hindley--Milner type system with intersection, union, and
+constructor types, enabling specification and inference of
+more precise type information.
+%
+{\em Conditional
+types}~\cite{conditional-types} extend refinement types to
+encode control-flow information in the types.
+%
+Jones introduced {\em qualified types}, which permit
+types to be constrained by a finite set of
+predicates~\cite{jones94}.
+%
+{\em Sized types}~\cite{sized-types}
+annotate types with the sizes of recursive data structures.
+Sizes are linear functions of size variables.
+Size inference is performed using a constraint solver for
+Presburger arithmetic~\cite{omega}.
+% constraints on types, support primitive recursion only
+
+% Indexed types~\cite{indexed-types}
+
+% Index objects must be pure.
+% Singleton types int(n).
+% ML$^{\Pi}_0$:
+% Refinement of the ML type system: does not affect the
+% operational semantics.  Can erase to ML$_0$.
+
+% Jay and Sekanina 1996: array bounds checking based on shape
+% types.
+
+With hybrid type-checking~\cite{flanagan-popl06,flanagan-fool06},
+types can be constrained by arbitrary boolean expressions.
+While typing is undecidable, dynamic checks are inserted into
+the program when necessary if the type-checker cannot determine
+type safety statically.
+In \Xten{} dynamic type checks, including tests of dependent
+clauses, are inserted only at explicit casts.
+
+% Ada dependent types.
+% Ada has constrained array definitions.  A constraint
+% \cite{ada-ref-man}.  Not clear if they're dependent.  Are
+% there other dependent types?  Generics are dependent?
+
+Singleton types~\cite{aspinall-singletons,stone00} are dependent
+types containing only one value.  
+In Stone's formulation~\cite{stone00},
+$S(e : \tau)$
+is the type of all values of type $\tau$ that are equal to $e$.
+Term equivalence is
+constructed so that type-checking is decidable.
+The singleton $S(e: \tau)$ can be encoded in \Xten{} as
+$\tau$\xcd{(:self ==}~$e$\xcd{)}.
+
+        % Used for array bounds by Morrisett et al (I think--need
+        % to find paper)
+
+% Singleton types~\cite{aspinall-singletons}.
+
+Several languages---gbeta~\cite{ernst99-gbeta},
+Scala~\cite{scala-overview,scala-oopsla05}, J\&~\cite{nqm06}, and
+others~\cite{oz01,ocrz-ecoop03,dependent-classes}---provide {\em path-dependent
+types}.  For a final access path \xcd{p}, {\tt p.type}
+in Scala is the singleton type containing the object \xcd{p}.
+In J\&, {\tt p.class} is a type containing all objects
+whose run-time class is the same as \xcd{p}'s.
+Scala's {\tt p.type} can be encoded in \Xten{} using an equality
+constraint \xcd{C(:self == p)}, where \xcd{C} is a supertype of
+\xcd{p}'s static type.
+\eat{
+These types can be encoded in CFJ by introducing a
+\xcd{type} property.
+\rn{T-constr}, as
+described in Section~\ref{sec:examples}.
+}
+
+% Where clauses for F-bounded polymorphism~\cite{where-clauses}
+% Bounded quantification: Cardelli and Wegner.  Bound T with T'
+% In F-bounded polymorphism~\cite{f-bounds}, type variables are bounded by a function of 
+% the type variable. 
+% Not dependent types.
+
+\eat{
+conditional types:
+
+type of an expression can be constrained using information about
+the results of run-time tests in the context surrounding the
+expression.
+
+e.g., can express that e2 is evaluated only if e1 is true
+
+\begin{verbatim}
+\y. case y of true => e1 | false => e2 :
+        'a -> (true ? ('a ^ typeof(e1)) U (false ? ('a ^ typeof(e2))
+\end{verbatim}
+
+Types include type constructors applied to types.
+
+\begin{verbatim}
+        so,  true      : true
+        but, (\x . x)  : 'a -> 'a
+             node(l,r) : node('a tree, 'a tree)
+\end{verbatim}
+
+
+when checking a case branch, type of the expression being
+matched refined to the include the type constructor for that
+branch
+
+captures some control flow analysis in the types
+
+types
+\begin{verbatim}
+        t ::= t1 -> t2
+                | c(..ti..) <-- type constructor
+                | alpha
+                | t1 U t2
+                | t1 ^ t2
+                | t1 ? t2
+                | 0
+                | 1
+
+        sigma ::= t | \forall ..alpha.. t where ..ti <= tj..
+\end{verbatim}
+}
+
+
+Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
+There is no distinction between static and dynamic types.
+Type-checking is undecidable.
+There is no notion of datatype refinement as in DML.
+
+Epigram~\cite{epigram,epigram-matter}
+is a dependently typed functional programming language based on
+a type theory with inductive families.
+Epigram does not have a phase distinction between values and
+types.
+
+\eat{
+$\lambda^{\sf Con}$ is a lambda calculus with assertions.
+Findler, Felleisen, Contracts for higher-order functions (ICFP02)
+
+  example: int[> 9]
+
+contracts are either simple predicates or function contracts.
+defined by (define/contract ...)
+
+enforced at run-time.
+}
+
+% Jif~\cite{jif,jflow} is an extension of Java in which
+% types are labeled with security policies enforced by the
+% compiler.
+
+ESC/Java~\cite{esc-java}
+allow programmers to write object invariants and pre- and
+post-conditions that are enforced statically
+by the compiler using an automated theorem prover.
+Static checking is undecidable and, in the presence of loops,
+is unsound (but still useful) unless the programmer supplies loop invariants.
+ESC/Java can enforce invariants on mutable state.
+
+% and Spec$\sharp$~\cite{specsharp}
+
+Pluggable and optional type systems were proposed by
+Bracha~\cite{bracha04-pluggable} and provide another means of
+specifying refinement types.
+Type annotations, implemented in compiler plugins, serve only to
+reject programs statically that might otherwise have dynamic
+type errors.
+CQual~\cite{foster-popl02} extends C with user-defined type
+qualifiers.  These
+qualifiers may be flow-sensitive and may be inferred. 
+CQual supports only a fixed set of typing rules
+for all qualifiers.
+In contrast, the {\em semantic type qualifiers} of
+Chin, Markstrum, and Millstein~\cite{chin05-qualifiers}
+allow programmers to define typing rules for qualifiers
+in a meta language that allows type-checking rules to be
+specified declaratively.
+JavaCOP~\cite{javacop-oopsla06} is a pluggable type system
+framework for Java.  Annotations are defined in a meta language
+that allows type-checking rules to be specified declaratively.
+JSR 308~\cite{jsr308} is a proposal for adding user-defined type qualifiers
+to Java.
+
+% Holt, Cordy, the Turing programming language
+
+% Ou, Tan, Mandelbaum, Walker, Dynamic typing with dependent types
+% Separate dependent and simple parts of the program.
+% Statically type the dependent parts.
+% Dynamic checks when passing values into dependent part.
+
+Our work is most closely related to \DML{}, \cite{xi99dependent}, an
+extension of ML with dependent types. \DML{} is also built
+parametrically on a constraint solver. Types are refinement types;
+they do not affect the operational semantics and erasing the
+constraints yields a legal ML program.
+
+At a conceptual level the intuitions behind the development of \DML{}
+and constrained types are similar. Both are intended for practical
+programming by mainstream programmers, both introduce a strict
+separation between compile-time and run-time processing, are
+parametric on a constraint solver, and deal with mutually recursive
+data-structures, mutable state, and higher-order functions (encoded as
+objects in the case of constrained types). Both support existential
+types.
+
+The most obvious distinction between the two lies in the target
+domain: \DML{} is designed for functional programming, specifically
+ML, whereas constrained types are designed for imperative, concurrent
+OO languages. Hence technically our development of constrained types
+takes the route of an extension to \FJ. But there are several other
+crucial differences as well.
+
+\lstnewenvironment{displayml}
+  {\lstset{language=ML,basicstyle=\tt,tabsize=4,columns=fullflexible,captionpos=b,xleftmargin=1em,xrightmargin=1em,keywordstyle=,keepspaces}}
+  {}
+
+First, \DML{} achieves its separation by not permitting program
+variables to be used in types. Instead, a parallel set of (universally
+or existentially quantified) ``index'' variables are
+introduced. For instance the typing of the \xcd{append} operation on
+lists is provided by:
+\begin{displayml}
+fun('a)
+  append(nil, ys) = ys
+| append(cons(x, xs), ys)
+    = cons(x, append(xs,ys))
+where append <| {m:nat}{n:nat} 
+    'a list(m) * 'a list(n) -> 'a list(m+n)  
+\end{displayml}
+\noindent in contrast with the direct embedded expression with constrained types:
+\begin{xten}
+class List(int(:self >= 0) n) {
+  Object item;
+  List(n-1) tail;
+  List(n+a.n) append(final List a) { 
+    return n==0
+      ? a : new List(item, tail.app(a));
+  }
+  ...
+}
+\end{xten}
+
+Second, \DML{} permits only variables of basic index sorts known to
+the constraint solver (e.g., \xcd{bool}, \xcd{int}, \xcd{nat}) to
+occur in types. In contrast, constrained types permit program
+variables at any type to occur in constrained types. As with \DML,
+only operations specified by the constraint system are permitted in
+types. However, these operations always include field selection and
+equality on object references.  (As we have seen permitting arbitrary
+type/property graphs may lead to undecidability.) Note that \DML{}
+style constraints are easily encoded in constrained types.
+
+% A reviewer says:
+% The third criticism of DML is technically correct but highly
+% misleading.  Instead of casts, DML allows "if tests" or case
+% analysis as dynamic tests that then yield static information
+% about the type in the appropriate branch of the if or case.
+% Either omit this criticism or describe how DML does the same
+% thing--or if DML's system is weaker in some way, give a
+% particular example to justify that.
+
+% Third, \DML{} does not permit any runtime checking of constraints
+% (dynamic casts).
