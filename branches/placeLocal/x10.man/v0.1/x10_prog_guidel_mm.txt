@@ -1,0 +1,369 @@
+Programmer's and Implementor's guide to the X10 Memory Model
+version 3, Nov 6, Christoph von Praun
+=====================================================================
+
+
+Introduction
+------------
+
+Certain X10 programs, called correctly synchronized, are guaranteed to
+access shared memory under sequential consistency (SC).  This note
+defines the notion of 'correctly synchronized', and  describes
+informal  rules that programmers should follow to write correctly
+synchronized  X10 programs.
+
+Moreover, we also describe how to implement X10 synchronization
+constructs and restrictions on optimizing compilers to meet the
+required ordering of shared memory accesses.
+
+The distinction between correctly and incorrectly synchronized
+programs is necessary since X10 permits program transformations and
+shared memory implementations that result in weak ordering
+semantics. Programs that do not follow the rules described in the
+following, i.e., programs that fall into the class 'incorrectly
+synchronized', can expose the effects of the weak ordering directly to
+the programmer. Such programs are given certain minimal (type)  safety
+guarantees, but programmers should not have expectations beyond
+that. A formal model that enumerates executions for such incorrectly
+synchronized programs can be defined~\cite{A Theory of Memory Models};
+this is beyond the scope of this paper and should not concern most if
+not  all X10 *programmers*.
+
+
+
+What are correctly synchronized X10 programs?
+---------------------------------------------
+
+A program is correctly synchronized, if all SC executions are data
+race free. 
+
+Data race free means that accesses that are potentially conflicting
+(same location, w-w, r-w), must  be ordered in the happens-before
+relation (HB).
+
+The HB relation is defined on a program execution for  actions i and j
+as i -hb-> j if
+
+   (a) i and j occur in the same thread and are ordered in program
+       order (PO)
+
+   (b) i and j occur in different threads but are ordered by the
+       synchronization order (SO)
+
+   (c) if there is an action k such that i -hb-> k -hb-> j
+       (recursive definition of transitivity) 
+
+In the execution of a data race free program, a read of location l
+returns the value of the closest preceding update or initialization of
+l in the HB relation. This init or update action is always uniquely
+defined.
+
+These rules correspond to the rules for correctly synchronized Java
+programs, except that the definition of the synchronization order (SO)
+is different in X10. Whenever we refer in the following to read or
+write, we mean read or write of shared mutable data.
+
+To define SO, we define first synchronization events in X10. There are
+four categories of synchronization events:
+
+   (i) start of atomic block (tx_start), end of atomic block (tx_end)
+
+  (ii) spawn of an activity (a_spawn, a_start), end of an activity
+       (a_end) 
+
+ (iii) spawn of a future (f_spawn, f_start) and force of future
+       (f_end, f_force)
+
+  (iv) clock resume/drop (c_reach) and next (c_cross)
+
+   (v) end of finish block (finish)
+
+Events are ordered by SO follows:
+
+   (i) tx_end -so-> tx_start  The start of a transaction t that reads
+       or writes a location l is ordered by SO with the end of a
+       transaction u that previously (according to HB) wrote l or the
+       initialization of l. Conditional atomic blocks are handled
+       in an execution like a sequence of k unconditional transactions
+       (the first k-1 transactions to check the condition without
+       success, the k-th transaction with successful condition check
+       and execution).
+
+  (ii) The spawn point of an activity precedes the start of the
+       activity in the SO order. (If spawn and start occur in the same
+       thread due to activity inlining, SO coincides with PO.)
+                               
+ (iii) The spawn of a future (f_spawn) precedes that start of the
+       evaluation of the future (f_start) in the SO order. The end of 
+       a future evaluation (f_end) precedes the force operation on the 
+       future (f_force) in SO. Notice that f_force is a
+       synchronization  event that precedes the read that obtains the
+       value of the future (invocation of f.force()).
+
+  (iv) A c_reach event on clock c in phase p follows in SO all c_cross
+       events that transit the clock to phase p.  
+       A c_reach event on clock c in phase p precedes in SO all
+       c_cross events that transit the clock to phase p+1.
+       
+   (v) The end of a finish block follows in SO all f_end and a_end
+       events of activities and futures that are spawned in the
+       dynamic execution scope of the finish block.
+
+
+
+Note on the ordering semantics of atomic blocks
+-----------------------------------------------
+
+Since we assume that matching tx_start and tx_end events are ordered
+within SO, and  hence within HB, we refer to *ordered atomic
+blocks*. The following semantics are implied by (i), but we state them
+explicitly for clarity and to contrast them with *unordered atomic
+blocks* (item (1u) in paragraph 'possible language constructs').
+
+ (i-a) Memory access a preceding an atomic block that updates shared
+       memory is ordered with respect to the block, i.e., a must have
+       performed before the atomic block commits.
+
+ (i-b) Memory access a that follows an atomic block that reads shared
+       memory is ordered with respect to the block, i.e., a must
+       perform after the atomic block commits (all actions in the
+       atomic block have performed).
+
+ (i-c) Atomic blocks executed by same activity are ordered in HB (due
+       to PO).
+
+
+Possible language constructs:
+
+ (1o) ordered atomic blocks (see (i), (i-a), (i-b), and (i-c)).
+
+ (1u) unordered atomic blocks: Semantics as described in (i) however,
+      instead of SO,  tx_start and tx_end introduce a separate partial
+      order called TX that does not contribute to HB.  Read and write
+      operations inside transactions must be consistent with respect to
+      TX.  Since unordered atomic blocks leave HB unaffected, the
+      guarantees specified in  (i-a), (i-b), and (i-c) are not provided
+      by unordered atomic blocks.
+
+      Unordered atomic blocks are useful to implement highly efficient
+      non-blocking algorithms.  Unordered atomic blocks are only
+      useful if combined with a construct that can establish ordering
+      among tx_xxx events and events ordered within HB through
+      constructs (3a) or (3b).
+
+ (2u) atomic variables: Such variables shall be read or written as
+      atomic units and shall be coherent, i.e., accesses to each
+      individual variable are totally ordered.  This total order of
+      access events on individual variables contributes to the HB
+      relation.  Read has acquire semantics, write has release
+      semantics.  Note that read and writes of *different* variables
+      are not ordered, hence atomic variables are *not* sequentially
+      consistent with respect to each other. Mechanisms discussed in
+      (3a) and (3b) may be used to accomplish ordering among accesses
+      to different locations within the same thread.
+ 
+ (2o) ordered atomic variables: As (2u) and in addition, there is a
+      total global order among  accesses to volatile variables
+      (semantics as if access occurred in an ordered atomic
+      block). This would correspond to the JSR-133 semantics of
+      volatile  variables: sequential consistency, read has acquire,
+      write has release semantics. [Doug Lea notes that current
+      multiprocessor architectures require strong / costly fence
+      operations to support this  semantics. In particular on PowerPC,
+      even a sync instruction is not capable to let two processors
+      'agree' in the order of independent writes on two other
+      processors --  a lwarx/stwcx is necessary to implement a
+      volatile read ].
+
+ (3a) Fence operations (uni- / bi-directional, read / write / both
+      fences) specify ordering among tx_xxx actions and non
+      transactional actions. Note that fence operations (e.g. those
+      provided on the PowerPC architecture) may still not be strong
+      enough to guarantee sequential consistency.
+ 
+      Note: Sufficient conditions for SC are according to Scheurich
+      and  Dubois [ISCA'87]: (1) each thread issues memory accesses in
+      program order, (2) if a processor issues a store, it may not
+      issue subsequent memory accesses until the value of the store is
+      accessible to all other processor in the system. (3) if a
+      processor issues a load, it may not issue subsequent memory
+      accesses  until the value to be read has been bound to the load
+      operation and become accessible to all other processor in the
+      system.  Typical fence implementations (e.g. PowerPC) achieve
+      aspect (1) an (2 - PowerPC sync), not necessarily aspect (3).
+
+ (3b) Labeled actions: Memory accesses and atomic blocks may be
+      labeled.
+      
+Note: (3a) and (3b) are alternative proposals. They are only
+meaningful in combination with (1u).
+
+Language variants:
+
+ - For the further discussion, we assume that the language provides
+   only construct (1o). This is what is assumed commonly in the
+   literature, e.g., when atomic blocks are used to implement
+   concurrent container types. 
+
+ - Instead or in addition to (1o), the language may provide one or
+   more of the  constructs (2o), (2u, 3a/b), (1u, 3a/b). While equally
+   powerful, the correct use of model (1u, 3a/b) can be significantly
+   more complex -- for the programmer -- than model (1o).
+ 
+
+Note on strong vs. weak atomicity of atomic blocks
+--------------------------------------------------
+
+A program where conflicting transactional and non-transactional access
+can occur concurrently is not correctly synchronized. This note is
+only concerned with the memory semantics of correctly synchronized
+programs.
+
+
+Implementation recipes for X10 synchronization constructs
+---------------------------------------------------------
+
+Synchronization events typically impose restrictions on the reordering
+of memory access to satisfy the conditions of the HB ordering. We
+present implementation techniques in the runtime and in a compiler
+that are sufficient to achieve HB ordering (there could be other
+implementations that  are more relaxed, yet correct, than the one we
+describe). Techniques for the compiler  are mostly concerned with
+preserving PO when necessary; techniques in the runtime are mostly
+concerned with establishing SO.
+
+
+Acquire-release synchronization:
+
+We assume acquire and release primitives that order memory access
+inside an activity. A sequence of acquire / release pairs that are
+executed  in an orderly manner by different activities in the *same*
+place shall be cumulative (i.e., they establish transitive ordering).
+
+   (i) An acquire operation follows tx_start if a read  operation
+       occurs within the atomic block; a release precedes the tx_end
+       if a write operation occurs in the atomic block.  (Corollary:
+       An atomic block that does neither read or write shared mutable
+       data does not require synchronization operations).
+
+  (ii) A release operation occurs before a_spawn. An acquire operation 
+       occurs after a_start.
+
+ (iii) A release operation occurs before f_spawn. An acquire operation 
+       occurs after f_start. A release operation occurs before f_end.
+       an acquire operation occurs after f_force.
+
+  (iv) A release operation occurs before c_reach. An acquire operation
+       occurs after c_cross
+
+   (v) An acquire operation occurs after finish.
+
+
+PowerPC implementation of acquire-release:
+
+ acquire: isync instruction.
+ release: lwsync instruction. 
+[for constructs on other platforms see Doug Lea's JSR-133 cookbook]
+
+
+Limitations on compile-time transformations:
+
+ compilers must not hoist memory access across an acquire.
+ compilers must not sink memory access across a release.
+
+
+Optimizations:
+
+- Inlining of futures and activities allows to omit the
+  synchronization operations and compile-time restrictions associated
+  with the  synchronization events a_spawn, a_start, f_spawn, f_start,
+  and f_force of the inlined activity or future.
+
+- Consecutive atomic blocks can be coalesced. Synchronization operations 
+  associated with the tx_end event of the first transaction and the tx_start 
+  event of the second transaction can be omitted.
+
+- Memory access outside an atomic block may be moved into the block.
+
+- The acquire operation associated with the tx_start  event in
+  a transaction that does not read (shared mutable locations) can be
+  omitted.
+
+- The release operation associated with the tx_end  events in a
+  transaction that does not write (shared mutable locations) can be
+  omitted.
+
+- Elimination of redundant acquire: In a sequence a1; s; a2, where a1
+  and a2 are acquire operations and s does not contain synchronization
+  operations, a2 may be omitted.
+
+- Elimination of redundant release: In a sequence r1; s; r2, where r1
+  and r2 are release operations and s does not contain synchronization
+  operations, r1 may be omitted.
+
+
+SMP Implementation based on Java
+--------------------------------
+
+- Atomic blocks and variables: 
+
+  Language constructs (1o) can be implemented with synchronized blocks
+  in Java, using a single, per-place lock. 
+
+  Language constructs (2o) corresponds to Java volatile
+  variables. Since ordering guarantees of (2u) are strictly  weaker
+  than (2o), (2o) is a is valid implementation of (2u).
+
+  (3a) and (3b) cannot be implemented efficiently in Java.
+  Model (1u) is not useful without (3a) or (3b).
+
+- Async and Future: Implementation with Java threads:
+    
+   Thread start, end, and join in Java have ordering semantics that is
+   sufficient for a_spawn, a_start, f_spawn, f_start, and f_force
+
+   When asyncs and futures are dispatched to pre-allocated threads by
+   an executor,  the correct Java signaling and synchronization
+   actions associated with wait / notify  or sleep / interrupt can
+   establish the ordering of memory accesses required by a_spawn,
+   a_start, f_spawn, f_start, and f_force.
+
+- Clocks: Implementation based on conditional atomic blocks.
+
+
+Advice to the programmer
+------------------------
+
+- "Don't spawn activities". This foils the purpose of X10 as a
+  language for parallel programming. But indeed, programs that do 
+  not create activities beyond the main activity are correctly
+  synchronized.
+
+- "Encapsulate all accesses to shared mutable data inside atomic
+  blocks". While this policy also results in correctly synchronized
+  programs,  it is hardly tenable in practice since many
+  synchronization patterns cannot be  expressed. For example, a
+  mutable datum o may be communicated between activities  though
+  correctly synchronized channels. Such 'push-flow' architectures do
+  not require that individual accesses to o are guarded  within
+  critical sections since only a single activity at a time has access
+  to o.
+
+- "Communication of a datum must be ordered though matching
+   synchronization actions at both sides, a release on the sender side
+   and an acquire at the receiver side". 'Matching' is defined as
+   follows:
+
+   - The synchronization events (i), (ii), (iii), (iv)  can match
+     peers of the same category as specified by the definition of the
+     category.
+
+   - Finish (v) can match preceding release operations of any other
+     category.
+
+
+What was left out for simplicity
+--------------------------------
+
+- Initialization and access of immutable data (final fields or value
+  types).
