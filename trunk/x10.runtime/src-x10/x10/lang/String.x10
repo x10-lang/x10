@@ -66,6 +66,12 @@ public final value String implements (nat) => Char {
     @Native("c++", "(#0)->indexOf(#1)")
     public native def indexOf(Char): Int;
     
+    @Native("java", "#0.indexOf(#1)")
+    public incomplete def indexOf(String): Int;
+    
+    @Native("java", "x10.core.RailFactory.makeRailFromJavaArray(#0.split(#1))")
+    public incomplete def split(String): Rail[String];
+
     @Native("java", "#0.lastIndexOf(#1)")
     @Native("c++", "(#0)->lastIndexOf(#1)")
     public native def lastIndexOf(Char): Int;
