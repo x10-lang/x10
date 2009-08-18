@@ -301,7 +301,7 @@ public class Emitter {
 		} else 
 			assert false : type; // unhandled type.
 		assert (name != null);
-		name = translateFQN(name);
+		name = translate_mangled_FQN(name);
 		if (!asRef)
 			return name;
 		return make_ref(name);
@@ -973,7 +973,7 @@ public class Emitter {
     public static void openNamespaces(CodeWriter h, QName name) {
         if (name == null) return;
         openNamespaces(h, name.qualifier());
-        h.write("namespace "+name.name()+" { ");
+        h.write("namespace "+mangle_to_cpp(name.name().toString())+" { ");
     }
                 
     public static void closeNamespaces(CodeWriter h, QName name) {
