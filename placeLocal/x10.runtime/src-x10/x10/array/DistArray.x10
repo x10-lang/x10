@@ -5,25 +5,34 @@ package x10.array;
 
 /**
  * This class represents an array with raw chunk in each place,
- * initialized at its place. The chunk is stored in a PlaceLocal
- * object.
+ * initialized at its place access via a PlaceLocalHandle.
  *
  * @author bdlucas
  */
 
-import x10.array.PlaceLocal;
+import x10.runtime.PlaceLocalHandle;
+import x10.runtime.PlaceLocalStorage;
 
 final value class DistArray[T] extends BaseArray[T] {
 
-    private val raws: PlaceLocal[Rail[T]];
-    private val layouts: PlaceLocal[RectLayout];
+    private static class LocalState[T] {
+        val layout:RectLayout;
+        val raw:Rail[T];
+        
+        def this(l:RectLayout, r:Rail[T]) {
+            layout = l;
+            raw = r;
+        }
+    };
+
+    private val localHandle:PlaceLocalHandle[LocalState[T]];
 
     final protected def raw(): Rail[T] {
-        return raws();
+        return localHandle.get().raw;
     }
 
     final protected def layout(): RectLayout {
-        return layouts();
+        return localHandle.get().layout;
     }
 
     //
@@ -95,27 +104,22 @@ final value class DistArray[T] extends BaseArray[T] {
     //
 
     def this(dist: Dist, val init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
-
         super(dist);
 
-        // compute per-place layout
-        val layoutInit = ()=> layout(dist.get(here));
-        layouts = PlaceLocal.make[RectLayout](dist.places(), layoutInit);
-            
-        // compute per-place raw storage
-        val rawInit = ()=>{
-            val layout = layouts();
-            val n = layout.size();
-            val raw = Rail.makeVar[T](n);
-            if (init!=null) {
+        val plsInit:(Place)=>LocalState[T] = (p:Place) => {
+            val region = dist.get(p);
+            val localLayout = layout(region);
+            val localRaw = Rail.makeVar[T](localLayout.size());
+            if (init != null) {
                 val f = at (init.location) { init as (Point) => T };
-                for (p:Point in dist.get(here))
-                    raw(layout.offset(p)) = f(p);
+                for (pt:Point in region) {
+                    localRaw(localLayout.offset(pt)) = f(pt);
+                }
             }
-            return raw;
+	    return new LocalState[T](localLayout, localRaw);
         };
-        raws = PlaceLocal.make[Rail[T]](dist.places(), rawInit);
 
+        localHandle = PlaceLocalStorage.createDistributedObject(dist, plsInit);
     }
 
 
@@ -131,13 +135,11 @@ final value class DistArray[T] extends BaseArray[T] {
     }
 
     def this(a: DistArray[T], d: Dist) {
-
         super(d);
 
-        val ps = dist.places();
-        layouts = PlaceLocal.make[RectLayout](ps, a.layouts);
-        raws = PlaceLocal.make[Rail[T]](ps, a.raws);
-
+	localHandle = PlaceLocalStorage.createDistributedObject(dist, (p:Place) => {
+	    return a.localHandle.get();
+        });
     }
 
 }

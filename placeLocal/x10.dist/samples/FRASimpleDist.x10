@@ -5,6 +5,8 @@ import x10.io.Console;
 
 import x10.util.Timer;
 import x10.runtime.NativeRuntime;
+import x10.runtime.PlaceLocalHandle;
+import x10.runtime.PlaceLocalStorage;
 
 value LocalTable {
     
@@ -56,9 +58,9 @@ class FRASimpleDist {
     }
 
     static def randomAccessUpdate(
-        num_updates: long,
+	num_updates: long,
         logLocalTableSize: long,
-        tables: ValRail[LocalTable]
+        tables: PlaceLocalHandle[LocalTable]
     ) {
         finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
             val valp = p;
@@ -67,9 +69,8 @@ class FRASimpleDist {
                 for (var i:long=0; i<num_updates/Place.MAX_PLACES; i++) {
                     val placeId = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as int;
                     val valran = ran;
-                    val table = tables(placeId);
                     async (Place.places(placeId)) {
-                        table.update(valran);
+                        tables.get().update(valran);
                     }
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -93,16 +94,8 @@ class FRASimpleDist {
         val num_updates = 4*tableSize;
 
         // create local tables
-        val varTables = Rail.makeVar[LocalTable](Place.MAX_PLACES);
-        finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
-            val pp = p;
-            async (Place.places(p)) {
-                val t = new LocalTable(localTableSize);
-                async (Place.places(0))
-                    varTables(pp) = t;
-            }
-        }
-        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (x:Int) => varTables(x));
+	val init:(Place)=>LocalTable = (p:Place) => new LocalTable(localTableSize);
+	val tables = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), init);
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
@@ -122,8 +115,8 @@ class FRASimpleDist {
         // repeat for testing.
         randomAccessUpdate(num_updates, logLocalTableSize, tables);
         for (var i:int=0; i<Place.MAX_PLACES; i++) {
-            val table = tables(i);
             async (Place.places(i)) {
+	        val table = tables.get();
                 var err:int = 0;
                 for (var j:int=0; j<table.a.length; j++)
                     if (table.a(j) != j) err++;

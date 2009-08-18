@@ -179,6 +179,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/long_utils.o \
 	x10aux/math_utils.o \
 	x10aux/network.o \
+	x10aux/place_local.o \
 	x10aux/ref.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \
@@ -205,6 +206,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/ValRail.o \
 	x10/runtime/Deque.o \
 	x10/runtime/Lock.o \
+	x10/runtime/PlaceLocalHandle.o \
 	x10/runtime/Thread.o \
 	x10/tuningfork/ScalarType.o \
 	x10/util/GrowableRail.o \
