@@ -66,10 +66,22 @@ public final value String implements (nat) => Char {
     @Native("c++", "(#0)->indexOf(#1)")
     public native def indexOf(Char): Int;
     
+    @Native("java", "#0.indexOf(#1)")
+    @Native("c++", "(#0)->indexOf(#1)")
+    public native def indexOf(String): Int;
+    
     @Native("java", "#0.lastIndexOf(#1)")
     @Native("c++", "(#0)->lastIndexOf(#1)")
     public native def lastIndexOf(Char): Int;
-    
+
+    @Native("java", "#0.lastIndexOf(#1)")
+    @Native("c++", "(#0)->lastIndexOf(#1)")
+    public native def lastIndexOf(String): Int;
+
+    @Native("java", "x10.core.RailFactory.makeValRailFromJavaArray(#0.split(#1))")
+    @Native("c++", "(#0)->split(#1)")
+    public native def split(String): ValRail[String];
+
     @Native("java", "java.lang.String.valueOf(#1)")
     @Native("c++", "x10aux::safe_to_string(#1)")
     public native static def valueOf(Object): String;
