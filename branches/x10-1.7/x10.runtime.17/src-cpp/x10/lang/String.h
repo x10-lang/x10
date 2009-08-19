@@ -68,13 +68,25 @@ namespace x10 {
             x10_int length() { return (x10_int) FMGL(content_length); }
             x10_int indexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);
-            x10_int lastIndexOf(x10aux::ref<String> s, x10_int i = 0);
-            x10_int lastIndexOf(x10_char c, x10_int i = 0);
+            x10_int lastIndexOf(x10aux::ref<String> s, x10_int i);
+
+            x10_int lastIndexOf(x10aux::ref<String> s) {
+                return lastIndexOf(s, this->length()-1);
+            }
+
+            x10_int lastIndexOf(x10_char c, x10_int i);
+
+            x10_int lastIndexOf(x10_char c) {
+                return lastIndexOf(c, this->length()-1);
+            }
+
             x10aux::ref<String> substring(x10_int start, x10_int end);
 
             x10aux::ref<String> substring(x10_int start) {
                 return substring(start, this->length());
             }
+
+            x10aux::ref<ValRail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             x10_char charAt(x10_int i);
 

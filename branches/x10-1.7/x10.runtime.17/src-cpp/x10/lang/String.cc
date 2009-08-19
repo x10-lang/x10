@@ -42,7 +42,7 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
     const char *pos = strstr(haystack, needle);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - haystack);
+    return i + (x10_int) (pos - haystack);
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
@@ -52,7 +52,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
     const char *pos = strchr(haystack, needle);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - haystack);
+    return i + (x10_int) (pos - haystack);
 }
 
 
@@ -105,6 +105,37 @@ ref<String> String::substring(x10_int start, x10_int end) {
         str[i] = FMGL(content)[start+i];
     str[sz] = '\0';
     return String::Steal(str);
+}
+
+static ref<ValRail<ref<String> > > split_all_chars(String* str) {
+    std::size_t sz = (std::size_t)str->length();
+    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    for (std::size_t i = 0; i < sz; ++i) {
+        rail->raw()[i] = str->substring(i, i+1);
+    }
+    return rail;
+}
+
+// FIXME: this does not treat pat as a regex
+ref<ValRail<ref<String> > > String::split(ref<String> pat) {
+    int l = pat->length();
+    if (l == 0) // if splitting on an empty string, just return the chars
+        return split_all_chars(this);
+    int sz = 1; // we have at least one string
+    int i = -1; // count first
+    while ((i = indexOf(pat, i+l)) != -1) {
+        sz++;
+    }
+    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    int c = 0;
+    int o = 0; // now build the rail
+    while ((i = indexOf(pat, o)) != -1) {
+        rail->raw()[c++] = substring(o, i);
+        o = i+l;
+    }
+    rail->raw()[c++] = substring(o);
+    assert (c == sz);
+    return rail;
 }
 
 x10_char String::charAt(x10_int i) {
