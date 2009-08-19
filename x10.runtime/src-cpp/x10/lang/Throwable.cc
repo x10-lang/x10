@@ -392,13 +392,22 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
         }
         c[0] = '\0';
         c += 3;
-        *strchr(c, '\n') = '\0';
+        char* n = strchr(c, '\n');
+        if (n != NULL)
+            *n = '\0';
         s = demangle_symbol(s);
         char* f = strstr(c, " # ");
         if (f != NULL) {
             unsigned long l = strtoul(c, NULL, 10);
-            f = strchr(f, '<') + 1;
-            *strchr(f, '>') = '\0';
+            char* p = strchr(f, '<');
+            if (p != NULL) {
+                f = p + 1;
+                char* z = strchr(f, '>');
+                if (z != NULL)
+                    *z = '\0';
+            } else {
+                f += 3;
+            }
             msg = alloc_printf("%s (%s:%d)", s, f, l);
         } else {
             msg = alloc_printf("%s (offset %s)", s, c);
