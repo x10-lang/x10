@@ -109,6 +109,10 @@ cleanUpExit() {
 	cat $DATADIR/build_configurationT.xml.tmpl >> $REPORTF
 	cat $DATADIR/build_targetT.xml.tmpl >> $REPORTF
 	cat $DATADIR/reportT.xml.tmpl >> $REPORTF
+    # filter the unwanted xml characters
+    mv $REPORTF ${REPORTF}_tmp
+    tr -cd '[\t\n\r\40-\176]' < ${REPORTF}_tmp > ${REPORTF}
+    rm -f ${REPORTF}_tmp
 	gzip -9 $REPORTF
     # directly log results into legato's cattrack bay
 	if [[ $rc != 128 && -z "$NO_CATTRACK" ]]; then
