@@ -256,7 +256,7 @@ AddFlags {
     }
     
     public String toString() {
-    	return (flags == null ? "" : flags.toString()) + " " + super.toString();
+    	return (flags == null ? "" : flags.toString() + " ") + super.toString();
     }
     
     
