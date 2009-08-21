@@ -10,6 +10,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
+#include <x10aux/place_local.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/system_utils.h>
 #include <x10aux/init_dispatcher.h>
@@ -77,7 +78,8 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-
+        x10aux::place_local::initialize();
+        
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
 
