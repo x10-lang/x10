@@ -7,6 +7,8 @@
  */
 package x10.runtime.impl.java;
 
+import com.ibm.pgas.*;
+
 public abstract class Runtime implements Runnable {
 	private String[] args;
 
@@ -23,27 +25,22 @@ public abstract class Runtime implements Runnable {
 			for (int i = libs.length-1; i>=0; i--) System.loadLibrary(libs[i]);
 		}
 
-		java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
-		    public void run() { System.out.flush(); }
-		});
+        PGASRT.boot(1);
 
-		// start and join main x10 thread in place 0
-		Thread thread = new Thread(0, this, "thread-main");
-		thread.start();
-		try { thread.join(); } catch (InterruptedException e) {}
+        PGASRT.barrier();
+
+        if(0 == PGASRT.here().getId()) {
+            // start and join main x10 thread in place 0
+            try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
+            // execute root x10 activity
+            main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
+        }
+
+        // remove this!
+        PGASRT.barrier();
 
 		// shutdown
 		System.exit(exitCode);
-	}
-
-	/**
-	 * Body of main x10 thread
-	 */
-	public void run() {
-		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
-
-		// execute root x10 activity
-		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
 	}
 
 	/**
