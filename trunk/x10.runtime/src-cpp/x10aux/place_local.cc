@@ -22,7 +22,7 @@ void place_local::initialize() {
 
     _buckets = alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
     memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
-    _fastHandles = alloc<void*>(MAX_FAST_ID+1);
+    _fastHandles = alloc<void*>((MAX_FAST_ID+1)*sizeof(void*));
     memset(_fastHandles, 0, (MAX_FAST_ID+1)*sizeof(void*));
 }
 
