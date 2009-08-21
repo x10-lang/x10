@@ -1,0 +1,26 @@
+\chapter{Interfaces}
+\label{XtenInterfaces}\index{interfaces}
+
+{}\XtenCurrVer{} interfaces are essentially the same \java{}
+interfaces \cite[\S 9]{jls2}. An interface primarily specifies
+signatures for public methods. It may extend multiple interfaces. 
+%The
+%need for magic constants in interfaces is lessened with the
+%introduction of {\tt enum} (\S~\ref{XtenEnums}).
+
+An interface method taking a single argument of type {\tt T} and
+returning a value of {\tt T} may be marked with the qualifier {\tt
+reduction}. This indicates that the method is associative and
+commutative, and may hence be used in reduction/scanning operations on
+arrays of {\tt T} (\S~\ref{ArrayReductions}).\index{operator!reduction}\label{ReductionOperator}
+
+Future version of \Xten{} will introduce additional structure in
+interface definitions that will allow the programmer to state
+additional properties of classes that implement that interface. For
+instance a method may be declared {\tt pure} to indicate that its
+evaluation cannot have any side-effects. A method may be declared {\tt
+local} to indicate that its execution is confined purely to the
+current place (no communication with other places). Similarly,
+behavioral properties of the method as they relate to the usage of
+clocks of the current activity may be specified.
+
