@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>The sequential core</title>
+</head>
+
+<body>
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;The sequential core</h2>
+
+<div class="p"><!----></div>
+
+<b>Control flow.&nbsp;&nbsp;</b>   X10 supports standard sequential control flow
+constructs: &#239;f" statements, "while" loops, "for" loops,
+switch" statements, etc.   X10 also supports exceptions: exceptions are
+raised by "throw" statements and are handled by "try"-"catch"
+statements.
+
+<div class="p"><!----></div>
+
+<b>Primitive operations.&nbsp;&nbsp;</b>  The language provides syntax for performing
+binary and unary operations on values of types defined in the standard library.
+
+<div class="p"><!----></div>
+
+<b>Closures.&nbsp;&nbsp;</b>
+ X10 provides closures () to allow code to be used
+as values.  The body of a closure may capture variables in the closure's
+environment.  Closures are used implicitly in asyncs, futures, and array
+initializers.
+For example, the following method uses a closure to increment
+elements of an array by invoking the "lift" method on the
+array.  The syntax "(x: Int) =&#62; x+1" specifies a closure
+that takes an integer argument "x" and returns "x+1".
+<pre>
+def incr(A: Array[Int]): Array[Int] = {
+    val f = (x: Int) =&#62; x+1; // e.g., f(1) == 2
+    return A.lift(f);
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<b>Allocation.&nbsp;&nbsp;</b>
+Objects are allocated with the "new" operator
+(), which takes
+a class name and type and value arguments to pass to the class's
+constructor.  The constructor must ensure that all properties of
+the class and its superclasses are bound.
+
+<div class="p"><!----></div>
+
+<b>Coercions and conversions&nbsp;&nbsp;</b>
+ X10 supports implicit and explicit coercions and
+conversions ().
+
+<div class="p"><!----></div>
+Values of one type can be converted to another type using the
+&#228;s" operation:
+<pre>
+val x: Int = 65535;
+val y: Byte = x as Byte; // convert to Byte,
+                         // retaining the lower 8 bits
+</pre>
+The &#228;s" operation does not necessarily preserve equality
+and for numeric values may 
+result in a loss of precision.
+
+<div class="p"><!----></div>
+References may be coerced to another type, preserving object
+identity.  A run-time check is performed to ensure the reference
+is to an object of the target type.  If not,
+a "ClassCastException" is thrown.
+<pre>
+// C and D are immediate subclasses of B.
+val x: B = new C();
+val y: C = x as C; // run-time check succeeds
+val z: D = x as D; // run-time check fails
+</pre>
+</body>
+</html>

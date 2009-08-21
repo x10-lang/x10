@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="X10 Help" topic="html/main.html">
+<topic label="X10 FAQs"  href="html/x10faqs.html"/> 
+<topic label="X10 Summary"  href="html/x10summary.html"/> 
+<topic label="X10 Language Reference" href="html/langref/toc.html">
+	<topic label="Summary"  href="html/langref/summary.html"/> 
+	<topic label="Introduction"  href="html/langref/introduction.html"/> 
+	<topic label="Overview of X10"  href="html/langref/Overview.html"> 
+		<topic label="Object-oriented features" href="html/langref/ov-oofeatures.html"/> 
+		<topic label="The sequential core" href="html/langref/ov-seqcore.html"/> 
+		<topic label="Places and activities" href="html/langref/ov-placeact.html"/> 
+		<topic label="Clocks" href="html/langref/ov-clocks.html"/> 
+		<topic label="Arrays, Regions and Distributions" href="html/langref/ov-arraysregionsdists.html"/> 
+		<topic label="Annotations" href="html/langref/ov-annotations.html"/> 
+		<topic label="Translating MPI programs to X10" href="html/langref/ov-tranmpiprogs.html"/> 
+		<topic label="Summary and future work" href="html/langref/ov-summaryfuturework.html"/> 
+	</topic>
+	<topic label="Lexical structure"  href="html/langref/lexicalstructure.html"/> 
+	<topic label="Types" href="html/langref/types.html"> 
+		<topic label="Classes and interfaces" href="html/langref/ty-classesinterfaces.html"/> 
+		<topic label="Type parameters" href="html/langref/ty-typeparameters.html"/> 
+		<topic label="Type definitions" href="html/langref/ty-typedefinitions.html"/> 
+		<topic label="Path types and path type constructors" href="html/langref/ty-pathtypes.html"/> 
+		<topic label="Constrained types" href="html/langref/ty-constrainedtypes.html"/> 
+		<topic label="Function types" href="html/langref/ty-functiontypes.html"/>
+		<topic label="Annotated types" href="html/langref/ty-annotatedtypes.html"/>
+		<topic label="Subtyping and type equivalence" href="html/langref/ty-subtyping.html"/> 
+		<topic label="Least common ancestor types" href="html/langref/ty-leastcommontypes.html"/>
+		<topic label="Coercions and conversions" href="html/langref/ty-coercionsconversions.html"/> 
+		<topic label="Built-in types" href="html/langref/ty-builtin.html"/>
+		<topic label="Type inference" href="html/langref/ty-typeinference.html"/>
+	</topic>
+	<topic label="Variables" href="html/langref/variables.html"/>
+	<topic label="Objects" href="html/langref/objects.html"/>
+	<topic label="Names and packages" href="html/langref/names.html"/>
+	<topic label="Interfaces" href="html/langref/interfaces.html"/>
+	<topic label="Classes" href="html/langref/classes.html"> 
+		<topic label="Reference Classes" href="html/langref/cl-referenceclasses.html"/> 
+		<topic label="Value Classes" href="html/langref/cl-valueclasses.html"/> 
+		<topic label="Type invariants" href="html/langref/cl-typeinvariants.html"/> 
+		<topic label="Class definitions" href="html/langref/cl-classdef.html"/> 
+		<topic label="Constructor definitions" href="html/langref/cl-constructordef.html"/>
+		<topic label="Field definitions" href="html/langref/cl-fielddef.html"/>
+		<topic label="Type definitions" href="html/langref/cl-typedef.html"/>
+	</topic>
+	<topic label="Variable declarations" href="html/langref/variabledecl.html"/> 
+	<topic label="Statements" href="html/langref/statements.html"> 
+		<topic label="Empty statement" href="html/langref/st-empty.html"/> 
+		<topic label="Local variable statement" href="html/langref/st-localvar.html"/> 
+		<topic label="Block statement" href="html/langref/st-block.html"/> 
+		<topic label="Expression statment" href="html/langref/st-expression.html"/> 
+		<topic label="Labeled statement" href="html/langref/st-labeled.html"/>
+		<topic label="Break statement" href="html/langref/st-break.html"/>  
+		<topic label="Continue statement" href="html/langref/st-continue.html"/>
+		<topic label="If statement" href="html/langref/st-if.html"/> 
+		<topic label="Switch statement" href="html/langref/st-switch.html"/> 
+		<topic label="While statement" href="html/langref/st-while.html"/> 
+		<topic label="Do-while statement" href="html/langref/st-dowhile.html"/>  
+		<topic label="For statement" href="html/langref/st-for.html"/> 
+		<topic label="Throw statement" href="html/langref/st-throw.html"/> 
+		<topic label="Try-catch statement" href="html/langref/st-trycatch.html"/> 
+		<topic label="Return statement" href="html/langref/st-return.html"/> 
+	</topic>
+	<topic label="Expressions" href="html/langref/expressions.html"> 
+		<topic label="Literals" href="html/langref/exp-literals.html"/> 
+		<topic label="this" href="html/langref/exp-this.html"/> 
+		<topic label="Local variables" href="html/langref/exp-localvars.html"/> 
+		<topic label="Field access" href="html/langref/exp-fieldacc.html"/> 
+		<topic label="Closures" href="html/langref/exp-closures.html"/>
+		<topic label="Methods selectors" href="html/langref/exp-methodsel.html"/>  
+		<topic label="Operator functions" href="html/langref/exp-opfunc.html"/>
+		<topic label="Calls" href="html/langref/exp-calls.html"/> 
+		<topic label="Assignment" href="html/langref/exp-assign.html"/> 
+		<topic label="Increment and decrement" href="html/langref/exp-incdec.html"/> 
+		<topic label="Numeric promotion" href="html/langref/exp-numpro.html"/>  
+		<topic label="Unary plus and unary minus" href="html/langref/exp-unary.html"/> 
+		<topic label="Bitwise complement" href="html/langref/exp-bitwise.html"/> 
+		<topic label="Binary arithmetic operations" href="html/langref/exp-binops.html"/> 
+		<topic label="Binary shift" href="html/langref/exp-binshift.html"/>
+		<topic label="Binary bitwise operations" href="html/langref/exp-binbitops.html"/>  
+		<topic label="String concatenation" href="html/langref/exp-strcat.html"/> 
+		<topic label="Logical negation" href="html/langref/exp-logneg.html"/> 
+		<topic label="Boolean logical operations" href="html/langref/exp-boolops.html"/> 
+		<topic label="Boolean conditional operations" href="html/langref/exp-boolcond.html"/> 
+		<topic label="Relational operations" href="html/langref/exp-relops.html"/> 
+		<topic label="Conditional expressions" href="html/langref/exp-condex.html"/>
+		<topic label="Stable equality" href="html/langref/exp-stable.html"/>  
+		<topic label="Allocation" href="html/langref/exp-alloc.html"/> 
+		<topic label="Casts" href="html/langref/exp-casts.html"/> 
+		<topic label="instanceof" href="html/langref/exp-instanceof.html"/> 
+		<topic label="Subtyping expressions" href="html/langref/exp-subtyping.html"/> 
+		<topic label="Contains expressions" href="html/langref/exp-contains.html"/> 
+		<topic label="Rail constructors" href="html/langref/exp-rails.html"/> 
+	</topic>
+	<topic label="Places" href="html/langref/places.html"> 
+		<topic label="Place expressions" href="html/langref/pl-expr.html"/> 
+		<topic label="here" href="html/langref/pl-here.html"/> 
+	</topic>
+	<topic label="Activities" href="html/langref/activities.html"> 
+		<topic label="The X10 Rooted Exception Model" href="html/langref/act-rootexceptionmodel.html"/> 
+		<topic label="Spawning an Activity" href="html/langref/act-spawnactivity.html"/> 
+		<topic label="Place changes" href="html/langref/act-placechanges.html"/> 
+		<topic label="Finish" href="html/langref/act-finish.html"/> 
+		<topic label="Initial Activity" href="html/langref/act-initactivity.html"/> 
+		<topic label="Foreach" href="html/langref/act-foreach.html"/>
+		<topic label="Ateach" href="html/langref/act-ateach.html"/>  
+		<topic label="Futures" href="html/langref/act-futures.html"/>
+		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
+		<topic label="Shared variables" href="html/langref/act-sharedvar.html"/>   
+		<topic label="Atomic Blocks" href="html/langref/act-atomicblock.html"/> 
+	</topic>
+	<topic label="Clocks" href="html/langref/clocks.html"> 
+		<topic label="Clock Operations" href="html/langref/clockoper.html"/> 
+	</topic>
+	<topic label="Arrays" href="html/langref/arrays.html"> 
+		<topic label="Points" href="html/langref/arr-points.html"/> 
+		<topic label="Regions" href="html/langref/arr-regions.html"/> 
+		<topic label="Distributions" href="html/langref/arr-dists.html"/> 
+		<topic label="Array Initializer" href="html/langref/arr-arrayinit.html"/> 
+		<topic label="Operations on Arrays" href="html/langref/arr-operarray.html"/> 
+	</topic>
+	<topic label="Annotations and compiler plugins" href="html/langref/annplugins.html"> 
+		<topic label="Annotation syntax" href="html/langref/annsyntax.html"/> 
+		<topic label="Annotations declarations" href="html/langref/anndecl.html"/> 
+		<topic label="Compiler plugins" href="html/langref/plugins.html"/> 
+	</topic>
+	<topic label="Linking with native code" href="html/langref/linkingwith.html"/>
+	<topic label="References" href="html/langref/refs.html"/>
+	<topic label="Example" href="html/langref/example.html"/>
+	<topic label="Changes" href="html/langref/changes.html"/>
+</topic>
+<topic href="html/x10dt/Overview.html" label="X10DT">
+   <topic href="html/x10dt/basicEditing.html" label="Basic Editing in X10DT">
+   </topic>
+      <topic href="html/x10dt/prefs.html" label="X10 Preferences">
+   </topic>
+   <topic href="html/x10dt/refactoring.html" label="Refactoring">
+   </topic>
+   <topic href="html/x10dt/newAndNoteworthy.html" label="New and Noteworthy">
+   </topic>
+
+</topic> 
+</toc>
