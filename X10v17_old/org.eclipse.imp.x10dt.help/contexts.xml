@@ -1,6 +1,0 @@
-<contexts>
-	<context id="x10EditorContext">
-		<description>This is the X10 editor help. There is a link to the help content below.</description>
-		<topic href="html/editor/x10Editor.html" label="X10 Editor"/>
-	</context>
-</contexts>

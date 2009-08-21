@@ -1,5 +1,0 @@
-<psf version="2.0">
-	<provider id="org.eclipse.team.cvs.core.cvsnature">
-		<project reference="1.0,:pserver:anonymous@eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.feature,org.eclipse.imp.x10dt.feature"/>
-	</provider>
-</psf>
