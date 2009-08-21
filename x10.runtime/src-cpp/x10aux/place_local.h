@@ -32,7 +32,12 @@ namespace x10aux {
         static void* lookupHandle(x10_int id);
         static void registerHandle(x10_int id, void *data);
         static void unregisterHandle(x10_int id);
+        template<class T> friend const char *x10aux::typeName();
     };
+
+	template<> inline const char *typeName<place_local>() { return "place_local"; }
+    template<> inline const char *typeName<place_local::Bucket*>() { return "place_local::Bucket *"; }
+    template<> inline const char *typeName<place_local::Bucket>() { return "place_local::Bucket"; }
 }
 
 #endif
