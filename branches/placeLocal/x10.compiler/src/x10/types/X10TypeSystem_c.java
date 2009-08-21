@@ -2475,6 +2475,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
     
     // Returns the number of bytes required to represent the type, or null if unknown (e.g. involves an address somehow)
+    // Note for rails and valrails this returns the size of 1 element, this will have to be scaled
+    // by the number of elements to get the true figure.
     public Long size(Type t) {
         if (t.isFloat()) return 4l;
         if (t.isDouble()) return 8l;
@@ -2483,7 +2485,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         if (t.isShort()) return 2l;
         if (t.isInt()) return 4l;
         if (t.isLong()) return 8l;
-        // TODO: rails & valrails
+        if (isRail(t) || isValRail(t)) {
+            X10ClassType ctyp = (X10ClassType)t;
+            assert ctyp.typeArguments().size() == 1;
+            return size(ctyp.typeArguments().get(0));
+        }
         return null;
     }
    
