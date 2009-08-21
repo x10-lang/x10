@@ -54,7 +54,7 @@ void* place_local::lookupHandle(x10_int id) {
 }
             
 void place_local::registerHandle(x10_int id, void *data) {
-    assert(NULL == lookupHandle_(id));
+    assert(NULL == lookupHandle(id));
     if (id < MAX_FAST_ID) {
         _fastHandles[id] = data;
     } else {
@@ -70,7 +70,7 @@ void place_local::registerHandle(x10_int id, void *data) {
 }
 
 void place_local::unregisterHandle(x10_int id) {
-    assert(NULL == lookupHandle_(id));
+    assert(NULL == lookupHandle(id));
     if (id < MAX_FAST_ID) {
         _fastHandles[id] = NULL;
     } else {
