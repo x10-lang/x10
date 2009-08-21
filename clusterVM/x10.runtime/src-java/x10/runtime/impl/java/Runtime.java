@@ -25,8 +25,6 @@ public abstract class Runtime implements Runnable {
 			for (int i = libs.length-1; i>=0; i--) System.loadLibrary(libs[i]);
 		}
 
-        PGASRT.boot(1);
-
         PGASRT.barrier();
 
         if(0 == PGASRT.here().getId()) {
@@ -86,12 +84,14 @@ public abstract class Runtime implements Runnable {
 	/**
 	 * The number of places in the system
 	 */
-	public static final int MAX_PLACES = Integer.getInteger("x10.NUMBER_OF_LOCAL_PLACES", 4);
+	public static final int MAX_PLACES = PGASRT.numNodes();
+
 
 	/**
 	 * The number of threads to allocate in the thread pool
 	 */
-	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS_PER_PLACE", java.lang.Runtime.getRuntime().availableProcessors());
+	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS_PER_PLACE", 
+            java.lang.Runtime.getRuntime().availableProcessors());
 
 	/**
 	 * Synchronously executes body at place(id)
