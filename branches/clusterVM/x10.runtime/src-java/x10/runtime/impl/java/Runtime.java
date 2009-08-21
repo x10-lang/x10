@@ -31,17 +31,28 @@ public abstract class Runtime implements Runnable {
 
         if(0 == PGASRT.here().getId()) {
             // start and join main x10 thread in place 0
-            try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
-            // execute root x10 activity
-            main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
+            Thread thread = new Thread(0, this, "thread-main");
+            thread.start();
+            try { thread.join(); } catch (InterruptedException e) {}
         }
 
-        // remove this!
         PGASRT.barrier();
 
 		// shutdown
 		System.exit(exitCode);
 	}
+
+    /** 
+     * Body of main x10 thread
+     */
+    public void run() {
+        try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { } 
+
+        System.err.println("The RUN method");
+        // execute root x10 activity
+        main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
+    }   
+
 
 	/**
 	 * User code provided by Main template
