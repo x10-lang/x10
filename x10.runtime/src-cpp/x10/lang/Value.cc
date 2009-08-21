@@ -9,8 +9,15 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-const serialization_id_t Value::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Value::_deserializer<Object>);
+void Value::_serialize(x10aux::ref<Value> this_,
+                       x10aux::serialization_buffer &buf,
+                       x10aux::addr_map &m) 
+{           
+    _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"value id"<<ANSI_RESET<<" to buf: "<<&buf);
+    buf.write(this_->_get_serialization_id(),m);
+    _S_("Serializing the "<<ANSI_SER<<"value body"<<ANSI_RESET<<" to buf: "<<&buf);
+    this_->_serialize_body(buf, m);
+}           
 
 x10aux::ref<Value> Value::_make() {
     return (new (x10aux::alloc<Value>()) Value())->_constructor();
