@@ -1,6 +1,0 @@
-// SYNOPSIS: (#1 instanceof #0) #1 #0=type #1=object #2=depclause
-(new java.lang.Object() {
-    final boolean isa(#0 self) {
-        return #2;
-    }
-}.isa(#1))
