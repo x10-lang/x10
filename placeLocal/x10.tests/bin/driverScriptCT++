@@ -109,8 +109,13 @@ cleanUpExit() {
 	cat $DATADIR/build_configurationT.xml.tmpl >> $REPORTF
 	cat $DATADIR/build_targetT.xml.tmpl >> $REPORTF
 	cat $DATADIR/reportT.xml.tmpl >> $REPORTF
+    # filter the unwanted xml characters
+    mv $REPORTF ${REPORTF}_tmp
+    tr -cd '[\t\n\r\40-\176]' < ${REPORTF}_tmp > ${REPORTF}
+    rm -f ${REPORTF}_tmp
 	gzip -9 $REPORTF
-	if (( $rc != 128 )); then
+    # directly log results into legato's cattrack bay
+	if [[ $rc != 128 && -z "$NO_CATTRACK" ]]; then
 	scp ${REPORTF}.gz regression@legato.watson.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
 	ssh regression@legato.watson.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
 	ssh regression@legato.watson.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
@@ -118,6 +123,13 @@ cleanUpExit() {
 	# cleanup code, if any
     if [[ -d "$LOGD" ]]; then
         mv ${REPORTF}.gz $LOGD
+        # this should enable deferred logging (may be remotely through pull method)
+        if [[ -n "$NO_CATTRACK" && -n "$LOGTAR" ]]; then
+            (cd $LOGD; \
+            rm -f $LOGTAR; \
+            tar cvf $LOGTAR ${REPORTF}.gz; \
+            )
+        fi
     fi
 	rm -f $BLOGF $TLOGF
 	exit $rc
@@ -273,7 +285,11 @@ if [[ "${__cat_system}" == SunOS ]]; then
 else
 	__cat_build_start_time=$(date +'%s')
 fi
+if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
+BLOGF=${TMPDIR}/${__cat_backend}.$$.${__cat_build_start_time}.build.log
+else
 BLOGF=/tmp/${__cat_backend}.$$.${__cat_build_start_time}.build.log
+fi
 touch $BLOGF
 $ABSDIR/buildScriptCT++ > $BLOGF 2>&1
 ecode=$?
@@ -296,7 +312,11 @@ if [[ "${__cat_backend}" == x10c ]]; then
 else
 	__cat_extra_classpath=NA
 fi
+if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
+export TLOGF=${TMPDIR}/${__cat_backend}.$$.${__cat_build_start_time}.test.log
+else
 export TLOGF=/tmp/${__cat_backend}.$$.${__cat_build_start_time}.test.log
+fi
 touch $TLOGF
 __cat_test_configuration="default"
 __cat_x10_home="$X10_HOME"
@@ -342,6 +362,9 @@ __cat_x10_PRELOAD_STRINGS="false"
 __cat_x10_LOAD=""
 
 export X10LANG=$X10LANG
+if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
+    export TMPDIR=$TMPDIR
+fi
 ( \
 	cd $X10_HOME/x10.tests/examples; \
 	$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com -runFile $DATADIR/testrun.dat; \

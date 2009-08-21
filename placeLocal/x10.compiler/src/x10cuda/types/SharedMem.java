@@ -27,6 +27,9 @@ public class SharedMem {
     private static class Rail extends Decl {
         public final Expr numElements;
         public final Expr init;
+        public long bytes() {
+            return super.bytes() * 1; //numElements.constantValue();
+        }
         public Rail (LocalDecl ast, Expr numElements, Expr init) {
             super(ast);
             this.numElements = numElements;

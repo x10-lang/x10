@@ -411,7 +411,7 @@ public class X10CPPTranslator extends Translator {
 		if (map.isEmpty())
 			return;
 		sw.forceNewline();
-		String lnmName = Emitter.translateFQN(pkg).replace("::","_")+"_"+Emitter.mangled_non_method_name(className);
+		String lnmName = Emitter.translate_mangled_FQN(pkg).replace("::","_")+"_"+Emitter.mangled_non_method_name(className);
 //		sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
 //		sw.newline();
 //		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
