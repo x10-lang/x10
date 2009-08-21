@@ -137,6 +137,8 @@
         <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${src}"/>
             <classpath>
+	      <pathelement path="${classpath}"/>
+	      <pathelement location="../pgas2/common/work/lib/pgasrt.jar"/>
               <path refid="project.classpath"/>
             </classpath>
         </ejc>
