@@ -91,8 +91,14 @@ namespace x10 {
         template <class T> void PlaceLocalHandle<T>::_serialize(x10aux::ref<PlaceLocalHandle<T> > this_,
                                                                 x10aux::serialization_buffer &buf,
                                                                 x10aux::addr_map &m) {
-            assert(this_ != x10aux::null);
-            this_->_serialize_body(buf, m);
+            // TODO: This happens when an uninitialized place local handle is serialized as part of its
+            //       containing object (when the this pointer of a constructor escapes).
+            //       Arguably, this should be reported as a static type error by the compiler.
+            if (this_ == x10aux::null) {
+                buf.write((x10_int)-1,m);
+            } else {
+                this_->_serialize_body(buf, m);
+            }
         }
 
         template <class T> void PlaceLocalHandle<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
@@ -102,6 +108,9 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> PlaceLocalHandle<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             x10_int id = buf.read<x10_int>();
+            if (id == -1) {
+                return NULL;
+            }
             PlaceLocalHandle<T> *tmp =  (PlaceLocalHandle<T> *)(x10aux::place_local::lookupHandle(id));
             if (NULL != tmp) {
                 // We already have a PlaceLocalHandle with this id registered here; just return it.

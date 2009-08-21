@@ -34,7 +34,7 @@ import x10.compiler.NativeRep;
 public final value PlaceLocalHandle[T] {
 
   @Native("c++", "(#0)->get()")
-  public native def get():T;
+  public native safe def get():T;
 
   @Native("c++", "(#0)->hashCode()")
   public native safe def hashCode():int;
