@@ -39,6 +39,8 @@
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>
 
+#include <x10aux/place_local.h>
+
 #include <x10aux/cuda/cuda_utils.h>
 #include <x10aux/cuda/bridge_buffer.h>
 #include <x10aux/cuda/ring_buffer.h>

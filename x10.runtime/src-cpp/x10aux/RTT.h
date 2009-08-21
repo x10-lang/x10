@@ -200,6 +200,7 @@ namespace x10aux {
     class remote_ref;
     template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
+    template<> inline const char *typeName<void*>() { return "void *"; }
     template<> inline const char *typeName<const void*>() { return "const void *"; }
     template<> inline const char *typeName<volatile void*>() { return "volatile void *"; }
     template<> inline const char *typeName<char>() { return "char"; }
