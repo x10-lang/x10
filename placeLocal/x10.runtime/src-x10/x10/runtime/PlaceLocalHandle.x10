@@ -28,23 +28,31 @@ import x10.compiler.NativeRep;
  *   val obj:T = plh.get();
  *   at (here.next()) Console.out.println(plh.get() == obj);
  * </verbatim>
- * will print false.
+ * will print false.</p>
  */
 @NativeRep("c++", "x10aux::ref<x10::runtime::PlaceLocalHandle<#1 > >", "x10::runtime::PlaceLocalHandle<#1 >", null)
+@NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
 public final value PlaceLocalHandle[T] {
 
+  /**
+   * @return the object mapped to the handle at the current place
+   */
   @Native("c++", "(#0)->get()")
+  @Native("java", "#0.get()")
   public native safe def get():T;
 
   @Native("c++", "(#0)->hashCode()")
+  @Native("java", "#0.hashCode()")
   public native safe def hashCode():int;
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "(#0)->set(#1)")
+  @Native("java", "#0.set(#1)")
   native def set(newVal:T):void;
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "x10::runtime::PlaceLocalHandle<#1 >::createHandle()")
+  @Native("java", "x10.runtime.impl.java.PlaceLocalHandle.createHandle()")
   static native def createHandle[T]():PlaceLocalHandle[T];
 
 }
