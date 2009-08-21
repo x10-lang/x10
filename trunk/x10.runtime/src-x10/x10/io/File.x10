@@ -117,7 +117,7 @@ FileSystem operations
         val i = fullName.lastIndexOf(SEPARATOR);
         if (i == 0) {
                 parent = null;
-                name = fullName.substring(1, fullName.length());
+                name = fullName.substring(0, fullName.length());
                 absolute = true;
         }
         else if (i >= 0) {
