@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Common
-Bundle-SymbolicName: x10.common
-Bundle-Version: 1.7.5.0
-Export-Package: x10.config
