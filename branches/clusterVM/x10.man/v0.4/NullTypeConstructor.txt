@@ -1,0 +1,109 @@
+'''The Null Type Constructor'''
+
+X10 supports the prefix type constructor '''?''', read as "nullable". 
+For any type '''T''', the type '''?T''' (read: "nullable T") contains all the
+values of type '''T''', and a special ''null'' value, unless '''T'''
+already contains ''null''. This value is designated by the literal
+'''null''', which is special in that it has the type '''?T''' for all types '''T'''. 
+
+This type constructor can be used in any type expression used to declare variables (e.g. LocalVariable{s}, MethodParameter{s}, ClassField{s}, IteratorParameter{s}, TryCatchParameter{s} etc), or in a new expression (e.g. '''new ?T()'''). It may be applied to ValueType{s}, ReferenceType{s}, AggregateType{s} or TypeParameter{s}. It may not be used in an ExtendsClause or an ImplementsClause in a ClassDeclaration or an InterfaceDeclaration. If '''T''' is a value (reference) type, then '''?T''' is defined to be a value (reference) type.
+
+An immediate consequence of the definition of '''nullable''' is that
+for any type '''T''', the type '''??T''' is
+equal to the type '''?T'''. (A type '''???T''' can arise when the body of a generic class contains a type '''?X''' where '''X''' is a type parameter, and the generic class is instantiated with a type '''?T''.)
+
+Any attempt to access a field or invoke a method on the value ''null'' results in a '''NullPointerException''' being thrown.
+
+An expression '''e''' of type '''?T''' may be checked for nullity using the expression '''e==null'''. (It is a compile time error for the static type of 
+'''e''' to not be '''?T''', for some '''T'''.)
+
+'''null''' can be passed as an argument to a method call whose corresponding formal parameter is of type '''?T''' for some type '''T'''. (This is a widening reference conversion, per \cite[Sec 5.1.4]{jls}.) Similarly it may be returned from a method call of return type '''?T''' for some type '''T'''.
+
+For any value '''v''' of type '''T''', the class cast expression 
+'''(?T) v''' succeeds and specifies a value of type '''?T''' that may be seen as the ``boxed'' version of '''v'''. 
+
+X10 permits the widening reference conversion from any type '''T''' to the type '''?T' ''' if '''T''' can be widened to the type '''T' '''. Thus, the type '''T''' is a subtype of the type '''?T''', in accordance with the LiskovSubstitutionPrinciple.
+
+Correspondingly, a value '''e''' of type '''?T''' can be cast to the type '''T''', resulting in a '''NullPointerException''' if '''e''' is '''null''' and '''?T''' is not equal to '''T''', and in the corresponding value of type '''T''' otherwise.  If '''T''' is a value type this may be seen as the ``unboxing'' operator.
+
+The expression '''(T)null''' throws a '''ClassCastException''' if '''T''' is not equal to '''?T'''; otherwise it returns '''null''' at type '''T'''. Thus it may be used to check whether '''T=?T'''.
+
+The nullary type constructor may also be used in (aggregate) instance creation expressions (e.g. '''new ?T[R]'''). In such a case '''T''' must designate
+a (possibly generic) class. Each member of the array is initialized to '''null'''. (See GenericType{s} for a discussion of how type parameters may be specified to have constructors.)
+
+'''Implementation notes'''
+
+A value of type '''?T''' may be implemented by boxing a value of
+type '''T''' unless the value is already boxed. The literal '''null'''
+may be represented as the unique null reference.
+
+'''Java compatibility'''
+
+The JavaLanguage provides a somewhat different treatment of null. A class definition extends a nullable type to produce a nullable type, whereas "primitive" types such as '''int''' are not nullable --- the programmer has to explicitly use a boxed version of '''int''', '''Integer''', to get the effect of '''?int'''. Wherever a JavaProgram uses a variable at reference type '''S''', and that variable can carry the value null, the XtenLanguage programmer should declare the variable at type '''?S'''. However, there are many situations in which a variable at reference type S can be statically determined to not carry null as a value. Such variables should be declared at type S in the XtenLanguage. 
+
+'''Design rationale'''
+
+The need for nullable arose because X10 has ValueType{s} and ReferenceType{s}, and arguably the ability to add a "null" value to a type is orthogonal to whether the type is a ValueType or a ReferenceType. This argues for the notion of nullability as a type constructor. 
+
+The key question that remains is whether it should be possible to define "towers", that is, define the type constructor in such a way that '''??T''' is distinct from '''?T'''. Here one would think of nullable as a disjoint sum type constructor that adds a value ''null'' to the interpretation of its argument type even if it already has that value. Thus '''??T''' is distinct from ''?T'' because it has one more ''null'' value. Explicit injection/projection functions (of signature '''T -> ?T''' to '''?T-->T''') would need to be provided.
+
+The designers of X10 felt that while such a definition might be mathematically tenable, and programmatically interesting, it was likely to be too confusing for programmers. More importantly, it would be a deviation from current practice that is not forced by the core focus of X10 (concurrency, distribution). Hence the decision to collapse the tower by requiring that '''nullable nullable T''' be equal to '''nullable T'''. As discussed below, towers can be obtained through explicit programming.
+
+
+'''Examples'''
+
+Consider the following class:
+----
+ final value Box<T> { 
+   public T value; 
+   public Box(T v) { this.value = v; }
+  }
+----
+
+(Recall that each value type implicitly defines a nullary constructor which initializes each of its fields by invoking the nullary constructor at the type of the field.)
+
+Now one may use a variable '''x''' at type '''?Box<V>''' to distinguish between the '''null''' at type '''?Box<V>''' and at type '''V''' (if '''V''' is a nullable type). In the first case the value of '''x''' will be '''null''', in the second case the value of '''x.value''' will be '''null'''.
+
+Such a type may be used to define efficient generic code for memoization:
+
+----
+ abstract class Memo <V> {
+   ?Box<V>[]  values; 
+   Memo(int n) {
+     values = new ?Box<V>[n]; // initialized to all nulls
+   }
+   V compute(int key); 
+   V lookup(int key) { 
+    if (values[key] != null) 
+      return values[key];
+    V val = compute(key);
+    values[key] = new Box<V>(val);
+    return val;
+   }
+ }
+
+-----
+
+References
+
+ C#: http://blogs.msdn.com/ericgu/archive/2004/05/27/143221.aspx
+ Nice: http://nice.sourceforge.net/cgi-bin/twiki/view/Doc/OptionTypes
+
+[roca] Changed the exception thrown to "NullPointerException". And I think that if you cast nullable \tau to \tau then you should get a null pointer exception right away *even if* \tau is itself nullable.
+
+[vj] Hmm. Semantically this is not tenable because if \tau is nullable then null is a valid value for \tau. In fact you can use this to your advantage. If you want to find out whether a type S(e.g. a type parameter in a generic) is nullable, simply by casting null to the type S (i.e. using the expression (S) null). 
+
+[Perry] Having  nullable nullable T = nullable T  has the unusual property that the constructor (SOME) can have no effect depening on the type at which is it applied.  While this is not entirely new in intermediate typed language, it is weird to expose this to the user.  Java's NULL is weird/unusual but it is clearly not defined as an orthogonal feature so the user has no expecation of orthogonality.  The expectation of orthogonality becomes apparent using the generic example from earlier today.  Suppose I was writing my memo table again:
+
+ class Memo < V> {
+   nullable V []  values;  // initialized to an array of NULLs
+   lookup(int key) { if (values[key] == NULL)  computeAndReturn(key) else return values[key]; }
+ }
+
+This implementation is trying to use NULL as a sentinel value.  However, if V is instantiated at a nullable type, then the two types of nulls are conflated and indistingishable (the one meaning the memo slot is uninitialized and the one meaning that the answer is null).  This is not a problem in Java because NULL was always possible so there is never an expectation of being able to use NULL as a sentinel in a generic implementation.  If we did have nullable be a _real_ type constructor (i.e. not collapsing these types), then the generic's implementation detail won't be leaky.  The only problem is the user-level confusion that arises from the dual lack of the the constructor and overloaded literal.
+
+[vj] Agreed that ML programmers with an expectation that type constructors are uninterpreted (and Prolog programmers who at the term level only have uninterpreted function symbols) may be a bit confused. But this is the way Java treats nulls -- one single value, across all types. See the discussion above about getting towers.
+
+ 
+
+

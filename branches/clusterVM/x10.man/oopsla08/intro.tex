@@ -1,0 +1,393 @@
+
+%
+%I. Introduction and overview (3 pages)
+
+%Design of X10, concurrency, high productivity, high performance,
+%practical language.
+%
+%Dependent types arise naturally. arrays, regions, distributions, place
+%types.
+%
+%Indeed you can look around and recognize many OO type systems proposed
+%in the last decade or so as specific kinds of applied dependent type
+%systems.
+%
+%Our goal is to develop a general framework for dependent types for
+%statically typed OO languages ("Java-like languages"). 
+
+\Xten{} is a modern statically typed object-oriented
+language designed for high productivity in the high performance
+computing (HPC) domain~\cite{X10}. Built essentially on
+sequential imperative object-oriented core
+similar to
+Scala or
+$\mbox{Java}^{\mbox{\scriptsize\sc tm}}$,
+\Xten{} introduces constructs for distribution and
+fine-grained concurrency (asynchrony, atomicity, ordering).
+
+The design of \Xten{} requires a rich type system to permit a
+large variety of errors to be ruled out at compile time and to 
+generate efficient code.  
+Like most object-oriented languages, \Xten{} supports classes;
+however, it places
+equal emphasis on {\em arrays}, a central data structure in high
+performance computing.
+In particular, \Xten{} supports dense,
+distributed multi-dimensional arrays of value and reference types,
+built over index sets known as {\em regions}.%, and mappings from index
+%sets to places, known as {\em distributions}.  \Xten{} supports a rich
+%algebra of operations over regions, distributions and arrays.
+
+A key goal of \Xten{} is to rule out large classes of error
+by design. For instance, the possibility of indexing a 2-d array with 3-d
+points should simply be ruled out at compile-time. This means that one
+must permit the programmer to express types such as \xcd{Region(2)},
+the type of all two-dimensional regions, and
+\xcd{Array[int](r)}, the type of all \xcd{int} arrays
+defined over a given region \xcd{r}.
+For concurrent computations, one needs the ability to
+statically check that a method is being invoked by an activity that is
+registered with a given clock (i.e., dynamic barrier)~\cite{X10}.
+For distributed computations, the compiler needs to be aware of
+the location of objects: for instance,
+\xcd{Tree\{loc==here\}} is the type of all \xcd{Tree} objects located on the
+current node.
+
+For performance, it is necessary that array accesses are
+bounds-checked statically.  Further, certain regions (e.g.,
+rectangular regions) may be represented particularly
+efficiently.  Arrays defined over sparse regions may be
+implemented with less memory overhead.
+Hence, if a variable is to range only over
+rectangular regions, it is important that this information is
+conveyed through the type system to the code generator.
+
+In this paper we describe {\Xten}'s support for {\em
+constrained types},
+a form of {\em dependent
+type}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}---types parametrized by values---defined 
+on predicates over the {\em immutable}
+state of objects. Constrained types statically capture many common invariants
+that naturally arise in code. For instance, typically the shape of an
+array (the number of dimensions (the rank) and the size of each dimension)
+is determined at
+run time, but is fixed once the array is constructed. Thus, the shape of an
+array is part of its immutable state.
+Both mutable and immutable variables may have a constrained
+type: the constraint specifies an invariant on the immutable state
+of the object referenced by the variable. 
+
+\Xten{} provides a framework for specifying and checking constrained types
+that achieves certain desirable properties:
+\begin{itemize}
+\item 
+{\bf Ease of use.}  
+The syntax of constrained types is a simple and
+natural extension of nominal class types.
+% Constrained types in
+% \Xten{} interoperate smoothly with Java libraries.
+
+\item
+{\bf Flexibility.}
+The framework
+permits the development of concrete,
+specific type systems tailored to the application area at
+hand.  \Xten{}'s compiler permits extension with different constraint systems
+via compiler plugins, enabling a kind of pluggable type system~\cite{bracha04-pluggable}.
+The framework is parametric in the kinds of
+expressions used in the type system, permitting the installed constraint
+system to interpret the constraints.
+
+\item
+{\bf Modularity.}
+The rules for type-checking
+are specified once in a way that is independent of the
+particular vocabulary of operations used in the dependent type
+system.
+The type system supports separate compilation.
+
+\item
+{\bf Static checking.}  The framework permits mostly static
+type-checking. The user is able to escape the confines of
+static type-checking using dynamic casts.
+%, as is common for Java-like
+%languages.
+\end{itemize}
+
+\subsection{Constrained types}
+
+\begin{figure}[t]
+{
+\footnotesize
+\begin{xtenlines}
+class List(n: int{self >= 0}) {
+  var head: Object = null;
+  var tail: List(n-1) = null;
+
+  def this(): List(0) { property(0); }
+
+  def this(head: Object, tail: List): List(tail.n+1) {
+    property(tail.n+1);
+    this.head = head;
+    this.tail = tail;
+  }
+
+  def append(arg: List): List(n+arg.n) {
+    return n==0
+      ? arg : new List(head, tail.append(arg));
+  }
+
+  def reverse(): List(n) = rev(new List());
+  def rev(acc: List): List(n+acc.n) {
+    return n==0
+      ? acc : tail.rev(new List(head, acc));
+  }
+
+  def filter(f: Predicate): List{self.n <= this.n} {
+    if (n==0) return this;
+    val l: List{self.n <= this.n-1} = tail.filter(f);
+    return (f.isTrue(head)) ? new List(head,l) : l;
+  }
+}
+\end{xtenlines}
+}
+\caption{
+This program implements a mutable list of Objects. The size of a list
+does not change through its lifetime, even though at different points
+in time its head and tail might point to different structures.}
+\label{fig:list-example}
+\end{figure}
+
+\Xten's sequential syntax is similar to Scala's~\cite{scala}.
+We permit the definition of a class \xcd{C} to specify
+a list of typed parameters or {\em properties},
+${\tt f}_1: {\tt T}_1, \dots, {\tt f}_k: {\tt T}_k$,
+similar in syntactic structure to a method formal parameter list.
+%
+Each property in this list is treated as a public final instance field.
+%
+We also permit the
+specification of a {\em class invariant}
+%, a {\em where clause}~\cite{where-clauses}
+in the class definition,
+a boolean expression on the properties of the class.
+The compiler ensures that all
+instances of the class created at run time satisfy the invariant.
+%
+For instance, we may specify a class \xcd{List} with an
+\xcd{int} \xcd{length} property as follows:
+\begin{xtennoindent}
+  class List(length: int){length >= 0} {...}
+\end{xtennoindent}
+The class invariant states that the length of the list
+is greater than zero.
+
+Given such a definition for a class \xcd{C}, types
+can be
+constructed by {\em constraining} the properties of \xcd{C} with
+a boolean expression.  In
+principle, {\em any} boolean expression over the properties
+specifies a type: the type of all instances of the class
+satisfying the boolean expression. Thus, \xcd{List\{length == 3\}},
+\xcd{List\{length <= 42\}} and
+even \xcd{List\{length * f() >= 0\}} (where \xcd{f} 
+is function on the immutable state of the \xcd{List} object)
+are permissible types.
+In practice, the constraint expression is restricted by the
+particular constraint system in use.
+
+Our basic approach to introducing constrained types into \Xten{}
+is to follow the spirit of generic types, but to use values
+instead of types.
+%
+In general, a {\em constrained type} is of the form \xcd{C\{e\}},
+the name of a class or interface\footnote{In \Xten{}, primitive
+types such as \xcd{int} and \xcd{double} are object types; thus,
+for example, \xcd{int\{self==0\}} is a legal constrained type.}
+\xcd{C}, called the {\em base class}, followed
+by a {\em condition} \xcd{e}.
+The condition may refer to the properties of the base class
+and also to any final variables in scope where the type appears.
+Such a type represents a refinement of \xcd{C}: the set of all
+instances of \xcd{C} whose immutable state satisfies the
+condition \xcd{e}.
+%
+We write \xcd{C} for 
+the vacuously constrained type \xcd{C\{true\}}, and
+write
+\xcd{C(${\tt e}_1,\ldots,{\tt e}_k$)} for
+the type
+\xcd{C\{${\tt f}_1$==${\tt e}_1,\ldots,{\tt f}_k$==${\tt e}_k$\}}
+where \xcd{C} declares the $k$ properties
+${\tt f}_1,\ldots,{\tt f}_k$.  Also, for brevity, a constraint
+may be written as a comma-separated list of conjuncts, e.g.,
+\xcd{Point\{x>0,y<=0\}}.
+
+Constrained types may occur wherever normal types occur. In
+particular, they may be used to specify the types of properties,
+(possibly mutable) local variables or fields,
+arguments to methods, return types of methods; they may also be
+used in casts, etc.
+
+Using the definitions above, \xcd{List(n)}, shown in
+Figure~\ref{fig:list-example}, is the type of all lists of
+length \xcd{n}.
+%
+Intuitively, this definition states that a \xcd{List} has an \xcd{int}
+property \xcd{n}, which must be non-negative.
+The properties
+of the
+class are set through the invocation of \xcd{property}\tcd{(\ldots)}
+(analogously to \xcd{super}\tcd{(\ldots)}) in the constructors
+of the class.
+
+In a constraint, the name \xcd{self} is bound and refers to the type being
+constrained.  The name \xcd{this}, by contrast, is a free
+variable in the
+constraint and refers to the receiver parameter of the current
+method or constructor.  Use of \xcd{this} is not permitted in static
+methods.
+
+The \xcd{List} class has two
+fields (lines 2--3) that hold the head and tail of the list.  The fields are
+declared with the \xcd{var} keyword, indicating that they are
+not final.  Variables declared with the \xcd{val} keyword, or
+without a keyword (e.g., \xcd{length}: \xcd{int}) are final.
+
+Constructors have ``return
+types'' that can specify an invariant satisfied by the object being
+constructed.  The compiler verifies that the
+constructor return type and the class invariant are implied by the
+\xcd{property} statement and any \xcd{super} calls in the constructor
+body.
+A constructor must either invoke another constructor of the same
+class via a
+\xcd{this} call
+or must have a \xcd{property} statement on every
+non-exceptional path
+to ensure the properties are initialized.
+The \xcd{List} class has two constructors: the first
+constructor returns an empty list;
+the second
+returns a list of length \xcd{m+1}, where \xcd{m} is the length
+of the second argument. 
+
+In the second constructor (lines 7--11), as well as 
+the \xcd{append} (line 13) and \xcd{rev} (line 20) methods,
+the return type
+depends on properties of the formal parameters. 
+If an argument appears in a
+return type then the parameter must be final,
+ensuring the
+argument points to the same object throughout the evaluation of
+the method or constructor body.  A parameter may also depend on
+another parameter in the argument list.
+
+The use of constraints makes existential types very natural.
+Consider the return type of \xcd{filter} (line 24): it specifies
+that the list returned is of some unknown length. The only thing
+known about it is that its size is bounded by \tcd{n}.
+Thus,
+constrained types naturally subsume existential dependent types.
+Indeed, every base type \xcd{C} is an ``existential''
+constrained type since it does not specify any constraint on its
+properties. Thus, code written with constrained types can
+interact seamlessly with legacy library code, using just base
+types wherever appropriate.
+
+The return type of \xcd{filter} also illustrates the difference
+between \xcd{self} and \xcd{this}.  Here, \xcd{self} refers to
+the \xcd{List} being returned by the method; \xcd{this} refers
+to a different \xcd{List}: the method's receiver.
+
+\subsection{Constraint system plugins}
+
+The \Xten{} compiler allows  
+programmers to extend the semantics of the language with
+compiler plugins.  Plugins may be used to support different constraint
+systems~\cite{cccc} to be used in constrained types.
+Constraint systems provide code for checking consistency and
+entailment.
+
+The condition of a constrained type is parsed and type-checked
+as a normal boolean expression over properties and
+the final variables in scope at the type.  Installed
+constraint systems translate the expression into an internal
+form, rejecting expressions that cannot be represented.
+%
+A given condition may be a conjunction of constraints from
+multiple constraint systems.
+A Nelson--Oppen procedure~\cite{nelson-oppen} is used to check
+consistency of the constraints.
+
+The \Xten{} compiler
+implements a simple
+equality-based constraint system.  Constraint solver plugins
+have been implemented for inequality constraints, for
+Presburger constraints using
+the CVC3 theorem prover~\cite{cvc}, and for
+set-based constraints also using CVC3.
+These constraint systems are described in
+Section~\ref{sec:examples} and the implementation is
+discussed in Section~\ref{sec:impl}.
+
+\subsection{Claims}
+
+The paper presents constrained types in the \Xten{} programming
+language.
+We claim that the design is natural, easy to use, and useful. Many
+example programs have been written using constrained types and are
+available at {\tt x10.sf.net/\allowbreak applications/\allowbreak examples}.
+
+As in staged languages~\cite{nielson-multistage,ts97-multistage}, the
+design distinguishes between compile-time and run-time
+evaluation. Constrained types are checked (mostly) at compile-time.
+The compiler uses a constraint solver to perform universal reasoning
+(e.g., ``for all possible values of method parameters'') for dependent
+type-checking.  There is no run-time constraint-solving.  However,
+run-time casts and \xcd{instanceof} checks involving dependent types
+are permitted; these tests involve
+arithmetic, not algebra---the values of all parameters are known.
+
+The design supports separate compilation: a class needs to be
+recompiled only when it is modified or when the method
+and field signatures or invariants of classes on which it
+depends are modified.
+
+We claim that the design is flexible. The language design is
+parametric on the constraint system being used.
+%We are planning on extending the current
+%implementation to support multiple user-defined constraint systems,
+%thereby supporting pluggable types.
+The compiler supports
+integration of
+different constraint solvers into the language.
+Dependent clauses  also form
+the basis of a general user-definable annotation framework we have
+implemented separately~\cite{ns07-x10anno}. 
+
+We claim the design is clean and modular. We present a simple core
+language \CFJ, extending \FJ{}~\cite{FJ} with constrained types on top
+of an arbitrary constraint system. We present rules for type-checking
+\CFJ{} programs that are parametric in the constraint system
+and establish subject reduction and progress theorems. 
+
+%
+% XXX contrast with hybrid type checking.
+
+\paragraph{Rest of this paper.}
+
+Section~\ref{sec:lang} describes the syntax and semantics of
+constrained types.
+Section~\ref{sec:examples} works through a number of
+examples using a variety of constraint systems.
+The compiler implementation, including support for constraint
+system plugins, is described Section~\ref{sec:impl}.
+A formal semantics for a core language with constrained types 
+is presented in Section~\ref{sec:semantics}, and a soundness
+proof is presented in the appendix.
+Section~\ref{sec:related} reviews related work.
+The paper concludes in Section~\ref{sec:future}
+with a discussion of future work.
+
+

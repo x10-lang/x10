@@ -1,0 +1,76 @@
+Syntax I would like for X10, after Scala
+
+ (Ref Classes)CL ::= class C < X* > ( f* : X*, var g* : Y* &c ) extends D { B* }
+ (Val Classes)VL ::= value C < X* > ( f* : X* &c ) extends D { B* }
+ (Class Member) B ::= K | M
+
+ (Constructor) K ::= def <X*> C<X*> ( u* : U* & c ) : T = e
+ (Method)      M ::= def  m<X*>( x* : X* & c ) : T = e
+ (Expression)  e,r,s ::=  null | n | x | new C(e*)  
+                       | val x : X = e  -- Local constant definition.
+                       | var x : X = e  -- Local variable definition.
+                       | e ; e 
+                       | e . f
+                       | e . f = e
+                       | x = e          
+                       | e . m ( e* ) 
+                       | ( T ) e 
+                       | throw e
+                       | e ? e : e    -- Conditional expression
+                       | x : T => e   -- Lambda abstraction
+                       | e ( e* )     -- Application
+                       | return e;
+                       | try { e } catch (f) 
+                       | try { e } finally {e} 
+                       | foreach ( x : T in e) e -- 
+
+                       | async (p) e 
+                       | here         -- the current place
+                       | there        -- somewhere
+                       | finish e
+
+ (Type)      T,U,V ::=   C ( & c )   -- dependent type
+                       | nullable T  -- add the null value to the type (replace with sum?)
+                       | T => T      -- function type
+                       | ( T* )      -- product type
+ (Constraint)  c,d ::=  true |  c & c | ! c |  ce=ce | ...
+ (Term)        ce  ::=  self |  f | x  | ...
+
+ (Class Names) C, D, E ::= <Identifier>
+ (Field Names) f, g ::= <Identifier>
+ (Local Variables) x, y, z ::= <Identifier>
+ (Type Variables)  X,Y ::= <Identifier>
+
+Orthogonal issues
+  Traits, and objects vs classes.
+  Optional arguments in parameter lists.
+
+Syntax notes:
+ * Empty parameter sequences may be omitted.
+ * & true may be omitted.
+ * Each class has a default constructor, whose signature is obtained
+   by taking the prefix traversal of its instances variables, and
+   which simply initializes all its fields with the corresponding
+   parameters.
+ * Arrays should be introduced using parenthesis. A(...).
+ * Need constraints on type parameters. Need co-/contra-/equi-variance
+   annotations.
+
+unit is defined as if by
+
+   value unit {}
+
+i.e. no fields, no constructors, no methods.  The only thing you can
+do is create a unit value, new unit. And this is the only value you
+can ever create.
+
+Questions
+ * How are new literals defined? This is tied up with Unicode.
+ * Functions over types? 
+ * Type parameters?
+ * Type definitions.
+ * Generic values -- universal type quantification?
+ * Matching, definition of functions by cases? (e.g. in the body of a try/catch.)
+ * Self-types?
+ * For comprehensions?
+ * enumerations?
