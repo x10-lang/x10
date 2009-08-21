@@ -15,6 +15,7 @@ import x10.config.OptionError;
 import x10.runtime.util.ShowUsageNotification;
 
 import java.util.StringTokenizer;
+import com.ibm.pgas.PGASRT;
 
 /**
  * This class provides the configuration for the X10 runtime.
@@ -36,7 +37,7 @@ public final class Configuration extends x10.config.Configuration {
 	 */
 	public static final ConfigurationError LOAD_ERROR;
 
-	public static int NUMBER_OF_LOCAL_PLACES = 4;
+	public static int NUMBER_OF_LOCAL_PLACES = PGASRT.numNodes();
 	private static final String NUMBER_OF_LOCAL_PLACES_desc = "The number of places";
 
 	public static boolean NULL_DEFAULT_VALUE = true;
@@ -172,11 +173,6 @@ public final class Configuration extends x10.config.Configuration {
 			MAIN_CLASS_NAME = MAIN_CLASS_NAME.substring(0, MAIN_CLASS_NAME.length()-4);
 
 		// Sanity checks for values.
-		if (NUMBER_OF_LOCAL_PLACES < 0) {
-			System.err.println("Negative value |" + NUMBER_OF_LOCAL_PLACES
-					+ "| for NUMBER_OF_LOCAL_PLACES rejected. Set to 4." );
-			NUMBER_OF_LOCAL_PLACES = 4;
-		}
 		if (INIT_THREADS_PER_PLACE < 0) {
 			System.err.println("Negative value |" + INIT_THREADS_PER_PLACE
 					+ "| for INIT_THREADS_PER_PLACE rejected. Set to 3." );
