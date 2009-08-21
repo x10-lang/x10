@@ -55,7 +55,7 @@ namespace x10 {
                 if (FMGL(cached)) {
                     return x10aux::to_string(FMGL(localStorage));
                 } else {
-                    assert(false); // TODO
+                    return x10::lang::String::Lit("PlaceLocalHandle(uncached data)");
                 }
             }
 
