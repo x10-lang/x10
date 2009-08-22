@@ -333,6 +333,7 @@ public class XPromise_c implements XPromise, Serializable {
     
     public boolean disBind(/* @nonnull */XPromise target) throws XFailure {
         assert target.value() == null;
+        assert forwarded() == false;
         if (disEquals == null) disEquals = new HashSet<XPromise>();
         boolean result = disEquals.add(target);
         return result;
