@@ -124,6 +124,22 @@ public class X10TypeMixin {
 		return new XConstraint_c();
 	}
 	
+    /**
+     * Return the constraint c entailed by the assertion v is of type t.
+     * @param v
+     * @param t
+     * @return
+     */
+    public static XConstraint xclause(XVar v, Type t) {
+    	XConstraint c = xclause(t);
+    	try {
+    	return c.substitute(v, c.self());
+    	} catch (XFailure z) {
+    		XConstraint c1 = new XConstraint_c();
+    		c1.setInconsistent();
+    		return c1;
+    	}
+    }
 	public static XConstraint xclause(Type t) {
 	        if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
@@ -467,5 +483,23 @@ public class X10TypeMixin {
 	
 	public static XTerm getRegionUpperBound(Type type) {
 		return null;
+	}
+
+	public static boolean hasVar(Type t, XVar x) {
+	    if (t instanceof ConstrainedType) {
+		ConstrainedType ct = (ConstrainedType) t;
+		Type b = baseType(t);
+		XConstraint c = xclause(t);
+		if ( hasVar(b, x)) return true;
+		for (XTerm term : c.constraints()) {
+		    if (term.hasVar(x))
+			return true;
+		}
+	    }
+	    if (t instanceof MacroType) {
+		MacroType pt = (MacroType) t;
+		return hasVar(pt.definedType(), x);
+	    }
+	    return false;
 	}
 }

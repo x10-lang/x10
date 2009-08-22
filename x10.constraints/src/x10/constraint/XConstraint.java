@@ -297,4 +297,5 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 * @return
 	 */
 	List<XFormula> atoms();
+	
 }

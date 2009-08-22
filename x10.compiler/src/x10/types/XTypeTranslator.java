@@ -44,6 +44,7 @@ import x10.ast.X10Special;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV_c;
+import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XLit_c;
@@ -70,7 +71,7 @@ public class XTypeTranslator {
 	}
 
 	// TODO: vj 08/11/09 -- why does this do nothing? 
-	public void addTypeToEnv(XTerm self, final Type t) throws SemanticException {
+	public void addTypeToEnv(XTerm self, final Type t) /*throws SemanticException*/ {
 	}
 
 	private XTerm trans(XConstraint c, Unary t, X10Context xc) throws SemanticException {
@@ -175,6 +176,33 @@ public class XTypeTranslator {
 		}
 	}
 
+	public XConstraint normalize(XConstraint c, X10Context xc) {
+		XConstraint result = new XConstraint_c();
+		for (XTerm term : c.extConstraints()) {
+			try {
+			if (term instanceof XEquals) {
+				XEquals xt = (XEquals) term;
+				XTerm right = xt.right();
+				if (right instanceof XEquals) {
+					XEquals xright = (XEquals) right;
+					XTerm t1 = xright.left();
+					XTerm t2 = xright.right();
+						if (c.entails(t1, t2)) {
+							result.addBinding(xt.left(), XTerms.TRUE);
+						} else 
+						if (c.disEntails(t1, t2)) {
+							result.addBinding(xt.left(), XTerms.FALSE);
+						} else
+							result.addBinding(xt.left(), xt.right());
+				}
+			} else 
+				result.addTerm(term);
+			} catch (XFailure t) {
+				
+			}
+		}
+		return result;
+	}
 	public XLocal trans(LocalInstance li) throws SemanticException {
 		return trans(li, li.type());
 	}
@@ -210,24 +238,6 @@ public class XTypeTranslator {
 		}
 		return new XTypeLit_c(t);
 //		return XTerms.makeLit(t);
-	}
-	
-	public static boolean hasVar(Type t, XVar x) {
-	    if (t instanceof ConstrainedType) {
-		ConstrainedType ct = (ConstrainedType) t;
-		Type b = X10TypeMixin.baseType(t);
-		XConstraint c = X10TypeMixin.xclause(t);
-		if ( hasVar(b, x)) return true;
-		for (XTerm term : c.constraints()) {
-		    if (term.hasVar(x))
-			return true;
-		}
-	    }
-	    if (t instanceof MacroType) {
-		MacroType pt = (MacroType) t;
-		return hasVar(pt.definedType(), x);
-	    }
-	    return false;
 	}
 	
 	public static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
@@ -280,7 +290,7 @@ public class XTypeTranslator {
 	    }
 
 	    public boolean hasVar(XVar v) {
-	    return XTypeTranslator.hasVar(type(), v);
+	    return X10TypeMixin.hasVar(type(), v);
 	    }
 
 	    public XTerm subst(XTerm y, XRoot x, boolean propagate) {
@@ -358,6 +368,38 @@ public class XTypeTranslator {
                 c.addTerm(new SubtypeConstraint_c(left.type(), right.type(), t.equals()));
         }
 
+        private XTerm simplify(Binary rb, XTerm v) {
+        	XTerm result = v;
+        	Expr r1 = rb.left();
+        	Expr r2  = rb.right();
+
+        	// Determine if their types force them to be equal or disequal.
+        	
+        	XConstraint c1 = X10TypeMixin.xclause(r1.type()).copy();
+        	XVar x = genEQV(c1, false);
+        	try {
+        		c1.addSelfBinding(x);
+        	} catch (XFailure z) {
+        		// cant happen
+        	}
+        	XConstraint c2 = X10TypeMixin.xclause(x, r2.type()).copy();
+        	if (rb.operator()== Binary.EQ) {
+        		try {
+        			if (! c1.addIn(c2).consistent())
+        				result = XTerms.FALSE;
+        			try {
+        				if (c1.entails(c2) && c2.entails(c1)) {
+        					result = XTerms.TRUE;
+        				}
+        			} catch (XFailure z) {
+        				// nothing, shouldnt happen.
+        			}
+        		} catch (XFailure z) {
+        			result = XTerms.FALSE;
+        		}
+        	}
+    	return result;
+        }
 	
 	private XTerm trans(XConstraint c, Binary t, X10Context xc) throws SemanticException {
 	    Expr left = t.left();
@@ -368,7 +410,17 @@ public class XTypeTranslator {
 	    if (lt == null || rt == null)
 	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
 	    if (t.operator() == Binary.EQ) {
-	        v = XTerms.makeEquals(lt, rt);
+	    	if (right instanceof ParExpr) {
+	    		right = ((ParExpr)right).expr();
+	    	}
+	    	if (right instanceof Binary && ((Binary) right).operator() == Binary.EQ) {
+	    		rt = simplify((Binary) right, rt);
+	    	}
+	    	if (left instanceof Binary && ((Binary) right).operator() == Binary.EQ) {
+	    		lt = simplify((Binary) left, lt);
+	    	}
+	    	
+	    		v = XTerms.makeEquals(lt, rt);
 	    }
 	    else if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        v = XTerms.makeAnd(lt, rt);
@@ -578,19 +630,19 @@ public class XTypeTranslator {
 		return v;
 	}
 
-	public XRoot genEQV(XConstraint c, Type t) throws SemanticException {
+	public XRoot genEQV(XConstraint c, Type t)  {
 		XRoot v = c.genEQV();
 		addTypeToEnv(v, t);
 		return v;
 	}
 	
-	public XRoot genEQV(XConstraint c, Type t, boolean hidden) throws SemanticException {
+	public XRoot genEQV(XConstraint c, Type t, boolean hidden)  {
 		XRoot v = c.genEQV(hidden);
 		addTypeToEnv(v, t);
 		return v;
 	}
 	
-	public XVar genEQV(XConstraint c, boolean hidden) throws SemanticException {
+	public XVar genEQV(XConstraint c, boolean hidden)  {
 		XVar v = c.genEQV(hidden);
 
 		return v;

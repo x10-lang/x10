@@ -390,8 +390,9 @@ public abstract value class Region(
     //
     //
 
-    protected def this(rank: int, rect: boolean, zeroBased: boolean) {
-        property(rank, rect, zeroBased);
+    protected def this(r: int, t: boolean, z: boolean)
+        :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
+        property(r, t, z);
     }
 }
 
