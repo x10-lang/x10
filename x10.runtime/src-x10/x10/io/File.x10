@@ -115,12 +115,7 @@ FileSystem operations
 
     public def this(fullName: String) {
         val i = fullName.lastIndexOf(SEPARATOR);
-        if (i == 0) {
-                parent = null;
-                name = fullName.substring(0, fullName.length());
-                absolute = true;
-        }
-        else if (i >= 0) {
+        if (i >= 0) {
                 parent = new File(fullName.substring(0, i));
                 name = fullName.substring(i+1, fullName.length());
                 absolute = false;
@@ -128,7 +123,7 @@ FileSystem operations
         else {
                 parent = null;
                 name = fullName;
-                absolute = false;
+                absolute = i==0;
         }
     }
 
