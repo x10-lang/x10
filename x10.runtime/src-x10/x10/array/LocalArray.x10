@@ -153,11 +153,15 @@ final value class LocalArray[T] extends BaseArray[T] {
     }
 
     def this(a: BaseArray[T], d: Dist{constant}) {
-
         super(d);
-
-        this.layout = at (d.onePlace) a.layout();
-        this.raw = at (d.onePlace) a.raw();
+	
+	if (d.region.isEmpty()) {
+            this.layout = layout(d.region);
+	    this.raw = Rail.makeVar[T](0);
+        } else {
+            this.layout = at (d.onePlace) a.layout();
+            this.raw = at (d.onePlace) a.raw();
+        }
     }
 
 }
