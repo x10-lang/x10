@@ -275,7 +275,8 @@ public abstract value class BaseArray[T] extends Array[T] {
      * type parameter, i.e. BaseArray[T,L] where L is a layout class
      */
 
-    protected def layout(r: Region): RectLayout {
+    // safe to call from witin a constructor, does not read fields.
+    protected proto def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?
             val min = Rail.makeVal[int](r.rank, (nat)=>0);

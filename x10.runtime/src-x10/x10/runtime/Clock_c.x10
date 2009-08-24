@@ -15,10 +15,14 @@ public value Clock_c extends Clock {
 	private val state = new ClockState();
 	
 	private val hashCode = state.hashCode();
-	
-	public def this(name:String) {
+
+        public static def make(name:String) {
+	    val c = new Clock_c(name);
+	    Runtime.clockPhases().put(c, ClockState.FIRST_PHASE);
+	    return c;
+	}
+	private def this(name:String) {
 		super(name);
-    	Runtime.clockPhases().put(this, ClockState.FIRST_PHASE);
 	}
 
     public def registered():boolean = Runtime.clockPhases().containsKey(this);

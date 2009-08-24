@@ -120,6 +120,7 @@
     private
     property
     protected
+    proto
     public
     return
     rooted
@@ -489,6 +490,11 @@
               | p r o t e c t e d
         /.$BeginAction
                 $setResult($_protected);
+          $EndAction
+        ./
+              | p r o t o
+        /.$BeginAction
+                $setResult($_proto);
           $EndAction
         ./
 

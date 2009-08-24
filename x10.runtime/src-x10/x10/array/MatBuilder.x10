@@ -17,8 +17,9 @@ public class MatBuilder {
 
     public def this(rows: nat, cols: nat) {
         this.cols = cols;
-        mat = new ArrayList[Row](rows);
-        need(rows);
+	val m = new ArrayList[Row](rows);
+        mat = m;
+        need(rows, m, cols);
     }
 
     public safe def add(row:Row) {
@@ -51,8 +52,9 @@ public class MatBuilder {
         for (var k:int=0; k<n; k++)
             mat(i)(j+k) = v(k);
     }
-    
-    private safe def need(n:int) {
+
+    private safe def need(n:int) = need(n, this.mat, this.cols);
+    private static safe def need(n:int, mat:ArrayList[Row], cols:int) {
         while (mat.size()<n)
             mat.add(new VarRow(cols));
     }

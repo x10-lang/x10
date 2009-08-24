@@ -12,7 +12,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[78 + 1];
+    private final int keywordKind[] = new int[79 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -513,122 +513,129 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 62:  KeyWord ::= p u b l i c
+        // Rule 62:  KeyWord ::= p r o t o
         //
         
-            keywordKind[62] = (X10Parsersym.TK_public);
+            keywordKind[62] = (X10Parsersym.TK_proto);
       
     
         //
-        // Rule 63:  KeyWord ::= r e t u r n
+        // Rule 63:  KeyWord ::= p u b l i c
         //
         
-            keywordKind[63] = (X10Parsersym.TK_return);
+            keywordKind[63] = (X10Parsersym.TK_public);
       
     
         //
-        // Rule 64:  KeyWord ::= r o o t e d
+        // Rule 64:  KeyWord ::= r e t u r n
         //
         
-            keywordKind[64] = (X10Parsersym.TK_rooted);
+            keywordKind[64] = (X10Parsersym.TK_return);
       
     
         //
-        // Rule 65:  KeyWord ::= s t a t i c
+        // Rule 65:  KeyWord ::= r o o t e d
         //
         
-            keywordKind[65] = (X10Parsersym.TK_static);
+            keywordKind[65] = (X10Parsersym.TK_rooted);
       
     
         //
-        // Rule 66:  KeyWord ::= s t r i c t f p
+        // Rule 66:  KeyWord ::= s t a t i c
         //
         
-            keywordKind[66] = (X10Parsersym.TK_strictfp);
+            keywordKind[66] = (X10Parsersym.TK_static);
       
     
         //
-        // Rule 67:  KeyWord ::= s t r u c t
+        // Rule 67:  KeyWord ::= s t r i c t f p
         //
         
-            keywordKind[67] = (X10Parsersym.TK_struct);
+            keywordKind[67] = (X10Parsersym.TK_strictfp);
       
     
         //
-        // Rule 68:  KeyWord ::= s u p e r
+        // Rule 68:  KeyWord ::= s t r u c t
         //
         
-            keywordKind[68] = (X10Parsersym.TK_super);
+            keywordKind[68] = (X10Parsersym.TK_struct);
       
     
         //
-        // Rule 69:  KeyWord ::= s w i t c h
+        // Rule 69:  KeyWord ::= s u p e r
         //
         
-            keywordKind[69] = (X10Parsersym.TK_switch);
+            keywordKind[69] = (X10Parsersym.TK_super);
       
     
         //
-        // Rule 70:  KeyWord ::= s y n c h r o n i z e d
+        // Rule 70:  KeyWord ::= s w i t c h
         //
         
-            keywordKind[70] = (X10Parsersym.TK_synchronized);
+            keywordKind[70] = (X10Parsersym.TK_switch);
       
     
         //
-        // Rule 71:  KeyWord ::= t h i s
+        // Rule 71:  KeyWord ::= s y n c h r o n i z e d
         //
         
-            keywordKind[71] = (X10Parsersym.TK_this);
+            keywordKind[71] = (X10Parsersym.TK_synchronized);
       
     
         //
-        // Rule 72:  KeyWord ::= t h r o w
+        // Rule 72:  KeyWord ::= t h i s
         //
         
-            keywordKind[72] = (X10Parsersym.TK_throw);
+            keywordKind[72] = (X10Parsersym.TK_this);
       
     
         //
-        // Rule 73:  KeyWord ::= t h r o w s
+        // Rule 73:  KeyWord ::= t h r o w
         //
         
-            keywordKind[73] = (X10Parsersym.TK_throws);
+            keywordKind[73] = (X10Parsersym.TK_throw);
       
     
         //
-        // Rule 74:  KeyWord ::= t r a n s i e n t
+        // Rule 74:  KeyWord ::= t h r o w s
         //
         
-            keywordKind[74] = (X10Parsersym.TK_transient);
+            keywordKind[74] = (X10Parsersym.TK_throws);
       
     
         //
-        // Rule 75:  KeyWord ::= t r u e
+        // Rule 75:  KeyWord ::= t r a n s i e n t
         //
         
-            keywordKind[75] = (X10Parsersym.TK_true);
+            keywordKind[75] = (X10Parsersym.TK_transient);
       
     
         //
-        // Rule 76:  KeyWord ::= t r y
+        // Rule 76:  KeyWord ::= t r u e
         //
         
-            keywordKind[76] = (X10Parsersym.TK_try);
+            keywordKind[76] = (X10Parsersym.TK_true);
       
     
         //
-        // Rule 77:  KeyWord ::= v o l a t i l e
+        // Rule 77:  KeyWord ::= t r y
         //
         
-            keywordKind[77] = (X10Parsersym.TK_volatile);
+            keywordKind[77] = (X10Parsersym.TK_try);
       
     
         //
-        // Rule 78:  KeyWord ::= w h i l e
+        // Rule 78:  KeyWord ::= v o l a t i l e
         //
         
-            keywordKind[78] = (X10Parsersym.TK_while);
+            keywordKind[78] = (X10Parsersym.TK_volatile);
+      
+    
+        //
+        // Rule 79:  KeyWord ::= w h i l e
+        //
+        
+            keywordKind[79] = (X10Parsersym.TK_while);
       
     
         for (int i = 0; i < keywordKind.length; i++)
@@ -638,5 +645,4 @@ public class X10KWLexer extends X10KWLexerprs
         }
     }
 }
-
 

@@ -92,6 +92,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -639,6 +640,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (n.superClass == null && type.superType() != null)
             n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(position(), type.superType()));
         
+   
         List<TypeNode> newInterfaces = new ArrayList<TypeNode>();
         for (Ref<? extends Type> t : type.interfaces()) {
             boolean added = false;
@@ -685,13 +687,16 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
             map.put(ct.x10Def(), ct);
         }
+        
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
+      
     	return n;
     }
 
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
         Ref<? extends Type> stref = type.superType();
+        
         if (stref != null) {
             Type t = stref.get();
             t = followDefs(t);
@@ -701,6 +706,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new SemanticException("Cannot extend type " +
                         t + "; not a class.",
                         superClass != null ? superClass.position() : position());
+            }
+            if (((X10Type) t).isProto()) {
+            	throw new SemanticException("proto supertypes are not permitted.", 
+            			superClass().position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -714,6 +723,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 String s = type.flags().isInterface() ? "extend" : "implement";
                 throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
                         position());
+            }
+            if (((X10Type) t).isProto()) {
+            	throw new SemanticException("Cannot implement " + t + "; proto interfaces are illegal.",
+            			position());
             }
             ts.checkCycles((ReferenceType) t);
         }

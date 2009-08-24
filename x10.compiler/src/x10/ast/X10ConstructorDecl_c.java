@@ -357,9 +357,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         ((Ref<Type>) nnci.returnType()).update(r.type());
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         
-        Type retTypeBase =  X10TypeMixin.baseType(r.type());
+        Type retTypeBase =  X10TypeMixin.baseTypeWithoutProto(r.type());
         //Type clazz = ((X10Type) X10TypeMixin.baseType(Types.get(nnci.container()))).addFlags(X10Flags.ROOTED);
-        Type clazz =  X10TypeMixin.baseType(Types.get(nnci.container()));
+        Type clazz =  X10TypeMixin.baseTypeWithoutProto(Types.get(nnci.container()));
         if (! xts.typeEquals(retTypeBase, clazz, tc.context())) {
         	throw new SemanticException("The return type of the constructor (" + retTypeBase 
         			+ ") must be derived from"
@@ -396,19 +396,22 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 throw new SemanticException("Cannot throw a dependent type.", type.position());
         }
 
-        return super.typeCheck(tc);
+        n = (X10ConstructorDecl_c) (super.typeCheck(tc));
+        X10TypeMixin.protoTypeCheck(n.formals(), (X10Type) n.returnType().type(),
+        		n.position(), false);
+        return n;
     }
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
-        Type retTypeBase =  X10TypeMixin.baseType(n.returnType().type());
+        Type retTypeBase =  ((X10Type) X10TypeMixin.baseTypeWithoutProto(n.returnType().type()));
         XConstraint c =         X10TypeMixin.xclause(n.returnType().type());
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
-        Type clazz =  nnci.asInstance().container();
+        Type clazz = nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             throw new SemanticException("The return type of the constructor (" + retTypeBase 
                                         + ") must be derived from"

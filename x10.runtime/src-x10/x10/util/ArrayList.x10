@@ -6,9 +6,13 @@ package x10.util;
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     private var a: GrowableRail[T];
-    
-    public def this(c: Container[T]) {
-        addAll(c);
+
+    public static def make[T](c: Container[T]) {
+	val a = new ArrayList[T]();
+	a.addAll(c);
+	return a;
+    }
+    private def this(c: Container[T]) {
     }
     
     public def contains(v: T): Boolean {

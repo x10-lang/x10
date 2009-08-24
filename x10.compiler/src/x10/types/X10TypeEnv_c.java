@@ -657,9 +657,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     	if (xt2.isRooted() && ! xt1.isRooted())
     		return false;
+    	if ((xt1.isProto() && ! xt2.isProto()) || (xt2.isProto() && ! xt1.isProto()))
+    		return false;
     	
-    	t1 = xt1.clearFlags(X10Flags.ROOTED);
-    	t2 = xt2.clearFlags(X10Flags.ROOTED);
+    	xt1 = X10TypeMixin.baseForProto(xt1);
+    	xt2 = X10TypeMixin.baseForProto(xt2);
+    	t1 = xt1.clearFlags(((X10Flags) X10Flags.ROOTED).Proto());
+    	t2 = xt2.clearFlags(((X10Flags) X10Flags.ROOTED).Proto());
     
     	
     	if (t1 == t2)
@@ -1121,6 +1125,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return true;
     }
 
+    
     /** Return true if there is a conversion from fromType to toType.  Returns false if the two types are not both value types. */
     public boolean isPrimitiveConversionValid(Type fromType, Type toType) {
         Type baseType1 = X10TypeMixin.baseType(fromType);

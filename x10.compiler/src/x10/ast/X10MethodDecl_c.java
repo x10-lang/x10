@@ -314,6 +314,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         if (xf.isExtern() && body != null) {
             throw new SemanticException("An extern method cannot have a body.", position());
         }
+        
+        if (xf.isProto() && xf.isStatic()) {
+        	throw new SemanticException("Only instance method may have a proto flag.", 
+        			position());
+        }
 
         // Set the native flag if incomplete or extern so super.checkFlags doesn't complain.
         if (xf.isIncomplete() || xf.isExtern())
@@ -344,6 +349,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
+       
         // Check these flags here rather than in checkFlags since we need the body.
         if (xf.isIncomplete() && body != null) {
             throw new SemanticException("An incomplete method cannot have a body.", position());
@@ -395,10 +401,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         n = (X10MethodDecl_c) n.superTypeCheck(tc);
 
         dupFormalCheck(typeParameters, formals);
+        
+        X10TypeMixin.protoTypeCheck(formals(), (X10Type) returnType().type(), position(),
+        		true);
 
         return n;
     }
 
+    
+    
     public static void dupFormalCheck(List<TypeParamNode> typeParams, List<Formal> formals) throws SemanticException {
         Set<Name> pnames = new HashSet<Name>();
         for (TypeParamNode p : typeParams) {

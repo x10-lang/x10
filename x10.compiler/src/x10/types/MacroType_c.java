@@ -82,6 +82,9 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public boolean isRooted() {
 		return flags() == null ? false : ((X10Flags) flags()).isRooted();
 	}
+	public boolean isProto() {
+		return flags() == null ? false : ((X10Flags) flags()).isProto();
+	}
 	public boolean isX10Struct() {
 		return flags() == null ? false : ((X10Flags) flags()).isStruct();
 	}

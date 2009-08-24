@@ -35,17 +35,17 @@ final value class RectRegion extends PolyRegion{rect} {
 
         super(pm, true);
 
-        size = pm.isBounded()? computeSize() : -1;
+        size = pm.isBounded()? computeSize(pm) : -1;
 
-        min0 = rank>=1 && pm.isBounded()? min(0) : 0;
-        min1 = rank>=2 && pm.isBounded()? min(1) : 0;
-        min2 = rank>=3 && pm.isBounded()? min(2) : 0;
-        min3 = rank>=4 && pm.isBounded()? min(3) : 0;
+        min0 = pm.rank>=1 && pm.isBounded()? pm.rectMin()(0) : 0;
+        min1 = pm.rank>=2 && pm.isBounded()? pm.rectMin()(1) : 0;
+        min2 = pm.rank>=3 && pm.isBounded()? pm.rectMin()(2) : 0;
+        min3 = pm.rank>=4 && pm.isBounded()? pm.rectMin()(3) : 0;
 
-        max0 = rank>=1 && pm.isBounded()? max(0) : 0;
-        max1 = rank>=2 && pm.isBounded()? max(1) : 0;
-        max2 = rank>=3 && pm.isBounded()? max(2) : 0;
-        max3 = rank>=4 && pm.isBounded()? max(3) : 0;
+        max0 = pm.rank>=1 && pm.isBounded()? pm.rectMax()(0) : 0;
+        max1 = pm.rank>=2 && pm.isBounded()? pm.rectMax()(1) : 0;
+        max2 = pm.rank>=3 && pm.isBounded()? pm.rectMax()(2) : 0;
+        max3 = pm.rank>=4 && pm.isBounded()? pm.rectMax()(3) : 0;
     }
 
     public static def make1(val min: Rail[int], val max: Rail[int]): Region{self.rank==min.length&&self.rect} { // XTENLANG-4
@@ -69,11 +69,11 @@ final value class RectRegion extends PolyRegion{rect} {
         return make1([min], [max]) as Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/};
     }
 
-    private def computeSize(): int {
+    private static def computeSize(mat: PolyMat): int {
         val min = mat.rectMin();
         val max = mat.rectMax();
         var size:int = 1;
-        for (var i: int = 0; i<rank; i++)
+        for (var i: int = 0; i<mat.rank; i++)
             size *= max(i) - min(i) + 1;
         return size;
     }
@@ -140,8 +140,9 @@ final value class RectRegion extends PolyRegion{rect} {
             rank = r.rank;
             min = r.mat.rectMin();
             max = r.mat.rectMax();
-            x = Rail.makeVar[int](rank, (i:nat)=>min(i));
-            x(rank-1)--;
+            val xx = Rail.makeVar[int](r.rank, (i:nat)=>r.mat.rectMin()(i));
+            xx(r.rank-1)--;
+	    x = xx;
         }
 
         final public def hasNext(): boolean {
@@ -220,14 +221,8 @@ final value class RectRegion extends PolyRegion{rect} {
         return this;
     }
 
-    public def min(): ValRail[int] {
-        return mat.rectMin();
-    }
-
-    public def max(): ValRail[int] {
-        return mat.rectMax();
-    }
-
+    public def min() = mat.rectMin();
+    public def max() = mat.rectMax();
 
     // XTENLANG-28
 

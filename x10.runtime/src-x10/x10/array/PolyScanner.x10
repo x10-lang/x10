@@ -76,40 +76,65 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     private val min2: Rail[Rail[PolyRow]];
     private val max2: Rail[Rail[PolyRow]];
 
-    public def this(pm: PolyMat): PolyScanner {
+    public static def make(pm:PolyMat) {
+	val x = new PolyScanner(pm);
+        x.init();
+	return x;
+    }
+    public static def make(pm:PolyMat, X:XformMat) {
+	val x = new PolyScanner(pm,[X]);
+        x.init();
+	return x;
+    }
+    public static def make(pm:PolyMat, Xl:ValRail[XformMat]) {
+	val x = new PolyScanner(pm,Xl);
+        x.init();
+	return x;
+    }
+
+    private def this(pm: PolyMat): PolyScanner {
         this(pm, XformMat.identity(pm.rank));
     }
 
-    public def this(var pm: PolyMat, X: XformMat) = this(pm, [X]);
+    private def this(var pm: PolyMat, X: XformMat) = this(pm, [X]);
 
-    public def this(var pm: PolyMat, X1: ValRail[XformMat]) {
+    private def this(var pm: PolyMat, X1: ValRail[XformMat]) {
 
         pm = pm.simplifyAll();
 
         //property(pm, X);
         this.C = pm;
         this.X1 = X1;
+        val r = pm.rank;
+        this.rank = r;
+        val n = Rail.makeVar[VarMat](r);
+        min = n;
+        val x = Rail.makeVar[VarMat](r);
+        max = x;
+        val nSum = Rail.makeVar[VarMat](r);
+        minSum = nSum;
+        val xSum = Rail.makeVar[VarMat](r);
+        maxSum = xSum;
+        val n2 = Rail.makeVar[Rail[PolyRow]](r);
+        min2 = n2;
+        val x2 = Rail.makeVar[Rail[PolyRow]](r);
+        max2 = x2;
+        //printInfo(Console.OUT);
 
-        this.rank = pm.rank;
+        parFlags = Rail.makeVar[boolean](r);
+    }
 
-        min = Rail.makeVar[VarMat](rank);
-        max = Rail.makeVar[VarMat](rank);
-        minSum = Rail.makeVar[VarMat](rank);
-        maxSum = Rail.makeVar[VarMat](rank);
-        min2 = Rail.makeVar[Rail[PolyRow]](rank);
-        max2 = Rail.makeVar[Rail[PolyRow]](rank);
-
+    private def init() {
+	var pm:PolyMat =C;
         init(pm, rank-1);
         for (var k: int = rank-2; k>=0; k--) {
             pm = pm.eliminate(k+1, true);
             init(pm, k);
         }
-        //printInfo(Console.OUT);
 
-        parFlags = Rail.makeVar[boolean](rank);
     }
 
-    final private def init(pm: PolyMat, axis: int): void {
+    final private def init(pm: PolyMat, axis: int) {
 
         //pm.printInfo(Console.OUT, "pm for axis " + axis);
 
@@ -214,6 +239,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
      * assumes no degenerate axes, which is guaranteeed by Scanner API
      */
 
+
     final private class RailIt implements Iterator[Rail[int]] {
         
         private val rank: int = PolyScanner.this.rank;
@@ -224,8 +250,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         private val max = Rail.makeVar[int](rank);
 
         private var k: int;
-
-        def this() {
+        def this() {}
+        def init() {
             min(0) = s.min(0);
             max(0) = s.max(0);
             x(0) = min(0);
@@ -283,7 +309,9 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     public def iterator(): Iterator[Point(rank)] {
-        return new PointIt();
+        val it = new PointIt();
+        it.it.init();
+        return it;
     }
 
 

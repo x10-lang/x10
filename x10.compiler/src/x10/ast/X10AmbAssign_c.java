@@ -18,12 +18,25 @@ import polyglot.ast.Node;
 import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
+import x10.types.X10Context;
 
 public class X10AmbAssign_c extends AmbAssign_c {
 
     public X10AmbAssign_c(Position pos, Expr left, Operator op, Expr right) {
 	super(pos, left, op, right);
     }
+    
+    @Override
+    public Assign visitLeft(NodeVisitor v) {
+
+    	if (v instanceof ContextVisitor) {
+    		ContextVisitor cv = (ContextVisitor) v;
+    		v = cv.context(((X10Context) cv.context()).pushAssignment());
+    	}
+    	return super.visitLeft(v);
+    }
+
     
     @Override
     public Node disambiguate(ContextVisitor ar) throws SemanticException {

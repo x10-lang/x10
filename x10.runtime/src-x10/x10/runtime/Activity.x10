@@ -51,8 +51,9 @@ class Activity(finishState:FinishState, safe:Boolean) {
 	 */
 	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
 		this(body, finishState, false);
-	    clockPhases = new ClockPhases();
-	    clockPhases.register(clocks, phases);
+		val cp = new ClockPhases();
+		clockPhases = cp;
+	    cp.register(clocks, phases);
 	}
 
     static def make(body:()=>Void, rid:RID, clocks:ValRail[Clock], phases:ValRail[Int]):Activity {

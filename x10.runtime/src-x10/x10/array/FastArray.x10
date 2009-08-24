@@ -194,19 +194,22 @@ public final value class FastArray[T] extends BaseArray[T] {
     def this(a: BaseArray[T], d: Dist{constant}) {
 
         super(d);
-
-        this.layout = at (d.onePlace) a.layout();
+        val l = at (d.onePlace) a.layout();
+        this.layout = l;
         this.raw = at (d.onePlace) a.raw();
 
-        delta0 = layout.delta0;
-        delta1 = layout.delta1;
-        delta2 = layout.delta2;
-        delta3 = layout.delta3;
+        delta0 = l.delta0;
+        delta1 = l.delta1;
+        delta2 = l.delta2;
+        delta3 = l.delta3;
 
-        offset0 = (layout.min0);
-        offset1 = (offset0)*layout.delta1 + layout.min1;
-        offset2 = offset1*layout.delta2 + layout.min2;
-        offset3 = offset2*layout.delta3 + layout.min3;
+	val o0 = (l.min0);
+        offset0 = o0;
+        val o1 = (o0)*l.delta1 + l.min1;
+        offset1 = o1;
+        val o2 = o1*l.delta2 + l.min2;
+        offset2 = o2;
+        offset3 = o2*l.delta3 + l.min3;
       
     }
 

@@ -55,13 +55,13 @@ public class HashMap[-K,V] implements Map[K,V] {
         init(pow2);
     }
     
-    protected def init(sz: int): void {
+    protected proto def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
         table = Rail.makeVar[HashEntry[K,V]](sz);
-        mask = table.length - 1;
+        mask = sz - 1;
         size = 0;
         occupation = 0;
         shouldRehash = false;
@@ -208,14 +208,16 @@ public class HashMap[-K,V] implements Map[K,V] {
 	public incomplete def entries(): Set[Map.Entry[K,V]];
 	
     protected def entriesIterator(): Iterator[HashEntry[K,V]] {
-	    return new EntriesIterator[K,V](this);
+	val iterator = new EntriesIterator[K,V](this);
+	iterator.advance();
+	return iterator;
 	}
-	
+
 	protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
 	    val map: HashMap[Key,Value];
 	    var i: Int;
 	    
-	    def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; advance(); }
+	    def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; }
 
         def advance(): void {
             while (i < map.table.length) {

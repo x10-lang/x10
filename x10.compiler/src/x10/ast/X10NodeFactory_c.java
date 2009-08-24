@@ -67,6 +67,8 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TopLevelDecl;
+import polyglot.ast.Try;
+import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
@@ -114,6 +116,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public Disamb disamb() {
 		return new X10Disamb_c();
 	}
+	
+	
 	
 	@Override
 	public polyglot.ast.Initializer Initializer(Position pos, FlagsNode flags, Block body) {

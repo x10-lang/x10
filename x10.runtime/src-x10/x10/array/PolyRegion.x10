@@ -74,14 +74,16 @@ public value class PolyRegion extends BaseRegion {
     }
 
     protected def scanner(): Region.Scanner {
-        return new PolyScanner(mat);
+	val scanner = PolyScanner.make(mat);
+        return scanner;
     }
 
 
     public def iterator(): Iterator[Point(rank)] {
         //return new PointIt();
         //return scanner().iterator();
-        return new PolyScanner(mat).iterator() as Iterator[Point(rank)]; // XXXX cast
+	val scanner = PolyScanner.make(mat).iterator();
+        return scanner as Iterator[Point(rank)];
     }
 
 
