@@ -1,18 +1,8 @@
-Release 1.7.5
+Release 1.7.6
 
 This release includes both the C++ and Java code generation backends.
 
-The default implementation of X10's async construct has been changed
-to use dynamic load balancing based on an implementation of a
-fork-join library. For many programs, this yields a significant
-performance and scalability improvement over X10 1.7.4.  However, as
-currently implemented the framework does not fully support the use of
-futures or conditional atomic statements.  Dynamic load balancing can
-be disabled by giving the -NO_STEALS=true argument to x10 (for the
-Java backend) or by setting the environment variable X10_NO_STEALS to
-true (for the C++ backend).
-
-There were no language changes since the 1.7.4 release of X10.
+There were no language changes since the 1.7.5 release of X10.
 
 The following features described in the 1.7 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
@@ -44,24 +34,37 @@ Here's a list of known issues with the C++ backend:
 - Operator overloading does not work correctly sometimes
 - Hash codes are not computed correctly for some classes
 
-Below is a summary of JIRA issues addressed for the X10 1.7.5 release.
-** New Feature
-    * [XTENLANG-227] - Fix the C++ runtime to build with xlC on AIX
-    * [XTENLANG-291] - Implement asyncs using Fork-Join library
-
-** Improvement
-    * [XTENLANG-245] - Reduce binary size w/ C++ back-end
-    * [XTENLANG-443] - Implement all standard functions in x10.lang.Math
-    * [XTENLANG-120] - Native layer implementation of java.util.concurrent.atomic.Fence
+Below is a summary of JIRA issues addressed for the X10 1.7.6 release.
 
 ** Bug
-    * [XTENLANG-238] - Atomic primitive types are not implemented for C++
-    * [XTENLANG-393] - FastArray g++ incomplete type error
-    * [XTENLANG-419] - Rail/ValRal implementation dependent on implementation-specific details of C++ object model
-    * [XTENLANG-420] - Unused variable warnings
+    * [XTENLANG-372] -  Static intialization of Distribution throws NPE with x10c++ 
+    * [XTENLANG-423] - static initialisers appear not to call parents
+    * [XTENLANG-454] - Package names are not mangled when translating to C++
+    * [XTENLANG-455] - Incorrect method resolution when overloading an inherited generic instance method with a non-generic method
+    * [XTENLANG-456] - Compilation errors when class name clashes with a class in a library namespace
+    * [XTENLANG-457] - Performance problems due to changes to the Throwable implementation
+    * [XTENLANG-458] - Extending a generic class with a non-trivial parameter causes a compilation error
+    * [XTENLANG-459] - Using Console.OUT in places other than place 0 throws NullPointerException
+    * [XTENLANG-461] - g++ 4.1 internal compiler error
+    * [XTENLANG-462] - Calls to parenthesized closure literals are not inlined
+    * [XTENLANG-464] - Overriding _type() and calling className() causes post-compilation errors.
+    * [XTENLANG-468] - Apparently straight forward HashMap usage 'hangs' x10 code
+    * [XTENLANG-472] - do { ... } while(true) does not typecheck
+    * [XTENLANG-473] - Invalid code generated for unboxing Box[T] in the Java backend (where T is a generic type parameter)
+    * [XTENLANG-477] - Double.parseDouble() always returns 0 with C++ backend
+    * [XTENLANG-488] - isWhitespace() method creates compile error in C++ backend
+    * [XTENLANG-493] - Non-integer const values are not initialized on all active places
+    * [XTENLANG-503] - x10.io.FileReader.close() and x10.io.FileWriter.close() are unimplemented in the C++ backend.
+    * [XTENLANG-506] - problem compiling classes with overloaded constructors via c++ backend
+    * [XTENLANG-509] - Control characters in AIX stack traces
+
+** Improvement
+    * [XTENLANG-443] - Implement all standard functions in x10.lang.Math
+    * [XTENLANG-502] - indexOf(String) not currently implemented in String API
+
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/browse/XTENLANG/fixforversion/15283
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/15422
 
 Additional bug fixes have been made throughout the system.
 
