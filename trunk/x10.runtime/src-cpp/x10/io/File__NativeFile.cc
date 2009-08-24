@@ -24,7 +24,7 @@ x10aux::ref<String>
 File__NativeFile::getAbsolutePath() {
     if (*path->c_str()=='/') // absolute
         return path;
-    char* cwd = getcwd(NULL, MAXPATHLEN);
+    char* cwd = getcwd(NULL, _POSIX_PATH_MAX);
     if (cwd == NULL)
         return x10aux::null;
     x10aux::ref<String> absPath = String::Lit(cwd) + String::Lit("/") + path;
