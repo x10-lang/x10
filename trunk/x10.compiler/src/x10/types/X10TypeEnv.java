@@ -59,5 +59,6 @@ public interface X10TypeEnv extends TypeEnv {
     Kind kind(Type t);
     
     boolean numericConversionValid(Type toType, Type fromType, Object value);
+    
 
 }

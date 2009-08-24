@@ -14,7 +14,7 @@ import x10.util.Stack;
  * @author tardieu 
  */
 class RootFinish extends Latch implements FinishState {
-    private val counts = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
+    private val counts:Rail[Int];
     
     private var exceptions:Stack[Throwable];
 
@@ -25,7 +25,10 @@ class RootFinish extends Latch implements FinishState {
     public def incr():Void {}
     
     def this() {
-        counts(here.id) = 1;
+	val c= Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
+        c(here.id) = 1;
+	counts = c;
+
     }
     
     def waitForFinish(safe:Boolean):Void {

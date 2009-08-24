@@ -71,6 +71,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	/** All primitive types are safe. */
 	public boolean safe() { return true; }
 	public boolean isRooted() { return false; }
+	public boolean isProto() { return false; }
 	public boolean isX10Struct() { return true; }
 	/* All primitive types are structs. */
 

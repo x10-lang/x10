@@ -35,26 +35,27 @@ final value class RectLayout(rank: int) extends Layout {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        this.rank = min.length;
-
+        val r = min.length;
+        this.rank = r;
         this.min = min;
 
-        delta = Rail.makeVal[int](rank, (i:nat) => max(i) - min(i) + 1);
+        val d0 = Rail.makeVal[int](r, (i:nat) => max(i) - min(i) + 1);
+        delta = d0;
 
         var size: int = 1;
-        for (d:int in delta)
+        for (d:int in d0)
             size *= d;
         this.size = size;
 
-        min0 = rank>=1? min(0) : 0;
-        min1 = rank>=2? min(1) : 0;
-        min2 = rank>=3? min(2) : 0;
-        min3 = rank>=4? min(3) : 0;
+        min0 = r>=1? min(0) : 0;
+        min1 = r>=2? min(1) : 0;
+        min2 = r>=3? min(2) : 0;
+        min3 = r>=4? min(3) : 0;
 
-        delta0 = rank>=1? delta(0) : 0;
-        delta1 = rank>=2? delta(1) : 0;
-        delta2 = rank>=3? delta(2) : 0;
-        delta3 = rank>=4? delta(3) : 0;
+        delta0 = r>=1? d0(0) : 0;
+        delta1 = r>=2? d0(1) : 0;
+        delta2 = r>=3? d0(2) : 0;
+        delta3 = r>=4? d0(3) : 0;
     }
 
 

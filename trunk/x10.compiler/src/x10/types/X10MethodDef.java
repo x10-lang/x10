@@ -39,4 +39,10 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
     
     Ref<XTerm> body();
     void body(Ref<XTerm> body);
+    
+    /**
+     * Is tihs method a proto method?
+     * @return
+     */
+    boolean isProto();
 }

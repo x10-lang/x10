@@ -18,7 +18,7 @@ public class Random {
         setSeed(seed);
     }
     
-    public def setSeed(seed: Long): void {
+    public proto def setSeed(seed: Long): void {
         init(seed);
     }
      
@@ -125,9 +125,11 @@ public class Random {
     private const M: int = 397;
 
     private var index: int;
-    private var MT: Rail[int] = Rail.makeVar[int](N);
+    private var MT: Rail[int];
 
-    public def init(seed: long): Void {
+    public proto def init(seed: long): Void {
+        val mt: Rail[int] = Rail.makeVar[int](N);
+        MT=mt;
         // Ensure the seed is nonzero.
         if (seed == 0L) {
             init(4357L);
@@ -136,25 +138,25 @@ public class Random {
 
         // Set the initial buffer using a PRNG from
         // Knuth, vol 2, 2nd ed, p. 102
-        MT(0) = (seed as Long) as Int;
+        mt(0) = (seed as Long) as Int;
         for (var i: int = 1; i < N; i++) {
-            MT(i) = (69069L * MT(i-1)) as Int;
+            mt(i) = (69069L * mt(i-1)) as Int;
         }
 
         // make sure we twist once.
         index = 0;
-        twist();
+        twist(mt);
     }
 
     public def random(): int {
         if (index == N) {
             index = 0;
-            twist();
+            twist(MT);
         }
         return MT(index++);
     }
 
-    private def twist(): void {
+    private static def twist(MT:Rail[int]): void {
         var i: int = 0;
         var s: int;
         for (; i < N - M; i++) {

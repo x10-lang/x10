@@ -209,12 +209,22 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 
-		Call_c call = (Call_c) this.targetImplicit(true).target(r).arguments(args);   
+		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);   
 		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), r, c);
-		call = (Call_c)call.methodInstance(mi).type(rt);
+		call = (X10Call_c)call.methodInstance(mi).type(rt);
+		
+		call.checkProtoMethod();
 		return call;
 	}
 	
+	void checkProtoMethod() throws SemanticException {
+		if (((X10Type) target().type()).isProto()
+				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto() 
+			)
+			throw new SemanticException(methodInstance() 
+					+ " must be declared as a proto method since it is called on a receiver " + 
+					target() + " with a proto type.");
+	}
 	XRoot getThis(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
@@ -235,7 +245,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		Expr cc = null;
 		
 		{
-		    // Check if target.name is a field or local of function type; if so, convert to a closure call.
+		    // Check if target.name is a field or local of function type; 
+			// if so, convert to a closure call.
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
@@ -284,6 +295,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				}
 			}
 		}
+		
+		
+		
 
 		/////////////////////////////////////////////////////////////////////
 		// Inline the super call here and handle type arguments.
@@ -402,13 +416,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// End inlined super call.
 		/////////////////////////////////////////////////////////////////////
 
+		checkProtoMethod();
+		
+		// If we found a method, the call must typecheck
 		if (X10Flags.toX10Flags(mi.flags()).isRooted() 
 				&& ! ((X10Type) target.type()).isRooted())
 			throw new SemanticException(mi 
 					+ " can only be called on a rooted receiver; " + 
 					target + " is not rooted.");
-		
-		// If we found a method, the call must type check, so no need to check
+	
 		// the arguments here.
 		result.checkConsistency(c);
 		//	        	result = result.adjustMI(tc);

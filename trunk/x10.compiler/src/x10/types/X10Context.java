@@ -65,6 +65,14 @@ public interface X10Context extends Context {
     X10ClassDef supertypeDeclarationType();
     X10Context pushSuperTypeDeclaration(X10ClassDef type);
 
+    /**
+     * Disambiguating the LHS of an assignment?
+     * @return
+     */
+    boolean inAssignment();
+    void setInAssignment();
+    X10Context pushAssignment();
+    
     /** Enter the scope of a deptype. */
     X10Context pushDepType(Ref<? extends Type> ref);
     

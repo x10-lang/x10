@@ -33,6 +33,7 @@ public class X10UnknownType_c extends UnknownType_c implements X10UnknownType {
 	public X10Type setFlags(Flags f) {
 		return this;
 	}
+	public boolean isProto() { return false;}
 	public X10Type clearFlags(Flags f) {
 		return this;
 	}

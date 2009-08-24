@@ -51,6 +51,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10InitializerDef;
+import x10.types.X10Type;
 import x10.types.X10TypeSystem;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
@@ -240,9 +241,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        
 	    @Override
 	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    	
 	            if (this.type().type().isVoid())
 	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
 
+	            if (((X10Type)this.type().type()).isProto()) {
+	                throw new SemanticException("Field cannot have type " 
+	                		+ this.type().type() + " (a proto type).", position());
+	            	
+	            }
 	            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	            X10Context context = (X10Context) tc.context();

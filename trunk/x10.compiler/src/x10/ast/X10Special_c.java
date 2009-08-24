@@ -25,6 +25,8 @@ import x10.constraint.XRoot;
 import x10.constraint.XVar;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
+import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10Type;
 import x10.types.X10TypeMixin;
@@ -81,28 +83,44 @@ public class X10Special_c extends Special_c implements X10Special {
             }
             
             // Use the constructor return type, not the base type.
-            if (c.currentDepType() == null && c.currentCode() instanceof X10ConstructorDef) {
-            	X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
-            	Type returnType = cd.returnType().get();
-            	returnType = ts.expandMacros(returnType);
-            	if (returnType.isClass()) {
-            		t = returnType.toClass();
-            	}
-            	else {
-            		throw new SemanticException("Constructor return type is not a class type.", cd.position());
-            	}
-            }
+            if (c.currentDepType() == null)
+            	if (c.currentCode() instanceof X10ConstructorDef) {
+            		X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
+            		Type returnType =  cd.returnType().get();
+            		returnType =  ts.expandMacros(returnType);
+            		// Set the type of this to be proto T, where T is the return
+            		// type of the constructor.
+            		if (returnType.isClass()) {
+            			t = X10TypeMixin.makeProto((X10Type) returnType).toClass();
+            		}
+            		else {
+            			throw new SemanticException("Constructor return type is not a class type.", cd.position());
+            		}
+            	} else 
+            		// Check if this is a proto method, then the type of this needs 
+            		// to be set to proto C
+            		if (c.currentCode() instanceof X10MethodDef) {
+            			X10MethodDef cd = (X10MethodDef) c.currentCode();
+            			if (cd.isProto()) {
+            				t = X10TypeMixin.makeProto((X10Type) t).toClass();
+            			}
+            		}
         }
         else {
             if (qualifier.type().isClass()) {
                 t = qualifier.type().toClass();
-                
+                CodeDef cd = c.currentCode();
+           
                 if (!c.currentClass().hasEnclosingInstance(t)) {
                     throw new SemanticException("The nested class \"" + 
                                                 c.currentClass() + "\" does not have " +
                                                 "an enclosing instance of type \"" +
                                                 t + "\".", qualifier.position());
                 }
+                if (cd instanceof X10ConstructorDef
+                		|| (cd instanceof X10MethodDef && ((X10MethodDef) cd).isProto()))
+                	t = X10TypeMixin.makeProto((X10Type) t).toClass();
+                
             }
             else {
                 throw new SemanticException("Invalid qualifier for \"this\" or \"super\".", qualifier.position());

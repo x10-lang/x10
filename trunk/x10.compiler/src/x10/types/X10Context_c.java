@@ -348,6 +348,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inLoopHeader;
 	protected boolean inAnnotation;
 	protected boolean inAnonObjectScope;
+	protected boolean inAssignment;
 	
 	public boolean inSafeCode() { return inSafeCode; }
 	public boolean inSequentialCode() { return inSequentialCode; }
@@ -358,6 +359,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean inAnonObjectScope() { return inAnonObjectScope;}
 	public void restoreAnonObjectScope(boolean s) { inAnonObjectScope=s;}
 
+	public void setInAssignment() { inAssignment = true;}
 	public void setSafeCode() { inSafeCode = true; }
 	public void setSequentialCode() { inSequentialCode = true; }
 	public void setNonBlockingCode() { inNonBlockingCode = true; }
@@ -572,6 +574,13 @@ public class X10Context_c extends Context_c implements X10Context {
 		c.setSequentialCode();
 		return c;
 	}
+	
+	public X10Context pushAssignment() {
+		assert (depType == null);
+		X10Context c = (X10Context) super.pushBlock();
+		c.setInAssignment();
+		return c;
+	}
 
 	/**
 	 * pushes an additional static scoping level.
@@ -602,6 +611,10 @@ public class X10Context_c extends Context_c implements X10Context {
 	 */
 	public boolean inCode() {
 		return depType == null ? super.inCode() : pop().inCode();
+	}
+	
+	public boolean inAssignment() {
+		return inAssignment;
 	}
 
 	public boolean inStaticContext() {

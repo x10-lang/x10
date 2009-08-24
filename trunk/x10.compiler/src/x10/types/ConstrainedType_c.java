@@ -88,7 +88,6 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	public X10Type clearFlags(Flags f) {
 		ConstrainedType_c c = (ConstrainedType_c) this.copy();
 		X10Type t = (X10Type) Types.get(c.baseType);
-		assert t != null : "Cannot remove flags " + f + " from null type.";
 		if (t==null)
 			throw new InternalCompilerError("Cannot remove flags " + f + " from null type.");
 		t = t.clearFlags(f);
@@ -100,11 +99,10 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	public X10Type setFlags(Flags f) {
 		ConstrainedType_c c = (ConstrainedType_c) this.copy();
 		X10Type t = (X10Type) Types.get(c.baseType);
-		assert t != null : "Cannot set flags " + f + " on null type.";
 		if (t==null)
 			throw new InternalCompilerError("Cannot set flags " + f + " on null type.");
 		t = t.setFlags(f);
-		((Ref<Type>)c.baseType).update(t);
+		//((Ref<Type>)c.baseType).update(t);
 		return c;
 	}
 	
@@ -334,6 +332,10 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	public boolean isRooted() {
 		X10Type base = (X10Type) baseType.get();
 		return base.isRooted();
+	}
+	public boolean isProto() {
+		X10Type base = (X10Type) baseType.get();
+		return base.isProto();
 	}
 	
 	@Override

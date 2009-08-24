@@ -20,7 +20,7 @@ public value Pool {
 		var size:Int; // the number of workers in the pool
 		var spares:Int = 0; // the number of spare workers in the pool
 	}
-	private val that = new That();
+	private val that:That;
 
 	private val lock = new Lock();
 
@@ -30,23 +30,29 @@ public value Pool {
 	private const MAX = 1000; 
 
 	// the workers in the pool
-	private val workers = Rail.makeVar[Worker](MAX);
+	private val workers:Rail[Worker];
 
-	def this(size:Int) {
-		that.size = size;
-		
-		// allocate and assign worker for the master thread
-		workers(0) = new Worker(this, 0);
-		Thread.currentThread().worker(workers(0));
-		
-		// allocate and start other workers
-		for (var i:Int = 1; i<size; i++) {
-			val worker = new Worker(this, i);
-			workers(i) = worker;
-			val thread = new Thread(()=>worker.apply(), "thread-" + i);
-			thread.worker(worker);
-			thread.start();
-		}
+	private def this(size:Int) {
+	    val t = new That();
+	    t.size = size;
+	    that = t;
+	    workers =  Rail.makeVar[Worker](MAX);
+	}
+        public static def make(size:Int) {
+	    val pool = new Pool(size);
+	    // allocate and assign worker for the master thread
+	    pool.workers(0) = new Worker(pool, 0);
+	    Thread.currentThread().worker(pool.workers(0));
+	    
+	    // allocate and start other workers
+	    for (var i:Int = 1; i<size; i++) {
+		val worker = new Worker(pool, i);
+		pool.workers(i) = worker;
+		val thread = new Thread(()=>worker.apply(), "thread-" + i);
+		thread.worker(worker);
+		thread.start();
+	    }
+	    return pool;
 	}
 
 	public def worker():Worker = Thread.currentThread().worker();

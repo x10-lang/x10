@@ -112,19 +112,22 @@ implements X10ParsedClassType
  
 	public X10Type setFlags(Flags f) {
 		X10Flags xf = (X10Flags) f;
-		if  (xf.isRooted() || xf.isStruct()) {
+		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
+		c.flags = flags().set(f);
+		/*if  (xf.isRooted() || xf.isStruct()) {
 			X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
 			if (c.flags == null)
 				c.flags = X10Flags.toX10Flags(c.def().flags());
 			if (c.flags == null)
 				c.flags = X10Flags.toX10Flags(Flags.NONE);
+			f.s
 			c.flags = xf.isRooted() 
 			? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() 
 					: ((X10Flags) c.flags).Rooted())
 					: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
 			return c;
-		}
-		return this;
+		}*/
+		return c;
 	}
 	
 	public X10Type clearFlags(Flags f) {
@@ -363,6 +366,10 @@ implements X10ParsedClassType
 			if (f.isRooted()) {
 				sb.append("rooted ");
 			}
+			if (f.isProto()) {
+				sb.append("proto ");
+			}
+			
 		}
 		//	sb.append(flags().toString()).append(" ");
 
@@ -384,6 +391,10 @@ implements X10ParsedClassType
 	public boolean isRooted() { 
 		return flags == null ? false 
 				: X10Flags.toX10Flags(flags).isRooted(); 
+		}
+	public boolean isProto() { 
+		return flags == null ? false 
+				: X10Flags.toX10Flags(flags).isProto(); 
 		}
 	public boolean isX10Struct() { 
 		return flags == null ? false 

@@ -87,7 +87,7 @@ public value Runtime {
 	/**
 	 * One thread pool per node
 	 */
-	const pool = new Pool(NativeRuntime.INIT_THREADS);
+	const pool = Pool.make(NativeRuntime.INIT_THREADS);
 
 	/**
 	 * A hueristic estimate of the amount of unscheduled activities

@@ -137,7 +137,7 @@ final value class DistArray[T] extends BaseArray[T] {
     def this(a: DistArray[T], d: Dist) {
         super(d);
 
-	localHandle = PlaceLocalStorage.createDistributedObject(dist, (p:Place) => {
+	localHandle = PlaceLocalStorage.createDistributedObject(d, (p:Place) => {
 	    return a.localHandle.get();
         });
     }

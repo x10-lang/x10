@@ -45,6 +45,8 @@ public interface X10Type extends Type, X10TypeObject {
      */
     boolean isRooted();
     
+    boolean isProto();
+    
     /**
      * Is this type a struct type?
      */

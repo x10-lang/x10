@@ -287,6 +287,7 @@
     private
     protected
     property
+    proto
     public
     return
     rooted
@@ -1253,6 +1254,13 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
             AddFlags tn = (AddFlags) ConstrainedType;
             tn.addFlags(X10Flags.STRUCT);
+            setResult(tn);
+          $EndJava
+        ./
+           |  proto ConstrainedType
+        /.$BeginJava
+            AddFlags tn = (AddFlags) ConstrainedType;
+            tn.addFlags(X10Flags.PROTO);
             setResult(tn);
           $EndJava
         ./
@@ -3049,6 +3057,11 @@ public static class MessageHandler implements IMessageHandler {
                      | rooted
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ROOTED)));
+          $EndJava
+        ./
+                     | proto
+        /.$BeginJava
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
           $EndJava
         ./
 

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Formal;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
@@ -30,6 +31,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10ClassDecl_c;
 import x10.constraint.XConstraint;
@@ -158,6 +160,19 @@ public class X10TypeMixin {
 			return ct.getXClause();
 		}
 		return null;
+	}
+	/**
+     * If t is the type proto S, return S. Else return t.
+     * @param t
+     * @return
+     */
+	public static X10Type baseForProto(X10Type x) {
+    	if (! x.isProto())
+    		return x;
+    	return x.clearFlags(X10Flags.PROTO);
+    }
+	public static Type baseTypeWithoutProto(Type t) {
+		return baseForProto((X10Type) baseType(t));
 	}
 	public static Type baseType(Type t) {
 	        if (t instanceof AnnotatedType) {
@@ -502,4 +517,24 @@ public class X10TypeMixin {
 	    }
 	    return false;
 	}
+	
+	  public static X10Type makeProto(X10Type t) {
+	    	X10Type r = (X10Type) t.copy();
+	    	r=r.setFlags(X10Flags.toX10Flags(t.flags()).Proto());
+	    	return r;
+	    }
+	  public static void protoTypeCheck(List<Formal> formals, X10Type retType, Position pos,
+			  boolean isMethod) throws SemanticException {
+	    	for (Formal f : formals) {
+	    		if (((X10Type) f.type().type()).isProto()) {
+	    			if (! retType.isVoid() && ! retType.isProto()) {
+	    				throw new SemanticException("The argument " + f 
+	    						+ " has a proto type; hence the return type must be "
+	    						+ (isMethod ? "void or proto" : "proto")+", not "
+	    						+ retType+".", pos);
+	    						
+	    			}
+	    		}
+	    	}
+	    }
 }
