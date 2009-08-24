@@ -2,7 +2,7 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This directory contains the 1.7.5 release of X10, including
+This directory contains the 1.7.6 release of X10, including
 the X10 C++ code generation backend.
 
 To build both backends, run "ant" in x10.dist.
