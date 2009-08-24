@@ -14,21 +14,15 @@ const ref<String> x10aux::short_utils::toString(x10_short value, x10_int radix) 
 }
 
 const ref<String> x10aux::short_utils::toHexString(x10_short value) {
-    (void) value;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return null;
+    return x10aux::short_utils::toString(value, 16);
 }
 
 const ref<String> x10aux::short_utils::toOctalString(x10_short value) {
-    (void) value;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return null;
+    return x10aux::short_utils::toString(value, 8);
 }
 
 const ref<String> x10aux::short_utils::toBinaryString(x10_short value) {
-    (void) value;
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return null;
+    return x10aux::short_utils::toString(value, 2);
 }
 
 const ref<String> x10aux::short_utils::toString(x10_short value) {
