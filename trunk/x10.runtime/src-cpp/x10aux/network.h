@@ -79,10 +79,10 @@ namespace x10aux {
         #endif
     }
 
-    void receive_async (void*, void*);
+    void receive_async (void*);
 
     inline void register_async_handler (unsigned id) {
-        x10rt_register_receiver(id, receive_async);
+        x10rt_register_msg_receiver(id, receive_async);
         // [DC] these belong in registration_complete but currently statics are broken
         here = x10rt_here();
         num_places = x10rt_nplaces();

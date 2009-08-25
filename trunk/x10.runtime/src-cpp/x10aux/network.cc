@@ -39,19 +39,23 @@ void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
         <<ref<Object>(body)->toString()->c_str()<<" to place: "<<place);
 
-    buf.write((x10_uint)body->_get_serialization_id(),m);
+    x10_uint id = body->_get_serialization_id();
+    x10aux::code_bytes(&id); // cancel out the byteswapping done by the serialisation buffer
+    buf.write(id, m);
+
     buf.write((x10_uint)12345678, m); // this is not the real size, we fill it in properly later
+
     body->_serialize_body(buf, m);
+
     x10_uint sz = buf.length();
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
     serialized_bytes += sz; asyncs_sent++;
 
     char *the_buf = buf.steal();
 
-    sz = htonl(sz);
     ::memcpy(the_buf+4, &sz, 4); // fill bytes [4,8) with the real size
     
-    x10rt_send(place, the_buf, NULL);
+    x10rt_send_msg(place, the_buf);
 }
 
 x10_int x10aux::num_threads() {
@@ -64,16 +68,14 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
 
-void x10aux::receive_async (void *the_buf, void *) {
+void x10aux::receive_async (void *the_buf) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(the_buf));
     // note: high bytes thrown away in implicit conversion
-    x10aux::serialization_id_t id = buf.read<x10_int>();
-    x10_int sz = buf.read<x10_int>();
+    x10aux::serialization_id_t id = ntohl(buf.read<x10_uint>());
+    x10_uint sz = ntohl(buf.read<x10_uint>());
     ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, id));
     _X_("The deserialised async was: "<<async->toString());
-    assert(buf.consumed()==sz);
-    // FIXME: assert that buf.sofar() == sz
     deserialized_bytes += sz; asyncs_received++;
     (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
 }
