@@ -227,6 +227,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return true;
     }
     
+   
+    
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#upperBounds(polyglot.types.Type, boolean)
      */
@@ -956,8 +958,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t1.isVoid() || t2.isVoid())
             return false;
         
-        if (! ((X10Type) t1).flags().equals(((X10Type) t2).flags()))
+        X10Type xt1 = (X10Type) t1;
+        X10Type xt2 = (X10Type) t2;
+        if (xt1.isProto() != xt2.isProto()) 
         	return false;
+        if (xt1.isX10Struct() != xt2.isX10Struct())
+        	return false;
+     
         X10Context xc = (X10Context) context;
         List<SubtypeConstraint> env = xc.currentTypeConstraint().terms();
 
@@ -1072,6 +1079,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
        // if (((X10Type) fromType).equalsNoFlag((X10Type) toType))
         //	return true;
+      //  if (typeEquals(fromType, toType))
+      //  	return true;
         
         if (fromType instanceof NullType) {
             return toType.isNull() || ! ts.isValueType(toType, (X10Context) context);
@@ -1086,8 +1095,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         Type t2 = X10TypeMixin.baseType(toType);
         XConstraint c1 = X10TypeMixin.realX(fromType);
         XConstraint c2 = X10TypeMixin.realX(toType);
-        
-       
+
 
         Type baseType1 = t1;
         Type baseType2 = t2;
@@ -1119,7 +1127,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public boolean isImplicitCastValid(Type fromType, Type toType) {
-        return isSubtype(fromType, toType);
+        return isSubtypeWithValueInterfaces(fromType, toType);
     }
 
     /* (non-Javadoc)

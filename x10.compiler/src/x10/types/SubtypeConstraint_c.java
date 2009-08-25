@@ -12,14 +12,21 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
 public class SubtypeConstraint_c implements SubtypeConstraint {
+	int KIND;
     Type subtype;
     Type supertype;
-    boolean equals;
+   
 
+    SubtypeConstraint_c(Type subtype, Type supertype, int kind) {
+    	 this.subtype = subtype;
+         this.supertype = supertype;
+         this.KIND = kind;
+    }
+    // TODO: replace the callees of this with the callees of the above constructor.
+    
     SubtypeConstraint_c(Type subtype, Type supertype, boolean equals) {
-        this.subtype = subtype;
-        this.supertype = supertype;
-        this.equals = equals;
+    	this(subtype, supertype, 
+    			equals ? SubtypeConstraint.EQUAL_KIND : SubtypeConstraint.SUBTYPE_KIND);
     }
 
     /*
@@ -28,8 +35,16 @@ public class SubtypeConstraint_c implements SubtypeConstraint {
      * @see x10.types.SubtypeConstraint#isEqualityConstraint()
      */
     public boolean isEqualityConstraint() {
-        return equals;
+        return KIND==SubtypeConstraint.EQUAL_KIND;
     }
+    public boolean isSubtypeConstraint() {
+        return KIND==SubtypeConstraint.SUBTYPE_KIND;
+    }
+    public boolean isBehavesLikeConstraint() {
+        return KIND==SubtypeConstraint.BEHAVES_LIKE_KIND;
+    }
+    public boolean isKind(int k) { return k==KIND;}
+    public int kind() { return KIND;}
     
     /*
      * (non-Javadoc)

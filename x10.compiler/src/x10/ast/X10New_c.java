@@ -263,7 +263,7 @@ public class X10New_c extends New_c implements X10New {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-        if (ts.isSubtype(e.type(), toType, tc.context())) {
+        if (ts.isSubtypeWithValueInterfaces(e.type(), toType, tc.context())) {
             return e;
         }
 

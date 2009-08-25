@@ -41,10 +41,12 @@ import polyglot.visit.ContextVisitor;
 import polyglot.ast.ClassBody_c;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.TypeConstraint;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -200,19 +202,25 @@ public class X10ClassBody_c extends ClassBody_c {
             return false;
 
         X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+        X10Context xcontext = (X10Context) context;
+        TypeConstraint tc = (TypeConstraint) xcontext.currentTypeConstraint().copy();
         
         for (int i = 0; i < p1.formalTypes().size(); i++) {
             Type t1 = Types.get(p1.formalTypes().get(i));
             Type t2 = Types.get(p2.formalTypes().get(i));
             
             // Erase types and expand formals.
-            t1 = X10TypeMixin.baseType(t1);
-            t2 = X10TypeMixin.baseType(t2);
+            //t1 = X10TypeMixin.baseType(t1);
+            //t2 = X10TypeMixin.baseType(t2);
             
             // Parameters conflict with everything
-            if (t1 instanceof ParameterType || t2 instanceof ParameterType)
-                continue;
+            //if (t1 instanceof ParameterType || t2 instanceof ParameterType)
+            //    continue;
             
+            tc = tc.unify(t1,t2,ts);
+            if (! tc.consistent(xcontext))
+        	return false;
+           /*
             // Uninstantiate the parameterized types.
             if (t1 instanceof X10ClassType) {
                 X10ClassType ct = (X10ClassType) t1;
@@ -225,7 +233,7 @@ public class X10ClassBody_c extends ClassBody_c {
             }
             
             if (! ts.typeEquals(t1, t2, context))
-                return false;
+                return false;*/
         }
         
         return true;

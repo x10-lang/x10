@@ -38,6 +38,8 @@ public interface X10TypeEnv extends TypeEnv {
 
     boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces);
     
+    
+    
     /**
      * t1 behaves like t2 if t1 is a reftype and t1 is a subtype of t2. 
      * t1 behaves like t2 if t1 is a struct type and t1 is a substruct of t2.
