@@ -50,6 +50,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
+import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
 import x10.types.X10Type;
 import x10.types.X10TypeSystem;
@@ -93,6 +94,19 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             throw new SemanticException("Cannot declare a non-final field in a value class.", position());
         }
 
+        if (ref instanceof X10Type) {
+        	X10Type container = (X10Type) ref;
+        	if (container.isX10Struct()) {
+        		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
+        		if (x10flags.isRooted()) 
+        		throw new SemanticException("Illegal " + fi 
+        				+ "; structs cannot have rooted fields.", position());
+        		
+        		if (! x10flags.isFinal()) 
+        			throw new SemanticException("Illegal " + fi
+        					+  "; structs cannot have var fields.", position());
+        	}
+        }
         checkVariance(tc);
         
         X10MethodDecl_c.checkVisibility(tc.typeSystem(), context, this);

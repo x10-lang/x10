@@ -631,6 +631,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return isSubtype(t1, t2, false);
     }
 
+    public boolean behavesLike(Type t1, Type t2) {
+    	X10Type xt1 = (X10Type) t1;
+    	X10Type xt2 = (X10Type) t2;
+    	if (xt1.isX10Struct() || xt1.isX10Struct()) {
+    		if (xt1.isX10Struct() != xt2.isX10Struct())
+    			return false;
+    		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2), true);
+    	}
+    	// both are class types
+    	return isSubtype(t1, t2, true);
+    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtypeWithValueInterfaces(polyglot.types.Type, polyglot.types.Type)
      */
@@ -655,16 +666,36 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	X10Type xt1 = (X10Type) t1;
     	X10Type xt2 = (X10Type) t2;
 
-    	if (xt2.isRooted() && ! xt1.isRooted())
-    		return false;
-    	if ((xt1.isProto() && ! xt2.isProto()) || (xt2.isProto() && ! xt1.isProto()))
-    		return false;
+    	if (xt2.isRooted() && ! xt1.isRooted()) {
+    		if (xt1.isRooted() != xt2.isRooted())
+    			return false;
+    		// they are both rooted
+    		t1 = xt1.clearFlags(X10Flags.ROOTED);
+    		t2 = xt2.clearFlags(X10Flags.ROOTED);
+    	}
+    		
+    	if (xt1.isProto() || xt2.isProto()) {
+    		if (xt1.isProto() != xt2.isProto())
+    			return false;
+    		// they are both proto
+    		t1 = xt1.clearFlags(X10Flags.PROTO);
+    		t2 = xt2.clearFlags(X10Flags.PROTO);
+    		xt1 = X10TypeMixin.baseForProto(xt1);
+        	xt2 = X10TypeMixin.baseForProto(xt2);
+    	}
     	
-    	xt1 = X10TypeMixin.baseForProto(xt1);
-    	xt2 = X10TypeMixin.baseForProto(xt2);
-    	t1 = xt1.clearFlags(((X10Flags) X10Flags.ROOTED).Proto());
-    	t2 = xt2.clearFlags(((X10Flags) X10Flags.ROOTED).Proto());
-    
+    	if (xt1.isX10Struct() || xt2.isX10Struct()) {
+    		if (xt1.isX10Struct() != xt2.isX10Struct())
+    			return false;
+    		if (! ts.typeEquals(X10TypeMixin.baseType(xt1), X10TypeMixin.baseType(xt2),
+    				xcontext))
+    			return false;
+    		xt1 = X10TypeMixin.makeRef(xt1);
+    		xt2 = X10TypeMixin.makeRef(xt2);
+    		// now keep going, the clause entailment will be checked by the
+    		// logic below.
+    	}
+    	
     	
     	if (t1 == t2)
     		return true;

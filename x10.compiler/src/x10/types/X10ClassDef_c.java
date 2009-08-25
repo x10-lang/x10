@@ -325,4 +325,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public Ref<TypeConstraint> typeGuard() {
     	return new LazyRef_c<TypeConstraint>(X10TypeMixin.parameterBounds(asType()));
     }
+    public boolean isStruct() {
+    	return X10Flags.toX10Flags(flags()).isStruct();
+    }
 }

@@ -506,7 +506,7 @@ public class X10New_c extends New_c implements X10New {
         }
 
         // Copy the method instance so we can modify it.
-        tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
+      //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = (X10ConstructorInstance) ci.returnType(tp);
         X10New_c result = (X10New_c) this.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);

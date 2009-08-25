@@ -41,6 +41,7 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
+import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -202,35 +203,46 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
         if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
-            thisType.superType(null);
+        	thisType.superType(null);
         }
         else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
-            thisType.superType(null);
+        	thisType.superType(null);
+        } 
+        else if (thisType.fullName().equals(QName.make("x10.lang.Primitive"))) {
+        	thisType.superType(null);
         }
         else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
-            thisType.superType(null);
+        	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
-            thisType.superType(null);
+        	thisType.superType(null);
         }
         else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isValue()) {
-            superRef.setResolver(new Runnable() {
-        	public void run() {
-        	    superRef.update(xts.Value());
-        	}
-            });
-            thisType.superType(superRef);
+        	superRef.setResolver(new Runnable() {
+        		public void run() {
+        			superRef.update(xts.Value());
+        		}
+        	});
+        	thisType.superType(superRef);
+        } 
+        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
+        	superRef.setResolver(new Runnable() {
+        		public void run() {
+        			superRef.update(xts.Primitive());
+        		}
+        	});
+        	thisType.superType(superRef);
         }
         else if (superClass == null) {
-            superRef.setResolver(new Runnable() {
-        	public void run() {
-        	    superRef.update(xts.Ref());
-        	}
-            });
-            thisType.superType(superRef);
+        	superRef.setResolver(new Runnable() {
+        		public void run() {
+        			superRef.update(xts.Ref());
+        		}
+        	});
+        	thisType.superType(superRef);
         }
         else {
-            super.setSuperClass(ts, thisType);
+        	super.setSuperClass(ts, thisType);
         }
     }
     
@@ -637,9 +649,18 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	// Make sure the node and type are consistent WRT super types.
         NodeFactory nf = tc.nodeFactory();
         
-        if (n.superClass == null && type.superType() != null)
+        if (type.superType() != null) {
+        	if (((X10ClassDef) type).isStruct()) {
+        		if (! ((X10Type) type.superType().get()).isX10Struct()) {
+        			throw new SemanticException(type.superType() 
+        					+ " cannot be the superclass for " + type 
+        					+ "; a struct must subclass a struct.",position());
+        		}
+        	}
+        }
+        if (n.superClass == null && type.superType() != null) {
             n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(position(), type.superType()));
-        
+        }
    
         List<TypeNode> newInterfaces = new ArrayList<TypeNode>();
         for (Ref<? extends Type> t : type.interfaces()) {
@@ -689,10 +710,20 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
+    	
+    	if (X10Flags.toX10Flags(flags().flags()).isStruct()) {
+    		n.checkStructMethods(parent, tc);
+    		
+    	}
       
     	return n;
     }
+    
+    protected void checkStructMethods(Node parent, ContextVisitor tc) throws SemanticException {
+    	
+    }
 
+    
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
         Ref<? extends Type> stref = type.superType();
