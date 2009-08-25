@@ -171,6 +171,28 @@ public class X10TypeMixin {
     		return x;
     	return x.clearFlags(X10Flags.PROTO);
     }
+	
+	/**
+	 * If x is a class type, return struct x. Else return x.
+	 * @param x
+	 * @return
+	 */
+	public static X10Type makeStruct(X10Type x) {
+		if (x.isX10Struct())
+			return x;
+		return x.setFlags(X10Flags.STRUCT);
+	}
+	
+	/**
+	 * If x is a class type, return x, else return struct x.
+	 * @param x
+	 * @return
+	 */
+	public static X10Type makeRef(X10Type x) {
+		if (! x.isX10Struct())
+			return x;
+		return x.clearFlags(X10Flags.STRUCT);
+	}
 	public static Type baseTypeWithoutProto(Type t) {
 		return baseForProto((X10Type) baseType(t));
 	}

@@ -389,16 +389,13 @@ implements X10ParsedClassType
 	}
 	    
 	public boolean isRooted() { 
-		return flags == null ? false 
-				: X10Flags.toX10Flags(flags).isRooted(); 
+		return X10Flags.toX10Flags(flags()).isRooted(); 
 		}
 	public boolean isProto() { 
-		return flags == null ? false 
-				: X10Flags.toX10Flags(flags).isProto(); 
+		return X10Flags.toX10Flags(flags()).isProto(); 
 		}
 	public boolean isX10Struct() { 
-		return flags == null ? false 
-				: X10Flags.toX10Flags(flags).isStruct(); 
+		return X10Flags.toX10Flags(flags()).isStruct(); 
 		}
 	
 	public boolean equalsNoFlag(X10Type o) {

@@ -405,6 +405,19 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10TypeMixin.protoTypeCheck(formals(), (X10Type) returnType().type(), position(),
         		true);
 
+        X10MethodDef md = (X10MethodDef) methodDef();
+        StructType container = md.container().get();
+        if (container instanceof X10Type) {
+        	X10Type xtype = (X10Type) container;
+        	if (xtype.isX10Struct()) {
+        		if (! md.flags().isFinal()) {
+        			throw new SemanticException(  md 
+        					+ " must be final; structs may only have final methods."
+        					, position());
+        		}
+        	}
+        
+        }
         return n;
     }
 

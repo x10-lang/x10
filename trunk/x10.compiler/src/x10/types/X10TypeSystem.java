@@ -172,6 +172,14 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     Type Rail();
+    
+    /**
+     * Return the ClassType object for the struct x10.lang.Primitive 
+     *
+     * @return
+     */
+    Type Primitive();
+    
 
     /**
      * Return the ClassType object for the x10.lang.ValRail interface.

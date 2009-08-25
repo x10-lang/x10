@@ -42,4 +42,10 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     
     /** Add a member type to the class. */
     void addMemberType(TypeDef t);
+    
+    /**
+     * Is this the class def for an X10 struct?
+     * @return
+     */
+    boolean isStruct();
 }
