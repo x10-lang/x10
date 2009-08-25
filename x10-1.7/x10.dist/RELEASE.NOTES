@@ -36,6 +36,13 @@ Here's a list of known issues with the C++ backend:
 
 Below is a summary of JIRA issues addressed for the X10 1.7.6 release.
 
+** New Feature
+    * [XTENLANG-514] - File.NativeFile is not implemented for C++ backend
+
+** Improvement
+    * [XTENLANG-443] - Implement all standard functions in x10.lang.Math
+    * [XTENLANG-502] - indexOf(String) not currently implemented in String API
+
 ** Bug
     * [XTENLANG-372] -  Static intialization of Distribution throws NPE with x10c++ 
     * [XTENLANG-423] - static initialisers appear not to call parents
@@ -56,11 +63,6 @@ Below is a summary of JIRA issues addressed for the X10 1.7.6 release.
     * [XTENLANG-493] - Non-integer const values are not initialized on all active places
     * [XTENLANG-503] - x10.io.FileReader.close() and x10.io.FileWriter.close() are unimplemented in the C++ backend.
     * [XTENLANG-506] - problem compiling classes with overloaded constructors via c++ backend
-    * [XTENLANG-509] - Control characters in AIX stack traces
-
-** Improvement
-    * [XTENLANG-443] - Implement all standard functions in x10.lang.Math
-    * [XTENLANG-502] - indexOf(String) not currently implemented in String API
 
 
 For the details of JIRA issues fixed in this release, see
