@@ -3,9 +3,9 @@
 
 #include <x10aux/config.h>
 
-#include <stdio.h>
-
 #include <x10/lang/Ref.h>
+
+#include <x10/lang/String.h>
 
 namespace x10 {
 
@@ -21,45 +21,39 @@ namespace x10 {
 
         private:
 
-            x10aux::ref<x10::lang::String> name;
+            x10aux::ref<x10::lang::String> path;
 
         public:
 
             static x10aux::ref<NativeFile> _make(x10aux::ref<x10::lang::String> s);
             x10aux::ref<NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
-                name = s;
+                path = s;
                 return this;
             }
 
-            virtual x10aux::ref<x10::lang::String> getName() { return name; }
+            virtual x10aux::ref<x10::lang::String> getPath() { return path; }
 
-            virtual x10aux::ref<x10::lang::String> getParent() { abort(); return name; }
+            virtual x10aux::ref<x10::lang::String> getAbsolutePath();
 
-            virtual x10aux::ref<x10::lang::String> getPath() { abort(); return name; }
+            virtual x10aux::ref<x10::lang::String> getCanonicalPath();
 
-            virtual x10_boolean isAbsolute() { abort(); return (x10_boolean)false; }
+            virtual x10_boolean canRead();
 
-            virtual x10aux::ref<x10::lang::String> getAbsolutePath() { abort(); return name; }
+            virtual x10_boolean canWrite();
 
-            virtual x10aux::ref<x10::lang::String> getCanonicalPath() { abort(); return name; }
+            virtual x10_boolean exists();
 
-            virtual x10_boolean canRead() { abort(); return (x10_boolean)false; }
+            virtual x10_boolean isDirectory();
 
-            virtual x10_boolean canWrite() { abort(); return (x10_boolean)false; }
+            virtual x10_boolean isFile();
 
-            virtual x10_boolean exists() { abort(); return (x10_boolean)false; }
+            virtual x10_boolean isHidden();
 
-            virtual x10_boolean isDirectory() { abort(); return (x10_boolean)false; }
+            virtual x10_long lastModified();
 
-            virtual x10_boolean isFile() { abort(); return (x10_boolean)false; }
+            virtual x10_boolean setLastModified(x10_long t);
 
-            virtual x10_boolean isHidden() { abort(); return (x10_boolean)false; }
-
-            virtual x10_long lastModified() { abort(); return (x10_long)0; }
-
-            virtual x10_long length() { abort(); return (x10_long)0; }
-
-            virtual x10_boolean setLastModified(x10_long t) { (void)t; abort(); return (x10_boolean)false; }
+            virtual x10_long length();
 
         };
 
