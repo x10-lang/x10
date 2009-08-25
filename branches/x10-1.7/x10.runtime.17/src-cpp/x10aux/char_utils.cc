@@ -91,7 +91,6 @@ x10_char x10aux::char_utils::toTitleCase(x10_char x) {
 }
 
 x10_char x10aux::char_utils::reverseBytes(x10_char x) {
-    assert(false); /* FIXME: STUBBED NATIVE */
-    return x; /* Bogus, but use x to avoid warning about unused parameter */
+    return ((x&0x00FF)<<8)|((x&0xFF00)>>8);
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

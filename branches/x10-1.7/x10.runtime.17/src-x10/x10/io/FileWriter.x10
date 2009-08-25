@@ -14,7 +14,7 @@ public value FileWriter extends OutputStreamWriter {
     
     @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#1))")
     private static def make(path: String):OutputStream throws IOException {
-		return new FileOutputStream(path);       
+        return new FileOutputStream(path);       
     }
 
     public def this(file: File) throws IOException {
