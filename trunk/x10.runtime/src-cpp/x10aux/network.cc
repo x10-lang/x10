@@ -1,5 +1,3 @@
-#include <arpa/inet.h> // for htonl
-
 #include <x10aux/config.h>
 
 #include <x10aux/network.h>
@@ -39,11 +37,10 @@ void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
         <<ref<Object>(body)->toString()->c_str()<<" to place: "<<place);
 
-    x10_uint id = body->_get_serialization_id();
-    x10aux::code_bytes(&id); // cancel out the byteswapping done by the serialisation buffer
-    buf.write(id, m);
+    buf.write((x10_uint)body->_get_serialization_id(), m, false);
 
-    buf.write((x10_uint)12345678, m); // this is not the real size, we fill it in properly later
+    // this is not the real size, we fill it in properly later
+    buf.write((x10_uint)12345678, m, false);
 
     body->_serialize_body(buf, m);
 
@@ -72,8 +69,8 @@ void x10aux::receive_async (void *the_buf) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(the_buf));
     // note: high bytes thrown away in implicit conversion
-    x10aux::serialization_id_t id = ntohl(buf.read<x10_uint>());
-    x10_uint sz = ntohl(buf.read<x10_uint>());
+    x10aux::serialization_id_t id = buf.read<x10_uint>(false);
+    x10_uint sz = buf.read<x10_uint>(false);
     ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, id));
     _X_("The deserialised async was: "<<async->toString());
     deserialized_bytes += sz; asyncs_received++;
