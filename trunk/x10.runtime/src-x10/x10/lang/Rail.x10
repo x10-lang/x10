@@ -63,6 +63,51 @@ public final class Rail[T](length: nat)
     public native safe def iterator(): Iterator[T];
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1, #2, #3, #4, #5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
+
+/* FIXME: This interface is not possible to define properly without structs:
+ * the closure needs to return both an offset and a Rail. 
+ * For now we assume the offset on the remote side is 0.
+ */
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_finder:()=>Rail[T],
+                              len:Int) : Void;
+
+    @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
+    public native def copyFrom (dst_off:Int, src:Rail[T], src_off:Int, len:Int) : Void;
+
+/* FIXME: This interface is not possible to define properly without structs:
+ * the closure needs to return both an offset and a Rail. 
+ * For now we assume the offset on the remote side is 0.
+ */
+    @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
+    public native def copyFrom (dst_off:Int,
+                                src_place:Place, src_finder:()=>Rail[T],
+                                len:Int) : Void;
+
+    @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
+    public native def copyFrom (dst_off:Int, src:ValRail[T], src_off:Int, len:Int) : Void;
+
+/* FIXME: This interface is not possible to define properly without structs:
+ * the closure needs to return both an offset and a ValRail. 
+ * For now we assume the offset on the remote side is 0.
+ */
+/*  uncomment upon resolution of XTENLANG-533
+    @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5)")
+    public native def copyFrom (dst_off:Int,
+                                src_place:Place, src_finder:()=>ValRail[T],
+                                len:Int) : Void;
+*/
 }
