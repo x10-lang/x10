@@ -45,6 +45,18 @@ public final value class ValRail[+T](length: nat)
     public native def iterator(): Iterator[T];
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1, #2, #3, #4, #5)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyTo(#1, #2, #3, #4, #5)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
+
+/* FIXME: This interface is not possible to define properly without structs:
+ * the closure needs to return both an offset and a rail. 
+ * For now we assume the offset on the remote side is 0.
+ */
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5,#6)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_finder:()=>Rail[T],
+                              len:Int) : Void;
 }
