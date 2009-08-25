@@ -6,6 +6,7 @@ import java.util.List;
 import polyglot.util.Copy;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import polyglot.types.Type;
 
 public interface TypeConstraint extends Copy, Serializable {
     
@@ -19,4 +20,14 @@ public interface TypeConstraint extends Copy, Serializable {
     void addTerms(List<SubtypeConstraint> terms);
     
     boolean entails(TypeConstraint c, X10Context xc);
+    
+    /**
+     * Returns the type constraint obtained by unifying the two types.
+     * The returned constraint will be inconsistent if the two types
+     * are not unifiable.
+     * @param t1
+     * @param t2
+     * @return
+     */
+    TypeConstraint unify(Type t1, Type t2, X10TypeSystem ts);
 }

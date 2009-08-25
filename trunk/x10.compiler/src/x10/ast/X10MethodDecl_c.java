@@ -258,8 +258,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         
             if (vc != null || tc != null) {
                 c = c.pushBlock();
-//                ((X10Context) c).setCurrentConstraint(vc);
-//                ((X10Context) c).setCurrentTypeConstraint(tc);
+        //        ((X10Context) c).setCurrentConstraint(vc.get());
+        //        ((X10Context) c).setCurrentTypeConstraint(tc.get());
             }            
         }
 

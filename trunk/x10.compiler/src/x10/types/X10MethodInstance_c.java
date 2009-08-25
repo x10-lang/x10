@@ -858,7 +858,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             Type ytype = actuals.get(i);
             Type xtype = formals.get(i);
             
-            if (! xts.isSubtype(ytype, xtype, xc)) {
+            if (! xts.isSubtypeWithValueInterfaces(ytype, xtype, xc)) {
                 throw new SemanticException("Call invalid; actual parameter of type " + ytype + " cannot be assigned to formal parameter type " + xtype + ".");
             }
         }

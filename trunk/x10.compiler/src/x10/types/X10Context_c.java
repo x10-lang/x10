@@ -85,6 +85,7 @@ import x10.constraint.XTerm;
 
 public class X10Context_c extends Context_c implements X10Context {
 
+
 	public X10Context_c(TypeSystem ts) {
 		super(ts);
 	}

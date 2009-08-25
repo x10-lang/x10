@@ -378,6 +378,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                for (ParameterType t : type.typeParameters()) {
         	   xc.addNamed(t);
                }
+           /*    vj TODO: This causes a loop. Need to investigate.
+            * DepParameterExpr v = classInvariant();
+               if (v != null) {
+            	   Ref<TypeConstraint> tc = v.typeConstraint();
+            	   if (tc != null) {
+            		    xc.setCurrentTypeConstraint(tc.get());
+            	   }
+               }
+           */
                return child.del().enterScope(xc); 
            }
     	   
