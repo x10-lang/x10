@@ -75,11 +75,19 @@ File__NativeFile::isHidden() {
     return *path->c_str()=='.';
 }
 
+#ifndef _AIX
+#   define STAT_TIME_SEC(type) st_##type##tim.tv_sec
+#   define STAT_TIME_NSEC(type) st_##type##tim.tv_nsec
+#else
+#   define STAT_TIME_SEC(type) st_##type##time
+#   define STAT_TIME_NSEC(type) st_##type##time_n
+#endif
+
 x10_long
 File__NativeFile::lastModified() {
     struct stat info;
     int status = ::stat(path->c_str(), &info);
-    return (x10_long)(status == 0 ? (info.st_mtim.tv_sec * (x10_long)1000 + info.st_mtim.tv_nsec / 1000000) : 0);
+    return (x10_long)(status == 0 ? (info.STAT_TIME_SEC(m) * (x10_long)1000 + info.STAT_TIME_NSEC(m) / 1000000) : 0);
 }
 
 x10_boolean
@@ -89,8 +97,8 @@ File__NativeFile::setLastModified(x10_long t) {
     if (status != 0)
         return (x10_boolean) false;
     struct timeval times[2];
-    times[0].tv_sec = info.st_atim.tv_sec;
-    times[0].tv_usec = info.st_atim.tv_nsec / 1000;
+    times[0].tv_sec = info.STAT_TIME_SEC(a);
+    times[0].tv_usec = info.STAT_TIME_NSEC(a) / 1000;
     times[1].tv_sec = t / 1000;
     times[1].tv_usec = (t % 1000) * 1000;
     status = utimes(path->c_str(), times);
