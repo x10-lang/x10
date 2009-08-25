@@ -69,7 +69,7 @@ namespace x10aux {
         #ifdef X10RT_SUPPORTS_CUDA
         return x10rt_remote_alloc(place, sz);
         #else
-        return NULL;
+        return 0;
         #endif
     }
 
