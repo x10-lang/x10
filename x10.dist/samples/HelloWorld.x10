@@ -6,9 +6,11 @@ import x10.io.Console;
  * @author vj 
  */
 class HelloWorld {
-  public static def main(args:Rail[String]):void {
-     Console.OUT.println("Hello World");
-  }
+    public static def main(args:Rail[String]):void {
+        finish ateach((p) in Dist.makeUnique()) {
+            Console.OUT.println("Hello World from " + p);
+        }
+    }
 }
 
 
