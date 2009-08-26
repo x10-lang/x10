@@ -1,0 +1,46 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Tests conversion of arrays to regions/dists.
+ *
+ * @author kemal 3/2005
+ */
+public class ArrayToDist extends x10Test {
+
+	public const N: int = 4;
+	public def run(): boolean = {
+		final val R: region = [0..N-1, 0..N-1];
+		final val D: dist = distmakeBlock(R);
+		final val A1: Array[int] = new Array[int](D, (var p: point[i,j]): int => { return f(i, j); });
+		final val A2: Array[foo] = new Array[foo](D, (var p: point[i,j]): foo => { return new foo(f(i, j)); });
+		for (val p: point[i,j] in A1) chk(f(i, j) == future(A1.dist(i, j)) { A1(i, j) }.force(), "1");
+		finish foreach (val p: point[i,j] in A1) chk(f(i, j) == future(A1.dist(i, j)) { A1(i, j) }.force(), "2");
+		finish ateach (val p: point[i,j] in A1) chk(f(i, j) == A1(i, j), "3");
+
+		for (val p: point[i,j] in A2) chk(f(i, j) == future(A2.dist(i, j)) { A2(i, j).val }.force(), "4");
+		finish foreach (val p: point[i,j] in A2) chk(f(i, j) == future(A2.dist(i, j)) { A2(i, j).val }.force(), "5");
+		finish ateach (val p: point[i,j] in A2) chk(f(i, j) == A2(i, j).val, "6");
+
+		return true;
+	}
+
+	static def f(var i: int, var j: int): int = {
+		return N * i + j;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayToDist().execute();
+	}
+
+	static class foo {
+		public var val: int;
+		public def this(var x: int): foo = { this.val = x; }
+	}
+}

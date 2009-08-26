@@ -1,0 +1,61 @@
+\begin{thebibliography}{1}
+
+\bibitem{BC04a}
+D.~A. Bader and G.~Cong.
+\newblock A fast, parallel spanning tree algorithm for symmetric
+  multiprocessors ({SMPs}).
+\newblock In {\em Proceedings of the 18th International Parallel and
+  Distributed Processing Symposium (IPDPS 2004)}, Santa Fe, New Mexico, Apr
+  2004.
+
+\bibitem{BJKLRZ95}
+R.~D. Blumofe, C.~F. Joerg, B.~C. Kuszmaul, C.~E. Leiserson, K.~H. Randall, and
+  Y.~Zhou.
+\newblock Cilk: an efficient multithreaded runtime system.
+\newblock In {\em PPOPP '95: Proceedings of the fifth ACM SIGPLAN symposium on
+  Principles and practice of parallel programming}, pages 207--216, New York,
+  NY, USA, 1995. ACM.
+
+\bibitem{CZF04}
+D.~Chakrabarti, Y.~Zhan, and C.~Faloutsos.
+\newblock {R-MAT}: {A} recursive model for graph mining.
+\newblock In {\em Proc. 4th SIAM Intl. Conf. on Data Mining}, April 2004.
+
+\bibitem{Gre94}
+J.~Greiner.
+\newblock A comparison of data-parallel algorithms for connected components.
+\newblock In {\em Proc.\ 6th Ann.\ Symp.\ Parallel Algorithms and Architectures
+  ({SPAA-94})}, pages 16--25, Cape May, NJ, June 1994.
+
+\bibitem{HendlerShavit}
+D.~Hendler and N.~Shavit.
+\newblock Non-blocking steal-half work queues.
+\newblock In {\em PODC '02: Proceedings of the twenty-first annual symposium on
+  Principles of distributed computing}, pages 280--289, New York, NY, USA,
+  2002. ACM.
+
+\bibitem{HRD97}
+T.-S. Hsu, V.~Ramachandran, and N.~Dean.
+\newblock Parallel implementation of algorithms for finding connected
+  components in graphs.
+\newblock In S.~N. Bhatt, editor, {\em Parallel Algorithms: 3rd {DIMACS}
+  Implementation Challenge {October} 17-19, 1994}, volume~30 of {\em {DIMACS}
+  Series in Discrete Mathematics and Theoretical Computer Science}, pages
+  23--41, 1997.
+
+\bibitem{KR88}
+P.~Klein and J.~Reif.
+\newblock An efficient parallel algorithm for planarity.
+\newblock {\em J.~Comput. Syst. Sci.}, 37(2):190--246, 1988.
+
+\bibitem{MR86}
+G.~L. Miller and V.~Ramachandran.
+\newblock Efficient parallel ear decomposition with applications.
+\newblock Manuscript, UC Berkeley, MSRI, Jan. 1986.
+
+\bibitem{x10}
+V.~A. Saraswat.
+\newblock {\Xten{}} {L}anguage {R}eport.
+\newblock Technical report, 2004.
+
+\end{thebibliography}

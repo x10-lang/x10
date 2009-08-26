@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 runtime
+Bundle-SymbolicName: x10.runtime.17
+Bundle-Version: 1.7.5.0
+Eclipse-AutoStart: true
+Bundle-Vendor: rfuhrer@watson.ibm.com
+Require-Bundle: x10.common.17,
+ x10.constraints
+

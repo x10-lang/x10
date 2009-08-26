@@ -1,0 +1,582 @@
+Many features of modern object-oriented type systems can be
+cast as specializations of the generic constrained types
+framework.  
+Generic constrained types generalize virtual types and 
+have a connection to parametric types with use-site variance
+annotations, such as Java's wildcards.  
+
+\subsection{Virtual types}
+
+\emph{Virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+are a language-based extensibility
+mechanism 
+originally introduced in the language
+BETA~\cite{beta} that---along with
+similar constructs built on path-dependent types found in
+languages such as Scala~\cite{scala}, J\&~\cite{nqm06},
+and Tribe~\cite{cdnw07-tribe}---share many similarities with type properties.
+A virtual type is a type binding nested within an enclosing instance.
+Subclasses are permitted to override the binding of inherited virtual types. 
+
+Virtual types
+may be used to provide genericity; indeed,
+one of the first proposals for genericity in Java was based on
+virtual types~\cite{thorup97}, and
+Java
+wildcards (i.e., parameters with use-site variance)
+were developed from a line of work beginning with virtual
+types~\cite{unifying-genericity,variant-parametric-types,adding-wildcards}.
+
+%Igarashi and Pierce~\cite{ip99-virtual-types}
+%model the semantics of virtual types
+%and several variants
+%in a typed lambda-calculus with subtyping and dependent types.
+
+Constrained types are more expressive than virtual
+types in that they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly as well as covariantly.
+
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
+{
+\begin{xten}
+abstract class List {
+  abstract typedef T;
+  T get(int i) { ... }
+}
+\end{xten}}
+\noindent
+The virtual type \xcd"T" is unbound in \xcd"List", but 
+can be refined by binding \xcd"T" in a subclass:
+{
+\begin{xten}
+abstract class NumberList extends List {
+  abstract typedef T as Number;
+}
+class IntList extends NumberList {
+  final typedef T as Integer;
+}
+\end{xten}}
+\noindent
+Only classes where \xcd"T" is final bound, such as \xcd"IntList",
+can be non-abstract.
+%
+The analogous definition of 
+\xcd"List" in \Xten{} using type properties is as follows:
+{
+\begin{xten}
+class List[T] {
+  def get(i: int): T { ... }
+}
+\end{xten}}
+
+\noindent
+Unlike the virtual-type version,
+the \Xten{} version of \xcd"List" is not abstract;
+\xcd"T" need not be instantiated by a subclass because it can be
+instantiated on a per-object basis.
+Rather than declaring subclasses of \xcd"List",
+one uses the constrained subtypes
+\xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
+
+Type properties can also be refined contravariantly.
+For instance, one can write the type \xcdmath"List{T$\super$Integer}",
+and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
+
+\subsection{Wildcards}
+\label{sec:wildcards}
+
+As discussed in Section~\ref{sec:parameters-vs-fields},
+type properties are similar to type
+parameters.
+Constrained types can provide a characterization of
+wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
+Wildcards can be motivated
+by the following example from Torgersen et al.~\cite{adding-wildcards}:
+Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
+the empty set.  What should be the type of \xcd"EMPTY"?
+In Java, one can use a wildcard and 
+assign the type \xcd"Set<?>", i.e., the type of all \xcd"Set"
+instantiated on \emph{some} parameter.  Clients of this
+type do not know what parameter to which the actual instance of \xcd"Set"
+is bound.
+With constrained types,
+a similar effect is achieved simply by leaving the
+element type property of \xcd"Set" unconstrained.
+
+Wildcards can
+also be bounded above and below with
+``\Xcd{?} \Xcd{extends} \Xcd{T}'' and ``\Xcd{?} \Xcd{super} \Xcd{T}'',
+respectively.
+%
+A similar effect is achieved with constrained types by constraining
+the
+element type property of \xcd"Set" with a subtyping constraint.
+
+We can define the following straightforward translation
+from Java wildcards to \Xten{}.
+Type parameters are translated to type properties whose name
+encodes their position in the parameter list.
+Types are translated as follows:
+\begin{align*}
+\SB{ \Xcd{X} } &= \Xcd{_}i ~~\hfill \mbox{where \xcd{X} is the $i$th type param} \\
+\SB{ \Xcdmath{C<?, $\dots$>} } &= \Xcdmath{C\{$\dots$\}} \\
+\SB{ \Xcdmath{C<? extends T, $\dots$>} } &= \Xcdmath{C\{_1 } \ \extends\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<? super T, $\dots$>} } &= \Xcdmath{C\{_1 } \ \super\Xcdmath{ $\ \SB{\tt{T}}$, $\dots$\}} \\
+\SB{ \Xcdmath{C<T, $\dots$>} } &= \Xcdmath{C\{_1 == $\ \SB{\tt{T}}$, $\dots$\}}
+\end{align*}
+\noindent
+Through such a translation, the \FXG\ calculus in
+Section~\ref{sec:semantics} captures the essence of Java's
+wildcards, but extended with support for run-time type
+introspection.  We leave to future work a formal proof of this
+characterization.
+
+\eat{
+Finally,
+one can also specify lower bounds on types.  These are useful for
+comparators:
+{\footnotesize
+\begin{xtenmath}
+class TreeSet[T] {
+  def this[T](cmp: Comparator{T $\super$ this.T}) { ... }
+}
+\end{xtenmath}}
+Here, the comparator for any supertype of \xcd"T" can be used as
+to compare \xcd"TreeSet" elements.
+
+Another use of lower bounds is for list operations.
+The \xcd"map" method below takes a function that maps a supertype
+of the class parameter \xcd"T" to the method type parameter \xcd"S":
+{\footnotesize
+\begin{xtenmath}
+class List[T] {
+  def map[S](fun: Object{self $\super$ T} => S) : List[S] { ... }
+}
+\end{xtenmath}}
+}
+
+Like wildcards,
+constrained types support
+\emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
+\xcd"reverse"
+operation can operate on \xcd"List" of any type:
+{
+\begin{xten}
+def reverse(list: List) {
+  for (i: int in 0..list.length-1)
+    swap(list, i, list.length-1-i);
+}
+\end{xten}}
+
+\noindent
+The client of \xcd"reverse" need not provide the concrete type
+on which the list is instantiated; the \xcd"list" itself
+provides the element type---it is stored in the \xcd"list"
+to implement run-time type introspection.
+
+In Java, this method would be written with a type parameter on
+the method; the type system permits it to be called with any
+\xcd"List".
+However,
+the method parameter cannot be omitted: declaring a parameterless version
+of \xcd"reverse" requires delegating to a private parametrized version that
+``opens up'' the parameter.
+
+%\input{self-types.tex}
+
+
+\eat{
+\subsection{Ownership types}
+
+Consider the following example of generic ownership
+derived from Potanin et al.~\cite{ogj-oopsla06}.
+
+\begin{xtenmath}
+class Object(owner: Object) { }
+
+// Map inherits Object.owner
+// No need to add explicit vOwner and kOwner properties for Key, Value
+class Map[Key, Value]{Key $\extends$ Comparable, Value $\extends$ Object}
+{
+    private nodes: Vector[Node[Key, Value](this)](this);
+
+    public def put(key: Key, value: Value): Void {
+        nodes.add(new Node[Key, Value](key, value, this)());
+    }
+
+    public def get(key: Key): Value {
+        for (mn: Node[Key, Value](this) in nodes) {
+            if (mn.key.equals(key))
+                return mn.value;
+        }
+        return null;
+    }
+
+    // OGJ will prevent this from being called, since caller
+    // can only assign the result to a supertype of Vector(this),
+    // which would be only Vector(this) or Object(this)
+    // BUT: we have Vector $\super$ Vector(this)
+    // Need to require that all class types have an equality constraint
+    // on the owner property
+    public def exposeVector(): Vector(this) { return nodes; }
+}
+
+class Node[Key, Value]
+    {Key $\extends$ Comparable, Value $\extends$ Object}
+{
+    val key: Key;
+    val value: Value;
+
+    public def this[K, V](k: Key, v: Value, o: Object): Node[K, V](o) {
+        super(o);               // set the owner
+        property[K, V];         // set the type properties
+        this.key = k;
+        this.value = v;
+    }
+}
+\end{xten}
+
+Restrictions:
+\begin{itemize}
+\item owner property must be constrained (define this!)
+\item owner is always equal to or inside the owner of all other type properties
+\item types with an actual owner == this, can only be accessed via this
+\end{itemize}
+
+}
+
+\subsection{Structural constraints}
+\label{sec:structural}
+\label{sec:structural-typing}
+
+Constraints on types need not be limited to subtyping.
+By introducing structural constraints on types, one can
+instantiate
+type properties on any type with a given set
+of methods or fields.
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.
+This feature is useful for reusing code
+from separate libraries; it does not require
+code of one library to implement a named interface of the other
+library to interoperate.
+
+Here, we consider an extension, not yet implemented, of the \Xten{} type system
+that supports structural type constraints.
+Formally, the extension
+is straightforward; indeed the \FX{} family already supports structural
+constraints
+via the rules for ``{\tt x \underline{has} I}'' in
+Figure~\ref{fig:lookup}.
+
+Structural constraints on types are found in many languages.
+For instance,
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
+%
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence is structural
+rather than nominal as in object-oriented languages of the C
+family (e.g., C++, Java, and \Xten{}).
+Unity~\cite{malayeriIntegrating08}
+is another language with structural subtyping.
+
+Using structural constraints in \Xten was inspired by 
+the language PolyJ~\cite{java-popl97}, which allows type parameters to be
+bounded using
+structural \emph{where clauses}~\cite{where-clauses}.
+For example, a sorted list class % from Figure~\ref{fig:sorted}
+could
+be written as follows in PolyJ:
+{
+\begin{xten}
+class SortedList[T]
+  where T {int compareTo(T)} {
+    void add(T x) {... x.compareTo(y) ...}
+    ... }
+\end{xten}}
+The \xcd"where" clause states that the type parameter \xcd"T" must have a
+method \xcd"compareTo" with the given signature.
+
+The analogous code for \xcd"SortedList" in the structural
+extension of \Xten{} would be:
+{
+\begin{xten}
+class SortedList[T]
+  {T has compareTo(T): int} {
+    def add(x: T) {... x.compareTo(y) ...}
+    ... }
+\end{xten}}
+
+\eat{
+A structural constraint is satisfied if the type has a member of
+the appropriate name and with a compatible type.
+The constraint
+\xcdmath"Z has def m[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$): U"
+is satisfied by a type \xcd"T" if it has a method \xcd"m"
+with signature
+\xcdmath"def m[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$): V"
+and where
+(\xcdmath"[$\tbar{Y}$]($\tbar{y}\ty\tbar{S}$) => V")$[\Xcd{T}/\Xcd{Z}]$
+is a subtype of
+(\xcdmath"[$\tbar{X}$]($\tbar{x}\ty\tbar{T}$) => U")$[\Xcd{T}/\Xcd{Z}]$.
+As an example,
+the constraint \xcd"X has def compareTo(X): int"
+is satisfied by both of the following classes:
+{\footnotesize
+\begin{xten}
+class C { def compareTo(x: C): int = ...; }
+class D { def compareTo(x: Object): int = ...; }
+\end{xten}}
+}
+
+\subsubsection{Function-typed properties}
+
+\Xten{} supports first-class functions.
+Function-typed properties provide a useful alternative to
+structural constraints.  In the
+following version of the
+\xcd"SortedList" class:
+{
+\begin{xten}
+class SortedList(compare: (T,T)=>int)
+    extends List {
+  def add(x: T) {... compare(x, y) ...}
+  ... }
+\end{xten}}
+\noindent
+the class has a property \xcd"compare" of type
+\xcd"(T,T)=>int", a function that takes a pair of \xcd"T"s and
+returns an \xcd"int".  
+
+Using this definition, one can create lists with distinct types
+using different constraints on the \xcd"compare" property.
+For example, one can define lists of
+both
+case-sensitive and case-insensitive strings:
+\bigskip
+{
+\begin{xten}
+val unixFiles
+  = new SortedList[String]
+      (String.compareTo.(String));
+val windowsFiles
+  = new SortedList[String]
+      (String.compareToIgnoreCase.(String));
+\end{xten}}
+
+\noindent
+\xcd"String.compareTo.(String)" selects the
+method named
+\xcd"compareTo" with a \xcd"String" argument from
+class \xcd"String".
+%
+The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
+by different comparison functions.  This allows the programmer
+to write code, for instance, in which it is illegal to pass a list of UNIX
+file names into a function that expects a list of Windows file names, and
+vice versa.
+
+\subsubsection{Optional methods}
+
+Structural method constraints permit the introduction of
+CLU-style optional methods~\cite{clu}.  Consider the following
+\xcd"Array" class:
+{
+\begin{xten}
+class Array[T] {
+  def add(a: Array[S])
+    {T has add(S): U}: Array[U] {
+    return new Array[U](
+      (p:Point) => this(p)+a(p));
+  }
+  ... }
+\end{xten}}
+
+\noindent
+The \xcd"Array" class defines an \xcd"add" method that takes 
+an array of \xcd"S", adds each element of the array to the
+corresponding element of \xcd"this", and returns an array of the
+results.  The method constraint specifies that the method may
+only be invoked if \xcd"T" has an \xcd"add" method of the
+appropriate type.  Thus, for example, an \xcd"Array[int]"
+can be added to an \xcd"Array[double]" because \xcd"int"
+has a method \xcd"add" (corresponding to the \xcd"+" operation)
+that adds an \xcd"int" and a \xcd"double", retuning a
+\xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
+the \xcd"add" operation because \xcd"Rabbit" does not have an
+\xcd"add" method.
+%\footnote{It may have a \xcd"multiply" method.}
+
+
+
+
+\eat{
+\subsection{Definition-site variance}
+
+\subsection{Conditional methods and generalized constraints}
+
+For type parameters, method constraints are 
+similar to generalized constraints proposed for
+\csharp~\cite{emir06}.
+%
+In the following code, the \xcd"T" parameter is covariant
+and so the \xcd"append" methods below are illegal:
+{\footnotesize
+\begin{xten}
+class List[+T] {
+  def append(other: T): List[T] { ... }
+      // illegal
+  def append(other: List[T]): List[T] { ... }
+      // illegal
+}
+\end{xten}}
+%
+However, one can introduce a method parameter and then constrain
+the parameter from below by the class's parameter:
+For example, in the following code,
+{\footnotesize
+\begin{xtenmath}
+class List[+T] {
+  def append[U](other: U)
+      {T $\extends$ U}: List[U] { ... }
+  def append[U](other: List[U])
+      {T $\extends$ U}: List[U] { ... }
+}
+\end{xten}}
+
+The constraints must be satisfied by the callers of \xcd"append".
+For example, in the following code:
+{\footnotesize
+\begin{xten}
+xs: List[Number];
+ys: List[Integer];
+xs = ys; // ok
+xs.append(1.0); // legal
+ys.append(1.0); // illegal
+\end{xten}}
+the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
+the call to \xcd"ys.append" is not allowed because the caller cannot show that
+$\Xcd{Number} \subtype \Xcd{Double}$.
+
+}
+
+\subsection{Run-time casts}
+\label{sec:casts}
+
+While constraints are normally solved at compile time, 
+constraints can be evaluated at run time by using casts.
+The expression 
+\xcd"xs as List{length==n}" checks not only 
+that \xcd"xs"
+is an instance of
+the \xcd"List" class, but also that \xcd"xs.length" equals \xcd"n".
+A \xcd"ClassCastException" is thrown if the check fails.
+%
+In this example, the test of the constraint does not require
+run-time constraint
+solving; the constraint can be checked by simply
+evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
+However, the situation is more complicated when casting to a
+type that constrains the value's type properties.
+
+For equality constraints on types, one can simply test equality on
+canonical run-time representations of the base types and of the
+constraints.
+However, with subtyping constraints (e.g., \xcdmath"S$\extends$T"),
+the generated code must be able to test if the constraint on the
+subtype entails the constraint on the supertype.  Since one or
+both of the types involved in the constraint might be type
+variables, the entailment cannot be checked at compile time.
+
+One approach is to restrict the language 
+to rule out casts to type parameters 
+and to generic types with subtyping constraints, ensuring that
+entailment checks are not needed at run time.
+
+Alternatively, 
+the constraint solver could be embedded into the runtime system.
+This is the solution used in the \Xten{} implementation; however, this
+solution can result in inefficient run-time casts
+if entailment checking for the given constraint system is expensive.
+
+\eat{
+A different approach to have the compiler pre-compute the results of
+entailment checks.
+This might be done by analyzing the program to identify which pairs of
+constraints might be tested for entailment at run time and then generating a
+graph were each node is a constraint and there is a directed edge between
+nodes in an entailment relationship.  Run-time entailment
+checking can then be implemented as reachability checking. 
+This solution is a whole program analysis; all
+constraints must be visible to generate the graph.
+\todo{
+We leave the design of this analysis for future work.
+}
+
+\todo{this is vague.  and very likely wrong.}
+If \xcd"e as T" occurs in the program text and \xcd"e" has
+type \xcd"U", the analysis identifies all \xcd"new" expressions
+$a$,
+that create a subtype of \xcd"U" and identifies all type
+expressions $t$ that could instantiate \xcd"T".
+For each pair $(a,t)$, the analysis checks that the
+type of $a$ (determined by the constructor invoked by $a$) is a subtype of $t$.
+Since $a$ and $t$ may be in different environments, \xcd"e" must
+be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
+}
+
+Another option is to test objects cast to \xcd"T" not for membership in the
+type \xcd"T", but rather to test against the
+\emph{interpretation} of \xcd"T".
+Observe that
+if an instance of a generic class \xcd"C[X]"
+is a member of the type \xcd"C{X==U}", then
+all fields ${\tt f}_i$ of the instance with
+declared type ${\tt S}_i$ contain values
+that are instances of ${\tt S}_i[{\tt U}/{\tt X}]$.
+For example, given the following declaration of class \xcd"List":
+{
+\begin{xten}
+class List[X] {
+  val head: X;
+  val tail: List[X];
+}
+\end{xten}
+}
+\noindent
+if \xcd"xs" is an instance of \xcd"List{X==String}", then
+by checking that \xcd"xs.head" is an instance of \xcd"String"
+and \xcd"xs.tail" is, recursively, an instance of \xcd"List{X==String}".
+This property can be exploited by implementing cast to check the
+types of all fields of the object.
+For this check to be sound, it is vital that all fields whose
+type depends on the type property \xcd"X" be transitively final;
+otherwise, the test is not invariant---the
+result of the test could change as the data is mutated.
+Care must also be taken to implement the
+test so that it terminates for cyclic data structures.
+This implementation is inefficient for large data structures.
+
+This solution has a more permissive semantics
+than those implemented in \Xten or \FXGD.
+The difference is best illustrated by considering an empty generic class:
+{
+\begin{xten}
+class Nil[X] { }
+\end{xten}
+}
+\noindent
+In this case, there is no field of type \xcd"X" to test;
+therefore, an object instantiated as \xcd"Nil[int]" 
+can be considered a member of \xcd"Nil[String]". 
+However, the solution remains sound:
+Given a class \xcd"C[X]" and an expression \xcd"e" of type \xcd"t.X", if
+a run-time check finds that \xcd"t" has type \xcd"C[T]", 
+the compiler \emph{cannot} use this information to derive 
+that \xcd"e" has type \xcd"T".
+We leave to future work a proof of this claim.

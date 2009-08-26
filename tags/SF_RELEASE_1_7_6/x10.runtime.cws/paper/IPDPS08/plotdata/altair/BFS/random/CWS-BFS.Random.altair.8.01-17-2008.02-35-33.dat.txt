@@ -1,0 +1,602 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 01/17/2008 - 02:35:33
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 1 E 100000
+Number of procs=1
+graphType=E
+N=100000
+N=100000 t=152239484 ns 0.003 GE/s
+N=100000 t=82785847 ns 0.005 GE/s
+N=100000 t=84109477 ns 0.005 GE/s
+N=100000 t=85277070 ns 0.005 GE/s
+N=100000 t=85261677 ns 0.005 GE/s
+N=100000 t=85536799 ns 0.005 GE/s
+N=100000 t=85273299 ns 0.005 GE/s
+N=100000 t=84936975 ns 0.005 GE/s
+N=100000 t=85285897 ns 0.005 GE/s
+N=100000 t=87678326 ns 0.005 GE/s
+Completed iterations for N=100000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 2 E 100000
+Number of procs=2
+graphType=E
+N=100000
+N=100000 t=202390226 ns 0.002 GE/s
+N=100000 t=129184141 ns 0.003 GE/s
+N=100000 t=106994946 ns 0.004 GE/s
+N=100000 t=117555193 ns 0.003 GE/s
+N=100000 t=127628075 ns 0.003 GE/s
+N=100000 t=117625028 ns 0.003 GE/s
+N=100000 t=117462406 ns 0.003 GE/s
+N=100000 t=118008041 ns 0.003 GE/s
+N=100000 t=117841910 ns 0.003 GE/s
+N=100000 t=117664370 ns 0.003 GE/s
+Completed iterations for N=100000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 4 E 100000
+Number of procs=4
+graphType=E
+N=100000
+N=100000 t=140028456 ns 0.003 GE/s
+N=100000 t=54939248 ns 0.007 GE/s
+N=100000 t=83631861 ns 0.005 GE/s
+N=100000 t=62888124 ns 0.006 GE/s
+N=100000 t=76440514 ns 0.005 GE/s
+N=100000 t=59840045 ns 0.007 GE/s
+N=100000 t=71182029 ns 0.006 GE/s
+N=100000 t=77517375 ns 0.005 GE/s
+N=100000 t=69628277 ns 0.006 GE/s
+N=100000 t=89670272 ns 0.004 GE/s
+Completed iterations for N=100000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 8 E 100000
+Number of procs=8
+graphType=E
+N=100000
+N=100000 t=180236022 ns 0.002 GE/s
+N=100000 t=56431627 ns 0.007 GE/s
+N=100000 t=49513228 ns 0.008 GE/s
+N=100000 t=42057887 ns 0.010 GE/s
+N=100000 t=50608449 ns 0.008 GE/s
+N=100000 t=51208589 ns 0.008 GE/s
+N=100000 t=65975137 ns 0.006 GE/s
+N=100000 t=32554726 ns 0.012 GE/s
+N=100000 t=78741713 ns 0.005 GE/s
+N=100000 t=30313631 ns 0.013 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=1138477954 ns 0.004 GE/s
+N=1000000 t=1080328669 ns 0.004 GE/s
+N=1000000 t=1069709959 ns 0.004 GE/s
+N=1000000 t=1069686736 ns 0.004 GE/s
+N=1000000 t=1071109558 ns 0.004 GE/s
+N=1000000 t=1086920455 ns 0.004 GE/s
+N=1000000 t=1069797808 ns 0.004 GE/s
+N=1000000 t=1069786194 ns 0.004 GE/s
+N=1000000 t=1085922524 ns 0.004 GE/s
+N=1000000 t=1068633132 ns 0.004 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=767974090 ns 0.005 GE/s
+N=1000000 t=634278130 ns 0.006 GE/s
+N=1000000 t=662551937 ns 0.006 GE/s
+N=1000000 t=648682746 ns 0.006 GE/s
+N=1000000 t=655041531 ns 0.006 GE/s
+N=1000000 t=633950948 ns 0.006 GE/s
+N=1000000 t=677359887 ns 0.006 GE/s
+N=1000000 t=677217848 ns 0.006 GE/s
+N=1000000 t=657347986 ns 0.006 GE/s
+N=1000000 t=633318976 ns 0.006 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=594167690 ns 0.007 GE/s
+N=1000000 t=449560359 ns 0.009 GE/s
+N=1000000 t=449231633 ns 0.009 GE/s
+N=1000000 t=445933834 ns 0.009 GE/s
+N=1000000 t=431153851 ns 0.009 GE/s
+N=1000000 t=449880817 ns 0.009 GE/s
+N=1000000 t=432389339 ns 0.009 GE/s
+N=1000000 t=461070575 ns 0.009 GE/s
+N=1000000 t=412461372 ns 0.010 GE/s
+N=1000000 t=408802027 ns 0.010 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=509574347 ns 0.008 GE/s
+N=1000000 t=315302156 ns 0.013 GE/s
+N=1000000 t=288333717 ns 0.014 GE/s
+N=1000000 t=280349336 ns 0.014 GE/s
+N=1000000 t=297343361 ns 0.013 GE/s
+N=1000000 t=276475193 ns 0.014 GE/s
+N=1000000 t=281545688 ns 0.014 GE/s
+N=1000000 t=279047340 ns 0.014 GE/s
+N=1000000 t=286293027 ns 0.014 GE/s
+N=1000000 t=271372397 ns 0.015 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 1 E 10000000
+Number of procs=1
+graphType=E
+N=10000000
+N=10000000 t=14095548547 ns 0.003 GE/s
+N=10000000 t=14051790409 ns 0.003 GE/s
+N=10000000 t=14018799630 ns 0.003 GE/s
+N=10000000 t=14237353418 ns 0.003 GE/s
+N=10000000 t=14126914617 ns 0.003 GE/s
+N=10000000 t=14248484995 ns 0.003 GE/s
+N=10000000 t=14095769154 ns 0.003 GE/s
+N=10000000 t=14131522129 ns 0.003 GE/s
+N=10000000 t=14094907520 ns 0.003 GE/s
+N=10000000 t=14094523710 ns 0.003 GE/s
+Completed iterations for N=10000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 2 E 10000000
+Number of procs=2
+graphType=E
+N=10000000
+N=10000000 t=8058410739 ns 0.005 GE/s
+N=10000000 t=7988068018 ns 0.005 GE/s
+N=10000000 t=8026149729 ns 0.005 GE/s
+N=10000000 t=7941713706 ns 0.005 GE/s
+N=10000000 t=7940767936 ns 0.005 GE/s
+N=10000000 t=8018599554 ns 0.005 GE/s
+N=10000000 t=7948232460 ns 0.005 GE/s
+N=10000000 t=8055939780 ns 0.005 GE/s
+N=10000000 t=8002528752 ns 0.005 GE/s
+N=10000000 t=8086141903 ns 0.005 GE/s
+Completed iterations for N=10000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 4 E 10000000
+Number of procs=4
+graphType=E
+N=10000000
+N=10000000 t=4557031863 ns 0.009 GE/s
+N=10000000 t=4199956193 ns 0.010 GE/s
+N=10000000 t=4232114963 ns 0.009 GE/s
+N=10000000 t=4180292341 ns 0.010 GE/s
+N=10000000 t=4136143905 ns 0.010 GE/s
+N=10000000 t=4215640710 ns 0.009 GE/s
+N=10000000 t=4186239301 ns 0.010 GE/s
+N=10000000 t=4178728222 ns 0.010 GE/s
+N=10000000 t=4438640850 ns 0.009 GE/s
+N=10000000 t=4216559637 ns 0.009 GE/s
+Completed iterations for N=10000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 8 E 10000000
+Error occurred during initialization of VM
+Could not reserve enough space for object heap
+#
+# Run: 2
+#
+
+## Size: 100000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 1 E 100000
+Number of procs=1
+graphType=E
+N=100000
+N=100000 t=233647725 ns 0.002 GE/s
+N=100000 t=95590598 ns 0.004 GE/s
+N=100000 t=95913628 ns 0.004 GE/s
+N=100000 t=96465801 ns 0.004 GE/s
+N=100000 t=95827880 ns 0.004 GE/s
+N=100000 t=96007966 ns 0.004 GE/s
+N=100000 t=97411907 ns 0.004 GE/s
+N=100000 t=96592748 ns 0.004 GE/s
+N=100000 t=95400153 ns 0.004 GE/s
+N=100000 t=96824853 ns 0.004 GE/s
+Completed iterations for N=100000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 2 E 100000
+Number of procs=2
+graphType=E
+N=100000
+N=100000 t=191514059 ns 0.002 GE/s
+N=100000 t=128573172 ns 0.003 GE/s
+N=100000 t=114972590 ns 0.003 GE/s
+N=100000 t=125289726 ns 0.003 GE/s
+N=100000 t=125137435 ns 0.003 GE/s
+N=100000 t=125800923 ns 0.003 GE/s
+N=100000 t=117309573 ns 0.003 GE/s
+N=100000 t=116533398 ns 0.003 GE/s
+N=100000 t=134165827 ns 0.003 GE/s
+N=100000 t=126200069 ns 0.003 GE/s
+Completed iterations for N=100000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 4 E 100000
+Number of procs=4
+graphType=E
+N=100000
+N=100000 t=140185766 ns 0.003 GE/s
+N=100000 t=72882041 ns 0.005 GE/s
+N=100000 t=98824852 ns 0.004 GE/s
+N=100000 t=51999170 ns 0.008 GE/s
+N=100000 t=87385329 ns 0.005 GE/s
+N=100000 t=61028469 ns 0.007 GE/s
+N=100000 t=78214876 ns 0.005 GE/s
+N=100000 t=79647999 ns 0.005 GE/s
+N=100000 t=76241594 ns 0.005 GE/s
+N=100000 t=63327691 ns 0.006 GE/s
+Completed iterations for N=100000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 8 E 100000
+Number of procs=8
+graphType=E
+N=100000
+N=100000 t=181054992 ns 0.002 GE/s
+N=100000 t=68604682 ns 0.006 GE/s
+N=100000 t=46662773 ns 0.009 GE/s
+N=100000 t=42720951 ns 0.009 GE/s
+N=100000 t=46039707 ns 0.009 GE/s
+N=100000 t=43855975 ns 0.009 GE/s
+N=100000 t=33642095 ns 0.012 GE/s
+N=100000 t=39045021 ns 0.010 GE/s
+N=100000 t=31647479 ns 0.013 GE/s
+N=100000 t=39564959 ns 0.010 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=1224114248 ns 0.003 GE/s
+N=1000000 t=1166432280 ns 0.003 GE/s
+N=1000000 t=1164617609 ns 0.003 GE/s
+N=1000000 t=1175646661 ns 0.003 GE/s
+N=1000000 t=1169714411 ns 0.003 GE/s
+N=1000000 t=1155048117 ns 0.003 GE/s
+N=1000000 t=1168692247 ns 0.003 GE/s
+N=1000000 t=1164012818 ns 0.003 GE/s
+N=1000000 t=1150654050 ns 0.003 GE/s
+N=1000000 t=1167758318 ns 0.003 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=763963971 ns 0.005 GE/s
+N=1000000 t=665353766 ns 0.006 GE/s
+N=1000000 t=633902517 ns 0.006 GE/s
+N=1000000 t=653171008 ns 0.006 GE/s
+N=1000000 t=640291776 ns 0.006 GE/s
+N=1000000 t=668699537 ns 0.006 GE/s
+N=1000000 t=635489221 ns 0.006 GE/s
+N=1000000 t=672017981 ns 0.006 GE/s
+N=1000000 t=648988617 ns 0.006 GE/s
+N=1000000 t=680502963 ns 0.006 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=590262497 ns 0.007 GE/s
+N=1000000 t=397176706 ns 0.010 GE/s
+N=1000000 t=449190893 ns 0.009 GE/s
+N=1000000 t=424551426 ns 0.009 GE/s
+N=1000000 t=470074217 ns 0.009 GE/s
+N=1000000 t=465984595 ns 0.009 GE/s
+N=1000000 t=430646710 ns 0.009 GE/s
+N=1000000 t=392870957 ns 0.010 GE/s
+N=1000000 t=437398884 ns 0.009 GE/s
+N=1000000 t=430322234 ns 0.009 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=468715867 ns 0.009 GE/s
+N=1000000 t=251826436 ns 0.016 GE/s
+N=1000000 t=311737431 ns 0.013 GE/s
+N=1000000 t=240768912 ns 0.017 GE/s
+N=1000000 t=240780692 ns 0.017 GE/s
+N=1000000 t=265238901 ns 0.015 GE/s
+N=1000000 t=264161988 ns 0.015 GE/s
+N=1000000 t=222211019 ns 0.018 GE/s
+N=1000000 t=274127094 ns 0.015 GE/s
+N=1000000 t=266295311 ns 0.015 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 1 E 10000000
+Number of procs=1
+graphType=E
+N=10000000
+N=10000000 t=14406236770 ns 0.003 GE/s
+N=10000000 t=14313722128 ns 0.003 GE/s
+N=10000000 t=14313634465 ns 0.003 GE/s
+N=10000000 t=14294835490 ns 0.003 GE/s
+N=10000000 t=14277983412 ns 0.003 GE/s
+N=10000000 t=14274287432 ns 0.003 GE/s
+N=10000000 t=14257872282 ns 0.003 GE/s
+N=10000000 t=14228103739 ns 0.003 GE/s
+N=10000000 t=14374620280 ns 0.003 GE/s
+N=10000000 t=14297460809 ns 0.003 GE/s
+Completed iterations for N=10000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 2 E 10000000
+Error occurred during initialization of VM
+Could not reserve enough space for object heap
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 4 E 10000000
+Number of procs=4
+graphType=E
+N=10000000
+N=10000000 t=4646192549 ns 0.009 GE/s
+N=10000000 t=4456100856 ns 0.009 GE/s
+N=10000000 t=4418345713 ns 0.009 GE/s
+N=10000000 t=4337408115 ns 0.009 GE/s
+N=10000000 t=4328914625 ns 0.009 GE/s
+N=10000000 t=4365208810 ns 0.009 GE/s
+N=10000000 t=4280917912 ns 0.009 GE/s
+N=10000000 t=4440912237 ns 0.009 GE/s
+N=10000000 t=4257292400 ns 0.009 GE/s
+N=10000000 t=4396236582 ns 0.009 GE/s
+Completed iterations for N=10000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 8 E 10000000
+Error occurred during initialization of VM
+Could not reserve enough space for object heap
+#
+# Run: 3
+#
+
+## Size: 100000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 1 E 100000
+Number of procs=1
+graphType=E
+N=100000
+N=100000 t=257099091 ns 0.002 GE/s
+N=100000 t=89035928 ns 0.004 GE/s
+N=100000 t=96383542 ns 0.004 GE/s
+N=100000 t=96172952 ns 0.004 GE/s
+N=100000 t=96088667 ns 0.004 GE/s
+N=100000 t=96155355 ns 0.004 GE/s
+N=100000 t=82659774 ns 0.005 GE/s
+N=100000 t=100381046 ns 0.004 GE/s
+N=100000 t=98005165 ns 0.004 GE/s
+N=100000 t=98027524 ns 0.004 GE/s
+Completed iterations for N=100000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 2 E 100000
+Number of procs=2
+graphType=E
+N=100000
+N=100000 t=180945298 ns 0.002 GE/s
+N=100000 t=121608004 ns 0.003 GE/s
+N=100000 t=105297516 ns 0.004 GE/s
+N=100000 t=108688599 ns 0.004 GE/s
+N=100000 t=118942555 ns 0.003 GE/s
+N=100000 t=109592020 ns 0.004 GE/s
+N=100000 t=129316742 ns 0.003 GE/s
+N=100000 t=119409238 ns 0.003 GE/s
+N=100000 t=110415696 ns 0.004 GE/s
+N=100000 t=118756846 ns 0.003 GE/s
+Completed iterations for N=100000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 4 E 100000
+Number of procs=4
+graphType=E
+N=100000
+N=100000 t=150482497 ns 0.003 GE/s
+N=100000 t=74561539 ns 0.005 GE/s
+N=100000 t=78706800 ns 0.005 GE/s
+N=100000 t=71885195 ns 0.006 GE/s
+N=100000 t=75808281 ns 0.005 GE/s
+N=100000 t=78599984 ns 0.005 GE/s
+N=100000 t=52550796 ns 0.008 GE/s
+N=100000 t=93706366 ns 0.004 GE/s
+N=100000 t=80172232 ns 0.005 GE/s
+N=100000 t=67454538 ns 0.006 GE/s
+Completed iterations for N=100000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 8 E 100000
+Number of procs=8
+graphType=E
+N=100000
+N=100000 t=200452093 ns 0.002 GE/s
+N=100000 t=38982447 ns 0.010 GE/s
+N=100000 t=48229616 ns 0.008 GE/s
+N=100000 t=41612296 ns 0.010 GE/s
+N=100000 t=35188092 ns 0.011 GE/s
+N=100000 t=56614235 ns 0.007 GE/s
+N=100000 t=46878872 ns 0.009 GE/s
+N=100000 t=48044160 ns 0.008 GE/s
+N=100000 t=42914888 ns 0.009 GE/s
+N=100000 t=47527304 ns 0.008 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=1232088444 ns 0.003 GE/s
+N=1000000 t=1174327409 ns 0.003 GE/s
+N=1000000 t=1174703089 ns 0.003 GE/s
+N=1000000 t=1176052010 ns 0.003 GE/s
+N=1000000 t=1176202285 ns 0.003 GE/s
+N=1000000 t=1177526984 ns 0.003 GE/s
+N=1000000 t=1160164706 ns 0.003 GE/s
+N=1000000 t=1179918979 ns 0.003 GE/s
+N=1000000 t=1180337044 ns 0.003 GE/s
+N=1000000 t=1157237307 ns 0.003 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=778343493 ns 0.005 GE/s
+N=1000000 t=645262269 ns 0.006 GE/s
+N=1000000 t=642368808 ns 0.006 GE/s
+N=1000000 t=651803429 ns 0.006 GE/s
+N=1000000 t=660866721 ns 0.006 GE/s
+N=1000000 t=639362906 ns 0.006 GE/s
+N=1000000 t=672652865 ns 0.006 GE/s
+N=1000000 t=659776040 ns 0.006 GE/s
+N=1000000 t=649623971 ns 0.006 GE/s
+N=1000000 t=702711708 ns 0.006 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=608192660 ns 0.007 GE/s
+N=1000000 t=436680017 ns 0.009 GE/s
+N=1000000 t=489771963 ns 0.008 GE/s
+N=1000000 t=472189104 ns 0.008 GE/s
+N=1000000 t=450779012 ns 0.009 GE/s
+N=1000000 t=434463010 ns 0.009 GE/s
+N=1000000 t=452083904 ns 0.009 GE/s
+N=1000000 t=491770659 ns 0.008 GE/s
+N=1000000 t=437184759 ns 0.009 GE/s
+N=1000000 t=419871074 ns 0.010 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=510326585 ns 0.008 GE/s
+N=1000000 t=275707359 ns 0.015 GE/s
+N=1000000 t=282275543 ns 0.014 GE/s
+N=1000000 t=290134855 ns 0.014 GE/s
+N=1000000 t=300171048 ns 0.013 GE/s
+N=1000000 t=273534818 ns 0.015 GE/s
+N=1000000 t=285774395 ns 0.014 GE/s
+N=1000000 t=346137953 ns 0.012 GE/s
+N=1000000 t=259716532 ns 0.015 GE/s
+N=1000000 t=285558417 ns 0.014 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 1 E 10000000
+Number of procs=1
+graphType=E
+N=10000000
+N=10000000 t=13983627526 ns 0.003 GE/s
+N=10000000 t=13896521501 ns 0.003 GE/s
+N=10000000 t=13907384034 ns 0.003 GE/s
+N=10000000 t=13862871311 ns 0.003 GE/s
+N=10000000 t=13887235326 ns 0.003 GE/s
+N=10000000 t=13869838285 ns 0.003 GE/s
+N=10000000 t=13884879717 ns 0.003 GE/s
+N=10000000 t=13870305618 ns 0.003 GE/s
+N=10000000 t=13886361516 ns 0.003 GE/s
+N=10000000 t=13867418361 ns 0.003 GE/s
+Completed iterations for N=10000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 2 E 10000000
+Error occurred during initialization of VM
+Could not reserve enough space for object heap
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 4 E 10000000
+Number of procs=4
+graphType=E
+N=10000000
+N=10000000 t=4894781702 ns 0.008 GE/s
+N=10000000 t=4624744575 ns 0.009 GE/s
+N=10000000 t=4629981388 ns 0.009 GE/s
+N=10000000 t=4683304935 ns 0.009 GE/s
+N=10000000 t=4593156507 ns 0.009 GE/s
+N=10000000 t=4583685833 ns 0.009 GE/s
+N=10000000 t=4557764457 ns 0.009 GE/s
+N=10000000 t=4581845806 ns 0.009 GE/s
+N=10000000 t=4509383287 ns 0.009 GE/s
+N=10000000 t=4575395575 ns 0.009 GE/s
+Completed iterations for N=10000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 8 E 10000000
+Number of procs=8
+graphType=E
+N=10000000
+N=10000000 t=2914908397 ns 0.014 GE/s
+N=10000000 t=2663616859 ns 0.015 GE/s
+N=10000000 t=2751948301 ns 0.015 GE/s
+N=10000000 t=2581414349 ns 0.015 GE/s
+N=10000000 t=2598117453 ns 0.015 GE/s
+N=10000000 t=2632766996 ns 0.015 GE/s
+N=10000000 t=2456195837 ns 0.016 GE/s
+N=10000000 t=2507191924 ns 0.016 GE/s
+N=10000000 t=2548468730 ns 0.016 GE/s
+N=10000000 t=2592360945 ns 0.015 GE/s
+Completed iterations for N=10000000
+
+############################################################
+# End Time: 01/17/2008 - 04:10:24
+############################################################

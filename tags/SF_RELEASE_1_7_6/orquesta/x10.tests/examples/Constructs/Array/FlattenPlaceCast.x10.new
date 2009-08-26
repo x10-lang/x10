@@ -1,0 +1,4 @@
+****Error: examples/Constructs/Array/FlattenPlaceCast.x10:29:20:29:20:0:-1:9: ") UnaryExpressionNotPlusMinus" inserted to complete scope
+****Error: examples/Constructs/Array/FlattenPlaceCast.x10:29:20:29:20:0:-1:9: ";" inserted to complete scope
+****Error: examples/Constructs/Array/FlattenPlaceCast.x10:10:15:10:15:0:-1:5: "." expected instead of this input
+****Error: examples/Constructs/Array/FlattenPlaceCast.x10:29:20:29:20:0:-1:3: "!" expected after this token

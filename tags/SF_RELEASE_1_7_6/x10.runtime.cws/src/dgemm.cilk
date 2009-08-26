@@ -1,0 +1,99 @@
+/* Copyright (c) 2006 Bradley C. Kuszmaul */
+#include <mkl.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+
+CBLAS_ORDER order = CblasColMajor;
+CBLAS_TRANSPOSE transA = CblasNoTrans, transB = CblasNoTrans;
+double beta=1;
+
+#define BASE 512
+
+cilk void mminto (double *A, double *B, double *C, int m, int n, int k, double alpha, long columnsep)
+     // C += alpha*(A*B)
+     // A is m by k
+     // B is k by n
+     // C is m by n
+{
+  if (m+n+k<BASE) {
+    cblas_dgemm(order, transA, transB, m, n, k, alpha,
+		A, columnsep, B, columnsep, beta, C, columnsep);
+  } else if (m>=n && m>=k) {
+    /* The biggest dimension is m. */
+    spawn mminto(A, B, C, m/2, n, k, alpha, columnsep);
+    spawn mminto(A+m/2, B, C+m/2, m-m/2, n, k, alpha, columnsep);
+  } else if (n>=m && n>=k) {
+    /* The biggest dimension is n */
+    spawn mminto(A, B, C, m, n/2, k, alpha, columnsep);
+    spawn mminto(A, B+(n/2)*columnsep, C+(n/2)*columnsep, m, n-n/2, k, alpha, columnsep);
+  } else {
+    /* The biggest dimension is k. */
+    spawn mminto(A , B, C, m, n, k/2, alpha, columnsep);
+    // Need to store into another variable then add them. Or a sync.
+    sync;
+    spawn mminto(A+(k/2)*columnsep, B+k/2, C, m, n, k-k/2, alpha, columnsep);
+  }
+}
+
+int difflarge(double a, double b) {
+  double d = a-b;
+
+  double relda = d/a;
+  double reldb = d/b;
+  if (d<0) d=-d;
+  if (relda<0) relda=-relda;
+  if (reldb<0) reldb=-reldb;
+  if (d<1e-9) return 0;
+  if (relda>1e-9) return 1;
+  if (reldb>1e-9) return 1;
+  return 0;
+}
+
+double *A, *B, *Cme;
+
+cilk void init1 (long i, long n) {
+  long j;
+  for (j=0; j<n; j++) {
+    A[i+j] = 3*(i+j);//(double)(random())/RAND_MAX;
+    B[i+j] = 3*(i+j)+1;//(double)(random())/RAND_MAX;
+    Cme[i+j] = 3*(i+j)+2;//(double)(random())/RAND_MAX;
+  }
+}
+
+cilk void init (long n) {
+  long i;
+  for (i=0; i<n*n; i+=n) {
+    spawn init1(i, n);
+  }
+}
+
+cilk void test_n(int n) {
+  double alpha = -1;
+  int i;
+  struct timeval tv0,tv1,tv2;
+  double tdiff_rec, tdiff_mkl;
+  long long n3 = ((long long)n)*((long long)n)*((long long)n);
+  A=malloc((long)n*(long)n*sizeof(double));
+  B=malloc((long)n*(long)n*sizeof(double));
+  Cme=malloc((long)n*(long)n*sizeof(double));
+  assert(A && B && Cme);
+  spawn init(n); sync;
+  gettimeofday(&tv0,0);
+  spawn mminto(A, B, Cme, n, n, n, alpha, n);
+  sync;
+  gettimeofday(&tv1,0);
+  tdiff_rec = tv1.tv_sec-tv0.tv_sec + 1e-6*(tv1.tv_usec-tv0.tv_usec);
+  printf("%dx%d matrix multiply %lld flops in %fs = %fMFLOPS\n",
+	 n,n, n3, tdiff_rec, 2*n3*1e-6/tdiff_rec);
+}
+
+cilk int main (int argc, char *argv[]) {
+  assert(argc==2);
+  spawn test_n(atoi(argv[1]));
+  sync;
+  return 0;
+}
+
