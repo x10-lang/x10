@@ -9,18 +9,14 @@
 package x10.runtime;
 
 import x10.util.Random;
-import x10.compiler.Native;
 
 /**
  * @author tardieu
  */
-public value Pool {
-	// the state of the pool
-	static class That {
-		var size:Int; // the number of workers in the pool
-		var spares:Int = 0; // the number of spare workers in the pool
-	}
-	private val that:That;
+public class Pool(latch:Latch) implements ()=>Void {
+	private var size:Int; // the number of workers in the pool
+
+	private var spares:Int = 0; // the number of spare workers in the pool
 
 	private val lock = new Lock();
 
@@ -31,97 +27,76 @@ public value Pool {
 
 	// the workers in the pool
 	private val workers:Rail[Worker];
+	
+	// the threads in the pool
+	private val threads:Rail[Thread];
 
-	private def this(size:Int) {
-	    val t = new That();
-	    t.size = size;
-	    that = t;
-	    workers =  Rail.makeVar[Worker](MAX);
-	}
-        public static def make(size:Int) {
-	    val pool = new Pool(size);
-	    // allocate and assign worker for the master thread
-	    pool.workers(0) = new Worker(pool, 0);
-	    Thread.currentThread().worker(pool.workers(0));
+	def this(latch:Latch, size:Int) {
+		property(latch);
+	    this.size = size;
+	    val workers = Rail.makeVar[Worker](MAX);
+	    val threads = Rail.makeVar[Thread](size);
+
+	    // worker for the master thread
+	    val master = new Worker(latch, 0);
+	    workers(0) = master;
+	    Thread.currentThread().worker(master);
 	    
-	    // allocate and start other workers
+	    // other workers
 	    for (var i:Int = 1; i<size; i++) {
-		val worker = new Worker(pool, i);
-		pool.workers(i) = worker;
-		val thread = new Thread(()=>worker.apply(), "thread-" + i);
-		thread.worker(worker);
-		thread.start();
+			val worker = new Worker(latch, i);
+			workers(i) = worker;
+			threads(i) = new Thread(worker.apply.(), "thread-" + i);
+			threads(i).worker(worker);
 	    }
-	    return pool;
+	    this.workers = workers;
+	    this.threads = threads;
 	}
 
-	public def worker():Worker = Thread.currentThread().worker();
-	
-	// submit an activity to the pool (global method)
-	def execute(activity:Activity):Void {
-        NativeRuntime.runAtLocal(that.location.id, ()=>{
-			worker().push(activity);
-		});
+	public def apply():Void {
+	    for (var i:Int = 1; i<size; i++) {
+	    	threads(i).start();
+	    }
+	    workers(0)();
 	}
 	
-	// notify the pool a worker is about to execute a blocking operation (global method)
+	
+	// all methods are local
+	
+	// notify the pool a worker is about to execute a blocking operation
 	def increase():Void {
-		NativeRuntime.runAtLocal(that.location.id, ()=>{
-			lock.lock();
-			if (that.spares > 0) {
-				// if a spare is available increase parallelism
-				that.spares--;
-				lock.unlock();
-				semaphore.release();
-			} else {
-				// allocate and start a new worker
-				val i = that.size++;
-				lock.unlock();
-//                NativeRuntime.println("INCREASE: " + i);
-				assert (i < MAX);
-				if (i >= MAX) {
-					NativeRuntime.println("TOO MANY THREADS... ABORTING");
-					System.exit(1);
-				}
-				val worker = new Worker(this, i);
-				workers(i) = worker;
-				val thread = new Thread(()=>worker.apply(), "thread-" + i);
-				thread.worker(worker);
-				thread.start();
-			}
-		});
-    }
-
-	// notify the pool a worker resumed execution after a blocking operation (global method)
-	def decrease(n:Int):Void {
-		NativeRuntime.runAtLocal(that.location.id, ()=>{
-			// increase number or spares
-			lock.lock();
-			that.spares += n;
+		lock.lock();
+		if (spares > 0) {
+			// if a spare is available increase parallelism
+			spares--;
 			lock.unlock();
-			// reduce parallelism
-			semaphore.reduce(n);
-		});
+			semaphore.release();
+		} else {
+			// allocate and start a new worker
+			val i = size++;
+			lock.unlock();
+			assert (i < MAX);
+			if (i >= MAX) {
+				NativeRuntime.println("TOO MANY THREADS... ABORTING");
+				System.exit(1);
+			}
+			val worker = new Worker(latch, i);
+			workers(i) = worker;
+			val thread = new Thread(worker.apply.(), "thread-" + i);
+			thread.worker(worker);
+			thread.start();
+		}
     }
 
-	// steal activity from given worker
-	private def steal(var r:Int):Activity {
-		if (null != workers(r)) { // avoid race with increase method
-			return workers(r).steal();
-		} else {
-			return null;
-		}
-	}
-
-	// run pending activities while waiting on conditioon (global method)
-	def join(latch:Latch) {
-		NativeRuntime.runAtLocal(that.location.id, ()=>{
-			worker().join(latch);
-		});
-	}
-	
-	// return the number of pending activities for the current worker
-	def pendingActivityCount():Int = worker().size();
+	// notify the pool a worker resumed execution after a blocking operation
+	def decrease(n:Int):Void {
+		// increase number or spares
+		lock.lock();
+		spares += n;
+		lock.unlock();
+		// reduce parallelism
+		semaphore.reduce(n);
+    }
 
 	// release permit (called by worker upon termination)
 	def release() {
@@ -130,26 +105,23 @@ public value Pool {
 
 	// scan workers for activity to steal
 	def scan(random:Random, latch:Latch, block:Boolean):Activity {
-		var activity:Activity;
-		var next:Int = random.nextInt(that.size);
+		var activity:Activity = null;
+		var next:Int = random.nextInt(size);
 		for (;;) {
-			activity = steal(next);
-			if (null != activity || latch.get()) return activity;
-			if (Thread.currentThread() == Runtime.listener) {
-				NativeRuntime.event_probe();
-				activity = worker().poll();
-				if (null != activity || latch.get()) return activity;
-			} else {
-				if (semaphore.available() < 0) {
-					if (block) {
-						semaphore.release();
-						semaphore.acquire();
-					} else {
-						return activity;
-					}
+			NativeRuntime.event_probe();
+			if (null != workers(next)) { // avoid race with increase method
+				activity = workers(next).steal();
+			}
+			if (null != activity || latch()) return activity;
+			if (semaphore.available() < 0) {
+				if (block) {
+					semaphore.release();
+					semaphore.acquire();
+				} else {
+					return activity;
 				}
 			}
-			if (++next == that.size) next = 0;
+			if (++next == size) next = 0;
 		}
 	}
 }

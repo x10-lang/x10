@@ -14,8 +14,6 @@ import x10.util.Stack;
  * @author tardieu
  */
 class Semaphore {
-    private var park:Boolean;
-
     private val lock = new Lock();
     
     private val threads = new Stack[Thread]();
@@ -33,12 +31,7 @@ class Semaphore {
 	    permits += n;
 	    val m = min(permits, min(n, threads.size()));
         for (var i:Int = 0; i<m; i++) {
-            val thread = threads.pop();
-            if (thread == Runtime.listener) {
-                park = false;
-            } else {
-                Thread.unpark(thread);
-            }
+            Thread.unpark(threads.pop());
         }
     	lock.unlock();
     }
@@ -53,26 +46,17 @@ class Semaphore {
     	lock.unlock();
     }
 
-    private def park():Void {
+    def acquire():Void {
+    	lock.lock();
         val thread = Thread.currentThread();
-        threads.push(thread);
-        while (threads.contains(thread)) {
-            if (thread == Runtime.listener) {
-                park = true;
-                lock.unlock();
-                while (park) NativeRuntime.event_probe();
-                lock.lock();
-            } else {
+    	while (permits <= 0) {
+            threads.push(thread);
+            while (threads.contains(thread)) {
                 lock.unlock();
                 Thread.park();
                 lock.lock();
             }
-        }
-    }
-    
-    def acquire():Void {
-    	lock.lock();
-    	while (permits <= 0) park();
+    	}
    		--permits;
    		lock.unlock();
     }

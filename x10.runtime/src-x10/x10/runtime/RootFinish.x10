@@ -25,14 +25,13 @@ class RootFinish extends Latch implements FinishState {
     public def incr():Void {}
     
     def this() {
-	val c= Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
-        c(here.id) = 1;
-	counts = c;
-
+		val c = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
+	    c(here.id) = 1;
+		counts = c;
     }
     
     def waitForFinish(safe:Boolean):Void {
-        if (!NativeRuntime.NO_STEALS && safe) Runtime.pool.join(this);
+        if (!NativeRuntime.NO_STEALS && safe) Runtime.join(this);
         await();
         Runtime.removeRoot(this);
         if (null != exceptions) {
@@ -56,7 +55,7 @@ class RootFinish extends Latch implements FinishState {
             counts(i) += rail(i);
             if (counts(i) != 0) b = false;
         }
-        if (b) set();
+        if (b) release();
         unlock();
     }
 
@@ -80,7 +79,7 @@ class RootFinish extends Latch implements FinishState {
                 return;
             }
         }
-        set();
+        release();
         unlock();
     }
     

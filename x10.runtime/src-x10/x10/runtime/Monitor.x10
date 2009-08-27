@@ -16,11 +16,6 @@ import x10.util.Stack;
  */
 class Monitor {
  	/**
- 	 * Set to false to interrupt listener thread
- 	 */
-   	private var park:Boolean;
-
- 	/**
  	 * Instance lock
  	 */
  	private val lock = new Lock();
@@ -43,36 +38,30 @@ class Monitor {
 	 * Must be called while holding the lock
 	 * Must not be called while holding the lock more than once
 	 */
-    def park():Void {
-    	Runtime.pool.increase();
+    def await():Void {
+    	Runtime.increaseParallelism();
     	val thread = Thread.currentThread();
     	threads.push(thread);
     	while (threads.contains(thread)) {
-	   		if (thread == Runtime.listener) {
-	   			park = true;
-		   		unlock();
-	   			while (park) NativeRuntime.event_probe();
-	   			lock();
-			} else {
-		   		unlock();
-	   			Thread.park();
-	   			lock();
-			}
+	   		unlock();
+   			Thread.park();
+   			lock();
 		}
     }
 
  	/**
 	 * Unpark every thread
      * Decrement blocked thread count
+	 * Release the lock
 	 * Must be called while holding the lock
 	 */
-    def unpark():Void {
+    def release():Void {
     	val size = threads.size();
     	if (size > 0) {
-	    	Runtime.pool.decrease(size);
-	    	park = false;
+	    	Runtime.decreaseParallelism(size);
 	    	for (var i:Int = 0; i<size; i++) Thread.unpark(threads.pop());
 	    }
+    	unlock();
     }
 
 	/**
