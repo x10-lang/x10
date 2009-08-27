@@ -42,10 +42,6 @@ class Activity(finishState:FinishState, safe:Boolean) {
         this.body = body;
     }
 
-    static def make(body:()=>Void, rid:RID, safe:Boolean):Activity {
-		return new Activity(body, Runtime.findFinish(rid), safe);
-	}
-
     /**
 	 * Create clocked activity.
 	 */
@@ -55,10 +51,6 @@ class Activity(finishState:FinishState, safe:Boolean) {
 		clockPhases = cp;
 	    cp.register(clocks, phases);
 	}
-
-    static def make(body:()=>Void, rid:RID, clocks:ValRail[Clock], phases:ValRail[Int]):Activity {
-        return new Activity(body, Runtime.findFinish(rid), clocks, phases);
-    }
 
 	/**
 	 * Run activity.

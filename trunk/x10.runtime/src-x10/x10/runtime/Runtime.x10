@@ -32,9 +32,7 @@ public value Runtime {
 	
 	// per place members
 	private val monitor = new Monitor();
-	private val finishTable = new HashMap[RID, FinishState]();
-	private val finishCount = new AtomicInteger(0);
-	private val finishLock = new Lock();
+	private val finishStates = new FinishStates();
 
 	// constructor
 
@@ -87,7 +85,7 @@ public value Runtime {
 				}
 			}
 			if (Thread.currentThread().loc() == 0) {
-				runtime().execute(new Activity(body, rootFinish, true));
+				execute(new Activity(body, rootFinish, true));
 				pool();
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
@@ -109,57 +107,13 @@ public value Runtime {
 	static def report():Void {
 		runtime().pool.release();
 	}
-
-	
-	def putFinish(finishState:FinishState):Void {
-        if (finishState.rid().id == -1) {
-            finishLock.lock();
-            if (finishState.rid().id == -1) {
-                val rootFinish = finishState as RootFinish;
-                rootFinish.rid = new RID(here, finishCount.getAndIncrement());
-                finishTable.put(rootFinish.rid, rootFinish);
-            }
-            finishLock.unlock();
-        }
-    }
     
-    static def findFinish(rid:RID):FinishState = runtime().findFinish2(rid);
-    
-    private def findFinish2(rid:RID):FinishState {
-        finishLock.lock();
-        val finishState = finishTable.getOrElse(rid, null);
-        if (null != finishState) {
-            finishLock.unlock();
-            return finishState;
-        }
-        val remoteFinish = new RemoteFinish(rid);
-        finishTable.put(rid, remoteFinish);
-        finishLock.unlock();
-        return remoteFinish;
-    }
-    
-    static def findRoot(rid:RID):RootFinish = runtime().findRoot2(rid);
+    static def findRoot(rid:RID):RootFinish = runtime().finishStates.findRoot(rid);
     	
-    private def findRoot2(rid:RID):RootFinish {
-        finishLock.lock();
-        val finishState = finishTable.getOrElse(rid, null);
-        finishLock.unlock();
-        return finishState as RootFinish;
-    }
+    static def removeRoot(rootFinish:RootFinish):Void = runtime().finishStates.removeRoot(rootFinish);
     
-    static def removeRoot(rootFinish:RootFinish):Void = runtime().removeRoot2(rootFinish);
-    
-    private def removeRoot2(rootFinish:RootFinish):Void{
-        if (rootFinish.rid.id != -1) {
-            finishLock.lock();
-            finishTable.remove(rootFinish.rid);
-            finishLock.unlock();
-        }
-    }
 
-
-
-	// async -> at statement -> at expression -> future
+    // async -> at statement -> at expression -> future
 	// do not introduce cycles!!!
 
 	/**
@@ -170,11 +124,11 @@ public value Runtime {
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(place);
 		if (place.id == Thread.currentThread().loc()) {
-			runtime().execute(new Activity(body, state, clocks, phases));
+			execute(new Activity(body, state, clocks, phases));
 		} else {
-		    runtime().putFinish(state);
+		    runtime().finishStates.put(state);
 	        val rid = state.rid();
-            val c = ()=>runtime().execute(Activity.make(body, rid, clocks, phases));
+            val c = ()=>execute(new Activity(body, runtime().finishStates.get(rid), clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -184,14 +138,14 @@ public value Runtime {
 		state.notifySubActivitySpawn(place);
 		val ok = safe();
 		if (place.id == Thread.currentThread().loc()) {
-			runtime().execute(new Activity(body, state, ok));
+			execute(new Activity(body, state, ok));
 		} else {
-		    runtime().putFinish(state);
+		    runtime().finishStates.put(state);
 	        val rid = state.rid();
             if (ok) {
-                NativeRuntime.runAt(place.id, ()=>runtime().execute(Activity.make(body, rid, true)));
+                NativeRuntime.runAt(place.id, ()=>execute(new Activity(body, runtime().finishStates.get(rid), true)));
             } else {
-                NativeRuntime.runAt(place.id, ()=>runtime().execute(Activity.make(body, rid, false)));
+                NativeRuntime.runAt(place.id, ()=>execute(new Activity(body, runtime().finishStates.get(rid), false)));
             }
 		}
 	}
@@ -200,13 +154,13 @@ public value Runtime {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(here);
-		runtime().execute(new Activity(body, state, clocks, phases));
+		execute(new Activity(body, state, clocks, phases));
 	}
 
 	public static def runAsync(body:()=>Void):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(here);
-		runtime().execute(new Activity(body, state, safe()));
+		execute(new Activity(body, state, safe()));
 	}
 	
 	/**
@@ -364,34 +318,30 @@ public value Runtime {
 		return a.safe && (null == a.clockPhases);
 	}
 
-	// submit an activity to the pool (global method)
-	private def execute(activity:Activity):Void {
-        NativeRuntime.runAtLocal(pool.location.id, ()=>{
-			worker().push(activity);
-		});
-	}
-	
-	static def increaseParallelism() = runtime().increase();
-	
-	// notify the pool a worker is about to execute a blocking operation (global method)
-	private def increase():Void {
-		NativeRuntime.runAtLocal(pool.location.id, pool.increase.());
-    }
-
-	static def decreaseParallelism(n:Int) = runtime().decrease(n);
-
-	// notify the pool a worker resumed execution after a blocking operation (global method)
-	private def decrease(n:Int):Void {
-		NativeRuntime.runAtLocal(pool.location.id, ()=>pool.decrease(n));
-    }
-
-	// run pending activities while waiting on conditioon (global method)
-	static def join(latch:Latch) {
-		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
-	}
 
 	static def scan(random:Random, latch:Latch, block:Boolean):Activity {
 		return runtime().pool.scan(random, latch, block);
+	}
+
+	
+	// submit an activity to the pool
+	private static def execute(activity:Activity):Void {
+        NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().push(activity));
+	}
+	
+	// notify the pool a worker is about to execute a blocking operation
+	static def increaseParallelism():Void {
+		NativeRuntime.runAtLocal(runtime().pool.location.id, runtime().pool.increase.());
+    }
+
+	// notify the pool a worker resumed execution after a blocking operation
+	static def decreaseParallelism(n:Int) {
+		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>runtime().pool.decrease(n));
+    }
+
+	// run pending activities while waiting on condition
+	static def join(latch:Latch) {
+		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
 	}
 
 	static def run(activity:Activity):Void {
