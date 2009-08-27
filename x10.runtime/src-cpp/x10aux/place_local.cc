@@ -27,7 +27,8 @@ void place_local::initialize() {
 }
 
 x10_int place_local::nextId() {
-    assert(here == 0);
+    // hack to allow XRX to use PLS without distribution of statics
+    assert(_nextId==0 || here==0);
     _lock->lock();
     x10_int id = _nextId++;
     _lock->unlock();
