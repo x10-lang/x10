@@ -97,7 +97,7 @@
 	
 	 <target name="get.imp.artifacts">
 	 	<!-- imp.cache.location is the local cache of the (unzipped) IMP update site   -->
-	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp103"/>
+	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp104"/>
 	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
 	           <fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
 	        </copy>
