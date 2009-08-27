@@ -1295,8 +1295,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 for (FieldInstance fi : currentClass.fields()) {
                     if (fi.flags().isStatic())
                         continue;
+/* [DC] see if removing this breaks anything
                     if (!xts.isValueType(fi.type(), context))
                         continue;
+*/
                     String name = fi.name().toString();
                     sw.write("if (!"+STRUCT_EQUALS+"(this->" + mangled_field_name(name) +
                              ", that->" + mangled_field_name(name) + "))");
