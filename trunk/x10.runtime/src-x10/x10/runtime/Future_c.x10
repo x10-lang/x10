@@ -35,7 +35,7 @@ public value Future_c[T] extends Future[T] {
 		result = new GrowableRail[T]();
 	}
 	
-    public def forced():boolean = at (latch.location) latch.get();
+    public def forced():boolean = at (latch.location) latch();
     
     public def apply():T = force();
 
@@ -48,7 +48,7 @@ public value Future_c[T] extends Future[T] {
 	                throw e as Error;
 	            if (e instanceof RuntimeException)
 	                throw e as RuntimeException;
-	            assert false as boolean;
+	            assert false;
 	        }
 	        result(0)
 		};
@@ -57,10 +57,10 @@ public value Future_c[T] extends Future[T] {
 	def run():Void {
 		try {
         	finish result.add(eval());
-          	latch.set();
+          	latch.release();
         } catch (t:Throwable) {
             exception.add(t);
-          	latch.set();
+          	latch.release();
         }
 	}
 	

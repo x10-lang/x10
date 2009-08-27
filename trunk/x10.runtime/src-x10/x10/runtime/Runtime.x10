@@ -10,6 +10,7 @@ package x10.runtime;
 
 import x10.util.GrowableRail;
 import x10.util.HashMap;
+import x10.util.Random;
 import x10.util.Stack;
 
 import x10.util.concurrent.atomic.AtomicInteger;
@@ -20,120 +21,84 @@ import x10.io.Console;
  * @author tardieu
  */
 public value Runtime {
-	// TODO place-cast of null?
 
-	private def this():Runtime {}
-	
-	const latch = new RootFinish();
+	// for debugging
+	const PRINT_STATS = false;
 
-	private const finishTables = ValRail.make[HashMap[RID, FinishState]](Place.MAX_PLACES, (Int)=>new HashMap[RID, FinishState]());
-	    
-	private const finishLock = new Lock();
+	// instance fields
 	
-	const finishCount = new AtomicInteger(0);
+	// per process members
+	private val pool:Pool;
 	
-    static def putFinish(finishState:FinishState):Void {
-        if (finishState.rid().id == -1) {
-            finishLock.lock();
-            if (finishState.rid().id == -1) {
-                val rootFinish = finishState as RootFinish;
-                rootFinish.rid = new RID(here, finishCount.getAndIncrement());
-                finishTables(here.id).put(rootFinish.rid, rootFinish);
-            }
-            finishLock.unlock();
-        }
-    }
-    
-    static def findFinish(rid:RID):FinishState {
-        finishLock.lock();
-        val finishState = finishTables(here.id).getOrElse(rid, null);
-        if (null != finishState) {
-            finishLock.unlock();
-            return finishState;
-        }
-        val remoteFinish = new RemoteFinish(rid);
-        finishTables(here.id).put(rid, remoteFinish);
-        finishLock.unlock();
-        return remoteFinish;
-    }
-    
-    static def findRoot(rid:RID):RootFinish {
-        finishLock.lock();
-        val finishState = finishTables(here.id).getOrElse(rid, null);
-        finishLock.unlock();
-        return finishState as RootFinish;
-    }
-    
-    static def removeRoot(rootFinish:RootFinish):Void{
-        if (rootFinish.rid.id != -1) {
-            finishLock.lock();
-            finishTables(here.id).remove(rootFinish.rid);
-            finishLock.unlock();
-        }
-    }
-    
-	/**
-	 * Master thread running the runtime
-	 */
-	const master = Thread.currentThread();
+	// per place members
+	private val monitor = new Monitor();
+	private val finishTable = new HashMap[RID, FinishState]();
+	private val finishCount = new AtomicInteger(0);
+	private val finishLock = new Lock();
+
+	// constructor
+
+	private def this(pool:Pool):Runtime {
+		this.pool = pool;
+	}
 	
 	/**
-	 * Listener thread should process incoming messages instead of parking
+	 * The runtime instance associated with each place
 	 */
-	const listener = (master.loc() != 0 || !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? master : null;
-
-	// thread pool
+	private const runtime = PlaceLocalHandle.createHandle[Runtime]();
 	
 	/**
-	 * One thread pool per node
+	 * Return the current runtime
 	 */
-	const pool = Pool.make(NativeRuntime.INIT_THREADS);
+	private static def runtime():Runtime = runtime.get();
 
 	/**
-	 * A hueristic estimate of the amount of unscheduled activities
-	 * currently available to worker threads in the pool.
-	 * Intended for use in heuristics that control async spawning
-	 * based on the current amount of surplus work.
+	 * Return the current worker
 	 */
-	public static def surplusActivityCount():int = pool.pendingActivityCount();
-    
-	// current activity, current place
-
+	private static def worker():Worker = Thread.currentThread().worker();
+	
 	/**
 	 * Return the current activity
 	 */
-	private static def current():Activity = pool.worker().activity();
+	private static def activity():Activity = worker().activity();
 	
 	/**
 	 * Return the current place
 	 */
 	public static def here():Place = Thread.currentThread().location;
 
-	const PRINT_STATS = false;
-
-	// main
-	
+	/**
+	 * The amount of unscheduled activities currently available to this worker thread.
+	 * Intended for use in heuristics that control async spawning
+	 * based on the current amount of surplus work.
+	 */
+	public static def surplusActivityCount():int = worker().size();
+    
 	/**
 	 * Run main activity in a finish
 	 */
 	public static def start(body:()=>Void):Void {
+		val rootFinish = new RootFinish();
+		val pool = new Pool(rootFinish, NativeRuntime.INIT_THREADS);
 		try {
-			if (master.loc() == 0) {
-				pool.execute(new Activity(body, latch, true));
-				while (pool.worker().loop(latch, true));
+			for (var i:Int=0; i<Place.MAX_PLACES; i++) {
+				if (NativeRuntime.local(i)) {
+					NativeRuntime.runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
+				}
+			}
+			if (Thread.currentThread().loc() == 0) {
+				runtime().execute(new Activity(body, rootFinish, true));
+				pool();
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
-					val c = ()=>Runtime.quit();
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-						NativeRuntime.runAt(i, c);						
+						NativeRuntime.runAt(i, ()=>worker().latch.release());						
 					}
 				}
-				latch.waitForFinish(false);
+				rootFinish.waitForFinish(false);
 			} else {
-				while (pool.worker().loop(latch, true));
-//				rootFinish.finishState.waitForFinish(false);
+				pool();
 			}
 		} finally {
-			pool.release();
 			if (PRINT_STATS) {
 				NativeRuntime.println("ASYNC SENT AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsSent());
 				NativeRuntime.println("ASYNC RECV AT PLACE " + here.id +" = " + NativeRuntime.getAsyncsReceived());
@@ -141,9 +106,57 @@ public value Runtime {
 		}
 	}
 
-	static def quit():Void {
-		latch.set();
+	static def report():Void {
+		runtime().pool.release();
 	}
+
+	
+	def putFinish(finishState:FinishState):Void {
+        if (finishState.rid().id == -1) {
+            finishLock.lock();
+            if (finishState.rid().id == -1) {
+                val rootFinish = finishState as RootFinish;
+                rootFinish.rid = new RID(here, finishCount.getAndIncrement());
+                finishTable.put(rootFinish.rid, rootFinish);
+            }
+            finishLock.unlock();
+        }
+    }
+    
+    static def findFinish(rid:RID):FinishState = runtime().findFinish2(rid);
+    
+    private def findFinish2(rid:RID):FinishState {
+        finishLock.lock();
+        val finishState = finishTable.getOrElse(rid, null);
+        if (null != finishState) {
+            finishLock.unlock();
+            return finishState;
+        }
+        val remoteFinish = new RemoteFinish(rid);
+        finishTable.put(rid, remoteFinish);
+        finishLock.unlock();
+        return remoteFinish;
+    }
+    
+    static def findRoot(rid:RID):RootFinish = runtime().findRoot2(rid);
+    	
+    private def findRoot2(rid:RID):RootFinish {
+        finishLock.lock();
+        val finishState = finishTable.getOrElse(rid, null);
+        finishLock.unlock();
+        return finishState as RootFinish;
+    }
+    
+    static def removeRoot(rootFinish:RootFinish):Void = runtime().removeRoot2(rootFinish);
+    
+    private def removeRoot2(rootFinish:RootFinish):Void{
+        if (rootFinish.rid.id != -1) {
+            finishLock.lock();
+            finishTable.remove(rootFinish.rid);
+            finishLock.unlock();
+        }
+    }
+
 
 
 	// async -> at statement -> at expression -> future
@@ -157,11 +170,11 @@ public value Runtime {
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(place);
 		if (place.id == Thread.currentThread().loc()) {
-			pool.execute(new Activity(body, state, clocks, phases));
+			runtime().execute(new Activity(body, state, clocks, phases));
 		} else {
-		    putFinish(state);
+		    runtime().putFinish(state);
 	        val rid = state.rid();
-            val c = ()=>pool.execute(Activity.make(body, rid, clocks, phases));
+            val c = ()=>runtime().execute(Activity.make(body, rid, clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -171,14 +184,14 @@ public value Runtime {
 		state.notifySubActivitySpawn(place);
 		val ok = safe();
 		if (place.id == Thread.currentThread().loc()) {
-			pool.execute(new Activity(body, state, ok));
+			runtime().execute(new Activity(body, state, ok));
 		} else {
-		    putFinish(state);
+		    runtime().putFinish(state);
 	        val rid = state.rid();
             if (ok) {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(Activity.make(body, rid, true)));
+                NativeRuntime.runAt(place.id, ()=>runtime().execute(Activity.make(body, rid, true)));
             } else {
-                NativeRuntime.runAt(place.id, ()=>pool.execute(Activity.make(body, rid, false)));
+                NativeRuntime.runAt(place.id, ()=>runtime().execute(Activity.make(body, rid, false)));
             }
 		}
 	}
@@ -187,13 +200,13 @@ public value Runtime {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(here);
-		pool.execute(new Activity(body, state, clocks, phases));
+		runtime().execute(new Activity(body, state, clocks, phases));
 	}
 
 	public static def runAsync(body:()=>Void):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(here);
-		pool.execute(new Activity(body, state, safe()));
+		runtime().execute(new Activity(body, state, safe()));
 	}
 	
 	/**
@@ -229,7 +242,7 @@ public value Runtime {
     // place checks
 
 	/**
-	 * Place check
+	 * Java place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
 		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && !(o instanceof Worker) && (o as Ref).location.id != p.id) {
@@ -242,29 +255,12 @@ public value Runtime {
 
 	// atomic, await, when
 
-    public static def newMonitor(id:Int):Monitor {
-    	val loc = master.loc();
-    	val box = new GrowableRail[Monitor]();
-        val c = ()=>{
-    		val monitor = new Monitor();
-    		NativeRuntime.runAtLocal(loc, ()=>box.add(monitor));
-    	};
-    	NativeRuntime.runAtLocal(id, c);
-    	return box(0);
-    }
-
-	/**
-	 * One monitor per place in the current node
-	 */
-	private const monitors = Rail.makeVal[Monitor](NativeRuntime.MAX_PLACES,
-		(id:Nat)=> NativeRuntime.local(id) ? newMonitor(id) : null); 
- 	 		
 	/**
 	 * Lock current place
 	 * not reentrant!
 	 */
     public static def lock():Void {
-    	monitors(Thread.currentThread().loc()).lock();
+    	runtime().monitor.lock();
     }
 
 	/**
@@ -272,7 +268,7 @@ public value Runtime {
 	 * Must be called while holding the place lock
 	 */	 
     public static def await():Void {
-    	monitors(Thread.currentThread().loc()).park();
+    	runtime().monitor.await();
     }
 	
 	/**
@@ -280,9 +276,7 @@ public value Runtime {
 	 * Notify all
 	 */
     public static def release():Void {
-    	val loc = Thread.currentThread().loc();
-		monitors(loc).unpark();
-		monitors(loc).unlock();
+		runtime().monitor.release();
     }
 
 
@@ -296,12 +290,12 @@ public value Runtime {
 	 */
 	public static def sleep(millis:long):Boolean {
 		try {
-			pool.increase();
+			increaseParallelism();
 			Thread.sleep(millis);
-			pool.decrease(1);
+			decreaseParallelism(1);
 			return true;
 		} catch (e:InterruptedException) {
-			pool.decrease(1);
+			decreaseParallelism(1);
 			return false;
 		}
 	}
@@ -313,9 +307,9 @@ public value Runtime {
 	 * Return the clock phases for the current activity
 	 */
 	static def clockPhases():ClockPhases {
-		val activity = current();
-		if (null == activity.clockPhases) activity.clockPhases = new ClockPhases();
-		return activity.clockPhases;
+		val a = activity();
+		if (null == a.clockPhases) a.clockPhases = new ClockPhases();
+		return a.clockPhases;
 	}
 
 	/**
@@ -330,9 +324,9 @@ public value Runtime {
 	 * Return the innermost finish state for the current activity
 	 */
 	private static def currentState():FinishState {
-		val activity = current();
-		if (null == activity.finishStack || activity.finishStack.isEmpty()) return activity.finishState;
-		return activity.finishStack.peek();	
+		val a = activity();
+		if (null == a.finishStack || a.finishStack.isEmpty()) return a.finishState;
+		return a.finishStack.peek();	
 	}
 
 	/**
@@ -340,9 +334,9 @@ public value Runtime {
 	 * (i.e. within a finish statement).
 	 */
 	public static def startFinish():Void {
-		val activity = current();
-		if (null == activity.finishStack) activity.finishStack = new Stack[FinishState]();
-		activity.finishStack.push(new RootFinish());
+		val a = activity();
+		if (null == a.finishStack) a.finishStack = new Stack[FinishState]();
+		a.finishStack.push(new RootFinish());
 	}
 
 	/**
@@ -352,7 +346,7 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		val finishState = current().finishStack.pop();
+		val finishState = activity().finishStack.pop();
 		finishState.notifySubActivityTermination();
 		(finishState as RootFinish).waitForFinish(safe());
 	}
@@ -366,8 +360,42 @@ public value Runtime {
 	}
 	
 	private static def safe():Boolean {
-		val activity = current();
-		return activity.safe && (null == activity.clockPhases);
+		val a = activity();
+		return a.safe && (null == a.clockPhases);
+	}
+
+	// submit an activity to the pool (global method)
+	private def execute(activity:Activity):Void {
+        NativeRuntime.runAtLocal(pool.location.id, ()=>{
+			worker().push(activity);
+		});
+	}
+	
+	static def increaseParallelism() = runtime().increase();
+	
+	// notify the pool a worker is about to execute a blocking operation (global method)
+	private def increase():Void {
+		NativeRuntime.runAtLocal(pool.location.id, pool.increase.());
+    }
+
+	static def decreaseParallelism(n:Int) = runtime().decrease(n);
+
+	// notify the pool a worker resumed execution after a blocking operation (global method)
+	private def decrease(n:Int):Void {
+		NativeRuntime.runAtLocal(pool.location.id, ()=>pool.decrease(n));
+    }
+
+	// run pending activities while waiting on conditioon (global method)
+	static def join(latch:Latch) {
+		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
+	}
+
+	static def scan(random:Random, latch:Latch, block:Boolean):Activity {
+		return runtime().pool.scan(random, latch, block);
+	}
+
+	static def run(activity:Activity):Void {
+		NativeRuntime.runAtLocal(activity.location.id, activity.run.());
 	}
 }
 

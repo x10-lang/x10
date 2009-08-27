@@ -12,26 +12,23 @@ package x10.runtime;
  * Boolean latch
  * @author tardieu
  */
-class Latch extends Monitor {
+class Latch extends Monitor implements ()=>Boolean {
 	private var state:Boolean = false;
 	
-    def set():Void {
+    public def release():Void {
     	lock();
 	    state = true;
-	    unpark();
-    	unlock();
+	    super.release();
     }
 
-    def await():Void {
+    public def await():Void {
     	// avoid locking if state == true
     	if (!state) {
 	    	lock();
-	    	while (!state) park();
+	    	while (!state) super.await();
             unlock();
 		}
     }
 	
-    def get():Boolean {
-        return state; // memory model?
-    }
+    public def apply():Boolean = state; // memory model?
 }
