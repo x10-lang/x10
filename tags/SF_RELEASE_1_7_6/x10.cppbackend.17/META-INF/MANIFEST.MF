@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Cpp Back-End 17
 Bundle-SymbolicName: x10.cppbackend.17
-Bundle-Version: 1.0.0
+Bundle-Version: 1.7.6.0
 Export-Package: polyglot.ext.x10cpp,
  polyglot.ext.x10cpp.ast,
  polyglot.ext.x10cpp.debug,
