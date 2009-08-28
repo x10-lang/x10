@@ -105,6 +105,7 @@
 	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
 	            <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.doc_*.jar"/>
 	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.java.hosted_*.jar"/>
 	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapi_*.jar"/>
 	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapifier_*.jar"/>
 	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.xform_*.jar"/>
