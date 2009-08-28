@@ -17,7 +17,7 @@
    <requires>
       <import feature="lpg.runtime" version="2.0.17" match="greaterOrEqual"/>
       <import feature="polyglot3" version="3.1.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="0.1.99" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.101" match="greaterOrEqual"/>
    </requires>
 
    <plugin
