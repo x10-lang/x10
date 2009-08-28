@@ -22,6 +22,7 @@
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
+		<copy file="plugin.properties" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<echo message="done copying resources"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/icons"/>
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
