@@ -15,8 +15,9 @@ abstract public class TestDist extends x10Test {
     def this() {
         System.setProperty("line.separator", "\n");
         try {
-            os = new StringWriter();
-            out = new Printer(os);
+	    val tmp = new StringWriter();
+            os = tmp;
+            out = new Printer(tmp);
         } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
@@ -42,34 +43,24 @@ abstract public class TestDist extends x10Test {
     //
 
     abstract class R {
-
+	val testName:String;
+	
         def this(test: String): R = {
-            var r: String;
+	    testName = test;
+	}
+
+	def runTest() {
+            var r:String;
             try {
                 r = run();
             } catch (e: Throwable) {
                 r = e.getMessage();
             }
-            pr(test + " " + r);
+            pr(testName + " " + r);
         }
 
         abstract def run(): String;
 
-    }
-            
-    abstract class E {
-
-        def this(test: String): E = {
-            try {
-                run();
-            } catch (e: Throwable) {
-                pr(test + ": " + e.getMessage());
-                return;
-            }
-            pr(test + ": expected exception not thrown");
-        }
-
-        abstract def run(): void;
     }
             
     class Grid {
@@ -159,13 +150,13 @@ abstract public class TestDist extends x10Test {
 
         pr("--- " + testName + ": " + test);
 
-        new R("rank")		{def run(): String = {return "" + r.rank;}};
-        new R("rect")		{def run(): String = {return "" + r.rect;}};
-        new R("zeroBased")	{def run(): String = {return "" + r.zeroBased;}};
-        new R("rail")		{def run(): String = {return "" + r.rail;}};
+        new R("rank")		{def run(): String = {return "" + r.rank;}}.runTest();
+        new R("rect")		{def run(): String = {return "" + r.rect;}}.runTest();
+        new R("zeroBased")	{def run(): String = {return "" + r.zeroBased;}}.runTest();
+        new R("rail")		{def run(): String = {return "" + r.rail;}}.runTest();
 
-        new R("isConvex()")	{def run(): String = {return "" + r.isConvex();}};
-        new R("size()")		{def run(): String = {return "" + r.size();}};
+        new R("isConvex()")	{def run(): String = {return "" + r.isConvex();}}.runTest();
+        new R("size()")		{def run(): String = {return "" + r.size();}}.runTest();
 
         pr("region: " + r);
     }
