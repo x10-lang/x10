@@ -21,6 +21,9 @@
    <feature url="features/org.eclipse.imp.runtime_0.1.99.jar" id="org.eclipse.imp.runtime" version="0.1.99">
       <category name="other"/>
    </feature>
+   <feature url="features/org.eclipse.imp.runtime_0.1.101.jar" id="org.eclipse.imp.runtime" version="0.1.101">
+      <category name="other"/>
+   </feature>
    <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
    <category-def name="other" label="X10DT pre-requisites"/>
 </site>
