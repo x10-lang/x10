@@ -22,8 +22,9 @@ abstract public class TestRegion extends x10Test {
     def this() {
         System.setProperty("line.separator", "\n");
         try {
-            os = new StringWriter();
-            out = new Printer(os);
+            val tmp = new StringWriter();
+            os = tmp;
+	    out = new Printer(tmp);
         } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
