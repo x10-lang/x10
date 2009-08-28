@@ -100,6 +100,7 @@
 	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp104"/>
 	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
 	           <fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	<fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.java.hosted_*.jar"/>
 	        </copy>
 	 	<!-- fixme really should dynamically copy plugin jars based on list in feature manifest -->
 	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
