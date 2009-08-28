@@ -78,8 +78,8 @@ File__NativeFile::isHidden() {
 }
 
 #if defined (__APPLE__)
-#   define STAT_TIME_SEC(type) st_##type##time
-#   define STAT_TIME_NSEC(type) st_##type##timensec
+#   define STAT_TIME_SEC(type) st_##type##timespec.tv_sec
+#   define STAT_TIME_NSEC(type) st_##type##timespec.tv_nsec
 #elif defined (_AIX)
 #   define STAT_TIME_SEC(type) st_##type##time
 #   define STAT_TIME_NSEC(type) st_##type##time_n
