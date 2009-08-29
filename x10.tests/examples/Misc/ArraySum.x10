@@ -11,8 +11,7 @@ public class ArraySum extends x10Test {
     public def this(n: int)  {
         size=n;
         R = 0..n-1 as Region{rail};
-        data = Rail.makeVar[int](n, (x:nat)=>0);
-        for (var i: int = 0; i < n; i++) data(i)=1;
+        data = Rail.makeVar[int](n, (x:nat)=>1);
         sum=0;
     }
 
