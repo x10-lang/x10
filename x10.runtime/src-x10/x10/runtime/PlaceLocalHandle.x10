@@ -22,13 +22,15 @@ import x10.compiler.NativeRep;
  * over which the PlaceLocalHandle is defined, a BadPlaceException will be thrown.</p>
  *
  * A key concept for correct usage of PlaceLocalHandles is that in different places,
- * the Handle will be mapped to distinct objects.  For example (assuming >1 Place):
+ * the Handle may be mapped to distinct objects.  For example (assuming >1 Place):
  * <verbatim>
  *   val plh:PlaceLocalHandle[T] = ....
  *   val obj:T = plh.get();
  *   at (here.next()) Console.out.println(plh.get() == obj);
  * </verbatim>
- * will print false.</p>
+ * may print either true or false depending on how the application is
+ * using the particular PlaceLocalHandle (mapping the same object at
+ * multiple places or mapping distinct object at each place).</p>
  */
 @NativeRep("c++", "x10aux::ref<x10::runtime::PlaceLocalHandle<#1 > >", "x10::runtime::PlaceLocalHandle<#1 >", null)
 @NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
