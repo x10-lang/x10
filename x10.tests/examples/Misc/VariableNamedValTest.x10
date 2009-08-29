@@ -27,7 +27,7 @@ public class VariableNamedValTest extends x10Test {
 	 * Testing a comment before unary constructor.
 	 */
 	public def this(var val: int): VariableNamedValTest = {
-		val = v;
+		v = val;
 	}
 
 	/**
