@@ -1,23 +1,15 @@
-Release 1.7.5
+Release SVN HEAD
 
 This release includes both the C++ and Java code generation backends.
 
-The default implementation of X10's async construct has been changed
-to use dynamic load balancing based on an implementation of a
-fork-join library. For many programs, this yields a significant
-performance and scalability improvement over X10 1.7.4.  However, as
-currently implemented the framework does not fully support the use of
-futures or conditional atomic statements.  Dynamic load balancing can
-be disabled by giving the -NO_STEALS=true argument to x10 (for the
-Java backend) or by setting the environment variable X10_NO_STEALS to
-true (for the C++ backend).
+<HIGHLIGHTS>
 
-Language changes since the 1.7.4 release of X10:
+Language changes from 1.7 to 2.0
 
 <LIST HERE>
 
 
-The following features described in the 1.7 language manual do not
+The following features described in the 2.0 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
 releases:
 
@@ -40,20 +32,11 @@ the subsequent releases:
 
 Here's a list of known issues with the C++ backend:
 
-- Default values are not assigned to some value types
-- Static initialization is sometimes incorrectly ordered (at the moment
-  it's very brittle, though somewhat controllable by the link order of
-  files)
-- Operator overloading does not work correctly sometimes
-- Hash codes are not computed correctly for some classes
-
-Below is a summary of JIRA issues addressed for the X10 1.7.5 release.
+Below is a summary of JIRA issues addressed for the X10 VERSION release.
 <LIST HERE>
 
 For the details of JIRA issues fixed in this release, see
 <URL HERE>
-
-Additional bug fixes have been made throughout the system.
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
