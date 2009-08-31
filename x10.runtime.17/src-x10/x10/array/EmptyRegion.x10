@@ -21,7 +21,7 @@ value class EmptyRegion extends UnionRegion {
     }
 
     protected def computeBoundingBox(): Region(rank) {
-        throw new IllegalOperationException("bounding box not not defined for empty region");
+        throw U.illegal("bounding box not not defined for empty region");
     }
 
     public def toString(): String {

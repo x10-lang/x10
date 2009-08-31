@@ -40,4 +40,14 @@ public class U {
     public static def illegal(msg: String): RuntimeException {
         return new IllegalOperationException(msg);
     }
+
+    public static final value IllegalOperationException extends RuntimeException {
+        public def this(message: String) { super(message); }
+        public def fillInStackTrace(): Throwable { return this; }
+    }
+
+    public static final value UnsupportedOperationException extends RuntimeException {
+        public def this(message: String) { super(message); }
+        public def fillInStackTrace(): Throwable { return this; }
+    }
 }
