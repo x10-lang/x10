@@ -205,7 +205,9 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    return new KeySet[K,V](this);
 	}
 	
-	public incomplete def entries(): Set[Map.Entry[K,V]];
+	public def entries(): Set[Map.Entry[K,V]] {
+	    return new EntrySet[K,V](this);
+	}
 	
     protected def entriesIterator(): Iterator[HashEntry[K,V]] {
 	val iterator = new EntriesIterator[K,V](this);
@@ -262,6 +264,22 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
 	    public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
 	    public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
+	    public def size(): Int = map.size();
+	}
+
+    protected static class EntrySet[-Key,Value] extends AbstractCollection[Map.Entry[Key,Value]] implements Set[Map.Entry[Key,Value]] {
+	    val map: HashMap[Key,Value];
+	    
+	    def this(map: HashMap[Key,Value]) { this.map = map; }
+	    
+	    public def iterator(): Iterator[Map.Entry[Key,Value]] {
+	        return new MapIterator[HashEntry[Key,Value],Map.Entry[Key,Value]](map.entriesIterator(), (e: HashEntry[Key,Value]) => e as Map.Entry[Key,Value]);
+	    }
+	    
+	    public def contains(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+	    public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+	    public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+	    public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
 	    public def size(): Int = map.size();
 	}
 }
