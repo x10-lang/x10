@@ -20,7 +20,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     private val raw: Rail[T];
     private val layout: RectLayout;
 
-    final protected def raw(): Rail[T] {
+    final public def raw(): Rail[T] {
         return raw;
     }
 
