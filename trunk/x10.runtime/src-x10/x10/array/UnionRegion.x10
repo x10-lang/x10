@@ -14,7 +14,7 @@ package x10.array;
  * @author bdlucas
  */
 
-value class UnionRegion extends BaseRegion {
+public value class UnionRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -42,7 +42,7 @@ value class UnionRegion extends BaseRegion {
         cache = new Cache(this, false);
     }
 
-    static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
+    public static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
         if (rs.size()==0)
             return Region.makeEmpty(rs.rank);
         else if (rs.size()==1)
