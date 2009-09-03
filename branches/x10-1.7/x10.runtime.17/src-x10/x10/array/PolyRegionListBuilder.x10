@@ -13,7 +13,7 @@ import x10.util.ArrayList;
  * @author bdlucas
  */
 
-class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==this.rank}] {
+public class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==this.rank}] {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -22,12 +22,12 @@ class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==t
     static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
     static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
 
-    def this(rank: int): PolyRegionListBuilder(rank) {
+    public def this(rank: int): PolyRegionListBuilder(rank) {
         super(); // XTENLANG-31
         property(rank);
     }
 
-    def add(r:Region(rank)) {
+    public def add(r:Region(rank)) {
         if (r instanceof PolyRegion) {
             if (!r.isEmpty())
                 super.add(r as PolyRegion(r.rank));
