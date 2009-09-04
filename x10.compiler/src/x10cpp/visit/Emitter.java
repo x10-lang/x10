@@ -238,6 +238,11 @@ public class Emitter {
 //		} else
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
+			if (ct.isX10Struct()) {
+				// Struct types are not boxed up as Refs.  They are always generated as just C++ class types
+				// (Note: not pointer to Class, but the actual class).
+				asRef = false;
+			}
 
 		    if (ct.isAnonymous()) {
 		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof ClosureType) {
@@ -515,8 +520,13 @@ public class Emitter {
 			}
             // [DC] there is no benefit to omitting the virtual keyword as we can
             // statically bind CALLS to final methods and methods that are members of final classes
-			else if (!flags.isProperty() && !flags.isPrivate())
-				h.write("virtual ");
+			else if (!flags.isProperty() && !flags.isPrivate()) {
+				X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+				X10ClassType container = (X10ClassType) mi.container();
+				if (!container.isX10Struct()) {
+					h.write("virtual ");
+				}
+			}
 		}
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
@@ -565,8 +575,14 @@ public class Emitter {
 	}
 
     void printRTT(X10ClassType ct, ClassifiedStream h) {
-    	boolean isInterface = ct.flags().isInterface();
-    	h.write(isInterface ? "RTT_H_DECLS_INTERFACE" : "RTT_H_DECLS_CLASS"); h.newline(); h.forceNewline();
+    	if (ct.flags().isInterface()) {
+    		h.write("RTT_H_DECLS_INTERFACE");
+    	} else if (ct.isX10Struct()) {
+       		h.write("RTT_H_DECLS_STRUCT");    		
+    	} else {
+       		h.write("RTT_H_DECLS_CLASS");    		
+    	}
+    	h.newline(); h.forceNewline();
 	}
 
     void printRTTDefn(X10ClassType ct, CodeWriter h) {
