@@ -10,6 +10,11 @@
     static void _initRTT(); \
     virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
+#define RTT_H_DECLS_STRUCT \
+    static x10aux::RuntimeType rtt;                                     \
+    static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.canonical) _initRTT(); return &rtt; } \
+    static void _initRTT(); \
+
 #define RTT_H_DECLS_INTERFACE \
     static x10aux::RuntimeType rtt; \
     static const x10aux::RuntimeType* getRTT() { if (NULL == rtt.canonical) _initRTT(); return &rtt; } \
