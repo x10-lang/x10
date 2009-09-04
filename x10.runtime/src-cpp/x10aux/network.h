@@ -79,27 +79,18 @@ namespace x10aux {
         #endif
     }
 
-    void receive_async (void*);
-
-    inline void register_async_handler (unsigned id) {
-        x10rt_register_msg_receiver(id, receive_async);
-        // [DC] these belong in registration_complete but currently statics are broken
-        here = x10rt_here();
-        num_places = x10rt_nplaces();
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
-        num_hosts = x10rt_nhosts();
-        #else
-        num_hosts = num_places;
-        #endif
-    }
+    void register_async_handler (unsigned id);
 
     inline void registration_complete (void) {
         x10rt_registration_complete();
     }
 
-
     inline void event_probe() {
         x10rt_probe();
+    }
+
+    inline void *msg_realloc(void *old, size_t old_sz, size_t new_sz) {
+        return x10rt_msg_realloc(old, old_sz, new_sz);
     }
 
     extern volatile x10_long asyncs_sent;

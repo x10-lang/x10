@@ -37,22 +37,16 @@ void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
         <<ref<Object>(body)->toString()->c_str()<<" to place: "<<place);
 
-    buf.write((x10_uint)body->_get_serialization_id(), m, false);
-
-    // this is not the real size, we fill it in properly later
-    buf.write((x10_uint)12345678, m, false);
-
     body->_serialize_body(buf, m);
 
-    x10_uint sz = buf.length();
+    unsigned long sz = buf.length();
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
     serialized_bytes += sz; asyncs_sent++;
 
-    char *the_buf = buf.steal();
-
-    ::memcpy(the_buf+4, &sz, 4); // fill bytes [4,8) with the real size
-    
-    x10rt_send_msg(place, the_buf);
+    x10rt_msg_params p = {place, body->_get_serialization_id(), buf.steal(), sz};
+    // avoid giving x10rt a NULL message to keep things simple for implementers
+    if (p.msg==NULL) p.msg = x10rt_msg_realloc(NULL,0,16);
+    x10rt_send_msg(p);
 }
 
 x10_int x10aux::num_threads() {
@@ -65,16 +59,27 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
 
-void x10aux::receive_async (void *the_buf) {
+static void receive_async (const x10rt_msg_params &p) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(the_buf));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
-    x10aux::serialization_id_t id = buf.read<x10_uint>(false);
-    x10_uint sz = buf.read<x10_uint>(false);
-    ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, id));
+    ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, p.type));
+    assert(buf.consumed() <= p.len);
     _X_("The deserialised async was: "<<async->toString());
-    deserialized_bytes += sz; asyncs_received++;
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
     (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
+}
+
+void x10aux::register_async_handler (unsigned id) {
+    x10rt_register_msg_receiver(id, receive_async);
+    // [DC] these belong in x10aux::registration_complete but currently statics are broken
+    here = x10rt_here();
+    num_places = x10rt_nplaces();
+    #ifdef X10RT_SUPPORTS_ACCELERATORS
+    num_hosts = x10rt_nhosts();
+    #else
+    num_hosts = num_places;
+    #endif
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
