@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/serialization.h>
+#include <x10aux/network.h>
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -39,11 +40,12 @@ bool addr_map::ensure_unique(const void* p) {
 
 void serialization_buffer::grow (void) {
     size_t new_length = length(); // no change in used portion of buffer
-    size_t new_capacity = (size_t) (capacity() * 2.0); // increase capacity by a factor
+    size_t old_capacity = capacity();
+    size_t new_capacity = (size_t) (old_capacity * 2.0); // increase capacity by a factor
     if (new_capacity<16) new_capacity = 16; // biggest primitive we might serialise -- a SIMD variable
     
     // do not use GC
-    buffer = (char*)::realloc(buffer, new_capacity);
+    buffer = (char*)x10aux::msg_realloc(buffer, old_capacity, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;
