@@ -182,6 +182,7 @@ import x10.ast.X10IntLit_c;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.types.ClosureDef;
@@ -199,6 +200,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -1471,14 +1473,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // emit _make method
             h.write("static ");
             sw.pushCurrentStream(h);
-            emitter.printHeader(dec, sw, tr, false, MAKE, make_ref(typeName));
+            emitter.printHeader(dec, sw, tr, false, MAKE, container.isX10Struct() ? typeName : make_ref(typeName));
             sw.popCurrentStream();
             h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
-            h.write(make_ref(typeName)+" this_ = "+
-                        "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
-            h.write("this_->"+CONSTRUCTOR+"(");
-            for (Iterator i = dec.formals().iterator(); i.hasNext(); ) {
-                Formal f = (Formal) i.next();
+            if (container.isX10Struct()) {
+            	h.write(typeName+" this_; "); h.newline();
+            	h.write("this_."+CONSTRUCTOR+"(");
+            } else {
+                h.write(make_ref(typeName)+" this_ = "+
+                		"new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
+                h.write("this_->"+CONSTRUCTOR+"(");
+            }
+            for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
+                Formal f = i.next();
                 h.write(mangled_non_method_name(f.name().id().toString()));
                 if (i.hasNext()) {
                     h.write(",");
@@ -2156,9 +2163,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                    }
 
                     if (!isInterfaceInvoke) {
-                    	sw.write("x10aux::placeCheck(x10aux::nullCheck(");
-                    	n.printSubExpr((Expr) target, assoc, sw, tr);
-                        sw.write("))->");
+                    	boolean needsCheck = !((X10Type)t).isX10Struct();
+                    	sw.write(needsCheck ? "x10aux::placeCheck(x10aux::nullCheck(" : "(");
+                  		n.printSubExpr((Expr) target, assoc, sw, tr);
+                  		sw.write((needsCheck ? "))" : ")")+Emitter.dotOrArrow(target));
                     }
                 }
             } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -2282,7 +2290,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-				boolean needsChecks = t.isClass() && !((X10ClassType)t.toClass()).isX10Struct();
+				boolean needsChecks = !((X10Type)t).isX10Struct();
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsChecks) sw.write("x10aux::placeCheck(x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
@@ -2292,10 +2300,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		else if (target instanceof TypeNode || target instanceof AmbReceiver) {
 			n.print(target, sw, tr);
 		}
-		if (n.fieldInstance().flags().isStatic())
+		if (n.fieldInstance().flags().isStatic()) {
 			sw.write("::");
-		else
-			sw.write("->");
+		} else {
+			sw.write(Emitter.dotOrArrow(target));
+		}
 		sw.allowBreak(2, 3, "", 0);
 		sw.write(mangled_field_name(n.name().id().toString()));
 		sw.end();
@@ -2823,7 +2832,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
-            	if (((X10ClassType)n.type().toClass()).isX10Struct()) {
+            	if (((X10Type)n.type()).isX10Struct()) {
                     sw.write("("+n.kind()+")");
             	} else {
             		sw.write("(("+emitter.translateType(n.type(),true)+")"+n.kind()+")");

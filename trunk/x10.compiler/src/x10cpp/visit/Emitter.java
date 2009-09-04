@@ -50,6 +50,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.types.ClosureType;
 import x10.types.ParameterType;
@@ -59,6 +60,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -184,6 +186,24 @@ public class Emitter {
 		}
 
 		return translateFQN(dest);
+	}
+	
+	/**
+	 * Determine whether we need a "." or an "->" to access a field/invoke a method 
+	 * where expr is the 'receiver' of the field/method access.
+	 */
+	public static String dotOrArrow(Receiver expr) {
+		Type t = expr.type();
+		if (((X10Type)t).isX10Struct()) {
+			if (expr instanceof X10Special) {
+       			assert ((X10Special_c)expr).kind().equals(X10Special_c.THIS);
+       			return "->";
+			} else {
+				return ".";
+			}
+		} else {
+			return "->";
+		}
 	}
 
 	/**
