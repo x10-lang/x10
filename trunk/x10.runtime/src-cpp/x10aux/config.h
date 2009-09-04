@@ -77,6 +77,13 @@ struct x10_char {
 inline std::ostream &operator << (std::ostream &o, const x10_char &c) {
     return o<<c.v;
 }
+namespace x10aux {
+    template<class T> std::string star_rating (void) {
+        std::string str = "[";
+        for (size_t i=0 ; i<sizeof(T) ; ++i) str += "*";
+        return str+"]";
+    }
+}
 #endif
 inline bool operator==(const x10_char a, x10_char b) { return a.v == b.v; }
 inline bool operator!=(const x10_char a, x10_char b) { return a.v != b.v; }

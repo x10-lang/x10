@@ -177,7 +177,7 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
 
         ~serialization_buffer (void) {
             // do not use GC
-            ::free(buffer);
+            assert(buffer==NULL);
         }
 
         void grow (void);
@@ -202,7 +202,8 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
                                                              const T &val, addr_map &m,
                                                              bool nw_order) {
         // FIXME: assumes all places are same endian
-        _S_("Serializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" into buf: "<<&buf);
+        _S_("Serializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
+                          <<val<<" into buf: "<<&buf);
         //*(T*) buf.cursor = val; // Cannot do this because of alignment
         if (buf.cursor + sizeof(T) >= buf.limit) buf.grow();
         memcpy(buf.cursor, &val, sizeof(T));
@@ -260,8 +261,9 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         T val;
         memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
-        _S_("Deserializing a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "<<val<<" from buf: "<<&buf);
         if (nw_order) code_bytes(&val);
+        _S_("Deserializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
+                            <<val<<" from buf: "<<&buf);
         return val;
     }
         
