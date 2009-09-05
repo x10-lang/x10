@@ -923,7 +923,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     static enum Kind {
-        NEITHER, EITHER, REFERENCE, VALUE,
+        NEITHER, EITHER, REFERENCE, VALUE, STRUCT
     }
 
     public Kind kind(Type t, X10Context c) {
@@ -967,6 +967,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public boolean isValueType(Type t, X10Context c) {
         return kind(t, c) == Kind.VALUE;
+    }
+    
+    public boolean isStructType(Type t) {
+        return kind(t, null) == Kind.STRUCT;
     }
 
     @Override

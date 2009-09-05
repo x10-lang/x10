@@ -86,7 +86,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return flags() == null ? false : ((X10Flags) flags()).isProto();
 	}
 	public boolean isX10Struct() {
-		return flags() == null ? false : ((X10Flags) flags()).isStruct();
+		return ((X10TypeSystem) typeSystem()).isStructType(this);
 	}
 	
 	public X10Type setFlags(Flags f) {

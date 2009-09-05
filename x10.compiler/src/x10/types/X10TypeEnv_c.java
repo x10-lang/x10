@@ -322,6 +322,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 return Kind.VALUE;
             if (X10Flags.toX10Flags(ct.flags()).isInterface())
                 return Kind.EITHER;
+            if (X10Flags.toX10Flags(ct.flags()).isStruct())
+                return Kind.VALUE;
             else
                 return Kind.REFERENCE;
         }
@@ -337,6 +339,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     ;
                 else if (k == Kind.EITHER && k2 == Kind.VALUE)
                     k = Kind.VALUE;
+                else if (k == Kind.EITHER && k2 == Kind.STRUCT)
+                    k = Kind.STRUCT;
                 else if (k == Kind.EITHER && k2 == Kind.REFERENCE)
                     k = Kind.REFERENCE;
                 else
@@ -636,8 +640,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean behavesLike(Type t1, Type t2) {
     	X10Type xt1 = (X10Type) t1;
     	X10Type xt2 = (X10Type) t2;
-    	if (xt1.isX10Struct() || xt1.isX10Struct()) {
-    		if (xt1.isX10Struct() != xt2.isX10Struct())
+    	if (ts.isStructType(t1) || ts.isStructType(t2) ) {
+    		if (ts.isStructType(t1) != ts.isStructType(t2))
     			return false;
     		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2), true);
     	}

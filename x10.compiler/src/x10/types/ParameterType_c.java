@@ -87,7 +87,9 @@ public class ParameterType_c extends Type_c implements ParameterType {
     
     public boolean isRooted() { return false; }
     public boolean isProto() { return false; }
-    public boolean isX10Struct() { return false; }
+    public boolean isX10Struct() { 
+    	return ((X10TypeSystem) typeSystem()).isStructType(this);
+    }
     // end Flagged mixin
     public boolean equalsNoFlag(X10Type t2) {
 		return this == t2;
