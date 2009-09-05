@@ -1314,6 +1314,43 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write("}"); sw.newline();
             }
 
+            // Generate structEquals for structs
+            if (currentClass.isX10Struct()) {
+                h.write("public: ");
+                emitter.printType(xts.Boolean(), h);
+                h.write(" "+mangled_method_name(STRUCT_EQUALS_METHOD)+"(");
+                h.write(Emitter.translateType(currentClass, false)+" *that");
+                h.write(");"); h.newline();
+
+                emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+                emitter.printType(xts.Boolean(), sw);
+                sw.write(" " + Emitter.translateType(currentClass, false) +
+                         "::" + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
+                sw.write(Emitter.translateType(currentClass, false)+" *that");
+                sw.write(") {"); sw.newline(4); sw.begin(0);
+                if (superClass != null) {
+                	sw.write("if (!this->" + Emitter.translateType(superClass) + "::" +
+                			mangled_method_name(STRUCT_EQUALS_METHOD) + 
+                			"(("+Emitter.translateType(superClass)+"*)(that)))");
+                	sw.newline(4); sw.begin(0);
+                	sw.write("return false;");
+                	sw.end(); sw.newline();
+                }
+                for (FieldInstance fi : currentClass.fields()) {
+                    if (!fi.flags().isStatic()) {
+                    	String name = fi.name().toString();
+                    	sw.write("if (!"+STRUCT_EQUALS+"(this->" + mangled_field_name(name) +
+                    			", that->" + mangled_field_name(name) + "))");
+                    	sw.newline(4); sw.begin(0);
+                    	sw.write("return false;");
+                    	sw.end(); sw.newline();
+                    }
+                }
+                sw.write("return true;");
+                sw.end(); sw.newline();
+                sw.write("}"); sw.newline();
+            }
+
             // declare static init function in header
             h.write("public : static " + VOID + " " + STATIC_INIT + "();");
             h.newline();
