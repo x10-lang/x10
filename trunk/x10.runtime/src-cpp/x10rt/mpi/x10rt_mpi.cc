@@ -22,6 +22,7 @@
 /* Generic utility funcs */
 template <class T> T* ChkAlloc (size_t len) {
     T * ptr;
+    if(0 == len) return NULL;
     ptr = (T*) malloc(len);
     if(NULL == ptr) {  
         fprintf(stderr, "[%s:%d] No more memory\n", 
@@ -32,6 +33,7 @@ template <class T> T* ChkAlloc (size_t len) {
 }
 template <class T> T* ChkRealloc (void * ptr, size_t len) {
     T * ptr2;
+    if(0 == len) return NULL;
     ptr2 = (T*) realloc(ptr, len);
     if(NULL == ptr2) {  
         fprintf(stderr, "[%s:%d] No more memory\n", __FILE__, __LINE__);
@@ -307,7 +309,6 @@ static void check_pending_recvs()
         }
         req = q->next(req);
         if(complete) {
-            ASSERT(NULL != req_copy->getBuf());
             int ix = msg_status.MPI_TAG;
             amSendCb cb = global_state.callbackTbl[ix];
             x10rt_msg_params p = { x10rt_here(),
