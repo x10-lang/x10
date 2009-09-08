@@ -173,6 +173,7 @@ long long run_test(unsigned long iters,
 // {{{ main
 int main(int argc, char **argv)
 {
+    x10rt_set_args(argc, argv);
     x10rt_register_msg_receiver(PING_ID, &recv_msg_ping);
     x10rt_register_msg_receiver(PONG_ID, &recv_msg_pong);
     x10rt_register_put_receiver(PING_PUT_ID, &recv_put_ping_hh, &recv_put_ping);

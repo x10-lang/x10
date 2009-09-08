@@ -26,3 +26,6 @@ void x10rt_send_put (x10rt_msg_params &, void *buf, unsigned long len);
 void x10rt_probe (void);
 
 void x10rt_finalize (void); 
+
+// TODO: merge with x10rt_registration_complete
+void x10rt_set_args(int argc, char ** argv);
