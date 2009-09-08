@@ -32,7 +32,7 @@ bool finished = false;
 // {{{ msg handlers
 static void recv_msg_ping (const x10rt_msg_params &p)
 {
-    if (validate && memcmp(buf, (const char*)p.msg, len)) {
+    if (validate && (p.len > 0) && memcmp(buf, (const char*)p.msg, p.len)) {
         fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
         abort();
     }
@@ -44,7 +44,7 @@ static void recv_msg_ping (const x10rt_msg_params &p)
 
 static void recv_msg_pong (const x10rt_msg_params &p)
 {
-    if (validate && memcmp(buf, (const char*)p.msg, len)) {
+    if (validate && (p.len > 0) && memcmp(buf, (const char*)p.msg, p.len)) {
         fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
         abort();
     }
@@ -57,24 +57,24 @@ static void *recv_put_ping_hh (const x10rt_msg_params &, unsigned long)
 {
     return ping_buf;
 }
-static void recv_put_ping (const x10rt_msg_params &, unsigned long len)
+static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", len);
+    if (validate && (p.len > 0) && memcmp(buf, ping_buf, len)) {
+        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
         abort();
     }
     x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
-    x10rt_send_put(p2, buf, len);
+    x10rt_send_put(p2, buf, p.len);
 }
 
 static void *recv_put_pong_hh (const x10rt_msg_params &, unsigned long)
 {
     return pong_buf;
 }
-static void recv_put_pong (const x10rt_msg_params &, unsigned long len)
+static void recv_put_pong (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && memcmp(buf, pong_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", len);
+    if (validate && (p.len > 0) && memcmp(buf, pong_buf, p.len)) {
+        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
         abort();
     }
     pongs_outstanding--;
@@ -88,23 +88,23 @@ static void *recv_get_ping_hh (const x10rt_msg_params &)
 }
 static void recv_get_ping (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", len);
+    if (validate && (p.len > 0) && memcmp(buf, ping_buf, p.len)) {
+        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
         abort();
     }
     // send to dest place again
     x10rt_msg_params p2 = {p.dest_place, PONG_GET_ID, NULL, 0};
-    x10rt_send_get(p2, pong_buf, len);
+    x10rt_send_get(p2, pong_buf, p.len);
 }
 
 static void *recv_get_pong_hh (const x10rt_msg_params &)
 {
     return buf;
 }
-static void recv_get_pong (const x10rt_msg_params &, unsigned long len)
+static void recv_get_pong (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && memcmp(buf, pong_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", len);
+    if (validate && (p.len > 0) && memcmp(buf, pong_buf, p.len)) {
+        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
         abort();
     }
     pongs_outstanding--;

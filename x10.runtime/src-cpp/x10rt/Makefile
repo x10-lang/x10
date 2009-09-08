@@ -1,6 +1,6 @@
-MPI_INSTALL  	= /gsa/pokgsa/home/s/u/surs/mpi/mvapich-1.1-gen2-install
+MPI_INSTALL  	= /Users/surs/Work/mpi/mpich2-install
 
-CXX             = $(MPI_INSTALL)/bin/mpicxx 
+CXX             = $(MPI_INSTALL)/bin/mpicxx
 CFLAGS          = -O3 -I./include/ -DENABLE_ASSERT
 
 HEADERS = include/x10rt_api.h
