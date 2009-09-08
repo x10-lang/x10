@@ -5,6 +5,11 @@
 #include <cstring>
 #include <cassert>
 
+// from cstdio -- on BGP mpi.h wants these to be undefined.
+#undef SEEK_SET
+#undef SEEK_CUR
+#undef SEEK_END
+
 #include <mpi.h>
 
 #include <x10rt_api.h>
