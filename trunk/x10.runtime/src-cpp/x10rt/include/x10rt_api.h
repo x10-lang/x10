@@ -2,11 +2,11 @@ struct x10rt_msg_params { unsigned long dest_place; unsigned type; void *msg; un
 
 void x10rt_register_msg_receiver (unsigned msg_type,
                                   void (*cb)(const x10rt_msg_params &));
-void x10rt_register_put_receiver (unsigned msg_type,
-                                  void *(*cb1)(const x10rt_msg_params &, unsigned long len),
-                                  void (*cb2)(const x10rt_msg_params &, unsigned long len));
 void x10rt_register_get_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &),
+                                  void (*cb2)(const x10rt_msg_params &, unsigned long len));
+void x10rt_register_put_receiver (unsigned msg_type,
+                                  void *(*cb1)(const x10rt_msg_params &, unsigned long len),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len));
 
 void x10rt_registration_complete (void);
