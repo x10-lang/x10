@@ -97,22 +97,11 @@ class x10rt_req_queue {
             }
         }
         ~x10rt_req_queue() { 
-
-            if(pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                exit(EXIT_FAILURE);
-            }
-
             while(len > 0) {
                 x10rt_req * r = pop();
                 r->~x10rt_req();
             }
             ASSERT((NULL == head) && (NULL == tail) && (0 == len));
-
-            if(pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                exit(EXIT_FAILURE);
-            }
         }
         x10rt_req * start() {
             return head;
