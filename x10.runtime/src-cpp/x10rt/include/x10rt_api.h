@@ -1,3 +1,5 @@
+void x10rt_init (int argc, char **argv);
+
 struct x10rt_msg_params { unsigned long dest_place; unsigned type; void *msg; unsigned long len; };
 
 void x10rt_register_msg_receiver (unsigned msg_type,
@@ -26,6 +28,3 @@ void x10rt_send_put (x10rt_msg_params &, void *buf, unsigned long len);
 void x10rt_probe (void);
 
 void x10rt_finalize (void); 
-
-// TODO: merge with x10rt_registration_complete
-void x10rt_set_args(int argc, char ** argv);
