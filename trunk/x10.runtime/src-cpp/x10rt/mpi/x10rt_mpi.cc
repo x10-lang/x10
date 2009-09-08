@@ -1,10 +1,13 @@
-#include "../include/x10rt_api.h"
 #include <new>
-#include <mpi.h>
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <assert.h>
+#include <cassert>
+
+#include <mpi.h>
+
+#include <x10rt_api.h>
 
 /* Init time constants */
 #define X10RT_REQ_FREELIST_INIT_LEN     (256)
@@ -21,8 +24,8 @@
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc (size_t len) {
-    T * ptr;
     if(0 == len) return NULL;
+    T * ptr;
     ptr = (T*) malloc(len);
     if(NULL == ptr) {  
         fprintf(stderr, "[%s:%d] No more memory\n", 
@@ -31,9 +34,12 @@ template <class T> T* ChkAlloc (size_t len) {
     }
     return ptr;
 }
-template <class T> T* ChkRealloc (void * ptr, size_t len) {
+template <class T> T* ChkRealloc (T * ptr, size_t len) {
+    if (0 == len) {
+        free(ptr);
+        return NULL;
+    }
     T * ptr2;
-    if(0 == len) return NULL;
     ptr2 = (T*) realloc(ptr, len);
     if(NULL == ptr2) {  
         fprintf(stderr, "[%s:%d] No more memory\n", __FILE__, __LINE__);
@@ -157,7 +163,7 @@ class x10rt_internal_state {
 
         x10rt_internal_state() {
             init    = false;
-            callbackTbl = ChkAlloc<amSendCb>(sizeof(void*) * X10RT_CB_TBL_SIZE);
+            callbackTbl = ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
             callbackTblSize = X10RT_CB_TBL_SIZE;
             free_req_list.addRequests(X10RT_REQ_FREELIST_INIT_LEN);
         }
@@ -174,8 +180,7 @@ void x10rt_set_args(int argc, char ** argv)
     global_state.argv = argv;
 }
 
-void x10rt_register_msg_receiver (unsigned msg_type,
-                                  void (*cb)(const x10rt_msg_params &))
+static void x10rt_ensure_init ()
 {
     if(!global_state.init) {
         if(MPI_SUCCESS != MPI_Init(&global_state.argc, &global_state.argv)) {
@@ -186,10 +191,16 @@ void x10rt_register_msg_receiver (unsigned msg_type,
         MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
         global_state.init = true;
     }
+}
+
+void x10rt_register_msg_receiver (unsigned msg_type,
+                                  void (*cb)(const x10rt_msg_params &))
+{
+    x10rt_ensure_init();
 
     if(msg_type >= global_state.callbackTblSize) {
         global_state.callbackTbl     = 
-            ChkRealloc<amSendCb>((void *) global_state.callbackTbl, sizeof(void*)*msg_type);
+            ChkRealloc<amSendCb>(global_state.callbackTbl, sizeof(amSendCb)*msg_type);
         global_state.callbackTblSize = msg_type;
     }
 
@@ -200,16 +211,19 @@ void x10rt_register_put_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &, unsigned long len),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
+    x10rt_ensure_init();
 }
 
 void x10rt_register_get_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
+    x10rt_ensure_init();
 }
 
 void x10rt_registration_complete (void)
 {
+    x10rt_ensure_init();
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
@@ -227,7 +241,7 @@ unsigned long x10rt_here (void)
 
 void *x10rt_msg_realloc (void *old, size_t old_sz, size_t new_sz)
 {
-    return ChkRealloc<char>(old, new_sz);
+    return ChkRealloc<void>(old, new_sz);
 }
 
 void x10rt_send_msg (x10rt_msg_params & msg_params)
@@ -317,6 +331,7 @@ static void check_pending_recvs()
                                    get_recvd_bytes(&msg_status)
                                  };
             cb(p);
+            free(req_copy->getBuf());
             q->remove(req_copy);
         } else {
             num_checked ++;
