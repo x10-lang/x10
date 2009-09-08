@@ -10,6 +10,9 @@
 #undef SEEK_CUR
 #undef SEEK_END
 
+#include <pthread.h>
+#include <errno.h>
+
 #include <mpi.h>
 
 #include <x10rt_api.h>
@@ -81,19 +84,35 @@ class x10rt_req {
 };
 
 class x10rt_req_queue {
+        pthread_mutex_t       lock;
         x10rt_req           * head;
         x10rt_req           * tail;
         int                   len;
     public:
         x10rt_req_queue()  { 
             head = tail = NULL; len = 0;
+            if(pthread_mutex_init(&lock, NULL)) {
+                perror("pthread_mutex_init");
+                exit(EXIT_FAILURE);
+            }
         }
         ~x10rt_req_queue() { 
+
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+
             while(len > 0) {
                 x10rt_req * r = pop();
                 r->~x10rt_req();
             }
             ASSERT((NULL == head) && (NULL == tail) && (0 == len));
+
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
         }
         x10rt_req * start() {
             return head;
@@ -101,14 +120,20 @@ class x10rt_req_queue {
         x10rt_req * next(x10rt_req * r) {
             return r->next;
         }
-        void addRequests(int num) {
+        void addRequests(int num) {         /* wrap around enqueue (which is thread safe) */
             for(int i=0; i<num; ++i) {
                 char * mem = ChkAlloc<char>(sizeof(x10rt_req));
                 x10rt_req * r = new(mem) x10rt_req();
                 enqueue(r);
             }
         }
-        void enqueue(x10rt_req * r) {
+        void enqueue(x10rt_req * r) {       /* thread safe */
+
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+
             r->next     = NULL;
             if(head) {
                 ASSERT(NULL != tail);
@@ -121,8 +146,18 @@ class x10rt_req_queue {
                 head = tail = r;
             }
             len ++;
+
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
         }
-        x10rt_req * pop() {
+        x10rt_req * pop() {                 /* thread safe */
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+
             x10rt_req * r = head;
             if(NULL != head) { 
                 head = head->next; 
@@ -132,9 +167,19 @@ class x10rt_req_queue {
                     ASSERT(0 == len);
                 }
             }
+
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
             return r;
         }
-        void remove(x10rt_req * r) {
+        void remove(x10rt_req * r) {        /* thread safe */
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+
             ASSERT((NULL != head) && (NULL != tail) && (len > 0));
             if(r->prev) r->prev->next = r->next;
             if(r->next) r->next->prev = r->prev;
@@ -142,8 +187,13 @@ class x10rt_req_queue {
             if(r == tail) tail = r->prev;
             r->next = r->prev = NULL; 
             len --;
+
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
         }
-        x10rt_req * popNoFail() {
+        x10rt_req * popNoFail() {           /* wrap around pop (which is thread safe) */
             x10rt_req * r = pop();
             if(NULL == r) {
                 addRequests(X10RT_REQ_BUMP);
@@ -158,6 +208,7 @@ typedef void (*amSendCb)(const x10rt_msg_params &);
 class x10rt_internal_state {
     public:
         bool                init;
+        pthread_mutex_t     lock;
         int                 rank;
         int                 nprocs;
         int                 callbackTblSize;
@@ -173,6 +224,10 @@ class x10rt_internal_state {
             callbackTbl = ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
             callbackTblSize = X10RT_CB_TBL_SIZE;
             free_req_list.addRequests(X10RT_REQ_FREELIST_INIT_LEN);
+            if(pthread_mutex_init(&lock, NULL)) {
+                perror("pthread_mutex_init");
+                exit(EXIT_FAILURE);
+            }
         }
         ~x10rt_internal_state() {
             free(callbackTbl);
@@ -311,6 +366,14 @@ static void check_pending(x10rt_req_queue * q, int type)
 {
     int num_checked = 0;
     MPI_Status msg_status;
+
+    /* Only one thread looks at the pending queues at a time */
+
+    if(pthread_mutex_lock(&global_state.lock)) {
+        perror("pthread_mutex_lock");
+        exit(EXIT_FAILURE);
+    }
+
     x10rt_req * req = q->start();
     while((NULL != req) &&
             num_checked < X10RT_MAX_PEEK_DEPTH) {
@@ -342,6 +405,11 @@ static void check_pending(x10rt_req_queue * q, int type)
         } else {
             num_checked ++;
         }
+    }
+
+    if(pthread_mutex_unlock(&global_state.lock)) {
+        perror("pthread_mutex_lock");
+        exit(EXIT_FAILURE);
     }
 }
 
