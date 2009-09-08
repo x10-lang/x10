@@ -72,14 +72,6 @@ static void receive_async (const x10rt_msg_params &p) {
 
 void x10aux::register_async_handler (unsigned id) {
     x10rt_register_msg_receiver(id, receive_async);
-    // [DC] these belong in x10aux::registration_complete but currently statics are broken
-    here = x10rt_here();
-    num_places = x10rt_nplaces();
-    #ifdef X10RT_SUPPORTS_ACCELERATORS
-    num_hosts = x10rt_nhosts();
-    #else
-    num_hosts = num_places;
-    #endif
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

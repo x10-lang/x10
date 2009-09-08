@@ -83,6 +83,13 @@ namespace x10aux {
 
     inline void registration_complete (void) {
         x10rt_registration_complete();
+        here = x10rt_here();
+        num_places = x10rt_nplaces();
+        #ifdef X10RT_SUPPORTS_ACCELERATORS
+        num_hosts = x10rt_nhosts();
+        #else
+        num_hosts = num_places;
+        #endif
     }
 
     inline void event_probe() {
