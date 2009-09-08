@@ -270,7 +270,7 @@ int main(int argc, char **argv)
                 float micros = 0;
                 for (int j=1 ; j<=16 ; ++j) {
                     micros = run_test(num_messages/j, j, l, put, get)
-                             / 1E3 / num_messages / 2;
+                             / 1E3 / (num_messages/j*j) / 2 / (x10rt_nplaces() - 1);
                     printf("%4.0f ",micros);
                 }
                 printf("%0.3f\n", l/micros);
@@ -278,7 +278,7 @@ int main(int argc, char **argv)
             }
         } else {
             float micros = run_test(num_messages/batch, batch, len, put, get)
-                           / 1E3 / num_messages / 2;
+                           / 1E3 / (num_messages/batch*batch) / 2 / (x10rt_nplaces() - 1);
             printf("Time taken: %f us  Bandwidth: %f MB/s\n",micros,len/micros);
         }
 
