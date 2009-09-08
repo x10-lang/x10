@@ -64,6 +64,8 @@ static inline int get_recvd_bytes(MPI_Status * status)
 
 /* Internal data structs */
 
+enum { X10RT_SEND = 1, X10RT_RECV, X10RT_PUT, X10RT_GET };
+
 class x10rt_req {
         MPI_Request           mpi_req;
         x10rt_req           * next;
@@ -284,37 +286,31 @@ void x10rt_send_put (x10rt_msg_params &, void *buf, unsigned long len)
 {
 }
 
-static void check_pending_sends()
+static void send_completion(x10rt_req_queue * q, x10rt_req * req)
 {
-    int num_checked = 0;
-    MPI_Status msg_status;
-    x10rt_req_queue * q = &global_state.pending_send_req_list;
-    x10rt_req * req = q->start();
-    while((NULL != req) &&
-            num_checked < X10RT_MAX_PEEK_DEPTH) {
-        int complete = 0;
-        x10rt_req * req_copy = req;
-        if(MPI_SUCCESS != MPI_Test(req->toMPI(),
-                    &complete,
-                    &msg_status)) {
-            fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
-            exit(-1);
-        }
-        req = q->next(req);
-        if(complete) {
-            free(req_copy->getBuf());
-            q->remove(req_copy);
-        } else {
-            num_checked ++;
-        }
-    }
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_req_list.enqueue(req);
 }
 
-static void check_pending_recvs()
+static void recv_completion(int ix, int bytes, x10rt_req_queue * q, x10rt_req * req)
+{
+    amSendCb cb = global_state.callbackTbl[ix];
+    x10rt_msg_params p = { x10rt_here(),
+        ix,
+        req->getBuf(),
+        bytes
+    };
+    cb(p);
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_req_list.enqueue(req);
+}
+
+static void check_pending(x10rt_req_queue * q, int type)
 {
     int num_checked = 0;
     MPI_Status msg_status;
-    x10rt_req_queue * q = &global_state.pending_recv_req_list;
     x10rt_req * req = q->start();
     while((NULL != req) &&
             num_checked < X10RT_MAX_PEEK_DEPTH) {
@@ -328,16 +324,21 @@ static void check_pending_recvs()
         }
         req = q->next(req);
         if(complete) {
-            int ix = msg_status.MPI_TAG;
-            amSendCb cb = global_state.callbackTbl[ix];
-            x10rt_msg_params p = { x10rt_here(),
-                                   ix,
-                                   req_copy->getBuf(),
-                                   get_recvd_bytes(&msg_status)
-                                 };
-            cb(p);
-            free(req_copy->getBuf());
-            q->remove(req_copy);
+            switch (type) {
+                case X10RT_SEND:
+                    send_completion(q, req_copy);
+                    break;
+                case X10RT_RECV:
+                    recv_completion(msg_status.MPI_TAG, 
+                            get_recvd_bytes(&msg_status), q, req_copy);
+                    break;
+                case X10RT_PUT:
+                    break;
+                case X10RT_GET:
+                    break;
+                default:
+                    break;
+            };
         } else {
             num_checked ++;
         }
@@ -369,8 +370,8 @@ void x10rt_probe (void)
         }
         global_state.pending_recv_req_list.enqueue(req);
     } else {
-        check_pending_sends();
-        check_pending_recvs();
+        check_pending(&global_state.pending_send_req_list, X10RT_SEND);
+        check_pending(&global_state.pending_recv_req_list, X10RT_RECV);
     }
 }
 
