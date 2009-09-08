@@ -19,7 +19,7 @@ enum id {
     PING_ID, PONG_ID,
     PING_PUT_ID, PONG_PUT_ID,
     PING_GET_ID, PONG_GET_ID,
-    QUIT_ID,
+    QUIT_ID
 };
 
 char *buf, *ping_buf, *pong_buf; 
@@ -53,11 +53,11 @@ static void recv_msg_pong (const x10rt_msg_params &p)
 
 
 // {{{ put handlers
-static void *recv_put_ping_hh (const x10rt_msg_params &p, unsigned long len)
+static void *recv_put_ping_hh (const x10rt_msg_params &, unsigned long)
 {
     return ping_buf;
 }
-static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
+static void recv_put_ping (const x10rt_msg_params &, unsigned long len)
 {
     if (validate && memcmp(buf, ping_buf, len)) {
         fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", len);
@@ -67,11 +67,11 @@ static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
     x10rt_send_put(p2, buf, len);
 }
 
-static void *recv_put_pong_hh (const x10rt_msg_params &p, unsigned long len)
+static void *recv_put_pong_hh (const x10rt_msg_params &, unsigned long)
 {
     return pong_buf;
 }
-static void recv_put_pong (const x10rt_msg_params &p, unsigned long len)
+static void recv_put_pong (const x10rt_msg_params &, unsigned long len)
 {
     if (validate && memcmp(buf, pong_buf, len)) {
         fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", len);
@@ -82,7 +82,7 @@ static void recv_put_pong (const x10rt_msg_params &p, unsigned long len)
 
 
 // {{{ get handlers
-static void *recv_get_ping_hh (const x10rt_msg_params &p)
+static void *recv_get_ping_hh (const x10rt_msg_params &)
 {
     return buf;
 }
@@ -97,11 +97,11 @@ static void recv_get_ping (const x10rt_msg_params &p, unsigned long len)
     x10rt_send_get(p2, pong_buf, len);
 }
 
-static void *recv_get_pong_hh (const x10rt_msg_params &p)
+static void *recv_get_pong_hh (const x10rt_msg_params &)
 {
     return buf;
 }
-static void recv_get_pong (const x10rt_msg_params &p, unsigned long len)
+static void recv_get_pong (const x10rt_msg_params &, unsigned long len)
 {
     if (validate && memcmp(buf, pong_buf, len)) {
         fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", len);
