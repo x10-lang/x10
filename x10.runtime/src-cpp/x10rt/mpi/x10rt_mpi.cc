@@ -98,8 +98,10 @@ class x10rt_req {
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
-        x10rt_get_req         get_req;
-        x10rt_put_req         put_req;
+        union {
+            x10rt_get_req         get_req;
+            x10rt_put_req         put_req;
+        }u;
     public:
         x10rt_req()  { next = prev = NULL;  buf = NULL; }
         ~x10rt_req() { next = prev = NULL;  buf = NULL; }
@@ -107,22 +109,22 @@ class x10rt_req {
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return buf; }
         void setGetReq(x10rt_get_req * r) {
-            get_req.type    = r->type;
-            get_req.msg     = r->msg;
-            get_req.msg_len = r->msg_len;
-            get_req.len     = r->len;
+            u.get_req.type    = r->type;
+            u.get_req.msg     = r->msg;
+            u.get_req.msg_len = r->msg_len;
+            u.get_req.len     = r->len;
         }
         void setPutReq(x10rt_put_req * r) {
-            put_req.type    = r->type;
-            put_req.msg     = r->msg;
-            put_req.msg_len = r->msg_len;
-            put_req.len     = r->len;
+            u.put_req.type    = r->type;
+            u.put_req.msg     = r->msg;
+            u.put_req.msg_len = r->msg_len;
+            u.put_req.len     = r->len;
         }
         x10rt_get_req * getGetReq() {
-            return &get_req;
+            return &u.get_req;
         }
         x10rt_put_req * getPutReq() {
-            return &put_req;
+            return &u.put_req;
         }
         friend class x10rt_req_queue;
 };
