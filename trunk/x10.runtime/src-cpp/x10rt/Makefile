@@ -1,18 +1,26 @@
-MPI_INSTALL  	= /Users/surs/Work/mpi/mpich2-install
+CXX             = mpicxx
+CXXFLAGS          = -O3 -g -I include -DENABLE_ASSERT -pthread
+LDFLAGS         = -L lib
 
-CXX             = $(MPI_INSTALL)/bin/mpicxx
-CFLAGS          = -g -I./include/ -DENABLE_ASSERT
+TESTS           = test/x10rt_basic
 
-HEADERS = include/x10rt_api.h
-OBJS 	= mpi/x10rt_mpi.o test/x10rt_basic.o
+all: test/x10rt_basic.mpi
 
-all: x10rt_basic
+%.mpi: %.cc lib/libxlpgas_mpi.a
+	${CXX} ${CXXFLAGS} $< -o $@ -L lib -lxlpgas_mpi
 
-%.o: %.cc ${HEADERS}
-	${CXX} ${CFLAGS} -c $< -o $@
+lib/libxlpgas_mpi.a: mpi/x10rt_mpi.o
+	${AR} rcu $@ $^
 
-x10rt_basic: ${OBJS}
-	${CXX} ${CFLAGS} -o $@ ${OBJS} ${LDFLAGS}
+
+%.standalone: %.cc lib/libxlpgas_standalone.a
+	${CXX} ${CXXFLAGS} $< -o $@ -L lib -lxlpgas_mpi
+
+lib/libxlpgas_standalone.a: standalone/x10rt_standalone.o
+	${AR} rcu $@ $^
+
 
 clean:
 	${RM} mpi/*.o test/*.o x10rt_basic *~ core*
+
+# vim: ts=8:sw=8:noet
