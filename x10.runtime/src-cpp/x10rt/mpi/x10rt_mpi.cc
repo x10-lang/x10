@@ -510,7 +510,6 @@ static void get_req_completion(int dest_place, x10rt_req_queue * q, x10rt_req * 
                            get_req->msg_len
                          };
     void * local = cb(p);
-    free(req->getBuf());
     q->remove(req);
 
     /* reuse request for sending reply */
