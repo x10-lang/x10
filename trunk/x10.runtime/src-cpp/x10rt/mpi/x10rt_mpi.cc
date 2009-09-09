@@ -399,8 +399,6 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
     get_msg->msg_len    = p.len;
     get_msg->len        = len;
 
-    fprintf(stderr, "p.msg %p p.len %d len %d\n", p.msg, p.len, len);
-
     /* pre-post a recv that matches the GET request */
     req = global_state.free_list.popNoFail();
     if(MPI_Irecv(buf, len, 
