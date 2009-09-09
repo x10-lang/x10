@@ -88,6 +88,8 @@ namespace x10aux {
 #endif
             setlinebuf(stdout);
 
+            x10rt_init(ac,av);
+
             x10aux::DeserializationDispatcher::registerAsyncHandlers();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
