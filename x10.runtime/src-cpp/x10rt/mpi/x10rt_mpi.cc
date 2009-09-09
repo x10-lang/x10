@@ -399,6 +399,8 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
     get_msg->msg_len    = p.len;
     get_msg->len        = len;
 
+    fprintf(stderr, "p.msg %p p.len %d len %d\n", p.msg, p.len, len);
+
     /* pre-post a recv that matches the GET request */
     req = global_state.free_list.popNoFail();
     if(MPI_Irecv(buf, len, 
@@ -409,7 +411,6 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
                 req->toMPI())) {
     }
     req->setGetReq(get_msg);
-    req->setBuf(buf);
     global_state.pending_get_recv_list.enqueue(req);
 
     /* send the GET request */
@@ -466,7 +467,7 @@ static void get_recv_completion(x10rt_req_queue * q, x10rt_req * req)
                            get_req->msg_len
                          };
     cb(p, get_req->len);
-    free(req->getBuf());
+    free(get_req->msg);
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
@@ -487,6 +488,7 @@ static void get_req_completion(int dest_place, x10rt_req_queue * q, x10rt_req * 
      *  <------ x10rt_get_req ----->
      */
     x10rt_get_req * get_req = (x10rt_get_req *) req->getBuf();
+    int len = get_req->len;
     getCb1 cb = global_state.getCb1Tbl[get_req->type];
     x10rt_msg_params p = { x10rt_here(),
                            get_req->type,
@@ -495,10 +497,11 @@ static void get_req_completion(int dest_place, x10rt_req_queue * q, x10rt_req * 
                          };
     void * local = cb(p);
     q->remove(req);
+    free(req->getBuf());
 
     /* reuse request for sending reply */
     if(MPI_SUCCESS != MPI_Isend(local, 
-                get_req->len, 
+                len, 
                 MPI_BYTE, 
                 dest_place, 
                 X10RT_GET_RECV,
@@ -508,14 +511,11 @@ static void get_req_completion(int dest_place, x10rt_req_queue * q, x10rt_req * 
         exit(EXIT_FAILURE);
     }
 
-    free(req->getBuf());
-    req->setBuf(local);
     global_state.pending_get_req_reply_list.enqueue(req);
 }
 
 static void get_req_reply_completion(x10rt_req_queue * q, x10rt_req * req)
 {
-    free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
