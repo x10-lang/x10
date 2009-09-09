@@ -3,7 +3,7 @@
 
 #include <x10rt_api.h>
 
-void x10rt_init (int, char **)
+void x10rt_init (int &, char **&)
 { }
 
 void x10rt_register_msg_receiver (unsigned,
