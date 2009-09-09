@@ -323,7 +323,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (X10Flags.toX10Flags(ct.flags()).isInterface())
                 return Kind.EITHER;
             if (X10Flags.toX10Flags(ct.flags()).isStruct())
-                return Kind.VALUE;
+                return Kind.STRUCT;
             else
                 return Kind.REFERENCE;
         }
