@@ -1,4 +1,4 @@
-void x10rt_init (int argc, char **argv);
+void x10rt_init (int &argc, char **&argv);
 
 struct x10rt_msg_params { unsigned long dest_place; unsigned type; void *msg; unsigned long len; };
 
