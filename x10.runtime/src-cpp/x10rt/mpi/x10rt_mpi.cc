@@ -720,8 +720,11 @@ static void check_pending(x10rt_req_queue * q, int type)
     }
 }
 
+bool quitting = false;
+
 void x10rt_probe (void)
 {
+    if (quitting) return;
     int arrived = 0;
     MPI_Status msg_status;
 
@@ -774,6 +777,7 @@ void x10rt_probe (void)
 
 void x10rt_finalize (void)
 {
+    quitting = true;
     if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
