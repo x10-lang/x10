@@ -71,10 +71,12 @@ enum { X10RT_SEND       = 1,
     X10RT_RECV          = 2, 
     X10RT_PUT_SEND      = 111,
     X10RT_PUT_RECV      = 222, 
-    X10RT_GET_SEND      = 333, 
-    X10RT_GET_RECV      = 444,
-    X10RT_GET_REQ       = 555,
-    X10RT_GET_REQ_REPLY = 666
+    X10RT_PUT_SEND_REQ  = 333,
+    X10RT_PUT_RECV_REQ  = 444,
+    X10RT_GET_SEND      = 555, 
+    X10RT_GET_RECV      = 666,
+    X10RT_GET_REQ       = 777,
+    X10RT_GET_REQ_REPLY = 888 
 };
 
 typedef struct _x10rt_get_req {
@@ -84,12 +86,20 @@ typedef struct _x10rt_get_req {
     int                       len;
 } x10rt_get_req;
 
+typedef struct _x10rt_put_req {
+    int                       type;
+    void                    * msg;
+    int                       msg_len;
+    int                       len;
+} x10rt_put_req;
+
 class x10rt_req {
         MPI_Request           mpi_req;
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
         x10rt_get_req         get_req;
+        x10rt_put_req         put_req;
     public:
         x10rt_req()  { next = prev = NULL;  buf = NULL; }
         ~x10rt_req() { next = prev = NULL;  buf = NULL; }
@@ -102,8 +112,17 @@ class x10rt_req {
             get_req.msg_len = r->msg_len;
             get_req.len     = r->len;
         }
+        void setPutReq(x10rt_put_req * r) {
+            put_req.type    = r->type;
+            put_req.msg     = r->msg;
+            put_req.msg_len = r->msg_len;
+            put_req.len     = r->len;
+        }
         x10rt_get_req * getGetReq() {
             return &get_req;
+        }
+        x10rt_put_req * getPutReq() {
+            return &put_req;
         }
         friend class x10rt_req_queue;
 };
@@ -244,7 +263,9 @@ class x10rt_internal_state {
         x10rt_req_queue     pending_get_req_list;
         x10rt_req_queue     pending_get_req_reply_list;
         x10rt_req_queue     pending_put_send_list;
+        x10rt_req_queue     pending_put_send_req_list;
         x10rt_req_queue     pending_put_recv_list;
+        x10rt_req_queue     pending_put_recv_req_list;
 
         x10rt_internal_state() {
             amCbTbl             = ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
@@ -361,10 +382,6 @@ void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz)
 void x10rt_send_msg (x10rt_msg_params & p)
 {
     x10rt_req * req;
-
-    // Check to ensure that these aren't the special values
-    ASSERT(((int)p.type) > 0);
-
     req = global_state.free_list.popNoFail();
 
     if(MPI_SUCCESS != MPI_Isend(p.msg, 
@@ -432,6 +449,52 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
 
 void x10rt_send_put (x10rt_msg_params &p, void *buf, unsigned long len)
 {
+    int put_msg_len;
+    x10rt_put_req * put_msg;
+
+    x10rt_req * req = global_state.free_list.popNoFail();
+
+    /*      PUT Message
+     * +-------------------------------------------+
+     * | type | msg | msg_len | len | <- msg ... ->|
+     * +-------------------------------------------+
+     *  <------ x10rt_put_req ----->
+     */
+    put_msg_len         = sizeof(x10rt_put_req) + p.len;
+    put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
+    put_msg->type       = p.type;
+    put_msg->msg        = p.msg;
+    put_msg->msg_len    = p.len;
+    put_msg->len        = len;
+    memcpy((void *) (&put_msg[1]), p.msg, p.len);
+
+    if(MPI_SUCCESS != MPI_Isend(put_msg, 
+                put_msg_len, 
+                MPI_BYTE, 
+                p.dest_place, 
+                X10RT_PUT_SEND_REQ,
+                MPI_COMM_WORLD, 
+                req->toMPI())) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+    req->setBuf(put_msg);
+    global_state.pending_put_send_req_list.enqueue(req);
+
+    req = global_state.free_list.popNoFail();
+
+    if(MPI_SUCCESS != MPI_Isend(buf, 
+                len, 
+                MPI_BYTE, 
+                p.dest_place, 
+                X10RT_PUT_SEND,
+                MPI_COMM_WORLD, 
+                req->toMPI())) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+    req->setBuf(NULL);
+    global_state.pending_put_send_list.enqueue(req);
 }
 
 static void send_completion(x10rt_req_queue * q, x10rt_req * req)
@@ -518,6 +581,72 @@ static void get_req_reply_completion(x10rt_req_queue * q, x10rt_req * req)
     global_state.free_list.enqueue(req);
 }
 
+static void put_send_req_completion(x10rt_req_queue * q, x10rt_req * req)
+{
+    free(req->getBuf());
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
+
+static void put_send_completion(x10rt_req_queue * q, x10rt_req * req)
+{
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
+
+static void put_recv_req_completion(int src_place, x10rt_req_queue * q, x10rt_req * req)
+{
+    /*      PUT Message
+     * +-------------------------------------------+
+     * | type | msg | msg_len | len | <- msg ... ->|
+     * +-------------------------------------------+
+     *  <------ x10rt_put_req ----->
+     */
+    x10rt_put_req * put_req = (x10rt_put_req *) req->getBuf();
+    int len = put_req->len;
+    putCb1 cb = global_state.putCb1Tbl[put_req->type];
+    x10rt_msg_params p = { x10rt_here(),
+                           put_req->type,
+                           (void *) &put_req[1],
+                           put_req->msg_len
+                         };
+    void * local = cb(p, len);
+    q->remove(req);
+
+    req->setPutReq(put_req);
+
+    /* free the recv'd buf, now that we've copied info */
+    free(req->getBuf());
+
+    /* reuse request for posting recv */
+    if(MPI_SUCCESS != MPI_Irecv(local, 
+                len, 
+                MPI_BYTE, 
+                src_place, 
+                X10RT_PUT_SEND,
+                MPI_COMM_WORLD, 
+                req->toMPI())) {
+        fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+    global_state.pending_put_recv_list.enqueue(req);
+}
+
+static void put_recv_completion(x10rt_req_queue * q, x10rt_req * req)
+{
+    x10rt_put_req   * put_req = req->getPutReq();
+    putCb2 cb = global_state.putCb2Tbl[put_req->type];
+    x10rt_msg_params p = { x10rt_here(),
+                           put_req->type,
+                           put_req->msg,
+                           put_req->msg_len
+                         };
+    cb(p, put_req->len);
+    free(put_req->msg);
+    q->remove(req);
+    global_state.free_list.enqueue(req);
+}
+
 static void check_pending(x10rt_req_queue * q, int type)
 {
     int num_checked = 0;
@@ -565,7 +694,21 @@ static void check_pending(x10rt_req_queue * q, int type)
                 case X10RT_GET_RECV:
                     get_recv_completion(q, req_copy);
                     break;
+                case X10RT_PUT_SEND_REQ:
+                    put_send_req_completion(q, req_copy);
+                    break;
+                case X10RT_PUT_SEND:
+                    put_send_completion(q, req_copy);
+                    break;
+                case X10RT_PUT_RECV_REQ:
+                    put_recv_req_completion(msg_status.MPI_SOURCE, q, req_copy);
+                    break;
+                case X10RT_PUT_RECV:
+                    put_recv_completion(q, req_copy);
+                    break;
                 default:
+                    fprintf(stderr, "Unknown completion!\n");
+                    exit(EXIT_FAILURE);
                     break;
             };
         } else {
@@ -595,16 +738,21 @@ void x10rt_probe (void)
         void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
         x10rt_req * req = global_state.free_list.popNoFail();
         req->setBuf(recv_buf);
-        if(MPI_Irecv(recv_buf, get_recvd_bytes(&msg_status), 
+        if(MPI_SUCCESS != MPI_Irecv(recv_buf, get_recvd_bytes(&msg_status), 
                     MPI_BYTE, 
                     msg_status.MPI_SOURCE, 
                     msg_status.MPI_TAG,
                     MPI_COMM_WORLD, 
                     req->toMPI())) {
+            fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
+            exit(EXIT_FAILURE);
         }
         switch(msg_status.MPI_TAG) {
             case X10RT_GET_SEND:
                 global_state.pending_get_req_list.enqueue(req);
+                break;
+            case X10RT_PUT_SEND_REQ:
+                global_state.pending_put_recv_req_list.enqueue(req);
                 break;
             default:
                 global_state.pending_recv_list.enqueue(req);
@@ -616,6 +764,10 @@ void x10rt_probe (void)
         check_pending(&global_state.pending_get_req_list,       X10RT_GET_REQ);
         check_pending(&global_state.pending_get_req_reply_list, X10RT_GET_REQ_REPLY);
         check_pending(&global_state.pending_get_recv_list,      X10RT_GET_RECV);
+        check_pending(&global_state.pending_put_send_req_list,  X10RT_PUT_SEND_REQ);
+        check_pending(&global_state.pending_put_send_list,      X10RT_PUT_SEND);
+        check_pending(&global_state.pending_put_recv_req_list,  X10RT_PUT_RECV_REQ);
+        check_pending(&global_state.pending_put_recv_list,      X10RT_PUT_RECV);
     }
 }
 
