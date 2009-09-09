@@ -64,7 +64,7 @@ static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
         abort();
     }
     x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
-    x10rt_send_put(p2, buf, p.len);
+    x10rt_send_put(p2, buf, len);
 }
 
 static void *recv_put_pong_hh (const x10rt_msg_params &, unsigned long)

@@ -1,7 +1,7 @@
 MPI_INSTALL  	= /Users/surs/Work/mpi/mpich2-install
 
 CXX             = $(MPI_INSTALL)/bin/mpicxx
-CFLAGS          = -O3 -I./include/ -DENABLE_ASSERT
+CFLAGS          = -g -I./include/ -DENABLE_ASSERT
 
 HEADERS = include/x10rt_api.h
 OBJS 	= mpi/x10rt_mpi.o test/x10rt_basic.o
