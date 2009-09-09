@@ -734,7 +734,10 @@ void x10rt_probe (void)
         exit(EXIT_FAILURE);
     }
 
-    if(arrived) {
+    if(arrived && 
+            X10RT_PUT_SEND != msg_status.MPI_TAG) {
+        /* Don't need to post recv for incoming puts, they
+         * will be matched by X10RT_PUT_SEND_REQ handler */
         void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
         x10rt_req * req = global_state.free_list.popNoFail();
         req->setBuf(recv_buf);
