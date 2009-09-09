@@ -307,8 +307,8 @@ void x10rt_register_msg_receiver (unsigned msg_type,
 {
     if(msg_type >= global_state.amCbTblSize) {
         global_state.amCbTbl     = 
-            ChkRealloc<amSendCb>(global_state.amCbTbl, sizeof(amSendCb)*msg_type);
-        global_state.amCbTblSize = msg_type;
+            ChkRealloc<amSendCb>(global_state.amCbTbl, sizeof(amSendCb)*(msg_type+1));
+        global_state.amCbTblSize = msg_type+1;
     }
 
     global_state.amCbTbl[msg_type] = cb;
