@@ -88,13 +88,13 @@ static void *recv_get_ping_hh (const x10rt_msg_params &)
 }
 static void recv_get_ping (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && (p.len > 0) && memcmp(buf, ping_buf, p.len)) {
+    if (validate && (p.len > 0) && memcmp(buf, ping_buf, len)) {
         fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p.len);
         abort();
     }
     // send to dest place again
     x10rt_msg_params p2 = {p.dest_place, PONG_GET_ID, NULL, 0};
-    x10rt_send_get(p2, pong_buf, p.len);
+    x10rt_send_get(p2, pong_buf, len);
 }
 
 static void *recv_get_pong_hh (const x10rt_msg_params &)
@@ -103,7 +103,7 @@ static void *recv_get_pong_hh (const x10rt_msg_params &)
 }
 static void recv_get_pong (const x10rt_msg_params &p, unsigned long len)
 {
-    if (validate && (p.len > 0) && memcmp(buf, pong_buf, p.len)) {
+    if (validate && (p.len > 0) && memcmp(buf, pong_buf, len)) {
         fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
         abort();
     }
