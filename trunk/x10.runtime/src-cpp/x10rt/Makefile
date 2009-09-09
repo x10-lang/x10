@@ -1,26 +1,30 @@
-CXX             = mpicxx
-CXXFLAGS          = -O3 -g -I include -DENABLE_ASSERT -pthread
+CXX             = g++ -ansi -pedantic -Wno-long-long
+MPICXX             = mpicxx
+CXXFLAGS          = -O3 -g -I include -pthread
 LDFLAGS         = -L lib
 
 TESTS           = test/x10rt_basic
 
-all: test/x10rt_basic.mpi
+all: test/x10rt_basic.mpi test/x10rt_basic.standalone
 
 %.mpi: %.cc lib/libxlpgas_mpi.a
-	${CXX} ${CXXFLAGS} $< -o $@ -L lib -lxlpgas_mpi
+	${MPICXX} ${CXXFLAGS} $< -o $@ ${LDFLAGS} -lxlpgas_mpi
+
+mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
+	${MPICXX} ${CXXFLAGS} -c $< -o $@
 
 lib/libxlpgas_mpi.a: mpi/x10rt_mpi.o
 	${AR} rcu $@ $^
 
 
 %.standalone: %.cc lib/libxlpgas_standalone.a
-	${CXX} ${CXXFLAGS} $< -o $@ -L lib -lxlpgas_mpi
+	${CXX} ${CXXFLAGS} $< -o $@ ${LDFLAGS} -lxlpgas_standalone
 
 lib/libxlpgas_standalone.a: standalone/x10rt_standalone.o
 	${AR} rcu $@ $^
 
 
 clean:
-	${RM} mpi/*.o test/*.o x10rt_basic *~ core*
+	${RM} -f */*.o */*.mpi */*.standalone lib/*.a */*~ *~ core*
 
 # vim: ts=8:sw=8:noet
