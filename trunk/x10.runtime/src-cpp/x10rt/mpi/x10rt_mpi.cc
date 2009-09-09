@@ -225,12 +225,9 @@ typedef void (*getCb2)(const x10rt_msg_params &, unsigned long len);
 
 class x10rt_internal_state {
     public:
-        bool                init;
         pthread_mutex_t     lock;
         int                 rank;
         int                 nprocs;
-        int                 argc;
-        char             ** argv;
         amSendCb          * amCbTbl;
         int                 amCbTblSize;
         putCb1            * putCb1Tbl;
@@ -250,7 +247,6 @@ class x10rt_internal_state {
         x10rt_req_queue     pending_put_recv_list;
 
         x10rt_internal_state() {
-            init                = false;
             amCbTbl             = ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
             amCbTblSize         = X10RT_CB_TBL_SIZE;
             putCb1Tbl           = ChkAlloc<putCb1>(sizeof(putCb1) * X10RT_CB_TBL_SIZE);
@@ -273,30 +269,23 @@ class x10rt_internal_state {
 
 static x10rt_internal_state     global_state;
 
-void x10rt_set_args(int argc, char ** argv)
+void x10rt_init(int &argc, char ** &argv)
 {
-    global_state.argc = argc;
-    global_state.argv = argv;
-}
-
-static void x10rt_ensure_init ()
-{
-    if(!global_state.init) {
-        if(MPI_SUCCESS != MPI_Init(&global_state.argc, &global_state.argv)) {
-            fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
-            exit(EXIT_FAILURE);
-        }
-        MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
-        MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
-        global_state.init = true;
+    if(MPI_SUCCESS != MPI_Init(&argc, &argv)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+    MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
+    if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 }
 
 void x10rt_register_msg_receiver (unsigned msg_type,
                                   void (*cb)(const x10rt_msg_params &))
 {
-    x10rt_ensure_init();
-
     if(msg_type >= global_state.amCbTblSize) {
         global_state.amCbTbl     = 
             ChkRealloc<amSendCb>(global_state.amCbTbl, sizeof(amSendCb)*msg_type);
@@ -310,8 +299,6 @@ void x10rt_register_put_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &, unsigned long len),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
-    x10rt_ensure_init();
-
     if(msg_type >= global_state.putCbTblSize) {
         global_state.putCb1Tbl     = 
             ChkRealloc<putCb1>(global_state.putCb1Tbl, sizeof(putCb1)*msg_type);
@@ -328,8 +315,6 @@ void x10rt_register_get_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
-    x10rt_ensure_init();
-
     if(msg_type >= global_state.getCbTblSize) {
         global_state.getCb1Tbl     = 
             ChkRealloc<getCb1>(global_state.getCb1Tbl, sizeof(getCb1)*msg_type);
@@ -344,23 +329,31 @@ void x10rt_register_get_receiver (unsigned msg_type,
 
 void x10rt_registration_complete (void)
 {
-    x10rt_ensure_init();
-    MPI_Barrier(MPI_COMM_WORLD);
+    if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
 }
 
 unsigned long x10rt_nplaces (void)
 {
-    ASSERT(global_state.init);
     return global_state.nprocs;
 }
 
 unsigned long x10rt_here (void)
 {
-    ASSERT(global_state.init);
     return global_state.rank;
 }
 
 void *x10rt_msg_realloc (void *old, size_t old_sz, size_t new_sz)
+{
+    return ChkRealloc<void>(old, new_sz);
+}
+void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz)
+{
+    return ChkRealloc<void>(old, new_sz);
+}
+void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz)
 {
     return ChkRealloc<void>(old, new_sz);
 }
@@ -385,11 +378,6 @@ void x10rt_send_msg (x10rt_msg_params & p)
     }
     req->setBuf(p.msg);
     global_state.pending_send_list.enqueue(req);
-}
-
-void *x10rt_get_realloc (void *old, size_t old_sz, size_t new_sz)
-{
-    return ChkRealloc<void>(old, new_sz);
 }
 
 void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
@@ -442,10 +430,6 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
     global_state.pending_get_send_list.enqueue(req);
 }
 
-void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz)
-{
-    return ChkRealloc<void>(old, new_sz);
-}
 
 void x10rt_send_put (x10rt_msg_params &p, void *buf, unsigned long len)
 {
@@ -639,7 +623,6 @@ void x10rt_probe (void)
 
 void x10rt_finalize (void)
 {
-    ASSERT(global_state.init);
     if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
