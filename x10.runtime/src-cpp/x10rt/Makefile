@@ -5,16 +5,22 @@ LDFLAGS         = -Llib -lpthread
 
 BASE_TESTS      = test/x10rt_basic
 
-default: tests
+X10_HOME        = ../../..
+
+default: all
 
 include mpi/mpi.mk
 include standalone/standalone.mk
 
 install: $(LIBS) $(PROPERTIES)
+	cp $(LIBS) $(X10_HOME)/x10.dist/lib
+	cp $(PROPERTIES) $(X10_HOME)/x10.dist/etc
 
 tests: $(TESTS)
 
+all: $(TESTS) $(PROPERTIES) $(LIBS)
+
 clean:
-	${RM} -f */*.o lib/*.a */*~ *~ core*
+	${RM} -f */*.o $(LIBS) $(PROPERTIES) */*~ *~ core*
 
 # vim: ts=8:sw=8:noet
