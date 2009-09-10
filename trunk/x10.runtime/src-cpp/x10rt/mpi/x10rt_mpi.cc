@@ -19,13 +19,6 @@
 #define X10RT_CB_TBL_SIZE               (128)
 #define X10RT_MAX_PEEK_DEPTH            (16)
 
-/* Debug macros */
-#ifdef ENABLE_ASSERT
-#define ASSERT(_x) assert(_x)
-#else
-#define ASSERT(_x)
-#endif
-
 /* Generic utility funcs */
 template <class T> T* ChkAlloc (size_t len) {
     if(0 == len) return NULL;
@@ -132,9 +125,11 @@ class x10rt_req {
             u.put_req.len     = r->len;
         }
         x10rt_get_req * getGetReq() {
+            assert(X10RT_GET_INCOMING_DATA == type);
             return &u.get_req;
         }
         x10rt_put_req * getPutReq() {
+            assert(X10RT_PUT_INCOMING_DATA == type);
             return &u.put_req;
         }
         friend class x10rt_req_queue;
@@ -158,7 +153,7 @@ class x10rt_req_queue {
                 x10rt_req * r = pop();
                 r->~x10rt_req();
             }
-            ASSERT((NULL == head) && (NULL == tail) && (0 == len));
+            assert((NULL == head) && (NULL == tail) && (0 == len));
         }
         x10rt_req * start() {
             return head;
@@ -182,12 +177,12 @@ class x10rt_req_queue {
 
             r->next     = NULL;
             if(head) {
-                ASSERT(NULL != tail);
+                assert(NULL != tail);
                 tail->next = r;
                 r->prev = tail;
                 tail = r;
             } else {
-                ASSERT(NULL == tail);
+                assert(NULL == tail);
                 r->prev = NULL; 
                 head = tail = r;
             }
@@ -210,7 +205,7 @@ class x10rt_req_queue {
                 len --; 
                 if(NULL == head) {
                     tail = NULL; 
-                    ASSERT(0 == len);
+                    assert(0 == len);
                 }
             }
 
@@ -226,7 +221,7 @@ class x10rt_req_queue {
                 exit(EXIT_FAILURE);
             }
 
-            ASSERT((NULL != head) && (NULL != tail) && (len > 0));
+            assert((NULL != head) && (NULL != tail) && (len > 0));
             if(r->prev) r->prev->next = r->next;
             if(r->next) r->next->prev = r->prev;
             if(r == head) head = r->next;
@@ -300,8 +295,15 @@ static x10rt_internal_state     global_state;
 
 void x10rt_init(int &argc, char ** &argv)
 {
-    if(MPI_SUCCESS != MPI_Init(&argc, &argv)) {
+    int provided = MPI_THREAD_SINGLE;
+    int required = MPI_THREAD_MULTIPLE;
+    if(MPI_SUCCESS != MPI_Init_thread(&argc, &argv, required, &provided)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+    if(MPI_THREAD_MULTIPLE != provided) {
+        fprintf(stderr, "[%s:%d] Underlying MPI implementation"
+                    " needs to provide MPI_THREAD_MULTIPLE threading level\n");
         exit(EXIT_FAILURE);
     }
     MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
