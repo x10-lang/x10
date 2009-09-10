@@ -96,11 +96,15 @@ namespace x10aux {
 
     template<class T, class U>
     inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
-        if (x.isNull())
+        if (x.isNull()) {
             return y.isNull();
-        if (y.isNull())
+        } else if (y.isNull()) {
             return false; // x != null, needed for remote refs
-        return x->_struct_equals(y);
+        } else if (remote_ref::is_remote(x.get()) || remote_ref::is_remote(y.get())) {
+            return remote_ref::equals(x.get(), y.get());
+        } else {
+            return x->_struct_equals(y);
+        }
     }
 
     template<class T>

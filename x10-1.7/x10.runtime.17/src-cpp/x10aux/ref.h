@@ -24,6 +24,9 @@ namespace x10aux {
 
         // take a remote_ref struct (presumably from the wire) and create a local representation
         static void *take (remote_ref r);
+
+        // compare two (masked) remote_ref pointers
+        static bool equals (void *ptr1, void *ptr2);
     };
 
     #ifndef NO_IOSTREAM
