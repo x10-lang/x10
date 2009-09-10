@@ -21,6 +21,8 @@ public class Pool(latch:Latch) implements ()=>Void {
 	private val lock = new Lock();
 
 	private val semaphore = new Semaphore(0);
+	
+	private val l = new Latch();
 
 	// an upper bound on the number of workers
 	private const MAX = 1000; 
@@ -58,6 +60,7 @@ public class Pool(latch:Latch) implements ()=>Void {
 	    	threads(i).start();
 	    }
 	    workers(0)();
+	    l.await();
 	}
 	
 	
@@ -101,8 +104,12 @@ public class Pool(latch:Latch) implements ()=>Void {
 	// release permit (called by worker upon termination)
 	def release() {
 		semaphore.release();
+		lock.lock();
+		size--;
+		if (size == 0) l.release();
+		lock.unlock();
 	}
-
+	
 	// scan workers for activity to steal
 	def scan(random:Random, latch:Latch, block:Boolean):Activity {
 		var activity:Activity = null;
