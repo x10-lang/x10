@@ -335,7 +335,8 @@ void x10rt_init(int &argc, char ** &argv)
     }
     if(MPI_THREAD_MULTIPLE != provided) {
         fprintf(stderr, "[%s:%d] Underlying MPI implementation"
-                    " needs to provide MPI_THREAD_MULTIPLE threading level\n");
+                    " needs to provide MPI_THREAD_MULTIPLE threading level\n",
+                        __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
     MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
