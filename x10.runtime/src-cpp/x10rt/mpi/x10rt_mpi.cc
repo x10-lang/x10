@@ -104,8 +104,8 @@ class x10rt_req {
             x10rt_put_req         put_req;
         } u;
     public:
-        x10rt_req()  { next = prev = NULL;  buf = NULL; }
-        ~x10rt_req() { next = prev = NULL;  buf = NULL; }
+        x10rt_req()  { next = prev = NULL;  buf = NULL; type = -1; }
+        ~x10rt_req() { next = prev = NULL;  buf = NULL; type = -1; }
         void setType(int t) { type = t; }
         int  getType() { return type; }
         MPI_Request * toMPI() { return &mpi_req; }
@@ -160,10 +160,30 @@ class x10rt_req_queue {
             }
         }
         x10rt_req * start() {
-            return head;
+            x10rt_req * r;
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+            r = head;
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
+            return r;
         }
         x10rt_req * next(x10rt_req * r) {
-            return r->next;
+            x10rt_req * n;
+            if(pthread_mutex_lock(&lock)) {
+                perror("pthread_mutex_lock");
+                exit(EXIT_FAILURE);
+            }
+            n = r->next;
+            if(pthread_mutex_unlock(&lock)) {
+                perror("pthread_mutex_unlock");
+                exit(EXIT_FAILURE);
+            }
+            return n;
         }
         void addRequests(int num) {         /* wrap around enqueue (which is thread safe) */
             for(int i=0; i<num; ++i) {
