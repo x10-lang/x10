@@ -37,4 +37,12 @@ x10_int x10aux::location (void *ptr) {
     return x10aux::here();
 }
 
+bool remote_ref::equals (void *ptr1, void *ptr2) {
+    if (!remote_ref::is_remote(ptr1) || !remote_ref::is_remote(ptr2))
+        return false;
+    remote_ref *r1 = remote_ref::strip(ptr1);
+    remote_ref *r2 = remote_ref::strip(ptr2);
+    return r1->loc==r2->loc && r1->addr==r2->addr;
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab
