@@ -12,9 +12,8 @@ else
   abspath=$(abspath $1)
 endif
 
-X10LIB ?= $(call abspath,../../pgas2/common/work)
 CXXFLAGS += -g
-INCLUDE_DIRS += -I$(X10LIB)/include -I.
+INCLUDE_DIRS += -I.
 
 ifdef ENABLE_GC
   CXXFLAGS += -DX10_USE_BDWGC
@@ -102,11 +101,8 @@ INSTDIR = $(call abspath,../../x10.dist)
 XRX_ARCHIVE = libx10.a
 XRX_MANIFEST = libx10.mft
 
-# if this doesn't exist, we need to build pgas first
-PGAS_SANITY_CHECK=$(X10LIB)/include/x10/x10rt_api.h
-
 # this builds everything
-xrx: $(XRX_ARCHIVE) $(PGAS_SANTIY_CHECK)
+xrx: $(XRX_ARCHIVE)
 
 .PHONY: xrx
 
@@ -253,6 +249,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
+	cp -p x10rt_api.h $(INSTDIR)/include
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
