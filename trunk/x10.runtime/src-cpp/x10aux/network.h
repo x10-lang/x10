@@ -4,7 +4,7 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 
-#include <x10/x10rt_api.h> //x10rt
+#include <x10rt_api.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 
