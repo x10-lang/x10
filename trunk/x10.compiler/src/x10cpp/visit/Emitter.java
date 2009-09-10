@@ -594,17 +594,6 @@ public class Emitter {
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
-    void printRTT(X10ClassType ct, ClassifiedStream h) {
-    	if (ct.flags().isInterface()) {
-    		h.write("RTT_H_DECLS_INTERFACE");
-    	} else if (ct.isX10Struct()) {
-       		h.write("RTT_H_DECLS_STRUCT");    		
-    	} else {
-       		h.write("RTT_H_DECLS_CLASS");    		
-    	}
-    	h.newline(); h.forceNewline();
-	}
-
     void printRTTDefn(X10ClassType ct, CodeWriter h) {
         X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 		String x10name = ct.fullName().toString();
