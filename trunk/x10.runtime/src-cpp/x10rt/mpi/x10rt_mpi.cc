@@ -91,6 +91,15 @@ typedef struct _x10rt_put_req {
     int                       len;
 } x10rt_put_req;
 
+/* differentiate from x10rt_{get|put}_req
+ * to save precious bytes from packet size
+ * for each PUT/GET */
+typedef struct _x10rt_nw_req {
+    int                       type;
+    int                       msg_len;
+    int                       len;
+} x10rt_nw_req;
+
 class x10rt_req {
         int                   type;
         MPI_Request           mpi_req;
@@ -405,21 +414,26 @@ void x10rt_send_msg (x10rt_msg_params & p)
 
 void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
 {
-    int             get_msg_len;
-    x10rt_req     * req;
-    x10rt_get_req * get_msg;
+    int                 get_msg_len;
+    x10rt_req         * req;
+    x10rt_nw_req      * get_msg;
+    x10rt_get_req       get_req;
+
+    get_req.type       = p.type;
+    get_req.dest_place = p.dest_place;
+    get_req.msg        = p.msg;
+    get_req.msg_len    = p.len;
+    get_req.len        = len;
 
     /*      GET Message
-     * +--------------------------------------------------------+
-     * | type | dest_place | msg | msg_len | len | <- msg ... ->|
-     * +--------------------------------------------------------+
-     *  <------------- x10rt_get_req ----------->
+     * +-------------------------------------+
+     * | type | msg_len | len | <- msg ... ->|
+     * +-------------------------------------+
+     *  <--- x10rt_nw_req --->
      */
-    get_msg_len         = sizeof(x10rt_get_req) + p.len;
-    get_msg             = ChkAlloc<x10rt_get_req>(get_msg_len);
-    get_msg->dest_place = p.dest_place;
+    get_msg_len         = sizeof(x10rt_nw_req) + p.len;
+    get_msg             = ChkAlloc<x10rt_nw_req>(get_msg_len);
     get_msg->type       = p.type;
-    get_msg->msg        = p.msg;
     get_msg->msg_len    = p.len;
     get_msg->len        = len;
 
@@ -433,7 +447,7 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
                 req->toMPI())) {
     }
     req->setBuf(NULL);
-    req->setGetReq(get_msg);
+    req->setGetReq(&get_req);
     req->setType(X10RT_GET_INCOMING_DATA);
     global_state.pending_list.enqueue(req);
 
@@ -556,18 +570,18 @@ static void get_outgoing_req_completion(x10rt_req_queue * q, x10rt_req * req)
 static void get_incoming_req_completion(int dest_place, x10rt_req_queue * q, x10rt_req * req)
 {
     /*      GET Message
-     * +--------------------------------------------------------+
-     * | type | dest_place | msg | msg_len | len | <- msg ... ->|
-     * +--------------------------------------------------------+
-     *  <------------- x10rt_get_req ----------->
+     * +-------------------------------------+
+     * | type | msg_len | len | <- msg ... ->|
+     * +-------------------------------------+
+     *  <--- x10rt_nw_req --->
      */
-    x10rt_get_req * get_req = (x10rt_get_req *) req->getBuf();
-    int len = get_req->len;
-    getCb1 cb = global_state.getCb1Tbl[get_req->type];
+    x10rt_nw_req * get_nw_req = (x10rt_nw_req *) req->getBuf();
+    int len = get_nw_req->len;
+    getCb1 cb = global_state.getCb1Tbl[get_nw_req->type];
     x10rt_msg_params p = { x10rt_here(),
-                           get_req->type,
-                           (void *) &get_req[1],
-                           get_req->msg_len
+                           get_nw_req->type,
+                           (void *) &get_nw_req[1],
+                           get_nw_req->msg_len
                          };
     void * local = cb(p);
     q->remove(req);
