@@ -154,6 +154,10 @@ class x10rt_req_queue {
                 r->~x10rt_req();
             }
             assert((NULL == head) && (NULL == tail) && (0 == len));
+            if(pthread_mutex_destroy(&lock)) {
+                perror("pthread_mutex_destroy");
+                exit(EXIT_FAILURE);
+            }
         }
         x10rt_req * start() {
             return head;
@@ -288,6 +292,14 @@ class x10rt_internal_state {
         }
         ~x10rt_internal_state() {
             free(amCbTbl);
+            free(putCb1Tbl);
+            free(putCb2Tbl);
+            free(getCb1Tbl);
+            free(getCb2Tbl);
+            if(pthread_mutex_destroy(&lock)) {
+                perror("pthread_mutex_destroy");
+                exit(EXIT_FAILURE);
+            }
         }
 };
 
