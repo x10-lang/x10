@@ -53,8 +53,9 @@ static void recv_msg_pong (const x10rt_msg_params &p)
 
 
 // {{{ put handlers
-static void *recv_put_ping_hh (const x10rt_msg_params &, unsigned long)
+static void *recv_put_ping_hh (const x10rt_msg_params &, unsigned long len)
 {
+    if(validate) memset(ping_buf, 0, len);
     return ping_buf;
 }
 static void recv_put_ping (const x10rt_msg_params &p, unsigned long len)
@@ -153,6 +154,7 @@ long long run_test(unsigned long iters,
                     x10rt_send_put(p, buf, len);
                 } else if (get) {
                     x10rt_msg_params p = {k, PING_GET_ID, NULL, 0};
+                    if(validate) memset(ping_buf, 0, len);
                     x10rt_send_get(p, ping_buf, len);
                 } else {
                     void *tmp = x10rt_msg_realloc(NULL,0,len);

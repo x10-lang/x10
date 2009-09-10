@@ -1,7 +1,7 @@
 CXX             = g++ -ansi -pedantic -Wno-long-long
 MPICXX             = mpicxx
-CXXFLAGS          = -O3 -g -I include -pthread
-LDFLAGS         = -L lib
+CXXFLAGS          = -O3 -g -I./include
+LDFLAGS         = -L./lib -lpthread
 
 TESTS           = test/x10rt_basic
 
