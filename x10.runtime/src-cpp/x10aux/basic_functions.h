@@ -132,6 +132,8 @@ namespace x10aux {
             return y.isNull();
         } else if (y.isNull()) {
             return false; // x != null, needed for remote refs
+        } else if (remote_ref::is_remote(x.operator->()) || remote_ref::is_remote(y.operator->())) {
+            return remote_ref::equals(x.operator->(), y.operator->());
         } else {
             ref<x10::lang::Object> xAsObj = x;
             ref<x10::lang::Object> yAsObj = y;
