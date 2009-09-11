@@ -12,6 +12,7 @@ import x10.runtime.impl.java.Thread;
 import x10.types.RuntimeType;
 import x10.types.Type;
 
+
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref {
     public final int location;
@@ -55,4 +56,7 @@ public class Ref {
     public Ref box$() {
         return this;
     }
+
+    public boolean at(int p) { return location == p;}
+    public boolean at(Ref r) { return location == r.location();}
 }
