@@ -1020,9 +1020,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (currentClass.flags().isInterface()) {
             visitInterfaceBody(n, context, currentClass, superClass, xts);
-        } else if (xts.isValueType(currentClass, context)) {
+        } else if (xts.isValueType(currentClass, context) || currentClass.isX10Struct()) { // HACK: treating sturcts as values.
             visitValueBody(n, context, currentClass, superClass, xts);
         } else if (currentClass.isX10Struct()) {
+            assert false : "unreachable code due to structs as values hack";
             context.setGeneratingSturct(true);
             visitStructBody(n, context, currentClass, superClass, xts);
             context.setGeneratingSturct(false);
@@ -1256,14 +1257,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.begin(0);
             sw.write("if (p0.operator->() == this) return true; // short-circuit trivial equality");
             sw.newline();
-            sw.write("if (!this->" + emitter.translateType(superClass)
-                     + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
-                     + "(p0))");
-            sw.newline(4);
-            sw.begin(0);
-            sw.write("return false;");
-            sw.end();
-            sw.newline();
+            if (superClass != null) { // HACK: treating structs as values.
+                sw.write("if (!this->" + emitter.translateType(superClass)
+                         + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
+                         + "(p0))");
+                sw.newline(4);
+                sw.begin(0);
+                sw.write("return false;");
+                sw.end();
+                sw.newline();
+            }
             emitter.printType(currentClass, sw);
             sw.write(" that =");
             sw.allowBreak(4, " ");
@@ -2405,7 +2408,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                    }
 
                     if (!isInterfaceInvoke) {
-                    	boolean needsCheck = !((X10Type)t).isX10Struct();
+                    	boolean needsCheck = true || !((X10Type)t).isX10Struct(); // HACK: treating sturcts as values.
                     	sw.write(needsCheck ? "x10aux::placeCheck(x10aux::nullCheck(" : "(");
                   		n.printSubExpr((Expr) target, assoc, sw, tr);
                   		sw.write((needsCheck ? "))" : ")")+"->");
@@ -2532,7 +2535,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-				boolean needsChecks = !((X10Type)t).isX10Struct();
+				boolean needsChecks = true || !((X10Type)t).isX10Struct(); // HACK: treating sturcts as values.
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsChecks) sw.write("x10aux::placeCheck(x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
@@ -3074,7 +3077,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
-            	if (((X10Type)n.type()).isX10Struct()) {
+            	if (false && ((X10Type)n.type()).isX10Struct()) { // HACK: treating sturcts as values.
                     sw.write("("+n.kind()+")");
             	} else {
             		sw.write("(("+emitter.translateType(n.type(),true)+")"+n.kind()+")");

@@ -240,7 +240,7 @@ public class Emitter {
 //		} else
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
-			if (ct.isX10Struct()) {
+			if (false && ct.isX10Struct()) { // HACK: treating sturcts as values.
 				// Struct types are not boxed up as Refs.  They are always generated as just C++ class types
 				// (Note: not pointer to Class, but the actual class).
 				asRef = false;
