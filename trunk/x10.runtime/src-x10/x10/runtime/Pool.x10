@@ -23,8 +23,6 @@ public class Pool implements ()=>Void {
 
 	private val semaphore = new Semaphore(0);
 	
-	private val l = new Latch();
-
 	// an upper bound on the number of workers
 	private const MAX = 1000; 
 
@@ -43,6 +41,7 @@ public class Pool implements ()=>Void {
 	    // worker for the master thread
 	    val master = new Worker(latch, 0);
 	    workers(0) = master;
+	    threads(0) = Thread.currentThread();
 	    Thread.currentThread().worker(master);
 	    
 	    // other workers
@@ -57,11 +56,11 @@ public class Pool implements ()=>Void {
 	}
 
 	public def apply():Void {
-	    for (var i:Int = 1; i<size; i++) {
+		for (var i:Int = 1; i<size; i++) {
 	    	threads(i).start();
 	    }
 	    workers(0)();
-	    l.await();
+   		while (size > 0) Thread.park();
 	}
 	
 	
@@ -108,7 +107,7 @@ public class Pool implements ()=>Void {
 		semaphore.release();
 		lock.lock();
 		size--;
-		if (size == 0) l.release();
+		if (size == 0) Thread.unpark(threads(0));
 		lock.unlock();
 	}
 
