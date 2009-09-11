@@ -111,8 +111,6 @@ public class X10Field_c extends Field_c {
 			}
 		}
 		
-		
-
 		if (c.inSuperTypeDeclaration()) {
 			Type tBase = X10TypeMixin.baseType(tType);
 			if (tBase instanceof X10ClassType) {
@@ -138,7 +136,6 @@ public class X10Field_c extends Field_c {
 				}
 			}
 		}
-
 
 		try {
 			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id(), c));
@@ -179,7 +176,7 @@ public class X10Field_c extends Field_c {
 
 
 			if (ENABLE_PLACE_TYPES)
-				checkFieldPlaceType(result, tc);
+				result.checkFieldPlaceType(tc);
 
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -213,71 +210,51 @@ public class X10Field_c extends Field_c {
 		if (x != null && fi.thisVar() != null) {
 			if (target instanceof Expr) {
 				XVar receiver = null;
-				try {
+				
 					X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 					XTerm r = ts.xtypeTranslator().trans((XConstraint) null, target, (X10Context) c);
 					if (r instanceof XVar) {
 						receiver = (XVar) r;
 					}
-				}
-				catch (SemanticException e) {
-				}
+				
+				
 				if (receiver == null)
-					receiver = x.genEQV();
+					receiver = XConstraint_c.genEQV();
 				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
 		return t;
 	}
 
-	private static final boolean ENABLE_PLACE_TYPES = false;
+	private static final boolean ENABLE_PLACE_TYPES = true;
 
-	// TODO: vj -- check this code 08/12/09
-	protected void checkFieldPlaceType(X10Field_c result, ContextVisitor tc) 
+	public void checkFieldPlaceType( ContextVisitor tc) 
 	throws SemanticException {
-
-		if (result.fieldInstance().flags().isFinal())
+		X10Flags xFlags = X10Flags.toX10Flags(fieldInstance().flags());
+		// A global field can be accessed from anywhere.
+		if (xFlags.isGlobal())
 			return;
-		if (result.fieldInstance().flags().isStatic())
-			return;
-
-		if (result.target() instanceof Special)
+		
+		// A static field can be accessed from anywhere.
+		if (xFlags.isStatic())
 			return;
 
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context xc = (X10Context) tc.context();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-
-		if (! ts.isSubtype(result.target().type(), ts.Ref(), xc))
+		
+		Receiver target = target();
+		if (! ts.isSubtype(target.type(), ts.Ref(), xc))
 			return;
 
-		try {
-			// Given e.f, check if e.loc==here is true.
-			XConstraint_c pc = new XConstraint_c();
-			XTerm target = ts.xtypeTranslator().trans(pc, result.target(), xc);
-			if (target != null) {
-				XTerm eloc = ts.xtypeTranslator().trans(pc, target, 
-						((StructType) ts.Ref()).fieldNamed(Name.make("location")));
-				Type t = result.target().type();
+		if (ts.isHere(target, xc))
+			return;
 
-				XTerm here = ts.xtypeTranslator().transHere();
-				pc.addBinding(eloc, here);
-
-				XConstraint targetConstraint = X10TypeMixin.realX(result.target().type());
-				if (targetConstraint.entails(pc, xc.constraintProjection(targetConstraint, pc))) {
-					// Gamma, true |- here==e.loc
-					return;
-				}
-			}
-		}
-		catch (XFailure e) {
-			// fall through
-		}
-		catch (SemanticException e) {
-			// fall through
-		}
-
-		tc.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Place type error: field target " + result.target() + " may not be local.", result.position());
+		throw new SemanticError("Place type error: " +
+				"either field target " 
+				+ target + " of type " + target.type() + " should be local "
+				+ " to place " + ((X10Context) tc.context()).currentPlaceTerm()
+				+ " or field " + name() + " should be global.",
+				position());
 	}
 
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 

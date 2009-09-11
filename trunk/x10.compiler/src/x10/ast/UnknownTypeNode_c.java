@@ -49,7 +49,9 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		NodeFactory nf = ar.nodeFactory();
 
 		// Dereference--this will cause type inference to be performed.
+		
 		Type t = typeRef().get();
+				
 		
 		if (t instanceof UnknownType) {
 		    return this;
@@ -73,6 +75,6 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 	}
 		
 	public String toString() {
-		return "_";
+		return "(#" + hashCode() + ")_";
 	}
 }

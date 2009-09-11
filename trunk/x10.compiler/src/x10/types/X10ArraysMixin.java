@@ -193,13 +193,10 @@ public class X10ArraysMixin {
 				    if (var !=null) {
 					    X10FieldInstance fi = getProperty(t, propName);
 					    if (fi != null) {
-						    try {
+						    
 							    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 							    val = xts.xtypeTranslator().trans(c, var, fi);
-						    }
-						    catch (SemanticException e) {
-							    throw new InternalCompilerError(e.getMessage(), e);
-						    }
+						    
 					    }
 				    }
 			    }

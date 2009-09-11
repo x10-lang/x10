@@ -18,9 +18,11 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 public interface X10Context extends Context {
 	/**
@@ -38,9 +40,30 @@ public interface X10Context extends Context {
 	XConstraint currentConstraint();
 	void setCurrentConstraint(XConstraint c);
 
+	XConstrainedTerm currentPlaceTerm();
+
+	/**
+	 * Push a new context, and set currentPlaceRep in it to t.
+	 * Intended to be set when entering the scope of a place changing control construct
+	 * such as at(p) S. 
+	 * @param t
+	 */
+	Context pushPlace(XConstrainedTerm t);
+	
+	/**
+	 * Get the place for this. When entering a class decl, thisPlace
+	 * is set to the currentPlaceTerm. Thus |this| will not be in the currentPlace 
+	 * within the scope of at's in the bodies of methods in the class. 
+	 * 
+	 * @param t
+	 */
+	XConstrainedTerm currentThisPlace();
+	
+	
 	/** Current constraint on here. */
-	XConstraint currentPlaceConstraint();
-	void setCurrentPlaceConstraint(XConstraint c);
+	//XConstraint currentPlaceConstraint();
+	
+	//void setCurrentPlaceConstraint(XConstraint c);
 
 	/** Current constraint on type variables in scope */
 	TypeConstraint currentTypeConstraint();
@@ -72,6 +95,14 @@ public interface X10Context extends Context {
     boolean inAssignment();
     void setInAssignment();
     X10Context pushAssignment();
+    /**
+     * Push a new block, and sets its currentConstraint to old currentConstraint + env.
+     * 
+     * @param env: The new constraint to be pushed. Should have no self var.
+     * @return
+     * @throw SemanticException if adding this constraint would cause inconsistency
+     */
+    X10Context pushAdditionalConstraint(XConstraint env) throws SemanticException ;
     
     /** Enter the scope of a deptype. */
     X10Context pushDepType(Ref<? extends Type> ref);
@@ -120,7 +151,9 @@ public interface X10Context extends Context {
 
     CodeDef definingCodeDef(Name name);
 
-    public XRoot thisVar();
+    XRoot thisVar();
 
     XConstraint constraintProjection(XConstraint... cs) throws XFailure;
+    
+  
 }

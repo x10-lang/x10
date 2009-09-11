@@ -198,12 +198,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	if (c != null)
 		        	    known.addIn(c.substitute(prop, c.self()));
 		        	
-		        	try {
+		        	
 		        	    XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
 		        	    known.addBinding(prop, initVar);
-		        	}
-		        	catch (SemanticException e) {
-		        	}
+		        	
+		        	
 		            }
 
 		            // bind this==self; sup clause may constrain this.

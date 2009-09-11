@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Expr;
+import polyglot.ast.Receiver;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -1065,7 +1067,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Flags legalMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
         x = x.Safe().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();//.Global();
-        x = x.Rooted();
+        x = x.Global();
         x = x.Proto();
         return x;
 
@@ -1074,7 +1076,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
         x = x.Safe().NonBlocking().Sequential().Property().Pure().Atomic(); //.Global();
-        x = x.Rooted();
+        x = x.Global();
         x = x.Proto();
         return x;
     }
@@ -1109,14 +1111,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     @Override
     public Flags legalLocalFlags() {
-        return X10Flags.toX10Flags(super.legalLocalFlags()).Shared().Rooted();
+        return X10Flags.toX10Flags(super.legalLocalFlags()).Shared();
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
 
     @Override
     public Flags legalFieldFlags() {
-        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Rooted();
+        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Global();
     }
 
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
@@ -1773,6 +1775,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return v;
     }
 
+ 
     protected XTypeTranslator xtt = new XTypeTranslator(this);
 
     public XTypeTranslator xtypeTranslator() {
@@ -1805,7 +1808,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             throw e;
         }
     }
-
+/*
     protected XLit hereConstraintLit; // Maybe this should be declared as C_Lit
                                       // instead of a concrete impl class?
 
@@ -1814,7 +1817,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             hereConstraintLit = xtypeTranslator().transHere();
         return hereConstraintLit;
     }
-
+*/
     protected XLit FALSE;
 
     public XLit FALSE() {
@@ -1897,14 +1900,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         flagsForName.put("property", X10Flags.PROPERTY);
         flagsForName.put("pure", X10Flags.PURE);
         flagsForName.put("atomic", X10Flags.ATOMIC);
-    //    flagsForName.put("global", X10Flags.GLOBAL);
+        flagsForName.put("global", X10Flags.GLOBAL);
         flagsForName.put("extern", X10Flags.EXTERN);
         flagsForName.put("value", X10Flags.VALUE);
         flagsForName.put("reference", X10Flags.REFERENCE);
         flagsForName.put("mutable", X10Flags.MUTABLE);
         flagsForName.put("shared", X10Flags.SHARED);
         flagsForName.put("struct", X10Flags.STRUCT);
-        flagsForName.put("rooted", X10Flags.ROOTED);
+     //   flagsForName.put("rooted", X10Flags.ROOTED);
     }
 
     /** All flags allowed for a constructor. */
@@ -2140,7 +2143,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		assert t != null : "Cannot set return type of constructor to " + t;
 		if (t==null)
 			throw new InternalCompilerError("Cannot set return type of constructor to " + t);
-		t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
+		//t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
 		((Ref<X10ClassType>)returnType).update(t);
 		//returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes);
@@ -2272,7 +2275,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 return null;
 
             Type c = container != null ? container : fi.container();
-            XVar v = X10TypeMixin.selfVar(c);
+            XVar v = X10TypeMixin.selfVarBinding(c);
             if (v == null)
                 v = new XConstraint_c().genEQV();
             X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
@@ -2362,14 +2365,23 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public static class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
         protected List<Type> typeArgs;
 
+        protected List<Expr> args;
+        
         protected X10ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
             this(container, Collections.EMPTY_LIST, argTypes, context);
         }
 
         protected X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
+        	this(container, typeArgs, null, argTypes, context);
+        }
+        
+        protected X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Expr> args, 
+        		List<Type> argTypes, Context context) {
             super(container, argTypes, context);
             this.typeArgs = typeArgs;
+            this.args = args;
         }
+       
 
         public List<Type> arguments() {
             return argTypes;
@@ -2388,7 +2400,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
                 Type c = container != null ? container : xmi.container();
                 if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                    return X10MethodInstance_c.inferAndCheckAndInstantiate((X10Context) c.typeSystem().emptyContext(), xmi, c, typeArgs, argTypes);
+                    return X10MethodInstance_c.inferAndCheckAndInstantiate((X10Context) c.typeSystem().emptyContext(), 
+                    		xmi, c, typeArgs, argTypes);
             }
             return null;
         }
@@ -2510,5 +2523,71 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
         return null;
     }
+ 
    
+   public XConstraint isHereConstraint(Receiver r, X10Context xc) {
+	   XConstraint pc = new XConstraint_c();
+
+	   XTerm target = xtypeTranslator().trans(pc, r, xc);
+	   assert r != null;
+	   return isHereConstraint(pc, target, xc);
+
+   }
+   public XConstraint isHereConstraint(XTerm target, X10Context xc) {
+	   XConstraint c = new XConstraint_c();
+	   return isHereConstraint(c, target, xc);
+   }
+   protected XConstraint isHereConstraint(XConstraint pc, XTerm target, X10Context xc) {
+	   try {
+		   XTerm eloc = xtypeTranslator().trans(pc, target, 
+				   ((StructType) Ref()).fieldNamed(Name.make("location")));
+		   pc.addBinding(eloc, xc.currentPlaceTerm());
+	   } catch (XFailure z) {
+		   pc.setInconsistent();
+	   } 
+	   return pc;
+   }
+   public XTerm locVar(XTerm target, X10Context xc)  {
+	   XConstraint pc = new XConstraint_c();
+	   return xtypeTranslator().trans(pc, target, 
+			   ((StructType) Ref()).fieldNamed(Name.make("location")));
+   }
+   public XTerm locVar(Receiver r, X10Context xc)  {
+	   XConstraint pc = new XConstraint_c();
+	   XTerm target = xtypeTranslator().trans(pc, r, xc);
+	   if (target == null) return null;
+	   return xtypeTranslator().trans(pc, target, 
+			   ((StructType) Ref()).fieldNamed(Name.make("location")));
+   }
+   public boolean isHere(Receiver r, X10Context xc) {
+	   try {
+		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
+		   XTerm target = xtypeTranslator().trans(pc, r, xc);
+		   Type rType = r.type();
+		   if (target == null) {
+			   // The receiver is not named. So make up a new name.
+			   // The only thing we know about the name is that it is of rType,
+			   target = XConstraint_c.genVar();
+		   } 
+		   rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
+		   
+		   assert xc.currentPlaceTerm() != null;
+		   assert locVar(target, xc) != null;
+		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
+		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
+		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
+		   if (targetConstraint.entails(pc,sigma)) {
+			   // Gamma|- here==e.location
+			   return true;
+		   }
+
+	   } catch (SemanticException z) {
+		   // fall through
+	   } catch (XFailure z) {
+		   // fall through
+	   }
+	   return false;
+
+   }
 }

@@ -51,9 +51,8 @@ public class ValueClass extends x10Test {
 		// the "place" of a value class instance is here
 		var n: int;
 		{ val y0: myval = y;
-			n = (future(y0) (
-				(here != P0) ? -1 : y0.intval
-			)).force();
+			n = y0.intval;
+			
 		}
 		x10.io.Console.OUT.println("6");
 		return n != -1;
@@ -64,12 +63,12 @@ public class ValueClass extends x10Test {
 	}
 
         static final value class myval {
-                var intval: int;
-                var cval: complex;
-                var refval: foo;
-                var arrayval: ValArray[int];
+                val intval: int;
+                val cval: complex;
+                val refval: foo;
+                val arrayval: Array[int];
 
-                def this(intval: int, cval: complex, refval: foo, arrayval: ValArray[int]) = {
+                def this(intval: int, cval: complex, refval: foo, arrayval: Array[int]) = {
                         this.intval = intval;
                         this.cval = cval;
                         this.refval = refval;
@@ -82,8 +81,8 @@ public class ValueClass extends x10Test {
         }
 
         static final value complex {
-                var re: int;
-                var re: int;
+                val re: int;
+                val im: int;
                 def this(re: int, im: int) {
                         this.re = re;
                         this.im = im;

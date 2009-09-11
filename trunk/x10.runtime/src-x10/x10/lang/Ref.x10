@@ -53,4 +53,14 @@ public class Ref(
     @Native("java", "#0.getClass().getName()")
     @Native("c++", "x10aux::class_name(#0)")
     public native def className() : String;
+
+    @Native("java", "#0.location()")
+    public property def loc() = location;
+
+    @Native("java", "#0.at(#1.id)")
+    public property def at(p:Place) = location==p;
+
+    @Native("java", "#0.at(#1)")
+    public property def at(r:Ref) = location==r.location;
+
 }

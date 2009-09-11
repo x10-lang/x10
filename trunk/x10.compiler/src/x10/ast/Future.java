@@ -17,5 +17,5 @@ import x10.visit.ExprFlattener;
 /** The AST node for the X10 construct future (P) {e}
  *
  */
-public interface Future extends Closure, RemoteActivityInvocation {
+public interface Future extends PlacedClosure {
 }

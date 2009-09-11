@@ -43,7 +43,7 @@ public class System {
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
     static def copyTo[T] (src:ValRail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T],
+                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
                           len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst_place) {
@@ -70,7 +70,7 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T],
+                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
                           len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
@@ -90,9 +90,9 @@ public class System {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
-        at (src.location) {
+        at (src) {
             val to_serialize = src as ValRail[T];
-            at (dst.location) {
+            at (dst) {
                 for ((i):Point(1) in 0..len-1) {
                     dst(dst_off+i) = to_serialize(src_off+i);
                 }
@@ -120,7 +120,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyFrom[T] (dst:Rail[T], dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
+    static def copyFrom[T] (dst:Rail[T]{self.at(here)}, dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
         // source is always local
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to not use any asynchrony

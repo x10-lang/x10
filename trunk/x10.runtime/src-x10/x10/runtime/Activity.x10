@@ -13,7 +13,9 @@ import x10.util.Stack;
 /**
  * @author tardieu
  */
-class Activity(finishState:FinishState, safe:Boolean) {
+class Activity {
+    val finishState:FinishState{self.at(this)};
+    val safe:Boolean;
 	// the finish state governing the execution of this activity
 
 	/**
@@ -25,19 +27,20 @@ class Activity(finishState:FinishState, safe:Boolean) {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:ClockPhases;
+    var clockPhases:ClockPhases{self.at(this)};
     
     /**
      * The finish states for the finish statements currently executed by this activity.  
      * Lazily created.
      */
-    var finishStack:Stack[FinishState];
+    var finishStack:Stack[FinishState{self.at(this)}]{self.at(this)};
 
 	/**
 	 * Create activity.
 	 */
-    def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
-        property(finishState, safe);
+    def this(body:()=>Void, finishState:FinishState{self.at(here)}, safe:Boolean) {
+	this.finishState = finishState;
+	this.safe = safe;
         finishState.incr();
         this.body = body;
     }
@@ -45,7 +48,7 @@ class Activity(finishState:FinishState, safe:Boolean) {
     /**
 	 * Create clocked activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
+	def this(body:()=>Void, finishState:FinishState{self.at(here)}, clocks:ValRail[Clock], phases:ValRail[Int]) {
 		this(body, finishState, false);
 		val cp = new ClockPhases();
 		clockPhases = cp;

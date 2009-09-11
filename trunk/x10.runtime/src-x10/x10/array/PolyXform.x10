@@ -9,9 +9,9 @@ public class PolyXform(E:PolyMat, T:XformMat) extends Xform {
         property(E, T);
     }
 
-    public operator this * (that:Xform):Xform {
+    public operator this * (that:Xform{self.at(here)}):Xform {
         if (that instanceof PolyXform) {
-            val p = that as PolyXform;
+            val p = that as PolyXform{self.at(here)};
             return new PolyXform(this.E||p.E, this.T*p.T);
         } else {
             throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");

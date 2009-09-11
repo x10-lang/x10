@@ -322,6 +322,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 return Kind.VALUE;
             if (X10Flags.toX10Flags(ct.flags()).isInterface())
                 return Kind.EITHER;
+
             if (X10Flags.toX10Flags(ct.flags()).isStruct())
                 return Kind.STRUCT;
             else
@@ -640,8 +641,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean behavesLike(Type t1, Type t2) {
     	X10Type xt1 = (X10Type) t1;
     	X10Type xt2 = (X10Type) t2;
-    	if (ts.isStructType(t1) || ts.isStructType(t2) ) {
-    		if (ts.isStructType(t1) != ts.isStructType(t2))
+    	if (xt1.isX10Struct() || xt1.isX10Struct()) {
+    		if (xt1.isX10Struct() != xt2.isX10Struct())
     			return false;
     		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2), true);
     	}
@@ -672,13 +673,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	X10Type xt1 = (X10Type) t1;
     	X10Type xt2 = (X10Type) t2;
 
-    	if (xt2.isRooted() && ! xt1.isRooted()) {
+    	/*if (xt2.isRooted() && ! xt1.isRooted()) {
     		if (xt1.isRooted() != xt2.isRooted())
     			return false;
     		// they are both rooted
     		t1 = xt1.clearFlags(X10Flags.ROOTED);
     		t2 = xt2.clearFlags(X10Flags.ROOTED);
-    	}
+    	}*/
     		
     	if (xt1.isProto() || xt2.isProto()) {
     		if (xt1.isProto() != xt2.isProto())
@@ -815,28 +816,42 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		c1 = null; 
     	
     	if (x == null) {
-    		x = X10TypeMixin.selfVar(c1);
-    		if (x == null) {
+    		//x = X10TypeMixin.selfVar(c1);
+    		//if (x == null) {
     			x = XTerms.makeFreshLocal();
-    		}
-    		XConstraint c = xcontext.currentConstraint();
+    		//}
+    		//XConstraint c = xcontext.currentConstraint();
+    			XConstraint c = null;
+    			try {
+    				c = xcontext.constraintProjection(c1, c2);
+    			    c.addBinding(XTerms.HERE, xcontext.currentPlaceTerm().term()); 
+    			} catch (XFailure z) {
+    				throw new InternalCompilerError("Unexpected inconsistent context " + xcontext);
+    			}
+    			
+    	//	System.err.println("X10TypeEnv_c: currentConstraint is " + c);
     		if (! (c1 == null || entails(c, c1))) {
     			// Now add the real clause of t1 to the context, and proceed.
     			// Must do this even if c2==null. 
     			try {
-
-    				c1 = c1.substitute(x, c1.self());
+    			
+    				//c1 = c1.substitute(x, c1.self());
     				xcontext = (X10Context) xcontext.pushBlock();	
-    				xcontext.setCurrentConstraint(c1.addIn(c));
+    				
+    				XConstraint r = c.addIn(x, c1);
+    				xcontext.setCurrentConstraint(r);
+    		
     				X10TypeEnv_c tenv = copy();
     				tenv.context = xcontext;
+    			
     				if (c2 != null)
-                    t2 = Subst.subst(t2, x, c2.self());
+                      t2 = Subst.subst(t2, x, c2.self());
+    			
     				return tenv.isSubtype(x, baseType1, t2, allowValueInterfaces);
     			} catch (XFailure z) {
-    				throw new InternalCompilerError("Unexpected ", z);
+    				throw new InternalCompilerError("Unexpected failure ", z);
     			} catch (SemanticException z) {
-    				throw new InternalCompilerError("Unexpected ", z);
+    				throw new InternalCompilerError("Unexpected failure ", z);
     			}
     		}
     	}
@@ -1074,9 +1089,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         toType =ts. expandMacros(toType);
 
         // Handle the rooted flag.
-        if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
+    /*    if (((X10Type) toType).isRooted() && ! (((X10Type) fromType).isRooted()))
         	return false;
-        
+       */ 
         
         if (fromType == toType)
             return true;
@@ -1868,4 +1883,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean callValid(ProcedureInstance<? extends ProcedureDef> prototype, Type thisType, List<Type> argTypes) {
         return X10MethodInstance_c.callValidImpl((X10ProcedureInstance<?>) prototype, thisType, argTypes, context);
     }
+    
+  
 }

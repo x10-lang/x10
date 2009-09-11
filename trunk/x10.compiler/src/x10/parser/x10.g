@@ -266,6 +266,7 @@
     finish
     for
     foreach
+    global
     goto
     has
     here
@@ -1261,13 +1262,6 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
             AddFlags tn = (AddFlags) ConstrainedType;
             tn.addFlags(X10Flags.PROTO);
-            setResult(tn);
-          $EndJava
-        ./
-           |  rooted ConstrainedType
-        /.$BeginJava
-            AddFlags tn = (AddFlags) ConstrainedType;
-            tn.addFlags(X10Flags.ROOTED);
             setResult(tn);
           $EndJava
         ./
@@ -2784,9 +2778,9 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
           $EndJava
         ./
-                    | rooted
+                    | global
         /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ROOTED)));
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
           $EndJava
         ./
     
@@ -3054,9 +3048,9 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
           $EndJava
         ./
-                     | rooted
+                     | global
         /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ROOTED)));
+                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
           $EndJava
         ./
                      | proto

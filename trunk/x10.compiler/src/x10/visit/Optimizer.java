@@ -66,11 +66,11 @@ public class Optimizer extends ContextVisitor {
 	    }
 	 
 	 public Node visitForLoop(ForLoop_c loop) throws SemanticException {
-		
+		    Synthesizer syn = new Synthesizer(xnf, xts);
 			X10Type domainType = loop.domainType();
 			XVar var = XTerms.makeEQV("self");
-			Type regionType =  Synthesizer.addRankConstraint(xts.Region(), var, 1, xts);
-			regionType = Synthesizer.addRectConstraint(regionType, var, xts);
+			Type regionType =  syn.addRankConstraint(xts.Region(), var, 1, xts);
+			regionType = syn.addRectConstraint(regionType, var);
 			X10TypeMixin.setSelfVar(regionType, var);
 			
 			
@@ -85,8 +85,9 @@ public class Optimizer extends ContextVisitor {
 						// Only handle the case |for ((i) in e1..e2) S| for now
 						if (xf.isUnnamed()) {
 							X10Formal index = (X10Formal) xf.vars().get(0);
-							Node n = Synthesizer.makeForLoop(loop.position(),  index, low, high, loop.body(),
-									xnf, xts, (X10Context) context());
+							Node n = syn.makeForLoop(loop.position(),  index, low, high, 
+									loop.body(),
+									 (X10Context) context());
 							return n;
 						}
 					

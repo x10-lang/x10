@@ -28,6 +28,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -35,8 +36,16 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.PruningVisitor;
+import x10.constraint.XConstrainedTerm;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
@@ -106,7 +115,28 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return this;
 	}
 
+    XConstrainedTerm placeTerm;
+  
+    @Override
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+    	NodeVisitor v = tc.enter(parent, this);
+    	
+    	if (v instanceof PruningVisitor) {
+    		return this;
+    	}
 
+    	if (placeTerm == null) {
+    		placeTerm = PlacedClosure_c.computePlaceTerm((Expr) visitChild(this.place, v),
+    				 (X10Context) tc.context(),ts);
+    	}
+    	
+    	// now that placeTerm is set in this node, continue visiting children
+    	// enterScope will ensure that placeTerm is installed in the context.
+    	
+    	return null;
+    }
+   
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
 		Expr place = (Expr) visitChild(this.place, v);
@@ -115,8 +145,6 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	}
 
 	public Context enterScope(Context c) {
-		if (Report.should_report(TOPICS, 5))
-			Report.report(5, "enter at scope");
         X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
         if (c.currentCode() instanceof X10MethodDef) {
@@ -131,9 +159,18 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         return c;
 	}
 
+	@Override
 	public Context enterChildScope(Node child, Context c) {
 		if (child != this.body) {
 			c = c.pop();
+		} else {
+			c = super.enterChildScope(child,c);
+			X10Context xc = (X10Context) c;
+			if (child == body) {
+				if (placeTerm != null)
+					c = ((X10Context) c).pushPlace(placeTerm);
+			}
+			addDecls(c);
 		}
 		return c;
 	}
@@ -141,21 +178,11 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-
-		Type placeType = place.type();
-		Expr newPlace = place;
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
-		if (! placeIsPlace) {
-                    throw new SemanticException(
-                        "Place expression of at must be of type \"" +
-                        ts.Place() + "\", not \"" + place.type() + "\".",
-                        place.position());
-                }
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
 			throw new SemanticException("at may not be invoked in sequential code.", position());
 
-		return (Node) place(newPlace);
+		return  super.typeCheck(tc);
 	}
 
 
@@ -190,8 +217,6 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 		return body;
 	}
-
-
 
 	/**
 	 * Visit this term in evaluation order.

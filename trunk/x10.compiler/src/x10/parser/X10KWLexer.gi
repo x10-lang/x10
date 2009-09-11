@@ -99,6 +99,7 @@
     future
     in
     goto
+    global
     has
     here
     if
@@ -418,6 +419,12 @@
               | g o t o
         /.$BeginAction
                 $setResult($_goto);
+          $EndAction
+        ./
+
+              | g l o b a l
+        /.$BeginAction
+                $setResult($_global);
           $EndAction
         ./
 

@@ -363,9 +363,9 @@ implements X10ParsedClassType
 			if (f.isStruct()) {
 				sb.append("struct ");
 			}
-			if (f.isRooted()) {
+			/*if (f.isRooted()) {
 				sb.append("rooted ");
-			}
+			}*/
 			if (f.isProto()) {
 				sb.append("proto ");
 			}

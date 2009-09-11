@@ -36,8 +36,8 @@ public class X10Flags extends Flags {
     public static final Flags INCOMPLETE = createFlag("incomplete", null);
     public static final Flags PROPERTY = createFlag("property", null);
     public static final Flags SHARED = createFlag("shared", null);
-  //  public static final Flags GLOBAL = createFlag("global", null);
-    public static final Flags ROOTED = createFlag("rooted", null);
+    public static final Flags GLOBAL = createFlag("global", null);
+   // public static final Flags ROOTED = createFlag("rooted", null);
     public static final Flags STRUCT = createFlag("struct", null);
     public static final Flags PROTO = createFlag("proto", null);
 
@@ -328,27 +328,35 @@ public class X10Flags extends Flags {
     }
     
     /**
-     * Return a copy of this <code>this</code> with the <code>rooted</code> flag
+     * Return a copy of this <code>this</code> with the <code>global</code> flag
      * set.
      * 
      * @param flags
      *            TODO
      */
-    public X10Flags clearRooted() {
-        return clearX(ROOTED);
+    public X10Flags clearGlobal() {
+        return clearX(GLOBAL);
     }
     
-    public X10Flags Rooted() {
-        return setX(ROOTED);
+    public X10Flags Global() {
+        return setX(GLOBAL);
     }
     
     /**
-     * Return true if <code>this</code> has the <code>struct</code> flag set.
+     * Return true if <code>this</code> has the <code>global</code> flag set.
      */
-    public boolean isRooted() {
-        return contains(ROOTED);
+    public boolean isGlobal() {
+        return contains(GLOBAL) || contains(PROPERTY);
     }
     
+    
+    
+    /**
+     * Return true if <code>this</code> has the <code>global</code> flag set.
+     */
+    public boolean isRooted() {
+        return ! contains(GLOBAL);
+    }
     /**
      * Return a copy of this <code>this</code> with the <code>struct</code> flag
      * set.
@@ -489,7 +497,7 @@ public class X10Flags extends Flags {
      *            TODO
      */
     public X10Flags Property() {
-        return setX(PROPERTY);
+        return setX(PROPERTY).setX(GLOBAL);
     }
 
     /**
@@ -603,7 +611,7 @@ public class X10Flags extends Flags {
 
     public boolean hasAllAnnotationsOf(X10Flags f) {
         boolean result = ((!f.isSequential()) || isSequential() || isSafe()) 
-        && ((!f.isRooted()) || isRooted() || isSafe())
+        && ((!f.isGlobal()) || isGlobal() )
         && ((!f.isNonBlocking()) || isNonBlocking() || isSafe()) && ((!f.isSafe()) || isSafe());
         // Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f +
         // ")? " + result);

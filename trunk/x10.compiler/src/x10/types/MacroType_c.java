@@ -79,8 +79,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return (MacroType) super.flags(flags);
 	}
 	
-	public boolean isRooted() {
-		return flags() == null ? false : ((X10Flags) flags()).isRooted();
+	public boolean isGlobal() {
+		return flags() == null ? false : ((X10Flags) flags()).isGlobal();
 	}
 	public boolean isProto() {
 		return flags() == null ? false : ((X10Flags) flags()).isProto();
@@ -94,8 +94,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
 			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = xf.isRooted() 
-				? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() : ((X10Flags) c.flags).Rooted())
+		c.flags = xf.isGlobal() 
+				? (xf.isStruct() ? ((X10Flags) c.flags).Global().Struct() : ((X10Flags) c.flags).Global())
 						: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
 		return c;
 	}

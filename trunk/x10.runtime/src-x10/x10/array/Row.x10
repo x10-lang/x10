@@ -6,6 +6,7 @@ package x10.array;
 import x10.io.Printer;
 import x10.io.StringWriter;
 
+
 abstract value class Row(cols:nat) implements (nat)=>int {
 
     public abstract def apply(i:nat): int;

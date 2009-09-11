@@ -14,9 +14,9 @@ import x10.util.Stack;
  * @author tardieu 
  */
 class RootFinish extends Latch implements FinishState {
-    private val counts:Rail[Int];
+    private val counts:Rail[Int]{self.at(this)};
     
-    private var exceptions:Stack[Throwable];
+    private var exceptions:Stack[Throwable]{self.at(this)};
 
     var rid:RID = new RID(here, -1);
     
@@ -48,7 +48,7 @@ class RootFinish extends Latch implements FinishState {
         }
     }
 
-    def notify(rail:ValRail[Int]):Void {
+    def notify(rail:ValRail[Int]{self.at(here)}):Void {
         var b:Boolean = true;
         lock();
         for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -59,7 +59,7 @@ class RootFinish extends Latch implements FinishState {
         unlock();
     }
 
-    def notify(rail:ValRail[Int], t:Throwable):Void {
+    def notify(rail:ValRail[Int]{self.at(here)}, t:Throwable):Void {
         pushException(t);
         notify(rail);
     }

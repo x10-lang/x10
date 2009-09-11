@@ -39,11 +39,7 @@ public interface X10Type extends Type, X10TypeObject {
     X10Type clearFlags(Flags f);
     Flags flags();
     
-    /**
-     * Is this type rooted?
-     * @return
-     */
-    boolean isRooted();
+   
     
     boolean isProto();
     

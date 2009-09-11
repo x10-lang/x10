@@ -89,7 +89,8 @@ public abstract value class BaseArray[T] extends Array[T] {
     public final safe def set(v: T, pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
-        raw()(layout().offset(pt)) = v;
+        val raw:Rail[T]{self.at(here)} = raw();
+        raw(layout().offset(pt)) = v;
         return v;
     }
 

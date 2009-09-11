@@ -98,10 +98,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         	X10Type container = (X10Type) ref;
         	if (container.isX10Struct()) {
         		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
-        		if (x10flags.isRooted()) 
-        		throw new SemanticException("Illegal " + fi 
-        				+ "; structs cannot have rooted fields.", position());
-        		
         		if (! x10flags.isFinal()) 
         			throw new SemanticException("Illegal " + fi
         					+  "; structs cannot have var fields.", position());
@@ -136,9 +132,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
 
     protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags) {
-        X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
-        fi.setThisVar(((X10ClassDef) ct).thisVar());
-        return fi;
+    	X10Flags xFlags = X10Flags.toX10Flags(flags);
+    	if (xFlags.isProperty())
+    		xFlags = xFlags.Global();
+
+    	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
+    	fi.setThisVar(((X10ClassDef) ct).thisVar());
+
+    	return fi;
     }
     
     protected InitializerDef createInitializerDef(TypeSystem ts, ClassDef ct, Flags iflags) {

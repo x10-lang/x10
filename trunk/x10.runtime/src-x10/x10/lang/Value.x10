@@ -36,4 +36,8 @@ public value Value /* @EQ implements Equals[Value] */ implements Object {
     @Native("java", "#0.getClass().toString()")
     @Native("c++", "x10aux::class_name(#0)")
     public native def className(): String;
+
+    public property def loc() = here;
+    public property def at(p:Place) = true;
+    public property def at(r:Ref) = true;
 }

@@ -362,6 +362,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 				final LazyRef<Type> domainTypeRef = this.domainTypeRef;
 				domainTypeRef.setResolver(new TypeCheckExprGoal(loop, domain, tc, domainTypeRef));
 
+				final X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
 				final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
 				final ClassDef curr = v.context().currentClassDef();
 
@@ -398,7 +399,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 						Type base = X10TypeMixin.baseType(domainType);
 						XConstraint c = X10TypeMixin.xclause(domainType);
 						
-						XVar selfValue = X10TypeMixin.selfVar(domainType);
+						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
 						XVar selfVar = c != null ? c.self() : null;
 						XRoot thisVar = base instanceof X10ClassType ? 
 								((X10ClassType) base).x10Def().thisVar() 
@@ -408,7 +409,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 							try {
 								
 								// Generate a new local variable if needed
-								XVar var = selfValue != null ? selfValue : c.genEQV(false);
+								XVar var = selfValue != null ? selfValue : XConstraint_c.genEQV(false);
 								// And substitute it for this in indexType
 								indexType = Subst.subst(indexType, var, thisVar);
 								if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {
@@ -417,7 +418,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 										// Add a self.rank=n clause, if the formal
 										// has n components.
 										XVar self = X10TypeMixin.xclause(indexType).self();
-										XTerm v = Synthesizer.makeRegionRankTerm((XVar) self, ts);
+										Synthesizer synth = new Synthesizer(nf, ts);
+										XTerm v = synth.makeRegionRankTerm((XVar) self);
 										XTerm rank = XTerms.makeLit(new Integer(length));
 										indexType = X10TypeMixin.addBinding(indexType, v, rank);
 					
