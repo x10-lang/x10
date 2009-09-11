@@ -1023,7 +1023,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         } else if (xts.isValueType(currentClass, context)) {
             visitValueBody(n, context, currentClass, superClass, xts);
         } else if (currentClass.isX10Struct()) {
+            context.setGeneratingSturct(true);
             visitStructBody(n, context, currentClass, superClass, xts);
+            context.setGeneratingSturct(false);
         } else {
             visitClassBody(n, context, currentClass, superClass, xts);
         }
@@ -1713,10 +1715,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // emit _make method
             h.write("static ");
             sw.pushCurrentStream(h);
-            emitter.printHeader(dec, sw, tr, false, MAKE, container.isX10Struct() ? typeName : make_ref(typeName));
+            emitter.printHeader(dec, sw, tr, false, MAKE, context.generatingStruct() ? typeName : make_ref(typeName));
             sw.popCurrentStream();
             h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
-            if (container.isX10Struct()) {
+            if (context.generatingStruct()) {
             	h.write(typeName+" this_; "); h.newline();
             	h.write("this_."+CONSTRUCTOR+"(");
             } else {

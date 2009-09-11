@@ -523,9 +523,7 @@ public class Emitter {
             // [DC] there is no benefit to omitting the virtual keyword as we can
             // statically bind CALLS to final methods and methods that are members of final classes
 			else if (!flags.isProperty() && !flags.isPrivate()) {
-				X10MethodInstance mi = (X10MethodInstance) def.asInstance();
-				X10ClassType container = (X10ClassType) mi.container();
-				if (!container.isX10Struct()) {
+				if (!((X10CPPContext_c)tr.context()).generatingStruct()) {
 					h.write("virtual ");
 				}
 			}

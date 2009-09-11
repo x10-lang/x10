@@ -123,7 +123,10 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 
     
     public boolean hasInits = false;
-
+    
+    protected boolean generatingStruct;
+    public boolean generatingStruct() { return generatingStruct; }
+    public void setGeneratingSturct(boolean b) { generatingStruct = b; }
     
     public ClassifiedStream templateFunctions = null;
 
