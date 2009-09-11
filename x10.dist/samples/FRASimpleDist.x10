@@ -10,7 +10,7 @@ import x10.runtime.PlaceLocalStorage;
 
 value LocalTable {
     
-    val a: Rail[long];
+    val a: Rail[long]{self.at(this.loc)};
     val mask: int;
     
     def this(size:int) {
