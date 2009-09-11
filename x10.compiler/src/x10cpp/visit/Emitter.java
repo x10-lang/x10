@@ -187,24 +187,6 @@ public class Emitter {
 
 		return translateFQN(dest);
 	}
-	
-	/**
-	 * Determine whether we need a "." or an "->" to access a field/invoke a method 
-	 * where expr is the 'receiver' of the field/method access.
-	 */
-	public static String dotOrArrow(Receiver expr) {
-		Type t = expr.type();
-		if (((X10Type)t).isX10Struct()) {
-			if (expr instanceof X10Special) {
-       			assert ((X10Special_c)expr).kind().equals(X10Special_c.THIS);
-       			return "->";
-			} else {
-				return ".";
-			}
-		} else {
-			return "->";
-		}
-	}
 
 	/**
 	 * Print a type as a reference.

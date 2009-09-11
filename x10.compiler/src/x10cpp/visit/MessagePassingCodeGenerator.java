@@ -1317,6 +1317,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.newline();
         h.write("RTT_H_DECLS_STRUCT");          
         h.newline(); h.forceNewline();
+        h.write(Emitter.translateType(currentClass, false)+"* operator->() { return this; }");
+        h.newline();
+        
         sw.begin(0);
         for (PropertyDecl p : context.classProperties()) {
             n.print(p, sw, tr);
@@ -2403,7 +2406,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     	boolean needsCheck = !((X10Type)t).isX10Struct();
                     	sw.write(needsCheck ? "x10aux::placeCheck(x10aux::nullCheck(" : "(");
                   		n.printSubExpr((Expr) target, assoc, sw, tr);
-                  		sw.write((needsCheck ? "))" : ")")+Emitter.dotOrArrow(target));
+                  		sw.write((needsCheck ? "))" : ")")+"->");
                     }
                 }
             } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -2540,7 +2543,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.fieldInstance().flags().isStatic()) {
 			sw.write("::");
 		} else {
-			sw.write(Emitter.dotOrArrow(target));
+			sw.write("->");
 		}
 		sw.allowBreak(2, 3, "", 0);
 		sw.write(mangled_field_name(n.name().id().toString()));
