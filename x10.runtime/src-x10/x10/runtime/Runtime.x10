@@ -330,12 +330,12 @@ public value Runtime {
 	}
 	
 	// notify the pool a worker is about to execute a blocking operation
-	static def increaseParallelism():Void {
+	public static def increaseParallelism():Void {
 		NativeRuntime.runAtLocal(runtime().pool.location.id, runtime().pool.increase.());
     }
 
 	// notify the pool a worker resumed execution after a blocking operation
-	static def decreaseParallelism(n:Int) {
+	public static def decreaseParallelism(n:Int) {
 		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>runtime().pool.decrease(n));
     }
 
