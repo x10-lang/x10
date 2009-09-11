@@ -276,6 +276,8 @@ typedef void (*getCb2)(const x10rt_msg_params &, unsigned long len);
 
 class x10rt_internal_state {
     public:
+        bool                init;
+        bool                finalized;
         pthread_mutex_t     lock;
         int                 rank;
         int                 nprocs;
@@ -295,6 +297,8 @@ class x10rt_internal_state {
         x10rt_req_queue     pending_list;
 
         x10rt_internal_state() {
+            init                = false;
+            finalized           = false;
             amCbTbl             = ChkAlloc<amSendCb>(sizeof(amSendCb) * X10RT_CB_TBL_SIZE);
             amCbTblSize         = X10RT_CB_TBL_SIZE;
             putCb1Tbl           = ChkAlloc<putCb1>(sizeof(putCb1) * X10RT_CB_TBL_SIZE);
@@ -327,6 +331,9 @@ static x10rt_internal_state     global_state;
 
 void x10rt_init(int &argc, char ** &argv)
 {
+    assert(!global_state.finalized);
+    assert(!global_state.init);
+    global_state.init = true;
     int provided = MPI_THREAD_SINGLE;
     int required = MPI_THREAD_MULTIPLE;
     if(MPI_SUCCESS != MPI_Init_thread(&argc, &argv, required, &provided)) {
@@ -350,6 +357,8 @@ void x10rt_init(int &argc, char ** &argv)
 void x10rt_register_msg_receiver (unsigned msg_type,
                                   void (*cb)(const x10rt_msg_params &))
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     if(msg_type >= global_state.amCbTblSize) {
         global_state.amCbTbl     = 
             ChkRealloc<amSendCb>(global_state.amCbTbl, sizeof(amSendCb)*(msg_type+1));
@@ -363,6 +372,8 @@ void x10rt_register_put_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &, unsigned long len),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     if(msg_type >= global_state.putCbTblSize) {
         global_state.putCb1Tbl     = 
             ChkRealloc<putCb1>(global_state.putCb1Tbl, sizeof(putCb1)*(msg_type+1));
@@ -379,6 +390,8 @@ void x10rt_register_get_receiver (unsigned msg_type,
                                   void *(*cb1)(const x10rt_msg_params &),
                                   void (*cb2)(const x10rt_msg_params &, unsigned long len))
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     if(msg_type >= global_state.getCbTblSize) {
         global_state.getCb1Tbl     = 
             ChkRealloc<getCb1>(global_state.getCb1Tbl, sizeof(getCb1)*(msg_type+1));
@@ -393,6 +406,8 @@ void x10rt_register_get_receiver (unsigned msg_type,
 
 void x10rt_registration_complete (void)
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     /* Reserve tags for internal use */
     global_state._reserved_tag_put_req  = global_state.amCbTblSize + 1;
     global_state._reserved_tag_put_data = global_state.amCbTblSize + 2;
@@ -407,11 +422,15 @@ void x10rt_registration_complete (void)
 
 unsigned long x10rt_nplaces (void)
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     return global_state.nprocs;
 }
 
 unsigned long x10rt_here (void)
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     return global_state.rank;
 }
 
@@ -433,6 +452,8 @@ void x10rt_send_msg (x10rt_msg_params & p)
     x10rt_req * req;
     req = global_state.free_list.popNoFail();
 
+    assert(global_state.init);
+    assert(!global_state.finalized);
     if(MPI_SUCCESS != MPI_Isend(p.msg, 
                 p.len, MPI_BYTE, 
                 p.dest_place, 
@@ -454,6 +475,8 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
     x10rt_nw_req      * get_msg;
     x10rt_get_req       get_req;
 
+    assert(global_state.init);
+    assert(!global_state.finalized);
     get_req.type       = p.type;
     get_req.dest_place = p.dest_place;
     get_req.msg        = p.msg;
@@ -511,6 +534,8 @@ void x10rt_send_put (x10rt_msg_params &p, void *buf, unsigned long len)
 {
     int put_msg_len;
     x10rt_put_req * put_msg;
+    assert(global_state.init);
+    assert(!global_state.finalized);
 
     x10rt_req * req = global_state.free_list.popNoFail();
 
@@ -574,9 +599,19 @@ static void recv_completion(int ix, int bytes, x10rt_req_queue * q, x10rt_req * 
                            req->getBuf(),
                            bytes
                          };
-    cb(p);
-    free(req->getBuf());
+
     q->remove(req);
+
+    if(pthread_mutex_unlock(&global_state.lock)) {
+        perror("pthread_mutex_unlock");
+        exit(EXIT_FAILURE);
+    }
+    cb(p);
+    if(pthread_mutex_lock(&global_state.lock)) {
+        perror("pthread_mutex_lock");
+        exit(EXIT_FAILURE);
+    }
+    free(req->getBuf());
     global_state.free_list.enqueue(req);
 }
 
@@ -721,11 +756,6 @@ void check_pending(x10rt_req_queue * q)
 
     /* Only one thread looks at the pending queues at a time */
 
-    if(pthread_mutex_lock(&global_state.lock)) {
-        perror("pthread_mutex_lock");
-        exit(EXIT_FAILURE);
-    }
-
     x10rt_req * req = q->start();
     while((NULL != req) &&
             num_checked < X10RT_MAX_PEEK_DEPTH) {
@@ -782,17 +812,20 @@ void check_pending(x10rt_req_queue * q)
             num_checked ++;
         }
     }
-
-    if(pthread_mutex_unlock(&global_state.lock)) {
-        perror("pthread_mutex_lock");
-        exit(EXIT_FAILURE);
-    }
 }
 
 void x10rt_probe (void)
 {
     int arrived = 0;
     MPI_Status msg_status;
+
+    assert(global_state.init);
+    assert(!global_state.finalized);
+
+    if(pthread_mutex_lock(&global_state.lock)) {
+        perror("pthread_mutex_lock");
+        exit(EXIT_FAILURE);
+    }
 
     if(MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE, 
                 MPI_ANY_TAG, MPI_COMM_WORLD, &arrived, 
@@ -830,10 +863,17 @@ void x10rt_probe (void)
     } else {
         check_pending(&global_state.pending_list);
     }
+
+    if(pthread_mutex_unlock(&global_state.lock)) {
+        perror("pthread_mutex_unlock");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void x10rt_finalize (void)
 {
+    assert(global_state.init);
+    assert(!global_state.finalized);
     if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -842,4 +882,5 @@ void x10rt_finalize (void)
         fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
+    global_state.finalized = true;
 }
