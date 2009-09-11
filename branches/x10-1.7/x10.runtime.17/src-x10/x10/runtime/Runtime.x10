@@ -312,6 +312,15 @@ public value Runtime {
 		val activity = current();
 		return activity.safe && (null == activity.clockPhases);
 	}
+
+
+	public static def increaseParallelism():Void {
+		pool.increase();
+	}
+	
+	public static def decreaseParallelism():Void {
+		pool.decrease(1);
+	}
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
