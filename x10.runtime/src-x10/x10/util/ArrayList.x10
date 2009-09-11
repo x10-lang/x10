@@ -5,7 +5,7 @@ package x10.util;
 
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
-    private var a: GrowableRail[T];
+    private var a: GrowableRail[T]{self.at(this)};
 
     public static def make[T](c: Container[T]) {
 	val a = new ArrayList[T]();
@@ -74,10 +74,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def isEmpty(): Boolean = size() == 0;
 
     // DEPRECATED
-    public def toArray(): Rail[T] = a.toRail();
-
-    public def toRail(): Rail[T] = a.toRail();
-    public def toValRail(): ValRail[T] = a.toValRail();
+    public def toArray() = a.toRail();
+    public def toRail() = a.toRail();
+    public def toValRail() = a.toValRail();
 
     public def this() {
         a = new GrowableRail[T]();
@@ -140,7 +139,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     private static class It[S] implements ListIterator[S] {
         
         private var i: int;
-        private val al: ArrayList[S];
+        private val al: ArrayList[S]{self.at(this)};
         
         def this(al: ArrayList[S]) {
             this(al, -1);
@@ -205,7 +204,11 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     // [NN]: should not need to cast x to Comparable[T]
     public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]).compareTo(y));
-    public def sort(cmp: (T,T)=>Int) = qsort(a, 0, a.length()-1, cmp);
+    public def sort(cmp: (T,T)=>Int) = qsort(a, 0, 
+         a.length()-1, 
+         cmp
+    );
+
     // public def sort(lessThan: (T,T)=>Boolean) = qsort(a, 0, a.length()-1, (x:T,y:T) => lessThan(x,y) ? -1 : (lessThan(y,x) ? 1 : 0));
     
     //
@@ -227,7 +230,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableRail[T], i: int, j: int): void {
+    private def exch(a: GrowableRail[T]{self.at(here)}, i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

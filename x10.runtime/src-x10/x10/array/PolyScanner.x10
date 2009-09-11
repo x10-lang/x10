@@ -67,14 +67,14 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     /*protected*/ public val rank: int;
 
-    private val min: Rail[VarMat];
-    private val max: Rail[VarMat];
-    private val minSum: Rail[VarMat];
-    private val maxSum: Rail[VarMat];
+    private val min: Rail[VarMat]{self.at(this)};
+    private val max: Rail[VarMat]{self.at(this)};
+    private val minSum: Rail[VarMat]{self.at(this)};
+    private val maxSum: Rail[VarMat]{self.at(this)};
 
-    private val parFlags: Rail[boolean];
-    private val min2: Rail[Rail[PolyRow]];
-    private val max2: Rail[Rail[PolyRow]];
+    private val parFlags: Rail[boolean]{self.at(this)};
+    private val min2: Rail[Rail[PolyRow]{self.at(this)}]{self.at(this)};
+    private val max2: Rail[Rail[PolyRow]{self.at(this)}]{self.at(this)};
 
     public static def make(pm:PolyMat) {
 	val x = new PolyScanner(pm);
@@ -115,9 +115,9 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         minSum = nSum;
         val xSum = Rail.makeVar[VarMat](r);
         maxSum = xSum;
-        val n2 = Rail.makeVar[Rail[PolyRow]](r);
+        val n2 = Rail.makeVar[Rail[PolyRow]{self.at(here)}](r);
         min2 = n2;
-        val x2 = Rail.makeVar[Rail[PolyRow]](r);
+        val x2 = Rail.makeVar[Rail[PolyRow]{self.at(here)}](r);
         max2 = x2;
         //printInfo(Console.OUT);
 
@@ -297,7 +297,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     final private class PointIt implements Iterator[Point(PolyScanner.this.rank)] {
 
-        val it: RailIt;
+        val it: RailIt{self.at(this)};
 
         def this() {
             it = new RailIt();
@@ -351,7 +351,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         parFlags(axis) = true;
     }
 
-    public def loop(body: (Rail[int])=>void, p:Rail[int], q:Rail[int], r:int) {
+    public def loop(body: (Rail[int])=>void, p:Rail[int]{self.at(here)}, q:Rail[int]{self.at(here)}, r:int) {
 
         if (r<rank) {
 
@@ -415,7 +415,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     // XXX doesn't handle n-body scanners correctly
-    public operator this * (that:Xform): PolyScanner {
+    public operator this * (that:Xform{self.at(here)}): PolyScanner {
         if (that instanceof PolyXform) {
             val p = that as PolyXform;
             return new PolyScanner((C*p.T)||p.E, X1(0)*p.T);
@@ -426,7 +426,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     // XXX makes simplifying assumptions about conformance of regions
     // - make this more general!!!
-    public operator this || (that:PolyScanner) {
+    public operator this || (that:PolyScanner{self.at(here)}) {
         val x = Rail.makeVal(this.X1.length + that.X1.length, (i:nat) =>
             i<this.X1.length? this.X1(i) : that.X1(i-this.X1.length));
         return new PolyScanner(this.C, x);

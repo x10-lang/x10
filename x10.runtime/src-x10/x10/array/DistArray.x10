@@ -17,23 +17,17 @@ final value class DistArray[T] extends BaseArray[T] {
 
     private static class LocalState[T] {
         val layout:RectLayout;
-        val raw:Rail[T];
+        val raw:Rail[T]{self.at(this)};
         
-        def this(l:RectLayout, r:Rail[T]) {
+        def this(l:RectLayout, r:Rail[T]{self.at(here)}) {
             layout = l;
             raw = r;
         }
     };
 
     private val localHandle:PlaceLocalHandle[LocalState[T]];
-
-    final protected def raw(): Rail[T] {
-        return localHandle.get().raw;
-    }
-
-    final protected def layout(): RectLayout {
-        return localHandle.get().layout;
-    }
+    final protected def raw():Rail[T]{self.at(here)} = (localHandle.get() as LocalState[T]{self.at(here)}).raw;
+    final protected def layout() = (localHandle.get() as  LocalState[T]{self.at(here)}).layout;
 
     //
     // high-performance methods here to facilitate inlining

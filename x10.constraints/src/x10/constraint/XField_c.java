@@ -68,6 +68,8 @@ public class XField_c extends XVar_c implements XField {
 	}
 
 	public boolean hasEQV() {
+		if (receiver() == null)
+			assert false;
 		return receiver().hasEQV();
 	}
 	

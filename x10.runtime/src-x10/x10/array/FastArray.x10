@@ -15,14 +15,14 @@ package x10.array;
 
 import x10.compiler.Native;
 
+ // vj TODO: Find a way to avoid this runtime check.
+ // FastArray should be a class not a value class or a struct.
 public final value class FastArray[T] extends BaseArray[T] {
 
     private val raw: Rail[T];
     private val layout: RectLayout;
 
-    final public def raw(): Rail[T] {
-        return raw;
-    }
+    final public def raw() = raw as Rail[T]{self.at(here)};
 
     final protected def layout(): RectLayout {
         return layout;
@@ -80,7 +80,7 @@ public final value class FastArray[T] extends BaseArray[T] {
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
     final public safe def set(v: T, i0: int): T {
         var offset:int = i0;
-        raw(offset - offset0) = v;
+        raw()(offset - offset0) = v;
         return v;
     }
 
@@ -88,7 +88,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     final public safe def set(v: T, i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
-        raw(offset - offset1) = v;
+        raw()(offset - offset1) = v;
         return v;
     }
 
@@ -97,7 +97,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
-        raw(offset - offset2) = v;
+        raw()(offset - offset2) = v;
         return v;
     }
 
@@ -107,7 +107,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         offset = offset*delta3 + i3;
-        raw(offset - offset3) = v;
+        raw()(offset - offset3) = v;
         return v;
     }
 
@@ -161,15 +161,16 @@ public final value class FastArray[T] extends BaseArray[T] {
         */
 
         layout = at (dist.onePlace) layout(region);
-        raw = at (dist.onePlace) {
+	val pl = dist.onePlace;
+        raw = at (pl) {
             val n = layout.size();
-            val raw = Rail.makeVar[T](n);
+            val r = Rail.makeVar[T](n);
             if (init!=null) {
                 val f = at (init.location) { init as (Point) => T };
                 for (p:Point in region)
-                    raw(layout.offset(p)) = f(p);
+                    r(layout.offset(p)) = f(p);
             }
-            return raw;
+            return r;
         };
 
         delta0 = layout.delta0;

@@ -37,8 +37,7 @@ public interface X10TypeEnv extends TypeEnv {
     boolean isSubtypeWithValueInterfaces(Type t1, Type t2);
 
     boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces);
-    
-    
+   
     
     /**
      * t1 behaves like t2 if t1 is a reftype and t1 is a subtype of t2. 
@@ -71,6 +70,8 @@ public interface X10TypeEnv extends TypeEnv {
     Kind kind(Type t);
     
     boolean numericConversionValid(Type toType, Type fromType, Object value);
+    
+    
     
 
 }

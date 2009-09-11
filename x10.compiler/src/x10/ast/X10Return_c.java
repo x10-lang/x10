@@ -32,6 +32,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
@@ -78,7 +79,7 @@ public class X10Return_c extends Return_c {
 	                            continue LI;
 	                }
 	                XLocal l = ts.xtypeTranslator().trans(li.asInstance());
-	                XEQV x = c.genEQV(true);
+	                XEQV x = XConstraint_c.genEQV(true);
 	                c = c.substitute(x, l);
 	            }
 	            catch (SemanticException e) {

@@ -33,4 +33,9 @@ public interface Object {
     @Native("java", "#0.getClass().toString()")
     @Native("c++", "x10aux::class_name(x10aux::class_cast<x10aux::ref<x10::lang::Object> >(#0))")
     public def className(): String;
+
+    property def loc():Place;
+    property def at(p:Place):Boolean;
+    property def at(r:Ref):Boolean;
+
 }

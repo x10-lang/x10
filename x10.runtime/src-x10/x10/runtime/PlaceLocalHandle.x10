@@ -34,7 +34,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("c++", "x10aux::ref<x10::runtime::PlaceLocalHandle<#1 > >", "x10::runtime::PlaceLocalHandle<#1 >", null)
 @NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
-public final value PlaceLocalHandle[T] {
+public final struct PlaceLocalHandle[T] {
 
   /**
    * @return the object mapped to the handle at the current place

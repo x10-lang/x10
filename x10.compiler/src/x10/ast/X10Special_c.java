@@ -18,10 +18,12 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
@@ -145,11 +147,17 @@ public class X10Special_c extends Special_c implements X10Special {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
             	cc.setThisVar(var);
+            	 XTerm locVar = xts.locVar(var, c);
+                 XConstrainedTerm thisPlace = c.currentThisPlace();
+                 assert locVar != null;
+                 assert thisPlace != null;
+                 cc.addBinding(locVar, thisPlace);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
             }
             tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+           
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
@@ -165,7 +173,7 @@ public class X10Special_c extends Special_c implements X10Special {
             tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
             result = (X10Special) type(tt);
         }
-        
+       
         assert result.type() != null;
 
         // Fold in the method's guard, if any.

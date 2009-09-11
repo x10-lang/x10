@@ -50,6 +50,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
+import x10.constraint.XTerm;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -74,7 +75,6 @@ public class X10New_c extends New_c implements X10New {
 
     @Override
     public Node visitChildren(NodeVisitor v) {
-        // TODO Auto-generated method stub
         Expr qualifier = (Expr) visitChild(this.qualifier, v);
         TypeNode tn = (TypeNode) visitChild(this.tn, v);
         List<TypeNode> typeArguments = visitList(this.typeArguments, v);
@@ -427,10 +427,7 @@ public class X10New_c extends New_c implements X10New {
         });
     }
 
-    /**
-     * Rewrite pointwiseOp construction to use Operator.Pointwise, otherwise
-     * leave alone.
-     */
+    
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
@@ -458,7 +455,7 @@ public class X10New_c extends New_c implements X10New {
 
         Type t = tn.type();
         // t = ((X10Type) t).setFlags(X10Flags.ROOTED);
-        X10ClassType ct = (X10ClassType) t; //  X10TypeMixin.baseType(t);
+        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 
         X10ConstructorInstance ci=null;
         List<Expr> args;
@@ -470,10 +467,12 @@ public class X10New_c extends New_c implements X10New {
                     c = c.pushClass(anonType, anonType.asType());
                 }
                 ClassDef currentClassDef = c.currentClassDef();
-                ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, Collections.EMPTY_LIST, argTypes, c));
+                ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, 
+                		Collections.EMPTY_LIST, argTypes, c));
             }
             else {
-                ConstructorDef dci = xts.defaultConstructor(this.position(), Types.<ClassType> ref(ct));
+                ConstructorDef dci = xts.defaultConstructor(this.position(), 
+                		Types.<ClassType> ref(ct));
                 ci = (X10ConstructorInstance) dci.asInstance();
             }
 
@@ -508,16 +507,13 @@ public class X10New_c extends New_c implements X10New {
         // Copy the method instance so we can modify it.
       //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = (X10ConstructorInstance) ci.returnType(tp);
+        ci = adjustCI(ci, tc);
         X10New_c result = (X10New_c) this.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
-      
-        // ///////////////////////////////////////////////////////////////////
-        // End inlined super call.
-        // ///////////////////////////////////////////////////////////////////
 
         result.checkWhereClause(tc);
-        result = result.adjustCI(tc);
-        return result.type(ci.returnType());
+        result = (X10New_c) result.type(ci.returnType());
+        return result;
     }
 
     private void checkWhereClause(ContextVisitor tc) throws SemanticException {
@@ -537,15 +533,23 @@ public class X10New_c extends New_c implements X10New {
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
+     * Also add the self.location==here clause.
+     * 
      * @param tc
      * @return
      * @throws SemanticException
      */
-    private X10New_c adjustCI(ContextVisitor tc) throws SemanticException {
-        if (ci == null)
-            return this;
-        X10ConstructorInstance xci = (X10ConstructorInstance) ci;
+    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) throws SemanticException {
+        if (xci == null)
+            return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
+        
+        // Add self.location == here to the return type.
+        XTerm selfVar = X10TypeMixin.selfVar(type);
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        X10Context xc = (X10Context) tc.context();
+        XTerm locVar = xts.locVar(selfVar, xc);
+        type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
 
         if (body != null) {
             // If creating an anonymous class, we need to adjust the return type
@@ -553,9 +557,10 @@ public class X10New_c extends New_c implements X10New {
             ClassDef anonTypeDef = anonType();
             Type anonType = anonTypeDef.asType();
             type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
-            xci = (X10ConstructorInstance) xci.returnType(type);
+          
         }
-
-        return (X10New_c) this.constructorInstance(xci).type(type);
+        xci = (X10ConstructorInstance) xci.returnType(type);
+        return xci;
+       // return (X10New_c) this.constructorInstance(xci).type(type);
     }
 }

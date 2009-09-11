@@ -17,6 +17,7 @@ import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.TypeNode;
+import polyglot.util.Position;
 import x10.types.ClosureDef;
 
 public interface Closure extends Expr, CodeBlock {
@@ -44,4 +45,6 @@ public interface Closure extends Expr, CodeBlock {
 
     ClosureDef closureDef();
     Closure closureDef(ClosureDef ci);
+    
+    Closure position(Position p);
 }

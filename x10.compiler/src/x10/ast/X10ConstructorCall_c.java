@@ -247,13 +247,17 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		return n;
 	}
 	
-        static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+        static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, 
+        		ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
             final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
             final Context context = tc.context();
             ClassDef currentClassDef = context.currentClassDef();
 
-            List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new X10TypeSystem_c.DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
-            return X10New_c.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
+            List<ConstructorInstance> methods 
+            = ts.findAcceptableConstructors(targetType, 
+            		new X10TypeSystem_c.DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
+            return X10New_c.tryImplicitConversions(n, tc, targetType, methods, 
+            		new MatcherMaker<ConstructorInstance>() {
                 public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
                     return ts.ConstructorMatcher(ct, typeArgs, argTypes, context);
                 }

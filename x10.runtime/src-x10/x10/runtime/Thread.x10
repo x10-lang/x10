@@ -35,7 +35,7 @@ public class Thread {
         
     @Native("java", "#0.currentThread()")
     @Native("c++", "x10::runtime::Thread::currentThread()")
-    public static native def currentThread():Thread;
+    public static native def currentThread():Thread{self.at(here)};
         
     @Native("java", "#0.start()")
     @Native("c++", "(#0)->start()")
@@ -63,11 +63,11 @@ public class Thread {
 
     @Native("java", "((x10.runtime.Worker)(#0.worker()))")
     @Native("c++",  "x10::runtime::Thread::currentThread()->worker()")
-    public native def worker():Worker;
+    public native def worker():Worker{self.at(here)};
 
     @Native("java", "#0.worker(#1)")
     @Native("c++", "(#0)->worker(#1)")
-    public native def worker(worker:Worker):void;
+    public native def worker(worker:Worker{self.at(here)}):void;
 
     @Native("java", "#0.getName()")
     @Native("c++", "(#0)->getName()")
@@ -79,5 +79,5 @@ public class Thread {
     
     @Native("java", "#0.location()")
     @Native("c++", "x10aux::location(#0)")
-    public native def loc():Int;
+    public native def locInt():Int;
 }

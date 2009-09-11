@@ -243,7 +243,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		// Get or make a name tt for self.
 		XTerm t = c.bindingForVar(c.self());
 		if (t == null) {
-			t = c.genEQV(true);
+			t = XConstraint_c.genEQV(true);
 			
 		}
 		final XTerm tt = t;
@@ -329,10 +329,10 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return base.isX10Struct();
 	}
 	
-	public boolean isRooted() {
+	/*public boolean isRooted() {
 		X10Type base = (X10Type) baseType.get();
 		return base.isRooted();
-	}
+	}*/
 	public boolean isProto() {
 		X10Type base = (X10Type) baseType.get();
 		return base.isProto();

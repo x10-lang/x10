@@ -23,6 +23,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -39,6 +40,9 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected Ref<XConstraint> guard;
     protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
+    
+    protected XConstrainedTerm placeTerm;
+  
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
             Ref<? extends ClassType> typeContainer,
@@ -65,6 +69,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
     
+    public ClosureDef position(Position pos) {
+    	ClosureDef_c n = (ClosureDef_c) copy();
+    	n.position = pos;
+    	return n;
+    	
+    }
     ClosureType asType;
     
     public ClosureType asType() {
@@ -132,6 +142,13 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.thisVar = thisVar;
     }
 
+    public void setPlaceTerm(XConstrainedTerm p) {
+    	this.placeTerm = p;
+    }
+    
+    public XConstrainedTerm placeTerm() { return placeTerm;}
+    
+    
     public List<LocalDef> formalNames() {
 	return Collections.unmodifiableList(formalNames);
     }

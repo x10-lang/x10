@@ -34,7 +34,8 @@ public value Future_c[T] extends Future[T] {
 		this.eval = eval;
 		result = new GrowableRail[T]();
 	}
-	
+
+    private def result()= result as GrowableRail[T]{self.at(here)};
     public def forced():boolean = at (latch.location) latch();
     
     public def apply():T = force();
@@ -50,13 +51,13 @@ public value Future_c[T] extends Future[T] {
 	                throw e as RuntimeException;
 	            assert false;
 	        }
-	        result(0)
+	        result()(0)
 		};
     }
 
 	def run():Void {
 		try {
-        	finish result.add(eval());
+        	finish result().add(eval());
           	latch.release();
         } catch (t:Throwable) {
             exception.add(t);

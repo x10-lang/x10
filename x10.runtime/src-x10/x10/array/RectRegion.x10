@@ -129,11 +129,11 @@ final value class RectRegion extends PolyRegion{rect} {
         
         // parameters
         private val rank: int;
-        private val min: ValRail[int];
-        private val max: ValRail[int];
+        private val min: ValRail[int]{self.at(this)};
+        private val max: ValRail[int]{self.at(this)};
 
         // state
-        private val x: Rail[int];
+        private val x: Rail[int]{self.at(this)};
         private var k: int;
 
         def this(val r: RectRegion): It {

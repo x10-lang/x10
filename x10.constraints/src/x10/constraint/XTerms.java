@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
    Collection of static methods to create different kinds of XTerms
    (names, vars, atomic formulas, literals, local variables, fields
@@ -24,10 +25,17 @@ import java.util.List;
  */
 public class XTerms {
     // true and false literals are interned.
+	
+	
+	//public static final XLit PLACE_ZERO = new XLit_c("placeZero");
+	public static final XLocal HERE = makeLocal(makeName("here"));
+	//public static final XLit INIT_PLACE = new XLit_c("initPlace");
 	public static final XLit NULL = new XLit_c(null);
 	public static final XLit TRUE = new XLit_c(true);
 	public static final XLit FALSE = new XLit_c(false);
-	public static final XLit OPERATOR = new XLit_c(new Object()) { public String toString() { return "o"; } };
+	public static final XLit OPERATOR = new XLit_c(new Object()) { 
+		public String toString() { return "o"; } 
+	};
 
 	static final XName equalsName = new XNameWrapper<String>("===");
 	static final XName disEqualsName = new XNameWrapper<String>("!==");
@@ -76,6 +84,8 @@ public class XTerms {
 	public static final XField makeField(XVar receiver, XName field) {
 		return new XField_c(receiver, field);
 	}
+	
+	
 
     /** Make and return a literal containing o. true and false are
      * interned.

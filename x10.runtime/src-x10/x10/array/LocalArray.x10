@@ -11,17 +11,12 @@ package x10.array;
 
 final value class LocalArray[T] extends BaseArray[T] {
 
+    // may want to say Rail[T]{self.at(dist.onePlace)}
     private val raw: Rail[T];
     private val layout: RectLayout;
 
-    final protected def raw(): Rail[T] {
-        return raw;
-    }
-
-    final protected def layout(): RectLayout {
-        return layout;
-    }
-
+    final protected def raw(): Rail[T]{self.at(here)} = raw;
+    final protected def layout() = layout;
 
     //
     // high-performance methods here to facilitate inlining
@@ -31,22 +26,22 @@ final value class LocalArray[T] extends BaseArray[T] {
 
     final public safe def apply(i0: int): T {
         if (checkBounds) checkBounds(i0);
-        return raw(layout.offset(i0));
+        return raw()(layout.offset(i0));
     }
 
     final public safe def apply(i0: int, i1: int): T {
         if (checkBounds) checkBounds(i0, i1);
-        return raw(layout.offset(i0,i1));
+        return raw()(layout.offset(i0,i1));
     }
 
     final public safe def apply(i0: int, i1: int, i2: int): T {
         if (checkBounds) checkBounds(i0, i1, i2);
-        return raw(layout.offset(i0,i1,i2));
+        return raw()(layout.offset(i0,i1,i2));
     }
 
     final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
         if (checkBounds) checkBounds(i0, i1, i2, i3);
-        return raw(layout.offset(i0,i1,i2,i3));
+        return raw()(layout.offset(i0,i1,i2,i3));
     }
 
 
@@ -58,25 +53,25 @@ final value class LocalArray[T] extends BaseArray[T] {
 
     final public safe def set(v: T, i0: int): T {
         if (checkBounds) checkBounds(i0);
-        raw(layout.offset(i0)) = v;
+        raw()(layout.offset(i0)) = v;
         return v;
     }
 
     final public safe def set(v: T, i0: int, i1: int): T {
         if (checkBounds) checkBounds(i0, i1);
-        raw(layout.offset(i0,i1)) = v;
+        raw()(layout.offset(i0,i1)) = v;
         return v;
     }
 
     final public safe def set(v: T, i0: int, i1: int, i2: int): T {
         if (checkBounds) checkBounds(i0, i1, i2);
-        raw(layout.offset(i0,i1,i2)) = v;
+        raw()(layout.offset(i0,i1,i2)) = v;
         return v;
     }
 
     final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         if (checkBounds) checkBounds(i0, i1, i2, i3);
-        raw(layout.offset(i0,i1,i2,i3)) = v;
+        raw()(layout.offset(i0,i1,i2,i3)) = v;
         return v;
     }
 
@@ -132,15 +127,15 @@ final value class LocalArray[T] extends BaseArray[T] {
 
         layout = at (dist.onePlace) layout(region);
         raw = at (dist.onePlace) {
-            val n = layout.size();
-            val raw = Rail.makeVar[T](n);
-            if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
-                for (p:Point in region)
-                    raw(layout.offset(p)) = f(p);
-            }
-            return raw;
-        };
+                val n = layout.size();
+                val r = Rail.makeVar[T](n);
+                if (init!=null) {
+                   val f = init as (Point) => T;
+                   for (p:Point in region)
+                      r(layout.offset(p)) = f(p);
+                }
+                return r;
+             };
     }
 
 

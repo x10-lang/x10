@@ -13,24 +13,25 @@ import x10.util.Random;
 /**
  * @author tardieu
  */
-final class Worker(latch:Latch) implements ()=>Void {
+final class Worker implements ()=>Void {
+        val latch:Latch{self.at(this)};
 	// release the latch to stop the worker 
 
 	// bound on loop iterations to help j9 jit
 	const BOUND = 100;
 
 	// activity (about to be) executed by this worker 
-	private var activity:Activity = null;
+	private var activity:Activity{self.at(this)} = null;
 
 	// pending activities
 	private val queue = new Deque();
 
 	// random number generator for this worker
-	private val random:Random;
+	private val random:Random{self.at(this)};
 	
-	def this(latch:Latch, p:Int) {
-		property(latch);
-		random = new Random(p + (p << 8) + (p << 16) + (p << 24));
+	def this(latch:Latch{self.at(here)}, p:Int) {
+	    this.latch = latch;
+	    random = new Random(p + (p << 8) + (p << 16) + (p << 24));
 	}
 
 	// all methods are local
@@ -39,16 +40,16 @@ final class Worker(latch:Latch) implements ()=>Void {
 	public def size():Int = queue.size();
 
 	// return activity executed by this worker
-	def activity():Activity = activity;
+	def activity()  = activity;
 
 	// poll activity from the bottom of the deque
-	private def poll():Activity = queue.poll() as Activity;
+	private def poll() = queue.poll() as Activity{self.at(here)};
 
 	// steal activity from the top of the deque
-	def steal():Activity = queue.steal() as Activity;
+	def steal() = queue.steal() as Activity{self.at(here)};
 
 	// push activity at the bottom of the deque
-	def push(activity:Activity):Void = queue.push(activity);
+	def push(activity:Activity{self.at(here)}):Void = queue.push(activity);
 
 	// run pending activities
 	public def apply():Void {

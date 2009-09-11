@@ -35,14 +35,14 @@ public value class UnionRegion extends BaseRegion {
     // constructors
     //
 
-    protected def this(rs: PolyRegionListBuilder): UnionRegion(rs.rank) {
+    protected def this(rs: PolyRegionListBuilder{self.at(here)}): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
         this.regions = rs.toValRail() as ValRail[PolyRegion(rank)]; 
 	//(rs as PolyRegionListBuilder(rank)).toValRail();
         cache = new Cache(this, false);
     }
 
-    public static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
+    public static def make(rs: PolyRegionListBuilder{self.at(here)}): Region(rs.rank) {
         if (rs.size()==0)
             return Region.makeEmpty(rs.rank);
         else if (rs.size()==1)

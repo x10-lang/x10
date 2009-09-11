@@ -1,14 +1,17 @@
 package x10.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
+import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
@@ -19,34 +22,47 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.ast.Closure;
 import x10.ast.X10ClassDecl_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
 import x10.constraint.XName;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.ClosureDef;
 import x10.types.X10ArraysMixin;
 import x10.types.X10Context;
+import x10.types.X10Context_c;
 import x10.types.X10FieldInstance;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to
@@ -57,6 +73,12 @@ import x10.types.X10TypeSystem;
  */
 public class Synthesizer {
 	
+	X10TypeSystem xts;
+	X10NodeFactory xnf;
+	public Synthesizer(X10NodeFactory nf, X10TypeSystem ts) {
+		xts=ts;
+		xnf=nf;
+	}
 
 	  /**
    * Create a synthetic MethodDecl from the given data and return
@@ -79,9 +101,9 @@ public class Synthesizer {
    * TODO: Ensure that type parameters and a guard can be supplied as well.
    */
 	
-	 public static X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, Name name, List<LocalDef> fmls, 
-	    		Type returnType, List<Type> trow, Block block,
-	    		X10NodeFactory xnf, X10TypeSystem xts) {
+	 public  X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
+			 Name name, List<LocalDef> fmls, 
+			 Type returnType, List<Type> trow, Block block) {
 	    	assert ct.classDef() != null;
 	    	
 	    	Position CG = Position.COMPILER_GENERATED;
@@ -129,7 +151,7 @@ public class Synthesizer {
 	    	return (X10ClassDecl_c) ct.body(b);
 	    }
 	 
-	 public static XTerm makeProperty(Type type, XVar receiver, String name, X10TypeSystem ts) {
+	 public static XTerm makeProperty(Type type, XVar receiver, String name) {
 		 X10FieldInstance fi = 
 				X10ArraysMixin.getProperty(type, Name.make(name));
 			XName field = XTerms.makeName(fi.def(), 
@@ -139,22 +161,22 @@ public class Synthesizer {
 			
 	 }
 	 
-	 public static XTerm makeRegionRankTerm(XVar receiver, X10TypeSystem ts) {
-		 return makeProperty(ts.Point(), receiver, "rank", ts);
+	 public XTerm makeRegionRankTerm(XVar receiver) {
+		 return makeProperty(xts.Point(), receiver, "rank");
 	 }
 	 
-	 public static XTerm makeRectTerm(XVar receiver, X10TypeSystem ts) {
-		 return makeProperty(ts.Region(), receiver, "rect", ts);
+	 public XTerm makeRectTerm(XVar receiver) {
+		 return makeProperty(xts.Region(), receiver, "rect");
 	 }
 	
-	 public static Type addRectConstraint(Type type, XVar receiver, X10TypeSystem ts) {
-			XTerm v = Synthesizer.makeRectTerm(receiver, ts);
+	 public Type addRectConstraint(Type type, XVar receiver) {
+			XTerm v = makeRectTerm(receiver);
 			return X10TypeMixin.addTerm(type, v);
 		 
 	 }
 	 
-	 public static Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
-			XTerm v = Synthesizer.makeRegionRankTerm(receiver, ts);
+	 public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+			XTerm v = makeRegionRankTerm(receiver);
 			XTerm rank = XTerms.makeLit(new Integer(n));
 			return X10TypeMixin.addBinding(type, v, rank);
 		 
@@ -184,21 +206,21 @@ public class Synthesizer {
 	  * @param stm
 	  * @return
 	  */
-	public static For makeForLoop(Position pos, 
+	public For makeForLoop(Position pos, 
 			X10Formal formal, Expr low, Expr high, Stmt body, 
-			NodeFactory nf, X10TypeSystem ts, X10Context context) {
+			 X10Context context) {
 		Position CG = Position.COMPILER_GENERATED;
 		List<Stmt> inits = new ArrayList<Stmt>();
-		Expr local = makeLocalVar(CG, null, low, inits,  nf, ts, context);
-		Expr test = nf.Binary(CG, local, Binary.LE, high).type(ts.Boolean());
-		Expr iters = nf.Unary(CG, local, Unary.POST_INC).type(ts.Int());
-		Stmt formalInit = makeLocalVar(CG, formal.localDef(), local,nf);
-		Block block = nf.Block(CG, formalInit,body);
+		Expr local = makeLocalVar(CG, null, low, inits,  context);
+		Expr test = xnf.Binary(CG, local, Binary.LE, high).type(xts.Boolean());
+		Expr iters = xnf.Unary(CG, local, Unary.POST_INC).type(xts.Int());
+		Stmt formalInit = makeLocalVar(CG, formal.localDef(), local);
+		Block block = xnf.Block(CG, formalInit,body);
 		List<ForInit> inits2 = new ArrayList<ForInit>();
 		inits2.add((ForInit) inits.get(0));
 		List<ForUpdate> itersL = new ArrayList<ForUpdate>();
-		itersL.add( nf.Eval(CG, iters));
-		For node = nf.For(pos, inits2, test, itersL, block);
+		itersL.add( xnf.Eval(CG, iters));
+		For node = xnf.For(pos, inits2, test, itersL, block);
 		return node;
 	}
 	
@@ -211,9 +233,10 @@ public class Synthesizer {
 	 * @param nf
 	 * @return
 	 */
-	public static Stmt makeLocalVar(Position pos, LocalDef li, Expr e, NodeFactory nf) {
-		final TypeNode tn = nf.CanonicalTypeNode(pos, li.type());
-		final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, li.flags()), tn, nf.Id(pos,li.name()), e).localDef(li);
+	public  Stmt makeLocalVar(Position pos, LocalDef li, Expr e) {
+		final TypeNode tn = xnf.CanonicalTypeNode(pos, li.type());
+		final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, li.flags()), tn, 
+				xnf.Id(pos,li.name()), e).localDef(li);
 		return ld;
 	}
 	
@@ -232,25 +255,184 @@ public class Synthesizer {
 	 * @return
 	 */
 	
-	public static Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
-			NodeFactory nf, X10TypeSystem ts, X10Context xc) {
+	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
+			 X10Context xc) {
 		Expr result = null;
 		if (flags == null) {
 			flags = Flags.NONE;
 		}
 		// has been converted to a variable reference.
 		final Type type = e.type();
-		if (! ts.typeEquals(type, ts.Void(), xc)) {
+		if (! xts.typeEquals(type, xts.Void(), xc)) {
 			final Name varName = xc.getNewVarName();
-			final TypeNode tn = nf.CanonicalTypeNode(pos,type);
-			final LocalDef li = ts.localDef(pos, flags, Types.ref(type), varName);
-			final Id varId = nf.Id(pos, varName);
-			final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, flags), tn, varId, e).localDef(li);
-			final Local ldRef = (Local) nf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+			final TypeNode tn = xnf.CanonicalTypeNode(pos,type);
+			final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
+			final Id varId = xnf.Id(pos, varName);
+			final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), tn, varId, e).localDef(li);
+			final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
 			stmtList.add(ld);
 			result=ldRef;
 		}
 		return result;
 	}
+	
+	/**
+	 * Make a field access for r.name. Throw a SemanticException if such a field does not exist.
+	 * @param pos
+	 * @param r
+	 * @param name
+	 * @param context
+	 * @return
+	 * @throws SemanticException
+	 */
+	public Expr makeFieldAccess(Position pos, Receiver r, Name name, X10Context context) throws SemanticException {
+		FieldInstance fi = xts.findField(r.type(), xts.FieldMatcher(r.type(), name, context));
+		 Expr result = xnf.Field(pos, r, xnf.Id(pos, name)).fieldInstance(fi)
+		 .type(fi.type());
+		 return result;
+	}
+	
+	public Call makeStaticCall(Position pos, 
+			Type receiver, 
+			Name name,
+			Type returnType,
+			X10Context xc) throws SemanticException {
+		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, 
+				Collections.EMPTY_LIST, returnType, xc);
+	}
+	
+	public Call makeStaticCall(Position pos, 
+			Type receiver, 
+			Name name,
+			List<Expr> args,
+			Type returnType,
+			X10Context xc) throws SemanticException {
+		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, returnType, xc);
+	}
+
+	public Call makeStaticCall(Position pos, 
+			Type receiver, 
+			Name name,
+			List<Expr> args,
+			Type returnType,
+			List<Type> argTypes,
+			X10Context xc) throws SemanticException {
+		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, 
+				returnType, argTypes, xc);
+	}
+	public Call makeStaticCall(Position pos, Type receiver, Name name,
+			List<TypeNode> typeArgsN, 
+			List<Expr> args,
+			Type returnType, 
+			X10Context xc) throws SemanticException {
+		List<Type> argT = new ArrayList<Type>();
+        for (Expr t: args) argT.add(t.type());
+		return makeStaticCall(pos, receiver, name, typeArgsN, args,  returnType, argT, xc);
+	}
+	/**
+	 * Return a static call constructed from the given data.
+	 * @param pos
+	 * @param receiver
+	 * @param name
+	 * @param typeArgsN
+	 * @param args
+	 * @param xnf
+	 * @param xts
+	 * @param xc
+	 * @return
+	 * @throws SemanticException if no method can be located with this data
+	 */
+	public Call makeStaticCall(Position pos, 
+			Type receiver, 
+			Name name,
+			List<TypeNode> typeArgsN, 
+			List<Expr> args,
+			Type returnType,
+			List<Type> argTypes,
+			X10Context xc) throws SemanticException {
+		
+        List<Type> typeArgs = new ArrayList<Type>();
+        for (TypeNode t : typeArgsN) typeArgs.add(t.type());
+        MethodInstance mi = xts.findMethod(receiver,
+                xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc));
+        Call result= (Call) xnf.X10Call(pos, 
+        		xnf.CanonicalTypeNode(pos, receiver),
+                xnf.Id(pos, name), 
+                typeArgsN,
+                args)
+                .methodInstance(mi)
+                .type(returnType);
+        return result;
+		
+	}
+	
+	public Closure makeClosure(Position pos, Type retType, Block body,
+			 X10Context context) {
+		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+	}
+	 public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body,
+			 X10Context context) {
+	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
+	        List<LocalDef> fNames = new ArrayList<LocalDef>();
+	        for (Formal f : parms) {
+	            fTypes.add(Types.ref(f.type().type()));
+	            fNames.add(f.localDef());
+	        }
+	        ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
+	                Types.ref(context.currentCode().asInstance()),
+	                Types.ref(retType), 
+	                Collections.EMPTY_LIST,
+	                fTypes, 
+	                (XRoot) null, 
+	                fNames, 
+	                null, 
+	                null, 
+	                Collections.EMPTY_LIST);
+	        Closure closure = (Closure) xnf.Closure(pos, Collections.EMPTY_LIST,
+	                parms, 
+	                null, 
+	                xnf.CanonicalTypeNode(pos, retType),
+	                Collections.EMPTY_LIST, body)
+	                .closureDef(cDef)
+	                .type(xts.closureAnonymousClassDef(cDef).asType());
+	        return closure;
+	    }
+	 
+	 public Block toBlock(Stmt body) {
+		   return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+	 }
+	 
+	 public Field firstPlace() {
+		 XConstraint c = new XConstraint_c();
+		 XTerm id = makeProperty(xts.Int(), c.self(), "id");
+		 try {
+			 c.addBinding(id, XTerms.makeLit(0));
+			 Type type = X10TypeMixin.xclause(xts.Place(), c);
+			 return makeStaticField(Position.COMPILER_GENERATED, xts.Place(), 
+					 Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
+		 } catch (XFailure z) {
+			 // wont happen
+		 } catch (SemanticException z) {
+			 // wont happen
+		 }
+		 return null;
+		
+	 }
+	 public Field makeStaticField(Position pos, 
+				Type receiver, 
+				Name name,
+				Type returnType,
+				X10Context xc) throws SemanticException {
+		
+	        FieldInstance fi = xts.findField(receiver,
+	                xts.FieldMatcher(receiver, name, xc));
+	       Field result=  (Field) xnf.Field(pos, 
+	        		xnf.CanonicalTypeNode(pos, receiver),
+	                xnf.Id(pos, name))
+	                .fieldInstance(fi)
+	                .type(returnType);
+	        return result;
+			
+		}
 
 }

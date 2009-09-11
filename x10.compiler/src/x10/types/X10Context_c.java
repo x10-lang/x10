@@ -62,6 +62,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -71,6 +72,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -82,6 +84,7 @@ import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 
 public class X10Context_c extends Context_c implements X10Context {
 
@@ -156,17 +159,25 @@ public class X10Context_c extends Context_c implements X10Context {
             
             if (r == null) r = new XConstraint_c();
             
-            // fold in the current constraint and the current place constraint
+            // fold in the current constraint 
             XConstraint c1 = currentConstraint();
             XConstraint sigma1 = constraintProjection(c1, m);
             r.addIn(c1);
             r.addIn(sigma1);
             
-            XConstraint c2 = currentPlaceConstraint();
-            XConstraint sigma2 = constraintProjection(c2, m);
-            r.addIn(c2);
-            r.addIn(sigma2);
+            // fold in the current place constraint
+            XConstraint c2 = currentPlaceTerm == null ? null : currentPlaceTerm.xconstraint();
+           r.addIn(c2);
+           XConstraint sigma2 = constraintProjection(c2, m);
+           r.addIn(sigma2);
 
+           // fold in the current thisPlace constraint
+           //System.err.println("X10Context_c: thisPlace is " + thisPlace);
+           XConstraint c3 = thisPlace==null ? null : thisPlace.xconstraint();
+           r.addIn(c3);
+           XConstraint sigma3 = constraintProjection(c3, m);
+           r.addIn(sigma3);
+          
             // fold in the real clause of the base type
             Type selfType = this.currentDepType();
             if (selfType != null) {
@@ -294,15 +305,40 @@ public class X10Context_c extends Context_c implements X10Context {
     	currentTypeConstraint = c; 
     }
 
+    /*
     protected XConstraint currentPlaceConstraint;
     public XConstraint currentPlaceConstraint() { 
     	if (currentPlaceConstraint == null) 
     		return new XConstraint_c(); 
     	return currentPlaceConstraint; 
     }
-    public void setCurrentPlaceConstraint(XConstraint c) { 
-    	currentPlaceConstraint = c;
+   */
+    protected XConstrainedTerm currentPlaceTerm = null;
+    public XConstrainedTerm currentPlaceTerm() {
+    	if (currentPlaceTerm == null) {
+    		X10TypeSystem xts = (X10TypeSystem) ts;
+    		currentPlaceTerm = xts.xtypeTranslator().firstPlace();
+    		assert currentPlaceTerm != null;
+    	}
+    
+    	return currentPlaceTerm;
     }
+    public Context pushPlace(XConstrainedTerm t) {
+    	assert t!= null;
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+		cxt.currentPlaceTerm = t;
+		return cxt;
+    }
+    protected XConstrainedTerm thisPlace = null;
+    public XConstrainedTerm currentThisPlace() {
+    	if (thisPlace == null) {
+    		X10TypeSystem xts = (X10TypeSystem) ts;
+    		thisPlace = ((X10TypeSystem) ts).xtypeTranslator().firstPlace();
+    		assert thisPlace != null;
+    	}
+    	return thisPlace;
+    }
+  
     protected XConstraint currentConstraint;
     // vj: TODO: check if this is the right thing to do.
     public XConstraint currentConstraint() { 
@@ -554,9 +590,45 @@ public class X10Context_c extends Context_c implements X10Context {
 		return super.pushSource(it);
 	}
 
+
+	private boolean inBootLoads(ClassDef classScope) {
+		QName q = classScope.fullName();
+		return q.equals(QName.make("x10.lang.Place"))
+		|| q.equals(QName.make("x10.lang.Value"))
+		|| q.equals(QName.make("x10.lang.Int"))
+		|| q.equals(QName.make("x10.lang.Boolean"))
+			|| q.equals(QName.make("x10.lang.Object"))
+				|| q.equals(QName.make("x10.lang.Ref"))
+		|| q.equals(QName.make("x10.runtime.NativeRuntime"));
+		
+	}
 	public Context pushClass(ClassDef classScope, ClassType type) {
 		assert (depType == null);
-		return super.pushClass(classScope, type);
+		XConstrainedTerm currentHere = null;
+		if (! (inBootLoads(classScope)) ){
+			//System.err.println("X10COntext_c: GOLDEN..determining current place for " + classScope);
+			currentHere = currentPlaceTerm();
+		}
+		//XConstrainedTerm currentHere = currentPlaceTerm();
+		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
+		
+		if (! type.toString().startsWith("x10.lang.")) 
+			try {
+				XTerm thisLoc = ((X10TypeSystem) typeSystem()).locVar(((X10ClassDef) classScope).thisVar(), 
+						this);
+				if (currentHere != null) {
+					XConstraint r = currentHere== null ? null : currentHere.constraint().copy();
+					r.addBinding(thisLoc, currentHere.term());
+					result.thisPlace = XConstrainedTerm.make(thisLoc, r);
+				}
+				//instantiate(currentHere.constraint().copy(), thisLoc);
+				
+			} catch (XFailure f) {
+				throw new InternalError("Unexpected failure when realizing thisPlace constraint" + 
+						currentHere);
+			}
+	
+		return result; 
 	}
 
 	/**
@@ -776,6 +848,25 @@ public class X10Context_c extends Context_c implements X10Context {
 		return v;
 	}
 
+	public X10Context pushAdditionalConstraint(XConstraint env)	throws SemanticException {
+		// Now push the newly computed Gamma
+		X10Context xc = (X10Context) pushBlock();
+		XConstraint c = xc.currentConstraint();
+		if (c == null) {
+			c = env;
+		} else {
+			try {
+				c = c.copy().addIn(env);
+				// c.addIn(xc.constraintProjection(c));
+			}
+			catch (XFailure e) {
+				throw new SemanticException("Call invalid; calling environment is inconsistent.");
+			}
+		}
+		xc.setCurrentConstraint(c);
+		//            xc.setCurrentTypeConstraint(tenv);
+		return xc;
+	}
 	public X10Context pushSuperTypeDeclaration(X10ClassDef type) {
 
 		X10Context_c v = (X10Context_c) push();
@@ -786,9 +877,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 	public String toString() {
-		return "(" + (depType != null ? "depType " + depType : kind.toString()) +
-		  (currentConstraint !=null ? " constraint " + currentConstraint : "") + 
-		      " "+  mapsToString() + " " + outer + ")";
+		return "(" + (depType != null ? "depType " + depType : kind.toString()) 
+		  + (currentConstraint !=null ? " constraint " + currentConstraint : "") 
+		  + (" place=" + currentPlaceTerm)
+		  + (" thisPlace=" + thisPlace)
+		  + " "+  mapsToString() + " " + outer + ")";
 	}
 
 	static protected int varCount = 0;

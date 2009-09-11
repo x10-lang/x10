@@ -161,7 +161,7 @@ public value class PolyRegion extends BaseRegion {
         return PolyRegion.make(pm);
     }
 
-    private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
+    private static def copy(tt: PolyMatBuilder{self.at(here)}, ff: PolyMat, offset: int): void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.makeVar[int](tt.rank+1);
@@ -278,7 +278,7 @@ public value class PolyRegion extends BaseRegion {
     }
 
     public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var pmb: PolyMatBuilder{self.rank==2} = new PolyMatBuilder(2);
+        val pmb = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(COL, pmb.LE, colMin+size-1);
         pmb.add(COL-ROW, pmb.GE, colMin-rowMin);

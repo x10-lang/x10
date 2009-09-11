@@ -1,3 +1,8 @@
+vj Aug 25, 2009
+
+Dont understand how TypeConstraint works. Why does entail not use any 
+information about the current type, e.g. we should have  <: Y |- X <: Y.
+
 vj Aug 2, 2009
 
 Too much low-level code. Seems like wherever something needed to be done

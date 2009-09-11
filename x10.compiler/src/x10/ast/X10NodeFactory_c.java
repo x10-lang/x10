@@ -307,7 +307,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body) {
 		AtExpr f = new AtExpr_c(pos, place, returnType, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
-		f = (AtExpr) f.ext(ext_fac.extFutureImpl()); // FIXME
+		f = (AtExpr) f.ext(ext_fac.extExpr()); // FIXME
         X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
         f = (AtExpr) f.del(del_fac.delFutureImpl()); // FIXME
 		return f;
@@ -804,7 +804,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return X10ConstructorCall(pos, kind, outer, Collections.EMPTY_LIST, args);
 	}
 
-	public Closure Closure(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
+	public Closure Closure(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, 
+			DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
 		Closure n = new Closure_c(pos, typeParams, formals, returnType, guard, throwTypes, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (Closure) n.ext(ext_fac.extClosureImpl());
@@ -813,6 +814,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+	public Closure Closure(Closure c, Position pos) {
+       return Closure(pos, c.typeParameters(), c.formals(), c.guard(), c.returnType(), c.throwTypes(),
+    		   c.body());
+	}
 	public ClosureCall ClosureCall(Position pos, Expr closure, List<TypeNode> typeArgs, List<Expr> args) {
 		ClosureCall n = new ClosureCall_c(pos, closure, typeArgs, args);
 		n = (ClosureCall) n.ext(extFactory().extExpr());
@@ -843,4 +848,5 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
+	
 }

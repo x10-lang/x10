@@ -76,9 +76,12 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
@@ -89,6 +92,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
@@ -325,72 +329,80 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     public Context enterChildScope(Node child, Context c) {
     	X10Context xc = (X10Context) c;
-    	
     	if (child != this.body) {
-    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
-               xc = xc.pushSuperTypeDeclaration(type);
-               
-               // Add this class to the context, but don't push a class scope.
-               // This allows us to detect loops in the inheritance
-               // hierarchy, but avoids an infinite loop.
-               xc = (X10Context) xc.pushBlock();
-               xc.addNamed(type.asType());
-               
-               // Add type parameters
-               for (ParameterType t : type.typeParameters()) {
-        	   xc.addNamed(t);
-               }
-               
-               for (PropertyDecl pd : properties) {
-                   FieldDef fd = pd.fieldDef();
-                   xc.addVariable(fd.asInstance());
-               }
-               
-//               for (ClassMember cm : body.members()) {
-//        	   if (cm instanceof PropertyDecl) {
-//        	       PropertyDecl pd = (PropertyDecl) cm;
-//        	       FieldDef fd = pd.fieldDef();
-//        	       xc.addVariable(fd.asInstance());
-//        	   }
-//               }
-               
-//               for (FieldDef f : type.properties()) {
-//                   xc.addVariable(f.asInstance());
-//               }
-               
-               return child.del().enterScope(xc); 
-           }
-    	   
-//    	   if (child == this.classInvariant) {
-//    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
-//    	       xc = (X10Context) xc.pushClass(type, type.asType());
-//               // Add type parameters
-//               for (ParameterType t : type.typeParameters()) {
-//        	   xc.addNamed(t);
-//               }
-//    	       return child.del().enterScope(xc); 
-//    	   }
-    	   
-           if (child == this.body) {
-    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
-    	       xc = (X10Context) xc.pushClass(type, type.asType());
-               // Add type parameters
-               for (ParameterType t : type.typeParameters()) {
-        	   xc.addNamed(t);
-               }
-           /*    vj TODO: This causes a loop. Need to investigate.
-            * DepParameterExpr v = classInvariant();
+    		
+    		X10ClassDef_c type = (X10ClassDef_c) this.type;
+    		xc = xc.pushSuperTypeDeclaration(type);
+
+    		// Add this class to the context, but don't push a class scope.
+    		// This allows us to detect loops in the inheritance
+    		// hierarchy, but avoids an infinite loop.
+    		xc = (X10Context) xc.pushBlock();
+    		xc.addNamed(type.asType());
+
+    		// Add type parameters
+    		for (ParameterType t : type.typeParameters()) {
+    			xc.addNamed(t);
+    		}
+
+    		for (PropertyDecl pd : properties) {
+    			FieldDef fd = pd.fieldDef();
+    			xc.addVariable(fd.asInstance());
+    		}
+
+    		//               for (ClassMember cm : body.members()) {
+    		//        	   if (cm instanceof PropertyDecl) {
+    		//        	       PropertyDecl pd = (PropertyDecl) cm;
+    		//        	       FieldDef fd = pd.fieldDef();
+    		//        	       xc.addVariable(fd.asInstance());
+    		//        	   }
+    		//               }
+
+    		//               for (FieldDef f : type.properties()) {
+    		//                   xc.addVariable(f.asInstance());
+    		//               }
+
+    		return child.del().enterScope(xc); 
+    	}
+
+    	//    	   if (child == this.classInvariant) {
+    	//    	       X10ClassDef_c type = (X10ClassDef_c) this.type;
+    	//    	       xc = (X10Context) xc.pushClass(type, type.asType());
+    	//               // Add type parameters
+    	//               for (ParameterType t : type.typeParameters()) {
+    	//        	   xc.addNamed(t);
+    	//               }
+    	//    	       return child.del().enterScope(xc); 
+    	//    	   }
+
+    	if (child == this.body) {
+    		X10ClassDef_c type = (X10ClassDef_c) this.type;
+    		xc = (X10Context) xc.pushClass(type, type.asType());
+    		// Add type parameters
+    		for (ParameterType t : type.typeParameters()) {
+    			xc.addNamed(t);
+    		}
+    		/*    vj TODO: This causes a loop. Need to investigate.
+    		 * DepParameterExpr v = classInvariant();
                if (v != null) {
             	   Ref<TypeConstraint> tc = v.typeConstraint();
             	   if (tc != null) {
             		    xc.setCurrentTypeConstraint(tc.get());
             	   }
                }
-           */
-               return child.del().enterScope(xc); 
-           }
-    	   
-           return super.enterChildScope(child, xc);
+    		 */
+    		// Now add this.location == currentLocation
+/*    		XConstrainedTerm placeTerm = xc.currentPlaceTerm().copy();
+    		XRoot thisVar = type.thisVar();
+    		XTerm placeVar = ((X10TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);
+    		assert placeVar != null;
+    		placeTerm.addBinding(placeTerm.term(), placeVar);
+    		xc = (X10Context) xc.pushPlace(placeTerm); */
+    		
+    		return child.del().enterScope(xc); 
+    	}
+
+    	return super.enterChildScope(child, xc);
     }
     
     public Node visitSignature(NodeVisitor v) {
@@ -412,6 +424,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         TypeBuilder childTb = tb.pushClass(def);
         
         List<TypeParamNode> pas = (List<TypeParamNode>) n.visitList(n.typeParameters, childTb);
+        pas = new LinkedList<TypeParamNode>(pas);
         
         if (def.isMember() && ! def.flags().isStatic()) {
             X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
@@ -587,16 +600,16 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    results.add(mi);
 
     	}
+    	Synthesizer synth = new Synthesizer(xnf, xts);
     	for (MethodInstance mi : results) {
     	    Id name = xnf.Id(CG, mi.name());
-    	    n = Synthesizer.addSyntheticMethod(n,
+    	    n = synth.addSyntheticMethod(n,
     	            mi.flags().Public().Abstract(),
     	            mi.name(),
     	            ((X10MethodDef) mi.def()).formalNames(),
     	            mi.returnType(),
     	            mi.throwTypes(),
-    	            null, xnf, xts
-    	    );
+    	            null);
     	}
     	return n;
     }

@@ -95,7 +95,11 @@ public class Closure_c extends Expr_c implements Closure {
     public List<TypeParamNode> typeParameters() {
 	    return typeParameters;
     }
-    
+    public Closure position(Position pos) {
+        Closure_c n = (Closure_c) copy();
+	    n.position=pos;
+	    return n;
+    }
     public Closure typeParameters(List<TypeParamNode> typeParams) {
 	    Closure_c n = (Closure_c) copy();
 	    n.typeParameters=TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
@@ -197,10 +201,12 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     /** Visit the children of the expression. */
-    public Node visitChildren(NodeVisitor v) {
+    @SuppressWarnings("unchecked")
+	public Node visitChildren(NodeVisitor v) {
 	List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
 	List<Formal> formals = visitList(this.formals, v);
 	DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
+	
 	TypeNode returnType = (TypeNode) visitChild(this.returnType, v);
 	List<TypeNode> throwTypes = visitList(this.throwTypes, v);
 	Block body = (Block) visitChild(this.body, v);
@@ -236,13 +242,15 @@ public class Closure_c extends Expr_c implements Closure {
         else {
             thisVar = ct.thisVar();
         }
-        
-        ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), Types.ref(code.asInstance()), returnType.typeRef(),
+      
+        ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), 
+        		Types.ref(code.asInstance()), returnType.typeRef(),
                                       Collections.<Ref<? extends Type>>emptyList(),
                                          Collections.<Ref<? extends Type>>emptyList(),
                                          thisVar,
                                          Collections.<LocalDef>emptyList(), null, null, Collections.<Ref<? extends Type>>emptyList());
-
+      //  System.err.println("Closure_c: Golden! TypeBuilder: return type for " + this + " is "
+       // 		+ returnType + " with ref "+ returnType.typeRef());
         if (returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
         }
@@ -251,7 +259,10 @@ public class Closure_c extends Expr_c implements Closure {
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
         TypeBuilder tb2 = tb.pushCode(mi);
 
+       // System.err.println("Closure_c: Golden! TypeBuilder: visiting children of " + this );
+        		
         Closure_c n = (Closure_c) this.del().visitChildren(tb2);
+        //System.err.println("Closure_c: Golden! TypeBuilder: done visiting children of " + this);
 
         if (n.guard() != null) {
         	mi.setGuard(n.guard().valueConstraint());
@@ -306,7 +317,8 @@ public class Closure_c extends Expr_c implements Closure {
     @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the method scope already.
-        assert c.currentCode() == this.closureDef();
+    	if  ( c.currentCode() != this.closureDef())
+    		assert c.currentCode() == this.closureDef();
         
         if (child != body()) {
             // Push formals so they're in scope in the types of the other formals.
@@ -329,14 +341,14 @@ public class Closure_c extends Expr_c implements Closure {
 		    tn.setResolver(this, v);
 
 		    NodeVisitor childv = v.enter(parent, this);
-    	            childv = childv.enter(this, returnType());
-    		    		    
+		    childv = childv.enter(this, returnType());
+
 		    if (childv instanceof TypeCheckPreparer) {
-			    TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-			    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-			    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-			    tc = (TypeChecker) tc.context(tcp.context().freeze());
-			    r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
+		    	TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+		    	final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+		    	TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+		    	tc = (TypeChecker) tc.context(tcp.context().freeze());
+		    	r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
 		    }
 	    }
 	    return super.setResolverOverride(parent, v);

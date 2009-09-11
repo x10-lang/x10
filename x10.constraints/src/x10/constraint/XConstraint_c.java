@@ -147,12 +147,17 @@ public XConstraint_c() {
 
     /** Add in a constraint, substituting this.self for c.self */
     public XConstraint addIn(XConstraint c)  throws XFailure {
+    	return addIn(self(), c);
+    }
+    
+    /** Add in a constraint, with given term for self. */
+    public XConstraint addIn(XTerm newSelf, XConstraint c)  throws XFailure {
         if (c != null) {
             List<XTerm> result = c.constraints();
             if (result == null)
                 return this;
             for (XTerm t : result) {
-                addTerm(t.subst(self(), c.self()));
+                addTerm(t.subst(newSelf, c.self()));
             }
         }
         // vj: What about thisVar for c? Should that be added?
@@ -267,6 +272,7 @@ public XConstraint_c() {
      * @return
      */
     public XPromise intern(XTerm term, XPromise last) throws XFailure {
+    	assert term != null;
         if (term instanceof XPromise) {
             XPromise q = (XPromise) term;
             
@@ -747,12 +753,12 @@ public XConstraint_c() {
             return "{inconsistent}";
         }
         
-        try {
-            c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
+     /*  try {
+           // c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
             return "{inconsistent}";
-        }
+        }*/
 
         String str ="";
 
@@ -774,20 +780,7 @@ public XConstraint_c() {
         return "{" + str + "}";
     }
 
-    public XEQV genEQV() {
-        return genEQV(true);
-    }
-
-    public XEQV genEQV(boolean hidden) {
-        XName handle = XTerms.makeFreshName();
-        return genEQV(handle, hidden);
-    }
-
-    public XEQV genEQV(XName name, boolean hidden) {
-        XEQV result = new XEQV_c(name, hidden);
-        return result;
-    }
-
+    
     public XConstraint substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
     	assert (ys != null && xs != null);
     	assert xs.length == ys.length;
@@ -1037,6 +1030,9 @@ public XConstraint_c() {
     public void addSelfBinding(XTerm var) throws XFailure {
         addBinding(self(), var);
     }
+    public void addSelfBinding(XConstrainedTerm var) throws XFailure {
+        addBinding(self(), var);
+    }
 
     public void addThisBinding(XTerm term) throws XFailure {
     	addBinding(thisVar(), term);
@@ -1097,4 +1093,47 @@ public XConstraint_c() {
     public void setInconsistent() {
         this.consistent = false;
     }
+    
+    public void addBinding(XTerm s, XConstrainedTerm t) throws XFailure {
+    	addBinding(s, t.term());
+    	addIn(s, t.constraint());
+    	
+    }
+    public void addBinding(XConstrainedTerm s, XTerm t) throws XFailure {
+    	addBinding(t,s);
+    }
+    public void addBinding(XConstrainedTerm s, XConstrainedTerm t) throws XFailure {
+    	addBinding(s.term(), t.term());
+    	addIn(s.term(), s.constraint());
+    	addIn(t.term(), t.constraint());
+    }
+    public XConstraint instantiateSelf(XTerm newSelf) {
+    	try {
+    		return substitute(newSelf, self());
+    	} catch (XFailure z) {
+    		return FALSE;
+    	}
+    }
+    public static  XConstraint FALSE = new XConstraint_c();
+    static {
+    	FALSE.setInconsistent();
+    }
+    public static XEQV genEQV() {
+        return genEQV(true);
+    }
+    
+    public static XEQV genVar() {
+        return genEQV(false);
+    }
+
+    public static XEQV genEQV(boolean hidden) {
+        XName handle = XTerms.makeFreshName();
+        return genEQV(handle, hidden);
+    }
+
+    public static XEQV genEQV(XName name, boolean hidden) {
+        XEQV result = new XEQV_c(name, hidden);
+        return result;
+    }
+
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -102,8 +103,6 @@ public interface X10TypeSystem extends TypeSystem {
      * by the type.
      */
     List<X10ClassType> allImplementedInterfaces(X10ClassType type);
-
-    XTerm here();
 
     Type Place(); // needed for here, async (p) S, future (p) e, etc
     // Type Region();
@@ -360,4 +359,21 @@ public interface X10TypeSystem extends TypeSystem {
     
     boolean behavesLike(Type t1, Type t2, Context context);
 
+   
+    
+    /**
+     * Check that the type system asserts r.location==here.
+     * @param r
+     * @param context
+     * @return
+     */
+    boolean isHere(Receiver r, X10Context context);
+    XConstraint isHereConstraint(Receiver r, X10Context xc);
+    /**
+     * Return r.location.
+     * @param r
+     * @param context
+     * @return
+     */
+    XTerm locVar(XTerm t, X10Context context) ;
 }

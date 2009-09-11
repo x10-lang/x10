@@ -17,6 +17,7 @@ public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal {
 
 	@Override
 	public boolean runTask() {
+		
 	    TypeSystem ts = v.typeSystem();
 		boolean result = super.runTask();
 		if (result) {

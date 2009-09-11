@@ -385,7 +385,7 @@ public class X10DelegatingVisitor {
 				public void visit(Unary_c n) { visit((Expr_c)n); }
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
 				public void visit(Closure_c n) { visit((Expr_c)n); }
-					public void visit(AtExpr_c n) { visit((Closure_c)n); }
+					public void visit(AtExpr_c n) { visit((Expr_c)n); }
 					public void visit(Future_c n) { visit((Closure_c)n); }
 				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }

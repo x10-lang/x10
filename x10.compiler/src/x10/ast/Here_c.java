@@ -17,11 +17,20 @@ import polyglot.ast.Term;
 import polyglot.ast.Expr_c;
 import polyglot.types.Resolver;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.constraint.XConstrainedTerm;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
+import x10.types.X10Context;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 
@@ -64,7 +73,18 @@ public class Here_c extends Expr_c
     /** Type check the expression. */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		return type(ts.Place());
+		X10Context xc = (X10Context) tc.context();
+
+		Type tt = ts.Place();
+		XConstraint cc = new XConstraint_c();
+		try {
+			cc.addSelfBinding(xc.currentPlaceTerm());
+		}
+		catch (XFailure e) {
+			throw new SemanticException("Constraint on here is inconsistent; " + e.getMessage(), position());
+		}
+		tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
+		return type(tt);
 	}
     public String translate(Resolver c) {
       return "x10.lang.Runtime.here()";

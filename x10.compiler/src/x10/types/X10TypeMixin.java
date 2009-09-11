@@ -34,6 +34,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
 import x10.ast.X10ClassDecl_c;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEquals;
@@ -51,6 +52,7 @@ import x10.constraint.XVar;
  */
 public class X10TypeMixin {
     
+
     public static Type instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
 	    X10ParsedClassType ct = (X10ParsedClassType) t;
@@ -234,6 +236,10 @@ public class X10TypeMixin {
 		}
 		return xclause(Types.ref(t), Types.ref(c));
 	}
+	public static Type constrainedType(Type base, XConstraint c) {
+		return new ConstrainedType_c((X10TypeSystem) base.typeSystem(), base.position(), Types.ref(base),
+				Types.ref(c));
+	}
 	// vj: 08/11/09 -- have to recursively walk the 
 	// type parameters and add the constraint to them.
 	public static Type xclause(final Ref<? extends Type> t, final Ref<XConstraint> c) {
@@ -310,16 +316,18 @@ public class X10TypeMixin {
     public static boolean isConstrained(Type t) {
 	    return t instanceof ConstrainedType;
     }
+    public static boolean isStruct(Type t) {
+	    return ((X10Type) t).isX10Struct();
+    }
+    public static boolean isClass(Type t) {
+	    return ! isStruct(t);
+    }
     
     public static Type addBinding(Type t, XTerm t1, XTerm t2) {
+    	assert (! (t instanceof X10UnknownType));
         try {
             XConstraint c = xclause(t);
-            if (c == null) {
-                c = new XConstraint_c();
-            }
-            else {
-                c = c.copy();
-            }
+            c = c == null ? new XConstraint_c() :c.copy();
             c.addBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -327,16 +335,47 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+	public static Type instantiateSelf(XTerm t, Type type) throws SemanticException {
+	 	assert (! (t instanceof X10UnknownType));
+		 XConstraint c = xclause(type);
+	        if (! ((c==null) || c.valid())) {
+	        	XConstraint env = c = c.copy().instantiateSelf(t);
+	        	if (! c.consistent()) {
+	        		throw new InternalCompilerError("X10TypeMixin: Instantiating self on " + type + " with " + t + " is inconsistent.");
+	        	}
+	        	return xclause(X10TypeMixin.baseType(type), c);
+	        }
+	        return type;
+	}
+    public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
+     	assert (! (t instanceof X10UnknownType));
+        try {
+            XConstraint c = xclause(t);
+            c = c == null ? new XConstraint_c() :c.copy();
+            c.addBinding(t1, t2);
+            return xclause(X10TypeMixin.baseType(t), c);
+        }
+        catch (XFailure f) {
+            throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+        }
+    }
+    public static Type addConstraint(Type t, XConstraint xc) {
+    	assert (! (t instanceof X10UnknownType));
+        try {
+            XConstraint c = xclause(t);
+            c = c == null ? new XConstraint_c() :c.copy();
+            c.addIn(xc);
+            return xclause(X10TypeMixin.baseType(t), c);
+        }
+        catch (XFailure f) {
+            throw new InternalCompilerError("X10TypeMixin_c: Cannot add " + xc + "to " + t + ".", f);
+        }
+    }
     
     public static Type addTerm(Type t, XTerm term) {
         try {
             XConstraint c = xclause(t);
-            if (c == null) {
-                c = new XConstraint_c();
-            }
-            else {
-                c = c.copy();
-            }
+            c = c == null ? new XConstraint_c() :c.copy();
             c.addTerm(term);
             return xclause(X10TypeMixin.baseType(t), c);
         }
@@ -357,6 +396,16 @@ public class X10TypeMixin {
     }
 
     public static XVar selfVar(XConstraint c) {
+	    if (c == null) return null;
+	    return c.self();
+    }
+
+    public static XVar selfVarBinding(Type thisType) {
+	    XConstraint c = xclause(thisType);
+	    return selfVarBinding(c);
+    }
+
+    public static XVar selfVarBinding(XConstraint c) {
 	    if (c == null) return null;
 	    return c.bindingForVar(c.self());
     }

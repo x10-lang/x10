@@ -97,74 +97,85 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 	
 
-        /**
-         * Looks up a method with given name and argument types.
-         */
-        protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc, TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
-            // Check for any method with the appropriate name.
-            // If found, stop the search since it shadows any enclosing
-            // classes method of the same name.
-            TypeSystem ts = tc.typeSystem();
-            ClassType currentClass = xc.currentClass();
-            if (currentClass != null &&
-                ts.hasMethodNamed(currentClass, matcher.name())) {
-                
-                // Override to change the type from C to C{self==this}.
-                Type t = currentClass;
-                X10TypeSystem xts = (X10TypeSystem) ts;
-                XRoot thisVar = null;
-                if (XTypeTranslator.THIS_VAR) {
-                    CodeDef cd = xc.currentCode();
-                    if (cd instanceof X10MemberDef) {
-                        thisVar = ((X10MemberDef) cd).thisVar();
-                    }
-                }
-                else {
-//                  thisVar = xts.xtypeTranslator().transThis(currentClass);
-                    thisVar = xts.xtypeTranslator().transThisWithoutTypeConstraint();
-                }
-                
-                if (thisVar != null)
-                    t = X10TypeMixin.setSelfVar(t, thisVar);
-                
-                // Found a class that has a method of the right name.
-                // Now need to check if the method is of the correct type.
-                
-                X10MethodInstance mi = null;
+	/**
+	 * Looks up a method with given name and argument types.
+	 */
+	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc, 
+			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, 
+			List<Type> argTypes) throws SemanticException {
+		return superFindMethod(tc, xc, matcher, typeArgs, argTypes, null);
+	}
+	protected Pair<MethodInstance,List<Expr>> superFindMethod(ContextVisitor tc, X10Context xc, 
+			TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, 
+			List<Type> argTypes, List<Expr> args) throws SemanticException {
+		// Check for any method with the appropriate name.
+		// If found, stop the search since it shadows any enclosing
+		// classes method of the same name.
+		TypeSystem ts = tc.typeSystem();
+		ClassType currentClass = xc.currentClass();
+		if (currentClass != null &&
+				ts.hasMethodNamed(currentClass, matcher.name())) {
 
-                // First try to find the method without implicit conversions.
-                try {
-                    mi = xts.findMethod(t, matcher.container(t));
-                    return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
-                }
-                catch (SemanticException e) {
-                    // Now, try to find the method with implicit conversions, making them explicit.
-                    try {
-                        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, typeArgs, argTypes);
-                        return p;
-                    }
-                    catch (SemanticException e2) {
-                        throw e;
-                    }
-                }
-            }
+			// Override to change the type from C to C{self==this}.
+			Type t = currentClass;
+			X10TypeSystem xts = (X10TypeSystem) ts;
+			XRoot thisVar = null;
+			if (XTypeTranslator.THIS_VAR) {
+				CodeDef cd = xc.currentCode();
+				if (cd instanceof X10MemberDef) {
+					thisVar = ((X10MemberDef) cd).thisVar();
+				}
+			}
+			else {
+				//                  thisVar = xts.xtypeTranslator().transThis(currentClass);
+				thisVar = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+			}
 
-            if (xc.pop() != null) {
-                return superFindMethod(tc, (X10Context) xc.pop(), matcher, typeArgs, argTypes);
-            }
+			if (thisVar != null)
+				t = X10TypeMixin.setSelfVar(t, thisVar);
 
-            throw new SemanticException("Method " + matcher.signature() + " not found.");
-        }
-        
+			// Found a class that has a method of the right name.
+			// Now need to check if the method is of the correct type.
+
+			X10MethodInstance mi = null;
+
+			// First try to find the method without implicit conversions.
+			try {
+				mi = xts.findMethod(t, matcher.container(t));
+				return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+			}
+			catch (SemanticException e) {
+				// Now, try to find the method with implicit conversions, making them explicit.
+				try {
+					Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, typeArgs, argTypes);
+					return p;
+				}
+				catch (SemanticException e2) {
+					throw e;
+				}
+			}
+		}
+
+		if (xc.pop() != null) {
+			return superFindMethod(tc, (X10Context) xc.pop(), matcher, typeArgs, argTypes);
+		}
+
+		throw new SemanticException("Method " + matcher.signature() + " not found.");
+	}
+
     /**
      * Looks up a method with name "name" and arguments compatible with
      * "argTypes".
      */
-        protected Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, TypeSystem_c.MethodMatcher matcher, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+        protected Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, TypeSystem_c.MethodMatcher matcher, 
+        		List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
             X10Context xc = (X10Context) tc.context();
-            Pair<MethodInstance,List<Expr>> result = xc.currentDepType() == null ? superFindMethod(tc, xc, matcher, typeArgs, argTypes) : superFindMethod(tc, (X10Context) xc.pop(), matcher, typeArgs, argTypes);
+            Pair<MethodInstance,List<Expr>> result = xc.currentDepType() == null ? 
+            		superFindMethod(tc, xc, matcher, typeArgs, argTypes) 
+            		: superFindMethod(tc, (X10Context) xc.pop(), matcher, typeArgs, argTypes);
             return result;
     }
+ 
 
 	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -416,15 +427,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// End inlined super call.
 		/////////////////////////////////////////////////////////////////////
 
-		checkProtoMethod();
-		
-		// If we found a method, the call must typecheck
-		if (X10Flags.toX10Flags(mi.flags()).isRooted() 
-				&& ! ((X10Type) target.type()).isRooted())
-			throw new SemanticException(mi 
-					+ " can only be called on a rooted receiver; " + 
-					target + " is not rooted.");
-	
+		result.checkProtoMethod();
+		result.checkLocalReceiver(tc);
 		// the arguments here.
 		result.checkConsistency(c);
 		//	        	result = result.adjustMI(tc);
@@ -432,6 +436,36 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		result.checkAnnotations(tc);
 
 		return result;
+	}
+
+	
+	public void checkLocalReceiver( ContextVisitor tc) 
+	throws SemanticException {
+		X10Flags xFlags = X10Flags.toX10Flags(methodInstance().flags());
+		// A global method can be invoked from anywhere.
+		if (xFlags.isGlobal())
+			return;
+		
+		// A static method can be invoked from anywhere.
+		if (xFlags.isStatic())
+			return;
+
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		X10Context xc = (X10Context) tc.context();
+		
+		Receiver target = target();
+		
+		// Method invocations on structs and values are always permitted
+		if (! ts.isSubtype(target.type(), ts.Ref(), xc))
+			return;
+
+
+		if (ts.isHere(target, xc))
+			return;
+
+		throw new SemanticError("Place type error: method target " 
+				+ target + " cannot be determined to be at " + xc.currentPlaceTerm(),
+				position());
 	}
 
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {

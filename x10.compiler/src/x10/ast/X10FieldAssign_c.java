@@ -42,7 +42,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-    	
+    
     	TypeSystem ts = tc.typeSystem();
         X10FieldAssign_c n = (X10FieldAssign_c) typeCheckLeft(tc);
         X10Type t = (X10Type) n.leftType();
@@ -72,14 +72,20 @@ public class X10FieldAssign_c extends FieldAssign_c {
     					" to a field.", position());
     		}
     		s = s.clearFlags(X10Flags.PROTO);
-    		if (ts.isSubtype(s, t, tc.context())) {
-    			return n.type(t);
+    		if (! (ts.isSubtype(s, t, tc.context()))) {
+    			throw new SemanticException("Cannot assign " + s + " to " + t + ".",
+        				n.position());
+    			
     		}
-
-    		throw new SemanticException("Cannot assign " + s + " to " + t + ".",
-    				n.position());
+    		n.checkFieldPlaceType(tc);
+    		
+    		n= (X10FieldAssign_c) n.type(t);
     	}
         
-        return X10LocalAssign_c.typeCheckAssign(this, tc);
+        return X10LocalAssign_c.typeCheckAssign(n, tc);
+    }
+    
+    public void checkFieldPlaceType(ContextVisitor tc) throws SemanticException {
+    	((X10Field_c) left(tc.nodeFactory())).checkFieldPlaceType(tc);
     }
 }

@@ -12,9 +12,12 @@ package x10.util.concurrent.atomic;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+/**
+   vj: Making this a struct is a hack to get around place types.
+ */
 @NativeRep("java", "java.util.concurrent.atomic.AtomicInteger", null, null)
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicInteger>", "x10::util::concurrent::atomic::AtomicInteger", null)
-public class AtomicInteger {
+public struct AtomicInteger {
 	
 	public native def this():AtomicInteger;
 	public native def this(val:int):AtomicInteger;

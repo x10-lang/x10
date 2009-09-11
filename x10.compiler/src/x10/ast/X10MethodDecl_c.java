@@ -188,9 +188,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 xf = X10Flags.toX10Flags(xf.Public());
             else
                 xf = X10Flags.toX10Flags(xf.Public().Final());
+       
             mi.setFlags(xf);
             n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
         }
+       
 
         return n;
     }
@@ -336,10 +338,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    	 X10MethodDecl_c n = this;
         NodeFactory nf = tc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-
-        X10MethodDecl_c n = this;
+        if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
+        //	System.err.println("X10MethodDecl_c: Golden. Setting flag for " + this + " to global final.");
+        	Flags xf = X10Flags.toX10Flags(mi.flags()).Global().Final();
+        	 mi.setFlags(xf);
+             n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
+        }
 
         for (TypeNode type : n.throwTypes()) {
             XConstraint rc = X10TypeMixin.xclause(type.type());
@@ -405,19 +412,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         X10TypeMixin.protoTypeCheck(formals(), (X10Type) returnType().type(), position(),
         		true);
 
-        X10MethodDef md = (X10MethodDef) methodDef();
-        StructType container = md.container().get();
-        if (container instanceof X10Type) {
-        	X10Type xtype = (X10Type) container;
-        	if (xtype.isX10Struct()) {
-        		if (! md.flags().isFinal()) {
-        			throw new SemanticException(  md 
-        					+ " must be final; structs may only have final methods."
-        					, position());
-        		}
-        	}
-        
-        }
         return n;
     }
 

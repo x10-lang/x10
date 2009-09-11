@@ -28,7 +28,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     }
     
     /** The actual table, must be of size 2**n */
-    var table: Rail[HashEntry[K,V]];
+    var table: Rail[HashEntry[K,V]{self.at(this)}]{self.at(this)};
     
     /** Number of non-null, non-removed entries in the table. */
     var size: Int;
@@ -60,7 +60,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
-        table = Rail.makeVar[HashEntry[K,V]](sz);
+        table = Rail.makeVar[HashEntry[K,V]{self.at(this)}](sz);
         mask = sz - 1;
         size = 0;
         occupation = 0;
@@ -95,7 +95,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         return e.value;
     }
     
-    protected def getEntry(k: K): HashEntry[K,V] {
+    protected def getEntry(k: K): HashEntry[K,V]{self.at(here)} {
         if (size == 0)
             return null;
  
@@ -170,7 +170,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     public def rehash(): void {
         val t = table;
         val oldSize = size;
-        table = Rail.makeVar[HashEntry[K,V]](t.length*2);
+        table = Rail.makeVar[HashEntry[K,V]{self.at(this)}](t.length*2);
         mask = table.length - 1;
         size = 0;
         occupation = 0;
@@ -216,7 +216,7 @@ public class HashMap[-K,V] implements Map[K,V] {
 	}
 
 	protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
-	    val map: HashMap[Key,Value];
+	    val map: HashMap[Key,Value]{self.at(this)};
 	    var i: Int;
 	    
 	    def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; }
@@ -249,12 +249,12 @@ public class HashMap[-K,V] implements Map[K,V] {
 	public def size() = size;
 	
     protected static class KeySet[-Key,Value] extends AbstractCollection[Key] implements Set[Key] {
-	    val map: HashMap[Key,Value];
+	    val map: HashMap[Key,Value]{self.at(this)};
 	    
-	    def this(map: HashMap[Key,Value]) { this.map = map; }
+	    def this(map: HashMap[Key,Value]{self.at(here)}) { this.map = map; }
 	    
 	    public def iterator(): Iterator[Key] {
-	        return new MapIterator[HashEntry[Key,Value],Key](map.entriesIterator(), (e: HashEntry[Key,Value]) => e.key);
+	        return new MapIterator[HashEntry[Key,Value],Key](map.entriesIterator(), (e: HashEntry[Key,Value]{self.at(here)}) => e.key);
 	    }
 	    
 	    public def contains(k: Key) {
@@ -268,9 +268,9 @@ public class HashMap[-K,V] implements Map[K,V] {
 	}
 
     protected static class EntrySet[-Key,Value] extends AbstractCollection[Map.Entry[Key,Value]] implements Set[Map.Entry[Key,Value]] {
-	    val map: HashMap[Key,Value];
+	    val map: HashMap[Key,Value]{self.at(this)};
 	    
-	    def this(map: HashMap[Key,Value]) { this.map = map; }
+	    def this(map: HashMap[Key,Value]{self.at(here)}) { this.map = map; }
 	    
 	    public def iterator(): Iterator[Map.Entry[Key,Value]] {
 	        return new MapIterator[HashEntry[Key,Value],Map.Entry[Key,Value]](map.entriesIterator(), (e: HashEntry[Key,Value]) => e as Map.Entry[Key,Value]);
