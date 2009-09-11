@@ -454,6 +454,8 @@ void x10rt_send_msg (x10rt_msg_params & p)
 
     assert(global_state.init);
     assert(!global_state.finalized);
+    assert(p.type > 0);
+
     if(MPI_SUCCESS != MPI_Isend(p.msg, 
                 p.len, MPI_BYTE, 
                 p.dest_place, 
@@ -601,6 +603,8 @@ static void recv_completion(int ix, int bytes, x10rt_req_queue * q, x10rt_req * 
                          };
 
     q->remove(req);
+
+    assert(ix > 0);
 
     if(pthread_mutex_unlock(&global_state.lock)) {
         perror("pthread_mutex_unlock");
@@ -808,6 +812,7 @@ void check_pending(x10rt_req_queue * q)
                     exit(EXIT_FAILURE);
                     break;
             };
+            req = q->start();
         } else {
             num_checked ++;
         }
