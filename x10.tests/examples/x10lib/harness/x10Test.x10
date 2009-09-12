@@ -23,10 +23,10 @@ abstract public class x10Test {
      */
     abstract public def run(): boolean;
 
-    public def executeAsync(): void = {
-        val b: Rail[boolean] = [ false ]; // use a rail until we have shared locals working
+    public def executeAsync() {
+        val b: Rail[boolean]! = [ false ]; // use a rail until we have shared locals working
         try {
-            finish async(this.location) b(0) = this.run();
+            finish async b(0) = this.run();
         } catch (e: Throwable) {
             e.printStackTrace();
         }
@@ -74,7 +74,7 @@ abstract public class x10Test {
         if (!b) throw new Error(s);
     }
 
-    private var myRand: Random = new Random(1L);
+    private var myRand:Random! = new Random(1L);
 
     /**
      * Return a random integer between lb and ub (inclusive)

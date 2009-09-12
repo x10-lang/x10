@@ -5,7 +5,7 @@ package x10.array;
 
 /**
  * This class represents an array with raw chunk in each place,
- * initialized at its place access via a PlaceLocalHandle.
+ * initialized at its place of access via a PlaceLocalHandle.
  *
  * @author bdlucas
  */
@@ -17,17 +17,17 @@ final value class DistArray[T] extends BaseArray[T] {
 
     private static class LocalState[T] {
         val layout:RectLayout;
-        val raw:Rail[T]{self.at(this)};
+        val raw:Rail[T]!;
         
-        def this(l:RectLayout, r:Rail[T]{self.at(here)}) {
+        def this(l:RectLayout, r:Rail[T]!) {
             layout = l;
             raw = r;
         }
     };
 
     private val localHandle:PlaceLocalHandle[LocalState[T]];
-    final protected def raw():Rail[T]{self.at(here)} = (localHandle.get() as LocalState[T]{self.at(here)}).raw;
-    final protected def layout() = (localHandle.get() as  LocalState[T]{self.at(here)}).layout;
+    final protected def raw():Rail[T]! = localHandle.get().raw;
+    final protected def layout() = localHandle.get().layout;
 
     //
     // high-performance methods here to facilitate inlining
@@ -92,16 +92,11 @@ final value class DistArray[T] extends BaseArray[T] {
         return v;
     }
 
-
-    //
-    //
-    //
-
     def this(dist: Dist, val init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
         super(dist);
 
-        val plsInit:(Place)=>LocalState[T] = (p:Place) => {
-            val region = dist.get(p);
+        val plsInit:()=>LocalState[T]! = () => {
+            val region = dist.get(here);
             val localLayout = layout(region);
             val localRaw = Rail.makeVar[T](localLayout.size());
             if (init != null) {
@@ -113,7 +108,7 @@ final value class DistArray[T] extends BaseArray[T] {
 	    return new LocalState[T](localLayout, localRaw);
         };
 
-        localHandle = PlaceLocalStorage.createDistributedObject(dist, plsInit);
+        localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](dist, plsInit);
     }
 
 
@@ -131,9 +126,8 @@ final value class DistArray[T] extends BaseArray[T] {
     def this(a: DistArray[T], d: Dist) {
         super(d);
 
-	localHandle = PlaceLocalStorage.createDistributedObject(d, (p:Place) => {
-	    return a.localHandle.get();
-        });
+	    localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](d, 
+			() => a.localHandle.get());
     }
 
 }

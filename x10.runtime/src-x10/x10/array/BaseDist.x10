@@ -55,7 +55,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val max = b.max()(axis);
 
         val init = (i:nat) => Region.makeEmpty(r.rank);
-        var regions:Rail[Region]{self.at(here)} = Rail.makeVar[Region](Place.MAX_PLACES, init);
+        var regions:Rail[Region]! = Rail.makeVar[Region](Place.MAX_PLACES, init);
 
         for (var i: int = min, p: int = 0; i<=max; i+=blockSize, p++) {
             val r1 = Region.makeFull(axis);

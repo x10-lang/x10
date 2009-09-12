@@ -603,6 +603,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		
 	}
 	public Context pushClass(ClassDef classScope, ClassType type) {
+		//System.err.println("Pushing class" + classScope);
 		assert (depType == null);
 		XConstrainedTerm currentHere = null;
 		if (! (inBootLoads(classScope)) ){
@@ -667,6 +668,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 * enters a method
 	 */
 	public Context pushCode(CodeDef ci) {
+		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
 		return super.pushCode(ci);
 	}

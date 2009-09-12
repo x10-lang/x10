@@ -55,6 +55,7 @@ public interface X10NodeFactory extends NodeFactory {
     /** Return the language extension this node factory is for. */
     ExtensionInfo extensionInfo();
     
+    Expr AmbHereThis(Position pos) ;
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
 	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
 
