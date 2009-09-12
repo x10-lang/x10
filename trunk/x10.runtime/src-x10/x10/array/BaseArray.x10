@@ -68,7 +68,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     // expose these if performance demands
     //
 
-    protected abstract def raw(): Rail[T];
+    protected abstract def raw(): Rail[T]!;
     protected abstract def layout(): RectLayout;
 
 
@@ -89,8 +89,8 @@ public abstract value class BaseArray[T] extends Array[T] {
     public final safe def set(v: T, pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
-        val raw:Rail[T]{self.at(here)} = raw();
-        raw(layout().offset(pt)) = v;
+        val r = raw();
+        r(layout().offset(pt)) = v;
         return v;
     }
 
@@ -157,9 +157,6 @@ public abstract value class BaseArray[T] extends Array[T] {
     safe def checkPlace(i0: int, i1: int, i2: int, i3: int) {
         (dist.get(here) as BaseRegion(4)).check(place, i0, i1, i2, i3);
     }
-
-
-
     //
     // views
     //

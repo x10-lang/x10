@@ -63,6 +63,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         super(pos, flags, type, name, init);
     }
     
+    @Override
+    public Context enterScope(Context c) {
+        if (ii != null) {
+            return c.pushCode(ii);
+        }
+        return c;
+    }
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type) {
 			X10Context xc = (X10Context) c.pushBlock();

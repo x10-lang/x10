@@ -41,6 +41,8 @@ public class XFormula_c extends XTerm_c implements XFormula {
         List<XTerm> newArgs = new ArrayList<XTerm>(this.arguments().size());
         boolean changed = false;
         for (XTerm arg: this.arguments()) {
+        	if (arg == null)
+        		assert arg != null : "Argument to a formula cannot be null.";
             XTerm a = arg.subst(y, x, propagate);
             if (a != arg)
                 changed = true;

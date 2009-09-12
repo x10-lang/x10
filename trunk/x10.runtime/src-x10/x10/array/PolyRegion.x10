@@ -79,13 +79,14 @@ public value class PolyRegion extends BaseRegion {
     }
 
 
-    public def iterator(): Iterator[Point(rank)] {
+   /* public def iterator(): Iterator[Point(rank)]! {
         //return new PointIt();
         //return scanner().iterator();
 	val scanner = PolyScanner.make(mat).iterator();
-        return scanner as Iterator[Point(rank)];
-    }
-
+        return scanner;
+    }*/
+    public def iterator()= PolyScanner.make(mat).iterator();
+  
 
     //
     // Region methods
@@ -161,7 +162,7 @@ public value class PolyRegion extends BaseRegion {
         return PolyRegion.make(pm);
     }
 
-    private static def copy(tt: PolyMatBuilder{self.at(here)}, ff: PolyMat, offset: int): void {
+    private static def copy(tt: PolyMatBuilder!, ff: PolyMat, offset: int): void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.makeVar[int](tt.rank+1);
@@ -302,7 +303,7 @@ public value class PolyRegion extends BaseRegion {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(pm: PolyMat): Region(pm.rank) {
+    public static def make(pm: PolyMat): Region(pm.rank)! {
         if (pm.isEmpty()) {
             return new EmptyRegion(pm.rank);
         } else  if (pm.isRect() && pm.isBounded())
@@ -311,7 +312,7 @@ public value class PolyRegion extends BaseRegion {
             return new PolyRegion(pm, false);
     }
 
-    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion{self.rank==pm.rank} {
+    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
 
         super(pm.rank, pm.isRect(), pm.isZeroBased());
 

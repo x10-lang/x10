@@ -117,7 +117,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 	
-	
+	 public Expr AmbHereThis(Position pos) {
+	        Expr n = new AmbHereThis_c(pos);
+	        n = (Expr)n.ext(extFactory().extAmbExpr());
+	        n = (Expr)n.del(delFactory().delAmbExpr());
+	        return n;
+	    }
 	
 	@Override
 	public polyglot.ast.Initializer Initializer(Position pos, FlagsNode flags, Block body) {
