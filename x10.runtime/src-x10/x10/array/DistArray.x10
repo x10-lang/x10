@@ -92,7 +92,7 @@ final value class DistArray[T] extends BaseArray[T] {
         return v;
     }
 
-    def this(dist: Dist, val init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist, init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
         super(dist);
 
         val plsInit:()=>LocalState[T]! = () => {
@@ -118,16 +118,15 @@ final value class DistArray[T] extends BaseArray[T] {
 
     public safe def restriction(d: Dist) {
         if (d.constant)
-            return new LocalArray[T](this, d as Dist{constant});
+            return new LocalArray[T](this, d as Dist{constant, here==self.onePlace});
         else
             return new DistArray[T](this, d);
     }
 
     def this(a: DistArray[T], d: Dist) {
         super(d);
-
-	    localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](d, 
-			() => a.localHandle.get());
+	localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](d, 
+		    () => a.localHandle.get());
     }
 
 }

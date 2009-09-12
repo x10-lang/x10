@@ -43,7 +43,7 @@ public class System {
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
     static def copyTo[T] (src:ValRail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
+                          dst_place:Place, dst_finder:()=>Rail[T]!,
                           len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst_place) {
@@ -120,7 +120,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyFrom[T] (dst:Rail[T]{self.at(here)}, dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
+    static def copyFrom[T] (dst:Rail[T]!, dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
         // source is always local
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to not use any asynchrony

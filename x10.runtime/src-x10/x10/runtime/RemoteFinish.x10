@@ -19,7 +19,7 @@ class RemoteFinish implements FinishState {
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
 	 */
-    private var exceptions:Stack[Throwable]{self.at(this)};
+    private var exceptions:Stack[Throwable]!;
 
 	/**
 	 * The monitor is used to serialize updates to the finish state. 
@@ -29,7 +29,7 @@ class RemoteFinish implements FinishState {
 	/**
 	 * Keep track of the number of activities associated with this finish state.
 	 */
-    private val counts = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]{self.at(this)};
+    private val counts = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]!;
     
     private var count:AtomicInteger = new AtomicInteger(0); 
     

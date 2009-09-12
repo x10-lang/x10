@@ -48,7 +48,7 @@ final value class RectRegion extends PolyRegion{rect} {
         max3 = pm.rank>=4 && pm.isBounded()? pm.rectMax()(3) : 0;
     }
 
-    public static def make1(val min: Rail[int], val max: Rail[int]): Region{self.rank==min.length&&self.rect} { // XTENLANG-4
+    public static def make1(val min: Rail[int]!, val max: Rail[int]!): Region{self.rank==min.length&&self.rect} { // XTENLANG-4
 
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
@@ -129,11 +129,11 @@ final value class RectRegion extends PolyRegion{rect} {
         
         // parameters
         private val rank: int;
-        private val min: ValRail[int]{self.at(this)};
-        private val max: ValRail[int]{self.at(this)};
+        private val min: ValRail[int]!;
+        private val max: ValRail[int]!;
 
         // state
-        private val x: Rail[int]{self.at(this)};
+        private val x: Rail[int]!;
         private var k: int;
 
         def this(val r: RectRegion): It {

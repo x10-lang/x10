@@ -14,7 +14,7 @@ import x10.util.Random;
  * @author tardieu
  */
 public class Pool implements ()=>Void {
-	private val latch:Latch{self.at(this)};
+	private val latch:Latch!;
 	private var size:Int; // the number of workers in the pool
 
 	private var spares:Int = 0; // the number of spare workers in the pool
@@ -27,16 +27,16 @@ public class Pool implements ()=>Void {
 	private const MAX = 1000; 
 
 	// the workers in the pool
-	private val workers:Rail[Worker{self.at(this)}]{self.at(this)};
+	private val workers:Rail[Worker!]!;
 	
 	// the threads in the pool
-	private val threads:Rail[Thread{self.at(this)}];
+	private val threads:Rail[Thread!]!;
 
-	def this(latch:Latch{self.at(here)}, size:Int) {
+	def this(latch:Latch!, size:Int) {
 		this.latch = latch;
 	    this.size = size;
-	    val workers = Rail.makeVar[Worker{self.at(here)}](MAX);
-	    val threads = Rail.makeVar[Thread{self.at(here)}](size);
+	    val workers = Rail.makeVar[Worker!](MAX);
+	    val threads = Rail.makeVar[Thread!](size);
 
 	    // worker for the master thread
 	    val master = new Worker(latch, 0);
@@ -83,8 +83,7 @@ public class Pool implements ()=>Void {
 				NativeRuntime.println("TOO MANY THREADS... ABORTING");
 				System.exit(1);
 			}
-			// vj: This cast should not be needed.
-			val worker = new Worker(latch as Latch{self.at(here)}, i);
+			val worker = new Worker(latch as Latch!, i);
 			workers(i) = worker;
 			val thread = new Thread(worker.apply.(), "thread-" + i);
 			thread.worker(worker);
@@ -112,8 +111,8 @@ public class Pool implements ()=>Void {
 	}
 
 	// scan workers for activity to steal
-	def scan(random:Random{self.at(here)}, latch:Latch, block:Boolean):Activity{self.at(here)} {
-		var activity:Activity{self.at(here)}= null;
+	def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
+		var activity:Activity! = null;
 		var next:Int = random.nextInt(size);
 		for (;;) {
 			NativeRuntime.event_probe();

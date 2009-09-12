@@ -65,6 +65,7 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
@@ -111,7 +112,7 @@ import x10.types.XTypeTranslator;
  *
  */
 public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
-    // The representation of the : Constraint in the parameter list.
+    // The representation of the  guard on the method definition
     DepParameterExpr guard;
     List<TypeParamNode> typeParameters;
 
@@ -260,6 +261,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         
             if (vc != null || tc != null) {
                 c = c.pushBlock();
+                try {
+                	if (vc.known())
+                		c= ((X10Context) c).pushAdditionalConstraint(vc.get());
+                } catch (SemanticException z) {
+                	throw 
+                	new InternalCompilerError("Unexpected inconsistent guard" + z);
+                }
         //        ((X10Context) c).setCurrentConstraint(vc.get());
         //        ((X10Context) c).setCurrentTypeConstraint(tc.get());
             }            

@@ -14,7 +14,7 @@ import x10.util.HashMap;
  * @author tardieu
  */
 class ClockPhases extends HashMap[Clock_c,Int] {
-	def register(clocks:ValRail[Clock]{self.at(here)}, phases:ValRail[Int]{self.at(here)}):Void {
+	def register(clocks:ValRail[Clock], phases:ValRail[Int]):Void {
 		for(var i:Int = 0; i < clocks.length; i++) 
 		    this.put(clocks(i) as Clock_c, phases(i));
 	}

@@ -7,7 +7,7 @@ import x10.util.ArrayList;
 
 public class MatBuilder {
     
-    protected val mat: ArrayList[Row]{self.at(this)};
+    protected val mat: ArrayList[Row]!;
     protected val cols: int;
 
     public def this(cols: nat) {
@@ -54,7 +54,7 @@ public class MatBuilder {
     }
 
     private safe def need(n:int) = need(n, this.mat, this.cols);
-    private static safe def need(n:int, mat:ArrayList[Row]{self.at(here)}, cols:int) {
+    private static safe def need(n:int, mat:ArrayList[Row]!, cols:int) {
         while (mat.size()<n)
             mat.add(new VarRow(cols));
     }

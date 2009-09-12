@@ -11,12 +11,37 @@ package x10.array;
 
 final value class LocalArray[T] extends BaseArray[T] {
 
-    // may want to say Rail[T]{self.at(dist.onePlace)}
-    private val raw: Rail[T];
+    private val raw: Rail[T]{self.at(dist.onePlace)};
     private val layout: RectLayout;
 
-    final protected def raw(): Rail[T]{self.at(here)} = raw;
     final protected def layout() = layout;
+    final protected def raw() = raw;
+    //
+    // high-performance methods here to facilitate inlining
+    //
+    // NB: local array, so don't do place checking
+    //
+
+    final public safe def apply(i0: int){here==this.dist.onePlace}: T {
+        if (checkBounds) checkBounds(i0);
+        return raw(layout.offset(i0));
+    }
+
+    final public safe def apply(i0: int, i1: int){here==this.dist.onePlace}: T {
+        if (checkBounds) checkBounds(i0, i1);
+        return raw(layout.offset(i0,i1));
+    }
+
+    final public safe def apply(i0: int, i1: int, i2: int){here==this.dist.onePlace}: T {
+        if (checkBounds) checkBounds(i0, i1, i2);
+        return raw(layout.offset(i0,i1,i2));
+    }
+
+    final public safe def apply(i0: int, i1: int, i2: int, i3: int){here==this.dist.onePlace}: T {
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
+        return raw(layout.offset(i0,i1,i2,i3));
+    }
+
 
     //
     // high-performance methods here to facilitate inlining
@@ -24,54 +49,27 @@ final value class LocalArray[T] extends BaseArray[T] {
     // NB: local array, so don't do place checking
     //
 
-    final public safe def apply(i0: int): T {
+    final public safe def set(v: T, i0: int){here==this.dist.onePlace}: T {
         if (checkBounds) checkBounds(i0);
-        return raw()(layout.offset(i0));
+        raw(layout.offset(i0)) = v;
+        return v;
     }
 
-    final public safe def apply(i0: int, i1: int): T {
+    final public safe def set(v: T, i0: int, i1: int){here==this.dist.onePlace}: T {
         if (checkBounds) checkBounds(i0, i1);
-        return raw()(layout.offset(i0,i1));
+        raw(layout.offset(i0,i1)) = v;
+        return v;
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int){here==this.dist.onePlace}: T {
         if (checkBounds) checkBounds(i0, i1, i2);
-        return raw()(layout.offset(i0,i1,i2));
+        raw(layout.offset(i0,i1,i2)) = v;
+        return v;
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int){here==this.dist.onePlace}: T {
         if (checkBounds) checkBounds(i0, i1, i2, i3);
-        return raw()(layout.offset(i0,i1,i2,i3));
-    }
-
-
-    //
-    // high-performance methods here to facilitate inlining
-    //
-    // NB: local array, so don't do place checking
-    //
-
-    final public safe def set(v: T, i0: int): T {
-        if (checkBounds) checkBounds(i0);
-        raw()(layout.offset(i0)) = v;
-        return v;
-    }
-
-    final public safe def set(v: T, i0: int, i1: int): T {
-        if (checkBounds) checkBounds(i0, i1);
-        raw()(layout.offset(i0,i1)) = v;
-        return v;
-    }
-
-    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
-        if (checkBounds) checkBounds(i0, i1, i2);
-        raw()(layout.offset(i0,i1,i2)) = v;
-        return v;
-    }
-
-    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
-        if (checkBounds) checkBounds(i0, i1, i2, i3);
-        raw()(layout.offset(i0,i1,i2,i3)) = v;
+        raw(layout.offset(i0,i1,i2,i3)) = v;
         return v;
     }
 
@@ -144,18 +142,20 @@ final value class LocalArray[T] extends BaseArray[T] {
      */
 
     public safe def restriction(d: Dist): Array[T] {
-        return new LocalArray[T](this, d as Dist{constant});
+
+        val dd = d as Dist{constant,here==self.onePlace};
+        return new LocalArray[T](this, dd);
     }
 
-    def this(a: BaseArray[T], d: Dist{constant}) {
+    def this(a: BaseArray[T], d: Dist{constant}){here == d.onePlace} {
         super(d);
 	
 	if (d.region.isEmpty()) {
             this.layout = layout(d.region);
 	    this.raw = Rail.makeVar[T](0);
         } else {
-            this.layout = at (d.onePlace) a.layout();
-            this.raw = at (d.onePlace) a.raw();
+            this.layout = a.layout();
+            this.raw =  a.raw();
         }
     }
 

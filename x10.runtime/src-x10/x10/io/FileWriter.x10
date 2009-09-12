@@ -25,7 +25,7 @@ public value FileWriter extends OutputStreamWriter {
         return new FileOutputStream(path);       
     }
 
-    public def this(file: File{self.at(here)}) throws IOException {
+    public def this(file: File!) throws IOException {
         super(make(file.getPath()));
         this.file = file;
     }

@@ -18,7 +18,7 @@ import x10.io.Printer;
  */
 public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
 
-    public def this(stack: Stack[Throwable]{self.at(here)}) {
+    public def this(stack: Stack[Throwable]!) {
         val s = new Stack[Throwable]();
         // flatten MultipleExceptions in the stack
         for (t in stack.toValRail()) {

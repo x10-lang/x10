@@ -16,7 +16,7 @@ public class Box[+T](value: T) {
     @Native("c++", "x10aux::equals(#0,#1)")
     public def equals(x: Value): Boolean {
         if (value instanceof Ref) {
-	    val v: Ref{self.at(here)} = value;
+	    val v: Ref! = value;
             return v.equals(x);
         }
         if (x instanceof T) {
@@ -32,7 +32,7 @@ public class Box[+T](value: T) {
             return false;
         }
         if (value instanceof Ref) {
-	    val v: Ref{self.at(here)} = value;
+	    val v: Ref! = value;
             return v.equals(x);
         }
         if (x instanceof T) {

@@ -1,7 +1,7 @@
 package x10.util;
 
 public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
-    val buf: GrowableRail[T]{self.at(this)};
+    val buf: GrowableRail[T]!;
 
     public def this() {
         buf = new GrowableRail[T]();

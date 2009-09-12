@@ -3,7 +3,7 @@ package x10.util;
 import x10.compiler.Native;
 
 public class StringBuilder implements Builder[Object,String] {
-    val buf: ValRailBuilder[Char]{self.at(here)};
+    val buf: ValRailBuilder[Char]!;
 
     public def this() {
         buf = new ValRailBuilder[Char]();

@@ -22,7 +22,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     private val raw: Rail[T];
     private val layout: RectLayout;
 
-    final public def raw() = raw as Rail[T]{self.at(here)};
+    final public def raw() = raw as Rail[T]!;
 
     final protected def layout(): RectLayout {
         return layout;
@@ -46,14 +46,14 @@ public final value class FastArray[T] extends BaseArray[T] {
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
     final public safe def apply(i0: int): T {
         var offset:int = i0;
-        return raw(-offset0 + offset);
+        return raw()(-offset0 + offset);
     }
 
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#1) * (#0)->FMGL(delta1) + (#2)]")
     final public safe def apply(i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
-        return raw(-offset1 + offset);
+        return raw()(-offset1 + offset);
     }
 
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)]")
@@ -61,7 +61,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
-        return raw(-offset2 + offset);
+        return raw()(-offset2 + offset);
     }
 
 	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)) * (#0)->FMGL(delta3) + (#4)]")
@@ -70,7 +70,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         offset = offset*delta3 + i3;
-        return raw(-offset3 + offset);
+        return raw()(-offset3 + offset);
     }
 
     //

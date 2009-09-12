@@ -14,7 +14,7 @@ import x10.util.Stack;
  * @author tardieu
  */
 class Activity {
-    val finishState:FinishState{self.at(this)};
+    val finishState:FinishState!;
     val safe:Boolean;
 	// the finish state governing the execution of this activity
 
@@ -27,13 +27,13 @@ class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:ClockPhases{self.at(this)};
+    var clockPhases:ClockPhases!;
     
     /**
      * The finish states for the finish statements currently executed by this activity.  
      * Lazily created.
      */
-    var finishStack:Stack[FinishState{self.at(this)}]{self.at(this)};
+    var finishStack:Stack[FinishState!]!;
 
 	/**
 	 * Create activity.

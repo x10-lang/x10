@@ -16,7 +16,7 @@ public value class ValRow extends Row {
         this.row = row;
     }
 
-    public def this(row: Rail[int]) {
+    public def this(row: Rail[int]!) {
         this(row.length, (i:nat) => row(i));
     }
 

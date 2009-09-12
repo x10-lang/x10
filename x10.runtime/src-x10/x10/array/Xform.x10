@@ -64,5 +64,5 @@ public abstract class Xform {
     }
 
     // compose transforms
-    abstract public operator this * (that:Xform{self.at(here)}): Xform;
+    abstract public operator this * (that:Xform!): Xform;
 }
