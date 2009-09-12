@@ -5,7 +5,7 @@ package x10.util;
 
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
-    private var a: GrowableRail[T]{self.at(this)};
+    private var a: GrowableRail[T]!;
 
     public static def make[T](c: Container[T]) {
 	val a = new ArrayList[T]();
@@ -139,7 +139,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     private static class It[S] implements ListIterator[S] {
         
         private var i: int;
-        private val al: ArrayList[S]{self.at(this)};
+        private val al: ArrayList[S]!;
         
         def this(al: ArrayList[S]) {
             this(al, -1);
@@ -215,7 +215,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     // quick&dirty sort
     //
 
-    private def qsort(a: GrowableRail[T], lo: int, hi: int, cmp: (T,T)=>Int) {
+    private def qsort(a: GrowableRail[T]!, lo: int, hi: int, cmp: (T,T)=>Int) {
         if (hi <= lo) return;
         var l: int = lo - 1;
         var h: int = hi;
@@ -230,7 +230,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableRail[T]{self.at(here)}, i: int, j: int): void {
+    private def exch(a: GrowableRail[T]!, i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

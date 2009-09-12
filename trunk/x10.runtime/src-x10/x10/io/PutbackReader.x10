@@ -13,7 +13,7 @@ import x10.util.GrowableRail;
 public value PutbackReader extends FilterReader {
     val putback: GrowableRail[Byte];
 
-    def putback() = putback as GrowableRail[Byte]{self.at(here)};
+    def putback() = putback as GrowableRail[Byte]!;
     public def this(r: Reader) {
         super(r);
         putback = new GrowableRail[Byte]();

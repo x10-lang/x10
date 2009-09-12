@@ -336,7 +336,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    }
 		    catch (SemanticException e) {
 		        if (cc != null)
-		            return cc;
+		            return cc.typeCheck(tc);
 		        throw e;
 		    }
 		}
@@ -388,7 +388,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		        }
 		        catch (SemanticException e2) {
 		            if (cc != null)
-		                return cc;
+		                return cc.typeCheck(tc);
 		            throw e;
 		        }
 		    }
@@ -454,6 +454,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10Context xc = (X10Context) tc.context();
 		
 		Receiver target = target();
+		
 		
 		// Method invocations on structs and values are always permitted
 		if (! ts.isSubtype(target.type(), ts.Ref(), xc))

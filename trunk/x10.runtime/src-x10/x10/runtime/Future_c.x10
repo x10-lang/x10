@@ -35,10 +35,10 @@ public value Future_c[T] extends Future[T] {
 		result = new GrowableRail[T]();
 	}
 
-    private def result()= result as GrowableRail[T]{self.at(here)};
-    public def forced():boolean = at (latch.location) latch();
+	private def result()= result as GrowableRail[T]!;
+	public def forced():boolean = at (latch.location) latch();
     
-    public def apply():T = force();
+	public def apply():T = force();
 
     public def force():T {
     	return at (latch.location) {

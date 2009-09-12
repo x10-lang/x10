@@ -19,7 +19,7 @@ final value class VarRow extends Row {
         row = Rail.makeVar[int](cols);
     }
     
-    def row() = row as Rail[int]{self.at(here)};
+    def row() = row as Rail[int]!;
     public safe def apply(i:nat) = row()(i);
 
     public safe def set(v:int, i:nat) = (row()(i) = v);

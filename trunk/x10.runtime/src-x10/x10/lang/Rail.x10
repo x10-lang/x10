@@ -26,7 +26,7 @@ public final class Rail[T](length: nat)
 
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
-    public native static safe def makeVar[S](length: nat, init: (nat) => S): Rail[S]{self.length==length,self.at(here)};
+    public native static safe def makeVar[S](length: nat, init: (nat) => S): Rail[S]!{self.length==length};
 
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
@@ -34,15 +34,15 @@ public final class Rail[T](length: nat)
     
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe def makeVar[S](length: nat): Rail[S]{self.length==length,self.at(here)};
+    public native static safe def makeVar[S](length: nat): Rail[S]!{self.length==length};
     
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe def make[U](r: ValRail[U]): Rail[U]{self.length==r.length,self.at(here)};
+    public native static safe def make[U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
-    public native static safe operator [U](r: ValRail[U]): Rail[U]{self.length==r.length,self.at(here)};
+    public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     @Native("java", "#0.get(#1)")
     @Native("c++", "(*#0)[#1]")

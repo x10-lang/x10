@@ -28,7 +28,7 @@ public final class Runtime {
 	// instance fields
 	
 	// per process members
-	private val pool:Pool{self.at(this)};
+	private val pool:Pool!;
 	
 	// per place members
 	private val monitor = new Monitor();
@@ -36,7 +36,7 @@ public final class Runtime {
 
 	// constructor
 
-	private def this(pool:Pool{self.at(here)}):Runtime {
+	private def this(pool:Pool!):Runtime {
 		this.pool = pool;
 	}
 	
@@ -48,17 +48,17 @@ public final class Runtime {
 	/**
 	 * Return the current runtime
 	 */
-	private static def runtime() = runtime.get() as Runtime{self.at(here)};
+	private static def runtime() = runtime.get() as Runtime!;
 
 	/**
 	 * Return the current worker
 	 */
-	private static def worker():Worker{self.at(here)} = Thread.currentThread().worker();
+	private static def worker():Worker! = Thread.currentThread().worker();
 	
 	/**
 	 * Return the current activity
 	 */
-	private static def activity():Activity{self.at(here)} 
+	private static def activity():Activity! 
                = worker().activity();
 	
 	/**
@@ -90,7 +90,7 @@ public final class Runtime {
 				pool();
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-						NativeRuntime.runAt(i, ()=>(worker().latch as Latch{self.at(here)}).release());
+						NativeRuntime.runAt(i, ()=>{ val w=worker(); w.latch.release()});
 					}
 				}
 				rootFinish.waitForFinish(false);
@@ -109,9 +109,9 @@ public final class Runtime {
 		runtime().pool.release();
 	}
     
-    static def findRoot(rid:RID) = runtime().finishStates.findRoot(rid) as RootFinish{self.at(here)};
+    static def findRoot(rid:RID) = runtime().finishStates.findRoot(rid) as RootFinish!;
     	
-    static def removeRoot(rootFinish:RootFinish{self.at(here)}) {
+    static def removeRoot(rootFinish:RootFinish!) {
 	runtime().finishStates.removeRoot(rootFinish);
     }
     
@@ -273,7 +273,7 @@ public final class Runtime {
 	/**
 	 * Return the clock phases for the current activity
 	 */
-	static def clockPhases():ClockPhases{self.at(here)} {
+	static def clockPhases():ClockPhases! {
 		val a = activity();
 		if (null == a.clockPhases) 
 		    a.clockPhases = new ClockPhases();
@@ -291,7 +291,7 @@ public final class Runtime {
 	/**
 	 * Return the innermost finish state for the current activity
 	 */
-	private static def currentState(): FinishState{self.at(here)}  {
+	private static def currentState(): FinishState!  {
 		val a = activity();
 		if (null == a.finishStack || a.finishStack.isEmpty()) 
 		    return a.finishState;
@@ -305,7 +305,7 @@ public final class Runtime {
 	public static def startFinish():Void {
 		val a = activity();
 		if (null == a.finishStack) 
-		    a.finishStack = new Stack[FinishState{self.at(here)}]();
+		    a.finishStack = new Stack[FinishState!]();
 		a.finishStack.push(new RootFinish());
 	}
 
@@ -319,7 +319,7 @@ public final class Runtime {
 	    val a = activity();
 		val finishState = a.finishStack.pop();
 		finishState.notifySubActivityTermination();
-		(finishState as RootFinish{self.at(here)}).waitForFinish(safe());
+		(finishState as RootFinish!).waitForFinish(safe());
 	}
 
 	/** 
@@ -336,13 +336,13 @@ public final class Runtime {
 	}
 
 
-	static def scan(random:Random{self.at(here)}, latch:Latch, block:Boolean):Activity{self.at(here)} {
+	static def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
 		return runtime().pool.scan(random, latch, block);
 	}
 
 	
 	// submit an activity to the pool
-	private static def execute(activity:Activity{self.at(here)}):Void {
+	private static def execute(activity:Activity!):Void {
         NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().push(activity));
 	}
 	
@@ -357,11 +357,11 @@ public final class Runtime {
     }
 
 	// run pending activities while waiting on condition
-	static def join(latch:Latch) {
+	static def join(latch:Latch!) {
 		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
 	}
 
-	static def run(activity:Activity{self.at(here)}):Void {
+	static def run(activity:Activity!):Void {
 		NativeRuntime.runAtLocal(activity.location.id, activity.run.());
 	}
 }

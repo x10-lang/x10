@@ -258,7 +258,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
 
     // XXX should allow places to be in any order??
-    protected static def isUnique(places: Rail[Place]): boolean {
+    protected static def isUnique(places: Rail[Place]!): boolean {
         if (places.length!=Place.MAX_PLACES)
             return false;
         for (var i: int = 0; i<places.length; i++) {
@@ -268,14 +268,14 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return true;
     }
 
-    protected static def isConstant(places: Rail[Place]): boolean {
+    protected static def isConstant(places: Rail[Place]!): boolean {
         for (p:Place in places)
             if (p!=places(0))
                 return false;
         return true;
     }
 
-    protected static def onePlace(places: Rail[Place]): Place {
+    protected static def onePlace(places: Rail[Place]!): Place {
         return places(0);
     }
 
@@ -303,7 +303,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     protected val regions: ValRail[Region];
     private val regionMap: ValRail[Region];
 
-    protected def this(r: Region, ps: Rail[Place], rs: Rail[Region]): BaseDist{self.region==r} {
+    protected def this(r: Region, ps: Rail[Place]!, rs: Rail[Region]!): BaseDist{self.region==r} {
 
         super(r, isUnique(ps), isConstant(ps), onePlace(ps));
 

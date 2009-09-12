@@ -14,7 +14,7 @@ import x10.util.StringBuilder;
 
 public value StringWriter extends Writer {
     val b: StringBuilder;
-    def b() = b as StringBuilder{self.at(here)};
+    def b() = b as StringBuilder!;
     public def this() { this.b = new StringBuilder(); }
 
     public def write(x: Byte): Void { b().add((x as Byte) as Char); }

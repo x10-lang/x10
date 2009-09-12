@@ -55,7 +55,7 @@ public abstract value Writer {
         }
     }
 
-    public def write(buf: Rail[Byte], off: Int, len: Int): Void throws IOException {
+    public def write(buf: Rail[Byte]!, off: Int, len: Int): Void throws IOException {
         for (var i: Int = off; i < off+len; i++) {
             write(buf(i));
         }

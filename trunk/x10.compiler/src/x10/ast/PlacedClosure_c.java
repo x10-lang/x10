@@ -110,7 +110,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	if (placeIsPlace)  {
     		term = ts.xtypeTranslator().trans(pc, place, xc);
     		if (term == null) {
-    			term = XConstraint_c.genVar();
+    			term = XConstraint_c.genUQV();
     		}
     		try {
     			pt = XConstrainedTerm.instantiate(d, term);
@@ -124,7 +124,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		if (placeIsRef) {
     			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
     			if (src == null) {
-    				src = XConstraint_c.genVar();
+    				src = XConstraint_c.genUQV();
     			}
     			try {
     				d= d.substitute(src, d.self());

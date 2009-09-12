@@ -74,7 +74,7 @@ abstract public value class BaseRegion extends Region {
     public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
         = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
     
-    public static def make1(regions: Rail[Region/*(1)*/]): RectRegion(regions.length) { // XTENLANG-4
+    public static def make1(regions: Rail[Region]!): RectRegion(regions.length) { // XTENLANG-4
         var r: Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));

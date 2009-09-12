@@ -20,7 +20,7 @@ public value FileReader extends InputStreamReader {
         public native def this(String);
     }
 
-    public def this(file: File{self.at(here)}) throws IOException {
+    public def this(file: File!) throws IOException {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }

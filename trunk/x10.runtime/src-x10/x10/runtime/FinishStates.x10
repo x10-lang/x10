@@ -19,15 +19,15 @@ import x10.io.Console;
  */
 class FinishStates {
 
-	private val map = new HashMap[RID, FinishState{self.at(this)}]();
+	private val map = new HashMap[RID, FinishState!]();
 	private val count = new AtomicInteger(0);
 	private val lock = new Lock();
 
-	def put(finishState:FinishState{self.at(here)}):Void {
+	def put(finishState:FinishState!):Void {
         if (finishState.rid().id == -1) {
             lock.lock();
             if (finishState.rid().id == -1) {
-                val rootFinish = finishState as RootFinish{self.at(here)};
+                val rootFinish = finishState as RootFinish!;
                 rootFinish.rid = new RID(here, count.getAndIncrement());
                 map.put(rootFinish.rid, rootFinish);
             }
@@ -35,7 +35,7 @@ class FinishStates {
         }
     }
     
-    def get(rid:RID):FinishState{self.at(here)} {
+    def get(rid:RID):FinishState! {
         lock.lock();
         val finishState = map.getOrElse(rid, null);
         if (null != finishState) {
@@ -55,7 +55,7 @@ class FinishStates {
         return finishState as RootFinish;
     }
     
-    def removeRoot(rootFinish:RootFinish{self.at(here)}):Void{
+    def removeRoot(rootFinish:RootFinish!):Void{
         if (rootFinish.rid.id != -1) {
             lock.lock();
             map.remove(rootFinish.rid);

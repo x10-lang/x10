@@ -54,7 +54,7 @@ public class Random {
         return x;
     }
 
-    public def nextBytes(buf: Rail[Byte]{self.at(here)}): Void {
+    public def nextBytes(buf: Rail[Byte]!): Void {
         var i: int = 0;
         while (true) {
             var x: int = nextInt();
@@ -125,7 +125,7 @@ public class Random {
     private const M: int = 397;
 
     private var index: int;
-    private var MT: Rail[int];
+    private var MT: Rail[int]!;
 
     public proto def init(seed: long): Void {
         val mt = Rail.makeVar[int](N);
@@ -156,7 +156,7 @@ public class Random {
         return MT(index++);
     }
 
-    private static def twist(MT:Rail[int]{self.at(here)}): void {
+    private static def twist(MT:Rail[int]!): void {
         var i: int = 0;
         var s: int;
         for (; i < N - M; i++) {

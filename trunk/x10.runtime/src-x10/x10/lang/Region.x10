@@ -94,8 +94,8 @@ public abstract value class Region(
      * product of the specified rank-1 regions.
      */
 
-    public static def make(regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
-        = BaseRegion.make1(regions as Rail[Region/*(1)*/]);
+    public static def make(regions: ValRail[Region]): RectRegion(regions.length)
+        = BaseRegion.make1(regions as Rail[Region]);
 
 
     //

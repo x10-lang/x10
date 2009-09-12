@@ -109,7 +109,7 @@ FileSystem operations
     public const SEPARATOR: Char = '/';
     public const PATH_SEPARATOR: Char = ':';
 
-    val parent: File{self.at(this)};
+    val parent: File!;
     val name: String;
     val absolute: Boolean;
 
@@ -132,7 +132,7 @@ FileSystem operations
         }
     }
 
-    public def this(p: File{self.at(here)}, n: String) {
+    public def this(p: File!, n: String) {
         assert p != null;
         parent = p;
         name = n;
@@ -149,14 +149,14 @@ FileSystem operations
     public def printer() throws IOException = new Printer(openWrite());
 
     public def getName(): String = name;
-    public def getParentFile(): File{self.at(this)} = parent;
+    public def getParentFile(): File! = parent;
     public def getPath(): String = parent == null ? name : (parent.getPath() + SEPARATOR + name);
     public def isAbsolute(): Boolean = absolute;
 
     protected def nativeFile()  = new NativeFile(getPath());
 
-    public def getAbsoluteFile(): File{self.at(here)} = new File(nativeFile().getAbsolutePath());
-    public def getCanonicalFile(): File{self.at(here)}  throws IOException = new File(nativeFile().getCanonicalPath());
+    public def getAbsoluteFile(): File! = new File(nativeFile().getAbsolutePath());
+    public def getCanonicalFile(): File!  throws IOException = new File(nativeFile().getCanonicalPath());
 
     // incomplete def toURL(): URL;
     // incomplete def toURI(): URI;

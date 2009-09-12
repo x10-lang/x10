@@ -331,15 +331,15 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     */
 
     public def $for(body: (p0:int)=>void) {
-        loop((p:Rail[int]) => {body(p(0));});
+        loop((p:Rail[int]!) => {body(p(0));});
     }
 
     public def $for(body: (p0:int, p1:int)=>void) {
-        loop((p:Rail[int]) => {body(p(0), p(1));});
+        loop((p:Rail[int]!) => {body(p(0), p(1));});
     }
 
     public def $for(body: (p0:int, p1:int, p2:int)=>void) {
-        loop((p:Rail[int]) => {body(p(0), p(1), p(2));});
+        loop((p:Rail[int]!) => {body(p(0), p(1), p(2));});
     }
 
     public def loop(body:(Rail[int])=>void) {

@@ -1122,7 +1122,7 @@ public XConstraint_c() {
         return genEQV(true);
     }
     
-    public static XEQV genVar() {
+    public static XEQV genUQV() {
         return genEQV(false);
     }
 
