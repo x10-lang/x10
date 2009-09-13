@@ -2567,7 +2567,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		   if (target == null) {
 			   // The receiver is not named. So make up a new name.
 			   // The only thing we know about the name is that it is of rType,
-			   target = XConstraint_c.genVar();
+			   target = XConstraint_c.genUQV();
 		   } 
 		   rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
 		   
@@ -2576,7 +2576,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
 		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
 		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+
 		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
+		   sigma.addBinding(locVar(xc.thisVar(),xc), xc.currentThisPlace().term());
 		   if (targetConstraint.entails(pc,sigma)) {
 			   // Gamma|- here==e.location
 			   return true;
