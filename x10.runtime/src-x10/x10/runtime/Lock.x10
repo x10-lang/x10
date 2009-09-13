@@ -21,9 +21,9 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
 @NativeRep("c++", "x10aux::ref<x10::runtime::Lock>", "x10::runtime::Lock", null)
-public struct Lock {
+public class Lock {
 	
-	public native def this():Lock;
+	public native def this(): Lock;
 	
 
 	@Native("java", "#0.lock()")
@@ -40,7 +40,7 @@ public struct Lock {
 
 	@Native("java", "#0.getHoldCount()")
 	@Native("c++", "(#0)->getHoldCount()")
-	public native def getHoldCount():int;
+	public global native def getHoldCount():int;
 
 
 }

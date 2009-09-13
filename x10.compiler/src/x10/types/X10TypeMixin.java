@@ -67,7 +67,7 @@ public class X10TypeMixin {
 	// TODO: should not deref now, since could be called by class loader
 	return instantiate(t, Types.get(typeArg));
     }
-    
+   
     public static TypeConstraint parameterBounds(Type t) {
         if (t instanceof ParameterType) {
         }

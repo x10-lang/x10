@@ -650,7 +650,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	
 	public X10Context pushAssignment() {
-		assert (depType == null);
+		if (depType != null)
+			assert (depType == null);
 		X10Context c = (X10Context) super.pushBlock();
 		c.setInAssignment();
 		return c;

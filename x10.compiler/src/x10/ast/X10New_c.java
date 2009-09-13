@@ -61,6 +61,8 @@ import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.visit.TryTypeChecker;
+import x10.visit.TryVisitorI;
 
 /**
  * new C[T](e)
@@ -73,6 +75,10 @@ public class X10New_c extends New_c implements X10New {
         this.typeArguments = TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
     }
 
+    boolean isStructConstructorCall = false;
+    public void setStructConstructorCall() {
+    	isStructConstructorCall  = true;
+    }
     @Override
     public Node visitChildren(NodeVisitor v) {
         Expr qualifier = (Expr) visitChild(this.qualifier, v);
@@ -454,7 +460,6 @@ public class X10New_c extends New_c implements X10New {
         typeCheckNested(tc);
 
         Type t = tn.type();
-        // t = ((X10Type) t).setFlags(X10Flags.ROOTED);
         X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 
         X10ConstructorInstance ci=null;
@@ -469,6 +474,10 @@ public class X10New_c extends New_c implements X10New {
                 ClassDef currentClassDef = c.currentClassDef();
                 ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, 
                 		Collections.EMPTY_LIST, argTypes, c));
+                if (xts.isStructType(ci.returnType()) && ! isStructConstructorCall) {
+                	// Ths is an invocation of the class automatically constructed from a struct decl.
+                	ci = ci.toRefCI();
+                }
             }
             else {
                 ConstructorDef dci = xts.defaultConstructor(this.position(), 
@@ -543,14 +552,18 @@ public class X10New_c extends New_c implements X10New {
         if (xci == null)
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
         // Add self.location == here to the return type.
-        XTerm selfVar = X10TypeMixin.selfVar(type);
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        X10Context xc = (X10Context) tc.context();
-        XTerm locVar = xts.locVar(selfVar, xc);
-        type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
-
+        if (! ts.isStructType(type)) {
+        	XTerm selfVar = X10TypeMixin.selfVar(type);
+        	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+        	X10Context xc = (X10Context) tc.context();
+        	XTerm locVar = xts.locVar(selfVar, xc);
+        	type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
+        }
+       
+        
         if (body != null) {
             // If creating an anonymous class, we need to adjust the return type
             // to be based on anonType rather than on the supertype.
@@ -563,4 +576,15 @@ public class X10New_c extends New_c implements X10New {
         return xci;
        // return (X10New_c) this.constructorInstance(xci).type(type);
     }
+    
+    /**
+     * This should be implemented by any node that wants to be visited by a TryVisitor.
+     * @param n
+     * @return
+     * @throws SemanticException
+     */
+   public Node tryVisit(TryVisitorI n) throws SemanticException {
+	   return n.tryVisitEdge(null, this);
+   }
+   
 }

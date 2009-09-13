@@ -37,8 +37,10 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.X10Context;
+import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10Type;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
@@ -166,9 +168,16 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
           if (n instanceof TypeNode) {
               TypeNode tn = (TypeNode) n;
               LazyRef<Type> sym = (LazyRef<Type>) type;
-              sym.update(tn.type());
+              X10Type t2 = (X10Type) tn.type();
+              if (X10Flags.toX10Flags(t2.flags()).isStruct()) {
+            	  
+            	  if (flags == null || ! X10Flags.toX10Flags(flags).isStruct()) {
+            		  t2 = X10TypeMixin.makeRef(t2);
+            	  }
+              }
+              sym.update(t2);
 
-              if (tn.type() instanceof X10ParsedClassType) {
+              if (t2 instanceof X10ParsedClassType) {
         	  X10ParsedClassType ct = (X10ParsedClassType) tn.type();
         	  if (ct.x10Def().typeParameters().size() != 0) {
         	      throw new SemanticException("Invalid type " + ct + "; incorrect number of type arguments.", position());

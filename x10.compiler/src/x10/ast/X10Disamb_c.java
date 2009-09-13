@@ -177,11 +177,11 @@ public class X10Disamb_c extends Disamb_c {
 	    // no variable found. try types.
 	    if (typeOK()) {
 		try {
-		    Named n = c.find(ts.TypeMatcher(name.id()));
-		    if (n instanceof Type) {
-			Type type = (Type) n;
-			return makeTypeNode(type);
-		    }
+			Named n = c.find(ts.TypeMatcher(name.id()));
+			if (n instanceof Type) {
+				Type type = (Type) n;
+				return makeTypeNode(type);
+			}
 		} catch (NoClassException e1) {
 		    if (!name.id().toString().equals(e1.getClassName())) {
 			// hmm, something else must have gone wrong
