@@ -99,8 +99,8 @@ AddFlags {
 	t = ts.expandMacros(t);
 	X10Type xt = (X10Type) t;
 	if (flags != null) {
-		X10Flags xflags = (X10Flags) flags;
-		X10Flags f = (X10Flags) xt.flags();
+		X10Flags xflags = X10Flags.toX10Flags(flags);
+		X10Flags f = X10Flags.toX10Flags( xt.flags());
 		if (f  == null)
 			f = (X10Flags) X10Flags.toX10Flags(Flags.NONE);
 		xt = xt.setFlags(flags);

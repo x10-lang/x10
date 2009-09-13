@@ -29,7 +29,7 @@ interface FinishState {
 	 */
     def pushException(t:Throwable):Void;
     
-    def rid():RID;
+    def rid(): RID;
 
     def incr():Void;
 }

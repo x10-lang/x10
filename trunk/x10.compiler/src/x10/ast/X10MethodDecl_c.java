@@ -124,9 +124,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
     }
 
- 
-
-   
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
         X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
         mi.setThisVar(((X10ClassDef) ct).thisVar());
@@ -350,7 +347,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         NodeFactory nf = tc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
-        //	System.err.println("X10MethodDecl_c: Golden. Setting flag for " + this + " to global final.");
         	Flags xf = X10Flags.toX10Flags(mi.flags()).Global().Final();
         	 mi.setFlags(xf);
              n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));

@@ -47,10 +47,22 @@ import x10.constraint.XConstraint;
  */
 public class X10ConstructorInstance_c extends ConstructorInstance_c implements X10ConstructorInstance {
 
-    public X10ConstructorInstance_c(TypeSystem ts, Position pos, Ref<? extends X10ConstructorDef> def) {
+    public X10ConstructorInstance_c(TypeSystem ts, Position pos, 
+    		Ref<? extends X10ConstructorDef> def) {
         super(ts, pos, def);
     }
     
+    public X10ConstructorInstance toRefCI() {
+    	X10ConstructorInstance result = (X10ConstructorInstance) copy();
+    	X10ConstructorDef_c myDef = (X10ConstructorDef_c) result.def();
+    	myDef = (X10ConstructorDef_c) myDef.copy();
+    	X10Flags flags = X10Flags.toX10Flags(myDef.flags());
+    	flags.clearStruct();
+    	myDef.setFlags(flags);
+    	 //result.def().update(myDef);
+    	return (X10ConstructorInstance) result.returnType(myDef.returnType().get());
+    	
+    }
     @Override
     public boolean moreSpecific(ProcedureInstance<ConstructorDef> p, Context context) {
         return X10MethodInstance_c.moreSpecificImpl(this, p, context);

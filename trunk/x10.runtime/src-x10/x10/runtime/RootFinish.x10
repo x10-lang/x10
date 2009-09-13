@@ -18,7 +18,7 @@ class RootFinish extends Latch implements FinishState {
     
     private var exceptions:Stack[Throwable]!;
 
-    var rid:RID = new RID(here, -1);
+    var rid: RID = new RID(here, -1);
     
     public def rid():RID = rid; 
     

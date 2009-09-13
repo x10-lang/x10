@@ -132,8 +132,8 @@ implements X10ParsedClassType
 	
 	public X10Type clearFlags(Flags f) {
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
-		if (c.flags != null)
-			c.flags = c.flags.clear(f);
+		if (c.flags() != null)
+			c.flags = c.flags().clear(f);
 		return c;
 	}
 	

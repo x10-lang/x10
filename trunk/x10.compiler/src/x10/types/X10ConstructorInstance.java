@@ -31,5 +31,7 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	 * @return
 	 */
 	XConstraint supClause();
+	
+	X10ConstructorInstance toRefCI();
 
 }

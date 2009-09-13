@@ -1507,6 +1507,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(ClassType);
           $EndJava
         ./
+                   | extends struct ClassType
+        /.$BeginJava
+            AddFlags tn = (AddFlags) ClassType;
+            tn.addFlags(X10Flags.STRUCT);
+            setResult(tn);
+          $EndJava
+        ./  
     
     FieldKeyword ::= val
         /.$BeginJava
