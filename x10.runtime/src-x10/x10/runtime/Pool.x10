@@ -111,8 +111,8 @@ public class Pool implements ()=>Void {
 	}
 
 	// scan workers for activity to steal
-	def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
-		var activity:Activity! = null;
+	def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
+		var activity:Activity = null;
 		var next:Int = random.nextInt(size);
 		for (;;) {
 			NativeRuntime.event_probe();

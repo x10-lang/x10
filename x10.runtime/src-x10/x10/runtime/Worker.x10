@@ -21,7 +21,7 @@ final class Worker implements ()=>Void {
 	const BOUND = 100;
 
 	// activity (about to be) executed by this worker 
-	private var activity:Activity! = null;
+	private var activity:Activity = null;
 
 	// pending activities
 	private val queue = new Deque();
@@ -43,10 +43,10 @@ final class Worker implements ()=>Void {
 	def activity()  = activity;
 
 	// poll activity from the bottom of the deque
-	private def poll() = queue.poll() as Activity!;
+	private def poll() = queue.poll() as Activity;
 
 	// steal activity from the top of the deque
-	def steal() = queue.steal() as Activity!;
+	def steal() = queue.steal() as Activity;
 
 	// push activity at the bottom of the deque
 	def push(activity:Activity!):Void = queue.push(activity);

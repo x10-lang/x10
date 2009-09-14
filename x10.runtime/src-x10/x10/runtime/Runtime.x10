@@ -59,7 +59,7 @@ public final class Runtime {
 	 * Return the current activity
 	 */
 	private static def activity():Activity! 
-               = worker().activity();
+               = worker().activity() as Activity!;
 	
 	/**
 	 * Return the current place
@@ -336,7 +336,7 @@ public final class Runtime {
 	}
 
 
-	static def scan(random:Random!, latch:Latch!, block:Boolean):Activity! {
+	static def scan(random:Random!, latch:Latch!, block:Boolean):Activity {
 		return runtime().pool.scan(random, latch, block);
 	}
 
@@ -361,8 +361,8 @@ public final class Runtime {
 		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
 	}
 
-	static def run(activity:Activity!):Void {
-		NativeRuntime.runAtLocal(activity.location.id, activity.run.());
+	static def run(activity:Activity):Void {
+		NativeRuntime.runAtLocal(activity.location.id, (activity as Activity!).run.());
 	}
 }
 
