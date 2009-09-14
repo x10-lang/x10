@@ -62,11 +62,11 @@ public value OutputStreamWriter extends Writer {
         out.write(buf);
     }
 
-    public def write(buf: Rail[Byte]): Void throws IOException {
+    public def write(buf: Rail[Byte]!): Void throws IOException {
         out.write(buf);
     }
 
-    public def write(buf: Rail[Byte], off: Int, len: Int): Void throws IOException {
+    public def write(buf:Rail[Byte]!, off: Int, len: Int): Void throws IOException {
         out.write(buf, off, len);
     }
 
