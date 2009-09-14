@@ -232,8 +232,9 @@ public class Desugarer extends ContextVisitor {
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         
-        return makeAsyncBody(pos, Arrays.asList(new Expr[] { place, clockRail }), 
-        		Arrays.asList(new Type[] { xts.Place(), clockRailType}), body);
+        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })), 
+                             new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
+                             body);
     }
       
 
@@ -250,8 +251,8 @@ public class Desugarer extends ContextVisitor {
         	return async(pos, body);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
-        return makeAsyncBody(pos, Arrays.asList(new Expr[] { clockRail }), 
-        		Arrays.asList(new Type[] { clockRailType}), body);
+        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })), 
+                             new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body);
     }
     
     private Stmt async(Position pos, Stmt body) throws SemanticException {
