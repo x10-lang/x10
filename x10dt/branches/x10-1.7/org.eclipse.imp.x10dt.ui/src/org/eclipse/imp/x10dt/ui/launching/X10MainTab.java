@@ -4,8 +4,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaMainTab;
 import org.eclipse.jdt.internal.debug.ui.JDIDebugUIPlugin;
 import org.eclipse.jface.viewers.ISelection;
@@ -62,4 +67,28 @@ public class X10MainTab extends JavaMainTab {
         }
         return null;
     }
+    /**
+     * workaround for presumed JDT bug - main is valid but JDT doesn't clear err msg of previously invalid one;
+     * JDT main name can't contain a '$' so replace with '.' for checking	
+     */
+	protected void handleSearchButtonSelected() {
+		super.handleSearchButtonSelected();
+		String projName=fProjText.getText();
+		String mainName=fMainText.getText().replace('$', '.');
+		IProject proj=ResourcesPlugin.getWorkspace().getRoot().getProject(projName);
+		IJavaProject javaProj=JavaCore.create(proj);
+		if(javaProj!=null&&javaProj.exists()){
+			IType type;
+			try {
+				type = javaProj.findType(mainName, (IProgressMonitor) null);
+				if(type!=null){
+					setErrorMessage(null);
+				}
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+
+		}
+	}
 }
