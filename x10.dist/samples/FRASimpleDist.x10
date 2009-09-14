@@ -8,9 +8,9 @@ import x10.runtime.NativeRuntime;
 import x10.runtime.PlaceLocalHandle;
 import x10.runtime.PlaceLocalStorage;
 
-value LocalTable {
+class LocalTable {
     
-    val a: Rail[long]{self.at(this.loc)};
+    val a: Rail[long]{self.at(this)};
     val mask: int;
     
     def this(size:int) {
@@ -79,7 +79,8 @@ class FRASimpleDist {
     }
 
 
-    public static def main(args:Rail[String]) {
+    public static def main(argsGlobal:Rail[String]) {
+        val args = argsGlobal as Rail[String]!;
 
         if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
@@ -87,15 +88,13 @@ class FRASimpleDist {
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) : 12;
+        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?int.parseInt(args(1)) : 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*Place.MAX_PLACES;
         val num_updates = 4*tableSize;
 
         // create local tables
-	val init:(Place)=>LocalTable = (p:Place) => new LocalTable(localTableSize);
-	val tables = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), init);
+	val tables = PlaceLocalStorage.createDistributedObject[LocalTable](Dist.makeUnique(), () => new LocalTable(localTableSize));
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
