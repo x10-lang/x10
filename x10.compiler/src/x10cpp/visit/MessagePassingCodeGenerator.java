@@ -2282,7 +2282,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
 			Position pos = a.position();
 			a = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
-					X10Cast.ConversionType.CHECKED).type(fType);
+			               X10Cast.ConversionType.UNCHECKED).type(fType);
         }
 		return a;
 	}
@@ -2680,6 +2680,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		case CHECKED:
 		case PRIMITIVE:
 		case SUBTYPE:
+        case UNCHECKED:
 
 			if (tn instanceof X10CanonicalTypeNode) {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
@@ -2698,7 +2699,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 } else if (c.conversionType()==X10Cast_c.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
 					c.printSubExpr(c.expr(), true, sw, tr);
 				} else {
-					sw.write("x10aux::class_cast<");
+				    if (c.conversionType()==X10Cast_c.ConversionType.UNCHECKED) {
+				        sw.write("x10aux::class_cast_unchecked<");
+				    } else {
+                        sw.write("x10aux::class_cast<");
+				    }
 					emitter.printType(t_, sw);
 					sw.write(" >(");
 					c.printSubExpr(c.expr(), true, sw, tr);

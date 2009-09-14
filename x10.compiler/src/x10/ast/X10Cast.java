@@ -18,6 +18,7 @@ public interface X10Cast extends Cast {
         SUBTYPE,
         UNBOXING,
         BOXING,
+        UNCHECKED
     }
     
     public ConversionType conversionType();
