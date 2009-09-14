@@ -16,6 +16,7 @@ namespace x10aux {
     extern void throwClassCastException() X10_PRAGMA_NORETURN;
     
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
+    template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
 
     template<class T> struct CAST_TRACER {
         CAST_TRACER(T val_) : val(val_) { }
@@ -52,7 +53,7 @@ namespace x10aux {
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F> {
         // All possibilities accounted for, if you got here something has gone wrong
-        static ref<T> _ (F obj) {
+        static ref<T> _ (F obj, bool checked) {
             throwClassCastException();
             return NULL;
         }
@@ -60,7 +61,7 @@ namespace x10aux {
 
     template<class T, class F> struct ClassCastNotBothRef<T,ref<F> > {
       // All possibilities accounted for, if you got here something has gone wrong
-        static T _ (ref<F> obj) {
+        static T _ (ref<F> obj, bool checked) {
             throwClassCastException();
             return NULL;
         }
@@ -69,9 +70,9 @@ namespace x10aux {
     // Box primitives on casting to interfaces
     #define PRIMITIVE_INTERFACE_CAST(T,F) \
     template<> struct ClassCastNotBothRef<ref<T>,F> { \
-        static GPUSAFE ref<T> _ (F obj) { \
+        static GPUSAFE ref<T> _ (F obj, bool checked) { \
             _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(ref<T>)); \
-            return class_cast<ref<T> >(box(obj)); \
+            return class_cast<ref<T> >(box(obj), checked); \
         } \
     }
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_boolean);
@@ -103,9 +104,9 @@ namespace x10aux {
     // Unbox primitives on down-casting from interfaces
     #define INTERFACE_PRIMITIVE_CAST(T,F) \
     template<> struct ClassCastNotBothRef<T,ref<F> > { \
-        static GPUSAFE T _ (ref<F> obj) { \
+        static GPUSAFE T _ (ref<F> obj, bool checked) { \
             _CAST_(TYPENAME(ref<F>) <<" converted to "<<TYPENAME(T)); \
-            return unbox(class_cast<ref<x10::lang::Box<T> > >(obj)); \
+            return unbox(class_cast<ref<x10::lang::Box<T> > >(obj, checked)); \
         } \
     }
     INTERFACE_PRIMITIVE_CAST(x10_boolean, x10::lang::Object);
@@ -180,68 +181,70 @@ namespace x10aux {
     PRIMITIVE_VALUE_CAST2(x10_uint);
     PRIMITIVE_VALUE_CAST2(x10_ulong);
 
-    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj) {
+    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj, bool checked) {
         if (obj == x10aux::null) {
             // NULL passes any class cast check and remains NULL
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
             return obj;
         }
-        const RuntimeType *from = obj->_type();
-        const RuntimeType *to = getRTT<ref<T> >();
-        #ifndef NO_EXCEPTIONS
-        _CAST_(from->name()<<" to "<<to->name());
-        if (!from->subtypeOf(to)) {
-            throwClassCastException();
+        if (checked) {
+            const RuntimeType *from = obj->_type();
+            const RuntimeType *to = getRTT<ref<T> >();
+            #ifndef NO_EXCEPTIONS
+            _CAST_(from->name()<<" to "<<to->name());
+            if (!from->subtypeOf(to)) {
+                throwClassCastException();
+            }
+            #else
+            (void) from; (void) to;
+            _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
+            #endif
         }
-        #else
-        (void) from; (void) to;
-        _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
-        #endif
         return static_cast<ref<T> >(obj);
     }
 
     // ClassCastBothRef
-    template<class T, class F> struct ClassCastBothRef { static GPUSAFE ref<T> _(ref<F> obj) {
-        return real_class_cast<T>(obj);
+    template<class T, class F> struct ClassCastBothRef { static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
+        return real_class_cast<T>(obj, checked);
     } };
 
     // Boxing of ref types
     template<class T> struct ClassCastBothRef<x10::lang::Box<ref<T> >,T> {
-        static GPUSAFE ref<x10::lang::Box<ref<T> > > _(ref<T> obj) {
+        static GPUSAFE ref<x10::lang::Box<ref<T> > > _(ref<T> obj, bool checked) {
             return box(obj);
         }
     };
 
     // Unboxing of ref types
     template<class T> struct ClassCastBothRef<T,x10::lang::Box<ref<T> > > {
-        static GPUSAFE ref<T> _(ref<x10::lang::Box<ref<T> > > obj) {
+        static GPUSAFE ref<T> _(ref<x10::lang::Box<ref<T> > > obj, bool checked) {
             return unbox(obj);
         }
     };
 
 
     // ClassCastNotPrimitive
-    template<class T, class F> struct ClassCastNotPrimitive { static GPUSAFE T _(F obj) {
-        return ClassCastNotBothRef<T,F>::_(obj);
+    template<class T, class F> struct ClassCastNotPrimitive { static GPUSAFE T _(F obj, bool checked) {
+        return ClassCastNotBothRef<T,F>::_(obj, checked);
     } };
 
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
-        static GPUSAFE ref<T> _(ref<F> obj) {
+        static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
             _CAST_("Ref to ref cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
-            return ClassCastBothRef<T,F>::_(obj);
+            return ClassCastBothRef<T,F>::_(obj, checked);
         }
     };
 
     // This is the second level that recognises primitive casts
-    template<class T, class F> struct ClassCastPrimitive { static GPUSAFE T _(F obj) {
+    template<class T, class F> struct ClassCastPrimitive { static GPUSAFE T _(F obj, bool checked) {
         // if we get here it's not a primitive cast
         _CAST_("Not a primitive cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
-        return ClassCastNotPrimitive<T,F>::_(obj);
+        return ClassCastNotPrimitive<T,F>::_(obj, checked);
     } };
 
     #define PRIMITIVE_CAST(T,F) \
     template<> struct ClassCastPrimitive<T,F> { \
-        static GPUSAFE T _ (F obj) { \
+        static GPUSAFE T _ (F obj, bool checked) { \
             _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(T)); \
             return static_cast<T>(obj); \
         } \
@@ -310,19 +313,26 @@ namespace x10aux {
 
     // first level of template specialisation that recognises <T,T>
     // (needed because generic classes can be instantiated in ways that make casts redundant)
-    template<class T, class F> struct ClassCast { static GPUSAFE T _ (F obj) {
-        return ClassCastPrimitive<T,F>::_(obj);
+    template<class T, class F> struct ClassCast { static GPUSAFE T _ (F obj, bool checked) {
+        return ClassCastPrimitive<T,F>::_(obj, checked);
     } };
-    template<class T> struct ClassCast<T,T> { static GPUSAFE T _ (T obj) {
+    template<class T> struct ClassCast<T,T> { static GPUSAFE T _ (T obj, bool checked) {
         // nothing to do (until we have constraints)
         _CAST_("Identity cast to/from "<<TYPENAME(T));
         return obj;
     } };
 
     template<typename T, typename F> GPUSAFE T class_cast(F obj) {
-        return ClassCast<T,F>::_(obj);
+        return ClassCast<T,F>::_(obj, true);
     }
 
+    template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked) {
+        return ClassCast<T,F>::_(obj, checked);
+    }
+
+    template<typename T, typename F> GPUSAFE T class_cast_unchecked(F obj) {
+        return ClassCast<T,F>::_(obj, false);
+    }
 }
 
     
