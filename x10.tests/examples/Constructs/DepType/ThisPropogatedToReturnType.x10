@@ -25,7 +25,7 @@ public class ThisPropogatedToReturnType extends x10Test {
 	}
 	
 	public def run(): boolean = {
-		var t: Test{i==1} = new Test(1,2);
+		var t: Test!{i==1} = new Test(1,2);
 		var one: int{self==1} = t.test();
 		return true;
 	}

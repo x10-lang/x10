@@ -23,7 +23,7 @@ public class AtomicOrdered extends x10Test {
 	val A: Array[int](1) = Array.make[int]([0..CACHESIZE*(MAX_ASSOC+2)-1]->here);
 
 	public def run(): boolean = {
-		val r: pair = new pair();
+		val r: pair! = new pair();
 		finish {
 			async(here) {
 				finish { } // delay
