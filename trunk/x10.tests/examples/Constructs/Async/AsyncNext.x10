@@ -17,7 +17,7 @@ public class AsyncNext extends x10Test {
 
 	public def run(): boolean = {
 		val Other: Place = here.next();
-		val t: T = new T();
+		val t: T! = new T();
 		finish async (Other) {
 			val t1: T = new T();
 			async (t.location) t.val = t1;

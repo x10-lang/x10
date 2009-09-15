@@ -21,7 +21,7 @@ public class MethodInvocation extends x10Test {
     }
 
     public def run(): boolean = {
-        var t: Test = new Test(1, 2);
+        var t: Test! = new Test(1, 2);
         // the following call types correctly
         t.tester(3, 3);
         return true;
