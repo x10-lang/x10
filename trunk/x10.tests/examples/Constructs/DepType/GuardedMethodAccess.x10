@@ -26,7 +26,7 @@ public class GuardedMethodAccess extends x10Test {
 	
 		
 	public def run(): boolean = {
-		var t: Test{i==j} = new Test(5, 5);
+		var t: Test!{i==j} = new Test(5, 5);
 		t.v = t.key() + 1;
 	   return true;
 	}  
