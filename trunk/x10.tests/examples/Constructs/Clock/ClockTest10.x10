@@ -70,7 +70,7 @@ public class ClockTest10 extends x10Test {
     }
     def taskC(val a: Clock, val c: Clock): void = {
 	for ((k):Point(1) in 1 ..N) {
-	    val tmp: boxedInt = new boxedInt();
+	    val tmp: boxedInt! = new boxedInt();
 	    finish tmp.val = varA(ph(k-1))*varA(ph(k-1));
 	    x10.io.Console.OUT.println(" " + k + " C consuming oldA "+ tmp.val);
 	    a.resume();
@@ -81,7 +81,7 @@ public class ClockTest10 extends x10Test {
     }
     def taskD(val b: Clock, val c: Clock): void = {
 	for ((k):Point(1) in 1 ..N) {
-	    val tmp: boxedInt = new boxedInt();
+	    val tmp: boxedInt! = new boxedInt();
 	    finish tmp.val = varB(ph(k-1))+varC(ph(k-1))+10;
 	    x10.io.Console.OUT.println(" " + k + " D consuming oldB+oldC producing " + tmp.val);
 	    c.resume();
@@ -95,7 +95,7 @@ public class ClockTest10 extends x10Test {
     }
     def taskE(val c: Clock): void = {
 	for ((k):Point(1) in 1 ..N) {
-	    val tmp: boxedInt = new boxedInt();
+	    val tmp: boxedInt! = new boxedInt();
 	    finish tmp.val = varC(ph(k-1))*7;
 	    x10.io.Console.OUT.println(" " + k + " E consuming oldC producing " + tmp.val);
 	    c.resume();
