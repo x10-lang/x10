@@ -9,3 +9,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.help.ui,
  org.eclipse.help.webapp
 Eclipse-LazyStart: true
+Bundle-Vendor: tibbitts@us.ibm.com
