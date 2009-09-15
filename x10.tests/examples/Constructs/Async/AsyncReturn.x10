@@ -18,7 +18,7 @@ public class AsyncReturn extends x10Test {
 		class T {
 			var t: int;
 		}
-		val f: T = new T();
+		val f: T! = new T();
 		f.t = 1;
 		val v: int = f.t;
 		val body = ()=> {
