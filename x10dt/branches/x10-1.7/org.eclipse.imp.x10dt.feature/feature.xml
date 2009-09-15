@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="1.7.6.0"
+      version="1.7.6.1"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
@@ -38,14 +38,14 @@
          id="org.eclipse.imp.x10dt.core"
          download-size="68"
          install-size="68"
-         version="1.7.6.0"
+         version="1.7.6.1"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui"
          download-size="115"
          install-size="115"
-         version="1.7.6.0"
+         version="1.7.6.1"
          unpack="false"/>
 
    <plugin
