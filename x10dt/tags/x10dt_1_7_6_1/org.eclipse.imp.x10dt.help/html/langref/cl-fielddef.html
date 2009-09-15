@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Field definitions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Field definitions</h2>
+
+<div class="p"><!----></div>
+Not every instance of a class needs to have every field defined on the
+class. In Java-like languages this is ensured by conditionally setting
+fields to a default value, such as "null", in those instances where the
+fields are not needed.  
+
+<div class="p"><!----></div>
+Consider the class "List" used earlier.  Here all instances of "List"
+returned by the second constructor do not need the fields "value" and
+"tail"; their value is set to null.
+
+<div class="p"><!----></div>
+<a name="FieldGuard">
+</a> X10 permits a much cleaner solution that does not require default
+values such as null to be stored in such fields.  X10 permits fields to
+be <em>guarded</em> with a constraint.  The field is accessible
+only if the <em>guard</em> constraint is satisified.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">FieldDeclaration  &nbsp;::=&nbsp; 
+   FieldModifiers<sup>?</sup> &nbsp; <tt>val</tt> VariableDeclarators ; </td></tr>
+<tr><td align="right"> | 
+   FieldModifiers<sup>?</sup> &nbsp;<tt>var</tt> VariableDeclarators ; </td></tr>
+<tr><td align="right">VariableDeclarators &nbsp;::=&nbsp;
+        VariableDeclarator ( , VariableDeclarator )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">VariableDeclarator  &nbsp;::=&nbsp; 
+   Identifier ( Constraint )<sup>?</sup>&nbsp;( : Type )<sup>?</sup>&nbsp;( = Expression )<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+<div class="p"><!----></div>
+It is illegal for code to access a guarded field through a reference
+whose static type does not satisfy the associated guard, even
+implicitly (i.e., through an implicit "this"). Rather the source
+program should contain an explict cast, e.g., "me: C{c} = this as C{c}".
+
+<div class="p"><!----></div>
+Let "f" be a field defined in class
+"C" with guard "c".  The compiler declares an error if
+field "f" is accessed through a reference &#246;" whose static
+type is not a subtype of "C{c}".
+
+
+<div class="p"><!----></div>
+We may now rewrite the List example:
+<pre>
+public class List(n: Int{n&#62;=0}) { 
+  protected val head{n&#62;0}: Object;
+  protected val tail{n&#62;0}: List(n-1);
+  public def this(o: Object, t: List): List(t.n+1) { 
+     property(t.n+1);
+     head=o;
+     tail=t;
+  }
+  public def this(): List(0) { 
+     property(0);
+  }
+  ...
+}
+</pre>
+
+<div class="p"><!----></div>
+The fields "value" and "tail" do not exist for instances of the class
+"List(0)".
+
+
+<div class="p"><!----></div>
+It is a compile-time error for a class to have two fields of the same
+name, even if their guards are different. A class "C" with a field
+named "f" is said to <em>hide</em> a field in a superclass named "f".
+
+<div class="p"><!----></div>
+     A class may not declare two fields with the same name.
+
+
+<div class="p"><!----></div>
+To avoid an ambiguity, it is a static error for a class to
+declare a field with a function type () with
+the same name and signature  as a method of the same class.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;Field hiding</h3>
+
+<div class="p"><!----></div>
+A subclass that defines a field "f" hides any field "f"
+declared in a superclass, regardless of their types.  The
+superclass field "f" may be accessed within the body of
+the subclass via the reference &#223;uper.f".
+
+<div class="p"><!----></div>
+</body>
+</html>
