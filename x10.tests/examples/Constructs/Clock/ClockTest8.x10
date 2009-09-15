@@ -37,8 +37,8 @@ public class ClockTest8 extends x10Test {
 	public def run(): boolean = {
 		try {
 		finish async {
-			var bc: BoxedClock = new BoxedClock(Clock.make());
-			var ca: Rail[Clock] = [Clock.make(), bc.val ];
+			var bc: BoxedClock! = new BoxedClock(Clock.make());
+			var ca: Rail[Clock]! = [Clock.make(), bc.val ];
 			val c1: Clock = ca(1);
 			val c2: Clock = c1; //aliased clocks c2 and c1
 			val c3: Clock = ca(0);
