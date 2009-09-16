@@ -9,7 +9,9 @@ X10_HOME        = ../../..
 
 default: all
 
-include mpi/mpi.mk
+ifdef ENABLE_X10RT_MPI
+  include mpi/mpi.mk
+endif
 include standalone/standalone.mk
 
 install: $(LIBS) $(PROPERTIES)
