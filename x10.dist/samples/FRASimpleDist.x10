@@ -79,9 +79,7 @@ class FRASimpleDist {
     }
 
 
-    public static def main(argsGlobal:Rail[String]) {
-        val args = argsGlobal as Rail[String]!;
-
+    public static def main(args:Rail[String]!) {
         if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;

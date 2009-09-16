@@ -43,7 +43,7 @@ public class ArraySum {
         }
     }
     
-    public static def main(args: Rail[String]) {
+    public static def main(args: Rail[String]!) {
 
         var size:Int = 5*1000*1000;
         if (args.length >=1)

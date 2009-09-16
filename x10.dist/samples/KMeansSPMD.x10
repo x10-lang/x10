@@ -17,7 +17,7 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args : Rail[String]) {
+    public static def main (args : Rail[String]!) {
 
         var fname_:String = "points.dat";
         var DIM_:Int=3, CLUSTERS_:Int=8, POINTS_:Int=10000, ITERATIONS_:Int=500;

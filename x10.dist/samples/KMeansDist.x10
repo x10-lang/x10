@@ -9,7 +9,7 @@ public class KMeansDist {
 
     static val points_region = [0,0]..[POINTS-1,DIM-1];
 
-    public static def main (args : Rail[String]) {
+    public static def main (args : Rail[String]!) {
         val rnd = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), (p:Place) => new Random(0));
         val local_curr_clusters = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), 
                                                                                (p:Place) => Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
