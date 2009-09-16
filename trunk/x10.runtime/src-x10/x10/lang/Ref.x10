@@ -11,9 +11,6 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-// MASSIVE FIXME:
-// uncomment hashCode or other super.blah() implementation to get compiler stack trace
-
 /**
  * The base class for all reference classes.
  */
@@ -55,12 +52,15 @@ public class Ref(
     public native def className() : String;
 
     @Native("java", "#0.location()")
+    @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
     public property def loc() = location;
 
     @Native("java", "#0.at(#1.id)")
+    @Native("c++", "(x10aux::location(#0) == (#1)->FMGL(id))")
     public property def at(p:Place) = location==p;
 
     @Native("java", "#0.at(#1)")
+    @Native("c++", "(x10aux::location(#0) == x10aux::location(#1))")
     public property def at(r:Ref) = location==r.location;
 
 }

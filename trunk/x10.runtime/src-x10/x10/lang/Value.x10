@@ -37,7 +37,15 @@ public value Value /* @EQ implements Equals[Value] */ implements Object {
     @Native("c++", "x10aux::class_name(#0)")
     public native def className(): String;
 
+    @Native("java", "x10.runtime.Runtime.here()")
+    @Native("c++", "x10::lang::Place::place(x10aux::here)")
     public property def loc() = here;
+
+    @Native("java", "true")
+    @Native("c++", "true")
     public property def at(p:Place) = true;
+
+    @Native("java", "true")
+    @Native("c++", "true")
     public property def at(r:Ref) = true;
 }
