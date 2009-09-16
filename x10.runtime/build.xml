@@ -18,6 +18,7 @@
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
     <property name="USE_BFD" value="false" />
+    <property name="X10RT_MPI" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -80,6 +81,9 @@
     <condition property="cppmake.use_bfd" value="USE_BFD=1" else="AVOID_BFD=1">
         <istrue value="${USE_BFD}" />
     </condition>
+    <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
+        <istrue value="${X10RT_MPI}" />
+    </condition>
     <condition property="x10c.optimize" value="-O" else="">
         <istrue value="${optimize}" />
     </condition>
@@ -120,6 +124,7 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
+            <arg value="${cppmake.x10rt_mpi}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -208,6 +213,7 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
+            <arg value="${cppmake.x10rt_mpi}" />
         </exec>
     </target>
 
