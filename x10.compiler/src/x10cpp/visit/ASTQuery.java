@@ -84,9 +84,9 @@ public class ASTQuery {
             dec.flags().flags().isStatic() &&
             dec.returnType().type().isVoid() &&
             (dec.formals().size() == 1) &&
-            ts.typeEquals(((Formal)dec.formals().get(0)).type().type(),
-                          ts.Rail(ts.String()),
-                          context);
+            ts.isSubtype(((Formal)dec.formals().get(0)).type().type(),
+                         ts.Rail(ts.String()),
+                         context);
         if (result) {
             boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
             if (seenMain && !warnedAboutMain && !dash_c && Configuration.MAIN_CLASS == null) {
