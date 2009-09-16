@@ -34,8 +34,15 @@ public interface Object {
     @Native("c++", "x10aux::class_name(x10aux::class_cast<x10aux::ref<x10::lang::Object> >(#0))")
     public def className(): String;
 
+    @Native("java", "x10.lang.Place.place(#0.location())")
+    @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
     property def loc():Place;
-    property def at(p:Place):Boolean;
-    property def at(r:Ref):Boolean;
 
+    @Native("java", "x10.core.Ref.at(#0, #1.id)")
+    @Native("c++", "(x10aux::location(#0) == (#1)->FMGL(id))")
+    property def at(p:Place):Boolean;
+
+    @Native("java", "x10.core.Ref.at(#0, #1)")
+    @Native("c++", "(x10aux::location(#0) == x10aux::location(#1))")
+    property def at(r:Ref):Boolean;
 }

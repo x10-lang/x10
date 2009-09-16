@@ -59,4 +59,29 @@ public class Ref {
 
     public boolean at(int p) { return location == p;}
     public boolean at(Ref r) { return location == r.location();}
+
+    public static boolean at(Object obj, int p) {
+        if (obj instanceof Ref) {
+            return ((Ref)obj).at(p);
+        } else {
+            return p == Thread.currentThread().location();
+        }
+    }
+
+
+    public static boolean at(Object obj1, Object obj2) {
+        if (obj1 instanceof Ref) {
+            if (obj2 instanceof Ref) {
+                return ((Ref)obj1).location == ((Ref)obj2).location;
+            } else {
+                return ((Ref)obj1).location == Thread.currentThread().location();
+            }
+        } else {
+            if (obj2 instanceof Ref) {
+                return ((Ref)obj2).location == Thread.currentThread().location();
+            } else {
+                return true;
+            }
+        }
+    }
 }
