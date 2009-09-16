@@ -12,7 +12,7 @@ public class Histogram {
 	       atomic b(bin)++;
 	    }
     }
-    public static def main(args:Rail[String]) {
+    public static def main(args:Rail[String]!) {
 	if (args.length != 2) {
 	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
 	    System.exit(-1);

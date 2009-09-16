@@ -2,7 +2,7 @@ import x10.util.Random;
 import x10.io.Console;
 
 public class MontyPi {
-    public static  def main(s: Rail[String]) {
+    public static  def main(s: Rail[String]!) {
 	if (s.length != 1) {
 	    Console.OUT.println("Usage: MontyPi <number of points>");
 	    System.exit(-1);

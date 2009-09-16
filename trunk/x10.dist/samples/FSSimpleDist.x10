@@ -25,7 +25,7 @@ public class FSSimpleDist {
     const NUM_PLACES = NativeRuntime.MAX_PLACES;
     //const NUM_PLACES = 4; // Place.MAX_PLACES;
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Rail[String]!) {
 
         val verified: Rail[boolean] = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
