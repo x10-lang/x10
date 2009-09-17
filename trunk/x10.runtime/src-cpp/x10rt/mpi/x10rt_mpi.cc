@@ -595,7 +595,9 @@ static void send_completion(x10rt_req_queue * q, x10rt_req * req)
 
 static void recv_completion(int ix, int bytes, x10rt_req_queue * q, x10rt_req * req)
 {
+    assert(ix>0);
     amSendCb cb = global_state.amCbTbl[ix];
+    assert(cb!=NULL);
     x10rt_msg_params p = { x10rt_here(),
                            ix,
                            req->getBuf(),
