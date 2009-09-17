@@ -10,13 +10,13 @@ public class KMeansDist {
     static val points_region = [0,0]..[POINTS-1,DIM-1];
 
     public static def main (args : Rail[String]!) {
-        val rnd = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), (p:Place) => new Random(0));
-        val local_curr_clusters = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), 
-                                                                               (p:Place) => Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
-        val local_new_clusters = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(),
-									      (p:Place) =>  Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
-        val local_cluster_counts = PlaceLocalStorage.createDistributedObject(Dist.makeUnique(), 
-                                                                                (p:Place)=> Rail.makeVar[Int](CLUSTERS, (i:Int) => 0));
+        val rnd = PlaceLocalStorage.createDistributedObject[Random](Dist.makeUnique(), () => new Random(0));
+        val local_curr_clusters = PlaceLocalStorage.createDistributedObject[Rail[Float]](Dist.makeUnique(), 
+	                                                                                 () => Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
+        val local_new_clusters = PlaceLocalStorage.createDistributedObject[Rail[Float]](Dist.makeUnique(),
+									                () =>  Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
+        val local_cluster_counts = PlaceLocalStorage.createDistributedObject[Rail[Int]](Dist.makeUnique(), 
+                                                                                        ()=> Rail.makeVar[Int](CLUSTERS, (i:Int) => 0));
 
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = Array.makeVal[Float](points_dist, (p:Point)=>rnd.get().nextFloat());
