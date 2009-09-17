@@ -84,7 +84,13 @@ public class CXXCommandBuilder {
     /** Is GC enabled on this platform? */
     protected boolean gcEnabled() { return false; }
 
-    protected String defaultPostCompiler() { return "g++"; }
+    protected String defaultPostCompiler() { 
+        if (x10rt == X10RT_Impl.MPI) {
+            return "mpicxx";
+        } else {
+            return "g++"; 
+        }
+    }
 
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -124,7 +130,6 @@ public class CXXCommandBuilder {
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
-
     }
 
     protected void addExecutablePath(ArrayList<String> cxxCmd) {
@@ -185,7 +190,7 @@ public class CXXCommandBuilder {
             }
         } catch (IOException e) { }
 
-        Iterator iter = outputFiles.iterator();
+        Iterator<String> iter = outputFiles.iterator();
         for (; iter.hasNext(); ) {
             String file = (String) iter.next();
             file = file.replace(File.separatorChar,'/');
