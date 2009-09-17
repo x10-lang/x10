@@ -36,7 +36,7 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         if (USE_BFD) {
             cxxCmd.add("-lbfd");
         }
-        if (TRANSPORT.endsWith("lapi")) {
+        if (x10rt == X10RT_Impl.PGAS_LAPI) {
             cxxCmd.add("-llapi");
             cxxCmd.add("-lmpi_ibm");
             cxxCmd.add("-lpoe");
