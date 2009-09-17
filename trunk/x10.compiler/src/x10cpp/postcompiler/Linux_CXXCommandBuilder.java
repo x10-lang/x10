@@ -8,25 +8,9 @@ import java.util.ArrayList;
 import polyglot.main.Options;
 
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-    public static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
-    /** These go before the files */
-    public static final String[] preArgsLinux = new String[] {
-        "-Wno-long-long",
-        "-Wno-unused-parameter",
-        "-pthread",
-        USE_X86 ? "-msse2" : DUMMY,
-        USE_X86 ? "-mfpmath=sse" : DUMMY,
-    };
-    /** These go after the files */
-    public static final String[] postArgsLinux = new String[] {
-        "-Wl,-export-dynamic",
-        USE_BFD ? "-lbfd" : DUMMY,
-        "-lrt",
-        !TRANSPORT.equals("lapi") ? DUMMY : "-llapi",
-        !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_ibm",
-        !TRANSPORT.equals("lapi") ? DUMMY : "-lpoe",
-    };
-
+    protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
+    protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
+ 
     public Linux_CXXCommandBuilder(Options options) {
         super(options);
         assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
@@ -36,15 +20,27 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        for (int i = 0; i < preArgsLinux.length; i++) {
-            cxxCmd.add(preArgsLinux[i]);
+        cxxCmd.add("-Wno-long-long");
+        cxxCmd.add("-Wno-unused-parameter");
+        cxxCmd.add("-pthread");
+        if (USE_X86) {
+            cxxCmd.add("-msse2");
+            cxxCmd.add("-mfpmath=sse");
         }
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        for (int i = 0; i < postArgsLinux.length; i++) {
-            cxxCmd.add(postArgsLinux[i]);
+        cxxCmd.add("-Wl,-export-dynamic");
+        cxxCmd.add("-lrt");
+        if (USE_BFD) {
+            cxxCmd.add("-lbfd");
         }
+        if (TRANSPORT.endsWith("lapi")) {
+            cxxCmd.add("-llapi");
+            cxxCmd.add("-lmpi_ibm");
+            cxxCmd.add("-lpoe");
+        }
+
     }
 }

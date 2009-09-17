@@ -20,8 +20,6 @@ import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
-    protected static final String DUMMY = "-U___DUMMY___";
-
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
 
@@ -37,46 +35,6 @@ public class CXXCommandBuilder {
     protected static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_PGAS_TRANSPORT:System.getenv("X10RT_TRANSPORT");
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
-    protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
-
-    /** These go before the files */
-    public static final String[] preArgs = new String[] {
-        "-g",
-        "-I"+X10LIB+"/include",
-        "-I"+X10LANG,
-        "-I"+X10LANG+"/gen", // FIXME: development option
-        "-I"+X10LANG+"/include", // dist
-        "-I.",
-        "-DTRANSPORT="+TRANSPORT,
-    };
-    /** These go after the files */
-    public static final String[] postArgs = new String[] {
-        "-L"+X10LIB+"/lib",
-        "-L"+X10LANG,
-        "-L"+X10LANG+"/lib", // dist
-        "-lx10",
-        "-lxlpgas_"+TRANSPORT,
-        "-ldl",
-        "-lm",
-        "-lpthread",
-    };
-    /** These go before the files if gcEnabled is true */
-    public static final String[] preArgsGC = new String[] {
-        "-DX10_USE_BDWGC",
-        "-I"+X10GC+"/include",
-    };
-    /** These go after the files if gcEnabled is true */
-    public static final String[] postArgsGC = new String[] {
-        X10GC+"/lib/libgc.a",
-    };
-
-    /** These go before the files if optimize is true */
-    public static final String[] preArgsOptimize = new String[] {
-        "-O2",
-        USE_XLC ? "-qinline" : "-finline-functions",
-        USE_XLC ? "-qhot" : DUMMY,
-        "-DNDEBUG"
-    };
 
     private final X10CPPCompilerOptions options;
 
@@ -93,41 +51,55 @@ public class CXXCommandBuilder {
 
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
-        for (int i = 0; i < preArgs.length; i++) {
-            cxxCmd.add(preArgs[i]);
-        }
+        cxxCmd.add("-g");
+        cxxCmd.add("-I"+X10LIB+"/include");
+        cxxCmd.add("-I"+X10LANG);
+        cxxCmd.add("-I"+X10LANG+"/gen"); // FIXME: development option
+        cxxCmd.add("-I"+X10LANG+"/include"); // dist
+        cxxCmd.add("-I.");
+        cxxCmd.add("-DTRANSPORT="+TRANSPORT);
+
         if (!Configuration.DISABLE_GC && gcEnabled()) {
-            for (int i = 0; i < preArgsGC.length; i++) {
-                cxxCmd.add(preArgsGC[i]);
-            }
+            cxxCmd.add("-DX10_USE_BDWGC");
+            cxxCmd.add("-I"+X10GC+"/include");
         }
+        
         if (x10.Configuration.OPTIMIZE) {
-          for (String arg : preArgsOptimize) {
-            cxxCmd.add(arg);
-          }
+            cxxCmd.add("-O2");
+            cxxCmd.add("-DNDEBUG");
+            cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
+            if (USE_XLC) {
+                cxxCmd.add("-qhot");
+            }
         }
     }
 
     /** Add the arguments that go after the output files */
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         if (!Configuration.DISABLE_GC && gcEnabled()) {
-            for (int i = 0; i < postArgsGC.length; i++) {
-                cxxCmd.add(postArgsGC[i]);
-            }
+            cxxCmd.add(X10GC+"/lib/libgc.a");
         }
-        for (int i = 0; i < postArgs.length; i++) {
-            cxxCmd.add(postArgs[i]);
-        }
+        
+        cxxCmd.add("-L"+X10LIB+"/lib");
+        cxxCmd.add("-L"+X10LANG);
+        cxxCmd.add("-L"+X10LANG+"/lib"); // dist
+        cxxCmd.add("-lx10");
+        cxxCmd.add("-lxlpgas_"+TRANSPORT);
+        cxxCmd.add("-ldl");
+        cxxCmd.add("-lm");
+        cxxCmd.add("-lpthread");
+
     }
 
     protected void addExecutablePath(ArrayList<String> cxxCmd) {
         File exe = null;
-        if (options.executable_path != null)
+        if (options.executable_path != null) {
             exe = new File(options.executable_path);
-        else if (Configuration.MAIN_CLASS != null)
+        } else if (Configuration.MAIN_CLASS != null) {
             exe = new File(options.output_directory, Configuration.MAIN_CLASS);
-        else
+        } else {
             return;
+        }
         cxxCmd.add("-o");
         cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
     }

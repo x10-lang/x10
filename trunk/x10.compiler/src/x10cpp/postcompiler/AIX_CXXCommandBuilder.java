@@ -11,26 +11,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
     //"mpCC_r -q64 -qrtti=all"
     public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
-    /** These go before the files */
-    public static final String[] preArgsAIX = new String[] {
-        USE_XLC ? DUMMY : "-Wno-long-long",
-        USE_XLC ? "-qsuppress=1540-0809:1500-029" : "-Wno-unused-parameter",
-        USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
-        USE_XLC ? "-qrtti=all" : DUMMY,
-        //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
-        USE_XLC && XLC_EXTRA_FLAGS!=null ? XLC_EXTRA_FLAGS : DUMMY,
-    };
-    /** These go after the files */
-    public static final String[] postArgsAIX = new String[] {
-        USE_XLC ? "-bbigtoc" : "-Wl,-bbigtoc",
-        USE_XLC ? "-lptools_ptr" : "-Wl,-lptools_ptr",
-        USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-Wl,-binitfini:poe_remote_main",
-        USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
-        USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_r",
-        USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lvtd_r",
-        USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-llapi_r",
-    };
-
+    
     public AIX_CXXCommandBuilder(Options options) {
         super(options);
         assert (CXXCommandBuilder.PLATFORM.startsWith("aix_"));
@@ -39,22 +20,42 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
     protected boolean gcEnabled() { return false; }
 
     protected String defaultPostCompiler() {
-        if (USE_XLC)
-            return "mpCC_r";
-        return "g++";
+        return USE_XLC ? "mpCC_r" : "g++";
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        for (int i = 0; i < preArgsAIX.length; i++) {
-            cxxCmd.add(preArgsAIX[i]);
-        }           
+        
+        if (USE_XLC) {
+            cxxCmd.add("-qsuppress=1540-0809:1500-029");
+            cxxCmd.add("-q64"); // assume 64-bit
+            cxxCmd.add("-qrtti=all");
+            if (XLC_EXTRA_FLAGS != null) {
+                cxxCmd.add(XLC_EXTRA_FLAGS);
+            }
+        } else {
+            cxxCmd.add("-Wno-long-long");
+            cxxCmd.add("-Wno-unused-parameter");
+            cxxCmd.add("-maix64"); // Assume 64-bit
+        }     
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        for (int i = 0; i < postArgsAIX.length; i++) {
-            cxxCmd.add(postArgsAIX[i]);
+        
+        if (USE_XLC) {
+            cxxCmd.add("-bbigtoc");
+            cxxCmd.add("-lptools_ptr");
+        } else {
+            cxxCmd.add("-Wl,-bbigtoc");
+            cxxCmd.add("-Wl,-lptools_ptr");
+            if(TRANSPORT.equals("lapi")) {
+                cxxCmd.add("-Wl,-binitfini:poe_remote_main");
+                cxxCmd.add("-L/usr/lpp/ppe.poe/lib");
+                cxxCmd.add("-lmpi_r");
+                cxxCmd.add("-lvtd_r");
+                cxxCmd.add("-llapi_r");
+            }
         }
     }
 }
