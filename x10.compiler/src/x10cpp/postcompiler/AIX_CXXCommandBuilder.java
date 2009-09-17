@@ -49,7 +49,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         } else {
             cxxCmd.add("-Wl,-bbigtoc");
             cxxCmd.add("-Wl,-lptools_ptr");
-            if(TRANSPORT.equals("lapi")) {
+            if (x10rt == X10RT_Impl.PGAS_LAPI) {
                 cxxCmd.add("-Wl,-binitfini:poe_remote_main");
                 cxxCmd.add("-L/usr/lpp/ppe.poe/lib");
                 cxxCmd.add("-lmpi_r");

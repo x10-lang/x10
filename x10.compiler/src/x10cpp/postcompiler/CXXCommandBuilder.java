@@ -20,10 +20,24 @@ import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
+    protected static enum X10RT_Impl {
+        PGAS_LAPI("xlpgas_lapi"),
+        PGAS_SOCKETS("xlpgas_sockets"),
+        PGAS_BG("xlpgas_dcmf"),
+        MPI("x10rt_mpi"),
+        STANDALONE("x10rt_standalone");
+        
+        private final String libName;
+        
+        X10RT_Impl(String libName) {
+            this.libName = libName;
+        }
+        
+        String libName() { return libName; }
+    };
+    
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
-
-    public static final String DEFAULT_PGAS_TRANSPORT = PLATFORM.startsWith("aix_")?"lapi":"sockets";
 
     public static final String MANIFEST = "libx10.mft";
     public static final String[] MANIFEST_LOCATIONS = new String[] {
@@ -33,15 +47,38 @@ public class CXXCommandBuilder {
 
     protected static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas2/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
     protected static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
-    protected static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_PGAS_TRANSPORT:System.getenv("X10RT_TRANSPORT");
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
     private final X10CPPCompilerOptions options;
+    
+    protected final X10RT_Impl x10rt;
 
     public CXXCommandBuilder(Options options) {
         assert (options != null);
         assert (options.post_compiler != null);
         this.options = (X10CPPCompilerOptions) options;
+        String rtimpl = System.getenv("X10RT_IMPL");
+        if (rtimpl == null) {
+            // assume pgas (default to old behavior)
+            if (PLATFORM.startsWith("aix_")) {
+                x10rt = X10RT_Impl.PGAS_LAPI;
+            } else {
+                x10rt = X10RT_Impl.PGAS_SOCKETS;
+            }
+        } else if (rtimpl.equals("PGAS_LAPI")) {
+            x10rt = X10RT_Impl.PGAS_LAPI;
+        } else if (rtimpl.equals("PGAS_SOCKETS")) {
+            x10rt = X10RT_Impl.PGAS_SOCKETS;
+        } else if (rtimpl.equals("PGAS_BG")) {
+            x10rt = X10RT_Impl.PGAS_BG;
+        } else if (rtimpl.equals("MPI")) {
+            x10rt = X10RT_Impl.MPI;
+        } else if (rtimpl.equals("STANDALONE")) {
+            x10rt = X10RT_Impl.STANDALONE;
+        } else {
+            assert false : "Unknown X10RT IMPL "+ rtimpl;
+            x10rt = X10RT_Impl.PGAS_SOCKETS;
+        }
     }
 
     /** Is GC enabled on this platform? */
@@ -57,7 +94,6 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I"+X10LANG+"/gen"); // FIXME: development option
         cxxCmd.add("-I"+X10LANG+"/include"); // dist
         cxxCmd.add("-I.");
-        cxxCmd.add("-DTRANSPORT="+TRANSPORT);
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
             cxxCmd.add("-DX10_USE_BDWGC");
@@ -84,7 +120,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-L"+X10LANG);
         cxxCmd.add("-L"+X10LANG+"/lib"); // dist
         cxxCmd.add("-lx10");
-        cxxCmd.add("-lxlpgas_"+TRANSPORT);
+        cxxCmd.add("-l"+x10rt.libName());
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
