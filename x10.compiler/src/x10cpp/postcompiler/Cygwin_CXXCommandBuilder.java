@@ -8,16 +8,6 @@ import java.util.ArrayList;
 import polyglot.main.Options;
 
 public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
-    /** These go before the files */
-    public static final String[] preArgsCygwin = new String[] {
-        "-Wno-long-long",
-        "-Wno-unused-parameter",
-        "-msse2",
-        "-mfpmath=sse",
-    };
-    /** These go after the files */
-    public static final String[] postArgsCygwin = new String[] {
-    };
 
     public Cygwin_CXXCommandBuilder(Options options) {
         super(options);
@@ -28,15 +18,13 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
-        for (int i = 0; i < preArgsCygwin.length; i++) {
-            cxxCmd.add(preArgsCygwin[i]);
-        }
+        cxxCmd.add("-Wno-long-long");
+        cxxCmd.add("-Wno-unused-parameter");
+        cxxCmd.add("-msse2");
+        cxxCmd.add("-mfpmath=sse");
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        for (int i = 0; i < postArgsCygwin.length; i++) {
-            cxxCmd.add(postArgsCygwin[i]);
-        }
     }
 }
