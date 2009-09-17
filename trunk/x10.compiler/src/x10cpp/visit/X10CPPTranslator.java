@@ -9,18 +9,14 @@ package x10cpp.visit;
 
 import java.io.File;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,7 +53,6 @@ import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StdErrorQueue;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
@@ -67,9 +62,12 @@ import x10.types.X10ClassDef;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
 import x10.util.WriterStreams;
-import x10cpp.Configuration;
-import x10cpp.X10CPPCompilerOptions;
 import x10cpp.debug.LineNumberMap;
+import x10cpp.postcompiler.AIX_CXXCommandBuilder;
+import x10cpp.postcompiler.CXXCommandBuilder;
+import x10cpp.postcompiler.Cygwin_CXXCommandBuilder;
+import x10cpp.postcompiler.Linux_CXXCommandBuilder;
+import x10cpp.postcompiler.SunOS_CXXCommandBuilder;
 import x10cpp.types.X10CPPContext_c;
 import static x10cpp.visit.ASTQuery.getCppRep;
 import static x10cpp.visit.SharedVarsMethods.*;
@@ -455,372 +453,7 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
-	public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
-	public static final String MANIFEST = "libx10.mft";
-	public static final String[] MANIFEST_LOCATIONS = new String[] {
-	    X10LANG,
-	    X10LANG+"/lib",
-	};
-    private static class CXXCommandBuilder {
-        public static final String DUMMY = "-U___DUMMY___";
-
-        public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas2/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
-        public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
-        public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
-        public static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
-        public static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
-
-        /** These go before the files */
-        public static final String[] preArgs = new String[] {
-            "-g",
-            "-I"+X10LIB+"/include",
-            "-I"+X10LANG,
-            "-I"+X10LANG+"/gen", // FIXME: development option
-            "-I"+X10LANG+"/include", // dist
-            "-I.",
-            "-DTRANSPORT="+TRANSPORT,
-        };
-        /** These go after the files */
-        public static final String[] postArgs = new String[] {
-            "-L"+X10LIB+"/lib",
-            "-L"+X10LANG,
-            "-L"+X10LANG+"/lib", // dist
-            "-lx10",
-            "-lxlpgas_"+TRANSPORT,
-            "-ldl",
-            "-lm",
-            "-lpthread",
-        };
-        /** These go before the files if gcEnabled is true */
-        public static final String[] preArgsGC = new String[] {
-            "-DX10_USE_BDWGC",
-            "-I"+X10GC+"/include",
-        };
-        /** These go after the files if gcEnabled is true */
-        public static final String[] postArgsGC = new String[] {
-            X10GC+"/lib/libgc.a",
-        };
-
-        /** These go before the files if optimize is true */
-        public static final String[] preArgsOptimize = new String[] {
-            "-O2",
-            USE_XLC ? "-qinline" : "-finline-functions",
-            USE_XLC ? "-qhot" : DUMMY,
-            "-DNDEBUG"
-        };
-
-        private final X10CPPCompilerOptions options;
-
-        public CXXCommandBuilder(Options options) {
-            assert (options != null);
-            assert (options.post_compiler != null);
-            this.options = (X10CPPCompilerOptions) options;
-        }
-
-        /** Is GC enabled on this platform? */
-        protected boolean gcEnabled() { return false; }
-
-        protected String defaultPostCompiler() { return "g++"; }
-
-        /** Add the arguments that go before the output files */
-        protected void addPreArgs(ArrayList<String> cxxCmd) {
-            for (int i = 0; i < preArgs.length; i++) {
-                cxxCmd.add(preArgs[i]);
-            }
-            if (!Configuration.DISABLE_GC && gcEnabled()) {
-                for (int i = 0; i < preArgsGC.length; i++) {
-                    cxxCmd.add(preArgsGC[i]);
-                }
-            }
-            if (x10.Configuration.OPTIMIZE) {
-              for (String arg : preArgsOptimize) {
-                cxxCmd.add(arg);
-              }
-            }
-        }
-
-        /** Add the arguments that go after the output files */
-        protected void addPostArgs(ArrayList<String> cxxCmd) {
-            if (!Configuration.DISABLE_GC && gcEnabled()) {
-                for (int i = 0; i < postArgsGC.length; i++) {
-                    cxxCmd.add(postArgsGC[i]);
-                }
-            }
-            for (int i = 0; i < postArgs.length; i++) {
-                cxxCmd.add(postArgs[i]);
-            }
-        }
-
-        protected void addExecutablePath(ArrayList<String> cxxCmd) {
-            File exe = null;
-            if (options.executable_path != null)
-                exe = new File(options.executable_path);
-            else if (Configuration.MAIN_CLASS != null)
-                exe = new File(options.output_directory, Configuration.MAIN_CLASS);
-            else
-                return;
-            cxxCmd.add("-o");
-            cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
-        }
-
-        /** Construct the C++ compilation command */
-        public final String[] buildCXXCommandLine(Collection<String> outputFiles) {
-            String post_compiler = options.post_compiler;
-            if (post_compiler.contains("javac"))
-                post_compiler = defaultPostCompiler();
-
-            QuotedStringTokenizer st = new QuotedStringTokenizer(post_compiler);
-            int pc_size = st.countTokens();
-            ArrayList<String> cxxCmd = new ArrayList<String>();
-            String token = "";
-            for (int i = 0; i < pc_size; i++) {
-                token = st.nextToken();
-                // The first '#' marks the place where the filenames go
-                if (token.equals("#") || token.equals("%")) {
-                    break;
-                }
-                cxxCmd.add(token);
-            }
-
-            boolean skipArgs = token.equals("%");
-            if (!skipArgs) {
-                addPreArgs(cxxCmd);
-                addExecutablePath(cxxCmd);
-            }
-
-            HashSet<String> exclude = new HashSet<String>();
-            try {
-                String manifest = x10.Configuration.MANIFEST;
-                if (manifest == null) {
-                    for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
-                        File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+MANIFEST);
-                        if (!x10lang_m.exists())
-                            continue;
-                        manifest = x10lang_m.getPath();
-                    }
-                }
-                if (manifest != null) {
-                    FileReader fr = new FileReader(manifest);
-                    BufferedReader br = new BufferedReader(fr);
-                    String file = "";
-                    while ((file = br.readLine()) != null)
-                        exclude.add(file);
-                }
-            } catch (IOException e) { }
-
-            Iterator iter = outputFiles.iterator();
-            for (; iter.hasNext(); ) {
-                String file = (String) iter.next();
-                file = file.replace(File.separatorChar,'/');
-                if (exclude.contains(file))
-                    continue;
-                cxxCmd.add(file);
-            }
-
-            while (st.hasMoreTokens()) {
-                token = st.nextToken();
-                // The second '#' delimits the libraries that have to go at the end
-                if (token.equals("#") || token.equals("%")) {
-                    break;
-                }
-                cxxCmd.add(token);
-            }
-
-            boolean skipLibs = token.equals("%");
-            if (!skipLibs) {
-                addPostArgs(cxxCmd);
-            }
-
-            while (st.hasMoreTokens()) {
-                cxxCmd.add(st.nextToken());
-            }
-
-            return cxxCmd.toArray(new String[cxxCmd.size()]);
-        }
-    }
-
-    private static class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
-        /** These go before the files */
-        public static final String[] preArgsCygwin = new String[] {
-            "-Wno-long-long",
-            "-Wno-unused-parameter",
-            "-msse2",
-            "-mfpmath=sse",
-        };
-        /** These go after the files */
-        public static final String[] postArgsCygwin = new String[] {
-        };
-
-        public Cygwin_CXXCommandBuilder(Options options) {
-            super(options);
-            assert (PLATFORM.startsWith("win32_"));
-        }
-
-        protected boolean gcEnabled() { return false; }
-
-        protected void addPreArgs(ArrayList<String> cxxCmd) {
-            super.addPreArgs(cxxCmd);
-            for (int i = 0; i < preArgsCygwin.length; i++) {
-                cxxCmd.add(preArgsCygwin[i]);
-            }
-        }
-
-        protected void addPostArgs(ArrayList<String> cxxCmd) {
-            super.addPostArgs(cxxCmd);
-            for (int i = 0; i < postArgsCygwin.length; i++) {
-                cxxCmd.add(postArgsCygwin[i]);
-            }
-        }
-    }
-
-    private static class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-        public static final boolean USE_X86 = PLATFORM.endsWith("_x86");
-        /** These go before the files */
-        public static final String[] preArgsLinux = new String[] {
-            "-Wno-long-long",
-            "-Wno-unused-parameter",
-            "-pthread",
-            USE_X86 ? "-msse2" : DUMMY,
-            USE_X86 ? "-mfpmath=sse" : DUMMY,
-        };
-        /** These go after the files */
-        public static final String[] postArgsLinux = new String[] {
-            "-Wl,-export-dynamic",
-            USE_BFD ? "-lbfd" : DUMMY,
-            "-lrt",
-            !TRANSPORT.equals("lapi") ? DUMMY : "-llapi",
-            !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_ibm",
-            !TRANSPORT.equals("lapi") ? DUMMY : "-lpoe",
-        };
-
-        public Linux_CXXCommandBuilder(Options options) {
-            super(options);
-            assert (PLATFORM.startsWith("linux_"));
-        }
-
-        protected boolean gcEnabled() { return true; }
-
-        protected void addPreArgs(ArrayList<String> cxxCmd) {
-            super.addPreArgs(cxxCmd);
-            for (int i = 0; i < preArgsLinux.length; i++) {
-                cxxCmd.add(preArgsLinux[i]);
-            }
-        }
-
-        protected void addPostArgs(ArrayList<String> cxxCmd) {
-            super.addPostArgs(cxxCmd);
-            for (int i = 0; i < postArgsLinux.length; i++) {
-                cxxCmd.add(postArgsLinux[i]);
-            }
-        }
-    }
-
-    private static class AIX_CXXCommandBuilder extends CXXCommandBuilder {
-        //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
-        //"mpCC_r -q64 -qrtti=all"
-        public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
-        /** These go before the files */
-        public static final String[] preArgsAIX = new String[] {
-            USE_XLC ? DUMMY : "-Wno-long-long",
-            USE_XLC ? "-qsuppress=1540-0809:1500-029" : "-Wno-unused-parameter",
-            USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
-            USE_XLC ? "-qrtti=all" : DUMMY,
-            //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
-            USE_XLC && XLC_EXTRA_FLAGS!=null ? XLC_EXTRA_FLAGS : DUMMY,
-        };
-        /** These go after the files */
-        public static final String[] postArgsAIX = new String[] {
-            USE_XLC ? "-bbigtoc" : "-Wl,-bbigtoc",
-            USE_XLC ? "-lptools_ptr" : "-Wl,-lptools_ptr",
-            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-Wl,-binitfini:poe_remote_main",
-            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
-            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_r",
-            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lvtd_r",
-            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-llapi_r",
-        };
-
-        public AIX_CXXCommandBuilder(Options options) {
-            super(options);
-            assert (PLATFORM.startsWith("aix_"));
-        }
-
-        protected boolean gcEnabled() { return false; }
-
-        protected String defaultPostCompiler() {
-            if (USE_XLC)
-                return "mpCC_r";
-            return "g++";
-        }
-
-        protected void addPreArgs(ArrayList<String> cxxCmd) {
-            super.addPreArgs(cxxCmd);
-            for (int i = 0; i < preArgsAIX.length; i++) {
-                cxxCmd.add(preArgsAIX[i]);
-            }           
-        }
-
-        protected void addPostArgs(ArrayList<String> cxxCmd) {
-            super.addPostArgs(cxxCmd);
-            for (int i = 0; i < postArgsAIX.length; i++) {
-                cxxCmd.add(postArgsAIX[i]);
-            }
-        }
-    }
-
-    private static class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
-        /** These go before the files */
-        public static final String[] preArgsSunOS = new String[] {
-            "-Wno-long-long",
-            "-Wno-unused-parameter",
-        };
-        /** These go after the files */
-        public static final String[] postArgsSunOS = new String[] {
-            "-lresolv",
-            "-lnsl",
-            "-lsocket",
-            "-lrt",
-        };
-
-        public SunOS_CXXCommandBuilder(Options options) {
-            super(options);
-            assert (PLATFORM.startsWith("sunos_"));
-        }
-
-        protected boolean gcEnabled() { return false; }
-
-        protected void addPreArgs(ArrayList<String> cxxCmd) {
-            super.addPreArgs(cxxCmd);
-            for (int i = 0; i < preArgsSunOS.length; i++) {
-                cxxCmd.add(preArgsSunOS[i]);
-            }
-        }
-
-        protected void addPostArgs(ArrayList<String> cxxCmd) {
-            super.addPostArgs(cxxCmd);
-            for (int i = 0; i < postArgsSunOS.length; i++) {
-                cxxCmd.add(postArgsSunOS[i]);
-            }
-        }
-    }
-
-    public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-    public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix_")?"lapi":"sockets";
-
-    private static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
-        if (PLATFORM.startsWith("win32_"))
-            return new Cygwin_CXXCommandBuilder(options);
-        if (PLATFORM.startsWith("linux_"))
-            return new Linux_CXXCommandBuilder(options);
-        if (PLATFORM.startsWith("aix_"))
-            return new AIX_CXXCommandBuilder(options);
-        if (PLATFORM.startsWith("sunos_"))
-            return new SunOS_CXXCommandBuilder(options);
-        eq.enqueue(ErrorInfo.WARNING,
-                "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
-        return new CXXCommandBuilder(options);
-    }
-
-    public static final String postcompile = "postcompile";
+	public static final String postcompile = "postcompile";
 
     /**
 	 * The post-compiler option has the following structure:
@@ -833,7 +466,8 @@ public class X10CPPTranslator extends Translator {
 
 		if (options.post_compiler != null && !options.output_stdout) {
             Collection<String> outputFiles = compiler.outputFiles();
-            String[] cxxCmd = getCXXCommandBuilder(options, eq).buildCXXCommandLine(outputFiles);
+            CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
+            String[] cxxCmd = ccb.buildCXXCommandLine(outputFiles);
 
 			if (Report.should_report(postcompile, 1)) {
 				StringBuffer cmdStr = new StringBuffer();
