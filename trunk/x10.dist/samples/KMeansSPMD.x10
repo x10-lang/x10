@@ -6,7 +6,7 @@ import x10.util.Random;
 
 public class KMeansSPMD {
 
-    public static def printClusters (clusters:Rail[Float], dims:Int) {
+    public static def printClusters (clusters:Rail[Float]!, dims:Int) {
         for (var d:Int=0 ; d<dims ; ++d) { 
             for (var k:Int=0 ; k<clusters.length/dims ; ++k) { 
                 if (k>0)
@@ -59,7 +59,7 @@ public class KMeansSPMD {
             }
 
             value ProxyCell[T] {
-                private val cell : Cell[T];
+                private val cell : Cell[T]{self.at(this.loc)};
                 def this(v:Cell[T]) { this.cell = v; }
                 def get() = at (cell.location) cell.get();
                 def set(v:T) { at (cell.location) cell.set(v); };
