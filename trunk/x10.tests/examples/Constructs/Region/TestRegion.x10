@@ -51,7 +51,7 @@ abstract public class TestRegion extends x10Test {
 
     class Grid {
 
-        var os: Rail[Object] = Rail.makeVar[Object](10);
+        var os: Rail[Object]{self.at(this)} = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = vue as Object; // XTENLANG-210
@@ -59,13 +59,13 @@ abstract public class TestRegion extends x10Test {
 
         def set(i0: int, i1: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid;
+            val grid = os(i0) as Grid!;
             grid.set(i1, vue);
         }
 
         def set(i0: int, i1: int, i2: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid;
+            val grid = os(i0) as Grid!;
             grid.set(i1, i2, vue);
         }
 
@@ -96,7 +96,7 @@ abstract public class TestRegion extends x10Test {
                             out.print("-");
                         out.print(" " + i + "\n");
                     }
-                    (o as Grid).pr(rank-1);
+                    (o as Grid!).pr(rank-1);
                 } else {
                     // XTENLANG-34, XTENLANG-211
                     val d = (o as Box[double]) as double;
@@ -178,7 +178,7 @@ abstract public class TestRegion extends x10Test {
         prRegion(test, r);
 
         // scanner api
-        var grid: Grid = new Grid();
+        var grid: Grid! = new Grid();
         var it: Iterator[Region.Scanner] = r.scanners();
         while (it.hasNext()) {
             var s: Region.Scanner = it.next() as Region.Scanner; // XTENLANG-55
@@ -234,7 +234,7 @@ abstract public class TestRegion extends x10Test {
 
     def prArray1(a: Array[double], bump: boolean): void = {
         // iterator api
-        var grid: Grid = new Grid();
+        var grid: Grid! = new Grid();
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
             if (p.rank==1) {
