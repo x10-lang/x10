@@ -38,6 +38,7 @@ import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10InnerClassRemover;
 import x10cpp.ast.X10CPPDelFactory_c;
 import x10cpp.ast.X10CPPExtFactory_c;
+import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.types.X10CPPSourceClassResolver;
 import x10cpp.types.X10CPPTypeSystem_c;
 import x10cpp.visit.X10CPPTranslator;
@@ -71,9 +72,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         // Inline from superclass, replacing SourceClassResolver
         try {
             if (Configuration.MANIFEST == null) {
-                String[] MANIFEST_LOCATIONS = X10CPPTranslator.MANIFEST_LOCATIONS;
+                String[] MANIFEST_LOCATIONS = CXXCommandBuilder.MANIFEST_LOCATIONS;
                 for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
-                    File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+X10CPPTranslator.MANIFEST);
+                    File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+CXXCommandBuilder.MANIFEST);
                     if (!x10lang_m.exists())
                         continue;
                     Configuration.MANIFEST = x10lang_m.getPath();
