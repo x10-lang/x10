@@ -23,7 +23,7 @@ public class CXXCommandBuilder {
     protected static enum X10RT_Impl {
         PGAS_LAPI("xlpgas_lapi"),
         PGAS_SOCKETS("xlpgas_sockets"),
-        PGAS_BG("xlpgas_dcmf"),
+        PGAS_BGP("xlpgas_bgp"),
         MPI("x10rt_mpi"),
         STANDALONE("x10rt_standalone");
         
@@ -69,8 +69,8 @@ public class CXXCommandBuilder {
             x10rt = X10RT_Impl.PGAS_LAPI;
         } else if (rtimpl.equals("PGAS_SOCKETS")) {
             x10rt = X10RT_Impl.PGAS_SOCKETS;
-        } else if (rtimpl.equals("PGAS_BG")) {
-            x10rt = X10RT_Impl.PGAS_BG;
+        } else if (rtimpl.equals("PGAS_BGP")) {
+            x10rt = X10RT_Impl.PGAS_BGP;
         } else if (rtimpl.equals("MPI")) {
             x10rt = X10RT_Impl.MPI;
         } else if (rtimpl.equals("STANDALONE")) {
