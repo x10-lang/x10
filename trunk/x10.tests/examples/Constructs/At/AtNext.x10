@@ -17,10 +17,10 @@ public class AtNext extends x10Test {
 
 	public def run(): boolean = {
 		val Other: Place = here.next();
-		val t: T = new T();
+		val t = new T();
 		at (Other) {
 			val t1: T = new T();
-			at (t.location) t.val = t1;
+			at (t) t.val = t1;
 		}
 		return t.val.location == Other;
 	}
