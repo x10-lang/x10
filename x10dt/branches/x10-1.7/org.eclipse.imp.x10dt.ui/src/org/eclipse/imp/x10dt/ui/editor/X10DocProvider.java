@@ -83,7 +83,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
     public String getDocumentation(Object target, IParseController parseController) {
         if (traceOn) System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
         String doc = getHelpForEntity(target, parseController);
-        if (traceOn) System.out.println("   " + doc);
+        if (traceOn) System.out.println("----\n" + doc+"\n----\n");
         return doc;
     }
 
@@ -94,6 +94,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		Node root = (Node) parseController.getCurrentAst();
 
 		if (target instanceof Id) {
+			if(traceOn)System.out.println("==>Id, get parent instead.");
 			Id id = (Id) target;
 			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 			Node parent = (Node) locator.getParentNodeOf(id, root);
@@ -101,7 +102,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 
 		if (target instanceof Field) { // field reference
-			
+			if(traceOn)System.out.println("==>Field");
 			Field field = (Field) target;
 			FieldInstance fi = field.fieldInstance();
 			target = fi;
@@ -122,6 +123,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			target = li;		
 		}
 		if (target instanceof FieldInstance) {
+			if(traceOn)System.out.println("==>FieldInstance");
 			FieldInstance fi = (FieldInstance) target;
 			ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
 
@@ -146,6 +148,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			}
 			return "Field '" + fi.name() + "' of type " + fi.type().toString();
 		} else if (target instanceof NamedVariable) {
+			if(traceOn)System.out.println("==>NamedVariable");
 			NamedVariable var = (NamedVariable) target;
 			
 			Type type = var.type();
@@ -177,12 +180,21 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof VarInstance) {
 			// local var, parm, (java or x10) or field
 			// won't fall thru to Declaration
+			if(traceOn)System.out.println("==>VarInstance, no action");
 			VarInstance var = (VarInstance) target;
 
-			// do we need something here? Or is it being taken care of elsewhere?		
+			// this is a method reference (the call)
+			
 		} else if (target instanceof MethodDef) {
+			if(traceOn)System.out.println("==>MethodDef");
 		    MethodDef methodDef = (MethodDef) target;
-		    return "Method " + methodDef.container().get() + "." + methodDef.signature();
+		    String classInfo=methodDef.container().get().toString();
+		    String sig=methodDef.signature();
+		   
+		    String str= BOLD+ classInfo + "." + sig + UNBOLD + PARA;
+		    String s2=getX10DocFor(methodDef);
+		    str=str+"\n"+s2;  // newline simply makes stdout output more readable
+		    return str;
 		} else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
 			if(traceOn)System.out.println("==>MethodInstance or ConstructorInstance");
 			//we get different info from different interfaces, so make them both for use here:
@@ -226,11 +238,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				}
 				*/
 				if(target instanceof MethodInstance) {
+					if(traceOn)System.out.println("==>MethodInstance");
 					MethodInstance mi = (MethodInstance) target;
 					String sig=getSignature(mi);
 					String doc = getX10DocFor(sig,mi);
 					return doc;
 				}else { // constructorInstance
+					if(traceOn)System.out.println("==>ConstructorInstance?");
 					ConstructorInstance ci = (ConstructorInstance)target;
 					String name="(name)";
 					String t=ci.toString();
@@ -250,6 +264,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			
 		} 
 		else if (target instanceof ClassType) {  
+			if(traceOn)System.out.println("==>ClassType");
 			ClassType ct = (ClassType) target;
 			String qualifiedName =ct.fullName().toString();//PORT1.7 fullName() no longer returns a String
 
@@ -257,11 +272,18 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				IType javaType = findJavaType(qualifiedName, parseController);
 				String doc = getJavaDocFor(javaType); 
 				return doc;
-			} else {
+			} else {				
+				// It's an X10 classtype (not java)
+				ClassType type = (ClassType)target;
+				String qualifiedName2 = type.fullName().toString();//PORT1.7 fullName()->fullName().toString()
+				qualifiedName2 = stripArraySuffixes(qualifiedName);			
+				String ret2= getJavaOrX10DocFor(qualifiedName2, type, parseController);//BRT
+				//
 				return getX10DocFor(qualifiedName, ct);
 			}
 			
 		} else if (target instanceof ClassDecl) {
+			if(traceOn)System.out.println("==>ClassDecl");
 			ClassDecl cd = (ClassDecl)target;
 			String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
 			String fullName = cd.classDef().fullName().toString(); ////PORT1.7 is this right?? ask Nate
@@ -270,30 +292,46 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		else if (target instanceof MethodDecl) {
 			MethodDecl md = (MethodDecl) target;
+			if(traceOn)System.out.println("==>MethodDecl");
+			
+			String doct=getX10DocFor(md);
 			String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
+			if(traceOn)System.out.println("====> MethodDecl.toString(): "+tempNameMd);
 			//MethodInstance mi = md.methodInstance();
 			MethodInstance mi=md.methodDef().asInstance();//PORT1.7 was md.methodInstance();
 			String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
+			if(traceOn)System.out.println("====> methodInstance()(): "+tempName);
+			
 			String name="";
-			MethodInstance test;
+			//MethodInstance test;
 			String sig = md.methodDef().signature();//PORT1.7 see what this returns.  arg names too???
 			//String sig = mi.signature();// doesn't include arg names, just types
+			if(traceOn)System.out.println("====> sig: "+sig);
+			
 				 
 			StructType rt = mi.container();//PORT1.7  ReferenceType -> StructType
 			if(rt instanceof ClassType) {
 				ClassType ct = (ClassType) rt;
 				name =ct.fullName().toString();// includes package info		//PORT1.7 fullName() no longer returns a String
+				if(traceOn)System.out.println("====> ClassType.fullName : "+name);
+				
 			}
 			name = getSignature(mi,md);	
+			if(traceOn)System.out.println("====> getSignature(): "+name);
+			
 			String doc = getX10DocFor(name, md);//PORT1.7 md is a Node; was md.methodInstance()
+			if(traceOn)System.out.println("====> RETURNED: getX10DocFor(sig,md): "+tempNameMd);
+			
 			return doc;
 		} else if (target instanceof FieldDecl) {
+			if(traceOn)System.out.println("==>FieldDecl");
 			FieldDecl fd = (FieldDecl) target;
 			FieldInstance fi = fd.fieldDef().asInstance();//PORT1.7 was fd.fieldInstance();
 			return getX10DocFor(fi);
 		}
 
 		else if (target instanceof TypeNode) {
+			if(traceOn)System.out.println("==>TypeNode");
 			TypeNode typeNode = (TypeNode) target;
 			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 			Node parent = (Node) locator.getParentNodeOf(target, root);
@@ -319,6 +357,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			}
 		}
 		else if (target instanceof ClassType) {
+			if(traceOn)System.out.println("==>ClassType 2 - unreachable??");
 			ClassType type = (ClassType)target;
 			String qualifiedName = type.fullName().toString();//PORT1.7 fullName()->fullName().toString()
 			qualifiedName = stripArraySuffixes(qualifiedName);			
@@ -454,6 +493,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return doc;
 	}
 	private String getX10DocFor(TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
+		
 		String doc = getNewRawX10DocFor(decl.position());
 		return doc;
 	}
@@ -507,26 +547,40 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	private String getNewRawX10DocFor(Position pos) {
 		String path = pos.file();
+		String result="";
 		try {
 			Reader reader = new FileReader(new File(path));
 			String fileSrc = readReader(reader);
 			int idx = pos.offset();
+			int endOffset=pos.endOffset();
+		
+			String s1=fileSrc.substring(idx,endOffset);
 
 			idx = skipBackwardWhite(fileSrc, idx);
-			if (lookingPastEndOf(fileSrc, idx, "*/")) {
-				String doc = collectBackwardTo(fileSrc, idx, "/**");
-				doc = getCommentText(doc);// strip comment chars,stars, etc
-				if (traceOn)System.out.println("X10DocProvider.getX10DocCharsFor: "+ doc);
-				StringReader rdr = new StringReader(doc);
-				X10Doc2HTMLTextReader xrdr=new X10Doc2HTMLTextReader(rdr);
-				String result = readReader(xrdr);
-				//String result = xrdr.getString();
+			boolean test=lookingPastEndOf(fileSrc, idx, "*/");
+			
+			//test=isImmediatelyBefore(fileSrc, idx, fileSrc);
+			//test=true;
+			if (test) {
+				result = collectBackwardTo(fileSrc, idx, "/**");
+				if(result!=null && result.length()>0) {
+					String doc = getCommentText(result);// strip comment chars,stars, etc
+					if (traceOn) System.out.println("X10DocProvider.getX10DocCharsFor: " + doc);
+					StringReader rdr = new StringReader(doc);
+					X10Doc2HTMLTextReader xrdr = new X10Doc2HTMLTextReader(rdr);
+					result = readReader(xrdr); // seems to give same result as getCommentText() above
+					// String result = xrdr.getString();
+				}
 				return result;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println("Exception ignored: "+e.getMessage());
+		} catch (StringIndexOutOfBoundsException se) {
+			se.printStackTrace();
+			System.out.println("Exception ignored: "+se.getMessage());
 		}
-		return null;
+		return result;
 	}
 	private static final String BOLD="<b>";
 	private static final String UNBOLD="</b>";
@@ -725,15 +779,62 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 
 	private String collectBackwardTo(String fileSrc, int idx, String string) {
+		int len=fileSrc.length();
+		int last=fileSrc.lastIndexOf(string,idx);
+		if(last==-1) {
+			if(traceOn)System.out.println("  no x10doc info found.");
+			return "";  // no x10doc info
+		}
 		return fileSrc.substring(fileSrc.lastIndexOf(string, idx), idx);
 	}
 
+	/**
+	 * Is the given string located at the end of fileSrc?  <br>
+	 * That is, is the given string located JUST prior to index position in filesrc, or anywhere after it? <br>
+	 * (BRT: Don't understand the 'looking past end of ' method title. "should we look at or past this position?" maybe? )
+	 * @param fileSrc
+	 * @param endIdx  end index in fileSrc
+	 * @param string
+	 * @return
+	 */
 	private boolean lookingPastEndOf(String fileSrc, int endIdx, String string) {
 		int idx = endIdx - string.length();
 		int fnd=fileSrc.indexOf(string, idx);
 		return fnd == idx;
 	}
+	/**
+	 * Is the given string located immediately before the given index position, not counting whitespace?
+	 * @param fileSrc
+	 * @param endIdx
+	 * @param string
+	 * @return
+	 */
+	/* untested
+	private boolean isImmediatelyBefore(String fileSrc, int endIdx, String string) {
+		String beforeStr=fileSrc.substring(0,endIdx).trim();
+		int loc=beforeStr.lastIndexOf(string);
+		return loc>=0;
+	}
+	*/
+	/**
+	 * Is the given string located before the given index in the fileSrc?
+	 * @param fileSrc
+	 * @param endIdx
+	 * @param string
+	 * @return
+	 */
+	private boolean lookingBefore(String fileSrc, int endIdx, String string) {
+		int idx = endIdx - string.length();
+		int fnd=fileSrc.indexOf(string, idx);
+		return fnd == idx;
+	}
 
+	/**
+	 * Find position of previous non-whitespace character in the given string, starting at index position.
+	 * @param fileSrc
+	 * @param idx
+	 * @return
+	 */
 	private int skipBackwardWhite(String fileSrc, int idx) {
 		while (idx > 0 && Character.isWhitespace(fileSrc.charAt(idx - 1)))
 			idx--;
