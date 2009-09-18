@@ -309,13 +309,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 		Flags flags = n.flags().flags();
-
+		
 		if (n.name().id().toString().equals("main") &&
 				flags.isPublic() &&
 				flags.isStatic() &&
 				n.returnType().type().isVoid() &&
 				n.formals().size() == 1 &&
-				n.formals().get(0).declType().typeEquals(ts.Rail(ts.String()), tr.context()))
+				n.formals().get(0).declType().isSubtype(ts.Rail(ts.String()), tr.context()))
 		{
 			Expander throwsClause = new Inline(er, "");
 			if (n.throwTypes().size() > 0) {
