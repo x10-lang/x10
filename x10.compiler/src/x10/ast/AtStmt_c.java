@@ -41,6 +41,7 @@ import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
@@ -147,8 +148,11 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	public Context enterScope(Context c) {
         X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
         X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+    
         if (c.currentCode() instanceof X10MethodDef) {
             X10MethodDef outer = (X10MethodDef) c.currentCode();
+            XRoot thisVar = outer.thisVar();
+            asyncInstance.setThisVar(thisVar);
             List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
             if (!capturedTypes.isEmpty()) {
                 asyncInstance = ((X10MethodDef) asyncInstance.copy());
@@ -162,6 +166,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		if (child != this.body) {
+			// pop the scope pushed by enterScope.
 			c = c.pop();
 		} else {
 			c = super.enterChildScope(child,c);
