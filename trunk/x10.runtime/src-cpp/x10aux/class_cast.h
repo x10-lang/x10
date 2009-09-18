@@ -123,14 +123,14 @@ namespace x10aux {
     INTERFACE_PRIMITIVE_CAST(x10_ulong, x10::lang::Object);
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
-        static GPUSAFE ref<T> _(F* obj) {
+        static GPUSAFE ref<T> _(F* obj, bool b) {
             return ref<T>(ref<F>(obj));
         }
     };
 
     // Boxing of primitives
     template<class T> struct ClassCastNotBothRef<ref<x10::lang::Box<T> >,T> {
-        static GPUSAFE ref<x10::lang::Box<T> > _(T obj) {
+        static GPUSAFE ref<x10::lang::Box<T> > _(T obj, bool b) {
             return box(obj);
         }
     };
