@@ -27,7 +27,7 @@ public class ArraySum {
         sum=0;
     }
 
-    def sum(a: Rail[Int], start: Int, last: Int): Int = {
+    def sum(a: Rail[Int]!, start: Int, last: Int): Int = {
         var mySum: Int = 0;
         for ((i) in start..last-1) mySum += a(i);
         return mySum;
