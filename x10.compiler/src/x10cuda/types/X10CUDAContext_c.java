@@ -68,6 +68,8 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             cudaStream = sw.getNewStream("cu");
             cudaStream.write("#include <x10aux/config.h>");
             cudaStream.newline();
+            cudaStream.write("#include <cfloat>");
+            cudaStream.newline();
             cudaStream.forceNewline();
         }
         return cudaStream;

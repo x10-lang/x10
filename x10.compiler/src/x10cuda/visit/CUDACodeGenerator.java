@@ -181,8 +181,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     private String env = "__env";
 
     private Type railCargo(Type typ) {
-        if (!xts().isRail(typ) || !xts().isValRail(typ))
+        if (!xts().isRail(typ) || !xts().isValRail(typ)) {
+            System.out.println("type: "+typ+"  is not a rail");
             return null;
+        }
         X10ClassType ctyp = (X10ClassType) typ;
         assert ctyp.typeArguments().size() == 1;
         return ctyp.typeArguments().get(0);
@@ -196,6 +198,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     private boolean isIntRail(Type typ) {
         Type cargo = railCargo(typ);
         return cargo != null && cargo.isInt();
+    }
+    
+    String prependCudaType(Type t, String rest) {
+        String type = Emitter.translateType(t, true);
+
+        if (isIntRail(t)) {
+            type = "x10_int *";
+        } else if (isFloatRail(t)) {
+            type = "x10_float *";
+        } else {
+            type = type + " ";
+        }
+        
+        return type + rest;
     }
 
     void handleKernel(Block_c b) {
@@ -216,23 +232,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         // emitter.printDeclarationList(out, context(),
         // context().kernelParams());
         for (VarInstance var : context().kernelParams()) {
-            Type t = var.type();
-            String type = Emitter.translateType(t, true);
-
-            if (isIntRail(t)) {
-                type = "x10_int *";
-            } else if (isFloatRail(t)) {
-                type = "x10_float *";
-            } else {
-                type = type + " ";
-            }
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 name = SAVED_THIS;
             } else {
                 name = Emitter.mangled_non_method_name(name);
             }
-            out.write(type + name + ";");
+            out.write(prependCudaType(var.type(),name) + ";");
             out.newline();
         }
         out.end();
@@ -248,10 +254,46 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 + kernel_name + "_env *" + env + ") {");
         out.newline(4);
         out.begin(0);
+        
+        for (VarInstance var : context().kernelParams()) {
+            String name = var.name().toString();
+            if (name.equals(THIS)) {
+                name = SAVED_THIS;
+            } else {
+                name = Emitter.mangled_non_method_name(name);
+            }
+            out.write("__shared__ "+prependCudaType(var.type(),name) + ";"); out.newline();
+        }
+        out.write("if (threadIdx.x==0) {"); out.newline(4); out.begin(0);
+        for (VarInstance var : context().kernelParams()) {
+            String name = var.name().toString();
+            if (name.equals(THIS)) {
+                name = SAVED_THIS;
+            } else {
+                name = Emitter.mangled_non_method_name(name);
+            }
+            out.write(name+" = "+env+"->"+name+";"); out.newline();
+        }
+        out.end(); out.newline();
+        out.write("}"); out.newline();
+        out.write("__syncthreads();"); out.newline();
+        
+        out.forceNewline();
 
         // shm
         out.write("// shm");
         out.newline();
+        // FIXME: HACK! HACK! HACK!
+        out.write("extern __shared__ float clustercache[];"); out.newline();
+        out.write("if  (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
+        out.write("for (int i=0 ; i<CLUSTERS*4 ; ++i) {"); out.newline(4); out.begin(0);
+        out.write("clustercache[i] = /**/local_clusters[i]/**/;"); out.newline();
+        out.end(); out.newline();
+        out.write("}");
+        out.end(); out.newline();
+        out.write("}"); out.newline();
+        
+        // TODO: in general, do this:
         /*
          * for (context().shm()) { out.write(); }
          */
@@ -259,6 +301,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
          * float *new_clusterv = (float*) dyn_shm; // [DIM*clusterc_odd] int
          * *new_counterv = (int*)&new_clusterv[DIM*clusterc_odd]; // [clusterc]
          */
+        out.write("__syncthreads();"); out.newline();
+        
+        out.forceNewline();
 
         // body
         sw.pushCurrentStream(out);
@@ -268,7 +313,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         // end
         out.end();
         out.newline();
-        out.write("} // " + kernel_name);
+        out.write("} // " + kernel_name); out.newline();
+        
         out.forceNewline();
     }
 
@@ -364,7 +410,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             b = (Block_c) outer.body;
 
             Stmt last = b.statements().get(b.statements().size() - 1);
-            System.out.println(last);
+            //System.out.println(last);
             assert last instanceof For; // FIXME: proper error
             loop = (For) last;
 
@@ -649,7 +695,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             } else if (context().shm().has(ln)) {
                 out.write(ln.toString());
             } else if (context().isKernelParam(ln)) {
-                out.write(env + "->" + ln);
+                //it seems the post-compiler is not good at hoisting these accesses so we do it ourselves
+                //out.write(env + "->" + ln);
+                out.write(ln.toString());
             } else {
                 super.visit(n);
             }
