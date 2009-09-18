@@ -25,6 +25,7 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
         -dev) dev="true";;
+	-x10rt) shift; x10rt_impl=$1;;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
@@ -42,6 +43,7 @@ where [options] includes:
     -classpath <path>        search path for class files
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
+    -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
     -h -help --help          print this message
@@ -66,6 +68,17 @@ LIB_DIR="${TOP}${FILE_SEP}lib"
 
 if [ -n "$extra_cp" ]; then
     extra_cp="${PATH_SEP}${extra_cp}"
+fi
+
+if [ -n "$x10rt_impl" ]; then
+    case "$x10rt_impl" in
+	bgp) X10RT_IMPL=PGAS_BGP;;
+	lapi) X10RT_IMPL=PGAS_LAPI;;
+	sockets) X10RT_IMPL=PGAS_SOCKETS;;
+	mpi) X10RT_IMPL=MPI;;
+	standalone) X10RT_IMPL=STANDALONE;;
+	*)
+    esac
 fi
 
 extargs=""
