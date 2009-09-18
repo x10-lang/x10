@@ -108,7 +108,7 @@ xrx: x10rt $(XRX_ARCHIVE)
 .PHONY: x10rt
 
 x10rt:
-	cd x10rt && make
+	cd x10rt && $(MAKE)
 
 ###################
 # Generated Files #
@@ -256,7 +256,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	cd x10rt && make install
+	cd x10rt && $(MAKE) install
 
 .PHONY: install
 
@@ -291,7 +291,7 @@ cleangen:
 	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
-	cd x10rt && make clean
+	cd x10rt && $(MAKE) clean
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
