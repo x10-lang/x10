@@ -1124,7 +1124,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();
 
     @Override
-    public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+    public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, 
+    		Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes) {
 
         String fullNameWithThis = name + "#this";
