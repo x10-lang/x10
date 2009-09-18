@@ -10,13 +10,6 @@ import harness.x10Test;
 /**
  * Remote accesses must be flagged by the compiler.
  *
- * NEW SEMANTICS: non-local accesses cause a BadPlaceException
- * to be thrown at run time.
- * Compiler techniques can be used to reduce or remove
- * the run time checks.
- * Compiler can issue a warning when it detects that
- * a BadPlaceException will always occur or will likely
- * occur, but the error is still caught at run time.
  *
  * @author Kemal 4/2005
  */

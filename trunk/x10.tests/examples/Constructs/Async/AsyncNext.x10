@@ -17,10 +17,10 @@ public class AsyncNext extends x10Test {
 
 	public def run(): boolean = {
 		val Other: Place = here.next();
-		val t: T! = new T();
+		val t = new T();
 		finish async (Other) {
 			val t1: T = new T();
-			async (t.location) t.val = t1;
+			async at (t) t.val = t1;
 		}
 		return t.val.location == Other;
 	}

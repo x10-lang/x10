@@ -24,7 +24,7 @@ public class AsyncReturn extends x10Test {
 		val body = ()=> {
 			if (v == 1)
 			return;
-		    async (f.location) {
+		    async at (f) {
 			   atomic {
 				  f.t = 2;
 			   }
