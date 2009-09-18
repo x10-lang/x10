@@ -1,5 +1,11 @@
 #include <x10aux/system_utils.h>
 
+#ifdef __bgp__
+#ifndef DISABLE_CLOCK_GETTIME
+#define DISABLE_CLOCK_GETTIME // seems to be broken on bgp
+#endif
+#endif
+
 #ifndef DISABLE_CLOCK_GETTIME
 #  if !defined(_POSIX_TIMERS) || _POSIX_TIMERS <= 0
 #    define DISABLE_CLOCK_GETTIME
