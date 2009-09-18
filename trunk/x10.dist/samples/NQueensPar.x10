@@ -30,13 +30,13 @@ public class NQueensPar {
 
     class Board {
 
-        val q: Rail[Int];
+        val q: Rail[Int]{self.at(this)};
 
         def this() {
             q = Rail.makeVar[Int](0, (Nat)=>0);
         }
 
-        def this(old: Rail[Int], newItem:Int) {
+        def this(old: Rail[Int]!, newItem:Int) {
             val n = old.length;
             q = Rail.makeVar[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
         }
