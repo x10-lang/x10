@@ -18,14 +18,11 @@ public class AtFieldAccess extends x10Test {
 		var r: Region = 0..0;
 		val D = r->Second;
 		for (p: Point in D.region) {
-			val newT = new T();
-			at (D(p)) { 
-				t = newT; 
-		    }
+			t = at (D(p)) new T();
 		}
 		val tt = this.t;
 		at (tt) tt.i = 3;
-		return 3 == (at(tt) {tt.i});
+		return 3 == (at(tt) tt.i);
 	}
 
 	public static def main(Rail[String]) {

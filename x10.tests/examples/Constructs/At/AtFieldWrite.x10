@@ -13,9 +13,12 @@ import harness.x10Test;
 public class AtFieldWrite extends x10Test {
 	var t: T;
 public def run() {
-		this.t = newT; 
-	
-return true;
+  val Second = Place.FIRST_PLACE.next();
+  val newT = at (Second) new T();
+  at (Second) { 
+	newT.i = 3; 
+  }
+  return true;
 }
 
 public static def main(Rail[String]) {
