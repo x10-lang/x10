@@ -17,17 +17,13 @@ public class FSSimpleDist {
     const alpha = 3.0D;
 
     const NUM_TIMES = 10;
-    //const NUM_TIMES = 1;
 
-    //const DEFAULT_SIZE = 2*MEG;
     const DEFAULT_SIZE = MEG / 8;
 
     const NUM_PLACES = NativeRuntime.MAX_PLACES;
-    //const NUM_PLACES = 4; // Place.MAX_PLACES;
 
-    public static def main(args:Rail[String]!) {
-
-        val verified: Rail[boolean] = [true];
+    public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
+        val verified: Rail[boolean]! = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
