@@ -33,12 +33,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected Ref<? extends CodeInstance<?>> methodContainer;
     protected Ref<? extends ClassType> typeContainer;
     protected Ref<? extends Type> returnType;
-    protected List<Ref<? extends Type>> typeParameters;
+   // protected List<Ref<? extends Type>> typeParameters;
     protected List<Ref<? extends Type>> formalTypes;
     protected List<LocalDef> formalNames;
     protected List<Ref<? extends Type>> throwTypes;
     protected Ref<XConstraint> guard;
-    protected Ref<TypeConstraint> typeGuard;
+  //  protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
     
     protected XConstrainedTerm placeTerm;
@@ -48,24 +48,24 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends ClassType> typeContainer,
             Ref<? extends CodeInstance<?>> methodContainer,
             Ref<? extends Type> returnType,
-            List<Ref<? extends Type>> typeParams,
+     //       List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
             XRoot thisVar,
             List<LocalDef> formalNames, 
             Ref<XConstraint> guard,
-            Ref<TypeConstraint> typeGuard,
+       //     Ref<TypeConstraint> typeGuard,
             List<Ref<? extends Type>> throwTypes) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
-        this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+   //     this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.thisVar = thisVar;
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
-        this.typeGuard = typeGuard;
+     //   this.typeGuard = typeGuard;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
     
@@ -80,7 +80,9 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public ClosureType asType() {
 	if (asType == null) {
 	    X10TypeSystem ts = (X10TypeSystem) this.ts;
-	    asType = ts.closureType(position(), returnType, typeParameters, formalTypes, formalNames, guard, typeGuard, throwTypes);
+	    asType = ts.closureType(position(), returnType, 
+	    		// Collections.EMPTY_LIST, 
+	    		formalTypes, formalNames, guard, throwTypes);
 	}
 	return asType;
     }
@@ -126,11 +128,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
 
     public List<Ref<? extends Type>> typeParameters() {
-	        return Collections.unmodifiableList(typeParameters);
+	        return Collections.EMPTY_LIST;
     }
 
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+    	assert false;
+	//    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
     
     XRoot thisVar;
@@ -166,11 +169,12 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
     
     public Ref<TypeConstraint> typeGuard() {
-        return typeGuard;
+        return null; // typeGuard;
     }
     
     public void setTypeGuard(Ref<TypeConstraint> s) {
-        this.typeGuard = s;
+       //  this.typeGuard = s;
+    	assert false;
     }
     
     /**
