@@ -56,6 +56,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 	n.guard = s; 
 	return n;
     }
+    
 
     public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
@@ -89,11 +90,18 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 
     public Type rightType() {
         X10TypeSystem xts = (X10TypeSystem) ts;
-
-        if (rightType == null) {
+        
+        // vj: Force a recomputation if rightType is UnknownType.
+        // this.type() may have changed -- though this.type might not!!
+        // However we have no way of resetting rightType when
+        // this.type() changes. However, this.type() should change only
+        // monotonically from uknown to some known value. 
+        // Hence force a recompute each time rightType() is called
+        // if .rightType is an UnknownType.
+        if (rightType == null || rightType instanceof UnknownType) {
             Type t = type();
 
-            // If the field is final, replace T by T(:self==t). 
+            // If the field is final, replace T by T{self==t} 
             Flags flags = flags();
 
             if (flags.isFinal()) {

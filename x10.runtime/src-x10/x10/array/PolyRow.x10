@@ -32,17 +32,15 @@ public value class PolyRow(rank:nat) extends ValRow {
     //
     //
 
-    def this(as: ValRail[int]): PolyRow(as.length-1) {
+
+    def this(as: ValRail[int])= this(as, as.length-1);
+
+    private def this(as: ValRail[int], n:int): PolyRow(n) {
         super(as);
-        property(as.length-1);
+        property(n);
     }
 
-    def this(as: Rail[int]): PolyRow(as.length-1) {
-        super(as);
-        property(as.length-1);
-    }
-
-    def this(p:Point, k:int) {
+      def this(p:Point, k:int) {
         super(p.rank+1, (i:nat) => i<p.rank? p(i) : k);
         property(p.rank);
     }

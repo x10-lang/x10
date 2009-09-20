@@ -42,6 +42,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.Subst;
 import x10.types.X10ClassType;
@@ -96,10 +97,12 @@ public class X10Field_c extends Field_c {
 		return n;
 	}
 	public Node typeCheck1(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		X10Context c = (X10Context) tc.context();
-		
+		final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+		final X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+		final X10Context c = (X10Context) tc.context();
+		//System.err.println("X10Field_c: Examining " + this + " at " + 
+		//		position() + " in depTypeMode=" + c.inDepType());
+		 
 		Type tType = target.type();
 		
 
@@ -124,7 +127,8 @@ public class X10Field_c extends Field_c {
 							if (fi != null) {
 								// Found!
 								X10Field_c result = this;
-								Type t = rightType(fi.rightType(), fi.x10Def(), target, c);
+								Type t = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c)
+										: fieldRightType(fi.rightType(), fi.x10Def(), target, c);
 								result = (X10Field_c) result.fieldInstance(fi).type(t);
 								return result;
 							}
@@ -138,6 +142,7 @@ public class X10Field_c extends Field_c {
 		}
 
 		try {
+		   
 			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id(), c));
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
@@ -145,7 +150,8 @@ public class X10Field_c extends Field_c {
 						position());
 			}
 			X10Field_c result = this;
-			Type type = rightType(fi.rightType(), fi.x10Def(), target, c);
+			Type type = c.inDepType()? rightType(fi.rightType(), fi.x10Def(), target, c) :
+				fieldRightType(fi.rightType(), fi.x10Def(), target, c);
 			if (type instanceof UnknownType) {
 				throw new SemanticException();
 			}
@@ -174,11 +180,9 @@ public class X10Field_c extends Field_c {
 
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
 
+			result.checkFieldPlaceType(tc);
 
-			if (ENABLE_PLACE_TYPES)
-				result.checkFieldPlaceType(tc);
-
-			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
+			//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
 		} catch (NoMemberException e) {
 			if (target instanceof Expr) {
@@ -190,7 +194,10 @@ public class X10Field_c extends Field_c {
 					if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 						Call call = nf.Call(pos, target, this.name);
 						call = call.methodInstance(mi);
-						call = (Call) call.type(rightType(mi.rightType(), mi.x10Def(), target, c));
+						Type nt = c.inDepType() ? 
+								rightType(mi.rightType(), mi.x10Def(), target, c) 
+								:fieldRightType(mi.rightType(), mi.x10Def(), target, c);
+						call = (Call) call.type(nt);
 						return call;
 					}
 				}
@@ -223,6 +230,44 @@ public class X10Field_c extends Field_c {
 				t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 			}
 		}
+		//System.err.println("X10Field_c: rightType returns " + t);
+		return t;
+	}
+
+	public static Type fieldRightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+		XConstraint x = X10TypeMixin.xclause(t);
+		if (x != null && fi.thisVar() != null) {
+			x = x.copy();
+			// Need to add the target's constraints in here because the target may not
+			// be a variable. hence the type information wont be in the context.
+			if (target instanceof Expr) {
+				XConstraint xc = X10TypeMixin.xclause(target.type());
+				if (xc != null && ! xc.valid()) {
+					xc = xc.copy();
+					try {
+						XVar receiver = X10TypeMixin.selfVarBinding(target.type());
+						assert receiver != null;
+						/*if (receiver == null) {
+							X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+							XTerm r = ts.xtypeTranslator().trans((XConstraint) null, target, (X10Context) c);
+							if (r instanceof XVar) {
+								receiver = (XVar) r;
+							}
+
+							if (receiver == null)
+								receiver = XConstraint_c.genUQV();
+						}*/
+						xc = xc.substitute(receiver, xc.self());
+						x.addIn(xc);
+						x=x.substitute(receiver, fi.thisVar());
+						t = X10TypeMixin.addConstraint(X10TypeMixin.baseType(t), x);
+					} catch (XFailure z) {
+						// should not happen
+					}
+				}
+			}	
+		}
+		//System.err.println("X10Field_c: fieldRightType returns " + t);
 		return t;
 	}
 

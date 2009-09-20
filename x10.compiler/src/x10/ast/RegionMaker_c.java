@@ -21,7 +21,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
-import x10.types.X10ArraysMixin;
 import x10.types.X10TypeSystem;
 
 /**

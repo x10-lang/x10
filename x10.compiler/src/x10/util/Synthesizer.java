@@ -55,7 +55,6 @@ import x10.constraint.XTerm_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ClosureDef;
-import x10.types.X10ArraysMixin;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
 import x10.types.X10FieldInstance;
@@ -153,7 +152,7 @@ public class Synthesizer {
 	 
 	 public static XTerm makeProperty(Type type, XVar receiver, String name) {
 		 X10FieldInstance fi = 
-				X10ArraysMixin.getProperty(type, Name.make(name));
+				X10TypeMixin.getProperty(type, Name.make(name));
 			XName field = XTerms.makeName(fi.def(), 
 					Types.get(fi.def().container()) 
 					+ "#" + fi.name().toString());

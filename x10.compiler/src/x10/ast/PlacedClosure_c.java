@@ -115,7 +115,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		try {
     			pt = XConstrainedTerm.instantiate(d, term);
 			} catch (XFailure z) {
-				assert false;
+
 				throw new InternalCompilerError("Cannot construct placeTerm from " + 
 						term + " and constraint " + d + ".");
 			}
@@ -136,7 +136,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     			}
     		} else 
     			throw new SemanticException(
-    					"Place expression must be of type \"" +
+    					"Place expression |" + place + "| must be of type \"" +
     					ts.Place() + "\", or " + ts.Ref() + ", not \"" + place.type() + "\".",
     					place.position());
     	}
@@ -154,8 +154,8 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	}
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
-        	def.setPlaceTerm(computePlaceTerm((Expr) visitChild(place, v), 
-        			(X10Context) tc.context(), ts));
+    		Expr e = (Expr) visitChild(place, v);
+        	def.setPlaceTerm(computePlaceTerm(e, (X10Context) tc.context(), ts));
     	}
     	// now that placeTerm is set in this node, continue visiting children
     	// enterScope will ensure that placeTerm is installed in the context.

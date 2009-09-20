@@ -224,10 +224,47 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = baseType.get();
+		XConstraint c = getRealXClause();
+		final XVar thisVar = thisVar();
+		/*try {
+		c = c.substitute(thisVar, c.self());
+		} catch (XFailure f) {
+		    throw new InternalCompilerError("Unexpected failure when substituting thisVar() for self in " + c);
+		}*/
+		final XConstraint cc = c;
 		if (base instanceof StructType) {
-			return ((StructType) base).fields();
+			final List<FieldInstance> fis = ((StructType) base).fields();
+			return fis;
+			/*return new TransformingList<FieldInstance, FieldInstance>(fis, new Transformation<FieldInstance, FieldInstance>() {
+				public FieldInstance transform(FieldInstance o) {
+					assert o instanceof X10FieldInstance;
+					X10FieldInstance xo = (X10FieldInstance) o;
+					Type t = xo.rightType();
+					// Now need to add the constainer's constraint.
+					t = X10TypeMixin.addConstraint(t, cc);
+					
+					FieldInstance o1 = o.type(t);
+					return o1;
+				}		
+			});*/
+
 		}
 		return Collections.emptyList();
+	}
+	
+	public void ensureSelfBound() {
+		assert constraint != null;
+		XVar self = X10TypeMixin.selfVarBinding(this);
+		if (self == null) {
+			self = XConstraint_c.genEQV();
+			XConstraint c = constraint.get();
+			try {
+			c.addSelfBinding(self);
+			} catch (XFailure z) {
+				// cannot happen
+			}
+			constraint.update(c);
+		}
 	}
 
 	// vj: Revised substantially 08/11/09

@@ -60,46 +60,39 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     Type rightType;
 
     public Type rightType() {
-        if (rightType == null) {
-            Type t = type();
-            
-            // If the local variable is final, replace T by T{self==t}, 
-            // do this even if depclause==null
-            Flags flags = flags();
+        if (rightType != null) 
+        	return rightType;
 
-            if (flags.isFinal()) {
-                if (t instanceof UnknownType) {
-                    rightType = t;
-                }
-                else {
-                    try {
-                        XConstraint c = X10TypeMixin.xclause(t);
-                        if (c == null)
-                            c = new XConstraint_c();
-                        else
-                            c = c.copy();
-                        X10TypeSystem xts = (X10TypeSystem) ts;
-                        XLocal var = xts.xtypeTranslator().trans(this, t);
-                        c.addSelfBinding(var);
-                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
-                    }
-                    catch (SemanticException f) {
-                        throw new InternalCompilerError("Could not add self binding.", f);
-                    }
-                    catch (XFailure f) {
-                        throw new InternalCompilerError("Could not add self binding.", f);
-                    }
-                }
-            }
-            else {
-                rightType = t;
-            }
-
-            assert rightType != null;
+        rightType = type();
+        assert rightType != null : "The type() for " + this + " at " + position() + " is null.";
+        Flags flags = flags();
+        if ((! flags.isFinal())|| rightType instanceof UnknownType) {
+        	return rightType;
         }
-
-        return rightType;
+        // If the local variable is final, replace T by T{self==t}, 
+        // do this even if depclause==null
+        try {
+        	XConstraint c = X10TypeMixin.xclause(rightType);
+        	if (c == null)
+        		c = new XConstraint_c();
+        	else
+        		c = c.copy();
+        	X10TypeSystem xts = (X10TypeSystem) ts;
+        	XLocal var = xts.xtypeTranslator().trans(this, rightType);
+        	c.addSelfBinding(var);
+        	rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(rightType), c);
+        	assert rightType != null;
+        	return rightType;
+        }
+        catch (SemanticException f) {
+        	throw new InternalCompilerError("Could not add self binding.", f);
+        }
+        catch (XFailure f) {
+        	throw new InternalCompilerError("Could not add self binding.", f);
+        }
     }
+
+
 
     public String toString() {
 	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();

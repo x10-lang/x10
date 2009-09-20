@@ -20,6 +20,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Unary;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -44,6 +45,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 /** 
@@ -53,6 +55,22 @@ import x10.constraint.XVar;
 public class X10TypeMixin {
     
 
+	public static X10FieldInstance getProperty(Type t, Name propName) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		    try {
+		        Context c = xts.emptyContext();
+		        t = X10TypeMixin.ensureSelfBound(t);
+			    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
+			    if (fi != null && fi.isProperty()) {
+				    return fi;
+			    }
+		    }
+		    catch (SemanticException e) {
+			    // ignore
+		    }
+        return null;
+    }
+    
     public static Type instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
 	    X10ParsedClassType ct = (X10ParsedClassType) t;
@@ -411,20 +429,20 @@ public class X10TypeMixin {
     }
 
     public static Type setSelfVar(Type t, XVar v) throws SemanticException {
-        XConstraint c = xclause(t);
-        if (c == null) {
-            c = new XConstraint_c();
-        }
-        else {
-            c = c.copy();
-        }
-        try {
-		c.addSelfBinding(v);
-	}
-	catch (XFailure e) {
-		throw new SemanticException(e.getMessage(), t.position());
-	}
-        return xclause(X10TypeMixin.baseType(t), c);
+    	XConstraint c = xclause(t);
+    	if (c == null) {
+    		c = new XConstraint_c();
+    	}
+    	else {
+    		c = c.copy();
+    	}
+    	try {
+    		c.addSelfBinding(v);
+    	}
+    	catch (XFailure e) {
+    		throw new SemanticException(e.getMessage(), t.position());
+    	}
+    	return xclause(X10TypeMixin.baseType(t), c);
     }
     
     public static Type setThisVar(Type t, XVar v) throws SemanticException {
@@ -608,4 +626,210 @@ public class X10TypeMixin {
 	    		}
 	    	}
 	    }
+
+	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XConstraint r = realX(t);
+	
+	    // first try self.p
+	    X10FieldInstance fi = getProperty(t, propName);
+	    if (fi != null) {
+		    try {
+			    XConstraint c = new XConstraint_c();
+			    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
+			    c.addBinding(term, xts.xtypeTranslator().trans(true));
+	            return r.entails(c, context.constraintProjection(r, c));
+		    }
+		    catch (XFailure f) {
+			    return false;
+		    }
+		    catch (SemanticException f) {
+			    return false;
+		    }
+	    }
+	    else {
+	        // try self.p()
+	            try {
+	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST, xts.emptyContext()));
+	                XTerm body = mi.body();
+	                XConstraint c = new XConstraint_c();
+	                body = body.subst(c.self(), mi.x10Def().thisVar());
+	                c.addTerm(body);
+	                return r.entails(c, context.constraintProjection(r, c));
+	            }
+	            catch (XFailure f) {
+	                return false;
+	            }
+	            catch (SemanticException f) {
+	                return false;
+	            }
+	    }
+	}
+
+	public static boolean isRect(Type t, X10Context context) {
+	    return amIProperty(t, Name.make("rect"), context);
+	}
+
+	public static XTerm onePlace(Type t) {
+	    return find(t, Name.make("onePlace"));
+	}
+
+	public static boolean isZeroBased(Type t, X10Context context) {
+	        if (isRail(t, context)) return true;
+	        return amIProperty(t, Name.make("zeroBased"), context);
+	}
+
+	public static boolean isRail(Type t, X10Context context) {
+	    return amIProperty(t, Name.make("rail"), context);
+	}
+
+	public static XTerm distribution(Type t) {
+	return findProperty(t, Name.make("dist"));
+	}
+
+	public static XTerm region(Type t) {
+	return findProperty(t, Name.make("region"));
+	}
+
+	public static XTerm find(Type t, Name propName) {
+	    XTerm val = findProperty(t, propName);
+	    
+	    if (val == null) {
+		    XConstraint c = realX(t);
+		    if (c != null) {
+			    // build the synthetic term.
+			    XTerm var = selfVar(c);
+			    if (var !=null) {
+				    X10FieldInstance fi = getProperty(t, propName);
+				    if (fi != null) {
+					    
+						    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+						    val = xts.xtypeTranslator().trans(c, var, fi);
+					    
+				    }
+			    }
+		    }
+	    }
+	    return val;
+	}
+
+	public static boolean isRankOne(Type t, X10Context context) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	        return isRail(t, context) || xts.ONE().equals(X10TypeMixin.rank(t, context));
+	}
+
+	public static boolean isRankTwo(Type t, X10Context context) {
+	        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	        return xts.TWO().equals(X10TypeMixin.rank(t, context));
+	}
+
+	public static boolean isRankThree(Type t, X10Context context) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    return xts.THREE().equals(X10TypeMixin.rank(t, context));
+	}
+
+	static XTerm findProperty(Type t, Name propName) {
+	    XConstraint c = realX(t);
+	    if (c == null) return null;
+	    
+	    // TODO: check dist.region.p and region.p
+	    try {
+	    	FieldInstance fi = getProperty(t, propName);
+	    	if (fi != null)
+	    		return c.find(XTerms.makeName(fi.def()));
+	}
+	catch (XFailure e) {
+	}
+	return null;
+	}
+
+	public static XTerm rank(Type t, X10Context context) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    if (isRail(t, context))
+	       return xts.ONE();
+	    return findOrSythesize(t, Name.make("rank"));
+	}
+
+	public static Type railBaseType(Type t) {
+	    t = baseType(t);
+	    if (t instanceof X10ClassType) {
+		X10ClassType ct = (X10ClassType) t;
+		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		ClassType a = (ClassType) ts.Rail();
+		ClassType v = (ClassType) ts.ValRail();
+		if (ct.def() == a.def() || ct.def() == v.def())
+		    return ct.typeArguments().get(0);
+		else
+		    arrayBaseType(ct.superClass());
+	    }
+	    return null;
+	}
+
+	public static Type arrayBaseType(Type t) {
+	    t = baseType(t);
+	    if (t instanceof X10ClassType) {
+		X10ClassType ct = (X10ClassType) t;
+		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		ClassType a = (ClassType) ts.Array();
+		if (ct.def() == a.def())
+		    return ct.typeArguments().get(0);
+		else
+		    arrayBaseType(ct.superClass());
+	    }
+	    return null;
+	}
+
+	public static boolean isVarArray(Type t) {
+	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	    Type tt = baseType(t);
+	    Type at = baseType(ts.Array());
+	    if (tt instanceof ClassType && at instanceof ClassType) {
+	        ClassDef tdef = ((ClassType) tt).def();
+	        ClassDef adef = ((ClassType) at).def();
+	        return ts.descendsFrom(tdef, adef);
+	    }
+	    return false;
+	}
+
+	public static boolean isX10Array(Type t) {
+	    return isVarArray(t);
+	}
+
+	static XTerm findOrSythesize(Type t, Name propName) {
+	    return find(t, propName);
+	}
+
+	public static XVar self(Type t) {
+	    XConstraint c = realX(t);
+	    if (c == null)
+		    return null;
+	    return selfVar(c);
+	}
+	/**
+	 * We need to ensure that there is a symbolic name for this type. i.e. self is bound to some variable.
+	 * So if it is not, please create a new EQV and bind self to it. 
+	 * 
+	 * This is done  in particular before getting field instances of this type. This ensures
+	 * that the field instance can be computed accurately, that is the constraint
+	 * self = t.f can be added to it, where t is the selfBinding for the container (i.e. this).
+	 * 
+	 */
+
+	public static Type ensureSelfBound(Type t) {
+		if (t instanceof ConstrainedType) {
+			((ConstrainedType) t).ensureSelfBound();
+			return t;
+		}
+		XVar v = selfVarBinding(t);
+		if (v !=null) 
+			return t;
+		try {
+			t = setSelfVar(t, XConstraint_c.genEQV());
+		} catch (SemanticException z) {
+			
+		}
+		if (selfVarBinding(t) == null)
+		assert selfVarBinding(t) != null;
+		return t;
+	}
 }
