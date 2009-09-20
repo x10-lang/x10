@@ -153,7 +153,6 @@ import x10.query.QueryEngine;
 import x10.types.ClosureType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-import x10.types.X10ArraysMixin;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -309,7 +308,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 		Flags flags = n.flags().flags();
-		
+
 		if (n.name().id().toString().equals("main") &&
 				flags.isPublic() &&
 				flags.isStatic() &&
@@ -1152,7 +1151,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		/* TODO: case: for (point p:D) -- discuss with vj */
 		/* handled cases: exploded syntax like: for (point p[i,j]:D) and for (point [i,j]:D) */
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && (ts.isSubtype(f.domain().type(), ts.Region(), context) || ts.isSubtype(f.domain().type(), ts.Dist(), context)) && X10ArraysMixin.isRect(f.domain().type(), context)) {
+		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && (ts.isSubtype(f.domain().type(), ts.Region(), context) || ts.isSubtype(f.domain().type(), ts.Dist(), context)) && X10TypeMixin.isRect(f.domain().type(), context)) {
 			String regVar = getId().toString();
 			List<Name> idxs = new ArrayList<Name>();
 			List<Name> lims = new ArrayList<Name>();

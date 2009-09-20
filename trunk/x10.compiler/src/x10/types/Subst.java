@@ -42,6 +42,7 @@ class Subst {
             Type base = X10TypeMixin.baseType(t);
             XConstraint c = X10TypeMixin.xclause(t);
             
+            
             if (t instanceof X10ParsedClassType) {
                 X10ParsedClassType ct = (X10ParsedClassType) t;
                 List<Type> newArgs = new ArrayList<Type>();
@@ -53,6 +54,7 @@ class Subst {
                     return ct.typeArguments(newArgs);
             } else 
             if (c != null) {
+            	c = c.copy();
                 base = subst(base, y, x);
 
                 try {

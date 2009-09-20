@@ -189,7 +189,6 @@ import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
-import x10.types.X10ArraysMixin;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -2870,7 +2869,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10ArraysMixin.isRect(dType, context)))
+		        (X10TypeMixin.isRect(dType, context)))
 		{
 		    assert (xts.isPoint(form.type().type()));
 		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));

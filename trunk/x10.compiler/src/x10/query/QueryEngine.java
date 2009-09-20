@@ -19,10 +19,10 @@ import polyglot.types.Type;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.SettableAssign;
-import x10.types.X10ArraysMixin;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Type;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
@@ -54,8 +54,8 @@ public class QueryEngine {
 	public boolean isRectangularRankOneLowZero(SettableAssign a, X10Context context) {
 		Type t = a.array().type();
 	        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	        if (X10ArraysMixin.isX10Array(t))
-	            return X10ArraysMixin.isRail(t, context) || (X10ArraysMixin.isZeroBased(t, context) && X10ArraysMixin.isRankOne(t, context) && X10ArraysMixin.isRect(t, context));
+	        if (X10TypeMixin.isX10Array(t))
+	            return X10TypeMixin.isRail(t, context) || (X10TypeMixin.isZeroBased(t, context) && X10TypeMixin.isRankOne(t, context) && X10TypeMixin.isRect(t, context));
 	        else
 	            return false;
 	}
@@ -82,8 +82,8 @@ public class QueryEngine {
 	public boolean needsHereCheck(SettableAssign a, X10Context context) {
 		Type lt = a.leftType();
 		X10TypeSystem ts = (X10TypeSystem) lt.typeSystem();
-	        if (X10ArraysMixin.isX10Array(lt)) {
-			return needsHereCheck(X10ArraysMixin.arrayBaseType(lt), context);
+	        if (X10TypeMixin.isX10Array(lt)) {
+			return needsHereCheck(X10TypeMixin.arrayBaseType(lt), context);
 		}
 		return false;
 	}

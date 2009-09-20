@@ -32,5 +32,7 @@ public interface ConstrainedType extends ObjectType, X10NamedType, X10ThisVar {
 	
 	void checkRealClause() throws SemanticException;
 	
+	
+	void ensureSelfBound();
 	//XConstraint realX();
 }

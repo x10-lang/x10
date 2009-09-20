@@ -60,20 +60,21 @@ public value _ {
     public static type int32 = int;
     public static type int64 = long;
     
-    public static type Point(r: Int) = Point{rank==r};
+    public static type Point(r: Int) = Point{self.rank==r};
+    public static type Place(id:Int) = Place{self.id==id};
 
-    public static type Region(r:Nat) = Region{rank==r};
-    public static type RectRegion(r:Nat) = Region{rect && rank==r};
+    public static type Region(r:Nat) = Region{self.rank==r};
+    public static type RectRegion(r:Nat) = Region{self.rect && self.rank==r};
     
-    public static type Dist(r:Nat)   = Dist{rank==r};
-    public static type Dist(r:Region) = Dist{region==r};
+    public static type Dist(r:Nat)   = Dist{self.rank==r};
+    public static type Dist(r:Region) = Dist{self.region==r};
     
-    public static type Array[T](r:Nat) = Array[T]{rank==r};
-    public static type Array[T](r:Region) = Array[T]{region==r};
-    public static type Array[T](d:Dist) = Array[T]{dist==d};
+    public static type Array[T](r:Nat) = Array[T]{self.rank==r};
+    public static type Array[T](r:Region) = Array[T]{self.region==r};
+    public static type Array[T](d:Dist) = Array[T]{self.dist==d};
 
-    public static type ValRail[T](n:Nat) = ValRail[T]{length==n};
-    public static type Rail[T](n:Nat) = Rail[T]{length==n};
+    public static type ValRail[T](n:Nat) = ValRail[T]{self.length==n};
+    public static type Rail[T](n:Nat) = Rail[T]{self.length==n};
 
     public static type Console = x10.io.Console;
 }

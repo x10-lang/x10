@@ -451,14 +451,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         while (! worklist.isEmpty()) {
             Type w = worklist.removeFirst();
         
-            // Expand macros, remove constraints
-            Type expanded = X10TypeMixin.baseType(w);
+           
         
-            if (visited.contains(expanded)) {
+            if (visited.contains(w)) {
                 continue;
             }
         
-            visited.add(expanded);
+            visited.add(w);
         
 //            // Get constraints from the type's where clause.
 //            XConstraint wc = X10TypeMixin.xclause(w);
@@ -467,6 +466,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //                worklist.addAll(b);
 //            }
         
+            // Expand macros, remove constraints
+            Type expanded = X10TypeMixin.baseType(w);
             if (expanded instanceof ParameterType) {
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
@@ -478,7 +479,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 }
                 continue;
             }
-            result.add(expanded);
+            result.add(w);
         }
         
         if (kind == Bound.UPPER && result.isEmpty())

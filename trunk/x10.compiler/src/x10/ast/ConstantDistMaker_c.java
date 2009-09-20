@@ -22,7 +22,6 @@ import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerm;
-import x10.types.X10ArraysMixin;
 import x10.types.X10TypeSystem;
 
 /**

@@ -16,15 +16,15 @@ import harness.x10Test;
  */
 public class B_CheckThisTypeInCall extends x10Test {
 	class Test(rank:Int) {
-    class R(rank:Int) {
-      def check( tt:Test{self.rank==this.rank}) {}       
-      def this(r:Int){property(r);}
-    }
-    def this(r:Int){property(r);}
-    var r:R!{self.rank == this.rank} =null;
-    def m(t:Test{self.rank==this.rank}) {
-        r.check(t);
-    }
+       class R(rank:Int) {
+         def check( tt:Test{self.rank==this.rank}) {}       
+         def this(r:Int){property(r);}
+       }
+       def this(r:Int){property(r);}
+       var r:R!{self.rank == this.rank} =null;
+       def m(t:Test{self.rank==this.rank}) {
+         r.check(t);
+       }
 	}
 
     public def run() = true;

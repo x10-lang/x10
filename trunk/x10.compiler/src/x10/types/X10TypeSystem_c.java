@@ -2261,6 +2261,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {
+    	container = X10TypeMixin.ensureSelfBound(container);
         return new X10FieldMatcher(container, name, context);
     }
 
@@ -2275,29 +2276,32 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             if (fi == null)
                 return null;
 
-            Type c = container != null ? container : fi.container();
+            Type c = container != null 
+            ? container 
+            		: fi.container();
             XVar v = X10TypeMixin.selfVarBinding(c);
-            if (v == null)
-                v = new XConstraint_c().genEQV();
+            // ensureBound should have been called on container.
+         
             X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
-            XRoot oldThis = ts.xtypeTranslator().transThisWithoutTypeConstraint();
-            if (XTypeTranslator.THIS_VAR)
-                oldThis = fi.x10Def().thisVar();
-
-            Type t = fi.type();
-            Type newT = oldThis == null ? t 
-            		: Subst.subst(t, (new XVar[] { v }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
+            XRoot oldThis = fi.x10Def().thisVar();
+            if (oldThis != null && v == null)
+            	assert false;
             // TODO: vj: 08/11/09 
             // Shouldnt we be setting thisVar on the type?
-          
+            Type t = fi.type();
             Type rt = fi.rightType();
-            Type newRT = oldThis == null ? rt : Subst.subst(rt, (new XVar[] { v }), (new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
-
-            if (!ts.consistent(newT, (X10Context) context) || !ts.consistent(newRT, (X10Context) context)) {
+            if (v != null && oldThis != null) {
+            	t = Subst.subst(t, (new XVar[] { v }), 
+            			(new XRoot[] { oldThis }), new Type[] {}, new ParameterType[] {});
+            	rt = Subst.subst(rt, (new XVar[] { v }), (new XRoot[] { oldThis }), 
+            			new Type[] {}, new ParameterType[] {});
+            	rt = X10TypeMixin.setThisVar(rt, v);
+            }
+            if (!ts.consistent(t, (X10Context) context) || !ts.consistent(rt, (X10Context) context)) {
                 throw new SemanticException("Type of field access is not consistent.");
             }
 
-            return fi.type(newT, newRT);
+            return fi.type(t, rt);
         }
     }
 
@@ -2563,15 +2567,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
    public boolean isHere(Receiver r, X10Context xc) {
 	   try {
 		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
-		   XTerm target = xtypeTranslator().trans(pc, r, xc);
 		   Type rType = r.type();
+		   XTerm target = X10TypeMixin.selfVarBinding(rType); // 
 		   if (target == null) {
+			   target = xtypeTranslator().trans(pc, r, xc);
+			   if (target == null)
 			   // The receiver is not named. So make up a new name.
 			   // The only thing we know about the name is that it is of rType,
-			   target = XConstraint_c.genUQV();
+			   target = XConstraint_c.genEQV();
 		   } 
-		   rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
-		   
+		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
+		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
 		   assert xc.currentPlaceTerm() != null;
 		   assert locVar(target, xc) != null;
 		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
@@ -2592,5 +2598,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   }
 	   return false;
 
+   }
+   
+   public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
+	throws SemanticException {
+	   container = X10TypeMixin.ensureSelfBound(container);
+	   return super.findField(container, matcher);
    }
 }
