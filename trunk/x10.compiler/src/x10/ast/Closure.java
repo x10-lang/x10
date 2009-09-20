@@ -22,8 +22,8 @@ import x10.types.ClosureDef;
 
 public interface Closure extends Expr, CodeBlock {
 	    
-    List<TypeParamNode> typeParameters();
-    Closure typeParameters(List<TypeParamNode> typeParams);
+   // List<TypeParamNode> typeParameters();
+   // Closure typeParameters(List<TypeParamNode> typeParams);
 
     /** The closure's formal parameters.
      * @return A list of {@link polyglot.ast.Formal Formal}

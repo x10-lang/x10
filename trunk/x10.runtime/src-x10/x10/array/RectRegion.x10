@@ -92,12 +92,12 @@ final value class RectRegion extends PolyRegion{rect} {
 
     final private static class Scanner implements Region.Scanner {
 
-        private val min: ValRail[int];
-        private val max: ValRail[int];
+        private val myMin: ValRail[int];
+        private val myMax: ValRail[int];
 
         def this(r: PolyRegion): Scanner {
-            min = r.mat.rectMin();
-            max = r.mat.rectMax();
+            myMin = r.mat.rectMin();
+            myMax = r.mat.rectMax();
         }
 
         final public def set(axis: int, position: int): void {
@@ -105,11 +105,11 @@ final value class RectRegion extends PolyRegion{rect} {
         }
         
         final public def min(axis: int): int {
-            return min(axis);
+            return myMin(axis);
         }
         
         final public def max(axis: int): int {
-            return max(axis);
+            return myMax(axis);
         }
     }
 
@@ -256,12 +256,12 @@ final value class RectRegion extends PolyRegion{rect} {
     //
 
     public def toString(): String {
-        val min = this.min();
-        val max = this.max();
+        val thisMin = this.min();
+        val thisMax = this.max();
         var s: String = "[";
         for (var i: int = 0; i<rank; i++) {
             if (i>0) s += ",";
-            s += min(i) + ".." + max(i);
+            s += thisMin(i) + ".." + thisMax(i);
         }
         s += "]";
         return s;

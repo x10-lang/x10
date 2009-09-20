@@ -2112,14 +2112,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(call);
           $EndJava
         ./
-
-    ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
+    ClosureExpression ::= FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
         /.$BeginJava
-                    setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
+                    setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
           $EndJava
         ./
-                       
+
     LastExpression ::= Expression
         /.$BeginJava
                     setResult(nf.X10Return(pos(), Expression, true));
@@ -3567,7 +3566,7 @@ public static class MessageHandler implements IMessageHandler {
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
                             	Id id = (Id) j.next();
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3601,7 +3600,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3635,7 +3634,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) j.next();
                             	// HACK: if the local is non-final, assume the type is point and the component is int
                             	TypeNode tni = nf.UnknownTypeNode(id.position());
-                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
+                            	l.add(nf.LocalDecl(id.position(), fn, tni, id, init != null ? nf.ClosureCall(init.position(), nf.Local(init.position(), name),  Collections.<Expr>singletonList(nf.IntLit(init.position(), IntLit.INT, index))) : null));
                             	index++;
                             }
                         }
@@ -3692,7 +3691,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.ADD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3703,7 +3702,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SUB, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3714,7 +3713,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.MUL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3725,7 +3724,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.DIV, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3736,7 +3735,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.MOD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3747,7 +3746,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_AND, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3758,7 +3757,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_OR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3769,7 +3768,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_XOR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3780,7 +3779,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SHL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3791,7 +3790,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3802,7 +3801,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.USHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3813,7 +3812,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.LT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3824,7 +3823,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.LE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3835,7 +3834,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.GE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3846,7 +3845,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.GT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3857,7 +3856,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.EQ, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -3868,7 +3867,7 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.NE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4034,53 +4033,54 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-    MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
+    MethodSelection ::= MethodName .  ( FormalParameterListopt )
         /.$BeginJava
-                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
-                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
+//                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
+//                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.X10Call(pos(), MethodName.prefix == null
                                                                  ? null
-                                                                 : MethodName.prefix.toReceiver(), MethodName.name, typeArgs, actuals), true))));
+                                                                 : MethodName.prefix.toReceiver(), MethodName.name, Collections.EMPTY_LIST, actuals), true))));
           $EndJava
         ./
-                       | Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
+                       | Primary . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
-                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
+//                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
+  //                  List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(),
-                                                   nf.X10Call(pos(), Primary, Identifier, typeArgs, actuals), true))));
+                                                   nf.X10Call(pos(), Primary, Identifier, Collections.EMPTY_LIST, actuals), true))));
           $EndJava
         ./
-                       | super . Identifier . TypeParametersopt ( FormalParameterListopt )
+                       | super . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
-                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
+//                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
+//                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(),
-                                                   nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, typeArgs, actuals), true))));
+                                                   nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, Collections.EMPTY_LIST, actuals), true))));
           $EndJava
         ./
-                       | ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
+                       | ClassName . super$sup . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
-                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
+//                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
+//                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
                                          nf.X10Return(pos(),
-                                                   nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier, typeArgs, actuals), true))));
+                                                   nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier, 
+                                                              Collections.EMPTY_LIST, actuals), true))));
           $EndJava
         ./
 

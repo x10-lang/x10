@@ -809,9 +809,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return X10ConstructorCall(pos, kind, outer, Collections.EMPTY_LIST, args);
 	}
 
-	public Closure Closure(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, 
+	public Closure Closure(Position pos, List<Formal> formals, 
 			DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
-		Closure n = new Closure_c(pos, typeParams, formals, returnType, guard, throwTypes, body);
+		Closure n = new Closure_c(pos, formals, returnType, guard, throwTypes, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (Closure) n.ext(ext_fac.extClosureImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -820,14 +820,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public Closure Closure(Closure c, Position pos) {
-       return Closure(pos, c.typeParameters(), c.formals(), c.guard(), c.returnType(), c.throwTypes(),
+       return Closure(pos,  c.formals(), c.guard(), c.returnType(), c.throwTypes(),
     		   c.body());
 	}
-	public ClosureCall ClosureCall(Position pos, Expr closure, List<TypeNode> typeArgs, List<Expr> args) {
-		ClosureCall n = new ClosureCall_c(pos, closure, typeArgs, args);
+	public ClosureCall ClosureCall(Position pos, Expr closure, /*List<TypeNode> typeArgs,*/ List<Expr> args) {
+		ClosureCall n = new ClosureCall_c(pos, closure,  args);
 		n = (ClosureCall) n.ext(extFactory().extExpr());
 		n = (ClosureCall) n.del(delFactory().delExpr());
 		return n;
+	}
+	public ClosureCall ClosureCall(Position pos, Expr closure, List<TypeNode> typeArgs, List<Expr> args) {
+		assert typeArgs==null || typeArgs.size()==0 : "Closures do not have type args.";
+		return ClosureCall(pos, closure, args);
+	
 	}
 
 	public AnnotationNode AnnotationNode(Position pos, TypeNode tn) {

@@ -144,9 +144,11 @@ public interface X10NodeFactory extends NodeFactory {
     Expr RegionMaker(Position pos, Expr left, Expr right);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
 
-	Closure Closure(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body);
+	Closure Closure(Position pos,  List<Formal> formals, DepParameterExpr guard, TypeNode returnType, 
+			List<TypeNode> throwTypes, Block body);
 
-	ClosureCall ClosureCall(Position position, Expr closure, List<TypeNode> typeArgs, List<Expr> args);
+	ClosureCall ClosureCall(Position position, Expr closure,  List<Expr> args);
+	ClosureCall ClosureCall(Position position, Expr closure,  List<TypeNode> typeargs, List<Expr> args);
 
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     

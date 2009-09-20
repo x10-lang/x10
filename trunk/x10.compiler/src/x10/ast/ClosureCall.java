@@ -30,8 +30,8 @@ public interface ClosureCall extends Expr, X10ProcedureCall {
      */
     ClosureCall target(Expr target);
     
-    List<TypeNode> typeArgs();
-    ClosureCall typeArgs(List<TypeNode> typeArgs);
+ //   List<TypeNode> typeArgs();
+ //   ClosureCall typeArgs(List<TypeNode> typeArgs);
 
     /** Get the method instance of the call. */
     public X10MethodInstance closureInstance();

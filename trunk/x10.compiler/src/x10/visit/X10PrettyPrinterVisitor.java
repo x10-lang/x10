@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1526,7 +1527,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				ClosureCall e = (ClosureCall) expr;
 				target = e.target();
 				args = e.arguments();
-				typeArgs = e.typeArgs();
+				typeArgs = Collections.EMPTY_LIST; // e.typeArgs();
 				mi = e.closureInstance();
 			}
 			else if (expr instanceof X10Call) {

@@ -321,7 +321,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			// int arglist(i) = name[i];
 			Formal var = vars.get(i);
 			Expr index = x10nf.IntLit(var.position(), IntLit.INT, i).type(ts.Int());
-			Expr init = x10nf.ClosureCall(var.position(), arrayBase, Collections.EMPTY_LIST, Collections.singletonList(index));
+			Expr init = x10nf.ClosureCall(var.position(), arrayBase,  Collections.singletonList(index));
 			if (bli != null) {
 			    init = (Expr) init.disambiguate(tc).typeCheck(tc).checkConstants(tc);
 			}

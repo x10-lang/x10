@@ -222,7 +222,8 @@ public class Inliner extends ContextVisitor {
     public Stmt inlineClosure(Closure target, ClosureCall c, Expr result) {
         if (Report.should_report("inline", 1))
             Report.report(1, "Inlining closure call " + c + " into " + context().currentCode());
-        return rewriteBody(target.body(), target.typeParameters(), target.formals(), target, c.typeArgs(), c.arguments(), result, null);
+        return rewriteBody(target.body(), Collections.EMPTY_LIST, target.formals(), target, 
+        		Collections.EMPTY_LIST, c.arguments(), result, null);
     }
 
     public boolean simple(Expr e) {
@@ -971,7 +972,7 @@ public class Inliner extends ContextVisitor {
 
                             for (int i = 0; i < n; i++) {
                                 Expr ni = X10Cast_c.check(nf.IntLit(c.position(), IntLit.INT, i), this);
-                                Expr ai = X10Cast_c.check(nf.ClosureCall(c.position(), init, Collections.EMPTY_LIST, Collections.singletonList(ni)), this);
+                                Expr ai = X10Cast_c.check(nf.ClosureCall(c.position(), init, Collections.singletonList(ni)), this);
                                 args.add(ai);
                             }
 

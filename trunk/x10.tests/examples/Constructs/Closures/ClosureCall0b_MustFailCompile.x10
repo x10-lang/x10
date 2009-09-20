@@ -13,6 +13,7 @@ import harness.x10Test;
  * common ancestor of the types of any formal parameters of type T.
  *
  * @author nystrom 8/2008
+ * 9/2009 -- Closures are no longer permitted to take type parameters.
  */
 
 public class ClosureCall0b_MustFailCompile extends ClosureTest {

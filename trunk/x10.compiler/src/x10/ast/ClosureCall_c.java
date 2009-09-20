@@ -62,18 +62,18 @@ import x10.types.X10TypeSystem_c.DumbMethodMatcher;
 
 public class ClosureCall_c extends Expr_c implements ClosureCall {
     protected Expr target;
-    protected List<TypeNode> typeArgs;
+ //   protected List<TypeNode> typeArgs;
     protected List<Expr> arguments;
 
     protected X10MethodInstance ci;
 
-    public ClosureCall_c(Position pos, Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
+    public ClosureCall_c(Position pos, Expr target, /*List<TypeNode> typeArgs,*/ List<Expr> arguments) {
 	super(pos);
 	assert target != null;
-	assert typeArgs != null;
+	//assert typeArgs != null;
         assert arguments != null;
 	this.target= target;
-	this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
+//	this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
     }
     
@@ -117,13 +117,13 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	if (!(target instanceof Closure)) {
 	    return ((Term) target);
 	}
-	return listChild(typeArgs, listChild(arguments, null));
+	return  listChild(arguments, null);
     }
 
     @Override
     public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
 	List<Term> args = new ArrayList<Term>();
-	args.addAll(typeArgs);
+//	args.addAll(typeArgs);
 	args.addAll(arguments);
 	
 	if (!(target instanceof Closure)) { // Don't visit a literal closure here
@@ -182,28 +182,30 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
     
     /** Get the actual arguments of the call. */
-    public List<TypeNode> typeArgs() {
+  /*  public List<TypeNode> typeArgs() {
 	    return this.typeArgs;
     }
-    
+   */ 
     /** Set the actual arguments of the call. */
-    public ClosureCall typeArgs(List<TypeNode> typeArgs) {
+  /*  public ClosureCall typeArgs(List<TypeNode> typeArgs) {
         assert typeArgs != null;
 	    ClosureCall_c n= (ClosureCall_c) copy();
 	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	    return n;
-    }
+    }*/
     
     public List<TypeNode> typeArguments() {
-        return typeArgs();
+        return Collections.EMPTY_LIST; // typeArgs();
     }
 
     /** Reconstruct the call. */
-    protected ClosureCall_c reconstruct(Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
-	if (target != this.target || !CollectionUtil.allEqual(typeArgs, this.typeArgs) || !CollectionUtil.allEqual(arguments, this.arguments)) {
+    protected ClosureCall_c reconstruct(Expr target, /*List<TypeNode> typeArgs,*/ List<Expr> arguments) {
+	if (target != this.target 
+		//	|| !CollectionUtil.allEqual(typeArgs, this.typeArgs) 
+			|| !CollectionUtil.allEqual(arguments, this.arguments)) {
 	    ClosureCall_c n= (ClosureCall_c) copy();
 	    n.target= target;
-	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
+	//    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	    n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
 	    return n;
 	}
@@ -213,9 +215,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     /** Visit the children of the call. */
     public Node visitChildren(NodeVisitor v) {
 	Expr target= (Expr) visitChild(this.target, v);
-	List typeArgs= visitList(this.typeArgs, v);
+//	List typeArgs= visitList(this.typeArgs, v);
 	List arguments= visitList(this.arguments, v);
-	return reconstruct(target, typeArgs, arguments);
+	return reconstruct(target, /*typeArgs,*/ arguments);
     }
 
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
@@ -255,12 +257,13 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 	*/
 	
-	List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
+List<Type> typeArgs = Collections.EMPTY_LIST;
+    //new ArrayList<Type>(this.typeArgs.size());
 
-	for (TypeNode tn : this.typeArgs) {
+/*	for (TypeNode tn : this.typeArgs) {
 		typeArgs.add(tn.type());
 	}
-	
+	*/
 	List<Type> actualTypes = new ArrayList<Type>(this.arguments.size());
 	for (Expr ei : arguments) {
 	    actualTypes.add(ei.type());
@@ -305,7 +308,8 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 //	    if (! targetType.isSubtype(ct))
 //		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name().toString()), typeArgs(), args);
+	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
+	    		nf.Id(position(), mi.name().toString()), Collections.EMPTY_LIST, args);
 	    n = (X10Call_c) n.methodInstance(mi);
 	    n = (X10Call_c) n.type(mi.returnType());
 	    return n;
