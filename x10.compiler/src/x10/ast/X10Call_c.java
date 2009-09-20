@@ -353,7 +353,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 
 			if (e != null) {
-				ClosureCall ccx = nf.ClosureCall(position(), e, typeArguments(), arguments());
+				assert typeArguments().size() == 0;
+				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
 				X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
@@ -393,22 +394,23 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		if (this.target == null) {
-		    try {
-		        Node n =  this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
-		        if (cc != null)
-		            throw new SemanticException("Ambiguous call; both " + 
-		            		((n instanceof X10New) 
-		            				? ((X10New) n).constructorInstance().toString()
-		            				: ((X10Call) n).methodInstance().toString()) 
-		            				+ " and closure match.", position());
-		        return n;
-		    }
-		    catch (SemanticException e) {
-		        if (cc != null)
-		            return cc.typeCheck(tc);
-		       throw new SemanticException("Method or static constructor not found for " +
-		        ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
-		    }
+			Node n =  null;
+			try {
+				n=this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
+			}
+			catch (SemanticException e) {
+				if (cc != null)
+					return cc.typeCheck(tc);
+				throw new SemanticException("Method or static constructor not found for " +
+						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
+			}
+			if (cc != null)
+				throw new SemanticException("Ambiguous call; both " + 
+						((n instanceof X10New) 
+								? ((X10New) n).constructorInstance().toString()
+										: ((X10Call) n).methodInstance().toString()) 
+										+ " and closure " + cc + " match.", position());
+			return n;
 		}
 
     		if (target instanceof TypeNode) {

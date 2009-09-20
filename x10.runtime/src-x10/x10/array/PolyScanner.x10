@@ -67,8 +67,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     /*protected*/ public val rank: int;
 
-    private val min: Rail[VarMat]!;
-    private val max: Rail[VarMat]!;
+    private val myMin: Rail[VarMat]!;
+    private val myMax: Rail[VarMat]!;
     private val minSum: Rail[VarMat]!;
     private val maxSum: Rail[VarMat]!;
 
@@ -108,9 +108,9 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         val r = pm.rank;
         this.rank = r;
         val n = Rail.makeVar[VarMat](r);
-        min = n;
+        myMin = n;
         val x = Rail.makeVar[VarMat](r);
-        max = x;
+        myMax = x;
         val nSum = Rail.makeVar[VarMat](r);
         minSum = nSum;
         val xSum = Rail.makeVar[VarMat](r);
@@ -154,8 +154,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         }
 
         // allocate
-        min(axis) = new VarMat(imin, axis+1);
-        max(axis) = new VarMat(imax, axis+1);
+        myMin(axis) = new VarMat(imin, axis+1);
+        myMax(axis) = new VarMat(imax, axis+1);
         minSum(axis) = new VarMat(imin, axis+1);
         maxSum(axis) = new VarMat(imax, axis+1);
         min2(axis) = Rail.makeVar[PolyRow](imin);
@@ -166,14 +166,14 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         for (r:PolyRow in pm) {
             if (r(axis)<0) {
                 for (var i: int = 0; i<=axis; i++)
-                    min(axis)(imin)(i) = r(i);
+                    myMin(axis)(imin)(i) = r(i);
                 minSum(axis)(imin)(0) = r(rank);
                 min2(axis)(imin) = r;
                 imin++;
             }
             if (r(axis)>0) {
                 for (var i: int = 0; i<=axis; i++)
-                    max(axis)(imax)(i) = r(i);
+                    myMax(axis)(imax)(i) = r(i);
                 maxSum(axis)(imax)(0) = r(rank);
                 max2(axis)(imax) = r;
                 imax++;
@@ -191,16 +191,16 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     final public def set(axis: int, v: int): void {
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<minSum(k).rows; l++)
-                minSum(k)(l)(axis+1) = min(k)(l)(axis)*v + minSum(k)(l)(axis);
+                minSum(k)(l)(axis+1) = myMin(k)(l)(axis)*v + minSum(k)(l)(axis);
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<maxSum(k).rows; l++)
-                maxSum(k)(l)(axis+1) = max(k)(l)(axis)*v + maxSum(k)(l)(axis);
+                maxSum(k)(l)(axis+1) = myMax(k)(l)(axis)*v + maxSum(k)(l)(axis);
     }
 
     final public def min(axis: int): int {
         var result: int = Int.MIN_VALUE;
-        for (var k: int = 0; k<min(axis).rows; k++) {
-            val a = min(axis)(k)(axis);
+        for (var k: int = 0; k<myMin(axis).rows; k++) {
+            val a = myMin(axis)(k)(axis);
             var b: int = minSum(axis)(k)(axis);
             // ax+b<=0 where a<0 => x>=ceil(-b/a)
             val m = b>0? (-b+a+1)/a : -b/a;
@@ -211,8 +211,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     final public def max(axis: int): int {
         var result: int = Int.MAX_VALUE;
-        for (var k: int = 0; k<max(axis).rows; k++) {
-            val a = max(axis)(k)(axis);
+        for (var k: int = 0; k<myMax(axis).rows; k++) {
+            val a = myMax(axis)(k)(axis);
             val b = maxSum(axis)(k)(axis);
             // ax+b<=0 where a>0 => x<=floor(-b/a)
             val m = b>0? (-b-a+1)/a : -b/a;
@@ -246,28 +246,28 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         private val s: Region.Scanner = PolyScanner.this;
 
         private val x = Rail.makeVar[int](rank);
-        private val min = Rail.makeVar[int](rank);
-        private val max = Rail.makeVar[int](rank);
+        private val myMin = Rail.makeVar[int](rank);
+        private val myMax = Rail.makeVar[int](rank);
 
         private var k: int;
         def this() {}
         def init() {
-            min(0) = s.min(0);
-            max(0) = s.max(0);
+            myMin(0) = s.min(0);
+            myMax(0) = s.max(0);
             x(0) = min(0);
             for (k=1; k<rank; k++) {
                 s.set(k-1, x(k-1));
                 val m = s.min(k);
                 x(k) = m;
-                min(k) = m;
-                max(k) = s.max(k);
+                myMin(k) = m;
+                myMax(k) = s.max(k);
             }
             x(rank-1)--;
         }
 
         final public def hasNext(): boolean {
             k = rank-1;
-            while (x(k)>=max(k))
+            while (x(k)>=myMax(k))
                 if (--k<0)
                     return false;
             return true;
@@ -279,8 +279,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
                 s.set(k-1, x(k-1));
                 val m = s.min(k);
                 x(k) = m;
-                min(k) = m;
-                max(k) = s.max(k);
+                myMin(k) = m;
+                myMax(k) = s.max(k);
             }
             return x;
         }
@@ -447,23 +447,23 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     public def printInfo2(ps: Printer): void {
-        for (var k: int = 0; k<min.length; k++) {
+        for (var k: int = 0; k<myMin.length; k++) {
             ps.printf("axis %d\n", k);
             ps.printf("  min\n");
-            for (var l: int = 0; l<min(k).rows; l++) {
+            for (var l: int = 0; l<myMin(k).rows; l++) {
                 ps.printf("  ");
-                for (var m: int = 0; m<min(k)(l).cols; m++)
-                    ps.printf(" %3d", min(k)(l)(m));
+                for (var m: int = 0; m<myMin(k)(l).cols; m++)
+                    ps.printf(" %3d", myMin(k)(l)(m));
                 ps.printf("  sum");
                 for (var m: int = 0; m<minSum(k)(l).cols; m++)
                     ps.printf(" %3d", minSum(k)(l)(m));
                 ps.printf("\n");
             }
             ps.printf("  max\n");
-            for (var l: int = 0; l<max(k).rows; l++) {
+            for (var l: int = 0; l<myMax(k).rows; l++) {
                 ps.printf("  ");
-                for (var m: int = 0; m<max(k)(l).cols; m++)
-                    ps.printf(" %3d", max(k)(l)(m));
+                for (var m: int = 0; m<myMax(k)(l).cols; m++)
+                    ps.printf(" %3d", myMax(k)(l)(m));
                 ps.printf("  sum");
                 for (var m: int = 0; m<maxSum(k)(l).cols; m++)
                     ps.printf(" %3d", maxSum(k)(l)(m));

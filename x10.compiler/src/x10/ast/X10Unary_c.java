@@ -120,7 +120,7 @@ public class X10Unary_c extends Unary_c {
                     ClosureCall e = (ClosureCall) expr;
                     target = e.target();
                     args = e.arguments();
-                    typeArgs = e.typeArgs();
+                    typeArgs = Collections.EMPTY_LIST; // e.typeArgs();
                 }
                 else if (expr instanceof X10Call) {
                     X10Call e = (X10Call) expr;

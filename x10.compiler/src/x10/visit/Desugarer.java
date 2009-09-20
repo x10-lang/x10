@@ -484,7 +484,7 @@ public class Desugarer extends ContextVisitor {
         if (e instanceof X10Call)
             incr = visitSettableAssign((SettableAssign_c) incr);
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { incr }));
-        return xnf.ClosureCall(pos, c, Collections.EMPTY_LIST, args).closureInstance(ci).type(ret);
+        return xnf.ClosureCall(pos, c,  args).closureInstance(ci).type(ret);
     }
 
     private Expr visitUnary(X10Unary_c n) throws SemanticException {
@@ -583,6 +583,6 @@ public class Desugarer extends ContextVisitor {
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         args.add(0, n.array());
         args.add(n.right());
-        return xnf.ClosureCall(pos, c, Collections.EMPTY_LIST, args).closureInstance(ci).type(ret);
+        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(ret);
     }
 }

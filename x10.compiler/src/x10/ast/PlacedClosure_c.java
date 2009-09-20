@@ -46,7 +46,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
 	protected Expr place;
 
 	public PlacedClosure_c(Position p, Expr place, TypeNode returnType, Block body) {
-		super(p, Collections.EMPTY_LIST, Collections.EMPTY_LIST, returnType, null, 
+		super(p, Collections.EMPTY_LIST, returnType, null, 
 				Collections.EMPTY_LIST, body);
 		this.place = place;
 	}

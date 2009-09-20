@@ -162,21 +162,23 @@ public value class UnionRegion extends BaseRegion {
     }
 
     protected def computeBoundingBox(): Region(rank) {
-        val min = Rail.makeVar[int](rank);
-        val max = Rail.makeVar[int](rank);
+        val myMin = Rail.makeVar[int](rank);
+        val myMax = Rail.makeVar[int](rank);
         for (var axis: int = 0; axis<rank; axis++)
-            min(axis) = Int.MAX_VALUE;
+            myMin(axis) = Int.MAX_VALUE;
         for (var axis: int = 0; axis<rank; axis++)
-            max(axis) = Int.MIN_VALUE;
+            myMax(axis) = Int.MIN_VALUE;
         for (r:Region in regions) {
             val rmin = r.min();
             val rmax = r.max();
             for (var axis: int = 0; axis<rank; axis++) {
-                if (rmin(axis)<min(axis)) min(axis) = rmin(axis);
-                if (rmax(axis)>max(axis)) max(axis) = rmax(axis);
+                if (rmin(axis)<myMin(axis)) 
+		    myMin(axis) = rmin(axis);
+                if (rmax(axis)>myMax(axis)) 
+		    myMax(axis) = rmax(axis);
             }
         }
-        return Region.makeRectangular(min, max);
+        return Region.makeRectangular(myMin, myMax);
     }
 
     public def min(): ValRail[int] {

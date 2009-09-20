@@ -65,7 +65,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 public class Closure_c extends Expr_c implements Closure {
-    List<TypeParamNode> typeParameters;
+  //  List<TypeParamNode> typeParameters;
     List<Formal> formals;
     TypeNode returnType;
     List<TypeNode> throwTypes;
@@ -82,9 +82,10 @@ public class Closure_c extends Expr_c implements Closure {
 	super(pos);
     }
 
-    public Closure_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
+    public Closure_c(Position pos,  List<Formal> formals, 
+    		TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, Block body) {
 	super(pos);
-	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+//	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 	this.returnType = returnType;
 	this.guard = guard;
@@ -92,19 +93,21 @@ public class Closure_c extends Expr_c implements Closure {
 	this.body = body;
     }
     
-    public List<TypeParamNode> typeParameters() {
+   /* public List<TypeParamNode> typeParameters() {
 	    return typeParameters;
     }
+    */
     public Closure position(Position pos) {
         Closure_c n = (Closure_c) copy();
 	    n.position=pos;
 	    return n;
     }
-    public Closure typeParameters(List<TypeParamNode> typeParams) {
+  /*  public Closure typeParameters(List<TypeParamNode> typeParams) {
 	    Closure_c n = (Closure_c) copy();
 	    n.typeParameters=TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	    return n;
     }
+    */
 
     public List<Formal> formals() {
 	return formals;
@@ -186,10 +189,14 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     /** Reconstruct the closure. */
-    protected Closure_c reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
-	if (! CollectionUtil.allEqual(typeParams, this.typeParameters) || !CollectionUtil.allEqual(formals, this.formals) || returnType != this.returnType || guard != this.guard || ! CollectionUtil.allEqual(throwTypes, this.throwTypes) || body != this.body) {
+    protected Closure_c reconstruct(/*List<TypeParamNode> typeParams,*/ List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
+	if (/*! CollectionUtil.allEqual(typeParams, this.typeParameters) ||*/
+			!CollectionUtil.allEqual(formals, this.formals) 
+			|| returnType != this.returnType 
+			|| guard != this.guard 
+			|| ! CollectionUtil.allEqual(throwTypes, this.throwTypes) || body != this.body) {
 	    Closure_c n = (Closure_c) copy();
-	    n.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+	//    n.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	    n.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 	    n.guard = guard;
 	    n.returnType = returnType;
@@ -203,7 +210,7 @@ public class Closure_c extends Expr_c implements Closure {
     /** Visit the children of the expression. */
     @SuppressWarnings("unchecked")
 	public Node visitChildren(NodeVisitor v) {
-	List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
+	//List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
 	List<Formal> formals = visitList(this.formals, v);
 	DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
 	
@@ -211,7 +218,7 @@ public class Closure_c extends Expr_c implements Closure {
 	List<TypeNode> throwTypes = visitList(this.throwTypes, v);
 	Block body = (Block) visitChild(this.body, v);
 
-	return reconstruct(typeParams, formals, guard, returnType, throwTypes, body);
+	return reconstruct(/*typeParams,*/ formals, guard, returnType, throwTypes, body);
     }
 
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
@@ -243,14 +250,16 @@ public class Closure_c extends Expr_c implements Closure {
             thisVar = ct.thisVar();
         }
       
-        ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), 
-        		Types.ref(code.asInstance()), returnType.typeRef(),
-                                      Collections.<Ref<? extends Type>>emptyList(),
-                                         Collections.<Ref<? extends Type>>emptyList(),
-                                         thisVar,
-                                         Collections.<LocalDef>emptyList(), null, null, Collections.<Ref<? extends Type>>emptyList());
-      //  System.err.println("Closure_c: Golden! TypeBuilder: return type for " + this + " is "
-       // 		+ returnType + " with ref "+ returnType.typeRef());
+        ClosureDef mi = ts.closureDef(position(), 
+        		Types.ref(ct.asType()), 
+        		Types.ref(code.asInstance()), 
+        		returnType.typeRef(),
+        		Collections.<Ref<? extends Type>>emptyList(),
+        		thisVar,
+        		Collections.<LocalDef>emptyList(), 
+        		null, 
+        		//null, 
+        		Collections.<Ref<? extends Type>>emptyList());
         if (returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
         }
@@ -259,21 +268,19 @@ public class Closure_c extends Expr_c implements Closure {
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
         TypeBuilder tb2 = tb.pushCode(mi);
 
-       // System.err.println("Closure_c: Golden! TypeBuilder: visiting children of " + this );
-        		
         Closure_c n = (Closure_c) this.del().visitChildren(tb2);
-        //System.err.println("Closure_c: Golden! TypeBuilder: done visiting children of " + this);
-
+    
         if (n.guard() != null) {
         	mi.setGuard(n.guard().valueConstraint());
-        	mi.setTypeGuard(n.guard().typeConstraint());
+        	
+        	//mi.setTypeGuard(n.guard().typeConstraint());
         }
         
-        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
+      /*  List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
             typeParameters.add(Types.ref(tpn.type()));
         }
-
+*/
         List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
         for (Formal f : n.formals()) {
              formalTypes.add(f.type().typeRef());
@@ -291,7 +298,7 @@ public class Closure_c extends Expr_c implements Closure {
         
         mi.setFormalNames(formalNames);
         mi.setReturnType(n.returnType().typeRef());
-        mi.setTypeParameters(typeParameters);
+       // mi.setTypeParameters(Collections.EMPTY_LIST);
         mi.setFormalTypes(formalTypes);
         mi.setThrowTypes(throwTypes);
         
@@ -323,9 +330,10 @@ public class Closure_c extends Expr_c implements Closure {
         if (child != body()) {
             // Push formals so they're in scope in the types of the other formals.
             c = c.pushBlock();
-            for (TypeParamNode f : typeParameters) {
+         /*   for (TypeParamNode f : typeParameters) {
                 f.addDecls(c);
             }
+            */
             for (Formal f : formals) {
                 f.addDecls(c);
             }
@@ -404,7 +412,8 @@ public class Closure_c extends Expr_c implements Closure {
     }
 
     public Term firstChild() {
-        return listChild(typeParameters(), listChild(formals(), returnType));
+        return //listChild(/*typeParameters(), 
+        		listChild(formals(), returnType);
     }
 
     /**
@@ -416,13 +425,14 @@ public class Closure_c extends Expr_c implements Closure {
      */
     @Override
     public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-	    if (formals().isEmpty()) {
+	  /*  if (formals().isEmpty()) {
 		    v.visitCFGList(typeParameters(), returnType, ENTRY);
 	    }
 	    else {
 		    v.visitCFGList(typeParameters(), formals.get(0), ENTRY);
-		    v.visitCFGList(formals(), returnType, ENTRY);
-	    }
+		   
+	    }*/
+	    v.visitCFGList(formals(), returnType, ENTRY);
 
         // If building the CFG for the enclosing code, don't thread
         // in the closure body.  Otherwise, we're building the CFG
@@ -466,7 +476,8 @@ public class Closure_c extends Expr_c implements Closure {
 
     public String toString() {
 	StringBuilder sb= new StringBuilder();
-	if (! typeParameters.isEmpty()) {
+	
+	/*if (! typeParameters.isEmpty()) {
 		sb.append("[");
 		for(Iterator iter= typeParameters.iterator(); iter.hasNext(); ) {
 			TypeParamNode tpn= (TypeParamNode) iter.next();
@@ -474,7 +485,7 @@ public class Closure_c extends Expr_c implements Closure {
 			if (iter.hasNext()) sb.append(", ");
 		}
 		sb.append("]");
-	}
+	}*/
 	sb.append(" (");
 	for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
 	    Formal formal= (Formal) iter.next();

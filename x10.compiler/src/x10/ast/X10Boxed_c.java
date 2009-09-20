@@ -245,12 +245,12 @@ public class X10Boxed_c extends X10Cast_c {
 
             Block body = nf.Block(position(), nf.LocalClassDecl(position(), Xdecl), nf.Return(position(), n));
 
-            Closure closure = nf.Closure(position(), Collections.EMPTY_LIST, Collections.singletonList(xformal), null, nf.CanonicalTypeNode(position(), Types.ref(toType)), Collections.EMPTY_LIST, body);
+            Closure closure = nf.Closure(position(),  Collections.singletonList(xformal), null, nf.CanonicalTypeNode(position(), Types.ref(toType)), Collections.EMPTY_LIST, body);
             closure = (Closure) this.visitChild(closure, tb);
             closure = (Closure) this.visitChild(closure, sr);
             closure = (Closure) this.visitChild(closure, tc2);
 
-            return check(nf.ClosureCall(position(), check(closure, tc), Collections.EMPTY_LIST, Collections.singletonList(e)), tc);
+            return check(nf.ClosureCall(position(), check(closure, tc), Collections.singletonList(e)), tc);
         }
     }
 
