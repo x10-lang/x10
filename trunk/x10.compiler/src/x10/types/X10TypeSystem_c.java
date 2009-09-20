@@ -1186,15 +1186,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
-            Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes) {
-        return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, throwTypes);
+            Ref<? extends Type> returnType, List<Ref<? extends Type>> argTypes, XRoot thisVar,
+            List<LocalDef> formalNames, Ref<XConstraint> guard,
+            List<Ref<? extends Type>> throwTypes) {
+        return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, 
+        		argTypes, thisVar, formalNames, guard, throwTypes);
     }
 
-    public ClosureType closureType(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes) {
+    public ClosureType closureType(Position p, Ref<? extends Type> returnType, 
+    		// List<Ref<? extends Type>> typeParams, 
+    		List<Ref<? extends Type>> argTypes,
+            List<LocalDef> formalNames, Ref<XConstraint> guard, 
+          //  Ref<TypeConstraint> typeGuard, 
+            List<Ref<? extends Type>> throwTypes) {
         Type rt = Types.get(returnType);
-        X10ClassDef def = closureBaseInterfaceDef(typeParams.size(), argTypes.size(), rt.isVoid());
+        X10ClassDef def = closureBaseInterfaceDef(0 /*typeParams.size()*/, argTypes.size(), rt.isVoid());
         ClosureType ct = (ClosureType) def.asType();
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {

@@ -152,9 +152,14 @@ public interface X10TypeSystem extends TypeSystem {
      * @param excTypes
      *                The closure's exception throw types.
      */
-    ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes);
+    ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, 
+    		Ref<? extends CodeInstance<?>> methodContainer, 
+    				Ref<? extends Type> returnType,
+    				List<Ref<? extends Type>> argTypes, 
+    				XRoot thisVar, 
+    				List<LocalDef> formalNames,
+    				Ref<XConstraint> guard, 
+    				List<Ref<? extends Type>> throwTypes);
 
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
@@ -316,8 +321,12 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isInterfaceType(Type toType);
 
-    ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes);
+    ClosureType closureType(Position position, Ref<? extends Type> typeRef, 
+    	//	List<Ref<? extends Type>> typeParams, 
+    		List<Ref<? extends Type>> formalTypes,
+            List<LocalDef> formalNames, Ref<XConstraint> guard, 
+           // Ref<TypeConstraint> typeGuard, 
+            List<Ref<? extends Type>> throwTypes);
 
 
     Type expandMacros(Type arg);
