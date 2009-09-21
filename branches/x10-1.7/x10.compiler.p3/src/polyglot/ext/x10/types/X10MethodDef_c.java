@@ -203,4 +203,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 		return s;
 	}
 
+    public Object copy() {
+        X10MethodDef_c copy = (X10MethodDef_c) super.copy();
+        copy.asInstance = null;
+        return copy;
+    }
 }
