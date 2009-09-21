@@ -150,7 +150,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     // TODO: do not strip out dependent clauses of parameter types
     
     /** Strip out dependent clauses. */
-    public TypeNode simplify(TypeNode tn) {
+  /*  public TypeNode simplify(TypeNode tn) {
 	if (tn == null)
 	    return null;
 	return (TypeNode) tn.visit(new NodeVisitor() {
@@ -181,7 +181,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 		return n;
 	    }
 	});
-    }
+    }*/
     
     public DepParameterExpr classInvariant() {
     	return classInvariant;

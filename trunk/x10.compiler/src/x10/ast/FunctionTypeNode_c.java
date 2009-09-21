@@ -59,60 +59,60 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		this.returnType = returnType;
 		this.guard = guard;
 	}
-	
+
 	@Override
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
-	    X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
-	    X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
-	    FunctionTypeNode_c n = this;
-	    List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
-	    for (TypeParamNode tpn : n.typeParameters()) {
-		typeParams.add(Types.ref(tpn.type()));
-	    }
-	    List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
-	    for (Formal f : n.formals()) {
-		formalTypes.add(f.type().typeRef());
-	    }
-	    List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
-	    for (Formal f : n.formals()) {
-		formalNames.add(f.localDef());
-	    }
-	    List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
-	    for (TypeNode tn : n.throwTypes()) {
-		throwTypes.add(tn.typeRef());
-	    }
-	    
-	    if (throwTypes.size() != 0)
-	        throw new SemanticException("Function types with throws clauses are currently unsupported.", position());
-	    if (guard != null)
-	        throw new SemanticException("Function types with guards are currently unsupported.", position());
-	    if (typeParams.size() != 0)
-	    	   throw new SemanticException("Function types with type parameters are currently unsupported.", position());
-	    Type result = ts.closureType(position(), returnType.typeRef(),
-	                              //   typeParams, 
-	                                 formalTypes, formalNames, 
-	                                 guard != null ? guard.valueConstraint() : null,
-	                                // guard != null ? guard.typeConstraint() : null,
-	                                 throwTypes);
-	    
-//	    Context c = ar.context();
-//	    ClassType ct = c.currentClass();
-//	    CodeDef code = c.currentCode();
-//	    ClosureDef cd = ts.closureDef(position(),
-//	                                  Types.ref(ct), 
-//	                                  code == null ? null : Types.ref(code.asInstance()),
-//	                                  returnType.typeRef(),
-//	                                  typeParams,
-//	                                  formalTypes, 
-//	                                  formalNames, 
-//	                                  guard != null ? guard.xconstraint() : null,
-//	                                  throwTypes);
-//	    
-//	    Type t = cd.asType();
-//	    Type result = t;
+		X10NodeFactory nf = (X10NodeFactory) ar.nodeFactory();
+		X10TypeSystem ts = (X10TypeSystem) ar.typeSystem();
+		FunctionTypeNode_c n = this;
+		List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
+		for (TypeParamNode tpn : n.typeParameters()) {
+			typeParams.add(Types.ref(tpn.type()));
+		}
+		List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(n.formals().size());
+		for (Formal f : n.formals()) {
+			formalTypes.add(f.type().typeRef());
+		}
+		List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
+		for (Formal f : n.formals()) {
+			formalNames.add(f.localDef());
+		}
+		List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
+		for (TypeNode tn : n.throwTypes()) {
+			throwTypes.add(tn.typeRef());
+		}
 
-	    ((LazyRef<Type>) typeRef()).update(result);
-	    return nf.CanonicalTypeNode(position(), typeRef());
+		if (throwTypes.size() != 0)
+			throw new SemanticException("Function types with throws clauses are currently unsupported.", position());
+		if (guard != null)
+			throw new SemanticException("Function types with guards are currently unsupported.", position());
+		if (typeParams.size() != 0)
+			throw new SemanticException("Function types with type parameters are currently unsupported.", position());
+		Type result = ts.closureType(position(), returnType.typeRef(),
+				//   typeParams, 
+				formalTypes, formalNames, 
+				guard != null ? guard.valueConstraint() : null,
+						// guard != null ? guard.typeConstraint() : null,
+						throwTypes);
+
+		//	    Context c = ar.context();
+		//	    ClassType ct = c.currentClass();
+		//	    CodeDef code = c.currentCode();
+		//	    ClosureDef cd = ts.closureDef(position(),
+		//	                                  Types.ref(ct), 
+		//	                                  code == null ? null : Types.ref(code.asInstance()),
+		//	                                  returnType.typeRef(),
+		//	                                  typeParams,
+		//	                                  formalTypes, 
+		//	                                  formalNames, 
+		//	                                  guard != null ? guard.xconstraint() : null,
+		//	                                  throwTypes);
+		//	    
+		//	    Type t = cd.asType();
+		//	    Type result = t;
+
+		((LazyRef<Type>) typeRef()).update(result);
+		return nf.CanonicalTypeNode(position(), typeRef());
 	}
 
 	/*
@@ -208,98 +208,98 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	}
 
 	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    if (typeParams.size() > 0) {
-		sb.append("[");
-		String sep = "";
-		for (TypeParamNode p : typeParams) {
-		    sb.append(sep);
-		    sb.append(p);
-		    sep = ", ";
+		StringBuilder sb = new StringBuilder();
+		if (typeParams.size() > 0) {
+			sb.append("[");
+			String sep = "";
+			for (TypeParamNode p : typeParams) {
+				sb.append(sep);
+				sb.append(p);
+				sep = ", ";
+			}
+			sb.append("]");
 		}
-		sb.append("]");
-	    }
-	    sb.append("(");
+		sb.append("(");
 		String sep = "";
 		for (Formal p : formals) {
-		    sb.append(sep);
-		    sb.append(p);
-		    sep = ", ";
+			sb.append(sep);
+			sb.append(p);
+			sep = ", ";
 		}
-	    sb.append(")");
-	    if (guard != null)
-		sb.append(guard);
-	    sb.append(" => ");
-	    sb.append(returnType);
-	    return sb.toString();
+		sb.append(")");
+		if (guard != null)
+			sb.append(guard);
+		sb.append(" => ");
+		sb.append(returnType);
+		return sb.toString();
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.begin(0);
-		
+
 		if (typeParams.size() > 0) {
 			w.write("[");
-		
+
 			w.allowBreak(2, 2, "", 0);
 			w.begin(0);
-		
+
 			for (Iterator<Formal> i = formals.iterator(); i.hasNext();) {
 				Formal f = i.next();
-		
+
 				print(f, w, tr);
-		
+
 				if (i.hasNext()) {
 					w.write(",");
 					w.allowBreak(0, " ");
 				}
 			}
-		
+
 			w.end();
 			w.write("]");
 			w.allowBreak(2, 2, " ", 1);
 		}
-		
+
 		w.write("(");
-		
+
 		w.allowBreak(2, 2, "", 0);
 		w.begin(0);
-		
+
 		for (Iterator<Formal> i = formals.iterator(); i.hasNext();) {
 			Formal f = i.next();
-		
+
 			print(f, w, tr);
-		
+
 			if (i.hasNext()) {
 				w.write(",");
 				w.allowBreak(0, " ");
 			}
 		}
-		
+
 		w.end();
 		w.write(")");
 		w.allowBreak(2, 2, " ", 1);
-		
+
 		if (guard != null)
 			print(guard, w, tr);
-		
+
 		if (!throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
-		
+
 			for (Iterator i = throwTypes().iterator(); i.hasNext();) {
 				TypeNode tn = (TypeNode) i.next();
 				print(tn, w, tr);
-		
+
 				if (i.hasNext()) {
 					w.write(",");
 					w.allowBreak(4, " ");
 				}
 			}
 		}
-		
+
 		w.write(" => ");
 		print(returnType, w, tr);
-		
+
 		w.end();
 	}
 
