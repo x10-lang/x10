@@ -49,7 +49,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * captures the strongest halfspace.
      */
 
-    def simplifyParallel(): PolyMat {
+    def simplifyParallel(): PolyMat{self.rank==this.rank} {
 
         if (rows==0)
             return this;
@@ -76,7 +76,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * be expensive.
      */
 
-    public def simplifyAll(): PolyMat {
+    public def simplifyAll(): PolyMat{self.rank==this.rank} {
 
         if (isSimplified)
             return this;
@@ -116,7 +116,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * by eliminating axis k
      */
 
-    def eliminate(k: int, simplifyDegenerate: boolean): PolyMat {
+    def eliminate(k: int, simplifyDegenerate: boolean): PolyMat{self.rank==this.rank} {
         val pmb = new PolyMatBuilder(rank);
         for (ir:PolyRow in this) {
             val ia = ir(k);

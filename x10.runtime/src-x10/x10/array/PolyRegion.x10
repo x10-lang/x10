@@ -30,7 +30,7 @@ public value class PolyRegion extends BaseRegion {
     // value
     //
 
-    public val mat: PolyMat;
+    public val mat: PolyMat{self.rank==this.rank};
 
 
     //
@@ -85,7 +85,7 @@ public value class PolyRegion extends BaseRegion {
 	val scanner = PolyScanner.make(mat).iterator();
         return scanner;
     }*/
-    public def iterator()= PolyScanner.make(mat).iterator();
+    public def iterator()= PolyScanner.make(mat).iterator() as Iterator[Point{self.rank==this.rank}];
   
 
     //
@@ -128,7 +128,7 @@ public value class PolyRegion extends BaseRegion {
      */
 
     public def projection(axis: int): Region(1) {
-        var pm: PolyMat = mat;
+        var pm: PolyMat{self.rank==this.rank} = mat;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
                 pm = pm.eliminate(k, true);
@@ -219,7 +219,7 @@ public value class PolyRegion extends BaseRegion {
     protected def computeBoundingBox(): Region(rank) {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
-        var pm: PolyMat = mat;
+        var pm: PolyMat{self.rank==this.rank} = mat;
         for (var axis: int = 0; axis<rank; axis++) {
             var x: PolyMat = pm;
             for (var k: int = axis+1; k<rank; k++)
@@ -312,13 +312,13 @@ public value class PolyRegion extends BaseRegion {
             return new PolyRegion(pm, false);
     }
 
-    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
+    protected def this(pm: PolyMat, hack198:boolean): PolyRegion(pm.rank) {
 
         super(pm.rank, pm.isRect(), pm.isZeroBased());
 
         // simplifyAll catches more (all) stuff, but may be expensive.
         //this.mat = pm.simplifyParallel();
-        this.mat = pm.simplifyAll();
+        this.mat = pm.simplifyAll() as PolyMat{self.rank==this.rank}; // safe..
 
         // cache stuff up front
         cache = new Cache(this, hack198);

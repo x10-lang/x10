@@ -22,24 +22,28 @@ final value class LocalArray[T] extends BaseArray[T] {
     // NB: local array, so don't do place checking
     //
 
-    final public safe def apply(i0: int){here==this.dist.onePlace}: T {
+    final public safe def apply(i0: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0);
-        return raw(layout.offset(i0));
+        return r(layout.offset(i0));
     }
 
-    final public safe def apply(i0: int, i1: int){here==this.dist.onePlace}: T {
+    final public safe def apply(i0: int, i1: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1);
-        return raw(layout.offset(i0,i1));
+        return r(layout.offset(i0,i1));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int){here==this.dist.onePlace}: T {
+    final public safe def apply(i0: int, i1: int, i2: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1, i2);
-        return raw(layout.offset(i0,i1,i2));
+        return r(layout.offset(i0,i1,i2));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int, i3: int){here==this.dist.onePlace}: T {
+    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1, i2, i3);
-        return raw(layout.offset(i0,i1,i2,i3));
+        return r(layout.offset(i0,i1,i2,i3));
     }
 
 
@@ -49,27 +53,31 @@ final value class LocalArray[T] extends BaseArray[T] {
     // NB: local array, so don't do place checking
     //
 
-    final public safe def set(v: T, i0: int){here==this.dist.onePlace}: T {
+    final public safe def set(v: T, i0: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0);
-        raw(layout.offset(i0)) = v;
+        r(layout.offset(i0)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int){here==this.dist.onePlace}: T {
+    final public safe def set(v: T, i0: int, i1: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1);
-        raw(layout.offset(i0,i1)) = v;
+        r(layout.offset(i0,i1)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int){here==this.dist.onePlace}: T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1, i2);
-        raw(layout.offset(i0,i1,i2)) = v;
+        r(layout.offset(i0,i1,i2)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int){here==this.dist.onePlace}: T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+        val r = raw() as Rail[T]!;        
         if (checkBounds) checkBounds(i0, i1, i2, i3);
-        raw(layout.offset(i0,i1,i2,i3)) = v;
+        r(layout.offset(i0,i1,i2,i3)) = v;
         return v;
     }
 

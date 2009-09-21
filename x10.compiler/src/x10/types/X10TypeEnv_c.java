@@ -123,7 +123,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         try {
                             // check that mj can override mi, which
                             // includes access protection checks.
-                            checkOverride((MethodInstance) mj.container(ct), (MethodInstance) mi.container(ct));
+                            checkOverride((MethodInstance) mj.container(ct), 
+                                          (MethodInstance) mi.container(ct));
                             //	                                     checkOverride(ct, mj, mi);
                         }
                         catch (SemanticException e) {
@@ -138,6 +139,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                         // the method implementation mj or mi was
                         // declared in ct. So other checks will take
                         // care of access issues
+                	  checkOverride(ct, mj, mi);
                     }
                 }
             }
