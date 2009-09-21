@@ -38,6 +38,7 @@ public class CXXCommandBuilder {
     
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
+    public static final String X10DIST = System.getenv("X10DIST")==null?"../../../x10.dist":System.getenv("X10DIST").replace(File.separatorChar, '/');
 
     public static final String MANIFEST = "libx10.mft";
     public static final String[] MANIFEST_LOCATIONS = new String[] {
@@ -46,7 +47,7 @@ public class CXXCommandBuilder {
     };
 
     protected static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas2/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
-    protected static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
+    protected static final String X10GC = System.getenv("X10GC")==null?X10DIST:System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
     private final X10CPPCompilerOptions options;
@@ -99,6 +100,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-I"+X10LANG);
         cxxCmd.add("-I"+X10LANG+"/gen"); // FIXME: development option
         cxxCmd.add("-I"+X10LANG+"/include"); // dist
+        cxxCmd.add("-I"+X10DIST+"/include");
         cxxCmd.add("-I.");
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
@@ -125,6 +127,7 @@ public class CXXCommandBuilder {
         cxxCmd.add("-L"+X10LIB+"/lib");
         cxxCmd.add("-L"+X10LANG);
         cxxCmd.add("-L"+X10LANG+"/lib"); // dist
+        cxxCmd.add("-L"+X10DIST+"/lib");
         cxxCmd.add("-lx10");
         cxxCmd.add("-l"+x10rt.libName());
         cxxCmd.add("-ldl");
