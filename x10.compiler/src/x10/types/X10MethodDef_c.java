@@ -206,4 +206,10 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 	public boolean isProto() {
 		return X10Flags.toX10Flags(flags()).isProto();
 	}
+
+    public Object copy() {
+        X10MethodDef_c copy = (X10MethodDef_c) super.copy();
+        copy.asInstance = null;
+        return copy;
+    }
 }
