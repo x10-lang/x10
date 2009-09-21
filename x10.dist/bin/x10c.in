@@ -72,11 +72,11 @@ fi
 
 if [ -n "$x10rt_impl" ]; then
     case "$x10rt_impl" in
-	bgp) X10RT_IMPL=PGAS_BGP;;
-	lapi) X10RT_IMPL=PGAS_LAPI;;
-	sockets) X10RT_IMPL=PGAS_SOCKETS;;
-	mpi) X10RT_IMPL=MPI;;
-	standalone) X10RT_IMPL=STANDALONE;;
+	bgp) export X10RT_IMPL=PGAS_BGP;;
+	lapi) export X10RT_IMPL=PGAS_LAPI;;
+	sockets) export X10RT_IMPL=PGAS_SOCKETS;;
+	mpi) export X10RT_IMPL=MPI;;
+	standalone) export X10RT_IMPL=STANDALONE;;
 	*)
     esac
 fi
