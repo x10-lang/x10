@@ -3661,12 +3661,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
 	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, l, context))
 	            sw.write("(" + emitter.translateType(c, true) + ")");
-	        n.print(left, sw, tr);
+	        n.printSubExpr(left, sw, tr);
 	        sw.write(",");
 	        sw.allowBreak(0, " ");
 	        if (c != null && !xts.isParameterType(c) && !xts.typeBaseEquals(c, r, context))
 	            sw.write("(" + emitter.translateType(c, true) + ")");
-	        n.print(right, sw, tr);
+	        n.printSubExpr(right, sw, tr);
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
 	        return;
