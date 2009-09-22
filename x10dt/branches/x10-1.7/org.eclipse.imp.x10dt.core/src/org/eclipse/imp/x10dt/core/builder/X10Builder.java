@@ -304,7 +304,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 "-d", outputDir,
                 "-sourcepath", 
                 projectSrcPath,
-                "-post", "\"\""
+                "-c" // compile only to java, instead of  "-post", "\"\""
                 //"-commandlineonly"  FIXME temp only  BRT
             };
             for (String s: stdOptsArray) {
