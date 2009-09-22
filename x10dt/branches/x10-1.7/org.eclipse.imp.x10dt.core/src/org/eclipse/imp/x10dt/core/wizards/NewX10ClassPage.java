@@ -401,7 +401,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	        buff.append("    }\n");
 	    }
 	    if (createConstructors) {//??
-	    	buff.append("    /** x10doc comment for myMethod */;\n");
+	    	buff.append("    /** x10doc comment for myMethod */\n");
 	        buff.append("    public def myMethod()=true;\n");
 	    }
 	    buff.append("}");
