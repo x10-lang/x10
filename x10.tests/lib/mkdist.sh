@@ -46,7 +46,7 @@ function doMakeDist() {
     mkdir -p ${__x10th_workRoot}/${distroot}
 
     (cd ${__x10th_workRoot}/${__x10th_module_dist}; \
-    find $(cat $pkgfile) | tar cvf - -T - | \
+    find $(cat $pkgfile) -name '*.svn' -type d -prune -o -name '*' -print | tar cvf - -T - | \
         (cd ${__x10th_workRoot}/${distroot} && tar xvpf -); \
     cd ${__x10th_workRoot}; \
     if [[ "${__x10th_backend}" == "c++" ]]; then \
