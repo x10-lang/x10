@@ -25,7 +25,7 @@ import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.rm.remote.core.AbstractRemoteResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -187,8 +187,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
       final IResourceManager[] resourceManagers = modelManager.getUniverse().getResourceManagers();
       final IResourceManager resMgr = resourceManagers[CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex()];
       final IResourceManagerControl rm = (IResourceManagerControl) resMgr;
-      
-      final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
+      final IResourceManagerConfiguration rmc = rm.getConfiguration();
       final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
       final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
       if (remServices != null && remUIServices != null) {

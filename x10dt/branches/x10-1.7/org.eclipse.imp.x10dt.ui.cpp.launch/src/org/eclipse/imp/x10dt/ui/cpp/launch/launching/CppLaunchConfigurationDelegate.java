@@ -167,7 +167,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   // --- Private code
   
   private String getDebugHostAddress(final IResourceManagerControl rm) {
-    final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
+     final IResourceManagerConfiguration rmc = rm.getConfiguration(); 
+    /*  FIXME rmc.testOption doesn't exist when rmc is not an AbstractRemoteResourceManagerConfiguration   
     if (rmc.testOption(IRemoteProxyOptions.PORT_FORWARDING)) {
       final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
       final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
@@ -187,6 +188,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         // Simply forgets
       }
     }
+    */
     return null;
   }
   
@@ -303,12 +305,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
     if (resourceManager != null) {
       final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
-      if (rmConf instanceof AbstractRemoteResourceManagerConfiguration) {
-        final AbstractRemoteResourceManagerConfiguration remConf = (AbstractRemoteResourceManagerConfiguration) rmConf;
-        final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(remConf.getRemoteServicesId());
-        
-        return rmServices.getConnectionManager().getConnection(remConf.getConnectionName());
-      }
+      final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());   
+      return rmServices.getConnectionManager().getConnection(rmConf.getConnectionName());
     }
     return null;
   }

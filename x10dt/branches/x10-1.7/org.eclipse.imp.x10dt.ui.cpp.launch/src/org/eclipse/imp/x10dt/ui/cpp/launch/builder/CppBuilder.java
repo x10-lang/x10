@@ -69,7 +69,7 @@ import org.eclipse.ptp.remotetools.exception.CancelException;
 import org.eclipse.ptp.remotetools.exception.RemoteConnectionException;
 import org.eclipse.ptp.remotetools.exception.RemoteExecutionException;
 import org.eclipse.ptp.remotetools.exception.RemoteOperationException;
-import org.eclipse.ptp.rm.remote.core.AbstractRemoteResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -291,12 +291,13 @@ public final class CppBuilder extends IncrementalProjectBuilder {
   private IRemoteExecutionManager getExecutionManager(final IResourceManager resManager) throws RemoteConnectionException {
     final IResourceManagerControl rm = (IResourceManagerControl) resManager;
       
-    final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
+    final IResourceManagerConfiguration rmc = rm.getConfiguration(); 
     final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
     final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
     if (remServices != null && remUIServices != null) {
       final org.eclipse.ptp.remote.core.IRemoteConnection rmConn;
       rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
+      // FIXME this instanceof fails for a local connection! 9/22/09
       if (rmConn instanceof RemoteToolsConnection) {
         return ((RemoteToolsConnection) rmConn).createExecutionManager();
       }
