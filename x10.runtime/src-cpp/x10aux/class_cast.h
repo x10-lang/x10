@@ -26,7 +26,7 @@ namespace x10aux {
     template<class T> struct CAST_TRACER<ref<T> > {
         CAST_TRACER(ref<T> val_) : val(val_) { }
         ref<T> val;
-        T* get() { return val.get(); }
+        T* get() { return val.operator->(); }
     };
     #ifndef NO_IOSTREAM
     template<class T> std::ostream& operator<<(std::ostream& o, CAST_TRACER<T> t) {
