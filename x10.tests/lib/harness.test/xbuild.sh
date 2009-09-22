@@ -28,7 +28,7 @@ initOptions
             ;;
         args2)
             export X10TH_BACKEND=c++
-            export X10TH_PGAS=/tmp/x10.build/c++/pgas/common/work
+            export X10TH_PGAS=$HOME/pgas2/common/work
             scanEnv
             mkdir -p /tmp/x10.trunk
             parseCmdLine -workRoot /tmp/x10.trunk

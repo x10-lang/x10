@@ -32,6 +32,7 @@ declare __x10th_do_makedist
 declare __x10th_do_regress
 declare __x10th_do_report
 declare __x10th_do_mail
+declare __x10th_do_ver17
 declare __x10th_cxx
 declare __x10th_x10_svnroot
 declare __x10th_polyglot_svnroot
@@ -180,6 +181,7 @@ function initOptions() {
     __x10th_do_regress=no
     __x10th_do_report=no
     __x10th_do_mail=no
+    __x10th_do_ver17=no
     if [[ $(uname -s) == "AIX" ]]; then
         __x10th_cxx=mpCC_r
     else
@@ -362,6 +364,7 @@ function scanEnv() {
     fi
     # environment variables that don't have any command line equivalents
     if [[ -n $X10TH_DO_VER17 ]]; then
+        __x10th_do_ver17=yes
         __x10th_x10_svnroot="https://x10.svn.sf.net/svnroot/x10/branches/x10-1.7"
         __x10th_module_common="x10.common.17"
         __x10th_module_compiler="x10.compiler.p3"
