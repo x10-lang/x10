@@ -142,10 +142,10 @@ abstract public class TestRegion extends x10Test {
         }
     }
 
-    def pr(test: String, run: ()=>String) {
+    def pr(test: String, myRun: ()=>String) {
         var r: String;
         try {
-            r = run();
+            r = myRun();
         } catch (e: Throwable) {
             r = e.getMessage();
         }
