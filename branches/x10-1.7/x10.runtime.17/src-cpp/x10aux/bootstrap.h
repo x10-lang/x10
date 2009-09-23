@@ -101,7 +101,7 @@ namespace x10aux {
             x10aux::ref<x10::lang::Throwable> &e_ =
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
-            fprintf(stderr, "Uncaught exception at place %ld: %s\n", x10aux::here(),
+            fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here(),
                                                                      e_->toString()->c_str());
 
             e_->printStackTrace();
@@ -110,7 +110,7 @@ namespace x10aux {
 
         } catch(...) {
 
-            fprintf(stderr, "Caught unrecognised exception at place %ld\n", x10aux::here());
+            fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here());
             x10aux::exitCode = 1;
 
         }
@@ -124,7 +124,7 @@ namespace x10aux {
 
         if (getenv("X10_RXTX")!=NULL)
             fprintf(stderr, "Place: %ld   rx: %lld   tx: %lld\n",
-                x10aux::here(),
+                (long)x10aux::here(),
                 (long long)x10aux::deserialized_bytes,
                 (long long)x10aux::serialized_bytes);
 
