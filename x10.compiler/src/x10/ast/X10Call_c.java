@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody;
 import polyglot.ast.Expr;
@@ -376,6 +377,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 		
+		// We have a cc and a valid call with no target. The one with 
+		if (cc instanceof ClosureCall)
+			if (((ClosureCall) cc).target() instanceof Local) {
+				// cc is of the form r() where r is a local variable.
+				// This overrides any other possibility for this call, e.g. a static or an instance method call.
+				return cc;
+
+
+			}
 		/////////////////////////////////////////////////////////////////////
 		// Inline the super call here and handle type arguments.
 		/////////////////////////////////////////////////////////////////////
@@ -404,12 +414,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				throw new SemanticException("Method or static constructor not found for " +
 						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
 			}
-			if (cc != null)
+			
+			// We have 
+			if (cc != null) {
+			
 				throw new SemanticException("Ambiguous call; both " + 
 						((n instanceof X10New) 
 								? ((X10New) n).constructorInstance().toString()
 										: ((X10Call) n).methodInstance().toString()) 
 										+ " and closure " + cc + " match.", position());
+				
+			}
+				
 			return n;
 		}
 
