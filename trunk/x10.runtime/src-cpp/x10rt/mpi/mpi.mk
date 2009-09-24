@@ -16,7 +16,8 @@ lib/libx10rt_mpi.a: mpi/x10rt_mpi.o
 etc/x10rt_mpi.properties:
 	echo "CXX=$(MPICXX)" > $@
 	echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=-lx10rt_mpi" >> $@
+	echo "LDFLAGS=" >> $@
+	echo "LDLIBS=-lx10rt_mpi" >> $@
 
 .PRECIOUS: etc/x10rt_mpi.properties
 
