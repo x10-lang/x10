@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10DT Core Launch
+Bundle-SymbolicName: org.eclipse.imp.x10dt.ui.launch.core;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Localization: plugin
+Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.core.LaunchCore
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.jface,
+ org.eclipse.ui.workbench,
+ org.eclipse.ptp.services.core,
+ org.eclipse.ui,
+ org.eclipse.ptp.core
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
+ J2SE-1.5
