@@ -13,7 +13,8 @@ lib/libx10rt_standalone.a: standalone/x10rt_standalone.o
 etc/x10rt_standalone.properties:
 	echo "CXX=$(CXX)" > $@
 	echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=-lx10rt_standalone" >> $@
+	echo "LDFLAGS=" >> $@
+	echo "LDLIBS=-lx10rt_standalone" >> $@
 
 .PRECIOUS: etc/x10rt_standalone.properties
 
