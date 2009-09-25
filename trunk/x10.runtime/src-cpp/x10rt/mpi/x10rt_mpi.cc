@@ -395,7 +395,7 @@ void x10rt_register_get_receiver (unsigned msg_type,
     if(msg_type >= global_state.getCbTblSize) {
         global_state.getCb1Tbl     = 
             ChkRealloc<getCb1>(global_state.getCb1Tbl, sizeof(getCb1)*(msg_type+1));
-        global_state.putCb2Tbl     = 
+        global_state.getCb2Tbl     = 
             ChkRealloc<getCb2>(global_state.getCb2Tbl, sizeof(getCb2)*(msg_type+1));
         global_state.getCbTblSize  = msg_type+1;
     }
