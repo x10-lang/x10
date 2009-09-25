@@ -63,8 +63,8 @@ public final class Rail[T](length: nat)
     public native safe def iterator(): Iterator[T];
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
-    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
 /* FIXME: This interface is not possible to define properly without structs:
