@@ -181,10 +181,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     private String env = "__env";
 
     private Type railCargo(Type typ) {
-        if (!xts().isRail(typ) || !xts().isValRail(typ)) {
+        if (!xts().isRail(typ) && !xts().isValRail(typ)) {
             System.out.println("type: "+typ+"  is not a rail");
             return null;
         }
+        typ = typ.toClass();
         X10ClassType ctyp = (X10ClassType) typ;
         assert ctyp.typeArguments().size() == 1;
         return ctyp.typeArguments().get(0);
@@ -284,7 +285,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.write("// shm");
         out.newline();
         // FIXME: HACK! HACK! HACK!
-        out.write("extern __shared__ float clustercache[];"); out.newline();
+        out.write("float *clustercache = (float*) __shm;"); out.newline(); out.forceNewline();
         out.write("if  (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
         out.write("for (int i=0 ; i<CLUSTERS*4 ; ++i) {"); out.newline(4); out.begin(0);
         out.write("clustercache[i] = /**/local_clusters[i]/**/;"); out.newline();

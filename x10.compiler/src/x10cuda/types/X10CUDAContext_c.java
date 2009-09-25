@@ -66,10 +66,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public ClassifiedStream cudaStream (StreamWrapper sw) {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
-            cudaStream.write("#include <x10aux/config.h>");
-            cudaStream.newline();
-            cudaStream.write("#include <cfloat>");
-            cudaStream.newline();
+            cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
+            cudaStream.write("#include <cfloat>"); cudaStream.newline();
+            cudaStream.forceNewline();
+            cudaStream.write("extern __shared__ char __shm[];"); cudaStream.newline();
             cudaStream.forceNewline();
         }
         return cudaStream;
