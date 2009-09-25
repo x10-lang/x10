@@ -76,6 +76,13 @@ namespace x10 {
                                               x10aux::ref<Fun_0_1<x10_int,T> > init);
             static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
+            static const x10aux::serialization_id_t _copy_to_serialization_id;
+
+            static void *_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            virtual void copyTo (x10_int src_off, x10aux::ref<Rail<T> > dst, x10_int dst_off,
+                                 x10_int len);
+
             virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
         };
 
@@ -135,6 +142,39 @@ namespace x10 {
                 (*rail)[i] = (*other)[i];
             }
             return rail;
+        }
+
+        template <class T> void *Rail<T>::_copy_to_buffer_finder (
+                                                   x10aux::deserialization_buffer &buf,
+                                                   x10_int len)
+        {
+            assert(len%sizeof(T) == 0); // we can only transmit whole array elements
+            len /= sizeof(T);
+            x10aux::ref<Rail<T> > this_ = buf.read<x10aux::ref<Rail<T> > >();
+            x10_int dst_off = buf.read<x10_int>();
+            x10aux::checkRailBounds(dst_off, this_->FMGL(length));
+            x10aux::checkRailBounds(dst_off+len-1, this_->FMGL(length));
+            return &this_->_data[dst_off];
+        }
+                                                                                           
+        template<class T> const x10aux::serialization_id_t Rail<T>::_copy_to_serialization_id =
+            x10aux::DeserializationDispatcher
+                ::addPutBufferFinder(Rail<T>::_copy_to_buffer_finder);
+
+        template <class T> void Rail<T>::copyTo (x10_int src_off,
+                                                 x10aux::ref<Rail<T> > dst, x10_int dst_off,
+                                                 x10_int len)
+        {
+            // check beginning and end of range
+            x10aux::checkRailBounds(src_off, FMGL(length));
+            x10aux::checkRailBounds(src_off+len-1, FMGL(length));
+            x10aux::serialization_buffer buf;
+            x10aux::addr_map m;
+            buf.write(dst, m);
+            buf.write(dst_off, m);
+            x10aux::send_put(x10aux::location(dst), _copy_to_serialization_id,
+                             buf, &_data[src_off], len * sizeof(T));
+
         }
     }
 }
