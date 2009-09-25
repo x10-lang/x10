@@ -110,6 +110,14 @@ namespace x10aux {
         return x10rt_msg_realloc(old, old_sz, new_sz);
     }
 
+    inline void *put_realloc(void *old, size_t old_sz, size_t new_sz) {
+        return x10rt_put_realloc(old, old_sz, new_sz);
+    }
+
+    inline void *get_realloc(void *old, size_t old_sz, size_t new_sz) {
+        return x10rt_get_realloc(old, old_sz, new_sz);
+    }
+
     extern volatile x10_long asyncs_sent;
     extern volatile x10_long asyncs_received;
     extern volatile x10_long serialized_bytes;

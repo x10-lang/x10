@@ -38,6 +38,11 @@ bool addr_map::ensure_unique(const void* p) {
 }
 #endif
 
+serialization_buffer::serialization_buffer (void)
+    // do not use GC
+    : buffer(NULL), limit(NULL), cursor(NULL), realloc_func(x10aux::msg_realloc)
+{ }
+
 void serialization_buffer::grow (void) {
     size_t new_length = length(); // no change in used portion of buffer
     size_t old_capacity = capacity();
@@ -45,7 +50,7 @@ void serialization_buffer::grow (void) {
     if (new_capacity<16) new_capacity = 16; // biggest primitive we might serialise -- a SIMD variable
     
     // do not use GC
-    buffer = (char*)x10aux::msg_realloc(buffer, old_capacity, new_capacity);
+    buffer = (char*)realloc_func(buffer, old_capacity, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;

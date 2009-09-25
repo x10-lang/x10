@@ -125,6 +125,10 @@ namespace x10aux {
 
     // addr_map can be used to detect and properly handle cycles when serialising object graphs
     // it can also be used to avoid serialising two copies of an object when serialising a DAG.
+    //
+    // [DC] instead of threading this around everywhere, why don't we encapsulate it within the
+    // serialization_buffer?  That way the serialiation buffer always has it available, and noone
+    // else has to be troubled by it.
     class addr_map {
 #if 0
 NOT USED AT PRESENT
@@ -162,6 +166,9 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
 
     // A growable buffer for serialising into
     class serialization_buffer {
+    public:
+        typedef void *realloc_func_t(void *, size_t, size_t);
+        realloc_func_t *realloc_func;
 
     private:
         char *buffer;
@@ -170,15 +177,13 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
 
     public:
 
-        serialization_buffer (void)
-            // do not use GC
-            : buffer(NULL), limit(NULL), cursor(NULL)
-        { }
+        serialization_buffer (void);
 
         ~serialization_buffer (void) {
             // do not use GC
             assert(buffer==NULL);
         }
+
 
         void grow (void);
 
@@ -190,41 +195,39 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         // default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
-        template<typename T> void write(const T &val, addr_map &m, bool nw_order=true);
+        template<typename T> void write(const T &val, addr_map &m);
 
     };
     
     // default case for primitives and other things that never contain pointers
     template<class T> struct serialization_buffer::Write {
-        static void _(serialization_buffer &buf, const T &val, addr_map &m, bool nw_order=true);
+        static void _(serialization_buffer &buf, const T &val, addr_map &m);
     };
     template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf,
-                                                             const T &val, addr_map &m,
-                                                             bool nw_order) {
+                                                             const T &val, addr_map &m) {
         // FIXME: assumes all places are same endian
         _S_("Serializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
                           <<val<<" into buf: "<<&buf);
         //*(T*) buf.cursor = val; // Cannot do this because of alignment
         if (buf.cursor + sizeof(T) >= buf.limit) buf.grow();
         memcpy(buf.cursor, &val, sizeof(T));
-        if (nw_order) code_bytes((T*)buf.cursor);
+        code_bytes((T*)buf.cursor);
         buf.cursor += sizeof(T);
     }
     
     // case for references e.g. ref<Object>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
-        static void _(serialization_buffer &buf, ref<T> val, addr_map &m, bool nw_order=true);
+        static void _(serialization_buffer &buf, ref<T> val, addr_map &m);
     };
     template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
-                                                                   ref<T> val, addr_map &m,
-                                                                   bool) {
+                                                                   ref<T> val, addr_map &m) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
         //depends what T is (interface/Ref/Value/FinalValue/Closure)
         T::_serialize(val,buf,m);
     }
     
-    template<typename T> void serialization_buffer::write(const T &val, addr_map &m, bool nw_order) {
-        Write<T>::_(*this,val,m,nw_order);
+    template<typename T> void serialization_buffer::write(const T &val, addr_map &m) {
+        Write<T>::_(*this,val,m);
     }
 
 
@@ -248,20 +251,20 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         // default case for primitives and other things that never contain pointers
         template<class T> struct Read;
         template<class T> struct Read<ref<T> >;
-        template<typename T> GPUSAFE T read(bool nw_order=true);
+        template<typename T> GPUSAFE T read();
     };
     
     // default case for primitives and other things that never contain pointers
     template<class T> struct deserialization_buffer::Read {
-        GPUSAFE static T _(deserialization_buffer &buf, bool nw_order=true);
+        GPUSAFE static T _(deserialization_buffer &buf);
     };
-    template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf, bool nw_order) {
+    template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf) {
         // FIXME: assumes all places are same endian
         //T &val = *(T*) buf.cursor; // Cannot do this because of alignment
         T val;
         memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
-        if (nw_order) code_bytes(&val);
+        code_bytes(&val);
         _S_("Deserializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
                             <<val<<" from buf: "<<&buf);
         return val;
@@ -269,17 +272,16 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         
     // case for references e.g. ref<Object>, 
     template<class T> struct deserialization_buffer::Read<ref<T> > {
-        GPUSAFE static ref<T> _(deserialization_buffer &buf, bool nw_order=true);
+        GPUSAFE static ref<T> _(deserialization_buffer &buf);
     };
-    template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf,
-                                                                      bool) {
+    template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
         //dispatch because we don't know what it is
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
         return T::template _deserialize<T>(buf);
     }
 
-    template<typename T> GPUSAFE T deserialization_buffer::read(bool nw_order) {
-        return Read<T>::_(*this,nw_order);
+    template<typename T> GPUSAFE T deserialization_buffer::read() {
+        return Read<T>::_(*this);
     }
 }
 

@@ -170,6 +170,7 @@ namespace x10 {
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
             x10aux::serialization_buffer buf;
             x10aux::addr_map m;
+            buf.realloc_func = x10aux::put_realloc;
             buf.write(dst, m);
             buf.write(dst_off, m);
             x10aux::send_put(x10aux::location(dst), _copy_to_serialization_id,
