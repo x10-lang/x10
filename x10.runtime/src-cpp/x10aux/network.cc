@@ -44,9 +44,23 @@ void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
     serialized_bytes += sz; asyncs_sent++;
 
     x10rt_msg_params p = {place, body->_get_serialization_id(), buf.steal(), sz};
-    // avoid giving x10rt a NULL message to keep things simple for implementers
-    if (p.msg==NULL) p.msg = x10rt_msg_realloc(NULL,0,16);
     x10rt_send_msg(p);
+}
+
+void x10aux::send_get (x10_int place, unsigned id,
+                       serialization_buffer &buf, void *data, x10_int len)
+{
+    size_t buf_length = buf.length(); // must do this before steal();
+    x10rt_msg_params p = { place, id, buf.steal(), buf_length };
+    x10rt_send_get(p, data, len);
+}
+
+void x10aux::send_put (x10_int place, unsigned id,
+                       serialization_buffer &buf, void *data, x10_int len)
+{
+    size_t buf_length = buf.length(); // must do this before steal();
+    x10rt_msg_params p = { place, id, buf.steal(), buf_length };
+    x10rt_send_put(p, data, len);
 }
 
 x10_int x10aux::num_threads() {
@@ -72,6 +86,31 @@ static void receive_async (const x10rt_msg_params &p) {
 
 void x10aux::register_async_handler (unsigned id) {
     x10rt_register_msg_receiver(id, receive_async);
+}
+
+static void *receive_put (const x10rt_msg_params &p, unsigned long len) {
+    // TODO: handle general closures like receive_async does
+    _X_(ANSI_X10RT<<"Receiving a put, deserialising..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getPutBufferFinder(p.type);
+    void *dropzone = bf(buf,len);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+    return dropzone;
+}
+
+static void finished_put (const x10rt_msg_params &p, unsigned long len) {
+    // TODO: implement finish
+}
+
+void x10aux::register_put_handler (unsigned id) {
+    x10rt_register_put_receiver(id, receive_put, finished_put);
+}
+
+void x10aux::register_get_handler (unsigned id) {
+    // stub
+    abort();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

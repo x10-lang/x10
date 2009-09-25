@@ -90,7 +90,7 @@ namespace x10aux {
 
             x10rt_init(ac,av);
 
-            x10aux::DeserializationDispatcher::registerAsyncHandlers();
+            x10aux::DeserializationDispatcher::registerHandlers();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).

@@ -10,7 +10,15 @@ namespace x10 { namespace lang { class VoidFun_0_0; } }
 
 namespace x10aux {
 
-    void run_at(x10_uint place, x10aux::ref<x10::lang::Object> body);
+    class serialization_buffer;
+
+    void run_at (x10_uint place, x10aux::ref<x10::lang::Object> body);
+
+    void send_get (x10_int place, unsigned id,
+                   serialization_buffer &buf, void *data, x10_int len);
+   
+    void send_put (x10_int place, unsigned id,
+                   serialization_buffer &buf, void *data, x10_int len);
    
     // caches to avoid repeatedly calling into x10rt for trivial things
     extern x10_int num_places;
@@ -80,6 +88,8 @@ namespace x10aux {
     }
 
     void register_async_handler (unsigned id);
+    void register_put_handler (unsigned id);
+    void register_get_handler (unsigned id);
 
     inline void registration_complete (void) {
         x10rt_registration_complete();
