@@ -108,9 +108,27 @@ void x10aux::register_put_handler (unsigned id) {
     x10rt_register_put_receiver(id, receive_put, finished_put);
 }
 
+static void *receive_get (const x10rt_msg_params &p) {
+    // TODO: handle general closures like receive_async does
+    _X_(ANSI_X10RT<<"Receiving a get, deserialising..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getGetBufferFinder(p.type);
+    // FIXME: we probably need to change the x10rt spec to allow passing in the
+    // length of the copy here, otherwise there is nowhere where we can do an
+    // ArrayBounds check.
+    void *dropzone = bf(buf,0);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+    return dropzone;
+}
+
+static void finished_get (const x10rt_msg_params &p, unsigned long len) {
+    // TODO: implement finish
+}
+
 void x10aux::register_get_handler (unsigned id) {
-    // stub
-    abort();
+    x10rt_register_get_receiver(id, receive_get, finished_get);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
