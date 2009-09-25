@@ -56,7 +56,8 @@ public class Pool implements ()=>Void {
 	}
 
 	public def apply():Void {
-		for (var i:Int = 1; i<size; i++) {
+	    val s = size;
+		for (var i:Int = 1; i<s; i++) {
 	    	threads(i).start();
 	    }
 	    workers(0)();
