@@ -10,6 +10,8 @@ package org.eclipse.imp.x10dt.ui.cpp.launch.builder;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -30,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.builder.DependencyInfo;
@@ -40,6 +45,7 @@ import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.cpp.launch.utils.RemoteProcessOutputListener;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.JavaProjectUtils;
@@ -54,21 +60,12 @@ import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
+import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ptp.remote.core.IRemoteProcess;
+import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsConnection;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.remotetools.core.IRemoteCopyTools;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionManager;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionTools;
-import org.eclipse.ptp.remotetools.core.IRemoteFileTools;
-import org.eclipse.ptp.remotetools.core.IRemoteScript;
-import org.eclipse.ptp.remotetools.core.IRemoteScriptExecution;
-import org.eclipse.ptp.remotetools.exception.CancelException;
-import org.eclipse.ptp.remotetools.exception.RemoteConnectionException;
-import org.eclipse.ptp.remotetools.exception.RemoteExecutionException;
-import org.eclipse.ptp.remotetools.exception.RemoteOperationException;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -80,6 +77,7 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
 import polyglot.main.Report;
+import polyglot.util.QuotedStringTokenizer;
 
 
 /**
@@ -132,16 +130,9 @@ public final class CppBuilder extends IncrementalProjectBuilder {
                                    getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
         return new IProject[0];
       }
-      try {
-        final IRemoteExecutionManager rmExecManager = getExecutionManager(resourceManager);
-        final Map<File, String> remoteFiles = new HashMap<File, String>();
-        if (transfer(resourceManager.getName(), rmExecManager, remoteFiles, new SubProgressMonitor(monitor, 20))) {
-          remoteCompilation(resourceManager.getName(), rmExecManager, remoteFiles, new SubProgressMonitor(monitor, 40));
-        }
-      } catch (RemoteConnectionException except) {
-        IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_ConnError, resourceManager.getName()), 
-                                   IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-        LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_ConnError, resourceManager.getName()), except);
+      final Map<String, String> remoteFiles = new HashMap<String, String>();
+      if (transfer(resourceManager, remoteFiles, new SubProgressMonitor(monitor, 20))) {
+        remoteCompilation(resourceManager, remoteFiles, new SubProgressMonitor(monitor, 40));
       }
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } finally {
@@ -217,6 +208,7 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     options.output_directory = outputDir;
     options.source_path = ListUtils.transform(srcPaths, new IPathToFileFunc());
     options.compile_command_line_only = true;
+    options.post_compiler = null;
   }
   
   private void clearMarkers(final int kind) throws CoreException {
@@ -250,25 +242,27 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     compiler.compile(toSources(this.fSourcesToCompile));
   }
   
-  private void copyGeneratedFiles(final IRemoteFileTools rmFileTools, final IRemoteCopyTools rmCopyTools, 
-                                  final String workspaceDir, final File rootDir, final File curDir,
-                                  final Map<File, String> remoteFiles,
-                                  final IProgressMonitor monitor) throws RemoteOperationException, RemoteConnectionException, 
-                                                                         CancelException {
-    final String destDir = curDir.getAbsolutePath().replace(rootDir.getAbsolutePath(), workspaceDir).replace('\\', '/');
-    if (! rmFileTools.hasDirectory(destDir)) {
-      rmFileTools.createDirectory(destDir);
+  private void copyGeneratedFiles(final IRemoteFileManager fileManager,
+                                  final IFileStore destDir, final IPath srcDir,
+                                  final Map<String, String> remoteFiles,
+                                  final IProgressMonitor monitor) throws CoreException
+  {
+    if (!destDir.fetchInfo(EFS.NONE, monitor).exists()) {
+      destDir.mkdir(EFS.NONE, monitor);
     }
-    final File[] files = curDir.listFiles();
+    IFileStore curDirStore = EFS.getLocalFileSystem().getStore(srcDir);
+    IFileStore[] files = curDirStore.childStores(EFS.NONE, monitor);
     monitor.beginTask(null, files.length);
-    for (final File file : files) {
-      if (file.isDirectory()) {
-        copyGeneratedFiles(rmFileTools, rmCopyTools, workspaceDir, rootDir, file, remoteFiles, 
+    for (final IFileStore file : files) {
+      String name = file.getName();
+      if (file.fetchInfo(EFS.NONE, monitor).isDirectory()) {
+        copyGeneratedFiles(fileManager, destDir.getChild(name), srcDir.append(name), remoteFiles, 
                            new SubProgressMonitor(monitor, 1));
       } else {
-        rmCopyTools.uploadFileToDir(file, destDir);
-        if (file.getName().endsWith(".cc")) { //$NON-NLS-1$
-          remoteFiles.put(file, destDir + '/' + file.getName());
+        IFileStore destFile = destDir.getChild(file.getName());
+        file.copy(destFile, EFS.OVERWRITE, monitor);
+        if (name.endsWith(".cc")) { //$NON-NLS-1$
+          remoteFiles.put(file.toURI().getPath().substring(1), destFile.toURI().getPath().substring(1));
         }
         monitor.worked(1);
       }
@@ -288,27 +282,40 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     return this.fBinaryContainer;
   }
   
-  private IRemoteExecutionManager getExecutionManager(final IResourceManager resManager) throws RemoteConnectionException {
+  public static IRemoteFileManager getFileManager(final IResourceManager resManager) {
     final IResourceManagerControl rm = (IResourceManagerControl) resManager;
-      
-    final IResourceManagerConfiguration rmc = rm.getConfiguration(); 
+	final IResourceManagerConfiguration rmc = rm.getConfiguration();
+	final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    return remServices.getFileManager(rmConn);
+  }
+
+  public static IRemoteProcessBuilder getProcessBuilder(final IResourceManager resManager, List<String> command) {
+    final IResourceManagerControl rm = (IResourceManagerControl) resManager;
+    final IResourceManagerConfiguration rmc = rm.getConfiguration();
     final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-    final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
-    if (remServices != null && remUIServices != null) {
-      final org.eclipse.ptp.remote.core.IRemoteConnection rmConn;
-      rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
-      // FIXME this instanceof fails for a local connection! 9/22/09
-      if (rmConn instanceof RemoteToolsConnection) {
-        return ((RemoteToolsConnection) rmConn).createExecutionManager();
-      }
-    }
-    return null;
+    IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    return remServices.getProcessBuilder(rmConn, command);
   }
   
-  private void remoteCompilation(final String resourceManagerName, final IRemoteExecutionManager rmExecManager, 
-                                 final Map<File, String> remoteFiles,
-                                 final IProgressMonitor monitor) throws CoreException, RemoteConnectionException {
-    final IRemoteExecutionTools execTools = rmExecManager.getExecutionTools();
+  public static List<String> getAllTokens(final String str) {
+    final List<String> tokens = new ArrayList<String>();
+    QuotedStringTokenizer qst = new QuotedStringTokenizer(str);
+    while (qst.hasMoreTokens())
+      tokens.add(qst.nextToken());
+    return tokens;
+  }
+
+  public static String streamToString(InputStream is) throws IOException {
+    byte[] bytes = new byte[is.available()];
+    is.read(bytes);
+    return new String(bytes);
+  }
+
+  private void remoteCompilation(final IResourceManager resourceManager,
+                                 final Map<String, String> remoteFiles,
+                                 final IProgressMonitor monitor) throws CoreException {
+	final String resourceManagerName = resourceManager.getName();
     monitor.beginTask(null, remoteFiles.size());
     monitor.subTask(LaunchMessages.CPPB_RemoteCompilTaskName);
     
@@ -317,38 +324,39 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     final IPreferenceStore store = LaunchCore.getInstance().getPreferenceStore();
     final String x10DistLoc = store.getString(Constants.P_CPP_BUILDER_X10_DIST_LOC);
     final String pgasLoc = store.getString(Constants.P_CPP_BUILDER_PGAS_LOC);
-    final String compileCmdStart = store.getString(Constants.P_CPP_BUILDER_COMPILE_CMD);
+    String compileCmdStart = store.getString(Constants.P_CPP_BUILDER_COMPILE_CMD);
+    compileCmdStart = compileCmdStart.replace("${X10_DIST_LOC}", x10DistLoc); //$NON-NLS-1$
+    compileCmdStart = compileCmdStart.replace("${PGAS_LOC}", pgasLoc); //$NON-NLS-1$
     final List<String> allObjectFiles = new LinkedList<String>();
     try {
-      for (final Map.Entry<File, String> entry : remoteFiles.entrySet()) {
-        final IRemoteScript script = execTools.createScript();
-        script.addEnvironment("X10_DIST_LOC=" + x10DistLoc); //$NON-NLS-1$
-        script.addEnvironment("PGAS_LOC=" + pgasLoc); //$NON-NLS-1$
-        
+      for (final Map.Entry<String, String> entry : remoteFiles.entrySet()) {
         final String objectFile = entry.getValue().replace(".cc", ".o"); //$NON-NLS-1$ //$NON-NLS-2$
         allObjectFiles.add(objectFile);
+
+        final List<String> command = new ArrayList<String>();
+        command.addAll(getAllTokens(compileCmdStart));
+        command.add("-I"+workspaceDir); //$NON-NLS-1$
+        command.add("-c"); //$NON-NLS-1$
+        command.add(entry.getValue());
+        command.add("-o"); //$NON-NLS-1$
+        command.add(objectFile);
         
-        final StringBuilder commandBuilder = new StringBuilder();
-        commandBuilder.append(compileCmdStart).append(" -I").append(workspaceDir) //$NON-NLS-1$
-                      .append(" -c ").append(entry.getValue()) //$NON-NLS-1$
-                      .append(" -o ").append(objectFile); //$NON-NLS-1$
+        final IRemoteProcessBuilder processBuilder = getProcessBuilder(resourceManager, command);
         
-        script.setScript(commandBuilder.toString());
+        final IRemoteProcess process = processBuilder.start();
         
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        script.setProcessOutputStream(outputStream);
-        final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-        script.setProcessErrorStream(errorStream);
+        final OutputStream errorStream = new ByteArrayOutputStream();
+        final OutputStream outputStream = new ByteArrayOutputStream();
+        new RemoteProcessOutputListener(process, outputStream, errorStream).start();
         
-        final IRemoteScriptExecution rmExec = execTools.executeScript(script);
-        rmExec.waitForEndOfExecution();
+        process.waitFor();
         
-        final int returnCode = rmExec.getReturnCode();
-        rmExec.close();
+        final int returnCode = process.exitValue();
+        process.destroy();
         
         if (returnCode != 0) {
-          IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_CompilErrorMsg, entry.getKey().getName()), 
-                                     IMarker.SEVERITY_ERROR, entry.getKey().getAbsolutePath(), IMarker.PRIORITY_HIGH);
+          IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_CompilErrorMsg, new Path(entry.getKey()).lastSegment()), 
+                                     IMarker.SEVERITY_ERROR, entry.getKey(), IMarker.PRIORITY_HIGH);
           final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
           final MessageConsoleStream mcStream = messageConsole.newMessageStream();
           mcStream.println(errorStream.toString());
@@ -361,16 +369,26 @@ public final class CppBuilder extends IncrementalProjectBuilder {
       final String firstStep = rawArchiveCmd.replace("$workspace_dir", workspaceDir); //$NON-NLS-1$
       final String archiveCmd = firstStep.replace("$lib_name", "lib" + getProject().getName()); //$NON-NLS-1$ //$NON-NLS-2$
       
-      final int returnCode = execTools.executeWithExitValue(archiveCmd);
+      final IRemoteProcessBuilder archiveProcessBuilder = getProcessBuilder(resourceManager, getAllTokens(archiveCmd));
+      final IRemoteProcess archiveProcess = archiveProcessBuilder.start();
+      final OutputStream errorStream = new ByteArrayOutputStream();
+      final OutputStream outputStream = new ByteArrayOutputStream();
+      new RemoteProcessOutputListener(archiveProcess, outputStream, errorStream).start();
+      archiveProcess.waitFor();
+      final int returnCode = archiveProcess.exitValue();
+      archiveProcess.destroy();
       if (returnCode != 0) {
         IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CB_LibCreationError, archiveCmd), 
                                    IMarker.SEVERITY_ERROR, getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
+        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+        mcStream.println(errorStream.toString());
       }
-    } catch (RemoteExecutionException except) {
+    } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
-    } catch (CancelException except) {
+    } catch (InterruptedException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_CancelOpMsg, resourceManagerName), 
                                  IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
     } finally {
@@ -392,32 +410,38 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     return pSources;
   }
   
-  private boolean transfer(final String resourceManagerName, final IRemoteExecutionManager rmExecManager, 
-                           final Map<File, String> remoteFiles, 
-                           final IProgressMonitor monitor) throws CoreException, RemoteConnectionException {
+  private boolean transfer(final IResourceManager resourceManager,
+                           final Map<String, String> remoteFiles,
+                           final IProgressMonitor monitor) throws CoreException {
+	final String resourceManagerName = resourceManager.getName();
     try {
-      final IRemoteFileTools rmFileTools = rmExecManager.getRemoteFileTools();
+      IRemoteFileManager fileManager = getFileManager(resourceManager);
       final StringBuilder workspaceDir = new StringBuilder();
       workspaceDir.append(getProject().getPersistentProperty(Constants.WORKSPACE_DIR)).append('/')
                   .append(getProject().getName());
-      if (rmFileTools.hasDirectory(workspaceDir.toString())) {
+      IFileStore dir = fileManager.getResource(new Path(workspaceDir.toString()), monitor);
+      if (dir.fetchInfo(EFS.NONE, monitor).exists()) {
         monitor.subTask(LaunchMessages.CPPB_DeletionTaskName);
-        rmFileTools.removeFile(workspaceDir.toString());
+        dir.delete(EFS.NONE, monitor);
       }
-          
+
       monitor.subTask(LaunchMessages.CPPB_TransferTaskName);
-      final File rootDir = getBinaryContainer().getLocation().toFile();
-      copyGeneratedFiles(rmFileTools, rmExecManager.getRemoteCopyTools(), workspaceDir.toString(), rootDir, rootDir, 
-                         remoteFiles, monitor);
-    } catch (RemoteOperationException except) {
+      final IPath rootDir = getBinaryContainer().getLocation();
+      copyGeneratedFiles(fileManager, dir, rootDir, remoteFiles, monitor);
+    } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
       return false;
-    } catch (CancelException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_CancelOpMsg, resourceManagerName), 
-                                 IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+    } catch (CoreException except) {
+      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
+                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
       return false;
+//    } catch (CancelException except) {
+//      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_CancelOpMsg, resourceManagerName), 
+//                                 IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+//      return false;
     }
     return true;
   }

@@ -18,11 +18,16 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -30,6 +35,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
@@ -39,34 +45,27 @@ import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.builder.CppBuilder;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.cpp.launch.utils.RemoteProcessOutputListener;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
+import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
+import org.eclipse.ptp.launch.messages.Messages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ptp.remote.core.IRemoteProcess;
+import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsConnection;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.remotetools.core.IRemoteCopyTools;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionManager;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionTools;
-import org.eclipse.ptp.remotetools.core.IRemoteScript;
-import org.eclipse.ptp.remotetools.core.IRemoteScriptExecution;
-import org.eclipse.ptp.remotetools.exception.CancelException;
-import org.eclipse.ptp.remotetools.exception.RemoteConnectionException;
-import org.eclipse.ptp.remotetools.exception.RemoteExecutionException;
-import org.eclipse.ptp.remotetools.exception.RemoteOperationException;
-import org.eclipse.ptp.rm.remote.core.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -147,20 +146,35 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
                      final IProgressMonitor monitor) throws CoreException {
-    final IRemoteConnection rmConnection = getRemoteConnection(configuration);
+    final IResourceManager resourceManager = getResourceManager(configuration);
     try {
-      if (rmConnection != null) {
-        // Performs linking first.
-        monitor.beginTask(null, 10);
-        monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-        createExecutable(rmConnection, configuration, verifyProject(configuration), new SubProgressMonitor(monitor, 3));
-        
-        // Then, performs the launch.
-        monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 7));
-      }
+      // Performs linking first.
+      monitor.beginTask(null, 10);
+      monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
+      createExecutable(resourceManager, configuration, verifyProject(configuration), new SubProgressMonitor(monitor, 3));
+      
+      // Then, performs the launch.
+      monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+      super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 7));
     } finally {
       monitor.done();
+    }
+  }
+  
+  // Override for Cygwin, which needs a ".exe" here
+  protected IPath verifyExecutablePath(ILaunchConfiguration configuration) throws CoreException {
+    try {
+      return super.verifyExecutablePath(configuration);
+    } catch (CoreException e) {
+      if (!e.getStatus().getMessage().equals(Messages.AbstractParallelLaunchConfigurationDelegate_Application_file_does_not_exist))
+        throw e;
+      // Try to append ".exe"
+      String exePath = getExecutablePath(configuration) + ".exe"; //$NON-NLS-1$
+      try {
+    	  return verifyResource(exePath, configuration);
+      } catch (CoreException e1) {
+    	  throw e; // this was the original error
+      }
     }
   }
   
@@ -192,73 +206,81 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     return null;
   }
   
-  private void createExecutable(final IRemoteConnection rmConnection, final ILaunchConfiguration configuration,
+  private void createExecutable(final IResourceManager resourceManager, final ILaunchConfiguration configuration,
                                 final IProject project, final IProgressMonitor monitor) throws CoreException {
-    if (rmConnection instanceof RemoteToolsConnection) {
+    final IRemoteFileManager fileManager = CppBuilder.getFileManager(resourceManager);
+    try {
+      final String workspaceDir = configuration.getAttribute(ATTR_WORK_DIRECTORY, (String) null);
+      final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+      final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
+      
       try {
-        final IRemoteExecutionManager rmExecManager = ((RemoteToolsConnection) rmConnection).createExecutionManager();
-        final IRemoteExecutionTools rmExecTools = rmExecManager.getExecutionTools();
-                
-        final String workspaceDir = configuration.getAttribute(ATTR_WORK_DIRECTORY, (String) null);
-        final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
-        final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-        
-        try {
-          if (rmExecManager.getRemoteFileTools().hasFile(appProgName) && ! shouldLinkApp) {
-            return;
-          }
-        } catch (RemoteOperationException except) {
-          // We failed on checking if we should link... but let's try to perform the link step.
+        IFileStore appProg = fileManager.getResource(new Path(appProgName), monitor);
+        if (appProg.fetchInfo(EFS.NONE, monitor).exists() && ! shouldLinkApp) {
+          return;
         }
-        
-        createMainFile(rmExecManager.getRemoteCopyTools(), appProgName, workspaceDir);
-        
-        final IPreferenceStore store = LaunchCore.getInstance().getPreferenceStore();
-        final String x10DistLoc = store.getString(Constants.P_CPP_BUILDER_X10_DIST_LOC);
-        final String pgasLoc = store.getString(Constants.P_CPP_BUILDER_PGAS_LOC);
-        final String linkCmdStart = store.getString(Constants.P_CPP_BUILDER_LINK_CMD);
-
-        final IRemoteScript script = rmExecTools.createScript();
-        script.addEnvironment("X10_DIST_LOC=" + x10DistLoc); //$NON-NLS-1$
-        script.addEnvironment("PGAS_LOC=" + pgasLoc); //$NON-NLS-1$
-          
-        final StringBuilder commandBuilder = new StringBuilder();
-        commandBuilder.append(linkCmdStart).append(" -L").append(workspaceDir).append(" -I").append(workspaceDir) //$NON-NLS-1$ //$NON-NLS-2$
-                      .append(SPACE).append(workspaceDir).append('/').append(MAIN_FILE_NAME)
-                      .append(" -o ").append(appProgName).append(SPACE).append("-l").append(project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-
-        script.setScript(commandBuilder.toString());
-            
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        script.setProcessOutputStream(outputStream);
-        final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-        script.setProcessErrorStream(errorStream);
-        
-        final IRemoteScriptExecution rmExec = rmExecTools.executeScript(script);
-        rmExec.waitForEndOfExecution();
-        
-        final int returnCode = rmExec.getReturnCode();
-        if (returnCode != 0) {
-          IResourceUtils.addMarkerTo(project, NLS.bind(LaunchMessages.CLCD_LinkCmdError, commandBuilder.toString()), 
-                                     IMarker.SEVERITY_ERROR, project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
-          final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
-          final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-          mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, commandBuilder.toString()));
-          mcStream.println(errorStream.toString());
+        // Cygwin needs a ".exe" here
+        appProg = fileManager.getResource(new Path(appProgName+".exe"), monitor); //$NON-NLS-1$
+        if (appProg.fetchInfo(EFS.NONE, monitor).exists() && ! shouldLinkApp) {
+          return;
         }
-        rmExec.close();
-      } catch (RemoteConnectionException except) {
-        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkConnError, except));
-      } catch (RemoteExecutionException except) {
-        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkExecError, except));
-      } catch (CancelException except) {
-        throw new CoreException(new Status(IStatus.CANCEL, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkCancellation));
+      } catch (IOException except) {
+        // We failed on checking if we should link... but let's try to perform the link step.
       }
+      
+      createMainFile(fileManager, appProgName, workspaceDir, monitor);
+      
+      final IPreferenceStore store = LaunchCore.getInstance().getPreferenceStore();
+      final String x10DistLoc = store.getString(Constants.P_CPP_BUILDER_X10_DIST_LOC);
+      final String pgasLoc = store.getString(Constants.P_CPP_BUILDER_PGAS_LOC);
+      String linkCmdStart = store.getString(Constants.P_CPP_BUILDER_LINK_CMD);
+      linkCmdStart = linkCmdStart.replace("${X10_DIST_LOC}", x10DistLoc); //$NON-NLS-1$
+      linkCmdStart = linkCmdStart.replace("${PGAS_LOC}", pgasLoc); //$NON-NLS-1$
+      
+      final List<String> command = new ArrayList<String>();
+      command.addAll(CppBuilder.getAllTokens(linkCmdStart));
+      int insertionPoint = command.indexOf("#"); //$NON-NLS-1$
+      if (insertionPoint == -1)
+    	  insertionPoint = command.size();
+      else
+    	  command.remove(insertionPoint);
+      command.add(insertionPoint++, "-L"+workspaceDir); //$NON-NLS-1$
+      command.add(insertionPoint++, "-I"+workspaceDir); //$NON-NLS-1$
+      command.add(insertionPoint++, workspaceDir+"/"+MAIN_FILE_NAME); //$NON-NLS-1$
+      command.add(insertionPoint++, "-o"); //$NON-NLS-1$
+      command.add(insertionPoint++, appProgName);
+      command.add(insertionPoint++, "-l"+project.getName()); //$NON-NLS-1$
+      
+      final IRemoteProcessBuilder processBuilder = CppBuilder.getProcessBuilder(resourceManager, command);
+      
+      final IRemoteProcess process = processBuilder.start();
+      
+      final OutputStream errorStream = new ByteArrayOutputStream();
+      final OutputStream outputStream = new ByteArrayOutputStream();
+      new RemoteProcessOutputListener(process, outputStream, errorStream).start();
+      
+      process.waitFor();
+      
+      final int returnCode = process.exitValue();
+      process.destroy();
+      
+      if (returnCode != 0) {
+        IResourceUtils.addMarkerTo(project, NLS.bind(LaunchMessages.CLCD_LinkCmdError, command.toString()), 
+                                   IMarker.SEVERITY_ERROR, project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
+        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+        mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, command.toString()));
+        mcStream.println(errorStream.toString());
+      }
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkExecError, except));
+    } catch (InterruptedException except) {
+      throw new CoreException(new Status(IStatus.CANCEL, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkCancellation));
     }
   }
   
-  private void createMainFile(final IRemoteCopyTools rmCopyTools, final String appProgName, 
-                              final String workspaceDir) throws CoreException, RemoteConnectionException, CancelException {
+  private void createMainFile(final IRemoteFileManager fileManager, final String appProgName, 
+                              final String workspaceDir, IProgressMonitor monitor) throws CoreException {
     final URL url = ExtensionInfo.class.getClassLoader().getResource(MAIN_TEMPLATE_FILE);
     try {
       if (url == null) {
@@ -284,8 +306,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
             reader.close();
             writer.close();
           }
+          IFileStore mainFile = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
           // Secondly, transfers the file in the remote directory.
-          rmCopyTools.uploadFileToDir(tmpMainFile, workspaceDir);
+          IFileStore dir = fileManager.getResource(new Path(workspaceDir), monitor);
+          IFileStore destFile = dir.getChild(MAIN_FILE_NAME);
+          mainFile.copy(destFile, EFS.OVERWRITE, monitor);
           // Thirdly and finally, deletes the local temporary file.
           tmpMainFile.delete();
         } catch (URISyntaxException except) {
@@ -295,25 +320,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     } catch (IOException except) {
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError, 
                                          except));
-    } catch (RemoteOperationException except) {
-      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessOpError, 
-                                         except));
     }
-  }
-  
-  private IRemoteConnection getRemoteConnection(final ILaunchConfiguration configuration) throws CoreException {
-    final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
-    if (resourceManager != null) {
-      final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
-      final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());   
-      return rmServices.getConnectionManager().getConnection(rmConf.getConnectionName());
-    }
-    return null;
   }
   
   // --- Fields
-  
-  private static final String SPACE = " "; //$NON-NLS-1$
   
   private static final String PATTERN = "#0"; //$NON-NLS-1$
   

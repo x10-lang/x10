@@ -32,9 +32,12 @@ public class CppBuilderPrefPageInitializer extends AbstractPreferenceInitializer
   // --- Fields
   
   private static final String COMPILE_CMD = "mpCC_r -g -q64 -qsuppress=1540-0809:1500-029 -qrtti=all -I${X10_DIST_LOC}/include -I${PGAS_LOC}/include"; //$NON-NLS-1$
+//  private static final String COMPILE_CMD = "g++ -g -DTRANSPORT=sockets -I${X10_DIST_LOC}/include -I${PGAS_LOC}/include"; //$NON-NLS-1$
 
   private static final String ARCHIVE_CMD = "ar -X64 r $workspace_dir/$lib_name.a $workspace_dir/*.o"; //$NON-NLS-1$
+//  private static final String ARCHIVE_CMD = "ar r $workspace_dir/$lib_name.a $workspace_dir/*.o"; //$NON-NLS-1$
   
   private static final String LINK_CMD = "mpCC_r -g -DTRANSPORT=lapi -qrtti=all -bbigtoc -bexpfull -q64 -qsuppress=1540-0809:1500-029 -L${PGAS_LOC}/lib -L${X10_DIST_LOC}/lib -I${PGAS_LOC}/include -I${X10_DIST_LOC}/include -lx10lib17 -lx10rt17 -lupcrts_lapi -ldl -lm -lpthread"; //$NON-NLS-1$
+//  private static final String LINK_CMD = "g++ -g -DTRANSPORT=sockets # -L${PGAS_LOC}/lib -L${X10_DIST_LOC}/lib -I${PGAS_LOC}/include -I${X10_DIST_LOC}/include -lx10 -lupcrts_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
   
 }
