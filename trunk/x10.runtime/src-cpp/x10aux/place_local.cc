@@ -13,7 +13,7 @@ using namespace x10aux;
 
 x10_int place_local::_nextId;
 place_local::Bucket **place_local::_buckets;
-void **place_local::_fastHandles;
+void **place_local::_fastData;
 x10aux::ref<x10::runtime::Lock> place_local::_lock;
 
 void place_local::initialize() {
@@ -22,8 +22,8 @@ void place_local::initialize() {
 
     _buckets = alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
     memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
-    _fastHandles = alloc<void*>((MAX_FAST_ID+1)*sizeof(void*));
-    memset(_fastHandles, 0, (MAX_FAST_ID+1)*sizeof(void*));
+    _fastData = alloc<void*>((MAX_FAST_ID+1)*sizeof(void*));
+    memset(_fastData, 0, (MAX_FAST_ID+1)*sizeof(void*));
 }
 
 x10_int place_local::nextId() {
@@ -35,9 +35,9 @@ x10_int place_local::nextId() {
     return id;
 }
 
-void* place_local::lookupHandle(x10_int id) {
+void* place_local::lookupData(x10_int id) {
     if (id < MAX_FAST_ID) {
-        return _fastHandles[id];
+        return _fastData[id];
     } else {
         _lock->lock();
         int bucket = hash_code(id);
@@ -45,7 +45,7 @@ void* place_local::lookupHandle(x10_int id) {
         while (cur != NULL) {
             if (cur->_id == id) {
                 _lock->unlock();
-                return cur->_handle;
+                return cur->_data;
             }
             cur = cur->_next;
         }
@@ -54,26 +54,26 @@ void* place_local::lookupHandle(x10_int id) {
     }
 }
             
-void place_local::registerHandle(x10_int id, void *data) {
-    assert(NULL == lookupHandle(id));
+void place_local::registerData(x10_int id, void *data) {
+    assert(NULL == lookupData(id));
     if (id < MAX_FAST_ID) {
-        _fastHandles[id] = data;
+        _fastData[id] = data;
     } else {
         _lock->lock();
         int bucket = hash_code(id);
         Bucket *newBucket = alloc<Bucket>();
         newBucket->_id = id;
-        newBucket->_handle = data;
+        newBucket->_data = data;
         newBucket->_next = _buckets[bucket];
         _buckets[bucket] = newBucket;
         _lock->unlock();
     }
 }
 
-void place_local::unregisterHandle(x10_int id) {
-    assert(NULL == lookupHandle(id));
+void place_local::unregisterData(x10_int id) {
+    assert(NULL == lookupData(id));
     if (id < MAX_FAST_ID) {
-        _fastHandles[id] = NULL;
+        _fastData[id] = NULL;
     } else {
         _lock->lock();
         int bucket = hash_code(id);

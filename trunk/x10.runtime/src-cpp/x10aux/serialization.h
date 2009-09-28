@@ -199,21 +199,41 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
 
     };
     
-    // default case for primitives and other things that never contain pointers
+    // Case for non-refs (includes simple primitives like x10_int and all structs)
     template<class T> struct serialization_buffer::Write {
         static void _(serialization_buffer &buf, const T &val, addr_map &m);
     };
+    // General case for structs
     template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf,
                                                              const T &val, addr_map &m) {
-        // FIXME: assumes all places are same endian
-        _S_("Serializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
-                          <<val<<" into buf: "<<&buf);
-        //*(T*) buf.cursor = val; // Cannot do this because of alignment
-        if (buf.cursor + sizeof(T) >= buf.limit) buf.grow();
-        memcpy(buf.cursor, &val, sizeof(T));
-        code_bytes((T*)buf.cursor);
-        buf.cursor += sizeof(T);
+        _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
+        T::_serialize(val,buf,m);
     }
+    // Specializations for the simple primitives
+    #define PRIMITIVE_WRITE(TYPE) \
+    template<> inline void serialization_buffer::Write<TYPE>::_(serialization_buffer &buf, \
+                                                                const TYPE &val, addr_map &m) {\
+        _S_("Serializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
+                          <<val<<" into buf: "<<&buf); \
+        /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
+        if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
+        memcpy(buf.cursor, &val, sizeof(TYPE)); \
+        code_bytes((TYPE*)buf.cursor); \
+        buf.cursor += sizeof(TYPE); \
+    }
+    PRIMITIVE_WRITE(x10_boolean)
+    PRIMITIVE_WRITE(x10_byte)
+    PRIMITIVE_WRITE(x10_ubyte)
+    PRIMITIVE_WRITE(x10_char)
+    PRIMITIVE_WRITE(x10_short)
+    PRIMITIVE_WRITE(x10_ushort)
+    PRIMITIVE_WRITE(x10_int)
+    PRIMITIVE_WRITE(x10_uint)
+    PRIMITIVE_WRITE(x10_long)
+    PRIMITIVE_WRITE(x10_ulong)
+    PRIMITIVE_WRITE(x10_float)
+    PRIMITIVE_WRITE(x10_double)
+    PRIMITIVE_WRITE(remote_ref)
     
     // case for references e.g. ref<Object>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
@@ -229,7 +249,6 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
     template<typename T> void serialization_buffer::write(const T &val, addr_map &m) {
         Write<T>::_(*this,val,m);
     }
-
 
 
     // A buffer from which we can deserialise x10 objects
@@ -254,22 +273,42 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         template<typename T> GPUSAFE T read();
     };
     
-    // default case for primitives and other things that never contain pointers
+    // Case for non-refs (includes simple primitives like x10_int and all structs)
     template<class T> struct deserialization_buffer::Read {
         GPUSAFE static T _(deserialization_buffer &buf);
     };
+    // General case for structs
     template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf) {
-        // FIXME: assumes all places are same endian
-        //T &val = *(T*) buf.cursor; // Cannot do this because of alignment
-        T val;
-        memcpy(&val, buf.cursor, sizeof(T));
-        buf.cursor += sizeof(T);
-        code_bytes(&val);
-        _S_("Deserializing "<<star_rating<T>()<<" a "<<ANSI_SER<<TYPENAME(T)<<ANSI_RESET<<": "
-                            <<val<<" from buf: "<<&buf);
-        return val;
+        _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+        return T::_deserialize(buf);
     }
-        
+
+    // Specializations for all simple primitives
+    #define PRIMITIVE_READ(TYPE) \
+    template<> inline TYPE deserialization_buffer::Read<TYPE>::_(deserialization_buffer &buf) { \
+        /* //TYPE &val = *(TYPE*) buf.cursor; // Cannot do this because of alignment */ \
+        TYPE val; \
+        memcpy(&val, buf.cursor, sizeof(TYPE)); \
+        buf.cursor += sizeof(TYPE); \
+        code_bytes(&val); \
+        _S_("Deserializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
+            <<val<<" from buf: "<<&buf); \
+        return val; \
+    }
+    PRIMITIVE_READ(x10_boolean)
+    PRIMITIVE_READ(x10_byte)
+    PRIMITIVE_READ(x10_ubyte)
+    PRIMITIVE_READ(x10_char)
+    PRIMITIVE_READ(x10_short)
+    PRIMITIVE_READ(x10_ushort)
+    PRIMITIVE_READ(x10_int)
+    PRIMITIVE_READ(x10_uint)
+    PRIMITIVE_READ(x10_long)
+    PRIMITIVE_READ(x10_ulong)
+    PRIMITIVE_READ(x10_float)
+    PRIMITIVE_READ(x10_double)
+    PRIMITIVE_READ(remote_ref)
+
     // case for references e.g. ref<Object>, 
     template<class T> struct deserialization_buffer::Read<ref<T> > {
         GPUSAFE static ref<T> _(deserialization_buffer &buf);

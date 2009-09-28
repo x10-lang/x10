@@ -143,7 +143,7 @@ namespace x10aux {
 
     template<class T, class U>
     inline x10_boolean struct_equals(T x, U y) {
-        return x._struct_equals(&y);
+        return x._struct_equals(y);
     }
 
     template<class T>
