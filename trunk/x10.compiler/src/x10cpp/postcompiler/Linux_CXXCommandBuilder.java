@@ -35,6 +35,7 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         cxxCmd.add("-lrt");
         if (USE_BFD) {
             cxxCmd.add("-lbfd");
+            cxxCmd.add("-liberty");
         }
         if (x10rt == X10RT_Impl.PGAS_LAPI) {
             cxxCmd.add("-llapi");
