@@ -240,7 +240,7 @@ public class Emitter {
 //		} else
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
-			if (false && ct.isX10Struct()) { // HACK: treating sturcts as values.
+			if (ct.isX10Struct()) {
 				// Struct types are not boxed up as Refs.  They are always generated as just C++ class types
 				// (Note: not pointer to Class, but the actual class).
 				asRef = false;
@@ -310,6 +310,17 @@ public class Emitter {
 		if (!asRef)
 			return name;
 		return make_ref(name);
+	}
+	
+	public static String structNameSpace(ClassType classType, boolean fqn) {
+	    return structNameSpace(classType.fullName(), fqn);
+	}
+	    
+	public static String structNameSpace(QName qname, boolean fqn) {
+	    String name = fqn ? qname.toString() : qname.name().toString();
+	    name += "_ns";
+	    name = translate_mangled_FQN(name);
+	    return name;
 	}
 
 	void printArgumentList(CodeWriter w, X10CPPContext_c c) {
@@ -484,6 +495,10 @@ public class Emitter {
 	}
 	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
+		X10MethodDef def = (X10MethodDef) n.methodDef();
+		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		X10ClassType container = (X10ClassType) mi.container();
+		boolean isStruct = container.isX10Struct();
 
 		h.begin(0);
 
@@ -491,7 +506,6 @@ public class Emitter {
 			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
 		}
 
-		X10MethodDef def = (X10MethodDef) n.methodDef();
 		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		if (!qualify) {
@@ -522,21 +536,22 @@ public class Emitter {
 			}
             // [DC] there is no benefit to omitting the virtual keyword as we can
             // statically bind CALLS to final methods and methods that are members of final classes
-			else if (!flags.isProperty() && !flags.isPrivate()) {
-				if (!((X10CPPContext_c)tr.context()).generatingStruct()) {
-					h.write("virtual ");
-				}
+			else if (!isStruct && !flags.isProperty() && !flags.isPrivate()) {
+			    h.write("virtual ");
 			}
 		}
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
-		if (qualify)
-			h.write(translateType(n.methodDef().asInstance().container()) + "::");
-		//n.print(n.id(), h, tr);
+		if (!isStruct && qualify)
+			h.write(translateType(container) + "::");
 		h.write(mangled_method_name(name));
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
+		if (isStruct) {
+		    h.write(translateType(container) +" this_");
+		    if (!n.formals().isEmpty()) h.write(", ");
+		}
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
 			n.print(f, h, tr);
@@ -672,9 +687,9 @@ public class Emitter {
 		h.unifiedBreak(0);
 		h.end();
 	}
-
+    
 	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
-                     boolean define, String name, String rType) {
+                     boolean define, boolean isMakeMethod, String rType) {
         Flags flags = n.flags().flags();
 
 		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
@@ -689,11 +704,16 @@ public class Emitter {
 		String typeName = translateType(container.def().asType());
         // not a virtual method, this function is called only when the static type is precise
         h.write(rType + " ");
-		if (define)
-			h.write(typeName + "::");
-		h.write(name + "(");
+		if (define && !container.isX10Struct()) {
+		    h.write(typeName + "::");
+		}
+		h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
+		if (container.isX10Struct() && !isMakeMethod) {
+		    h.write(typeName + " *this_");
+		    if (!n.formals().isEmpty()) h.write(", ");
+		}
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
 			n.print(f, h, tr);
@@ -733,7 +753,7 @@ public class Emitter {
 		h.begin(0);
 		// Let us not generate constants - We will have problem in
 		// initializing away from the place where it is declared.
-		//if (flags.isFinal())
+		//if (flags.isFinal())            }
 		//	h.write("const ");
 		if (tr.printType()) {
 			assert (n != null);
@@ -797,7 +817,7 @@ public class Emitter {
 	}
 
 
-	void generateSerializationMethods(ClassType type, StreamWrapper sw) {
+	void generateValueSerializationMethods(ClassType type, StreamWrapper sw) {
 		// FIXME: Has a lot of string constants. Refactor them
 		// into final variables.
 		// -Krishna.
@@ -935,6 +955,74 @@ public class Emitter {
 		w.forceNewline();
 	}
 
+    void generateStructSerializationMethods(ClassType type, StreamWrapper sw) {
+        X10ClassType ct = (X10ClassType) type.toClass();
+        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        ClassifiedStream w = sw.body();
+        ClassifiedStream sh = context.structHeader;
+        String klass = translateType(type);
+ 
+        sh.forceNewline();
+        
+        // _serialize()
+        sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);");
+        sh.newline(0); sh.forceNewline();
+
+        printTemplateSignature(ct.typeArguments(), w);
+        w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+        w.newline(4); w.begin(0);
+        Type parent = type.superClass();
+        if (parent != null) {
+            w.write(translateType(parent)+"::"+SERIALIZE_METHOD+"(this_, buf, m);");
+            w.newline();
+        }
+        for (int i = 0; i < type.fields().size(); i++) {
+            if (i != 0)
+                w.newline();
+            FieldInstance f = (FieldInstance) type.fields().get(i);
+            if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                continue;
+            String fieldName = mangled_field_name(f.name().toString());
+            w.write("buf.write(this_->"+fieldName+",m);"); w.newline();
+        }
+        w.end(); w.newline();
+        w.write("}");
+        w.newline(); w.forceNewline();
+
+        // _deserialize()
+        sh.write("static "+klass+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+        sh.newline(4) ; sh.begin(0);
+        sh.writeln(klass+" this_;");
+        sh.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); sh.newline();
+        sh.write("return this_;");
+        sh.end(); sh.newline();
+        sh.write("}"); sh.newline(); sh.forceNewline();
+
+        // _deserialize_body()
+        sh.write("void "+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);"); sh.newline(0);
+        printTemplateSignature(ct.typeArguments(), w);
+        w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+        w.newline(4); w.begin(0);
+        if (parent != null) {
+            w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
+            w.newline();
+        }
+        for (int i = 0; i < type.fields().size(); i++) {
+            if (i != 0)
+                w.newline();
+            FieldInstance f = (FieldInstance) type.fields().get(i);
+            if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                continue;
+            String fieldName = mangled_field_name(f.name().toString());
+            w.write(fieldName+" = buf.read<"+translateType(f.type(),true)+" >();");
+        }
+        w.end(); w.newline();
+        w.write("}");
+        w.newline();
+        w.forceNewline();
+    }
+	
 	public void emitUniqueNS(QName name, ArrayList<String> history, CodeWriter w) {
 		if (name == null) return;
 		if  (!history.contains(name.toString())) {
@@ -953,6 +1041,12 @@ public class Emitter {
         h.write("namespace "+mangle_to_cpp(name.name().toString())+" { ");
     }
 
+    public static void openStructNamespaces(CodeWriter h, QName name) {
+        if (name == null) return;
+        openNamespaces(h, name.qualifier());
+        h.write("namespace "+structNameSpace(name, false)+" { ");
+    }
+    
     public static void closeNamespaces(CodeWriter h, QName name) {
         if (name == null) return;
         h.write("} ");

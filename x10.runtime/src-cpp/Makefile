@@ -195,7 +195,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Box.o \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
-	x10/lang/Primitive.o \
 	x10/lang/Rail.o \
 	x10/lang/RailIterator.o \
 	x10/lang/Ref.o \
@@ -249,8 +248,10 @@ endif
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
 	(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xvf -)
+	(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xvf -)
 	(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
+	find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	cp -p x10rt_api.h $(INSTDIR)/include
 	cp -p x10rt17.h $(INSTDIR)/include

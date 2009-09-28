@@ -32,7 +32,7 @@ import x10.compiler.NativeRep;
  * using the particular PlaceLocalHandle (mapping the same object at
  * multiple places or mapping distinct object at each place).</p>
  */
-@NativeRep("c++", "x10aux::ref<x10::runtime::PlaceLocalHandle<#1 > >", "x10::runtime::PlaceLocalHandle<#1 >", null)
+@NativeRep("c++", "x10::runtime::PlaceLocalHandle<#1 >", "x10::runtime::PlaceLocalHandle<#1 >", null)
 @NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
 public final struct PlaceLocalHandle[T]{T <: Ref} {
 
@@ -46,6 +46,10 @@ public final struct PlaceLocalHandle[T]{T <: Ref} {
   @Native("c++", "(#0)->hashCode()")
   @Native("java", "#0.hashCode()")
   public native safe def hashCode():int;
+
+  @Native("c++", "(#0)->toString()")
+  @Native("java", "#0.toString()")
+  public native def toString():String;
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "(#0)->set(#1)")

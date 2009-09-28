@@ -17,21 +17,21 @@ namespace x10aux {
         class Bucket {
         public:
             x10_int _id;
-            void *_handle;
+            void *_data;
             Bucket *_next;
         };
 
         static x10_int _nextId;
         static Bucket **_buckets;
-        static void** _fastHandles;
+        static void** _fastData;
         static x10aux::ref<x10::runtime::Lock> _lock;
 
     public:
         static void initialize();
         static x10_int nextId();
-        static void* lookupHandle(x10_int id);
-        static void registerHandle(x10_int id, void *data);
-        static void unregisterHandle(x10_int id);
+        static void* lookupData(x10_int id);
+        static void registerData(x10_int id, void *data);
+        static void unregisterData(x10_int id);
         template<class T> friend const char *x10aux::typeName();
     };
 
