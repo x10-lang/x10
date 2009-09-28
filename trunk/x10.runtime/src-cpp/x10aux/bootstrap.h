@@ -1,13 +1,6 @@
 #ifndef X10AUX_BOOTSTRAP_H
 #define X10AUX_BOOTSTRAP_H
 
-#ifdef X10_USE_BDWGC
-#ifdef __linux__
-#define GC_LINUX_THREADS
-#endif 
-#include "gc.h"
-#endif
-
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/place_local.h>

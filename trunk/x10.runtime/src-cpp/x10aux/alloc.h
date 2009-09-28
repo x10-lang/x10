@@ -4,9 +4,7 @@
 #include <x10aux/config.h>
 
 #ifdef X10_USE_BDWGC
-#ifdef __linux__
-#define GC_LINUX_THREADS
-#endif 
+#define GC_THREADS
 #include "gc.h"
 #endif
 
@@ -41,9 +39,15 @@ namespace x10aux {
 
     void throwOOME() X10_PRAGMA_NORETURN;
 
+	static bool gc_init_done = false;
+
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC        
+    	if (!gc_init_done) {
+    		gc_init_done = true;
+    		GC_INIT();
+    	}
         T* ret = (T*)GC_MALLOC(size);
 #else        
         T* ret = (T*)malloc(size);
