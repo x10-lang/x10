@@ -232,6 +232,8 @@ public class CXXCommandBuilder {
             return new AIX_CXXCommandBuilder(options);
         if (PLATFORM.startsWith("sunos_"))
             return new SunOS_CXXCommandBuilder(options);
+        if (PLATFORM.startsWith("macosx_"))
+            return new MacOSX_CXXCommandBuilder(options);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
         return new CXXCommandBuilder(options);
