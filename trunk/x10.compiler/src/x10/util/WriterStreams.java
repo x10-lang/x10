@@ -50,7 +50,7 @@ public class WriterStreams {
     }
 
     /**
-     * Write out all the streams associated with this object to their correspodnding files.
+     * Write out all the streams associated with this object to their corresponding files.
      * Note that all streams of the same type are written to the same file, their contents 
      * concatenated in the order in which the streams were created, as indicated by the
      * prepend argument to {@link #getNewStream(String, boolean)}.
