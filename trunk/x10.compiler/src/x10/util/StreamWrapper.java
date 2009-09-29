@@ -89,6 +89,7 @@ public class StreamWrapper extends SimpleCodeWriter {
     }
     @Override public void unifiedBreak(int n) { cs.unifiedBreak(n); }
     @Override public void write(String str) { cs.write(str); }
+    public void writeln(String str) { cs.writeln(str); }
     @Override public void write(String s, int length) { cs.write(s, length); }
     @Override public boolean flush() throws IOException { return cs.flush(); }
     @Override public boolean flush(boolean fmt) throws IOException { return cs.flush(fmt); }
