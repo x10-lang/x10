@@ -166,30 +166,35 @@ namespace x10aux {
 #define ANSI_X10RT ANSI_BLUE
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#include <stdio.h>
 #define _M_(x) _MAYBE_DEBUG_MSG(ANSI_ALLOC,"MM",x,::x10aux::trace_alloc())
 #else
 #define _M_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_CAST)
+#include <stdio.h>
 #define _CAST_(x) _DEBUG_MSG(ANSI_CAST,"CAST",x)
 #else
 #define _CAST_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#include <stdio.h>
 #define _I_(x) _MAYBE_DEBUG_MSG(ANSI_INIT,"INIT",x,::x10aux::trace_init())
 #else
 #define _I_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_REF)
+#include <stdio.h>
 #define _R_(x) _DEBUG_MSG(ANSI_REF,"RR",x)
 #else
 #define _R_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#include <stdio.h>
 #define _S_(x) _MAYBE_DEBUG_MSG(ANSI_SER,"SS",x,::x10aux::trace_ser())
 #define _Sd_(x) x
 #else
@@ -198,6 +203,7 @@ namespace x10aux {
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ENV_VAR)
+#include <stdio.h>
 #define _X_(x) _MAYBE_DEBUG_MSG(ANSI_X10RT,"XX",x,::x10aux::trace_x10rt())
 #else
 #define _X_(x)

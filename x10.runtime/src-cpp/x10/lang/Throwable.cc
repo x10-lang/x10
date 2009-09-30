@@ -27,6 +27,7 @@
 #   endif
 #endif
 
+#include <stdio.h>
 
 using namespace x10::lang;
 using namespace x10aux;

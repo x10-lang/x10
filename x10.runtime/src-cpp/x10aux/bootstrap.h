@@ -17,6 +17,8 @@
 
 #include <x10/runtime/Thread.h>
 
+#include <stdio.h>
+
 #ifdef __CYGWIN__
 extern "C" int setlinebuf(FILE *);
 #endif
