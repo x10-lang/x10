@@ -64,11 +64,25 @@
             <fileset dir="${basedir}/etc" includes="${config}"/>
         </copy>
     </target>
-    <target name="jar" depends="build">
+    <target name="check-jar" depends="init">
+        <fileset id="compiler.classes" dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>
+        <fileset id="constraints.classes" dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+        <fileset id="common.classes" dir="${x10.common.location}/classes" includes="x10/**"/>
+        <uptodate property="compiler.uptodate" targetfile="${build}/${jar}">
+            <srcfiles refid="compiler.classes"/>
+            <srcfiles refid="constraints.classes"/>
+            <srcfiles refid="common.classes"/>
+            <!--<globmapper from="*.java" to="${build}/*.class" handledirsep="true"/>-->
+        </uptodate>
+    </target>
+    <target name="jar" depends="build,check-jar">
         <jar jarfile="${build}/${jar}">
-            <fileset dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>
-            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
-            <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
+            <fileset refid="compiler.classes"/>
+            <fileset refid="constraints.classes"/>
+            <fileset refid="common.classes"/>
+            <!--<fileset dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>-->
+            <!--<fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>-->
+            <!--<fileset dir="${x10.common.location}/classes" includes="x10/**"/>-->
         </jar>
     </target>
     <target name="prereq-jars">
@@ -101,7 +115,7 @@
         <condition property="arch" value="x86" else="${os.arch}"><equals arg1="${os.arch}" arg2="i386"/></condition>
         <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${arch}"/>
         <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
-	<!--
+        <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>
         <echo message="LPG: ${lpg.executable}"/>
@@ -110,7 +124,7 @@
             "-include-directory=${include.dir}"
             "${grammar.file}"
         </echo>
-	-->
+        -->
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
             <arg value="-include-directory=${include.dir}"/>
             <arg value="${grammar.file}"/>
