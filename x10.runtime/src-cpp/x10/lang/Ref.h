@@ -65,8 +65,6 @@ namespace x10 {
                 if (other == x10aux::ref<Ref>(this)) return true;
                 return false;
             }
-
-            static void _static_init() { }
         };
 
     }

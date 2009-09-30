@@ -69,8 +69,6 @@ namespace x10 {
             template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
-
-            static void _static_init() { }
         };
 
         template<class T> x10aux::ref<T> Throwable::_deserializer(x10aux::deserialization_buffer &buf){

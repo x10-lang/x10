@@ -40,7 +40,7 @@ bool addr_map::ensure_unique(const void* p) {
 
 serialization_buffer::serialization_buffer (void)
     // do not use GC
-    : buffer(NULL), limit(NULL), cursor(NULL), realloc_func(x10aux::msg_realloc)
+    : realloc_func(x10aux::msg_realloc), buffer(NULL), limit(NULL), cursor(NULL)
 { }
 
 void serialization_buffer::grow (void) {

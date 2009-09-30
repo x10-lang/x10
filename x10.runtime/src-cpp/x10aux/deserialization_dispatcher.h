@@ -3,7 +3,6 @@
 
 #include <x10aux/config.h>
 
-#include <x10aux/alloc.h>
 #include <x10aux/ref.h>
 
 namespace x10 { namespace lang { class Object; } }
@@ -51,23 +50,23 @@ namespace x10aux {
         
         template<class T> static ref<T> create(deserialization_buffer &buf);
         template<class T> static ref<T> create(deserialization_buffer &buf,
-                                               x10aux::serialization_id_t id);
+                                               serialization_id_t id);
 
         ref<x10::lang::Object> create_(deserialization_buffer &buf);
-        ref<x10::lang::Object> create_(deserialization_buffer &buf, x10aux::serialization_id_t id);
+        ref<x10::lang::Object> create_(deserialization_buffer &buf, serialization_id_t id);
 
         static serialization_id_t addDeserializer(Deserializer deser, bool is_async=false);
         serialization_id_t addDeserializer_(Deserializer deser, bool is_async);
 
         static serialization_id_t addPutBufferFinder(BufferFinder bfinder);
         serialization_id_t addPutBufferFinder_(BufferFinder bfinder);
-        static BufferFinder getPutBufferFinder(x10aux::serialization_id_t id);
-        BufferFinder getPutBufferFinder_(x10aux::serialization_id_t id);
+        static BufferFinder getPutBufferFinder(serialization_id_t id);
+        BufferFinder getPutBufferFinder_(serialization_id_t id);
 
         static serialization_id_t addGetBufferFinder(BufferFinder bfinder);
         serialization_id_t addGetBufferFinder_(BufferFinder bfinder);
-        static BufferFinder getGetBufferFinder(x10aux::serialization_id_t id);
-        BufferFinder getGetBufferFinder_(x10aux::serialization_id_t id);
+        static BufferFinder getGetBufferFinder(serialization_id_t id);
+        BufferFinder getGetBufferFinder_(serialization_id_t id);
 
         static void registerHandlers();
         void registerHandlers_();
@@ -82,7 +81,7 @@ namespace x10aux {
     }
 
     template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf,
-                                                               x10aux::serialization_id_t id) {
+                                                               serialization_id_t id) {
         return static_cast<ref<T> >(it->create_(buf,id)); 
     }
 

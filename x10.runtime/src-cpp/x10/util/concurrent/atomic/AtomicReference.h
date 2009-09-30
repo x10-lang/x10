@@ -51,10 +51,6 @@ namespace x10 {
                     T getAndSet(T val);
 
                     virtual x10aux::ref<x10::lang::String> toString();
-
-                    static void _static_init() {
-                        x10::lang::Ref::_static_init();
-                    }
                 };
 
                 template<class T> x10aux::ref<AtomicReference<T > > AtomicReference<T >::_make() {

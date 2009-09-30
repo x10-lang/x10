@@ -46,8 +46,6 @@ namespace x10 {
         };
 
         template <> class Box<void> : public Ref {
-        public:
-            static void _static_init() { }
         };
 
         template<class T> void Box<T>::_initRTT() {

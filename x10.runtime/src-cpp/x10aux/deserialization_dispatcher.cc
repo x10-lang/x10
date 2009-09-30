@@ -2,6 +2,7 @@
 #include <x10aux/deserialization_dispatcher.h>
 #include <x10aux/serialization.h>
 #include <x10aux/network.h>
+#include <x10aux/alloc.h>
 
 #include <assert.h>
 
@@ -100,7 +101,7 @@ void DeserializationDispatcher::registerHandlers () {
 }
 
 void DeserializationDispatcher::registerHandlers_ () {
-    for (int i=0 ; i<next_id ; ++i) {
+    for (size_t i=0 ; i<next_id ; ++i) {
         if (i<deser_sz && deser_v[i]) {
             _S_("(DeserializationDispatcher registered id "<<i<<" as an async)");
             x10aux::register_async_handler(i);

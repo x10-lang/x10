@@ -96,10 +96,6 @@ namespace x10 {
                     x10_double doubleValue() {
                         return (x10_double)_val;
                     }
-
-                    static void _static_init() {
-                        x10::lang::Ref::_static_init();
-                    }
                 };
             }
         }
