@@ -2493,6 +2493,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 emitter.printTemplateInstantiation(mi, sw);
                 sw.write("(");
                 n.print(target, sw, tr);
+                if (!args.isEmpty()) sw.write(", ");
             }
             printCallActuals(n, context, xts, mi, args);
             sw.write(")");
