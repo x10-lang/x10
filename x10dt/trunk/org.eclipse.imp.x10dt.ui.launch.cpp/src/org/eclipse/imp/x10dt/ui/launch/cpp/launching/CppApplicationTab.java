@@ -26,7 +26,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.imp.x10dt.ui.launch.cpp.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;

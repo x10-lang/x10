@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;

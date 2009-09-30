@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,8 +15,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
-import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -74,7 +74,7 @@ public final class JavaProjectUtils {
       case IClasspathEntry.CPE_PROJECT:
         final IResource resource = root.findMember(cpEntry.getPath());
         if (resource == null) {
-          CppLaunchCore.log(IStatus.WARNING, NLS.bind(LaunchMessages.JPU_ResourceErrorMsg, cpEntry.getPath()));
+          LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.JPU_ResourceErrorMsg, cpEntry.getPath()));
         } else {
           final IJavaProject refProject = JavaCore.create((IProject) resource);
           for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
@@ -84,7 +84,7 @@ public final class JavaProjectUtils {
         break;
         
       default:
-        throw new IllegalArgumentException(NLS.bind(LaunchMessages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
+        throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
     }
   }
   

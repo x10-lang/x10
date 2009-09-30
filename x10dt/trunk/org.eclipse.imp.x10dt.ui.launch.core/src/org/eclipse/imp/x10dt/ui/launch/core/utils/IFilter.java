@@ -5,24 +5,23 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 /**
- * Defines a functor with one parameter.
- *
- * @param <T1> The functor parameter type.
- * @param <T2> The functor return type.
- *
+ * Defines a filter on data structures with one dimension.
+ * 
+ * @param <T> The type of the elements to filter.
+ * 
  * @author egeay
  */
-public interface IFunctor<T1, T2> {
+public interface IFilter<T> {
   
   /**
-   * Returns the element after applying the functor to the element transmitted.
+   * Returns a boolean indicating if the element transmitted is filtered or not.
    * 
-   * @param element The functor parameter.
-   * @return The functor result.
+   * @param element The element to consider.
+   * @return True if we don't want to filter it, false otherwise.
    */
-  public T2 apply(final T1 element);
+  public boolean accepts(final T element);
 
 }

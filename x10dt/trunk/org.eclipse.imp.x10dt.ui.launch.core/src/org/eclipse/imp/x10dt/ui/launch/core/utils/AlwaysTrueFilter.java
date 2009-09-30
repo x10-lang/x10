@@ -5,18 +5,21 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections.IFunctor;
+/**
+ * A filter that always accepts all elements.
+ *
+ * @param <T> The type of the elements to filter.
+ *
+ * @author egeay
+ */
+public final class AlwaysTrueFilter<T> implements IFilter<T>{
 
-
-final class CpEntryAsStringFunc implements IFunctor<IPath, String> {
-  
   // --- Interface methods implementation
-
-  public String apply(final IPath path) {
-    return path.toOSString();
+  
+  public boolean accepts(final T element) {
+    return true;
   }
 
 }

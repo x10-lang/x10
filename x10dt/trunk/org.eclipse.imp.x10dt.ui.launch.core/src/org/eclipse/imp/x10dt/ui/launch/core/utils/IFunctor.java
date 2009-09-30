@@ -5,21 +5,24 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 /**
- * A filter that always refuses all elements.
+ * Defines a functor with one parameter.
  *
- * @param <T> The type of the elements to filter.
+ * @param <T1> The functor parameter type.
+ * @param <T2> The functor return type.
  *
  * @author egeay
  */
-public final class AlwaysFalseFilter<T> implements IFilter<T>{
-
-  // --- Interface methods implementation
+public interface IFunctor<T1, T2> {
   
-  public boolean accepts(final T element) {
-    return false;
-  }
+  /**
+   * Returns the element after applying the functor to the element transmitted.
+   * 
+   * @param element The functor parameter.
+   * @return The functor result.
+   */
+  public T2 apply(final T1 element);
 
 }

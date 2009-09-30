@@ -7,10 +7,20 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.wizards;
 
+import java.io.IOException;
+import java.util.Map;
+
+import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.x10dt.ui.launch.cpp.Constants;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ptp.core.IModelManager;
@@ -20,6 +30,7 @@ import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
@@ -27,6 +38,8 @@ import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,9 +49,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.WorkbenchException;
 
 
 final class CppProjectWizardSecondPage extends WizardPage {
@@ -59,6 +75,14 @@ final class CppProjectWizardSecondPage extends WizardPage {
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(1, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
+    
+    final Group x10PlatformGroup = new Group(composite, SWT.NONE);
+    x10PlatformGroup.setFont(composite.getFont());
+    x10PlatformGroup.setLayout(new GridLayout(1, false));
+    x10PlatformGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    x10PlatformGroup.setText(LaunchMessages.CPWSP_X10PlatformGroup);
+    
+    createX10Platform(x10PlatformGroup);
     
     final Group resManagerGroup = new Group(composite, SWT.NONE);
     resManagerGroup.setFont(composite.getFont());
@@ -88,9 +112,38 @@ final class CppProjectWizardSecondPage extends WizardPage {
     final String resID = (String) this.fResManagerCombo.getData(resName);
     project.setPersistentProperty(Constants.RES_MANAGER_ID, resID);
     project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
+    final String platformConfName = this.fX10PlatformCombo.getItem(this.fX10PlatformCombo.getSelectionIndex());
+    project.setPersistentProperty(Constants.X10_PLATFORM_CONF, platformConfName);
   }
   
   // --- Private code
+  
+  private boolean checkDirectory(final String targetWorkspace, final String resManagerId) {
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IResourceManager resourceManager = modelManager.getUniverse().getResourceManager(resManagerId);
+    final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
+    try {
+      final IFileInfo fileInfo = fileManager.getResource(new Path(targetWorkspace), null).fetchInfo();
+      if (fileInfo.exists()) {
+        if (fileInfo.isDirectory()) {
+          return true;
+        } else {
+          setErrorMessage(LaunchMessages.XTEPP_NoDirectoryError);
+          return false;
+        }
+      } else {
+        setErrorMessage(LaunchMessages.XTEPP_DirNotFound);
+        return false;
+      }
+    } catch (IOException except) {
+      setErrorMessage(except.getMessage());
+      return false;
+    }
+  }
   
   private void createResourceManager(final Composite parent) {
     final Composite composite = new Composite(parent, SWT.NONE);
@@ -112,7 +165,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
         this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
       }
     }
-    this.fResManagerCombo.addSelectionListener(new ResourceManagerSelectionListener());
+    this.fResManagerCombo.addSelectionListener(new PageUpdateSelectionListener());
   }
   
   private Text createLabelAndText(final Composite parent, final String labelText, 
@@ -142,40 +195,97 @@ final class CppProjectWizardSecondPage extends WizardPage {
     locationComp.setLayout(new GridLayout(2, false));
     locationComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fWorkspaceLocText = createLabelAndText(locationComp, LaunchMessages.CPWSP_LocationLabel, null);
-    this.fWorkspaceLocText.setEnabled(false);
     this.fWorkspaceLocText.addModifyListener(new WorkspaceLocModifyListener());
+    this.fWorkspaceLocText.setEnabled(false);
     
     final Composite browseComp = new Composite(composite, SWT.NONE);
     browseComp.setLayout(new GridLayout(1, false));
     browseComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-    this.fRemoteBrowseBt = new Button(browseComp, SWT.PUSH);
-    this.fRemoteBrowseBt.setText(LaunchMessages.CPWSP_RemoteBrowseBt);
-    this.fRemoteBrowseBt.addSelectionListener(new RemoteButtonSelectionListener());
-    this.fRemoteBrowseBt.setEnabled(false);
+    this.fBrowseBt = new Button(browseComp, SWT.PUSH);
+    this.fBrowseBt.setText(LaunchMessages.CPWSP_BrowseBt);
+    this.fBrowseBt.addSelectionListener(new BrowseBtSelectionListener());
+    this.fBrowseBt.setEnabled(false);
+    
+    final Runnable runnable = new Runnable() {
+      public void run() {
+        final int index = CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex();
+        final String resManagerName = CppProjectWizardSecondPage.this.fResManagerCombo.getItem(index);
+        final String resManagerId = (String) CppProjectWizardSecondPage.this.fResManagerCombo.getData(resManagerName);
+        if (checkDirectory(CppProjectWizardSecondPage.this.fWorkspaceLocText.getText().trim(), resManagerId)) {
+          setErrorMessage(null);
+          updateMessage();
+        }
+      }
+    };
+    final Listener keyListener = new Listener() {
+      
+      public void handleEvent(final Event event) {
+        getShell().getDisplay().timerExec(1500, runnable);
+      }
+      
+    };
+    
+    this.fWorkspaceLocText.addListener(SWT.KeyDown, keyListener);
+    this.fWorkspaceLocText.addDisposeListener(new DisposeListener() {
+      
+      public void widgetDisposed(final DisposeEvent event) {
+        CppProjectWizardSecondPage.this.fWorkspaceLocText.removeListener(SWT.KeyDown, keyListener);
+      }
+    });
+  }
+  
+  private void createX10Platform(final Composite parent) {
+    final Composite composite = new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new GridLayout(2, false));
+    composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    
+    new Label(composite, SWT.NONE).setText(LaunchMessages.CPWSP_X10Platforms);
+    
+    this.fX10PlatformCombo = new Combo(composite, SWT.READ_ONLY);
+    this.fX10PlatformCombo.setFont(composite.getFont());
+    this.fX10PlatformCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fX10PlatformCombo.addSelectionListener(new PageUpdateSelectionListener());
+    
+    try {
+      this.fX10Platforms = X10PlatformsManager.loadPlatformsConfiguration();
+      for (final String configurationName : this.fX10Platforms.keySet()) {
+        this.fX10PlatformCombo.add(configurationName);
+      }
+    } catch (WorkbenchException except) {
+      setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
+      CppLaunchCore.log(IStatus.ERROR, org.eclipse.imp.x10dt.ui.launch.core.Messages.XPCPP_LoadingErrorLogMsg, except);
+    } catch (IOException except) {
+      setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
+      CppLaunchCore.log(IStatus.ERROR, org.eclipse.imp.x10dt.ui.launch.core.Messages.XPCPP_LoadingErrorLogMsg, except);
+    }
   }
   
   private void updateDisablingPart() {
     final int selectionIndex = this.fResManagerCombo.getSelectionIndex();
     this.fWorkspaceLocText.setEnabled(selectionIndex != -1);
-    this.fRemoteBrowseBt.setEnabled(selectionIndex != -1);
+    this.fBrowseBt.setEnabled(selectionIndex != -1);
   }
   
   private void updateMessage() {
     if (isPageComplete()) {
       setPageComplete(false);
     }
-    final int selectionIndex = this.fResManagerCombo.getSelectionIndex();
-    if (selectionIndex == -1) {
-      setMessage(LaunchMessages.CPWSP_SelectResMsg);
+    if (this.fX10PlatformCombo.getSelectionIndex() == -1) {
+      setMessage(LaunchMessages.CPWSP_X10PlatformSelectionMsg);
     } else {
-      setMessage(LaunchMessages.CPWSP_SelectWorkspaceMsg);
+      if (this.fResManagerCombo.getSelectionIndex() == -1) {
+        setMessage(LaunchMessages.CPWSP_SelectResMsg);
+      } else {
+        setMessage(LaunchMessages.CPWSP_SelectWorkspaceMsg);
+      }
     }
-    setPageComplete(this.fWorkspaceLocText.getText().trim().length() > 0);
+    setPageComplete(this.fWorkspaceLocText.getText().trim().length() > 0 && this.fX10PlatformCombo.getSelectionIndex() > -1);
   }
   
   // --- Private classes
    
-  private final class RemoteButtonSelectionListener implements SelectionListener {
+  private final class BrowseBtSelectionListener implements SelectionListener {
 
     // --- Interface methods implementation
     
@@ -198,7 +308,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_RemoteBrowseDescription, "/"); //$NON-NLS-1$
+            final IPath path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/"); //$NON-NLS-1$
             if (path != null) {
               CppProjectWizardSecondPage.this.fWorkspaceLocText.setText(path.toString());
             }
@@ -211,11 +321,12 @@ final class CppProjectWizardSecondPage extends WizardPage {
     
   }
   
-  private final class ResourceManagerSelectionListener implements SelectionListener {
+  private final class PageUpdateSelectionListener implements SelectionListener {
 
     // --- Interface methods implementation
     
     public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
     }
 
     public void widgetSelected(final SelectionEvent event) {
@@ -238,9 +349,13 @@ final class CppProjectWizardSecondPage extends WizardPage {
   // --- Fields
   
   private Combo fResManagerCombo;
+  
+  private Combo fX10PlatformCombo;
     
-  private Button fRemoteBrowseBt;
+  private Button fBrowseBt;
     
   private Text fWorkspaceLocText;
-
+  
+  private Map<String, IX10PlatformConfiguration> fX10Platforms;
+  
 }

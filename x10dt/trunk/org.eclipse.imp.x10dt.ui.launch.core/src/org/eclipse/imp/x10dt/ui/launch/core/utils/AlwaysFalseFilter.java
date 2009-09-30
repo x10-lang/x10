@@ -5,20 +5,21 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
-import java.io.File;
-
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections.IFunctor;
-
-
-final class IPathToFileFunc implements IFunctor<IPath, File> {
+/**
+ * A filter that always refuses all elements.
+ *
+ * @param <T> The type of the elements to filter.
+ *
+ * @author egeay
+ */
+public final class AlwaysFalseFilter<T> implements IFilter<T>{
 
   // --- Interface methods implementation
   
-  public File apply(final IPath path) {
-    return path.toFile();
+  public boolean accepts(final T element) {
+    return false;
   }
 
 }

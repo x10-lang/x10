@@ -63,39 +63,15 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_TabName;
 
-  public static String CB_LibCreationError;
-
-  public static String CB_NoResManagerError;
-
-  public static String CB_ResManagerNotStarted;
-
-  public static String CBPP_ArchivingCmdLabel;
-
-  public static String CBPP_CompilationCmdLabel;
-
-  public static String CBPP_EnvVarGroupName;
-
-  public static String CBPP_LinkingCmdLabel;
-
-  public static String CBPP_PGasLocVarLabel;
-
-  public static String CBPP_RemoteCommandsGroupName;
-
-  public static String CBPP_X10DistLocVarLabel;
-
   public static String CLCD_CmdUsedMsg;
 
   public static String CLCD_ExecCreationTaskName;
 
   public static String CLCD_LaunchCreationTaskName;
 
-  public static String CLCD_LinkCancellation;
-
   public static String CLCD_LinkCmdError;
 
-  public static String CLCD_LinkConnError;
-
-  public static String CLCD_LinkExecError;
+  public static String CLCD_LinkingInterrupted;
 
   public static String CLCD_NoMainCPFileError;
 
@@ -105,41 +81,15 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_NoResManagerError;
 
-  public static String CPPB_CancelOpMsg;
-
-  public static String CPPB_CleanTaskName;
-
-  public static String CPPB_CollectingSourcesTaskName;
-
-  public static String CPPB_CompilErrorMsg;
-
-  public static String CPPB_ConnError;
-
-  public static String CPPB_ConsoleName;
-
-  public static String CPPB_DeletingTaskName;
-
-  public static String CPPB_DeletionTaskName;
-
-  public static String CPPB_FileReadingErrorMessage;
-
-  public static String CPPB_RemoteCompilTaskName;
-
-  public static String CPPB_RemoteOpError;
-
-  public static String CPPB_TransferError;
-
-  public static String CPPB_TransferTaskName;
-
   public static String CPWFP_NoBundleDialogMsg;
 
   public static String CPWFP_NoBundleDialogTitle;
 
   public static String CPWSP_LocationLabel;
 
-  public static String CPWSP_RemoteBrowseBt;
+  public static String CPWSP_BrowseBt;
 
-  public static String CPWSP_RemoteBrowseDescription;
+  public static String CPWSP_BrowseDescription;
 
   public static String CPWSP_ResManagerGroupName;
 
@@ -157,19 +107,17 @@ public class LaunchMessages extends NLS {
 
   public static String CPWSP_WizardTitle;
 
-  public static String EQ_PosErrorMsg;
+  public static String CPWSP_X10PlatformGroup;
 
-  public static String EQ_URIErrorMsg;
+  public static String CPWSP_X10Platforms;
 
+  public static String CPWSP_X10PlatformSelectionMsg;
+  
   public static String ES_CompileTaskName;
-
+  
   public static String ES_LinkingTaskName;
   
   public static String FFSD_DialogTitle;
-
-  public static String JPU_ResourceErrorMsg;
-
-  public static String JPU_UnexpectedEntryKindMsg;
   
   public static String PW_PrjCancelationErrorMsg;
 
@@ -209,6 +157,26 @@ public class LaunchMessages extends NLS {
 
   // --- Private code
   
+  public static String OXPCWTA_ErrorDialogMsg;
+
+  public static String OXPCWTA_ErrorDialogStatusMsg;
+
+  public static String OXPCWTA_ErrorDialogTitle;
+
+  public static String XTEPP_DataStoringError;
+
+  public static String XTEPP_DirNotFound;
+
+  public static String XTEPP_InitializationError;
+
+  public static String XTEPP_MissingRMError;
+
+  public static String XTEPP_MissingTargetWorkspaceError;
+
+  public static String XTEPP_MissingX10PlatformError;
+
+  public static String XTEPP_NoDirectoryError;
+
   private static final String BUNDLE_NAME = "org.eclipse.imp.x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$
 
   static {

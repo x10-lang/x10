@@ -19,6 +19,11 @@ import org.osgi.framework.BundleContext;
  * @author egeay
  */
 public class LaunchCore extends AbstractUIPlugin {
+  
+  /**
+   * Unique id for this plugin.
+   */
+  public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.ui.launch.core"; //$NON-NLS-1$
    
   // --- Public services
   

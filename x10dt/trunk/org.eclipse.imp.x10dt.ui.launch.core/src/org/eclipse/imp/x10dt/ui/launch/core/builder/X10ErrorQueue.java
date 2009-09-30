@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
+package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,9 +17,9 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
-import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.AbstractErrorQueue;
@@ -40,7 +40,7 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
   
   protected void displayError(final ErrorInfo error) {
     if (error.getPosition() == null) {
-      CppLaunchCore.log(IStatus.WARNING, NLS.bind(LaunchMessages.EQ_PosErrorMsg, error));
+      LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.EQ_PosErrorMsg, error));
     } else {
       final int severity = (error.getErrorKind() == ErrorInfo.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
       final Position position = error.getPosition();
@@ -57,9 +57,9 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
           }
         }
       } catch (URISyntaxException except) {
-        CppLaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.EQ_URIErrorMsg, position.file()), except);
+        LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.EQ_URIErrorMsg, position.file()), except);
       } catch (CoreException except) {
-        CppLaunchCore.log(except.getStatus());
+        LaunchCore.log(except.getStatus());
       }
     }
   }

@@ -20,6 +20,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * Common base for actions creating X10-related wizards.
+ * 
+ * @author egeay
+ */
 public abstract class AbstractWizardToolbarAction extends Action {
 
 	// --- Abstract methods definition
@@ -30,12 +35,14 @@ public abstract class AbstractWizardToolbarAction extends Action {
 
 	public final void run() {
 		final INewWizard wizard = createNewWizard();
-		wizard.init(PlatformUI.getWorkbench(), this.fSelection);
+		if (wizard != null) {
+		  wizard.init(PlatformUI.getWorkbench(), this.fSelection);
+		
+		  final WizardDialog dialog = new WizardDialog(this.fShell, wizard);
+		  dialog.create();
 
-		final WizardDialog dialog = new WizardDialog(this.fShell, wizard);
-		dialog.create();
-
-		notifyResult(dialog.open() == Window.OK);
+		  notifyResult(dialog.open() == Window.OK);
+		}
 	}
 
 	// --- Code for descendants

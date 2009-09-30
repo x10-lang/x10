@@ -11,7 +11,7 @@
             hasNature="true"
             isConfigurable="false">
          <run
-               class="org.eclipse.imp.x10dt.ui.launch.cpp.builder.CppBuilder">
+               class="org.eclipse.imp.x10dt.ui.launch.cpp.builder.X10CppBuilder">
          </run>
       </builder>
    </extension>
@@ -25,17 +25,11 @@
          </run>
       </runtime>
       <builder
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.X10CppBuilder">
+            id="org.eclipse.imp.x10dt.ui.launch.cpp.X10CppBuilder">
       </builder>
       <requires-nature
             id="org.eclipse.jdt.core.javanature">
       </requires-nature>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.preferences.CppBuilderPrefPageInitializer">
-      </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -123,6 +117,23 @@
             id="org.eclipse.imp.x10dt.ui.cpp.launch.SourceLocator"
             name="X10 C++ back-end source locator">
       </sourceLocator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="org.eclipse.imp.x10dt.ui.launch.cpp.properties.X10TargetEnvironmentPropertyPage"
+            id="org.eclipse.imp.x10dt.ui.launch.cpp.project.property.page"
+            name="X10 Target Environment">
+         <enabledWhen>
+            <adapt
+                  type="org.eclipse.core.resources.IProject">
+            </adapt>
+         </enabledWhen>
+         <filter
+               name="projectNature"
+               value="org.eclipse.imp.x10dt.ui.launch.cpp.x10nature">
+         </filter>
+      </page>
    </extension>
 
 </plugin>

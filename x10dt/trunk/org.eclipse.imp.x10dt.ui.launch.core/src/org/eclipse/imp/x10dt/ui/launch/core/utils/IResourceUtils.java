@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;

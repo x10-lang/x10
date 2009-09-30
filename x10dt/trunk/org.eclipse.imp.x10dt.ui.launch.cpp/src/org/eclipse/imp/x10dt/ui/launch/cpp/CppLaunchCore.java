@@ -23,7 +23,7 @@ public class CppLaunchCore extends AbstractUIPlugin {
   /**
    * Unique id for this plugin.
    */
-  public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.ui.cpp.launch"; //$NON-NLS-1$
+  public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.ui.launch.cpp"; //$NON-NLS-1$
   
   /**
    * Unique id for the C++ Builder.

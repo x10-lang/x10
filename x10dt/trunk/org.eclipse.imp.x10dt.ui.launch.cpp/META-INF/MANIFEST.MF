@@ -31,11 +31,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ptp.rm.remote,
  org.eclipse.ptp.debug.core,
  org.eclipse.ptp.remote.remotetools.core,
- org.eclipse.jdt.debug.ui
+ org.eclipse.jdt.debug.ui,
+ org.eclipse.imp.x10dt.ui.launch.core
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.ui.launch.cpp;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
  org.eclipse.imp.x10dt.ui.launch.cpp.builder;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
  org.eclipse.imp.x10dt.ui.launch.cpp.launching;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
- org.eclipse.imp.x10dt.ui.launch.cpp.utils;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
- org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug"
+ org.eclipse.imp.x10dt.ui.launch.cpp.utils;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug"

@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
-import org.eclipse.imp.x10dt.ui.launch.core.preferences.X10PlatformConfiguration;
+import java.util.Set;
+
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizard;
@@ -15,6 +18,7 @@ import org.eclipse.jface.wizard.IWizardNode;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardSelectionPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -31,17 +35,17 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 
-final class PlatformConfNameWizardPage extends WizardSelectionPage implements IWizardPage {
+final class PlatformConfNameWizardPage extends WizardSelectionPage implements IWizardPage, IPlaftormConfWizardPage {
   
-  PlatformConfNameWizardPage(final X10PlatformConfiguration platformConf) {
-    super("ConfName");
-    setTitle("Configuration Name Page");
+  PlatformConfNameWizardPage(final Set<String> confNames) {
+    super("ConfName"); //$NON-NLS-1$
+    setTitle(Messages.PCNWP_WizTitle);
     setPageComplete(false);
-    setDescription("Creates a new X10 platform");
+    setDescription(Messages.PCNWP_WizDescr);
     
-    setMessage("You must define a configuration name");
+    this.fConfNames = confNames;
     
-    this.fPlatformConf = platformConf;
+    setMessage(Messages.PCNWP_WizDefaultMsg);
   }
   
   // --- IDialogPage's interface methods implementation
@@ -63,6 +67,21 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
     setControl(composite);
   }
   
+  // --- IPlaftormConfWizardPage's interface methods implementation
+  
+  public void performFinish(final X10PlatformConfiguration platformConfiguration) {
+    platformConfiguration.setName(this.fNameText.getText());
+    
+    ((NextWizardNode) getSelectedNode()).getWizardPage().performFinish(platformConfiguration);
+  }
+  
+  // --- Overridden methods
+  
+  public boolean canFlipToNextPage() {
+    return (this.fNameText.getText() != null) && (this.fNameText.getText().length() > 0) &&
+           (! this.fConfNames.contains(this.fNameText.getText()));
+  }
+  
   // --- Private code
   
   private void createBackEnd(final Composite composite) {
@@ -70,16 +89,16 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
     backEndGroup.setFont(composite.getFont());
     backEndGroup.setLayout(new GridLayout(1, false));
     backEndGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    backEndGroup.setText("Back-End");
+    backEndGroup.setText(Messages.PCNWP_BackEndGroup);
     
     final Button cppBackEndBt = new Button(backEndGroup, SWT.RADIO);
     cppBackEndBt.setFont(composite.getFont());
-    cppBackEndBt.setText("C++");
+    cppBackEndBt.setText(Messages.PCNWP_CPPBt);
     cppBackEndBt.setSelection(true);
     
     this.fJavaBackEndBt = new Button(backEndGroup, SWT.RADIO);
     this.fJavaBackEndBt.setFont(composite.getFont());
-    this.fJavaBackEndBt.setText("Java");
+    this.fJavaBackEndBt.setText(Messages.PCNWP_JavaBt);
     this.fJavaBackEndBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -98,11 +117,11 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
     locationGroup.setFont(composite.getFont());
     locationGroup.setLayout(new GridLayout(1, false));
     locationGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    locationGroup.setText("Location");
+    locationGroup.setText(Messages.PCNWP_LocationGroup);
     
     this.fLocalLocBt = new Button(locationGroup, SWT.RADIO);
     this.fLocalLocBt.setFont(composite.getFont());
-    this.fLocalLocBt.setText("Local");
+    this.fLocalLocBt.setText(Messages.PCNWP_LocalBt);
     this.fLocalLocBt.setSelection(true);
     this.fLocalLocBt.addSelectionListener(new SelectionListener() {
       
@@ -118,7 +137,7 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
     
     final Button remoteLocBt = new Button(locationGroup, SWT.RADIO);
     remoteLocBt.setFont(composite.getFont());
-    remoteLocBt.setText("Remote");
+    remoteLocBt.setText(Messages.PCNWP_RemoteBt);
   }
   
   private void createName(final Composite parent) {
@@ -127,16 +146,20 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
     composite.setLayout(new GridLayout(2, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     
-    WizardUtils.createLabelAndText(composite, "Configuration Name", new ModifyListener() {
+    this.fNameText = WizardUtils.createLabelAndText(composite, Messages.PCNWP_ConfigurationName, new ModifyListener() {
       public void modifyText(final ModifyEvent event) {
+        setErrorMessage(null);
         final Text text = (Text) event.widget;
         if ((text.getText() == null) || (text.getText().length() == 0)) {
-          setMessage("You must define a configuration name");
-          setPageComplete(false);
+          setMessage(Messages.PCNWP_WizDefaultMsg);
         } else {
-          setMessage(null);
-          setPageComplete(true);
+          if (PlatformConfNameWizardPage.this.fConfNames.contains(text.getText())) {
+            setErrorMessage(NLS.bind(Messages.XPCPP_ConfNameAlreadyExists, text.getText()));
+          } else {
+            setMessage(null);
+          }
         }
+        getContainer().updateButtons();
       }
     });
   }
@@ -144,7 +167,7 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
   private class NextWizardNode implements IWizardNode {
     
     NextWizardNode() {
-      this.fWizardPage = new PlatformConfDefWizardPage(PlatformConfNameWizardPage.this.fPlatformConf);
+      this.fWizardPage = new PlatformConfDefWizardPage(null);
     }
     
     // --- Interface methods implementation
@@ -163,13 +186,24 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
       if (this.fWizard == null) {
         this.fWizard = new PlatformConfDefWizard(this.fWizardPage);
       }
-      this.fWizardPage.updateFlags(PlatformConfNameWizardPage.this.fLocalLocBt.getSelection(),
-                                   ! PlatformConfNameWizardPage.this.fJavaBackEndBt.getSelection());
+      final boolean isLocal = PlatformConfNameWizardPage.this.fLocalLocBt.getSelection();
+      final boolean isCplusPlus = ! PlatformConfNameWizardPage.this.fJavaBackEndBt.getSelection();
+      this.fWizardPage.updateFlags(isLocal, isCplusPlus);
+      final String location = (isLocal) ? Messages.PCNWP_LocalStr : Messages.PCNWP_RemoteStr;
+      final String backEnd = (isCplusPlus) ? Messages.PCNWP_CPPBt : Messages.PCNWP_JavaBt;
+      this.fWizardPage.setTitle(NLS.bind(Messages.PCNWP_DefWizPageTitle, location, backEnd));
+      this.fWizardPage.setDescription(NLS.bind(Messages.PCNWP_DefWizPageDescr, location, backEnd));
       return this.fWizard;
     }
 
     public boolean isContentCreated() {
       return true;
+    }
+    
+    // --- Internal services
+    
+    PlatformConfDefWizardPage getWizardPage() {
+      return this.fWizardPage;
     }
     
     // --- Fields
@@ -183,6 +217,9 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
   private static final class PlatformConfDefWizard extends Wizard implements INewWizard {
     
     PlatformConfDefWizard(final IWizardPage page) {
+      setWindowTitle(Messages.XNPC_WindowTitle);
+      setDialogSettings(LaunchCore.getInstance().getDialogSettings());
+      
       addPage(page);
     }
     
@@ -202,10 +239,12 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
   
   // --- Fields
   
-  private final X10PlatformConfiguration fPlatformConf;
+  private final Set<String> fConfNames;
   
   private Button fLocalLocBt;
   
   private Button fJavaBackEndBt;
+  
+  private Text fNameText;
 
 }

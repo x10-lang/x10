@@ -8,19 +8,23 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
-import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -28,17 +32,22 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.utils.ConsoleUtil;
-import org.eclipse.imp.x10dt.ui.launch.cpp.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.IResourceUtils;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -49,20 +58,13 @@ import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ptp.remote.core.IRemoteProcess;
+import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsConnection;
-import org.eclipse.ptp.remotetools.core.IRemoteCopyTools;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionManager;
-import org.eclipse.ptp.remotetools.core.IRemoteExecutionTools;
-import org.eclipse.ptp.remotetools.core.IRemoteScript;
-import org.eclipse.ptp.remotetools.core.IRemoteScriptExecution;
-import org.eclipse.ptp.remotetools.exception.CancelException;
-import org.eclipse.ptp.remotetools.exception.RemoteConnectionException;
-import org.eclipse.ptp.remotetools.exception.RemoteExecutionException;
-import org.eclipse.ptp.remotetools.exception.RemoteOperationException;
-import org.eclipse.ptp.rm.remote.core.IRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -137,17 +139,21 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
                      final IProgressMonitor monitor) throws CoreException {
-    final IRemoteConnection rmConnection = getRemoteConnection(configuration);
+    final IResourceManagerControl rmControl = (IResourceManagerControl) getResourceManager(configuration);
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
     try {
-      if (rmConnection != null) {
+      if (connection != null) {
         // Performs linking first.
         monitor.beginTask(null, 10);
         monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-        createExecutable(rmConnection, configuration, verifyProject(configuration), new SubProgressMonitor(monitor, 3));
+        createExecutable(connection, remoteServices, configuration, verifyProject(configuration), 
+                         new SubProgressMonitor(monitor, 8));
         
         // Then, performs the launch.
         monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 7));
+        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
       }
     } finally {
       monitor.done();
@@ -156,74 +162,80 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   // --- Private code
   
-  private void createExecutable(final IRemoteConnection rmConnection, final ILaunchConfiguration configuration,
-                                final IProject project, final IProgressMonitor monitor) throws CoreException {
-    if (rmConnection instanceof RemoteToolsConnection) {
-      try {
-        final IRemoteExecutionManager rmExecManager = ((RemoteToolsConnection) rmConnection).createExecutionManager();
-        final IRemoteExecutionTools rmExecTools = rmExecManager.getExecutionTools();
-                
-        final String workspaceDir = configuration.getAttribute(ATTR_WORK_DIRECTORY, (String) null);
-        final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
-        final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
+  private void createExecutable(final IRemoteConnection connection, final IRemoteServices remoteServices,
+                                final ILaunchConfiguration configuration, final IProject project, 
+                                final IProgressMonitor monitor) throws CoreException {
+    final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
+    try {
+      final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+      final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
+      final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
+      final IX10PlatformConfiguration platform = platforms.get(platformConfName);
+      final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+      final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
         
-        try {
-          if (rmExecManager.getRemoteFileTools().hasFile(appProgName) && ! shouldLinkApp) {
-            return;
-          }
-        } catch (RemoteOperationException except) {
-          // We failed on checking if we should link... but let's try to perform the link step.
-        }
-        
-        createMainFile(rmExecManager.getRemoteCopyTools(), appProgName, workspaceDir);
-        
-        final IPreferenceStore store = CppLaunchCore.getInstance().getPreferenceStore();
-        final String x10DistLoc = store.getString(Constants.P_CPP_BUILDER_X10_DIST_LOC);
-        final String pgasLoc = store.getString(Constants.P_CPP_BUILDER_PGAS_LOC);
-
-        final IRemoteScript script = rmExecTools.createScript();
-        script.addEnvironment("X10_DIST_LOC=" + x10DistLoc); //$NON-NLS-1$
-        script.addEnvironment("PGAS_LOC=" + pgasLoc); //$NON-NLS-1$
-          
-        final StringBuilder cmdAddingBuilder = new StringBuilder();        
-        cmdAddingBuilder.append("-L").append(workspaceDir).append(" -I").append(workspaceDir) //$NON-NLS-1$ //$NON-NLS-2$
-                      	.append(SPACE).append(workspaceDir).append('/').append(MAIN_FILE_NAME)
-                      	.append(" -o ").append(appProgName).append(SPACE).append("-l").append(project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-        final String linkCmd = store.getString(Constants.P_CPP_BUILDER_LINK_CMD);
-        final String scriptCmd = linkCmd.replace("%{FILES}", cmdAddingBuilder.toString()); //$NON-NLS-1$
-        
-        script.setScript(scriptCmd);
-            
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        script.setProcessOutputStream(outputStream);
-        final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-        script.setProcessErrorStream(errorStream);
-        
-        final IRemoteScriptExecution rmExec = rmExecTools.executeScript(script);
-        rmExec.waitForEndOfExecution();
-        
-        final int returnCode = rmExec.getReturnCode();
-        if (returnCode != 0) {
-          IResourceUtils.addMarkerTo(project, NLS.bind(LaunchMessages.CLCD_LinkCmdError, scriptCmd), 
-                                     IMarker.SEVERITY_ERROR, project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
-          final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
-          final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-          mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, scriptCmd));
-          mcStream.println(errorStream.toString());
-        }
-        rmExec.close();
-      } catch (RemoteConnectionException except) {
-        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkConnError, except));
-      } catch (RemoteExecutionException except) {
-        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkExecError, except));
-      } catch (CancelException except) {
-        throw new CoreException(new Status(IStatus.CANCEL, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkCancellation));
+      final IFileStore appProgFileStore = fileManager.getResource(new Path(appProgName), null);
+      if (appProgFileStore.fetchInfo().exists() && ! shouldLinkApp) {
+        return;
       }
+      
+      createMainFile(fileManager, appProgName, workspaceDir);
+      
+      final List<String> command = new ArrayList<String>();
+      command.add(platform.getLinker());
+      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingOpts()));
+      command.add(X10BuilderUtils.getCompilingIncludeOpt(workspaceDir, false));
+      command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getX10DistribLocation(), true));
+      command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getPGASLocation(), true));
+      command.add(workspaceDir + '/' + MAIN_FILE_NAME);
+      command.add("-o"); //$NON-NLS-1$
+      command.add(appProgName);
+      command.add(X10BuilderUtils.getCompilingLibraryOpt(workspaceDir, false));
+      command.add(X10BuilderUtils.getCompilingLibraryOpt(platform.getX10DistribLocation(), true));
+      command.add(X10BuilderUtils.getCompilingLibraryOpt(platform.getPGASLocation(), true));
+      command.add("-l" + project.getName()); //$NON-NLS-1$
+      command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingLibs()));
+
+      final IRemoteProcessBuilder processBuilder = remoteServices.getProcessBuilder(connection, command);
+      final IRemoteProcess process = processBuilder.start();
+      
+      process.waitFor();
+        
+      final int returnCode = process.exitValue();
+      if (returnCode != 0) {
+        IResourceUtils.addMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
+                                   project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+        final StringBuilder cmdBuilder = new StringBuilder();
+        for (final String str : command) {
+          cmdBuilder.append(str).append(' ');
+        }
+        mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmdBuilder.toString()));
+        final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        try {
+          String line;
+          while ((line = errReader.readLine()) != null) {
+            mcStream.println(line);
+          }
+        } catch (IOException except) {
+          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
+        }
+      }
+    } catch (WorkbenchException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.XPCPP_LoadingErrorMsg, except));
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.XPCPP_LoadingErrorMsg, except));
+    } catch (InterruptedException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkingInterrupted, 
+                                         except));
+    } finally {
+      monitor.done();
     }
   }
   
-  private void createMainFile(final IRemoteCopyTools rmCopyTools, final String appProgName, 
-                              final String workspaceDir) throws CoreException, RemoteConnectionException, CancelException {
+  private void createMainFile(final IRemoteFileManager fileManager, final String appProgName, 
+                              final String workspaceDir) throws CoreException {
     final URL url = ExtensionInfo.class.getClassLoader().getResource(MAIN_TEMPLATE_FILE);
     try {
       if (url == null) {
@@ -250,7 +262,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
             writer.close();
           }
           // Secondly, transfers the file in the remote directory.
-          rmCopyTools.uploadFileToDir(tmpMainFile, workspaceDir);
+          final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), null).getChild(MAIN_FILE_NAME);
+          final IFileStore tmpMainFileStore = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
+          tmpMainFileStore.copy(destFile, EFS.OVERWRITE, null);
           // Thirdly and finally, deletes the local temporary file.
           tmpMainFile.delete();
         } catch (URISyntaxException except) {
@@ -260,29 +274,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     } catch (IOException except) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError, 
                                          except));
-    } catch (RemoteOperationException except) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessOpError, 
-                                         except));
     }
-  }
-  
-  private IRemoteConnection getRemoteConnection(final ILaunchConfiguration configuration) throws CoreException {
-    final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
-    if (resourceManager != null) {
-      final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
-      if (rmConf instanceof IRemoteResourceManagerConfiguration) {
-        final IRemoteResourceManagerConfiguration remConf = (IRemoteResourceManagerConfiguration) rmConf;
-        final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(remConf.getRemoteServicesId());
-        
-        return rmServices.getConnectionManager().getConnection(remConf.getConnectionName());
-      }
-    }
-    return null;
   }
   
   // --- Fields
-  
-  private static final String SPACE = " "; //$NON-NLS-1$
   
   private static final String PATTERN = "#0"; //$NON-NLS-1$
   

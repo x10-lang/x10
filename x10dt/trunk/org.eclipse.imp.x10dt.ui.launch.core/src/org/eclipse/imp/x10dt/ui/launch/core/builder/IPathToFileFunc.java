@@ -5,23 +5,24 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections;
+package org.eclipse.imp.x10dt.ui.launch.core.builder;
+
+import java.io.File;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
 
 /**
- * Defines a filter on data structures with one dimension.
- * 
- * @param <T> The type of the elements to filter.
+ * Functor that converts a {@link IPath} into a {@link File}.
  * 
  * @author egeay
  */
-public interface IFilter<T> {
+public final class IPathToFileFunc implements IFunctor<IPath, File> {
+
+  // --- Interface methods implementation
   
-  /**
-   * Returns a boolean indicating if the element transmitted is filtered or not.
-   * 
-   * @param element The element to consider.
-   * @return True if we don't want to filter it, false otherwise.
-   */
-  public boolean accepts(final T element);
+  public File apply(final IPath path) {
+    return path.toFile();
+  }
 
 }

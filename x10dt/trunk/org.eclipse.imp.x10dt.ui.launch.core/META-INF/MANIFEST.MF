@@ -10,7 +10,25 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench,
  org.eclipse.ptp.services.core,
  org.eclipse.ui,
- org.eclipse.ptp.core
+ org.eclipse.ptp.core,
+ org.eclipse.ptp.rm.remote,
+ org.eclipse.ptp.remote.core,
+ org.eclipse.ptp.remote.ui,
+ org.eclipse.core.resources,
+ org.eclipse.imp.runtime,
+ org.eclipse.jdt.core,
+ org.eclipse.imp.x10dt.core,
+ polyglot3,
+ x10.compiler,
+ org.eclipse.ptp.remotetools.core,
+ org.eclipse.core.filesystem,
+ org.eclipse.ui.console
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
  J2SE-1.5
+Export-Package: org.eclipse.imp.x10dt.ui.launch.core,
+ org.eclipse.imp.x10dt.ui.launch.core.builder,
+ org.eclipse.imp.x10dt.ui.launch.core.platform_conf,
+ org.eclipse.imp.x10dt.ui.launch.core.preferences,
+ org.eclipse.imp.x10dt.ui.launch.core.utils,
+ org.eclipse.imp.x10dt.ui.launch.core.wizards

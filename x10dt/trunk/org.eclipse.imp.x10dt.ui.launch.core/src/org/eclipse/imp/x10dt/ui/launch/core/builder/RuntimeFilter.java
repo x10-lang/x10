@@ -5,13 +5,17 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
+package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.collections.IFilter;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 
-
-final class RuntimeFilter implements IFilter<IPath> {
+/**
+ * Filters that accepts paths that contains "x10.runtime" in their content.
+ * 
+ * @author egeay
+ */
+public final class RuntimeFilter implements IFilter<IPath> {
   
   // --- Interface methods implementation
 
