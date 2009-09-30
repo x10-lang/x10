@@ -413,11 +413,11 @@ public class X10CPPTranslator extends Translator {
 //		sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
 //		sw.newline();
 //		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
-		sw.write("extern \"C\" const char* LNMAP_"+lnmName+"_"+ext+" = \"");
+		sw.write("extern \"C\" { const char* LNMAP_"+lnmName+"_"+ext+" = \"");
 		sw.write(StringUtil.escape(map.exportMap()));
 //		String v = map.exportMap();
 //		LineNumberMap m = LineNumberMap.importMap(v);
-		sw.write("\";");
+		sw.write("\"; }");
 		sw.newline();
 	}
 
