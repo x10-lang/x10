@@ -21,7 +21,9 @@
 #else
 #  include <sys/time.h>  // for gettimeofday (POSIX)
 #endif
+
 #include <stdlib.h>
+#include <stdio.h>
 
 void x10aux::system_utils::exit(x10_int code) {
     // FIXME: The implementation in x10.backend/x10lang/x10lang.cc copied code
@@ -58,5 +60,10 @@ x10_long x10aux::system_utils::nanoTime() {
     return (x10_long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
 #endif
 }
+
+void x10aux::system_utils::println(const char *msg) {
+    fprintf(stderr, "%s\n", msg);
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab

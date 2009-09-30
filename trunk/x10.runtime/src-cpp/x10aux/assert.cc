@@ -1,5 +1,6 @@
 #include <x10aux/config.h>
 #include <x10aux/assert.h>
+#include <stdio.h>
 
 #include <x10/lang/String.h>
 

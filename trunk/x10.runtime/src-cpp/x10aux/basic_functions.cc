@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
 #include <x10aux/math.h>
+#include <stdio.h>
 
 using namespace x10aux;
 using namespace x10::lang;

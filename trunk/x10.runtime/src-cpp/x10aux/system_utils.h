@@ -17,6 +17,9 @@ namespace x10aux {
         /** Current value of the system timer, in nanoseconds.  May be rounded if system timer does not have nanosecond precision. */
         static x10_long nanoTime();
 
+        /** Low-level println to stderr; intended only for low-level debugging of XRX */
+        static void println(const char *msg);
+
     };
 }
 
