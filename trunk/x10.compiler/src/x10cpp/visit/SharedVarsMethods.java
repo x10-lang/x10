@@ -68,7 +68,6 @@ public class SharedVarsMethods {
 	static final String INSTANCE_INIT = "_instance_init"; // instance field initialisers
 	static final String CONSTRUCTOR = "_constructor";
 	static final String MAKE = "_make";
-	static final String STATIC_INIT = "_static_init"; // static field initialisers
 	static final String SERIALIZATION_ID_FIELD = "_serialization_id";
 	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
     static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";

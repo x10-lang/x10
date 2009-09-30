@@ -81,6 +81,7 @@ static void receive_async (const x10rt_msg_params &p) {
     assert(buf.consumed() <= p.len);
     _X_("The deserialised async was: "<<async->toString());
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
+    if (async.isNull()) return;
     (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
 }
 

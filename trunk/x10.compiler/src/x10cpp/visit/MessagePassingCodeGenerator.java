@@ -34,7 +34,6 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZATION_MARKER;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
-import static x10cpp.visit.SharedVarsMethods.STATIC_INIT;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
 import static x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
@@ -317,26 +316,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	             fd.init().type().isChar() || fd.init().type().isNull()));
 	}
 
-	// FIXME: Consolidate with extractInits()
-	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
+	private void extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream h) {
+		if (cd.typeParameters().size() == 0) return;
+
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (cd.typeParameters().size() == 0)
-			return false;
-		w.write("template <> class ");
-		w.write(mangled_non_method_name(cd.name().toString()));
-		w.write(voidTemplateInstantiation(cd.typeParameters().size()));
+		h.write("template <> class ");
+		h.write(mangled_non_method_name(cd.name().toString()));
+		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
 		if (cd.superType() != null) {
-		    w.write(" : public ");
+		    h.write(" : public ");
 		    X10ClassDef sdef = ((X10ClassType) cd.superType().get()).x10Def();
 		    X10ClassType stype = (X10ClassType) sdef.asType();
-		    w.write(Emitter.translateType(getStaticMemberContainer(stype), false));
+		    h.write(Emitter.translateType(getStaticMemberContainer(stype), false));
 		}
-		w.allowBreak(0, " ");
-		w.write("{");
-		w.newline(4); w.begin(0);
-        w.write("public:"); w.newline();
-        w.write("static x10aux::RuntimeType rtt;"); w.newline();
-        w.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); w.newline();
+		h.allowBreak(0, " ");
+		h.write("{");
+		h.newline(4); h.begin(0);
+		h.write("public:"); h.newline();
+		h.write("static x10aux::RuntimeType rtt;"); h.newline();
+		h.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); h.newline();
 		// First process all classes
 		for (ClassMember dec : context.pendingStaticDecls()) {
 			if (dec instanceof ClassDecl_c) {
@@ -348,12 +346,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					// emit no c++ code as this is a native rep class
 					continue;
 				}
-				emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), w);
-				w.write("class ");
-				w.write(Emitter.mangled_non_method_name(cdecl.name().id().toString()));
-				w.write(";");
+				emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
+				h.write("class ");
+				h.write(Emitter.mangled_non_method_name(cdecl.name().id().toString()));
+				h.write(";");
 				((X10CPPTranslator)tr).setContext(context); // FIXME
-				w.newline();
+				h.newline();
 			}
 		}
 		// Then process all fields and methods
@@ -361,31 +359,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (dec instanceof FieldDecl_c) {
 				FieldDecl_c fd = (FieldDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
-				sw.pushCurrentStream(w);
-				emitter.printHeader(fd, w, tr, false);
+				sw.pushCurrentStream(h);
+				emitter.printHeader(fd, h, tr, false);
 				sw.popCurrentStream();
-				w.write(";");
+				h.write(";");
 				((X10CPPTranslator)tr).setContext(context); // FIXME
 			} else if (dec instanceof MethodDecl_c) {
 				MethodDecl_c md = (MethodDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
-				sw.pushCurrentStream(w);
+				sw.pushCurrentStream(h);
 				emitter.printHeader(md, sw, tr, false);
 				sw.popCurrentStream();
-				w.write(";");
+				h.write(";");
 				((X10CPPTranslator)tr).setContext(context); // FIXME
 			}
-			w.newline(); w.forceNewline();
+			h.newline(); h.forceNewline();
 		}
-		w.write((((X10ClassType)cd.asType()).isX10Struct() ? "" : "static ") + VOID + " " + STATIC_INIT + "();");
-		w.newline(); w.forceNewline();
-		w.end(); w.newline();
-		w.write("};");
-		w.newline();
-		return true;
+		extractGenericStaticInits(cd);
+		h.end(); h.newline();
+		h.write("};");
+		h.newline();
 	}
 
-	// FIXME: Consolidate with extractInits()
 	private void extractGenericStaticInits(X10ClassDef cd) {
 	    // Always write non-template static decls into the implementation file
 	    ClassifiedStream save_w = sw.currentStream();
@@ -396,7 +391,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    w.forceNewline(0);
 
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	    ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
 	    String container = translate_mangled_FQN(cd.fullName().toString())+voidTemplateInstantiation(cd.typeParameters().size());
 	    sw.write("x10aux::RuntimeType "+container+"::rtt;");
 	    sw.newline();
@@ -410,15 +404,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write(mangled_field_name(fd.name().id().toString()));
 	            // [DC] want these to occur in the static initialiser instead
 	            // [IP] except for the ones that use a literal init - otherwise switch is broken
-	            if (isGlobalInit(fd)) {
+	            boolean globalInit = isGlobalInit(fd);
+	            if (globalInit) {
 	                sw.write(" =");
 	                sw.allowBreak(2, " ");
 	                fd.print(fd.init(), sw, tr);
-	            } else if (fd.init() != null) {
-	                inits.add(fd);
 	            }
 	            sw.write(";");
 	            sw.newline();
+	            if (!globalInit && fd.init() != null) {
+	                generateStaticFieldInitializer(fd, container, sw);
+	            }
+	            generateStaticFieldSupportCode(fd, container, globalInit, sw);
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        } else if (dec instanceof MethodDecl_c) {
 	            MethodDecl_c md = (MethodDecl_c) dec;
@@ -455,42 +452,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	            if (templateMethod)
 	                sw.popCurrentStream();
+	        } else if (dec instanceof Initializer_c) {
+	            assert (false) : ("Static initializer alert!");
 	        } else if (dec instanceof X10ClassDecl_c) {
 	            assert (false) : ("Nested class alert!");
-
 	        }
 	    }
-	    sw.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
-	    sw.newline(4); sw.begin(0);
-	    sw.write("static bool done = false;"); sw.newline();
-	    sw.write("if (done) return;"); sw.newline();
-	    sw.write("done = true;"); sw.newline();
-	    sw.write("_I_(\"Doing static initialisation for class: "+container+"\");"); sw.newline();
-	    if (cd.superType() != null) {
-	        X10ClassDef superDef = ((X10ClassType) X10TypeMixin.baseType(cd.superType().get())).x10Def();
-	        String superContainer = translate_mangled_FQN(superDef.fullName().toString())+voidTemplateInstantiation(superDef.typeParameters().size());
-	        sw.write(superContainer + "::" + STATIC_INIT + "();");
-	        sw.newline();
-	    }
-	    for (FieldDecl_c fd : inits) {
-	        assert (fd.init() != null);
-	        sw.write(mangled_field_name(fd.name().id().toString())+" =");
-	        sw.allowBreak(2, " ");
-	        fd.print(fd.init(), sw, tr);
-	        sw.write(";");
-	        sw.newline();
-	    }
-	    //w.write("return NULL;");
-	    sw.end(); sw.newline();
-	    sw.write("}"); sw.newline();
-	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
-	    sw.newline(); sw.forceNewline(0);
-
+	    sw.forceNewline();
 	    sw.popCurrentStream();
 	}
 
 	private boolean extractInits(X10ClassType currentClass, String methodName,
-			String retType, List<ClassMember> members, boolean staticInits)
+			String retType, List<ClassMember> members)
 	{
 	    String className = Emitter.translateType(currentClass);
 	    boolean sawInit = false;
@@ -501,29 +474,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write(retType + " " + className + "::" + methodName + "() {");
 	    }
 	    sw.newline(4); sw.begin(0);
-	    if (staticInits) {
-	        sw.write("static bool done = false;"); sw.newline();
-	        sw.write("if (done) return;"); sw.newline();
-	        sw.write("done = true;"); sw.newline();
-	        sw.write("_I_(\"Doing static initialisation for class: "+className+"\");"); sw.newline();
-	        if (currentClass.superClass() != null) {
-	            X10ClassDef superDef = ((X10ClassType) X10TypeMixin.baseType(currentClass.superClass())).x10Def();
-	            if (currentClass.isX10Struct()) {
-	                String superContainer = Emitter.structNameSpace(currentClass.superClass().toClass(), true);
-                    sw.write(superContainer + "::" + methodName + "();");
-	            } else {
-	                String superContainer = translate_mangled_FQN(superDef.fullName().toString())+voidTemplateInstantiation(superDef.typeParameters().size());
-	                sw.write(superContainer + "::" + methodName + "();");
-	            }
-	            sw.newline();
-	        }
-	    } else {
-	        sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
-	    }
+	    sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
 	    for (ClassMember member : members) {
-	        if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
+	        if (member.memberDef().flags().isStatic())
 	            continue;
-	        if (member.memberDef().flags().isStatic() != staticInits)
+	        if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
 	            continue;
 	        if (member instanceof FieldDecl_c &&
 	                (((FieldDecl_c)member).init() == null ||
@@ -549,11 +504,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	            ((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
 	            X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-	            if (!staticInits) {
-	                VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-	                        Types.ref(currentClass), Name.make(THIS)).asInstance();
-	                context.addVariable(ti);
-	            }
+	            VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+	                    Types.ref(currentClass), Name.make(THIS)).asInstance();
+	            context.addVariable(ti);
 	            Expr init = (Expr) dec.init();
 	            assert (init != null);
 	            sw.write(mangled_field_name(dec.name().id().toString()));
@@ -901,13 +854,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         
         ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
-        /*
-         * TODO: [IP] Add comment about dependences between the method calls.
-         */
 
-        if (extractGenericStaticDecls(def, h)) {
-            extractGenericStaticInits(def);
-        }
+        extractGenericStaticDecls(def, h);
 
         /*
          * See comment about resetStateForClass() above.
@@ -1204,7 +1152,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
             h.write(VOID + " " + INSTANCE_INIT + "();");
             h.newline(); h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members, false)) {
+            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
                 context.hasInits = true;
             }
 
@@ -1213,8 +1161,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     n.printBlock(member, sw, tr);
                 }
             }
-
-            generateStaticInitForClass(currentClass, h, members, className);
         }
 
         sw.end();
@@ -1247,7 +1193,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.write(VOID + " " + INSTANCE_INIT + "();");
             h.newline();
             h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members, false)) {
+            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
                 context.hasInits = true;
             }
 
@@ -1267,7 +1213,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                                     superClass, xts, "virtual ", h, members);
             }
 
-            generateStaticInitForClass(currentClass, h, members, className);
         }
 
         sw.end();
@@ -1299,7 +1244,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.write(VOID + " " + INSTANCE_INIT + "();");
             h.newline();
             h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members, false)) {
+            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
                 context.hasInits = true;
             }
 
@@ -1379,8 +1324,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("}");
             sw.newline();
 
-            generateStaticInitForClass(currentClass, h, members, className);
-
             emitter.generateValueSerializationMethods(currentClass, sw);
         }
 
@@ -1420,7 +1363,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.forceNewline();
             
             Emitter.openStructNamespaces(sw, currentClass.fullName()); sw.newline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members, false)) {
+            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
                 context.hasInits = true;
             }
             Emitter.closeNamespaces(sw, currentClass.fullName()); sw.newline(); sw.forceNewline();
@@ -1477,8 +1420,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.newline();
             sw.write("}");
             sw.newline();
-
-            generateStaticInitForClass(currentClass, h, members, className);
             
             emitter.generateStructSerializationMethods(currentClass, sw);
         }
@@ -1644,34 +1585,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	private void generateStaticInitForClass(X10ClassType currentClass,
-	                                        ClassifiedStream h, List<ClassMember> members, String className) {
-	    if (currentClass.isX10Struct()) {
-	        // declare static init function in header
-	        h.writeln(VOID + " " + STATIC_INIT + "();");
-	        Emitter.openStructNamespaces(sw, currentClass.fullName()); sw.newline();
-	        if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
-	            // define field that triggers initalisation-time registration of
-	            // static init function
-	            sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
-	                     " __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" +STATIC_INIT + ")" + ";");
-	            sw.newline(); sw.forceNewline(0);
-	        }
-	        Emitter.closeNamespaces(sw, currentClass.fullName()); sw.newline(); sw.forceNewline();
-	    } else {
-	        // declare static init function in header
-	        h.write("static " + VOID + " " + STATIC_INIT + "();");
-	        h.newline();
-	        if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
-	            // define field that triggers initalisation-time registration of
-	            // static init function
-	            sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
-	                     " __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" +
-	                     className+"::"+STATIC_INIT + ")" + ";");
-	            sw.newline(); sw.forceNewline(0);
-	        }
-	    }
-	}
+    // TODO: use this to update static field init generation for structs
+//	private void generateStaticInitForClass(X10ClassType currentClass,
+//	                                        ClassifiedStream h, List<ClassMember> members, String className) {
+//	    if (currentClass.isX10Struct()) {
+//	        // declare static init function in header
+//	        h.writeln(VOID + " " + STATIC_INIT + "();");
+//	        Emitter.openStructNamespaces(sw, currentClass.fullName()); sw.newline();
+//	        if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
+//	            // define field that triggers initalisation-time registration of
+//	            // static init function
+//	            sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
+//	                     " __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" +STATIC_INIT + ")" + ";");
+//	            sw.newline(); sw.forceNewline(0);
+//	        }
+//	        Emitter.closeNamespaces(sw, currentClass.fullName()); sw.newline(); sw.forceNewline();
+//	    } else {
+//	        // declare static init function in header
+//	        h.write("static " + VOID + " " + STATIC_INIT + "();");
+//	        h.newline();
+//	        if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
+//	            // define field that triggers initalisation-time registration of
+//	            // static init function
+//	            sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
+//	                     " __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" +
+//	                     className+"::"+STATIC_INIT + ")" + ";");
+//	            sw.newline(); sw.forceNewline(0);
+//	        }
+//	    }
+//	}
 
     String defaultValue(Type type) {
 		return type.isPrimitive() ? "0" : "x10aux::null";
@@ -1960,14 +1902,218 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        emitter.printHeader(dec, sw, tr, true);
 	        // [DC] disabled because I want this done through the static initialisation framework
 	        // [IP] re-enabled for a very limited set of cases, namely literal inits
-	        if (isGlobalInit(dec)) {
+	        boolean globalInit = isGlobalInit(dec);
+	        if (globalInit) {
 	            sw.write(" =");
 	            sw.allowBreak(2, " ");
 	            dec.print(dec.init(), sw, tr);
 	        }
 	        sw.write(";");
 	        sw.newline();
+	        String container = Emitter.translateType(dec.fieldDef().asInstance().container());
+	        if (!globalInit) {
+	            generateStaticFieldInitializer(dec, container, sw);
+	        }
+	        generateStaticFieldSupportCode(dec, container, globalInit, sw);
 	        sw.forceNewline();
+	    }
+	}
+
+	private static final String STATIC_FIELD_ACCESSOR_SUFFIX = "__get";
+	private static final String STATIC_FIELD_STATUS_SUFFIX = "__status";
+	private static final String STATIC_FIELD_INITIALIZER_SUFFIX = "__init";
+	private static final String STATIC_FIELD_REAL_INIT_SUFFIX = "__do_init";
+	private static final String STATIC_FIELD_BROADCASTID_SUFFIX = "__id";
+	private static final String STATIC_FIELD_DESERIALIZER_SUFFIX = "__deserialize";
+	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
+	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
+	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
+
+	/**
+	 * Generate an initializer method for a given field declaration.
+	 */
+	private void generateStaticFieldInitializer(FieldDecl_c dec, String container, StreamWrapper sw) {
+        // FIXME: handle structs
+	    String name = dec.name().id().toString();
+	    String fname = mangled_field_name(name);
+	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
+	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
+	    ClassifiedStream h = sw.header();
+	    sw.pushCurrentStream(h);
+	    // declare the actual field initializer
+	    h.write("static void ");
+	    h.write(init_nb);
+	    h.write("();");
+	    h.newline();
+	    // declare the on-demand field initializer
+	    h.write("static void ");
+	    h.write(init);
+	    h.write("();");
+	    h.newline();
+	    sw.popCurrentStream();
+	    // define the actual field initializer
+	    sw.write("void ");
+	    sw.write(container + "::" + init_nb);
+	    sw.write("() {");
+	    sw.newline(4); sw.begin(0);
+	    // set the status (ok to do here because either we are in single-threaded
+	    // mode, or we will have already set the status to INITIALIZING atomically)
+	    sw.write(status + " = " + STATIC_FIELD_INITIALIZING + ";");
+	    sw.newline();
+	    // initialize the field
+	    sw.write("_I_(\"Doing static initialisation for field: "+container+"."+fname+"\");"); sw.newline();
+	    String val = getId();
+	    emitter.printType(dec.type().type(), sw);
+	    sw.allowBreak(2, 2, " ", 1);
+	    sw.write(val + " =");
+	    sw.allowBreak(2, 2, " ", 1);
+	    dec.print(dec.init(), sw, tr);
+	    sw.write(";");
+	    sw.newline();
+	    // copy into the field
+	    sw.write(fname + " = " + val + ";");
+	    sw.newline();
+	    // update the status
+	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
+	    sw.end(); sw.newline();
+	    sw.write("}");
+	    sw.newline();
+	    // define the on-demand field initializer
+	    sw.write("void ");
+	    sw.write(container + "::" + init);
+	    sw.write("() {");
+	    sw.newline(4); sw.begin(0);
+	    sw.write("if (x10aux::here == 0) {");
+	    sw.newline(4); sw.begin(0);
+	    sw.newline();
+	    // (atomically) check that the field is uninitialized
+	    String tmp = getId();
+	    sw.write("x10aux::status " + tmp + " =");
+	    sw.allowBreak(2, 2, " ", 1);
+	    sw.write("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
+	            status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
+	            ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
+	    sw.newline();
+	    sw.write("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
+	    sw.newline();
+	    // invoke the initializer
+	    sw.write(init_nb + "();");
+	    sw.newline();
+	    // broadcast the new value
+	    sw.write("x10aux::StaticInitBroadcastDispatcher::broadcastStaticField(");
+	    sw.begin(0);
+	    sw.write(fname);
+	    sw.write(",");
+	    sw.allowBreak(0, 2, " ", 1);
+	    sw.write(id);
+	    sw.end();
+	    sw.write(");");
+	    sw.newline();
+	    sw.write("// Notify all waiting threads");
+	    sw.newline();
+	    sw.write("x10::runtime::Runtime::lock(); x10::runtime::Runtime::release();");
+	    sw.end(); sw.newline();
+	    sw.write("}"); sw.newline();
+	    sw.write("WAIT:"); sw.newline();
+	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") x10::runtime::Runtime::await();");
+	    sw.end(); sw.newline();
+	    sw.write("}");
+	    sw.newline();
+	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
+	    sw.newline(); sw.forceNewline(0);
+	}
+
+	/**
+	 * Generates the accessor method and the initialization flag for a given
+	 * field declaration.
+	 * TODO: some of this should really be done before codegen.
+	 */
+	private void generateStaticFieldSupportCode(FieldDecl_c dec, String container, boolean globalInit, StreamWrapper sw) {
+        // FIXME: handle structs
+	    String name = dec.name().id().toString();
+	    String fname = mangled_field_name(name);
+	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	    String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
+	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+	    String deserializer = mangled_field_name(name+STATIC_FIELD_DESERIALIZER_SUFFIX);
+	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    ClassifiedStream h = sw.header();
+	    sw.pushCurrentStream(h);
+	    if (!globalInit) {
+	        // declare the initialization flag
+	        h.write("static volatile x10aux::status ");
+	        h.write(status);
+	        h.write(";");
+	        h.newline();
+	    }
+	    // declare (and define) the accessor method
+	    h.write("static ");
+	    emitter.printType(dec.type().type(), h);
+	    h.allowBreak(2, 2, " ", 1);
+	    h.write(accessor);
+	    h.write("() {");
+	    h.newline(4); h.begin(0);
+	    if (!globalInit) {
+	        h.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+	        h.newline(4); h.begin(0);
+	        h.write(init + "();");
+	        h.end(); h.newline();
+	        h.write("}");
+	        h.newline();
+	    }
+	    h.write("return ");
+	    h.write(container+"::");
+	    h.write(fname);
+	    h.write(";");
+	    h.end(); h.newline();
+	    h.write("}");
+	    h.newline();
+	    sw.popCurrentStream();
+	    if (!globalInit) {
+	        sw.pushCurrentStream(h);
+	        // declare the deserializer method
+	        h.write("static "+Emitter.translateType(xts.Object(), true));
+	        h.allowBreak(2, 2, " ", 1);
+	        h.write(deserializer + "(" + DESERIALIZATION_BUFFER + " &buf);");
+	        h.newline();
+	        // declare the broadcast id
+	        h.write("static const x10aux::serialization_id_t "+id+";");
+	        h.newline(); h.forceNewline();
+	        sw.popCurrentStream();
+	        // define the initialization flag
+	        sw.write("volatile x10aux::status ");
+	        sw.write(container+"::");
+	        sw.write(status);
+	        sw.write(";");
+	        sw.newline();
+	        // define the deserializer method
+	        sw.write("// extract value from a buffer"); sw.newline();
+	        sw.write(Emitter.translateType(xts.Object(), true));
+	        sw.allowBreak(2, 2, " ", 1);
+	        sw.write(container + "::" + deserializer + "(" + DESERIALIZATION_BUFFER + " &buf) {");
+	        sw.newline(4); sw.begin(0);
+	        sw.write(fname+" =");
+	        sw.allowBreak(2, 2, " ", 1);
+	        sw.write("buf.read"+chevrons(Emitter.translateType(dec.type().type(), true))+"();");
+	        sw.newline();
+	        sw.write(container+"::"+status+" = " + STATIC_FIELD_INITIALIZED + ";");
+	        sw.newline();
+	        sw.write("// Notify all waiting threads");
+	        sw.newline();
+	        sw.write("x10::runtime::Runtime::lock(); x10::runtime::Runtime::release();");
+	        sw.newline();
+	        sw.write("return x10aux::null;");
+	        sw.end(); sw.newline();
+	        sw.write("}");
+	        sw.newline();
+	        // define the broadcast id
+	        sw.write("const x10aux::serialization_id_t " + container + "::"+id + " =");
+	        sw.allowBreak(2, 2, " ", 1);
+	        sw.write("x10aux::StaticInitBroadcastDispatcher::addRoutine(" + container + "::" + deserializer + ");");
+	        sw.newline();
 	    }
 	}
 
@@ -1976,9 +2122,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Initializer_c n) {
-		if (n.flags().flags().isStatic()) {
-			// Ignore -- this will have been processed earlier
-		}
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    if (n.flags().flags().isStatic()) {
+	        assert (false) : ("Static initializer alert!");
+	    }
+	    if (((X10ClassDef) context.currentClassDef()).typeParameters().size() != 0 &&
+	            n.flags().flags().isStatic())
+	    {
+	        context.pendingStaticDecls().add(n);
+	        return;
+	    } else {
+	        // Ignore -- this will have been processed earlier
+	    }
 	}
 
 
@@ -2247,9 +2402,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.newline(0); sw.begin(0);
 			sw.newline();
 		}
-		sw.newline();
+		sw.newline(4); sw.begin(0);
 		n.print(n.body(), sw, tr);
-		sw.newline();
+		sw.end(); sw.newline();
 		if (label != null) {
 			sw.newline(0);
 			sw.write(label + "_next_ : ;");
@@ -2664,6 +2819,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				//sw.write("->");
 			}
 		}
+		String name = n.name().id().toString();
 		assert (target != null);
 		if (target instanceof Expr) {
 			if (fi.flags().isStatic()) {
@@ -2673,7 +2829,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write(Emitter.translateType(target.type()));
 				sw.write("::");
 				sw.allowBreak(2, 3, "", 0);
-				sw.write(mangled_field_name(n.name().id().toString()));
+				sw.write(mangled_field_name(name));
 				sw.write(")");
 				sw.end();
 				return;
@@ -2694,7 +2850,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("->");
 		}
 		sw.allowBreak(2, 3, "", 0);
-		sw.write(mangled_field_name(n.name().id().toString()));
+		if (!n.fieldInstance().flags().isStatic()) {
+		    sw.write(mangled_field_name(name));
+		} else {
+		    sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
+		}
 		sw.end();
 	}
 

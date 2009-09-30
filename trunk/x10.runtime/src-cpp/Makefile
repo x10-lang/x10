@@ -168,6 +168,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/double_utils.o \
 	x10aux/int_utils.o \
 	x10aux/init_dispatcher.o \
+	x10aux/static_init.o \
 	x10aux/itables.o \
 	x10aux/io/FILEPtrInputStream.o \
 	x10aux/io/FILEPtrOutputStream.o \

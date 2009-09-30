@@ -180,10 +180,6 @@ namespace x10 {
             // Changes the name of this thread to be equal to the argument name.
             void setName(const x10aux::ref<x10::lang::String> name);
 
-            static void _static_init() {
-                x10::lang::Ref::_static_init();
-            }
-
         protected:
             // Helper method to initialize a Thread object.
             void thread_init(x10aux::ref<x10::lang::VoidFun_0_0> task,

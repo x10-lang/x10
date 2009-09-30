@@ -127,10 +127,6 @@ namespace x10 {
             }
                 
             x10_int size() { return _array->FMGL(length); }
-
-            static void _static_init() {
-                x10::lang::Ref::_static_init();
-            }
         };
 
         template<class T> void GrowableRail<T>::_initRTT() {
