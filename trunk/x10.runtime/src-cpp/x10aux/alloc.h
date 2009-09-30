@@ -39,7 +39,9 @@ namespace x10aux {
 
     void throwOOME() X10_PRAGMA_NORETURN;
 
+#ifdef X10_USE_BDWGC        
 	static bool gc_init_done = false;
+#endif        
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
