@@ -3,6 +3,8 @@
 #include <x10aux/alloc.h>
 #include <x10aux/network.h>
 
+#include <x10/runtime/Runtime.h>
+
 #include <assert.h>
 #include <time.h>
 
@@ -34,6 +36,15 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
         if (p.msg==NULL) p.msg = x10rt_msg_realloc(NULL,0,16);
         x10rt_send_msg(p);
     }
+}
+
+void StaticInitBroadcastDispatcher::await() {
+    x10::runtime::Runtime::await();
+}
+
+void StaticInitBroadcastDispatcher::notify() {
+    x10::runtime::Runtime::lock();
+    x10::runtime::Runtime::release();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
