@@ -35,7 +35,7 @@ namespace x10aux {
         Deserializer *deser_v;
         size_t deser_sz;
 
-        int next_id;
+        size_t next_id;
 
         public:
         DeserializationDispatcher () : put_bfinder_v(NULL), put_bfinder_sz(0),

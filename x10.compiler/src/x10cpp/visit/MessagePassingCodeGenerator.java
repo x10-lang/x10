@@ -1928,6 +1928,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
 	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
 	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
+	private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
+	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
 
 	/**
 	 * Generate an initializer method for a given field declaration.
@@ -2013,11 +2015,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline();
 	    sw.write("// Notify all waiting threads");
 	    sw.newline();
-	    sw.write("x10::runtime::Runtime::lock(); x10::runtime::Runtime::release();");
+	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	    sw.end(); sw.newline();
 	    sw.write("}"); sw.newline();
 	    sw.write("WAIT:"); sw.newline();
-	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") x10::runtime::Runtime::await();");
+	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
@@ -2103,7 +2105,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        sw.write("// Notify all waiting threads");
 	        sw.newline();
-	        sw.write("x10::runtime::Runtime::lock(); x10::runtime::Runtime::release();");
+	        sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	        sw.newline();
 	        sw.write("return x10aux::null;");
 	        sw.end(); sw.newline();
