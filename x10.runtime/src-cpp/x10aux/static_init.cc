@@ -30,12 +30,16 @@ serialization_id_t const StaticInitBroadcastDispatcher::STATIC_BROADCAST_ID =
     DeserializationDispatcher::addDeserializer(StaticInitBroadcastDispatcher::dispatch, true);
 
 void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the_buf, x10_uint sz) {
+    assert (the_buf != NULL);
     for (x10_uint place = 1; place < x10rt_nplaces(); place++) {
         x10rt_msg_params p = {place, id, the_buf, sz};
-        // avoid giving x10rt a NULL message to keep things simple for implementers
-        if (p.msg==NULL) p.msg = x10rt_msg_realloc(NULL,0,16);
+        // Save the buffer for the rest of the broadcast
+        the_buf = (char*)x10rt_msg_realloc(NULL, sz, 16);
+        ::memmove(the_buf, p.msg, sz);
         x10rt_send_msg(p);
     }
+    // Free the buffer
+    x10rt_msg_realloc(the_buf, 0, 16);
 }
 
 void StaticInitBroadcastDispatcher::await() {
