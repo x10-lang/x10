@@ -76,7 +76,7 @@ public final class Runtime {
 	/**
 	 * Run main activity in a finish
 	 */
-	public static def start(body:()=>Void):Void {
+	public static def start(init:()=>Void, body:()=>Void):Void {
 		val rootFinish = new RootFinish();
 		val pool = new Pool(rootFinish, NativeRuntime.INIT_THREADS);
 		try {
@@ -86,7 +86,7 @@ public final class Runtime {
 				}
 			}
 			if (Thread.currentThread().locInt() == 0) {
-				execute(new Activity(body, rootFinish, true));
+				execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 				pool();
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {

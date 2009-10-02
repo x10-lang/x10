@@ -1922,7 +1922,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(status + " = " + STATIC_FIELD_INITIALIZING + ";");
 	    sw.newline();
 	    // initialize the field
-	    sw.write("_I_(\"Doing static initialisation for field: "+container+"."+fname+"\");"); sw.newline();
+	    sw.write("_I_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
