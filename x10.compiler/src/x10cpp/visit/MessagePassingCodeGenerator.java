@@ -2595,19 +2595,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.begin(0);
             String targetMethodName = Emitter.structMethodClass(clsType, true)+"::"+mangled_method_name(n.name().id().toString());
             String dangling = "";
-            if (!n.isTargetImplicit()) {
+            assert !n.isTargetImplicit() : "Huh, what's an implicit target for a struct???";
+
+            if (target instanceof Expr) {
+                boolean targetGenerated = false;
                 if (mi.flags().isStatic()) {
                     sw.write("((void)");
                     n.printSubExpr((Expr) target, false, sw, tr);
                     sw.write(",");
                     dangling = ")";
+                    targetGenerated = true;
                 } 
                 sw.write(targetMethodName);
                 emitter.printTemplateInstantiation(mi, sw);
                 sw.write("(");
+                if (!targetGenerated) {
+                    n.print(target, sw, tr);
+                    if (!args.isEmpty()) sw.write(", ");
+                }
+            } else if (target instanceof TypeNode) {
                 n.print(target, sw, tr);
-                if (!args.isEmpty()) sw.write(", ");
+                sw.write("::");
+                sw.write(targetMethodName);
+                emitter.printTemplateInstantiation(mi, sw);
+                sw.write("(");       
+            } else {
+                assert false : "Unexpected target of struct method call "+target;
             }
+
             printCallActuals(n, context, xts, mi, args);
             sw.write(")");
             sw.write(dangling);
