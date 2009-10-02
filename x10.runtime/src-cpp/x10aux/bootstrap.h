@@ -26,9 +26,38 @@ namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
 
+    class StaticInitClosure : public x10::lang::Value
+    {
+        public:
+
+        static x10::lang::VoidFun_0_0::itable<StaticInitClosure> _itable;
+        static x10aux::itable_entry _itables[2];
+
+        virtual x10aux::itable_entry* _getITables() { return _itables; }
+
+        // closure body
+        void apply () {
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
+        }
+
+        StaticInitClosure() { }
+
+        virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0) {
+            return false; // FIXME: should we be able to compare function types structurally?
+        }
+
+        const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
+
+        ref<x10::lang::String> toString() {
+            return x10::lang::String::Lit("x10aux::StaticInitClosure ("__FILELINE__")");
+        }
+
+    };
+
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
-    class BootStrapClosure : public x10::lang::Value 
+    class BootStrapClosure : public x10::lang::Value
     {
         protected:
 
@@ -38,14 +67,11 @@ namespace x10aux {
 
         static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
         static x10aux::itable_entry _itables[2];
-        
+
         virtual x10aux::itable_entry* _getITables() { return _itables; }
-        
+
         // closure body
         void apply () {
-            // Initialise the static fields of x10 classes.
-            x10aux::InitDispatcher::runInitializers();
-
             // Invoke the application main().
             main(args);
         }
@@ -74,7 +100,7 @@ namespace x10aux {
         GC_INIT();
 #endif
         x10aux::place_local::initialize();
-        
+
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
 
@@ -92,13 +118,19 @@ namespace x10aux {
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
             x10aux::initialize_xrx();
 
+            // Construct closure to invoke the static initialisers at place 0
+            x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
+                x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
+                                               x10aux::StaticInitClosure());
+
             // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
                 x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                                               x10aux::BootStrapClosure(T::main,args));
-            
-            Runtime::start(main_closure); // use XRX
+
+            Runtime::start(init_closure, main_closure); // use XRX
+            //init_closure->apply(); // bypass XRX
             //main_closure->apply(); // bypass XRX
             //sleep(3);
 

@@ -12,14 +12,18 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 	
 			// start xrx
 			x10.runtime.Runtime.start(
-				// body of main activity
-				new x10.core.fun.VoidFun_0_0() { 
+				// static init activity
+				new x10.core.fun.VoidFun_0_0() {
 					public void apply() {
 						// preload classes
 						if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
 							x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean("x10.PRELOAD_STRINGS"));
 						}
-
+					}
+				},
+				// body of main activity
+				new x10.core.fun.VoidFun_0_0() { 
+					public void apply() {
 						// catch and rethrow checked exceptions
 						// (closures cannot throw checked exceptions)
 						try {
