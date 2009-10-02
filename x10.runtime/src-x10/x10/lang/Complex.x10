@@ -15,13 +15,11 @@ public struct Complex {
     public val re:Double;
     public val im:Double;
 
-    /* FIXME: Once codegen for struct statics works; uncomment this code
     public const ZERO = Complex(0.0, 0.0);
     public const ONE = Complex(1.0, 0.0);
     public const I = Complex(0.0, 1.0);
     public const INF = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     public const NaN = Complex(Double.NaN, Double.NaN);
-    */
 
    /**
     * Construct a complex number with the specified 
@@ -87,17 +85,17 @@ public struct Complex {
      */
     public operator this / (that:struct Complex):struct Complex {
         if (isNaN() || that.isNaN()) {
-            return Complex(Double.NaN, Double.NaN); /* FIXME: use Complex.NaN instead */
+            return Complex.NaN;
         }
 
         val c:Double = that.re;
         val d:Double = that.im;
         if (c == 0.0 && d == 0.0) {
-            return Complex(Double.NaN, Double.NaN); /* FIXME: use Complex.NaN instead */
+            return Complex.NaN;
         }
         
         if (that.isInfinite() && !isInfinite()) {
-            return Complex(0, 0); /* FIXME: use Complex.ZERO instead */
+            return Complex.ZERO;
         }
               
         if (Math.abs(d) <= Math.abs(c)) {
@@ -138,7 +136,7 @@ public struct Complex {
      */
     public def conjugate():struct Complex {
         if (isNaN()) {
-            return Complex(Double.NaN, Double.NaN); /* FIXME: use Complex.NaN instead */
+            return Complex.NaN;
         }   
         return Complex(re, -im);
     }
@@ -146,7 +144,7 @@ public struct Complex {
     /**
      * @return the negation of this complex number
      */
-    public operator - this:struct Complex  = isNaN() ? Complex(Double.NaN, Double.NaN) /* FIXME: use Complex.NaN instead */ : Complex(-re, -im);
+    public operator - this:struct Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
 
     /**
      * Return the absolute value of this complex number.
