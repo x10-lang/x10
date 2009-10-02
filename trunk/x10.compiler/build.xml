@@ -75,7 +75,7 @@
             <!--<globmapper from="*.java" to="${build}/*.class" handledirsep="true"/>-->
         </uptodate>
     </target>
-    <target name="jar" depends="build,check-jar">
+    <target name="jar" depends="build,check-jar" unless="compiler.uptodate">
         <jar jarfile="${build}/${jar}">
             <fileset refid="compiler.classes"/>
             <fileset refid="constraints.classes"/>

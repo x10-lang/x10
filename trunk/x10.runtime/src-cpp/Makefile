@@ -135,7 +135,7 @@ X10CPPFLAGS += -J-ea -rtdev -disable CheckNativeAnnotations -commandlineonly
 gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10c.jar
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
-	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath . -d ../src-cpp/gen \
+	"$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath ../src-x10 -d ../src-cpp/gen \
 	    $(if $(filter %.jar,$?),$(XRXFILES),$?);
 	touch $@
 
