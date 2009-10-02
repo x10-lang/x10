@@ -312,13 +312,13 @@ public class Emitter {
 		return make_ref(name);
 	}
 	
-	public static String structNameSpace(ClassType classType, boolean fqn) {
-	    return structNameSpace(classType.fullName(), fqn);
+	public static String structMethodClass(ClassType classType, boolean fqn) {
+	    return structMethodClass(classType.fullName(), fqn);
 	}
 	    
-	public static String structNameSpace(QName qname, boolean fqn) {
+	public static String structMethodClass(QName qname, boolean fqn) {
 	    String name = fqn ? qname.toString() : qname.name().toString();
-	    name += "_ns";
+	    name += "_methods";
 	    name = translate_mangled_FQN(name);
 	    return name;
 	}
@@ -540,10 +540,12 @@ public class Emitter {
 			    h.write("virtual ");
 			}
 		}
+		if (!qualify && container.isX10Struct()) h.write("static ");
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
-		if (!isStruct && qualify)
-			h.write(translateType(container) + "::");
+		if (qualify) {
+		    h.write((container.isX10Struct() ? structMethodClass(container, true) : translateType(container))+ "::");
+		}
 		h.write(mangled_method_name(name));
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
@@ -663,12 +665,11 @@ public class Emitter {
 		h.newline();
 	}
 
-    void printHeader(ClassDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
+    void printHeader(ClassDecl_c n, CodeWriter h, Translator tr) {
 		h.begin(0);
+		
 		// Handle generics
-		// If it involves Parameter Types then generate C++
-		// templates.
-
+		// If it involves Parameter Types then generate C++ templates.
 		printAllTemplateSignatures(n.classDef(), h);
 
 		h.write("class ");
@@ -688,6 +689,20 @@ public class Emitter {
 		h.end();
 	}
     
+    void printHeaderForStructMethods(ClassDecl_c n, CodeWriter h, Translator tr) {
+        h.begin(0);
+        
+        // Handle generics
+        // If it involves Parameter Types then generate C++ templates.
+        printAllTemplateSignatures(n.classDef(), h);
+
+        h.write("class ");
+        h.write(structMethodClass(n.classDef().asType(), false));
+
+        h.unifiedBreak(0);
+        h.end();
+    }
+    
 	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
                      boolean define, boolean isMakeMethod, String rType) {
         Flags flags = n.flags().flags();
@@ -701,11 +716,12 @@ public class Emitter {
 		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		h.begin(0);
+		if (!define && container.isX10Struct()) h.write("static ");
 		String typeName = translateType(container.def().asType());
         // not a virtual method, this function is called only when the static type is precise
         h.write(rType + " ");
-		if (define && !container.isX10Struct()) {
-		    h.write(typeName + "::");
+		if (define) {
+		    h.write((container.isX10Struct() ? structMethodClass(container, true) : typeName) + "::"); 
 		}
 		h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
 		h.allowBreak(2, 2, "", 0);
@@ -742,8 +758,10 @@ public class Emitter {
 
 		printType(n.type().type(), h);
 		h.allowBreak(2, 2, " ", 1);
-		if (qualify)
-			h.write(translateType(n.fieldDef().asInstance().container()) + "::");
+		if (qualify) {
+		    X10ClassType declClass = (X10ClassType)n.fieldDef().asInstance().container().toClass();
+			h.write((declClass.isX10Struct() ? structMethodClass(declClass, true) : translateType(declClass)) + "::");
+		}
 		h.write(mangled_field_name(n.name().id().toString()));
 		h.end();
 	}
@@ -1039,12 +1057,6 @@ public class Emitter {
         if (name == null) return;
         openNamespaces(h, name.qualifier());
         h.write("namespace "+mangle_to_cpp(name.name().toString())+" { ");
-    }
-
-    public static void openStructNamespaces(CodeWriter h, QName name) {
-        if (name == null) return;
-        openNamespaces(h, name.qualifier());
-        h.write("namespace "+structNameSpace(name, false)+" { ");
     }
     
     public static void closeNamespaces(CodeWriter h, QName name) {
