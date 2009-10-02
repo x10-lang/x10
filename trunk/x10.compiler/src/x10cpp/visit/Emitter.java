@@ -540,7 +540,7 @@ public class Emitter {
 			    h.write("virtual ");
 			}
 		}
-		if (!qualify && container.isX10Struct()) h.write("static ");
+		if (!qualify && !flags.isStatic() && container.isX10Struct()) h.write("static ");
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
@@ -550,7 +550,7 @@ public class Emitter {
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
-		if (isStruct) {
+		if (isStruct && !flags.isStatic()) {
 		    h.write(translateType(container) +" this_");
 		    if (!n.formals().isEmpty()) h.write(", ");
 		}
