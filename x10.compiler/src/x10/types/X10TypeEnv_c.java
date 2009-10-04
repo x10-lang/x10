@@ -1695,7 +1695,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<LocalInstance> miFormals = mi.formalNames();
         assert miFormals.size() ==  mj.formalNames().size();
         
-        mj = (X10MethodInstance) mi.formalNames(miFormals);
+        mj = (X10MethodInstance) mj.formalNames(miFormals);
       
      
         if (mi.typeParameters().size() == mj.typeParameters().size() && mi.formalTypes().size() == mj.formalTypes().size()) {

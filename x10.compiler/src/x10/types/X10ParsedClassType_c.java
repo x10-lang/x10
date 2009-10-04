@@ -360,10 +360,10 @@ implements X10ParsedClassType
 		StringBuffer sb = new StringBuffer();
 		if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
-			if (f.isStruct()) {
+			/*if (f.isStruct()) {
 				sb.append("struct ");
 			}
-			/*if (f.isRooted()) {
+			if (f.isRooted()) {
 				sb.append("rooted ");
 			}*/
 			if (f.isProto()) {

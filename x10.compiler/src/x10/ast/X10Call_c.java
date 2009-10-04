@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody;
@@ -56,6 +57,7 @@ import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 import x10.parser.X10ParsedName;
@@ -188,6 +190,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
             return result;
     }
         
+    
  
 /**
  * First try for a struct constructor, and then look for a static method.
@@ -198,25 +201,50 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
  * @return
  * @throws SemanticException
  */
+        
 
 	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes,
 			List<Expr> args) throws SemanticException {
-		if (typeArgs == null || typeArgs.size()==0) {
+	//	if (typeArgs == null || typeArgs.size()==0) {
 			// This could possibly be an invocation of a constructor for a struct.
 			try {
 				X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 				X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 				Context c = tc.context();
 			
-				
-				TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
-				TypeNode tn = new X10ParsedName(nf, ts, position(), name()).toType();
+				// TODO: Actually, determine if there is a struct with the given name,
+				// and able to accept given typeargs and args.
+				ts.existsStructWithName(name(), tc);
+				/*
+				// ok so it is a struct type. Now create the return type.
+				tn = nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
+				ContextVisitor childtc = tc;
+				tn = (TypeNode) this.visitChild(tn, childtc);
+				if (tn.type() instanceof UnknownType) { // bail
+					throw new SemanticException();
+				}
+
+				t = tn.type();
+				t = ts.expandMacros(t);
+
+				xc = X10TypeMixin.xclause(t);
+				t = X10TypeMixin.baseType(t);
+
+				if (!(ts.isStructType(t))) { // bail
+					throw new SemanticException();
+				}
+		            
 				tn = (TypeNode) tn.visit(tb);
 				// First ensure that there is a type associated with tn.
 				tn = (TypeNode) tn.disambiguate(tc);
-				((AddFlags) tn).addFlags(X10Flags.STRUCT);
-				
-				X10New_c call = (X10New_c) nf.New(position(), null, tn,  args, null);
+				tn = (TypeNode) tn.typeCheck(tc);
+				Type t = tn.type();
+				t = ts.expandMacros(t);
+				tn = tn.typeRef(Types.lazyRef(t));
+				*/
+				TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
+				TypeNode otn = new X10ParsedName(nf, ts, position(), name()).toType();//
+				X10New_c call = (X10New_c) nf.X10New(position(), otn, typeArguments, args);
 				call.setStructConstructorCall();
 				
 				call = (X10New_c) call.visit(tb);
@@ -233,7 +261,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 				call = (X10New_c) call.tryVisit(tc1);
 				if (tc1.errorQueue().errorCount() == 0) {
-
 					if (! (ts.isStructType(call.type()))) {
 						StructType ct = call.constructorInstance().def().container().get();
 						throw new SemanticException("Cannot use struct constructors for non-struct class " + ct, 
@@ -245,7 +272,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			} catch (SemanticException z) {
 				// This may have caused some errors to print out.
 			}
-		}
+	//	}
 		// Otherwise try and find the usual null target method.
 		return typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
 	}
