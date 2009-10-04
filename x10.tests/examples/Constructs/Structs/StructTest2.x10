@@ -21,8 +21,8 @@ public class StructTest2 extends x10Test {
         var r: Region = [0..9];
         var d: Dist = r->here;
         val f: foo = new foo();
-        var x: struct myval = myval(1, Complex(2,3), f);
-        var y: struct myval = myval(1, Complex(2,3), f);
+        var x: myval = myval(1, Complex(2,3), f);
+        var y: myval = myval(1, Complex(2,3), f);
         // even if x and y are different objects
         // their fields are equal, and thus they are ==
         x10.io.Console.OUT.println("1");
@@ -49,7 +49,7 @@ public class StructTest2 extends x10Test {
         val P0: Place = here;
         // the "place" of a value class instance is here
         var n: int;
-        { val y0: struct myval = y;
+        { val y0: myval = y;
             n = y0.intval;
             
         }
@@ -63,10 +63,10 @@ public class StructTest2 extends x10Test {
 
     static final struct myval {
       val intval: int;
-      val cval: struct Complex;
+      val cval: Complex;
       val refval: foo;
 
-      def this(intval: int, cval: struct Complex, refval:foo) = {
+      def this(intval: int, cval: Complex, refval:foo) = {
         this.intval = intval;
         this.cval = cval;
         this.refval = refval;
