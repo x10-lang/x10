@@ -8,10 +8,10 @@ struct S1 {
 
   public final def sum() = x + y;
 
-  public final def sum4(o:struct S1) = sum() + o.sum() + o.x;
+  public final def sum4(o:S1) = sum() + o.sum() + o.x;
 }
 
-struct S2 extends struct S1 {
+struct S2 extends  S1 {
   val z:int;
   public def this(a:int, b:int, c:int) {
     super(a, b);
@@ -22,17 +22,17 @@ struct S2 extends struct S1 {
 }
 
 class C {
-  val f1:struct S2;
+  val f1: S2;
   
-  public def this(a:struct S2) { f1 = a; }
+  public def this(a: S2) { f1 = a; }
 
   public def sum() = f1.sum() + 3;
 }
 
 public class StructTest1 extends x10Test {
   public def run(): boolean {
-    val a:struct S1 = S1(3,4);
-    val b:struct S2 = S2(1, 2,3);
+    val a: S1 = S1(3,4);
+    val b: S2 = S2(1, 2,3);
     
     chk(a.sum() == 7, "a.sum() == 7");
     chk(b.sum() == 3, "b.sum() == 3");
@@ -46,7 +46,7 @@ public class StructTest1 extends x10Test {
     return true;
   }
 
-  public static def test1(a:struct S1, b:struct S2) {
+  public static def test1(a: S1, b: S2) {
     return a.sum() + b.sum2() + a.x;
   }
 
