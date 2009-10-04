@@ -4416,37 +4416,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 292:  ClassBodyDeclaration ::= InstanceInitializer
+            // Rule 292:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 292: {
-               //#line 2615 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2613 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                Initializer InstanceInitializer = (Initializer) getRhsSym(1);
-                //#line 2615 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                l.add(InstanceInitializer);
-                setResult(l);
-                      break;
-            }
-    
-            //
-            // Rule 293:  ClassBodyDeclaration ::= StaticInitializer
-            //
-            case 293: {
-               //#line 2622 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2620 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                Initializer StaticInitializer = (Initializer) getRhsSym(1);
-                //#line 2622 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                l.add(StaticInitializer);
-                setResult(l);
-                      break;
-            }
-    
-            //
-            // Rule 294:  ClassBodyDeclaration ::= ConstructorDeclaration
-            //
-            case 294: {
                //#line 2629 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2627 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
@@ -4458,9 +4430,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 296:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 294:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 296: {
+            case 294: {
                //#line 2638 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2636 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
@@ -4472,9 +4444,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 297:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 295:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 297: {
+            case 295: {
                //#line 2645 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2643 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
@@ -4486,9 +4458,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 298:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 296:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 298: {
+            case 296: {
                //#line 2652 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2650 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -4500,9 +4472,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 299:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 297:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 299: {
+            case 297: {
                //#line 2659 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2657 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -4514,9 +4486,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 300:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 298:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 300: {
+            case 298: {
                //#line 2666 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2664 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
@@ -4528,9 +4500,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 301:  ClassMemberDeclaration ::= ;
+            // Rule 299:  ClassMemberDeclaration ::= ;
             //
-            case 301: {
+            case 299: {
                //#line 2673 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2673 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4540,9 +4512,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 302:  FormalDeclarators ::= FormalDeclarator
+            // Rule 300:  FormalDeclarators ::= FormalDeclarator
             //
-            case 302: {
+            case 300: {
                //#line 2680 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2678 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
@@ -4554,9 +4526,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 303:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 301:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 303: {
+            case 301: {
                //#line 2687 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2685 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
@@ -4568,9 +4540,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 304:  FieldDeclarators ::= FieldDeclarator
+            // Rule 302:  FieldDeclarators ::= FieldDeclarator
             //
-            case 304: {
+            case 302: {
                //#line 2694 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2692 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
@@ -4582,9 +4554,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 305:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 303:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 305: {
+            case 303: {
                //#line 2701 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2699 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
@@ -4597,9 +4569,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 306:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 304:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 306: {
+            case 304: {
                //#line 2709 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2707 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
@@ -4611,9 +4583,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 307:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 305:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 307: {
+            case 305: {
                //#line 2716 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2714 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
@@ -4626,9 +4598,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 308:  VariableDeclarators ::= VariableDeclarator
+            // Rule 306:  VariableDeclarators ::= VariableDeclarator
             //
-            case 308: {
+            case 306: {
                //#line 2723 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2721 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
@@ -4640,9 +4612,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 309:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 307:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 309: {
+            case 307: {
                //#line 2730 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2728 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
@@ -4655,9 +4627,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 311:  FieldModifiers ::= FieldModifier
+            // Rule 309:  FieldModifiers ::= FieldModifier
             //
-            case 311: {
+            case 309: {
                //#line 2739 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2737 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
@@ -4669,9 +4641,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 312:  FieldModifiers ::= FieldModifiers FieldModifier
+            // Rule 310:  FieldModifiers ::= FieldModifiers FieldModifier
             //
-            case 312: {
+            case 310: {
                //#line 2746 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2744 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
@@ -4683,9 +4655,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 313:  FieldModifier ::= Annotation
+            // Rule 311:  FieldModifier ::= Annotation
             //
-            case 313: {
+            case 311: {
                //#line 2752 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2750 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -4695,9 +4667,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 314:  FieldModifier ::= public
+            // Rule 312:  FieldModifier ::= public
             //
-            case 314: {
+            case 312: {
                //#line 2757 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2757 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4706,9 +4678,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 315:  FieldModifier ::= protected
+            // Rule 313:  FieldModifier ::= protected
             //
-            case 315: {
+            case 313: {
                //#line 2762 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2762 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4717,9 +4689,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 316:  FieldModifier ::= private
+            // Rule 314:  FieldModifier ::= private
             //
-            case 316: {
+            case 314: {
                //#line 2767 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2767 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4728,9 +4700,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 317:  FieldModifier ::= static
+            // Rule 315:  FieldModifier ::= static
             //
-            case 317: {
+            case 315: {
                //#line 2772 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2772 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4739,9 +4711,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 318:  FieldModifier ::= transient
+            // Rule 316:  FieldModifier ::= transient
             //
-            case 318: {
+            case 316: {
                //#line 2777 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2777 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4750,9 +4722,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 319:  FieldModifier ::= volatile
+            // Rule 317:  FieldModifier ::= volatile
             //
-            case 319: {
+            case 317: {
                //#line 2782 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2782 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4761,9 +4733,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 320:  FieldModifier ::= global
+            // Rule 318:  FieldModifier ::= global
             //
-            case 320: {
+            case 318: {
                //#line 2787 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2787 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4772,9 +4744,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 321:  ResultType ::= : Type
+            // Rule 319:  ResultType ::= : Type
             //
-            case 321: {
+            case 319: {
                //#line 2793 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2791 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -4784,9 +4756,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 322:  FormalParameters ::= ( FormalParameterList )
+            // Rule 320:  FormalParameters ::= ( FormalParameterList )
             //
-            case 322: {
+            case 320: {
                //#line 2799 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2797 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
@@ -4796,9 +4768,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 323:  FormalParameterList ::= FormalParameter
+            // Rule 321:  FormalParameterList ::= FormalParameter
             //
-            case 323: {
+            case 321: {
                //#line 2805 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2803 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
@@ -4810,9 +4782,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 324:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 322:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 324: {
+            case 322: {
                //#line 2812 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2810 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
@@ -4824,9 +4796,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 325:  LoopIndexDeclarator ::= Identifier ResultTypeopt
+            // Rule 323:  LoopIndexDeclarator ::= Identifier ResultTypeopt
             //
-            case 325: {
+            case 323: {
                //#line 2818 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2816 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4838,9 +4810,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 326:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
+            // Rule 324:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
             //
-            case 326: {
+            case 324: {
                //#line 2823 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2821 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
@@ -4852,9 +4824,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 327:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
+            // Rule 325:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
             //
-            case 327: {
+            case 325: {
                //#line 2828 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2826 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4868,9 +4840,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 328:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+            // Rule 326:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
             //
-            case 328: {
+            case 326: {
                //#line 2834 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2832 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -4900,9 +4872,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 329:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 327:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
             //
-            case 329: {
+            case 327: {
                //#line 2857 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2855 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -4934,9 +4906,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 330:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            // Rule 328:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
-            case 330: {
+            case 328: {
                //#line 2881 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2879 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -4967,9 +4939,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 331:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
+            // Rule 329:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
-            case 331: {
+            case 329: {
                //#line 2905 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2903 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -5002,9 +4974,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 332:  FormalParameter ::= Type
+            // Rule 330:  FormalParameter ::= Type
             //
-            case 332: {
+            case 330: {
                //#line 2929 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2927 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
@@ -5016,9 +4988,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 333:  VariableModifiers ::= VariableModifier
+            // Rule 331:  VariableModifiers ::= VariableModifier
             //
-            case 333: {
+            case 331: {
                //#line 2937 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2935 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
@@ -5030,9 +5002,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 334:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 332:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 334: {
+            case 332: {
                //#line 2944 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2942 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
@@ -5044,9 +5016,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 335:  VariableModifier ::= Annotation
+            // Rule 333:  VariableModifier ::= Annotation
             //
-            case 335: {
+            case 333: {
                //#line 2950 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2948 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5056,9 +5028,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 336:  VariableModifier ::= shared
+            // Rule 334:  VariableModifier ::= shared
             //
-            case 336: {
+            case 334: {
                //#line 2955 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2955 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5067,9 +5039,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 337:  MethodModifiers ::= MethodModifier
+            // Rule 335:  MethodModifiers ::= MethodModifier
             //
-            case 337: {
+            case 335: {
                //#line 2964 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2962 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
@@ -5081,9 +5053,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 338:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 336:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 338: {
+            case 336: {
                //#line 2971 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2969 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
@@ -5095,9 +5067,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 339:  MethodModifier ::= Annotation
+            // Rule 337:  MethodModifier ::= Annotation
             //
-            case 339: {
+            case 337: {
                //#line 2977 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2975 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5107,9 +5079,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 340:  MethodModifier ::= public
+            // Rule 338:  MethodModifier ::= public
             //
-            case 340: {
+            case 338: {
                //#line 2982 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2982 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5118,9 +5090,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 341:  MethodModifier ::= protected
+            // Rule 339:  MethodModifier ::= protected
             //
-            case 341: {
+            case 339: {
                //#line 2987 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2987 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5129,9 +5101,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 342:  MethodModifier ::= private
+            // Rule 340:  MethodModifier ::= private
             //
-            case 342: {
+            case 340: {
                //#line 2992 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2992 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5140,9 +5112,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 343:  MethodModifier ::= abstract
+            // Rule 341:  MethodModifier ::= abstract
             //
-            case 343: {
+            case 341: {
                //#line 2997 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2997 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5151,9 +5123,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 344:  MethodModifier ::= static
+            // Rule 342:  MethodModifier ::= static
             //
-            case 344: {
+            case 342: {
                //#line 3002 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3002 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5162,9 +5134,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 345:  MethodModifier ::= final
+            // Rule 343:  MethodModifier ::= final
             //
-            case 345: {
+            case 343: {
                //#line 3007 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3007 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5173,9 +5145,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 346:  MethodModifier ::= native
+            // Rule 344:  MethodModifier ::= native
             //
-            case 346: {
+            case 344: {
                //#line 3012 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3012 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5184,9 +5156,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 347:  MethodModifier ::= strictfp
+            // Rule 345:  MethodModifier ::= strictfp
             //
-            case 347: {
+            case 345: {
                //#line 3017 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3017 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5195,9 +5167,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 348:  MethodModifier ::= atomic
+            // Rule 346:  MethodModifier ::= atomic
             //
-            case 348: {
+            case 346: {
                //#line 3022 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3022 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5206,9 +5178,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 349:  MethodModifier ::= extern
+            // Rule 347:  MethodModifier ::= extern
             //
-            case 349: {
+            case 347: {
                //#line 3027 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3027 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5217,9 +5189,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 350:  MethodModifier ::= safe
+            // Rule 348:  MethodModifier ::= safe
             //
-            case 350: {
+            case 348: {
                //#line 3032 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3032 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5228,9 +5200,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 351:  MethodModifier ::= sequential
+            // Rule 349:  MethodModifier ::= sequential
             //
-            case 351: {
+            case 349: {
                //#line 3037 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3037 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5239,9 +5211,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 352:  MethodModifier ::= nonblocking
+            // Rule 350:  MethodModifier ::= nonblocking
             //
-            case 352: {
+            case 350: {
                //#line 3042 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3042 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5250,9 +5222,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 353:  MethodModifier ::= incomplete
+            // Rule 351:  MethodModifier ::= incomplete
             //
-            case 353: {
+            case 351: {
                //#line 3047 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3047 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5261,9 +5233,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 354:  MethodModifier ::= property
+            // Rule 352:  MethodModifier ::= property
             //
-            case 354: {
+            case 352: {
                //#line 3052 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3052 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5272,9 +5244,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 355:  MethodModifier ::= global
+            // Rule 353:  MethodModifier ::= global
             //
-            case 355: {
+            case 353: {
                //#line 3057 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3057 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5283,9 +5255,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 356:  MethodModifier ::= proto
+            // Rule 354:  MethodModifier ::= proto
             //
-            case 356: {
+            case 354: {
                //#line 3062 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3062 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5294,9 +5266,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 357:  Throws ::= throws ExceptionTypeList
+            // Rule 355:  Throws ::= throws ExceptionTypeList
             //
-            case 357: {
+            case 355: {
                //#line 3069 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3067 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
@@ -5306,9 +5278,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 358:  ExceptionTypeList ::= ExceptionType
+            // Rule 356:  ExceptionTypeList ::= ExceptionType
             //
-            case 358: {
+            case 356: {
                //#line 3075 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3073 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
@@ -5320,9 +5292,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 359:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 357:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 359: {
+            case 357: {
                //#line 3082 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3080 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
@@ -5334,9 +5306,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 361:  MethodBody ::= = LastExpression ;
+            // Rule 359:  MethodBody ::= = LastExpression ;
             //
-            case 361: {
+            case 359: {
                //#line 3090 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3088 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
@@ -5346,9 +5318,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 362:  MethodBody ::= = { BlockStatementsopt LastExpression }
+            // Rule 360:  MethodBody ::= = { BlockStatementsopt LastExpression }
             //
-            case 362: {
+            case 360: {
                //#line 3095 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3093 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
@@ -5363,9 +5335,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 363:  MethodBody ::= = Block
+            // Rule 361:  MethodBody ::= = Block
             //
-            case 363: {
+            case 361: {
                //#line 3103 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3101 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
@@ -5375,9 +5347,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 364:  MethodBody ::= Block
+            // Rule 362:  MethodBody ::= Block
             //
-            case 364: {
+            case 362: {
                //#line 3108 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3106 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
@@ -5387,40 +5359,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 365:  MethodBody ::= ;
+            // Rule 363:  MethodBody ::= ;
             //
-            case 365:
+            case 363:
                 setResult(null);
                 break;
 
             //
-            // Rule 366:  InstanceInitializer ::= Block
+            // Rule 364:  SimpleTypeName ::= Identifier
             //
-            case 366: {
-               //#line 3116 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3114 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(1);
-                //#line 3116 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
-                      break;
-            }
-    
-            //
-            // Rule 367:  StaticInitializer ::= static Block
-            //
-            case 367: {
-               //#line 3122 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3120 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(2);
-                //#line 3122 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
-                      break;
-            }
-    
-            //
-            // Rule 368:  SimpleTypeName ::= Identifier
-            //
-            case 368: {
+            case 364: {
                //#line 3128 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3126 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5430,9 +5378,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 369:  ConstructorModifiers ::= ConstructorModifier
+            // Rule 365:  ConstructorModifiers ::= ConstructorModifier
             //
-            case 369: {
+            case 365: {
                //#line 3134 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3132 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
@@ -5444,9 +5392,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 370:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 366:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 370: {
+            case 366: {
                //#line 3141 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3139 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
@@ -5458,9 +5406,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 371:  ConstructorModifier ::= Annotation
+            // Rule 367:  ConstructorModifier ::= Annotation
             //
-            case 371: {
+            case 367: {
                //#line 3147 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3145 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5470,9 +5418,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 372:  ConstructorModifier ::= public
+            // Rule 368:  ConstructorModifier ::= public
             //
-            case 372: {
+            case 368: {
                //#line 3152 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3152 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5481,9 +5429,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 373:  ConstructorModifier ::= protected
+            // Rule 369:  ConstructorModifier ::= protected
             //
-            case 373: {
+            case 369: {
                //#line 3157 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3157 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5492,9 +5440,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 374:  ConstructorModifier ::= private
+            // Rule 370:  ConstructorModifier ::= private
             //
-            case 374: {
+            case 370: {
                //#line 3162 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3162 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5503,9 +5451,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 375:  ConstructorModifier ::= native
+            // Rule 371:  ConstructorModifier ::= native
             //
-            case 375: {
+            case 371: {
                //#line 3167 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3167 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5514,9 +5462,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 376:  ConstructorBody ::= = ConstructorBlock
+            // Rule 372:  ConstructorBody ::= = ConstructorBlock
             //
-            case 376: {
+            case 372: {
                //#line 3173 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3171 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
@@ -5526,9 +5474,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 377:  ConstructorBody ::= ConstructorBlock
+            // Rule 373:  ConstructorBody ::= ConstructorBlock
             //
-            case 377: {
+            case 373: {
                //#line 3178 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3176 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
@@ -5538,9 +5486,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 378:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 374:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
-            case 378: {
+            case 374: {
                //#line 3183 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3181 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
@@ -5553,9 +5501,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 379:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 375:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 379: {
+            case 375: {
                //#line 3191 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3189 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
@@ -5569,16 +5517,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 380:  ConstructorBody ::= ;
+            // Rule 376:  ConstructorBody ::= ;
             //
-            case 380:
+            case 376:
                 setResult(null);
                 break;
 
             //
-            // Rule 381:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 377:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 381: {
+            case 377: {
                //#line 3203 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3201 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
@@ -5601,9 +5549,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 382:  Arguments ::= ( ArgumentListopt )
+            // Rule 378:  Arguments ::= ( ArgumentListopt )
             //
-            case 382: {
+            case 378: {
                //#line 3220 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3218 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
@@ -5613,9 +5561,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 384:  InterfaceModifiers ::= InterfaceModifier
+            // Rule 380:  InterfaceModifiers ::= InterfaceModifier
             //
-            case 384: {
+            case 380: {
                //#line 3230 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3228 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
@@ -5627,9 +5575,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 385:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 381:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 385: {
+            case 381: {
                //#line 3237 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3235 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
@@ -5641,9 +5589,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 386:  InterfaceModifier ::= Annotation
+            // Rule 382:  InterfaceModifier ::= Annotation
             //
-            case 386: {
+            case 382: {
                //#line 3243 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3241 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5653,9 +5601,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 387:  InterfaceModifier ::= public
+            // Rule 383:  InterfaceModifier ::= public
             //
-            case 387: {
+            case 383: {
                //#line 3248 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3248 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5664,9 +5612,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 388:  InterfaceModifier ::= protected
+            // Rule 384:  InterfaceModifier ::= protected
             //
-            case 388: {
+            case 384: {
                //#line 3253 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3253 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5675,9 +5623,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 389:  InterfaceModifier ::= private
+            // Rule 385:  InterfaceModifier ::= private
             //
-            case 389: {
+            case 385: {
                //#line 3258 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3258 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5686,9 +5634,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 390:  InterfaceModifier ::= abstract
+            // Rule 386:  InterfaceModifier ::= abstract
             //
-            case 390: {
+            case 386: {
                //#line 3263 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3263 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5697,9 +5645,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 391:  InterfaceModifier ::= static
+            // Rule 387:  InterfaceModifier ::= static
             //
-            case 391: {
+            case 387: {
                //#line 3268 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3268 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5708,9 +5656,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 392:  InterfaceModifier ::= strictfp
+            // Rule 388:  InterfaceModifier ::= strictfp
             //
-            case 392: {
+            case 388: {
                //#line 3273 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3273 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5719,9 +5667,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 393:  ExtendsInterfaces ::= extends Type
+            // Rule 389:  ExtendsInterfaces ::= extends Type
             //
-            case 393: {
+            case 389: {
                //#line 3279 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3277 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5733,9 +5681,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 394:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 390:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 394: {
+            case 390: {
                //#line 3286 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3284 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
@@ -5747,9 +5695,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 395:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 391:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 395: {
+            case 391: {
                //#line 3295 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3293 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
@@ -5759,9 +5707,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 397:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 393:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 397: {
+            case 393: {
                //#line 3302 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3300 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
@@ -5774,9 +5722,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 398:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 394:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 398: {
+            case 394: {
                //#line 3309 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3307 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
@@ -5788,9 +5736,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 399:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 395:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 399: {
+            case 395: {
                //#line 3316 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3314 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
@@ -5802,9 +5750,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 400:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 396:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 400: {
+            case 396: {
                //#line 3323 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3321 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
@@ -5816,9 +5764,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 401:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 397:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 401: {
+            case 397: {
                //#line 3330 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3328 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -5830,9 +5778,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 402:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 398:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 402: {
+            case 398: {
                //#line 3337 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3335 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
@@ -5844,9 +5792,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 403:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 399:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 403: {
+            case 399: {
                //#line 3344 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3342 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -5858,9 +5806,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 404:  InterfaceMemberDeclaration ::= ;
+            // Rule 400:  InterfaceMemberDeclaration ::= ;
             //
-            case 404: {
+            case 400: {
                //#line 3351 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3351 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5869,9 +5817,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 405:  Annotations ::= Annotation
+            // Rule 401:  Annotations ::= Annotation
             //
-            case 405: {
+            case 401: {
                //#line 3357 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3355 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5883,9 +5831,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 406:  Annotations ::= Annotations Annotation
+            // Rule 402:  Annotations ::= Annotations Annotation
             //
-            case 406: {
+            case 402: {
                //#line 3364 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3362 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
@@ -5897,9 +5845,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 407:  Annotation ::= @ NamedType
+            // Rule 403:  Annotation ::= @ NamedType
             //
-            case 407: {
+            case 403: {
                //#line 3370 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3368 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
@@ -5909,9 +5857,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 408:  SimpleName ::= Identifier
+            // Rule 404:  SimpleName ::= Identifier
             //
-            case 408: {
+            case 404: {
                //#line 3376 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3374 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5921,9 +5869,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 409:  Identifier ::= identifier
+            // Rule 405:  Identifier ::= identifier
             //
-            case 409: {
+            case 405: {
                //#line 3382 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3380 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
@@ -5933,9 +5881,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 410:  VariableInitializers ::= VariableInitializer
+            // Rule 406:  VariableInitializers ::= VariableInitializer
             //
-            case 410: {
+            case 406: {
                //#line 3390 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3388 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
@@ -5947,9 +5895,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 411:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 407:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 411: {
+            case 407: {
                //#line 3397 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3395 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
@@ -5962,9 +5910,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 412:  Block ::= { BlockStatementsopt }
+            // Rule 408:  Block ::= { BlockStatementsopt }
             //
-            case 412: {
+            case 408: {
                //#line 3415 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3413 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
@@ -5974,9 +5922,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 413:  BlockStatements ::= BlockStatement
+            // Rule 409:  BlockStatements ::= BlockStatement
             //
-            case 413: {
+            case 409: {
                //#line 3421 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3419 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
@@ -5988,9 +5936,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 414:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 410:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 414: {
+            case 410: {
                //#line 3428 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3426 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
@@ -6003,9 +5951,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 416:  BlockStatement ::= ClassDeclaration
+            // Rule 412:  BlockStatement ::= ClassDeclaration
             //
-            case 416: {
+            case 412: {
                //#line 3436 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3434 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -6017,9 +5965,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 417:  BlockStatement ::= TypeDefDeclaration
+            // Rule 413:  BlockStatement ::= TypeDefDeclaration
             //
-            case 417: {
+            case 413: {
                //#line 3443 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3441 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -6031,9 +5979,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 418:  BlockStatement ::= Statement
+            // Rule 414:  BlockStatement ::= Statement
             //
-            case 418: {
+            case 414: {
                //#line 3450 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3448 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
@@ -6045,9 +5993,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 419:  IdentifierList ::= Identifier
+            // Rule 415:  IdentifierList ::= Identifier
             //
-            case 419: {
+            case 415: {
                //#line 3458 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3456 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6059,9 +6007,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 420:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 416:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 420: {
+            case 416: {
                //#line 3465 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3463 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
@@ -6073,9 +6021,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 421:  FormalDeclarator ::= Identifier ResultType
+            // Rule 417:  FormalDeclarator ::= Identifier ResultType
             //
-            case 421: {
+            case 417: {
                //#line 3471 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3469 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6087,9 +6035,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 422:  FormalDeclarator ::= ( IdentifierList ) ResultType
+            // Rule 418:  FormalDeclarator ::= ( IdentifierList ) ResultType
             //
-            case 422: {
+            case 418: {
                //#line 3476 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3474 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
@@ -6101,9 +6049,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 423:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
+            // Rule 419:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
             //
-            case 423: {
+            case 419: {
                //#line 3481 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3479 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6117,9 +6065,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 424:  FieldDeclarator ::= Identifier ResultType
+            // Rule 420:  FieldDeclarator ::= Identifier ResultType
             //
-            case 424: {
+            case 420: {
                //#line 3487 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3485 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6131,9 +6079,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 425:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 421:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
-            case 425: {
+            case 421: {
                //#line 3492 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3490 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6147,9 +6095,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 426:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 422:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
-            case 426: {
+            case 422: {
                //#line 3498 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3496 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6163,9 +6111,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 427:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 423:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 427: {
+            case 423: {
                //#line 3503 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3501 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
@@ -6179,9 +6127,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 428:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 424:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 428: {
+            case 424: {
                //#line 3508 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3506 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6197,9 +6145,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 429:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
+            // Rule 425:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
             //
-            case 429: {
+            case 425: {
                //#line 3514 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3512 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6213,9 +6161,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 430:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 426:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
             //
-            case 430: {
+            case 426: {
                //#line 3519 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3517 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
@@ -6229,9 +6177,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 431:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 427:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
             //
-            case 431: {
+            case 427: {
                //#line 3524 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3522 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -6247,9 +6195,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 433:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            // Rule 429:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
-            case 433: {
+            case 429: {
                //#line 3532 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3530 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -6291,9 +6239,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 434:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
+            // Rule 430:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
-            case 434: {
+            case 430: {
                //#line 3565 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3563 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -6334,9 +6282,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 435:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
+            // Rule 431:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
-            case 435: {
+            case 431: {
                //#line 3599 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3597 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
@@ -6379,9 +6327,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 437:  Primary ::= TypeName . class
+            // Rule 433:  Primary ::= TypeName . class
             //
-            case 437: {
+            case 433: {
                //#line 3640 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3638 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6396,9 +6344,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 438:  Primary ::= self
+            // Rule 434:  Primary ::= self
             //
-            case 438: {
+            case 434: {
                //#line 3650 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3650 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6407,9 +6355,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 439:  Primary ::= this
+            // Rule 435:  Primary ::= this
             //
-            case 439: {
+            case 435: {
                //#line 3655 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3655 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6418,9 +6366,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 440:  Primary ::= ClassName . this
+            // Rule 436:  Primary ::= ClassName . this
             //
-            case 440: {
+            case 436: {
                //#line 3660 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3658 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6430,9 +6378,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 441:  Primary ::= ( Expression )
+            // Rule 437:  Primary ::= ( Expression )
             //
-            case 441: {
+            case 437: {
                //#line 3665 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3663 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
@@ -6442,9 +6390,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 447:  OperatorFunction ::= TypeName . +
+            // Rule 443:  OperatorFunction ::= TypeName . +
             //
-            case 447: {
+            case 443: {
                //#line 3676 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3674 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6460,9 +6408,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 448:  OperatorFunction ::= TypeName . -
+            // Rule 444:  OperatorFunction ::= TypeName . -
             //
-            case 448: {
+            case 444: {
                //#line 3687 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3685 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6478,9 +6426,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 449:  OperatorFunction ::= TypeName . *
+            // Rule 445:  OperatorFunction ::= TypeName . *
             //
-            case 449: {
+            case 445: {
                //#line 3698 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3696 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6496,9 +6444,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 450:  OperatorFunction ::= TypeName . /
+            // Rule 446:  OperatorFunction ::= TypeName . /
             //
-            case 450: {
+            case 446: {
                //#line 3709 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3707 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6514,9 +6462,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 451:  OperatorFunction ::= TypeName . %
+            // Rule 447:  OperatorFunction ::= TypeName . %
             //
-            case 451: {
+            case 447: {
                //#line 3720 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3718 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6532,9 +6480,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 452:  OperatorFunction ::= TypeName . &
+            // Rule 448:  OperatorFunction ::= TypeName . &
             //
-            case 452: {
+            case 448: {
                //#line 3731 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3729 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6550,9 +6498,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 453:  OperatorFunction ::= TypeName . |
+            // Rule 449:  OperatorFunction ::= TypeName . |
             //
-            case 453: {
+            case 449: {
                //#line 3742 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3740 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6568,9 +6516,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 454:  OperatorFunction ::= TypeName . ^
+            // Rule 450:  OperatorFunction ::= TypeName . ^
             //
-            case 454: {
+            case 450: {
                //#line 3753 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3751 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6586,9 +6534,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 455:  OperatorFunction ::= TypeName . <<
+            // Rule 451:  OperatorFunction ::= TypeName . <<
             //
-            case 455: {
+            case 451: {
                //#line 3764 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3762 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6604,9 +6552,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 456:  OperatorFunction ::= TypeName . >>
+            // Rule 452:  OperatorFunction ::= TypeName . >>
             //
-            case 456: {
+            case 452: {
                //#line 3775 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3773 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6622,9 +6570,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 457:  OperatorFunction ::= TypeName . >>>
+            // Rule 453:  OperatorFunction ::= TypeName . >>>
             //
-            case 457: {
+            case 453: {
                //#line 3786 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3784 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6640,9 +6588,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 458:  OperatorFunction ::= TypeName . <
+            // Rule 454:  OperatorFunction ::= TypeName . <
             //
-            case 458: {
+            case 454: {
                //#line 3797 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3795 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6658,9 +6606,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 459:  OperatorFunction ::= TypeName . <=
+            // Rule 455:  OperatorFunction ::= TypeName . <=
             //
-            case 459: {
+            case 455: {
                //#line 3808 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3806 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6676,9 +6624,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 460:  OperatorFunction ::= TypeName . >=
+            // Rule 456:  OperatorFunction ::= TypeName . >=
             //
-            case 460: {
+            case 456: {
                //#line 3819 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3817 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6694,9 +6642,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 461:  OperatorFunction ::= TypeName . >
+            // Rule 457:  OperatorFunction ::= TypeName . >
             //
-            case 461: {
+            case 457: {
                //#line 3830 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3828 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6712,9 +6660,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 462:  OperatorFunction ::= TypeName . ==
+            // Rule 458:  OperatorFunction ::= TypeName . ==
             //
-            case 462: {
+            case 458: {
                //#line 3841 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3839 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6730,9 +6678,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 463:  OperatorFunction ::= TypeName . !=
+            // Rule 459:  OperatorFunction ::= TypeName . !=
             //
-            case 463: {
+            case 459: {
                //#line 3852 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3850 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6748,9 +6696,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 464:  Literal ::= IntegerLiteral$lit
+            // Rule 460:  Literal ::= IntegerLiteral$lit
             //
-            case 464: {
+            case 460: {
                //#line 3865 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3863 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6761,9 +6709,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 465:  Literal ::= LongLiteral$lit
+            // Rule 461:  Literal ::= LongLiteral$lit
             //
-            case 465: {
+            case 461: {
                //#line 3871 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3869 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6774,9 +6722,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 466:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 462:  Literal ::= UnsignedIntegerLiteral$lit
             //
-            case 466: {
+            case 462: {
                //#line 3877 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3875 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6787,9 +6735,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 467:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 463:  Literal ::= UnsignedLongLiteral$lit
             //
-            case 467: {
+            case 463: {
                //#line 3883 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3881 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6800,9 +6748,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 468:  Literal ::= FloatingPointLiteral$lit
+            // Rule 464:  Literal ::= FloatingPointLiteral$lit
             //
-            case 468: {
+            case 464: {
                //#line 3889 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3887 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6813,9 +6761,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 469:  Literal ::= DoubleLiteral$lit
+            // Rule 465:  Literal ::= DoubleLiteral$lit
             //
-            case 469: {
+            case 465: {
                //#line 3895 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3893 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6826,9 +6774,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 470:  Literal ::= BooleanLiteral
+            // Rule 466:  Literal ::= BooleanLiteral
             //
-            case 470: {
+            case 466: {
                //#line 3901 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3899 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
@@ -6838,9 +6786,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 471:  Literal ::= CharacterLiteral$lit
+            // Rule 467:  Literal ::= CharacterLiteral$lit
             //
-            case 471: {
+            case 467: {
                //#line 3906 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3904 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6851,9 +6799,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 472:  Literal ::= StringLiteral$str
+            // Rule 468:  Literal ::= StringLiteral$str
             //
-            case 472: {
+            case 468: {
                //#line 3912 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3910 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
@@ -6864,9 +6812,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 473:  Literal ::= null
+            // Rule 469:  Literal ::= null
             //
-            case 473: {
+            case 469: {
                //#line 3918 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3918 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6875,9 +6823,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 474:  BooleanLiteral ::= true$trueLiteral
+            // Rule 470:  BooleanLiteral ::= true$trueLiteral
             //
-            case 474: {
+            case 470: {
                //#line 3924 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3922 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
@@ -6887,9 +6835,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 475:  BooleanLiteral ::= false$falseLiteral
+            // Rule 471:  BooleanLiteral ::= false$falseLiteral
             //
-            case 475: {
+            case 471: {
                //#line 3929 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3927 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
@@ -6899,9 +6847,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 476:  ArgumentList ::= Expression
+            // Rule 472:  ArgumentList ::= Expression
             //
-            case 476: {
+            case 472: {
                //#line 3938 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3936 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
@@ -6913,9 +6861,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 477:  ArgumentList ::= ArgumentList , Expression
+            // Rule 473:  ArgumentList ::= ArgumentList , Expression
             //
-            case 477: {
+            case 473: {
                //#line 3945 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3943 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
@@ -6927,9 +6875,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 478:  FieldAccess ::= Primary . Identifier
+            // Rule 474:  FieldAccess ::= Primary . Identifier
             //
-            case 478: {
+            case 474: {
                //#line 3951 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3949 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6941,9 +6889,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 479:  FieldAccess ::= super . Identifier
+            // Rule 475:  FieldAccess ::= super . Identifier
             //
-            case 479: {
+            case 475: {
                //#line 3956 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3954 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -6953,9 +6901,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 480:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 476:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 480: {
+            case 476: {
                //#line 3961 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3959 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6969,9 +6917,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 481:  FieldAccess ::= Primary . class$c
+            // Rule 477:  FieldAccess ::= Primary . class$c
             //
-            case 481: {
+            case 477: {
                //#line 3966 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3964 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6983,9 +6931,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 482:  FieldAccess ::= super . class$c
+            // Rule 478:  FieldAccess ::= super . class$c
             //
-            case 482: {
+            case 478: {
                //#line 3971 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3969 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
@@ -6995,9 +6943,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 483:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 479:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 483: {
+            case 479: {
                //#line 3976 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3974 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -7011,9 +6959,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 484:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 480:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 484: {
+            case 480: {
                //#line 3982 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3980 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
@@ -7029,9 +6977,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 485:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 481:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 485: {
+            case 481: {
                //#line 3989 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3987 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -7047,9 +6995,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 486:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 482:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 486: {
+            case 482: {
                //#line 3994 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3992 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -7063,9 +7011,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 487:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 483:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 487: {
+            case 483: {
                //#line 3999 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3997 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -7083,9 +7031,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 488:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 484:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 488: {
+            case 484: {
                //#line 4004 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4002 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -7113,9 +7061,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 489:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 485:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 489: {
+            case 485: {
                //#line 4024 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4022 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
@@ -7135,9 +7083,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 490:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 486:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
-            case 490: {
+            case 486: {
                //#line 4037 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4035 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -7158,9 +7106,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 491:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
+            // Rule 487:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
-            case 491: {
+            case 487: {
                //#line 4049 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4047 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -7179,9 +7127,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 492:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 488:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 492: {
+            case 488: {
                //#line 4061 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4059 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -7205,9 +7153,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 494:  PostfixExpression ::= ExpressionName
+            // Rule 490:  PostfixExpression ::= ExpressionName
             //
-            case 494: {
+            case 490: {
                //#line 4076 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4074 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
@@ -7217,9 +7165,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 497:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 493:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 497: {
+            case 493: {
                //#line 4084 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4082 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
@@ -7229,9 +7177,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 498:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 494:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 498: {
+            case 494: {
                //#line 4090 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4088 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
@@ -7241,9 +7189,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 501:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 497:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 501: {
+            case 497: {
                //#line 4098 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4096 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -7253,9 +7201,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 502:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 498:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 502: {
+            case 498: {
                //#line 4103 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4101 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -7265,9 +7213,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 504:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 500:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 504: {
+            case 500: {
                //#line 4110 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4108 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -7277,9 +7225,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 505:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 501:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 505: {
+            case 501: {
                //#line 4116 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4114 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -7289,9 +7237,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 507:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 503:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 507: {
+            case 503: {
                //#line 4123 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4121 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
@@ -7301,9 +7249,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 508:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
+            // Rule 504:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
-            case 508: {
+            case 504: {
                //#line 4128 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4126 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
@@ -7317,9 +7265,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 509:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 505:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 509: {
+            case 505: {
                //#line 4135 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4133 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
@@ -7329,9 +7277,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 511:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 507:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 511: {
+            case 507: {
                //#line 4142 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4140 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7343,9 +7291,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 512:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 508:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 512: {
+            case 508: {
                //#line 4147 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4145 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7357,9 +7305,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 513:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 509:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 513: {
+            case 509: {
                //#line 4152 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4150 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7371,9 +7319,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 515:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 511:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 515: {
+            case 511: {
                //#line 4159 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4157 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
@@ -7385,9 +7333,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 516:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 512:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 516: {
+            case 512: {
                //#line 4164 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4162 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
@@ -7399,9 +7347,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 518:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 514:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 518: {
+            case 514: {
                //#line 4171 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4169 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7413,9 +7361,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 519:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 515:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 519: {
+            case 515: {
                //#line 4176 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4174 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7427,9 +7375,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 520:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 516:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 520: {
+            case 516: {
                //#line 4181 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4179 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7441,9 +7389,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 522:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 518:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 522: {
+            case 518: {
                //#line 4188 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4186 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
@@ -7456,9 +7404,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 525:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 521:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 525: {
+            case 521: {
                //#line 4197 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4195 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7470,9 +7418,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 526:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 522:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 526: {
+            case 522: {
                //#line 4202 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4200 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7484,9 +7432,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 527:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 523:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 527: {
+            case 523: {
                //#line 4207 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4205 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7498,9 +7446,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 528:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 524:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 528: {
+            case 524: {
                //#line 4212 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4210 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7512,9 +7460,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 529:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 525:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 529: {
+            case 525: {
                //#line 4217 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4215 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7526,9 +7474,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 530:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 526:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 530: {
+            case 526: {
                //#line 4222 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4220 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7540,9 +7488,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 532:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 528:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 532: {
+            case 528: {
                //#line 4229 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4227 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
@@ -7554,9 +7502,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 533:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 529:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 533: {
+            case 529: {
                //#line 4234 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4232 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
@@ -7568,9 +7516,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 534:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 530:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 534: {
+            case 530: {
                //#line 4239 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4237 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
@@ -7582,9 +7530,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 536:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 532:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 536: {
+            case 532: {
                //#line 4246 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4244 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
@@ -7596,9 +7544,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 538:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 534:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 538: {
+            case 534: {
                //#line 4253 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4251 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
@@ -7610,9 +7558,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 540:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 536:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 540: {
+            case 536: {
                //#line 4260 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4258 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
@@ -7624,9 +7572,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 542:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 538:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 542: {
+            case 538: {
                //#line 4267 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4265 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
@@ -7638,9 +7586,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 544:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 540:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 544: {
+            case 540: {
                //#line 4274 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4272 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
@@ -7652,9 +7600,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 550:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 546:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 550: {
+            case 546: {
                //#line 4286 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4284 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
@@ -7668,9 +7616,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 553:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 549:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 553: {
+            case 549: {
                //#line 4295 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4293 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
@@ -7684,9 +7632,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 554:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 550:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 554: {
+            case 550: {
                //#line 4300 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4298 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
@@ -7702,9 +7650,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 555:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 551:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 555: {
+            case 551: {
                //#line 4305 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4303 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
@@ -7720,9 +7668,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 556:  LeftHandSide ::= ExpressionName
+            // Rule 552:  LeftHandSide ::= ExpressionName
             //
-            case 556: {
+            case 552: {
                //#line 4311 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4309 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
@@ -7732,9 +7680,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 558:  AssignmentOperator ::= =
+            // Rule 554:  AssignmentOperator ::= =
             //
-            case 558: {
+            case 554: {
                //#line 4318 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4318 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7743,9 +7691,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 559:  AssignmentOperator ::= *=
+            // Rule 555:  AssignmentOperator ::= *=
             //
-            case 559: {
+            case 555: {
                //#line 4323 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4323 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7754,9 +7702,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 560:  AssignmentOperator ::= /=
+            // Rule 556:  AssignmentOperator ::= /=
             //
-            case 560: {
+            case 556: {
                //#line 4328 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4328 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7765,9 +7713,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 561:  AssignmentOperator ::= %=
+            // Rule 557:  AssignmentOperator ::= %=
             //
-            case 561: {
+            case 557: {
                //#line 4333 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4333 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7776,9 +7724,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 562:  AssignmentOperator ::= +=
+            // Rule 558:  AssignmentOperator ::= +=
             //
-            case 562: {
+            case 558: {
                //#line 4338 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4338 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7787,9 +7735,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 563:  AssignmentOperator ::= -=
+            // Rule 559:  AssignmentOperator ::= -=
             //
-            case 563: {
+            case 559: {
                //#line 4343 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4343 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7798,9 +7746,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 564:  AssignmentOperator ::= <<=
+            // Rule 560:  AssignmentOperator ::= <<=
             //
-            case 564: {
+            case 560: {
                //#line 4348 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4348 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7809,9 +7757,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 565:  AssignmentOperator ::= >>=
+            // Rule 561:  AssignmentOperator ::= >>=
             //
-            case 565: {
+            case 561: {
                //#line 4353 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4353 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7820,9 +7768,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 566:  AssignmentOperator ::= >>>=
+            // Rule 562:  AssignmentOperator ::= >>>=
             //
-            case 566: {
+            case 562: {
                //#line 4358 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4358 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7831,9 +7779,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 567:  AssignmentOperator ::= &=
+            // Rule 563:  AssignmentOperator ::= &=
             //
-            case 567: {
+            case 563: {
                //#line 4363 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4363 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7842,9 +7790,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 568:  AssignmentOperator ::= ^=
+            // Rule 564:  AssignmentOperator ::= ^=
             //
-            case 568: {
+            case 564: {
                //#line 4368 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4368 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7853,9 +7801,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 569:  AssignmentOperator ::= |=
+            // Rule 565:  AssignmentOperator ::= |=
             //
-            case 569: {
+            case 565: {
                //#line 4373 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4373 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7864,9 +7812,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 572:  PrefixOp ::= +
+            // Rule 568:  PrefixOp ::= +
             //
-            case 572: {
+            case 568: {
                //#line 4384 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4384 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7875,9 +7823,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 573:  PrefixOp ::= -
+            // Rule 569:  PrefixOp ::= -
             //
-            case 573: {
+            case 569: {
                //#line 4389 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4389 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7886,9 +7834,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 574:  PrefixOp ::= !
+            // Rule 570:  PrefixOp ::= !
             //
-            case 574: {
+            case 570: {
                //#line 4394 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4394 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7897,9 +7845,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 575:  PrefixOp ::= ~
+            // Rule 571:  PrefixOp ::= ~
             //
-            case 575: {
+            case 571: {
                //#line 4399 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4399 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7908,9 +7856,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 576:  BinOp ::= +
+            // Rule 572:  BinOp ::= +
             //
-            case 576: {
+            case 572: {
                //#line 4405 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4405 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7919,9 +7867,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 577:  BinOp ::= -
+            // Rule 573:  BinOp ::= -
             //
-            case 577: {
+            case 573: {
                //#line 4410 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4410 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7930,9 +7878,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 578:  BinOp ::= *
+            // Rule 574:  BinOp ::= *
             //
-            case 578: {
+            case 574: {
                //#line 4415 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4415 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7941,9 +7889,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 579:  BinOp ::= /
+            // Rule 575:  BinOp ::= /
             //
-            case 579: {
+            case 575: {
                //#line 4420 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4420 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7952,9 +7900,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 580:  BinOp ::= %
+            // Rule 576:  BinOp ::= %
             //
-            case 580: {
+            case 576: {
                //#line 4425 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4425 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7963,9 +7911,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 581:  BinOp ::= &
+            // Rule 577:  BinOp ::= &
             //
-            case 581: {
+            case 577: {
                //#line 4430 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4430 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7974,9 +7922,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 582:  BinOp ::= |
+            // Rule 578:  BinOp ::= |
             //
-            case 582: {
+            case 578: {
                //#line 4435 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4435 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7985,9 +7933,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 583:  BinOp ::= ^
+            // Rule 579:  BinOp ::= ^
             //
-            case 583: {
+            case 579: {
                //#line 4440 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4440 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7996,9 +7944,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 584:  BinOp ::= &&
+            // Rule 580:  BinOp ::= &&
             //
-            case 584: {
+            case 580: {
                //#line 4445 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4445 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8007,9 +7955,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 585:  BinOp ::= ||
+            // Rule 581:  BinOp ::= ||
             //
-            case 585: {
+            case 581: {
                //#line 4450 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4450 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8018,9 +7966,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 586:  BinOp ::= <<
+            // Rule 582:  BinOp ::= <<
             //
-            case 586: {
+            case 582: {
                //#line 4455 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4455 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8029,9 +7977,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 587:  BinOp ::= >>
+            // Rule 583:  BinOp ::= >>
             //
-            case 587: {
+            case 583: {
                //#line 4460 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4460 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8040,9 +7988,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 588:  BinOp ::= >>>
+            // Rule 584:  BinOp ::= >>>
             //
-            case 588: {
+            case 584: {
                //#line 4465 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4465 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8051,9 +7999,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 589:  BinOp ::= >=
+            // Rule 585:  BinOp ::= >=
             //
-            case 589: {
+            case 585: {
                //#line 4470 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4470 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8062,9 +8010,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 590:  BinOp ::= <=
+            // Rule 586:  BinOp ::= <=
             //
-            case 590: {
+            case 586: {
                //#line 4475 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4475 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8073,9 +8021,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 591:  BinOp ::= >
+            // Rule 587:  BinOp ::= >
             //
-            case 591: {
+            case 587: {
                //#line 4480 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4480 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8084,9 +8032,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 592:  BinOp ::= <
+            // Rule 588:  BinOp ::= <
             //
-            case 592: {
+            case 588: {
                //#line 4485 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4485 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8095,9 +8043,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 593:  BinOp ::= ==
+            // Rule 589:  BinOp ::= ==
             //
-            case 593: {
+            case 589: {
                //#line 4493 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4493 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8106,9 +8054,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 594:  BinOp ::= !=
+            // Rule 590:  BinOp ::= !=
             //
-            case 594: {
+            case 590: {
                //#line 4498 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4498 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8117,9 +8065,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 595:  Catchesopt ::= $Empty
+            // Rule 591:  Catchesopt ::= $Empty
             //
-            case 595: {
+            case 591: {
                //#line 4507 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4507 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8128,16 +8076,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 597:  Identifieropt ::= $Empty
+            // Rule 593:  Identifieropt ::= $Empty
             //
-            case 597:
+            case 593:
                 setResult(null);
                 break;
 
             //
-            // Rule 598:  Identifieropt ::= Identifier
+            // Rule 594:  Identifieropt ::= Identifier
             //
-            case 598: {
+            case 594: {
                //#line 4516 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4514 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -8147,9 +8095,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 599:  ForUpdateopt ::= $Empty
+            // Rule 595:  ForUpdateopt ::= $Empty
             //
-            case 599: {
+            case 595: {
                //#line 4522 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4522 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8158,16 +8106,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 601:  Expressionopt ::= $Empty
+            // Rule 597:  Expressionopt ::= $Empty
             //
-            case 601:
+            case 597:
                 setResult(null);
                 break;
 
             //
-            // Rule 603:  ForInitopt ::= $Empty
+            // Rule 599:  ForInitopt ::= $Empty
             //
-            case 603: {
+            case 599: {
                //#line 4533 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4533 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8176,9 +8124,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 605:  SwitchLabelsopt ::= $Empty
+            // Rule 601:  SwitchLabelsopt ::= $Empty
             //
-            case 605: {
+            case 601: {
                //#line 4540 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4540 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8187,9 +8135,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 607:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 603:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 607: {
+            case 603: {
                //#line 4547 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4547 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8198,9 +8146,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 609:  VariableModifiersopt ::= $Empty
+            // Rule 605:  VariableModifiersopt ::= $Empty
             //
-            case 609: {
+            case 605: {
                //#line 4554 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4554 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8209,16 +8157,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 611:  VariableInitializersopt ::= $Empty
+            // Rule 607:  VariableInitializersopt ::= $Empty
             //
-            case 611:
+            case 607:
                 setResult(null);
                 break;
 
             //
-            // Rule 613:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 609:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 613: {
+            case 609: {
                //#line 4565 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4565 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8227,9 +8175,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 615:  ExtendsInterfacesopt ::= $Empty
+            // Rule 611:  ExtendsInterfacesopt ::= $Empty
             //
-            case 615: {
+            case 611: {
                //#line 4572 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4572 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8238,9 +8186,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 617:  InterfaceModifiersopt ::= $Empty
+            // Rule 613:  InterfaceModifiersopt ::= $Empty
             //
-            case 617: {
+            case 613: {
                //#line 4579 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4579 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8249,16 +8197,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 619:  ClassBodyopt ::= $Empty
+            // Rule 615:  ClassBodyopt ::= $Empty
             //
-            case 619:
+            case 615:
                 setResult(null);
                 break;
 
             //
-            // Rule 621:  Argumentsopt ::= $Empty
+            // Rule 617:  Argumentsopt ::= $Empty
             //
-            case 621: {
+            case 617: {
                //#line 4590 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4590 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8267,9 +8215,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 623:  ArgumentListopt ::= $Empty
+            // Rule 619:  ArgumentListopt ::= $Empty
             //
-            case 623: {
+            case 619: {
                //#line 4597 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4597 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8278,9 +8226,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 625:  BlockStatementsopt ::= $Empty
+            // Rule 621:  BlockStatementsopt ::= $Empty
             //
-            case 625: {
+            case 621: {
                //#line 4604 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4604 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8289,16 +8237,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 627:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 623:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 627:
+            case 623:
                 setResult(null);
                 break;
 
             //
-            // Rule 629:  ConstructorModifiersopt ::= $Empty
+            // Rule 625:  ConstructorModifiersopt ::= $Empty
             //
-            case 629: {
+            case 625: {
                //#line 4615 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4615 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8307,9 +8255,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 631:  FormalParameterListopt ::= $Empty
+            // Rule 627:  FormalParameterListopt ::= $Empty
             //
-            case 631: {
+            case 627: {
                //#line 4622 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4622 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8318,9 +8266,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 633:  Throwsopt ::= $Empty
+            // Rule 629:  Throwsopt ::= $Empty
             //
-            case 633: {
+            case 629: {
                //#line 4629 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4629 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8329,9 +8277,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 635:  MethodModifiersopt ::= $Empty
+            // Rule 631:  MethodModifiersopt ::= $Empty
             //
-            case 635: {
+            case 631: {
                //#line 4636 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4636 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8340,9 +8288,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 637:  TypeModifieropt ::= $Empty
+            // Rule 633:  TypeModifieropt ::= $Empty
             //
-            case 637: {
+            case 633: {
                //#line 4643 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4643 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8351,9 +8299,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 639:  FieldModifiersopt ::= $Empty
+            // Rule 635:  FieldModifiersopt ::= $Empty
             //
-            case 639: {
+            case 635: {
                //#line 4650 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4650 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8362,9 +8310,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 641:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 637:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 641: {
+            case 637: {
                //#line 4657 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4657 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8373,9 +8321,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 643:  Interfacesopt ::= $Empty
+            // Rule 639:  Interfacesopt ::= $Empty
             //
-            case 643: {
+            case 639: {
                //#line 4664 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4664 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8384,16 +8332,16 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 645:  Superopt ::= $Empty
+            // Rule 641:  Superopt ::= $Empty
             //
-            case 645:
+            case 641:
                 setResult(null);
                 break;
 
             //
-            // Rule 647:  TypeParametersopt ::= $Empty
+            // Rule 643:  TypeParametersopt ::= $Empty
             //
-            case 647: {
+            case 643: {
                //#line 4675 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4675 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8402,9 +8350,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 649:  FormalParametersopt ::= $Empty
+            // Rule 645:  FormalParametersopt ::= $Empty
             //
-            case 649: {
+            case 645: {
                //#line 4682 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4682 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8413,9 +8361,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 651:  Annotationsopt ::= $Empty
+            // Rule 647:  Annotationsopt ::= $Empty
             //
-            case 651: {
+            case 647: {
                //#line 4689 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4689 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8424,9 +8372,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 653:  TypeDeclarationsopt ::= $Empty
+            // Rule 649:  TypeDeclarationsopt ::= $Empty
             //
-            case 653: {
+            case 649: {
                //#line 4696 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4696 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8435,9 +8383,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 655:  ImportDeclarationsopt ::= $Empty
+            // Rule 651:  ImportDeclarationsopt ::= $Empty
             //
-            case 655: {
+            case 651: {
                //#line 4703 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4703 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8446,23 +8394,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 657:  PackageDeclarationopt ::= $Empty
+            // Rule 653:  PackageDeclarationopt ::= $Empty
             //
-            case 657:
+            case 653:
                 setResult(null);
                 break;
 
             //
-            // Rule 659:  ResultTypeopt ::= $Empty
+            // Rule 655:  ResultTypeopt ::= $Empty
             //
-            case 659:
+            case 655:
                 setResult(null);
                 break;
 
             //
-            // Rule 661:  TypeArgumentsopt ::= $Empty
+            // Rule 657:  TypeArgumentsopt ::= $Empty
             //
-            case 661: {
+            case 657: {
                //#line 4718 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4718 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8471,9 +8419,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 663:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 659:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 663: {
+            case 659: {
                //#line 4725 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4725 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8482,9 +8430,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 665:  Propertiesopt ::= $Empty
+            // Rule 661:  Propertiesopt ::= $Empty
             //
-            case 665: {
+            case 661: {
                //#line 4732 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4732 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8493,9 +8441,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 667:  ,opt ::= $Empty
+            // Rule 663:  ,opt ::= $Empty
             //
-            case 667:
+            case 663:
                 setResult(null);
                 break;
 

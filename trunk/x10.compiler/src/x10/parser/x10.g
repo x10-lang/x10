@@ -2610,20 +2610,20 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     ClassBodyDeclaration ::= ClassMemberDeclaration
-                           | InstanceInitializer
-        /.$BeginJava
-                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                    l.add(InstanceInitializer);
-                    setResult(l);
-          $EndJava
-        ./
-                           | StaticInitializer
-        /.$BeginJava
-                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
-                    l.add(StaticInitializer);
-                    setResult(l);
-          $EndJava
-        ./
+--                           | InstanceInitializer
+--        /.$BeginJava
+--                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+--                    l.add(InstanceInitializer);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                           | StaticInitializer
+--        /.$BeginJava
+--                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+--                    l.add(StaticInitializer);
+--                    setResult(l);
+--          $EndJava
+--        ./
                            | ConstructorDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -3111,17 +3111,17 @@ public static class MessageHandler implements IMessageHandler {
                       | ;
         /.$NullAction./
     
-    InstanceInitializer ::= Block
-        /.$BeginJava
-                    setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
-          $EndJava
-        ./
+--    InstanceInitializer ::= Block
+--        /.$BeginJava
+--                    setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
+--          $EndJava
+--        ./
     
-    StaticInitializer ::= static Block
-        /.$BeginJava
-                    setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
-          $EndJava
-        ./
+--    StaticInitializer ::= static Block
+--        /.$BeginJava
+--                    setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
+--          $EndJava
+--        ./
       
     SimpleTypeName ::= Identifier
         /.$BeginJava
@@ -4486,7 +4486,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-      -- FIXME: == and != shouldn't be allowed to be overridden.
+-- FIXME: == and != shouldn't be allowed to be overridden.
               
       | ==
         /.$BeginJava
@@ -4801,7 +4801,7 @@ public static class MessageHandler implements IMessageHandler {
     Stmt ::= LoopStatement
     List ::= Throwsopt | Throws
     Block ::= MethodBody
-    Initializer ::= StaticInitializer
+--    Initializer ::= StaticInitializer
     ConstructorDecl ::= ConstructorDeclaration
     Block ::= ConstructorBody
     Block ::= ConstructorBlock
@@ -4875,7 +4875,7 @@ public static class MessageHandler implements IMessageHandler {
     ParsedName ::= AmbiguousName
     ParsedName ::= MethodName
     ParsedName ::= PackageOrTypeName
-    Initializer ::= InstanceInitializer
+--    Initializer ::= InstanceInitializer
     TypeNode ::= ResultType
     List ::= ExceptionTypeList
     TypeNode ::= ExceptionType
