@@ -54,6 +54,7 @@ namespace x10aux {
         return x10rt_child(place, index);
         #else
         abort();
+        return 0;
         #endif
     }
 
