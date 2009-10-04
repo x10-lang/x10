@@ -143,12 +143,8 @@ namespace x10 {
 
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-            for (x10_int i=0 ; i<length ; ++i) {
-                // Initialise to zero, which should work for
-                // numeric types and x10aux:;ref<T> which I think
-                // covers everything.
-                (*rail)[i] = 0;
-            }
+            // Memset both for efficiency and to allow T to be a struct.
+            memset(rail->raw(), 0, length * sizeof(T));
             return rail;
         }
 
