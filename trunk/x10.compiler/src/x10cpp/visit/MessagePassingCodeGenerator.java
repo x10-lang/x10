@@ -1337,6 +1337,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                  X10TypeSystem xts) {
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
+        boolean seenToString = false;  // HACK for struct toString.  See comment below.
 
         sh.write("public:");
         sh.newline();
@@ -1376,6 +1377,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
                 prev = member;
                 n.printBlock(member, sw, tr);
+                
+                // HACK for struct toString.  See comment below.
+                if (member instanceof MethodDecl_c) {
+                    MethodDecl_c mdecl = (MethodDecl_c)member;
+                    if (mdecl.name().id().toString().equals("toString") &&
+                            mdecl.formals().isEmpty() && 
+                            !mdecl.flags().flags().isStatic() && 
+                            xts.typeBaseEquals(xts.String(), mdecl.returnType().type(), context)) {
+                        seenToString = true;
+                    }
+                }
             }
 
             // Generate structEquals for structs
@@ -1422,6 +1434,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.newline();
             
             emitter.generateStructSerializationMethods(currentClass, sw);
+            sw.forceNewline();
+        }
+        
+        // HACK: To get structs to play nicely with Rails and other generic types, we ensure
+        //       that there is always a toString method defined for the class.  If there is 
+        //       no user-defined toString, then we define one here.  
+        //       This is to compensate for not being able to define a default toString on Primitive,
+        //       since a default toString would be final, and therefore not overridable by 
+        //       a user-defined toString.
+        // HACK 2:  We also have to define a redirection method so that toString is actually defined
+        //       on the struct class, not just in the structMethods.  This is to fit in with
+        //       how toString is used in x10aux::basic_functions.
+        if (seenToString) {
+            // define redirection method
+            sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
+            sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return "+Emitter.structMethodClass(currentClass, true)+"::toString(*this);");
+            sw.end(); sw.newline();
+            sw.writeln("}");
+        } else {
+            // define default toString
+            sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
+            sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
         }
 
         sw.end();
