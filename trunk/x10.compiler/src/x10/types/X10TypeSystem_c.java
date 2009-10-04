@@ -21,7 +21,9 @@ import java.util.Set;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -73,6 +75,9 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Predicate2;
 import polyglot.util.TransformingList;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.TypeBuilder;
+import x10.ast.X10NodeFactory;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -83,6 +88,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.parser.X10ParsedName;
 
 /**
  * A TypeSystem implementation for X10.
@@ -2611,4 +2617,29 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   container = X10TypeMixin.ensureSelfBound(container);
 	   return super.findField(container, matcher);
    }
+   public void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException {
+ 	  X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+			Context c = tc.context();
+ 	  TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
+			// First, try to determine if there in fact a struct in scope with the given name.
+			TypeNode otn = new X10ParsedName(nf, ts, Position.COMPILER_GENERATED, name).toType();//
+			//	nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
+		
+			TypeNode tn = (TypeNode) otn.visit(tb);
+			
+			// First ensure that there is a type associated with tn.
+			tn = (TypeNode) tn.disambiguate(tc);
+			
+			// ok, if we made it this far, then there is a type. Check that it is a struct.
+			Type t = tn.type();
+			t = ts.expandMacros(t);
+
+			XConstraint xc = X10TypeMixin.xclause(t);
+			t = X10TypeMixin.baseType(t);
+
+			if (!(ts.isStructType(t))) { // bail
+				throw new SemanticException();
+			}
+     }
 }

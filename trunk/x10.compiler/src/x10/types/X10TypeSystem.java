@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Id;
 import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
@@ -34,6 +35,7 @@ import polyglot.types.VarDef;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XLit;
 import x10.constraint.XRoot;
@@ -385,4 +387,13 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     XTerm locVar(XTerm t, X10Context context) ;
+    
+    /**
+     * Does there exist a struct with the given name, accessible at this point? 
+     * Throw an exception if it is not.
+     * @param name
+     * @param tc
+     * @throws SemanticException
+     */
+    void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
 }

@@ -169,20 +169,13 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               TypeNode tn = (TypeNode) n;
               LazyRef<Type> sym = (LazyRef<Type>) type;
               X10Type t2 = (X10Type) tn.type();
-              if (X10Flags.toX10Flags(t2.flags()).isStruct()) {
-            	  
-            	  if (flags == null || ! X10Flags.toX10Flags(flags).isStruct()) {
-            		  t2 = X10TypeMixin.makeRef(t2);
-            	  }
-              }
-              sym.update(t2);
-
-              if (t2 instanceof X10ParsedClassType) {
+              
+       /*       if (t2 instanceof X10ParsedClassType) {
         	  X10ParsedClassType ct = (X10ParsedClassType) tn.type();
         	  if (ct.x10Def().typeParameters().size() != 0) {
         	      throw new SemanticException("Invalid type " + ct + "; incorrect number of type arguments.", position());
         	  }
-              }
+              }*/
               
               // Reset the resolver goal to one that can run when the ref is deserialized.
               Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
