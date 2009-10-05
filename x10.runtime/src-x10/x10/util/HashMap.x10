@@ -72,26 +72,26 @@ public class HashMap[-K,V] implements Map[K,V] {
     }
     
     protected def hash(k: K): Int {
-        return k == null ? 0 : (k.hashCode() * 17);
+        return k.hashCode() * 17;
     }
     
     public safe def apply(k: K): Box[V] = get(k);
     
     public safe def get(k: K): Box[V] {
         val e = getEntry(k);
-        if (e == null) return null;
+        if (e == null || e.removed) return null;
         return e.value as Box[V];
     }
     
     public safe def getOrElse(k: K, orelse: V): V {
         val e = getEntry(k);
-        if (e == null) return orelse;
+        if (e == null || e.removed) return orelse;
         return e.value;
     }
     
     public safe def getOrThrow(k: K): V throws NoSuchElementException {
         val e = getEntry(k);
-        if (e == null) throw new NoSuchElementException("Not found");
+        if (e == null || e.removed) throw new NoSuchElementException("Not found");
         return e.value;
     }
     
@@ -118,7 +118,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                 return null;
             }
             if (e != null) {
-                if (e.hash == h && (k == null ? e.key == null : k.equals(e.key))) {
+                if (e.hash == h && k.equals(e.key)) {
                     if (i - h > MAX_PROBES)
                         shouldRehash = true;
                     return e;
@@ -135,7 +135,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     public safe def put(k: K, v: V): Box[V] {
         if (occupation == table.length || shouldRehash && occupation >= table.length / 2)
             rehash();
-        
+
         val h = hash(k);
         var i: int = h;
 
@@ -151,8 +151,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                 size++;
                 occupation++;
                 return null;
-            }
-            else if (e.hash == h && (k == null ? e.key == null : k.equals(e.key))) {
+            } else if (e.hash == h && k.equals(e.key)) {
                 if (i - h > MAX_PROBES)
                     shouldRehash = true;
                 val old = e.value;
