@@ -124,13 +124,6 @@ public struct Complex {
         return Complex(re / that, im / that);
     }
 
-    /* TODO: need to let user override operator == on sturct!    
-    public def equals(a:Complex):boolean {
-        if (a.isNaN()) return isNaN();
-        else return re == a.re && im == a.im;
-    }
-    */
-
     /** 
      * @return the conjugate of this complex number
      */
