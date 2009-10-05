@@ -19,11 +19,7 @@ import x10.compiler.NativeRep;
 public value Value /* @EQ implements Equals[Value] */ implements Object {
     @Native("java", "#0.equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Value): boolean;
-
-    @Native("java", "#0.equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Ref): boolean;
+    public native def equals(Object): boolean;
 
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")

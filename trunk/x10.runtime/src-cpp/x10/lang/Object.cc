@@ -26,12 +26,7 @@ void Object::_serialize(x10aux::ref<Object> this_,
 }
 
 x10_boolean Object::equals(x10aux::ref<Object> other) {
-    if (x10aux::instanceof<Value>(other))
-        return this->equals(x10aux::ref<Value>(reinterpret_cast<Value*>(other.operator->())));
-    if (x10aux::instanceof<Ref>(other))
-        return this->equals(x10aux::ref<Ref>(reinterpret_cast<Ref*>(other.operator->())));
-    assert (false && "Unknown reference type");
-    return false;
+    return this->_struct_equals(other);
 }
 
 x10aux::RuntimeType x10::lang::Object::rtt;

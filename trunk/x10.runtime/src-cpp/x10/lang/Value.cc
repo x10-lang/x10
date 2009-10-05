@@ -31,13 +31,6 @@ x10aux::ref<x10::lang::String> x10::lang::Value::toString() {
 }
 
 x10_boolean
-Value::equals(x10aux::ref<Value> other) {
-    if (other == x10aux::ref<Value>(this)) return true;
-    if (!x10aux::instanceof<Value>(other)) return false;
-    return this->_struct_equals(other);
-}
-
-x10_boolean
 Value::_struct_equals(x10aux::ref<Object> other) {
     if (!_type()->concreteInstanceOf(other))
         return false;

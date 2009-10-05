@@ -14,7 +14,8 @@ public class Box[+T](value: T) {
     public def toString(): String = value.toString();
 
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x: Value): Boolean {
+    public def equals(x:Object): Boolean {
+      if (x instanceof Value) {
         if (value instanceof Ref) {
 	    val v: Ref! = value;
             return v.equals(x);
@@ -24,10 +25,7 @@ public class Box[+T](value: T) {
             return value.equals(y);
         }
         return false;
-    }
-
-    @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x: Ref): Boolean {
+      } else { 
         if (x == null) {
             return false;
         }
@@ -44,5 +42,6 @@ public class Box[+T](value: T) {
             return value.equals(y);
         }
         return false;
+      }
     }
 }

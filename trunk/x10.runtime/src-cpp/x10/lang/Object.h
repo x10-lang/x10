@@ -53,10 +53,8 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
-            x10_boolean equals(x10aux::ref<Object> other);
+            virtual x10_boolean equals(x10aux::ref<Object> other);
 
-            virtual x10_boolean equals(x10aux::ref<Ref> other) = 0;
-            virtual x10_boolean equals(x10aux::ref<Value> other) = 0;
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
 

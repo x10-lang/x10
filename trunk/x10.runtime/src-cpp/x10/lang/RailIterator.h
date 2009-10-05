@@ -44,17 +44,13 @@ namespace x10 {
 
             virtual x10_int hashCode() { return 0; }
             
-            virtual x10_boolean equals(x10aux::ref<Ref> other) {
+            virtual x10_boolean equals(x10aux::ref<Object> other) {
                 if (!x10aux::concrete_instanceof<RailIterator>(other)) return false;
                 x10aux::ref<RailIterator> other_i = other;
                 if (other_i->data != data) return false;
                 if (other_i->index != index) return false;
                 return true;
             }   
-
-            virtual x10_boolean equals(x10aux::ref<Value> other) {
-                return this->Ref::equals(other);
-            }
 
             virtual x10aux::ref<String> toString() {
                 return new (x10aux::alloc<String>()) String();

@@ -1146,6 +1146,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("return x10::lang::Object::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
+        /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
+        h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->equals(that);");
+        h.end(); h.newline();
+        h.write("}"); h.newline(); h.forceNewline();
+        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
@@ -1338,6 +1344,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
         boolean seenToString = false;  // HACK for struct toString.  See comment below.
+        boolean seenHashCode = false;  // HACK.  Same basic issue as toString...
 
         sh.write("public:");
         sh.newline();
@@ -1387,6 +1394,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             xts.typeBaseEquals(xts.String(), mdecl.returnType().type(), context)) {
                         seenToString = true;
                     }
+                    if (mdecl.name().id().toString().equals("hashCode") &&
+                            mdecl.formals().isEmpty() && 
+                            !mdecl.flags().flags().isStatic() && 
+                            xts.typeBaseEquals(xts.Int(), mdecl.returnType().type(), context)) {
+                        seenHashCode = true;
+                    }
+                    
                 }
             }
 
@@ -1463,7 +1477,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
         }
-
+        if (seenHashCode) {
+            // define redirection method
+            sh.writeln("x10_int hashCode();"); sh.forceNewline();
+            sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return "+Emitter.structMethodClass(currentClass, true)+"::hashCode(*this);");
+            sw.end(); sw.newline();
+            sw.writeln("}");
+        } else {
+            // define default hashCode by hashing all fields.
+            sh.writeln("x10_int hashCode();"); sh.forceNewline();
+            sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln("x10_int result = 0;");
+            if (superClass != null) {
+                sw.writeln("result = " + Emitter.translateType(superClass)+ "::hashCode();");
+            }            
+            for (FieldInstance fi : currentClass.fields()) {
+                if (!fi.flags().isStatic()) {
+                    String name = fi.name().toString();
+                    // TODO: better hash code combining function here!
+                    sw.writeln("result += x10aux::hash_code(this->"+mangled_field_name(name)+");");
+                }
+            }
+            sw.writeln("return result;");
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
+        }
+        
         sw.end();
         sw.newline();
 
@@ -2605,13 +2647,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        a = cast(a, fType);
 		    args.add(a);
 		    counter++;
-		}
-
-		// [IP] FIXME: accommodate the frontend hack for the equals method
-		if (mi.name() == Name.make("equals") && args.size() == 1 && mi.typeParameters().size() == 0 &&
-		        xts.isParameterType(mi.formalTypes().get(0)))
-		{
-		    args.set(0, cast(args.get(0), xts.Object()));
 		}
 
 		String pat = getCppImplForDef(md);
