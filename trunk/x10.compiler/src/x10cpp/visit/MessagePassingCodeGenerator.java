@@ -2673,6 +2673,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    boolean already_static = false;
 		    String targetMethodName = mangled_method_name(n.name().id().toString());
 		    boolean isInterfaceInvoke = false;
+		    X10Flags xf = X10Flags.toX10Flags(mi.flags());
+		    boolean needsPlaceCheck = !xf.isGlobal();
 		    if (!n.isTargetImplicit()) {
 		        // explicit target.
 		        if (target instanceof X10Special_c && ((X10Special_c)target).kind().equals(X10Special_c.SUPER)) {
@@ -2696,25 +2698,26 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                        ITable itable= ITable.getITable(clsType);
 		                        targetMethodName = itable.mangledName(mi);
 		                        isInterfaceInvoke = true;
+		                        sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = ");
+		                        if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
+		                        sw.write("x10aux::nullCheck(");
+		                        n.printSubExpr((Expr) target, assoc, sw, tr);
+		                        sw.write(needsPlaceCheck ? ")); " : "); ");
 		                        if (ret_type.isVoid()) {
-		                            sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
-		                            n.printSubExpr((Expr) target, assoc, sw, tr);
-		                            sw.write(")); (_.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+		                            sw.write("(_.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
 		                            dangling = "; }))";
 		                        } else {
-		                            sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
-		                            n.printSubExpr((Expr) target, assoc, sw, tr);
-		                            sw.write(")); x10aux::GXX_ICE_Workaround"+chevrons(Emitter.translateType(ret_type, true))+"::_((_.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+		                            sw.write("x10aux::GXX_ICE_Workaround"+chevrons(Emitter.translateType(ret_type, true))+"::_((_.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
 		                            dangling = "); }))";
 		                        }
 		                    }
 		                }
-
+		                
 		                if (!isInterfaceInvoke) {
-		                    boolean needsCheck = !((X10Type)t).isX10Struct();
-		                    sw.write(needsCheck ? "x10aux::placeCheck(x10aux::nullCheck(" : "(");
+		                    if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
+		                    sw.write("x10aux::nullCheck(");
 		                    n.printSubExpr((Expr) target, assoc, sw, tr);
-		                    sw.write((needsCheck ? "))" : ")")+"->");
+		                    sw.write((needsPlaceCheck ? "))" : ")")+"->");
 		                }
 		            }
 		        } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -2847,11 +2850,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.end();
 				return;
 			} else {
-				boolean needsChecks = !((X10Type)t).isX10Struct();
+			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
+			    boolean needsNullCheck = !((X10Type)t).isX10Struct();
+			    boolean needsPlaceCheck = !((X10Type)t).isX10Struct() && !xf.isGlobal();
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
-				if (needsChecks) sw.write("x10aux::placeCheck(x10aux::nullCheck(");
+				if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
+				if (needsNullCheck) sw.write("x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
-				if (needsChecks) sw.write("))");
+				if (needsNullCheck) sw.write(")");
+				if (needsPlaceCheck) sw.write(")");
 			}
 		}
 		else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -3864,6 +3871,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Can be a non-interface dispatch for classes like Future, so we have to check.
 		Type t = target.type();
 		String terminate = "";
+		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		if (lit != null || (t.isClass() && t.toClass().flags().isInterface())) {
 			sw.write("(__extension__ ({ x10aux::ref<x10::lang::Object> _ = x10aux::placeCheck(x10aux::nullCheck(");
 			c.printSubExpr(target, sw, tr);
