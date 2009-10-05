@@ -38,17 +38,18 @@ public class Random {
             return nextInt() & (n-1);
         }
 
-        // Get the next power of 2 greater than n
-        var pow2: int = 1;
-        while (pow2 < n)
-            pow2 <<= 1;
+        var mask: int = 1;
+        while ((n & ~mask) != 0) {
+            mask <<= 1;
+            mask |= 1;
+        }
 
         // Keep generating numbers of the right size until we get
         // one in range.  The expected number of iterations is 2.
         var x: int;
 
         do {
-            x = nextInt() & (pow2-1);
+            x = nextInt() & mask;
         } while (x >= n);
 
         return x;
