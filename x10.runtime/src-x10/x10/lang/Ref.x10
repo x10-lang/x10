@@ -33,11 +33,7 @@ public class Ref(
 
     @Native("java", "#0.equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Ref): boolean;
-
-    @Native("java", "#0.equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Value): boolean;
+    public native def equals(Object): boolean;
 
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")

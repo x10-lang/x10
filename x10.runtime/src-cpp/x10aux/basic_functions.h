@@ -55,11 +55,6 @@ namespace x10aux {
       public: static inline x10_boolean _(ref<T> x, ref<U> y) { return nullCheck(x)->equals(y); }
     };
 
-    template<class T>
-    class Equals<T, x10::lang::Object> {
-      public: static inline x10_boolean _(ref<T> x, ref<x10::lang::Object> y) { return nullCheck(x)->x10::lang::Object::equals(y); }
-    };
-
     template<class T, class U>
     inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
@@ -212,7 +207,11 @@ namespace x10aux {
     template<class T> inline x10_int hash_code(ref<T> x) {
         return nullCheck(x)->hashCode();
     }
-
+    
+    template<class T> inline x10_int hash_code(T x) {
+        return x->hashCode();
+    }
+    
     inline x10_int hash_code(const x10_double x) {
         return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
     }
