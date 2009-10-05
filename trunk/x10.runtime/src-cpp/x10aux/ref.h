@@ -169,18 +169,6 @@ namespace x10aux {
         return obj;
     }
 
-    // Hack around g++ 4.1 bugs with statement expression.
-    // See XTENLANG-461.
-#if defined(__GNUC__)
-    template <class T> inline ref<T> nullCheck(T* obj) {
-        return nullCheck(x10aux::ref<T>(obj));
-    }
-
-    template <class T> inline ref<T> placeCheck(T* obj) {
-        return placeCheck(x10aux::ref<T>(obj));
-    }
-#endif
-    
     // will be initialised to null
     typedef ref<x10::lang::Object> NullType;
     static NullType null;
@@ -219,15 +207,6 @@ namespace x10aux {
         return location(ptr.operator->());
     }
 
-    // Hack around g++ 4.1 bugs with statement expression.
-    // See XTENLANG-461.
-#if defined(__GNUC__)
-    template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
-    template<class T> class GXX_ICE_Workaround<ref<T> > { public: static inline T* _(ref<T> v) { return v.operator->(); } };
-#else
-    template<class T> class GXX_ICE_Workaround { public: static inline T _(T v) { return v; } };
-#endif
-    
 } //namespace x10
 
 
