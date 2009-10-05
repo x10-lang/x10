@@ -158,8 +158,8 @@ public class HashMap[-K,V] implements Map[K,V] {
                 val old = e.value;
                 e.value = v;
                 if (e.removed) {
-                	e.removed = false;
-                	size++;
+                    e.removed = false;
+                    size++;
                     return null;
                 }
                 return (old as V) as Box[V];
@@ -186,40 +186,40 @@ public class HashMap[-K,V] implements Map[K,V] {
         assert size == oldSize;
     }
     
-	public safe def containsKey(k: K): boolean {
-	    val e = getEntry(k);
-	    return e != null && ! e.removed;
-	}
-	
-	public def remove(k: K): Box[V] {
-	    val e = getEntry(k);
-	    if (e != null && ! e.removed) {
-	        size--;
-	        e.removed = true;
-	        return e.value as Box[V];
-	    }
-	    return null;
+    public safe def containsKey(k: K): boolean {
+        val e = getEntry(k);
+        return e != null && ! e.removed;
     }
     
-	public def keySet(): Set[K] {
-	    return new KeySet[K,V](this);
-	}
-	
-	public def entries(): Set[Map.Entry[K,V]] {
-	    return new EntrySet[K,V](this);
-	}
-	
+    public def remove(k: K): Box[V] {
+        val e = getEntry(k);
+        if (e != null && ! e.removed) {
+            size--;
+            e.removed = true;
+            return e.value as Box[V];
+        }
+        return null;
+    }
+    
+    public def keySet(): Set[K] {
+        return new KeySet[K,V](this);
+    }
+    
+    public def entries(): Set[Map.Entry[K,V]] {
+        return new EntrySet[K,V](this);
+    }
+    
     protected def entriesIterator(): Iterator[HashEntry[K,V]] {
-	val iterator = new EntriesIterator[K,V](this);
-	iterator.advance();
-	return iterator;
-	}
+    val iterator = new EntriesIterator[K,V](this);
+    iterator.advance();
+    return iterator;
+    }
 
-	protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
-	    val map: HashMap[Key,Value]!;
-	    var i: Int;
-	    
-	    def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; }
+    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
+        val map: HashMap[Key,Value]!;
+        var i: Int;
+        
+        def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; }
 
         def advance(): void {
             while (i < map.table.length) {
@@ -228,58 +228,58 @@ public class HashMap[-K,V] implements Map[K,V] {
                i++;
             }
         }
-	    
-	    public def hasNext(): Boolean {
-	        if (i < map.table.length) {
+        
+        public def hasNext(): Boolean {
+            if (i < map.table.length) {
 //              assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is null or removed";
-	            return true;
-	        }
-	        return false;
-	    }
-	    
-	    public def next(): HashEntry[Key,Value] {
-	        val j = i;
-//	        assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
-	        i++;
-	        advance();
-	        return map.table(j);
-	    }
-	}
-	
-	public def size() = size;
-	
+                return true;
+            }
+            return false;
+        }
+        
+        public def next(): HashEntry[Key,Value] {
+            val j = i;
+//            assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
+            i++;
+            advance();
+            return map.table(j);
+        }
+    }
+    
+    public def size() = size;
+    
     protected static class KeySet[-Key,Value] extends AbstractCollection[Key] implements Set[Key] {
-	    val map: HashMap[Key,Value]!;
-	    
-	    def this(map: HashMap[Key,Value]!) { this.map = map; }
-	    
-	    public def iterator(): Iterator[Key] {
-	        return new MapIterator[HashEntry[Key,Value],Key](map.entriesIterator(), (e: HashEntry[Key,Value]!) => e.key);
-	    }
-	    
-	    public def contains(k: Key) {
-	        return map.containsKey(k);
-	    }
-	    
-	    public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
-	    public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
-	    public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
-	    public def size(): Int = map.size();
-	}
+        val map: HashMap[Key,Value]!;
+        
+        def this(map: HashMap[Key,Value]!) { this.map = map; }
+        
+        public def iterator(): Iterator[Key] {
+            return new MapIterator[HashEntry[Key,Value],Key](map.entriesIterator(), (e: HashEntry[Key,Value]!) => e.key);
+        }
+        
+        public def contains(k: Key) {
+            return map.containsKey(k);
+        }
+        
+        public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
+        public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
+        public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
+        public def size(): Int = map.size();
+    }
 
     protected static class EntrySet[-Key,Value] extends AbstractCollection[Map.Entry[Key,Value]] implements Set[Map.Entry[Key,Value]] {
-	    val map: HashMap[Key,Value]!;
-	    
-	    def this(map: HashMap[Key,Value]!) { this.map = map; }
-	    
-	    public def iterator(): Iterator[Map.Entry[Key,Value]] {
-	        return new MapIterator[HashEntry[Key,Value],Map.Entry[Key,Value]](map.entriesIterator(), (e: HashEntry[Key,Value]) => e as Map.Entry[Key,Value]);
-	    }
-	    
-	    public def contains(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
-	    public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
-	    public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
-	    public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
-	    public def size(): Int = map.size();
-	}
+        val map: HashMap[Key,Value]!;
+        
+        def this(map: HashMap[Key,Value]!) { this.map = map; }
+        
+        public def iterator(): Iterator[Map.Entry[Key,Value]] {
+            return new MapIterator[HashEntry[Key,Value],Map.Entry[Key,Value]](map.entriesIterator(), (e: HashEntry[Key,Value]) => e as Map.Entry[Key,Value]);
+        }
+        
+        public def contains(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+        public def add(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+        public def remove(k: Map.Entry[Key,Value]): Boolean { throw new UnsupportedOperationException(); }
+        public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
+        public def size(): Int = map.size();
+    }
 }
