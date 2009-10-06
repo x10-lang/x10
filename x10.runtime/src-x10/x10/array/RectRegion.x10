@@ -226,7 +226,9 @@ final value class RectRegion extends PolyRegion{rect} {
 
     // XTENLANG-28
 
-    public def equals(that: Region): boolean {
+    public def equals(thatObj:Object): boolean {
+        if (!(thatObj instanceof Region)) return false; /* EQUALS HACK */
+        val that:Region = thatObj as Region;
 
         // we only handle rect==rect
         if (!(that instanceof RectRegion))

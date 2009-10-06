@@ -279,7 +279,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return places(0);
     }
 
-    public def equals(that: Dist/*(rank)*/): boolean {
+    public def equals(thatObj:Object /* Dist/*(rank)*/): boolean {
+	if (!(thatObj instanceof Dist)) return false; /* FIXME: EQUALS HACK */
+        val that:Dist = thatObj as Dist;              /* FIXME: EQUALS HACK */
         for (p:Place in Place.places)
             if (!this.get(p).equals(that.get(p)))
                 return false;
