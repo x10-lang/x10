@@ -948,9 +948,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		}
     	}
 
+    	/*
+    	 * Do not allowValueInterfaces. A type parameter T is not a subtype of Object.
+    	 */
     	if (t1 instanceof ParameterType) {
-    		for (Type s1 : upperTypeBounds(t1, allowValueInterfaces)) {
-    			if (isSubtype(x, s1, t2, allowValueInterfaces))
+    		for (Type s1 : upperTypeBounds(t1, false)) {
+    			if (isSubtype(x, s1, t2, false))
     				return true;
     		}
     	}
