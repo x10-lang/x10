@@ -55,6 +55,7 @@ namespace x10aux {
       public: static inline x10_boolean _(ref<T> x, ref<U> y) { return nullCheck(x)->equals(y); }
     };
 
+    // covers Ref and Value (ie, all subtypes of Object)
     template<class T, class U>
     inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
@@ -108,6 +109,11 @@ namespace x10aux {
     template<class T>
     inline x10_boolean equals(x10_boolean y, ref<T> x) { return false; }
 
+    // covers Primitive
+    template<class T, class U>
+    inline x10_boolean equals(T x, U y) { return x->_struct_equals(y); }
+
+    
     inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
     inline x10_boolean equals(const x10_long x,    const x10_long y)    { return x==y; }
