@@ -171,7 +171,8 @@ abstract public value class BaseRegion extends Region {
         return that.difference(this).isEmpty();
     }
 
-    public def equals(that: Region/*(rank)*/): boolean { // XTENLANG-???
+    public def equals(that:Object /* Region/ *(rank)*/): boolean { // XTENLANG-???
+	if (!(that instanceof Region)) return false;    /* FIXME: EQUALS HACK */
         val t = that as Region(rank);
         return this.contains(t/*that*/) && t/*that*/.contains(this);
     }

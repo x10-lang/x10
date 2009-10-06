@@ -376,7 +376,9 @@ public abstract value class Region(
     //
 
     abstract public def contains(that: Region(rank)): boolean;
-    abstract public def equals(that: Region/*(rank)*/): boolean; // XTENLANG-???
+    // FIXME: EQUALS HACK
+    // abstract public def equals(that: Region/*(rank)*/): boolean; 
+    //
     abstract public def contains(p: Point): boolean;
 
 

@@ -2643,8 +2643,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int counter = 0;
 		for (Expr a : n.arguments()) {
 		    Type fType = mi.formalTypes().get(counter);
-		    if (!xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull()))
+		    // HACK: Don't inject cases if the method is defined on x10.lang.Object.
+		    //       Compensates for front-end resolving methods invoked on unconstrained type parameters to Object.
+		    if (!xts.typeEquals(mi.container(), xts.Object(), context) && 
+		            !xts.typeEquals(fType, a.type(), context) && !(xts.isParameterType(fType) && a.type().isNull())) {
 		        a = cast(a, fType);
+		    }
 		    args.add(a);
 		    counter++;
 		}
