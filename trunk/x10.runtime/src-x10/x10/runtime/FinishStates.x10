@@ -28,7 +28,7 @@ class FinishStates {
             lock.lock();
             if (finishState.rid().id == -1) {
                 val rootFinish = finishState as RootFinish!;
-                rootFinish.rid = new RID(here, count.getAndIncrement());
+                rootFinish.rid = RID(here, count.getAndIncrement());
                 map.put(rootFinish.rid, rootFinish);
             }
             lock.unlock();
