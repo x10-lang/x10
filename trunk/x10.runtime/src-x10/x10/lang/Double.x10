@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "double", "x10.core.BoxedDouble", "x10.types.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
-public final value Double {
+public final struct Double {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static safe operator (x:Double) < (y:Double): Boolean;

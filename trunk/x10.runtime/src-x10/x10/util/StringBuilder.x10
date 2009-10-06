@@ -9,12 +9,21 @@ public class StringBuilder implements Builder[Object,String] {
         buf = new ValRailBuilder[Char]();
     }
 
-    public def add(o: Object): StringBuilder {
+    public def add(o:Object): StringBuilder {
         if (o == null)
             return addString("null");
         else
             return addString(o.toString());
     }
+
+    public def add(x:Boolean) = addString(x.toString());
+    public def add(x:Byte) = addString(x.toString());
+    public def add(x:Char) = addString(x.toString());
+    public def add(x:Short) = addString(x.toString());
+    public def add(x:Int) = addString(x.toString());
+    public def add(x:Long) = addString(x.toString());
+    public def add(x:Float) = addString(x.toString());
+    public def add(x:Double) = addString(x.toString());
     
     protected def addString(s: String): StringBuilder {
         for (var i: int = 0; i < s.length(); i++) {

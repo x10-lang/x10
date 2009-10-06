@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "char", "x10.core.BoxedChar", "x10.types.Type.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
-public final value Char {
+public final struct Char {
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
     public native static safe operator (x:Byte) as Char;
@@ -58,6 +58,10 @@ public final value Char {
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
     public native static safe operator (x:Char) >= (y:Char): Boolean;
+    
+    @Native("java", "java.lang.Character.toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
+    public native def toString(): String;
     
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.

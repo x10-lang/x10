@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "boolean", "x10.core.BoxedBoolean", "x10.types.Type.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
-public final value Boolean {
+public final struct Boolean {
 
     @Native("java", "!(#1)")
     @Native("c++",  "!(#1)")

@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 //                  v-- when used
 @NativeRep("c++", "uint32_t", "uint32_t", null)
 //                            ^ when constructed
-public final value UInt {
+public final struct UInt {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
 
     @Native("java", "x10.core.Unsigned.lt(#1, #2)")
