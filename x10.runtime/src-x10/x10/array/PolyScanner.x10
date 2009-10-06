@@ -448,26 +448,26 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     public def printInfo2(ps: Printer): void {
         for (var k: int = 0; k<myMin.length; k++) {
-            ps.printf("axis %d\n", k);
-            ps.printf("  min\n");
+            ps.println("axis "+k);
+            ps.println("  min");
             for (var l: int = 0; l<myMin(k).rows; l++) {
-                ps.printf("  ");
+                ps.print("  ");
                 for (var m: int = 0; m<myMin(k)(l).cols; m++)
-                    ps.printf(" %3d", myMin(k)(l)(m));
-                ps.printf("  sum");
+                    ps.print(" "+myMin(k)(l)(m));
+                ps.print("  sum");
                 for (var m: int = 0; m<minSum(k)(l).cols; m++)
-                    ps.printf(" %3d", minSum(k)(l)(m));
-                ps.printf("\n");
+                    ps.print(" "+minSum(k)(l)(m));
+                ps.print("\n");
             }
             ps.printf("  max\n");
             for (var l: int = 0; l<myMax(k).rows; l++) {
-                ps.printf("  ");
+                ps.print("  ");
                 for (var m: int = 0; m<myMax(k)(l).cols; m++)
-                    ps.printf(" %3d", myMax(k)(l)(m));
-                ps.printf("  sum");
+                    ps.print(" "+myMax(k)(l)(m));
+                ps.print("  sum");
                 for (var m: int = 0; m<maxSum(k)(l).cols; m++)
-                    ps.printf(" %3d", maxSum(k)(l)(m));
-                ps.printf("\n");
+                    ps.print(" "+maxSum(k)(l)(m));
+                ps.println();
             }
         }
     }

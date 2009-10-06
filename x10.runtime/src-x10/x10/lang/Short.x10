@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Type.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
-public final value Short {
+public final struct Short {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static safe operator (x:Short) < (y:Short): Boolean;

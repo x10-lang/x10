@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 //                  v-- when used
 @NativeRep("c++", "uint8_t", "uint8_t", null)
 //                            ^ when constructed
-public final value UByte {
+public final struct UByte {
     @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
     public native static safe operator (x:UByte) < (y:UByte): Boolean;

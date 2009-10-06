@@ -19,14 +19,14 @@ abstract value class Row(cols:nat) implements (nat)=>int {
      */
 
     public def printInfo(ps: Printer, row:int) {
-        ps.printf("[");
+        ps.print("[");
         for (var i: int = 0; i<cols; i++) {
-            ps.printf("%4d", this(i));
-            if (i==cols-2) ps.printf(" |");
+            ps.print(this(i));
+            if (i==cols-2) ps.print(" |");
         }
-        ps.printf(" ]   ");
+        ps.print(" ]   ");
         printEqn(ps, " ", row);
-        ps.printf("\n");
+        ps.println();
     }
 
     /**
@@ -51,7 +51,7 @@ abstract value class Row(cols:nat) implements (nat)=>int {
                 first = false;
         }
         val c = this(cols-1);
-        if (c!=0||first) ps.printf((c>=0&&!first?"+":"") + c);
+        if (c!=0||first) ps.print((c>=0&&!first?"+":"") + c);
     }
 
     public def toString(): String {

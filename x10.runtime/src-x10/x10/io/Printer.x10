@@ -31,14 +31,14 @@ public value Printer extends FilterWriter {
 
     public def println(): Void = print(NEWLINE as Box[Char]);
     
-    public def print(o: Object): Void {
+    public def print(o:Object): Void {
         if (o == null)
             print("null");
         else
             print(o.toString());
     }
 
-    public def print(s: String): Void {
+    public def print(s:String): Void {
         try {
             val b = s.bytes();
             write(b, 0, b.length);
@@ -48,13 +48,101 @@ public value Printer extends FilterWriter {
         }
     }
 
+    public def print(x:Boolean) {
+        try {
+            writeBoolean(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Byte) {
+        try {
+            writeByte(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Char) {
+        try {
+            writeChar(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Short) {
+        try {
+            writeShort(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Int) {
+        try {
+            writeInt(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Long) {
+        try {
+            writeLong(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Float) {
+        try {
+            writeFloat(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+    public def print(x:Double) {
+        try {
+            writeDouble(x);
+        } catch (e:IOException) {
+            throw new IORuntimeException(e.getMessage());
+        }
+    }   
+
     public def println(o: Object): Void {
         print(o);
         println();
     }
-    
     public def println(s: String): Void {
         print(s);
+        println();
+    }
+    public def println(x:Boolean) {
+        print(x);
+        println();
+    }
+    public def println(x:Byte) {
+        print(x);
+        println();
+    }
+    public def println(x:Char) {
+        print(x);
+        println();
+    }
+    public def println(x:Short) {
+        print(x);
+        println();
+    }
+    public def println(x:Int) {
+        print(x);
+        println();
+    }
+    public def println(x:Long) {
+        print(x);
+        println();
+    }
+    public def println(x:Float) {
+        print(x);
+        println();
+    }
+    public def println(x:Double) {
+        print(x);
         println();
     }
     

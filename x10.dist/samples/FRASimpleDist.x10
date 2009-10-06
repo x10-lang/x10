@@ -106,8 +106,8 @@ class FRASimpleDist {
 
         // print statistics
         val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * num_updates / 1e9;
-        Console.OUT.printf("CPU time used  = %.2f seconds\n", cpuTime);
-        Console.OUT.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
+        Console.OUT.println("CPU time used  = "+cpuTime+" seconds");
+        Console.OUT.println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
         randomAccessUpdate(num_updates, logLocalTableSize, tables);
