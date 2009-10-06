@@ -69,8 +69,9 @@ public class X10LocalAssign_c extends LocalAssign_c {
                 return n.right(e).type(t);
             }
             catch (SemanticException e) {
-                throw new SemanticException("Cannot assign |" + right + "| (of type |" + s + ") to |" 
-                                            + ((LocalAssign_c) n).local() + "| (of type " + t+").",
+            	// Dont try to extract the LHS expression, this is called by X10FieldAssign_c as well.
+                throw new SemanticException("Cannot assign |" + right + "| (of type |" + s + ") to variable of type " 
+                                            +t+").",
                                             n.position());
             }
         }
