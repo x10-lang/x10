@@ -281,6 +281,7 @@ class x10rt_internal_state {
         pthread_mutex_t     lock;
         int                 rank;
         int                 nprocs;
+        MPI_Comm            mpi_comm;
         amSendCb          * amCbTbl;
         int                 amCbTblSize;
         putCb1            * putCb1Tbl;
@@ -348,10 +349,6 @@ void x10rt_init(int &argc, char ** &argv)
     }
     MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
     MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
-    if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
 }
 
 void x10rt_register_msg_receiver (unsigned msg_type,
@@ -414,7 +411,16 @@ void x10rt_registration_complete (void)
     global_state._reserved_tag_get_req  = global_state.amCbTblSize + 3;
     global_state._reserved_tag_get_data = global_state.amCbTblSize + 4;
 
-    if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
+    /* X10RT uses its own communicator so user messages don't
+     * collide with internal messages (Mixed mode programming,
+     * using MPI libraries ...) */
+    if(MPI_Comm_split(MPI_COMM_WORLD, 0, global_state.rank, 
+                &global_state.mpi_comm)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Comm_split\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    if(MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
@@ -460,7 +466,7 @@ void x10rt_send_msg (x10rt_msg_params & p)
                 p.len, MPI_BYTE, 
                 p.dest_place, 
                 p.type,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -503,7 +509,7 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
                 MPI_BYTE, 
                 p.dest_place, 
                 global_state._reserved_tag_get_data,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
     }
     req->setBuf(NULL);
@@ -520,7 +526,7 @@ void x10rt_send_get (x10rt_msg_params &p, void *buf, unsigned long len)
                 MPI_BYTE, 
                 p.dest_place, 
                 global_state._reserved_tag_get_req,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -560,7 +566,7 @@ void x10rt_send_put (x10rt_msg_params &p, void *buf, unsigned long len)
                 MPI_BYTE, 
                 p.dest_place, 
                 global_state._reserved_tag_put_req,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -576,7 +582,7 @@ void x10rt_send_put (x10rt_msg_params &p, void *buf, unsigned long len)
                 MPI_BYTE, 
                 p.dest_place, 
                 global_state._reserved_tag_put_data,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -669,7 +675,7 @@ static void get_incoming_req_completion(int dest_place, x10rt_req_queue * q, x10
                 MPI_BYTE, 
                 dest_place, 
                 global_state._reserved_tag_get_data,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -729,7 +735,7 @@ static void put_incoming_req_completion(int src_place, x10rt_req_queue * q, x10r
                 MPI_BYTE, 
                 src_place, 
                 global_state._reserved_tag_put_data,
-                MPI_COMM_WORLD, 
+                global_state.mpi_comm, 
                 req->toMPI())) {
         fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
@@ -835,8 +841,8 @@ void x10rt_probe (void)
     }
 
     if(MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE, 
-                MPI_ANY_TAG, MPI_COMM_WORLD, &arrived, 
-                &msg_status)) {
+                MPI_ANY_TAG, global_state.mpi_comm, 
+                &arrived, &msg_status)) {
         fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
@@ -854,7 +860,7 @@ void x10rt_probe (void)
                     MPI_BYTE, 
                     msg_status.MPI_SOURCE, 
                     msg_status.MPI_TAG,
-                    MPI_COMM_WORLD, 
+                    global_state.mpi_comm, 
                     req->toMPI())) {
             fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
             exit(EXIT_FAILURE);
@@ -881,7 +887,7 @@ void x10rt_finalize (void)
 {
     assert(global_state.init);
     assert(!global_state.finalized);
-    if(MPI_SUCCESS != MPI_Barrier(MPI_COMM_WORLD)) {
+    if(MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
     }
