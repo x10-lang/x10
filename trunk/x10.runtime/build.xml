@@ -45,6 +45,7 @@
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
+            <include name="IfTask.java"/>
             <classpath>
               <path refid="project.classpath"/>
             </classpath>
@@ -58,6 +59,9 @@
         </taskdef>
         <!-- use ECJ instead of javac (needs ecj.jar on the classpath) -->
         <!--<property name="build.compiler" value="${ejc.compiler}"/>-->
+
+        <!-- allow simpler specification of conditional tasks -->
+        <taskdef name="if" classname ="IfTask" classpath="${build}" />
     </target>
 
     <!-- Determine whether or not we should be building with GC enabled -->
