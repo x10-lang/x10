@@ -932,7 +932,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public boolean isImplicitCastValid(Type fromType, Type toType) {
-        return isSubtype(fromType, toType);
+        return isSubtype(fromType, toType) ||
+               (fromType.isNumeric() && toType.isNumeric() &&
+                isImplicitNumericCastValid(fromType, toType));
     }
 
     /* (non-Javadoc)
