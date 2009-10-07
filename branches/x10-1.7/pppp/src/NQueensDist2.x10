@@ -1,18 +1,29 @@
 import x10.io.Console;
 
-public class NQueensPar {
+/**
+   A distributed version of NQueens. Runs over NUM_PLACES.
+   Identical to NQueensPar, except that it runs over multiple placs.
 
-    var nSolutions:int = 0;
-
+   @author vj
+ */
+public value class NQueensDist2 {
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
     val N:Int, P:Int;
-
-    def this(N:Int, P:Int) { this.N=N; this.P=P;}
-
-    def start() {
+    val results:Array[Int](1);
+    def this(N:Int, P:Int) { 
+	this.N=N; 
+	this.P=P;
+	this.results = Array.make[Int](Dist.makeUnique(), (Point)=>0);
+}
+    def start() = 
         new Board().search();
+    
+    def run():Int {
+	finish start();
+	val result = results.reduce(Int.+,0);
+	return result;
     }
 
     /**
@@ -28,19 +39,15 @@ public class NQueensPar {
         })
     }
 
-    class Board {
-
-        val q: Rail[Int];
-
+    value class Board {
+        val q: ValRail[Int];
         def this() {
-            q = Rail.makeVar[Int](0, (Nat)=>0);
+            q = Rail.makeVal[Int](0, (Nat)=>0);
         }
-
-        def this(old: Rail[Int], newItem:Int) {
+        def this(old: ValRail[Int], newItem:Int) {
             val n = old.length;
-            q = Rail.makeVar[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
+            q = Rail.makeVal[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
         }
-
         def safe(j: int) {
             val n = q.length;
             for (var k:int=0; k < n; ++k) {
@@ -49,25 +56,24 @@ public class NQueensPar {
             }
             return true;
         }
-
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search(low:int, high:int) {
-            for (var k:int=low; k <=high; ++k)
+        def search(l:int, u:int) {
+            for (var k:int=l; k <= u; ++k)
                 if (safe(k))
                     new Board(q, k).search();
         }
 
         def search()  {
             if (q.length == N) {
-                atomic nSolutions++;
+                atomic NQueensDist2.this.results(here.id)++;
                 return;
             }
             if (q.length == 0) {
                 val R = block(0..N-1, P);
-                foreach ((q) in 0..P-1)
-                  search(R(q).min()(0), R(q).max()(0));
+                ateach ((q) in Dist.makeUnique())
+                  search(R(q).min(0), R(q).max(0));
             } else search(0, N-1);
         }
     }
@@ -77,19 +83,16 @@ public class NQueensPar {
         println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();
-        val ps = [1,2,4, 8];
-        for (var i:Int = 0; i < ps.length; i++) {
-            println("starting " + ps(i) + " threads");
-            val nq = new NQueensPar(n,ps(i));
-            var start:Long = -System.nanoTime();
-            finish nq.start();
-            val result = nq.nSolutions==expectedSolutions(nq.N);
-            start += System.nanoTime();
-            start /= 1000000;
-            println("NQueensPar " + nq.N + "(P=" + ps(i) +
-                    ") has " + nq.nSolutions + " solutions" +
-                    (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
-        }
+        val P = Place.MAX_PLACES;
+	val nq = new NQueensDist2(n,P);
+	var start:Long = -System.nanoTime();
+	val answer = nq.run();
+	val result = answer==expectedSolutions(n);
+	start += System.nanoTime();
+	start /= 1000000;
+	println("NQueensDist2 " + nq.N + "(P=" + P +
+		") has " + answer + " solutions" +
+		(result? " (ok)." : " (wrong).") + "time=" + start + "ms");
     }
 
     static def println(s:String) = Console.OUT.println(s);
