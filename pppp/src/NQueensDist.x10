@@ -90,7 +90,7 @@ public value class NQueensDist {
 	val result = answer==expectedSolutions(n);
 	start += System.nanoTime();
 	start /= 1000000;
-	println("NQueensPar " + nq.N + "(P=" + P +
+	println("NQueensDist " + nq.N + "(P=" + P +
 		") has " + answer + " solutions" +
 		(result? " (ok)." : " (wrong).") + "time=" + start + "ms");
     }
