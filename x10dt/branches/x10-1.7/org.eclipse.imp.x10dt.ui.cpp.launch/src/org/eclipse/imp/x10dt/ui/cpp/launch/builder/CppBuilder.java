@@ -231,7 +231,11 @@ public final class CppBuilder extends IncrementalProjectBuilder {
       monitor.done();
     }
   }
-  
+  /**
+   * compile x10 to C++
+   * @param monitor
+   * @throws CoreException
+   */
   private void compile(final IProgressMonitor monitor) throws CoreException {
     final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor);
     buildOptions((X10CPPCompilerOptions) extInfo.getOptions());
@@ -262,7 +266,19 @@ public final class CppBuilder extends IncrementalProjectBuilder {
         IFileStore destFile = destDir.getChild(file.getName());
         file.copy(destFile, EFS.OVERWRITE, monitor);
         if (name.endsWith(".cc")) { //$NON-NLS-1$
-          remoteFiles.put(file.toURI().getPath().substring(1), destFile.toURI().getPath().substring(1));
+          String srcPath = file.toURI().getPath();
+          String destPath = destFile.toURI().getPath();
+          if (srcPath.matches("/.:/")) {
+        	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
+        	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
+        	  srcPath = srcPath.substring(1);
+          }
+          if (destPath.matches("/.:/")) {
+        	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
+        	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
+        	  destPath = destPath.substring(1);
+          }
+          remoteFiles.put(srcPath, destPath);
         }
         monitor.worked(1);
       }
@@ -312,6 +328,13 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     return new String(bytes);
   }
 
+  /**
+   * Build library remotely (compile C++ to .o)
+   * @param resourceManager
+   * @param remoteFiles
+   * @param monitor
+   * @throws CoreException
+   */
   private void remoteCompilation(final IResourceManager resourceManager,
                                  final Map<String, String> remoteFiles,
                                  final IProgressMonitor monitor) throws CoreException {
@@ -368,8 +391,12 @@ public final class CppBuilder extends IncrementalProjectBuilder {
       final String rawArchiveCmd = store.getString(Constants.P_CPP_BUILDER_ARCHIVE_CMD);
       final String firstStep = rawArchiveCmd.replace("$workspace_dir", workspaceDir); //$NON-NLS-1$
       final String archiveCmd = firstStep.replace("$lib_name", "lib" + getProject().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+
+      final List<String> command = new ArrayList<String>();
+      command.addAll(getAllTokens(archiveCmd));
+      command.addAll(allObjectFiles);
       
-      final IRemoteProcessBuilder archiveProcessBuilder = getProcessBuilder(resourceManager, getAllTokens(archiveCmd));
+      final IRemoteProcessBuilder archiveProcessBuilder = getProcessBuilder(resourceManager, command);
       final IRemoteProcess archiveProcess = archiveProcessBuilder.start();
       final OutputStream errorStream = new ByteArrayOutputStream();
       final OutputStream outputStream = new ByteArrayOutputStream();
