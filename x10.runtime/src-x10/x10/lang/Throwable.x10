@@ -49,7 +49,7 @@ public value Throwable {
     
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public def toString() = className() + ": " + getMessage();
+    public def toString() = typeName() + ": " + getMessage();
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
     @Native("c++", "(#0)->getStackTrace()")

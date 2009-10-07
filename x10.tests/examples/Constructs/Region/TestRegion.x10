@@ -12,7 +12,7 @@ abstract public class TestRegion extends x10Test {
     var out: Printer;
 
     def testName() {
-        var cn:String = className();
+        var cn:String = typeName();
         val init = cn.substring(0,6); // XTENLANG-???
         if (init.equals("class "))
             cn = cn.substring(6, cn.length());

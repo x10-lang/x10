@@ -63,6 +63,10 @@ public final struct Char {
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
+    @Native("java", "#0.getClass().toString()")
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
+
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.
     

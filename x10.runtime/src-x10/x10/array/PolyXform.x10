@@ -14,7 +14,7 @@ public class PolyXform(E:PolyMat, T:XformMat) extends Xform {
             val p = that as PolyXform!;
             return new PolyXform(this.E||p.E, this.T*p.T);
         } else {
-            throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");
+            throw new UnsupportedOperationException(this.typeName() + ".xform(" + that.typeName() + ")");
         }
     }
 }

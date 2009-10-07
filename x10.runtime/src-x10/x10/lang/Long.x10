@@ -147,6 +147,10 @@ public final struct Long {
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
+    @Native("java", "#0.getClass().toString()")
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
+
     @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
     public native static def parseLong(String, radix: Int): Long throws NumberFormatException;

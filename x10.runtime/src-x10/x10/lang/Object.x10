@@ -27,8 +27,8 @@ public interface Object {
     public def toString(): String;
 
     @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::class_name(#0)")
-    public def className(): String;
+    @Native("c++", "x10aux::type_name(#0)")
+    public def typeName(): String;
 
     @Native("java", "x10.lang.Place.place(#0.location())")
     @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
