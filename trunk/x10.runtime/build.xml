@@ -229,13 +229,47 @@
     <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
         <sequential>
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
-            <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-                <arg value="${bdwgc.dir}/src/configure" />
-                <arg value="-enable-threads=posix" />
-                <arg value="-enable-thread-local-alloc" />
-            	<!-- <arg value="CFLAGS=-D_XOPEN_SOURCE" /> -->
-                <arg value="--prefix=${bdwgc.platform.dir}/install" />
-            </exec>
+	    <if>
+	      <conditions>
+                <os family="unix" name="linux"/>
+	      </conditions>
+	      <sequential>
+	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </sequential>
+            </if>
+	    <if>
+	      <conditions>
+            	<os family="mac"/>
+	      </conditions>
+	      <sequential>
+	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=posix" />
+                  <arg value="-enable-thread-local-alloc" />
+            	  <arg value="CFLAGS=-D_XOPEN_SOURCE" />
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </sequential>
+            </if>
+	    <if>
+	      <conditions>
+                <os family="unix" name="aix"/>
+	      </conditions>
+	      <sequential>
+	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <arg value="${bdwgc.dir}/src/configure" />
+                  <arg value="-enable-threads=aix" />
+                  <arg value="--disable-shared" />
+                  <!-- TODOL: <arg value="-enable-thread-local-alloc" /> -->
+                  <arg value="--prefix=${bdwgc.platform.dir}/install" />
+                </exec>
+              </sequential>
+            </if>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <arg value="-j${available.procs}" />
             </exec>
@@ -264,8 +298,18 @@
                  failonerror="true"
              />
             <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
+	    <if>
+	      <conditions>
+                <os family="unix" name="aix"/>
+	      </conditions>
+	      <sequential>
+	        <patch patchfile="${basedir}/src-cpp/bdwgc-patches/fixPPCHeaderFiles.patch.txt"
+	               dir="${bdwgc.dir}/src" strip="0" />
+	        <patch patchfile="${basedir}/src-cpp/bdwgc-patches/linkerHackConfigure.patch.txt"
+	               dir="${bdwgc.dir}/src" strip="0" />
+              </sequential>
+            </if>
         </sequential>
-
     </target>
 
     <target name="convert-bdwgc-paths-cygwin" depends="check-bdwgc" if="running.on.cygwin">
