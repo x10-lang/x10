@@ -83,7 +83,13 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
         final IFileStore destFile = destDir.getChild(name);
         fileStore.copy(destFile, EFS.OVERWRITE, null);
         if (name.endsWith(CC_EXT)) {
-          addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destFile.toURI().getPath());
+          String destPath = destFile.toURI().getPath();
+          if (destPath.matches("/.:/")) {
+        	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
+        	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
+        	  destPath = destPath.substring(1);
+          }
+          addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destPath);
         }
         monitor.worked(1);
       }
