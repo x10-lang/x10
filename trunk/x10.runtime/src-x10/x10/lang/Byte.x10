@@ -147,6 +147,10 @@ public final struct Byte {
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
+    @Native("java", "#0.getClass().toString()")
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
+
     @Native("java", "java.lang.Byte.parseByte(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parseByte(String, radix: Int): Byte throws NumberFormatException;

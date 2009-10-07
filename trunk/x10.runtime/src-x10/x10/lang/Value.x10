@@ -30,8 +30,8 @@ public value Value /* @EQ implements Equals[Value] */ implements Object {
     public native def toString(): String;
 
     @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::class_name(#0)")
-    public native def className(): String;
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
 
     @Native("java", "x10.runtime.Runtime.here()")
     @Native("c++", "x10::lang::Place::place(x10aux::here)")

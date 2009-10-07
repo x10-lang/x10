@@ -8,8 +8,8 @@ import harness.x10Test;
  */
 
 class A {
-    val name1 = className();
-    def name2() = className();
+    val name1 = typeName();
+    def name2() = typeName();
 }
     
 class B extends A {}

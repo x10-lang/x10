@@ -133,6 +133,10 @@ public final struct UByte {
     @Native("c++", "0xffU")
     public const MAX_VALUE = 0xff;
 
+    @Native("java", "#0.getClass().toString()")
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
+
     @Native("java", "java.lang.Integer.toString(#0 & 0xff)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;

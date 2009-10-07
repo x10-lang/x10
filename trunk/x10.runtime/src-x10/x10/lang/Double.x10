@@ -107,6 +107,10 @@ public final struct Double {
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
+    @Native("java", "#0.getClass().toString()")
+    @Native("c++", "x10aux::type_name(#0)")
+    public native def typeName(): String;
+
     @Native("java", "java.lang.Double.parseDouble(#1)")
     @Native("c++", "x10aux::double_utils::parseDouble(#1)")
     public native static def parseDouble(String): Double throws NumberFormatException;

@@ -422,7 +422,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
             val p = that as PolyXform;
             return new PolyScanner((C*p.T)||p.E, X1(0)*p.T);
         } else {
-            throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");
+            throw new UnsupportedOperationException(this.typeName() + ".xform(" + that.typeName() + ")");
         }
     }
 

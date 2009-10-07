@@ -8,46 +8,13 @@
 
 namespace x10aux {
 
-    template<class T> inline ref<x10::lang::String> class_name(ref<T> x) {
+    template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
         x10aux::nullCheck(x);
         return x10::lang::String::Lit(((const T*)x.operator->())->_type()->name());
     }
 
-    inline ref<x10::lang::String> class_name(const x10_double) {
-        return x10::lang::String::Lit(getRTT<x10_double>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_float) {
-        return x10::lang::String::Lit(getRTT<x10_float>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_long) {
-        return x10::lang::String::Lit(getRTT<x10_long>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_int) {
-        return x10::lang::String::Lit(getRTT<x10_int>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_short) {
-        return x10::lang::String::Lit(getRTT<x10_short>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_byte) {
-        return x10::lang::String::Lit(getRTT<x10_byte>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_ulong) {
-        return x10::lang::String::Lit(getRTT<x10_ulong>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_uint) {
-        return x10::lang::String::Lit(getRTT<x10_uint>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_ushort) {
-        return x10::lang::String::Lit(getRTT<x10_ushort>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_ubyte) {
-        return x10::lang::String::Lit(getRTT<x10_ubyte>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_char) {
-        return x10::lang::String::Lit(getRTT<x10_char>()->name());
-    }
-    inline ref<x10::lang::String> class_name(const x10_boolean) {
-        return x10::lang::String::Lit(getRTT<x10_boolean>()->name());
+    template<typename T> inline ref<x10::lang::String> type_name(T x) {
+        return x10::lang::String::Lit(getRTT<T>()->name());
     }
 
     template<class T, class U>
