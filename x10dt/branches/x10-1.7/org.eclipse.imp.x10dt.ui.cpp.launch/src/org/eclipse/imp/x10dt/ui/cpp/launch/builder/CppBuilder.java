@@ -268,12 +268,12 @@ public final class CppBuilder extends IncrementalProjectBuilder {
         if (name.endsWith(".cc")) { //$NON-NLS-1$
           String srcPath = file.toURI().getPath();
           String destPath = destFile.toURI().getPath();
-          if (srcPath.matches("/.:/")) {
+          if (srcPath.matches("/.:/.*")) { //$NON-NLS-1$
         	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
         	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
         	  srcPath = srcPath.substring(1);
           }
-          if (destPath.matches("/.:/")) {
+          if (destPath.matches("/.:/.*")) { //$NON-NLS-1$
         	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
         	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
         	  destPath = destPath.substring(1);
