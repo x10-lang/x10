@@ -133,7 +133,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     }
     
     public safe def put(k: K, v: V): Box[V] {
-        if (occupation == table.length || shouldRehash && occupation >= table.length / 2)
+        if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
             rehash();
 
         val h = hash(k);
