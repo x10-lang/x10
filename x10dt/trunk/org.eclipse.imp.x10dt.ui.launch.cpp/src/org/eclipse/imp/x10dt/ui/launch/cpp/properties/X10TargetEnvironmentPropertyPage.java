@@ -156,7 +156,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         project.setPersistentProperty(Constants.RES_MANAGER_ID, resManagerId);
       }
       
-      if (this.fWorkspaceLocText.getText().trim().isEmpty()) {
+      if (this.fWorkspaceLocText.getText().trim().length() == 0) {
         setErrorMessage(LaunchMessages.XTEPP_MissingTargetWorkspaceError);
         return false;
       } else {
