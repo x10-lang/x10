@@ -48,100 +48,62 @@ public value Printer extends FilterWriter {
         }
     }
 
-    public def print(x:Boolean) {
-        try {
-            writeBoolean(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Byte) {
-        try {
-            writeByte(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Char) {
-        try {
-            writeChar(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Short) {
-        try {
-            writeShort(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Int) {
-        try {
-            writeInt(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Long) {
-        try {
-            writeLong(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Float) {
-        try {
-            writeFloat(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
-    public def print(x:Double) {
-        try {
-            writeDouble(x);
-        } catch (e:IOException) {
-            throw new IORuntimeException(e.getMessage());
-        }
-    }   
+    /* TODO: Top/toString/struct.
+             Once front-end changes are made so that the compiler
+             understands that all types provide a toString,
+             then we can use this nice clean code and kill
+             all of the print/println specializations below.
+    public final def print[T](x:T){T<:Primitive} = print(x.toString());
 
-    public def println(o: Object): Void {
-        print(o);
-        println();
-    }
-    public def println(s: String): Void {
-        print(s);
-        println();
-    }
-    public def println(x:Boolean) {
+    public final def println[T](x:T): Void {
         print(x);
         println();
     }
-    public def println(x:Byte) {
+    */
+
+    public final def print(x:Boolean) = print(x.toString());
+    public final def print(x:Byte) = print(x.toString());
+    public final def print(x:Char) = print(x.toString());
+    public final def print(x:Short) = print(x.toString());
+    public final def print(x:Int) = print(x.toString());
+    public final def print(x:Long) = print(x.toString());
+    public final def print(x:Float) = print(x.toString());
+    public final def print(x:Double) = print(x.toString());
+
+
+    public final def println(x:Object): Void {
         print(x);
         println();
     }
-    public def println(x:Char) {
+    public final def println(x:Boolean): Void {
         print(x);
         println();
     }
-    public def println(x:Short) {
+    public final def println(x:Byte): Void {
         print(x);
         println();
     }
-    public def println(x:Int) {
+    public final def println(x:Char): Void {
         print(x);
         println();
     }
-    public def println(x:Long) {
+    public final def println(x:Short): Void {
         print(x);
         println();
     }
-    public def println(x:Float) {
+    public final def println(x:Int): Void {
         print(x);
         println();
     }
-    public def println(x:Double) {
+    public final def println(x:Long): Void {
+        print(x);
+        println();
+    }
+    public final def println(x:Float): Void {
+        print(x);
+        println();
+    }
+    public final def println(x:Double): Void {
         print(x);
         println();
     }
