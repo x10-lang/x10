@@ -1343,8 +1343,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                  X10TypeSystem xts) {
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
-        boolean seenToString = false;  // HACK for struct toString.  See comment below.
-        boolean seenHashCode = false;  // HACK.  Same basic issue as toString...
+        boolean seenToString = false;
+        boolean seenHashCode = false;  // Temporary HACK.  autodefine hashCode if not userdefined until machinery for Equality interface comes online.
 
         sh.write("public:");
         sh.newline();
@@ -1451,15 +1451,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.forceNewline();
         }
         
-        // HACK: To get structs to play nicely with Rails and other generic types, we ensure
-        //       that there is always a toString method defined for the class.  If there is 
-        //       no user-defined toString, then we define one here.  
-        //       This is to compensate for not being able to define a default toString on Primitive,
-        //       since a default toString would be final, and therefore not overridable by 
-        //       a user-defined toString.
-        // HACK 2:  We also have to define a redirection method so that toString is actually defined
-        //       on the struct class, not just in the structMethods.  This is to fit in with
-        //       how toString is used in x10aux::basic_functions.
+        // All types support toString.  If there is no user-defined toString, then we define one here.  
+        // We also have to define a redirection method so that toString is actually defined
+        // on the struct class, not just in the structMethods.  This is to fit in with
+        // how toString is used in x10aux::basic_functions.
         if (seenToString) {
             // define redirection method
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
@@ -1477,6 +1472,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
         }
+        
+        // HACKS for hashCode.  To be removed once Equality is implemented.
         if (seenHashCode) {
             // define redirection method
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
