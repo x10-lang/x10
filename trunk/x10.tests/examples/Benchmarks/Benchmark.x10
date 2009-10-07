@@ -73,10 +73,16 @@ abstract class Benchmark extends x10Test {
 
         // print info
         val ops = operations() / avg;
-        out.printf("time: %.3f; count: %d; min/time: %.2f\n", avg, count, min/avg);
-        if (ops<1e6)      out.printf("%.3g kop/s\n", ops/1e3);
-        else if (ops<1e9) out.printf("%.3g Mop/s\n", ops/1e6);
-        else              out.printf("%.3g Gop/s\n", ops/1e9);
+        // out.printf("time: %.3f; count: %d; min/time: %.2f\n", avg, count, min/avg);
+        // if (ops<1e6)      out.printf("%.3g kop/s\n", ops/1e3);
+        // else if (ops<1e9) out.printf("%.3g Mop/s\n", ops/1e6);
+        // else              out.printf("%.3g Gop/s\n", ops/1e9);
+        // out.printf("test=%s lg=x10-%s ops=%g\n", className(), lg, ops);
+
+        out.println("time: "+avg+"; count: "+count+"; min/time: "+min/avg);
+        if (ops<1e6)      out.println(ops/1e3 + "g kop/s");
+        else if (ops<1e9) out.println(ops/1e6 + " Mop/s");
+        else              out.println(ops/1e9 + " Gop/s");
         out.printf("test=%s lg=x10-%s ops=%g\n", className(), lg, ops);
             
         // test succeeded
