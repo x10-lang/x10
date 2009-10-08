@@ -210,15 +210,18 @@ public class Synthesizer {
 			 X10Context context) {
 		Position CG = Position.COMPILER_GENERATED;
 		List<Stmt> inits = new ArrayList<Stmt>();
-		Expr local = makeLocalVar(CG, null, low, inits,  context);
-		Expr test = xnf.Binary(CG, local, Binary.LE, high).type(xts.Boolean());
+		// FIXME: use formal here directly, instead of local
+		Expr local = makeLocalVar(CG, null, low, inits, context);
+		Expr limit = makeLocalVar(CG, null, high, inits, context);
+		Expr test = xnf.Binary(CG, local, Binary.LE, limit).type(xts.Boolean());
 		Expr iters = xnf.Unary(CG, local, Unary.POST_INC).type(xts.Int());
 		Stmt formalInit = makeLocalVar(CG, formal.localDef(), local);
 		Block block = xnf.Block(CG, formalInit,body);
 		List<ForInit> inits2 = new ArrayList<ForInit>();
-		inits2.add((ForInit) inits.get(0));
+		for (int i = 0; i < inits.size(); i++)
+		    inits2.add((ForInit) inits.get(i));
 		List<ForUpdate> itersL = new ArrayList<ForUpdate>();
-		itersL.add( xnf.Eval(CG, iters));
+		itersL.add(xnf.Eval(CG, iters));
 		For node = xnf.For(pos, inits2, test, itersL, block);
 		return node;
 	}
