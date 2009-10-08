@@ -11,7 +11,7 @@ public class KMeansSPMD {
             for (var k:Int=0 ; k<clusters.length/dims ; ++k) { 
                 if (k>0)
                     Console.OUT.print(" ");
-                Console.OUT.printf("%.2f",clusters(k*dims+d));
+                Console.OUT.print(clusters(k*dims+d).toString());
             }
             Console.OUT.println();
         }
