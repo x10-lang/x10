@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 //                  v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public final value Int {
+public struct Int {
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
     public native static safe operator (x:Int) < (y:Int): Boolean;
