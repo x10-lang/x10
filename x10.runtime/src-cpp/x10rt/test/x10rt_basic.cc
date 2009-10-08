@@ -192,7 +192,7 @@ int main(int argc, char **argv)
     bool get = false;
     bool automatic = false;
 
-    for (int i=1 ; i<argc && x10rt_here()==0 ; ++i) {
+    for (int i=1 ; i<argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
             show_help(stdout,argv[0]);
             exit(EXIT_SUCCESS);
