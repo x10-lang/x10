@@ -262,6 +262,9 @@
 	      </conditions>
 	      <sequential>
 	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+		  <env key="OBJECT_MODE" value="32_64" />
+		  <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64" />
+		  <env key="CXXFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64" />
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=aix" />
                   <!-- TODO: <arg value="-enable-thread-local-alloc" /> -->
@@ -270,9 +273,11 @@
               </sequential>
             </if>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+	        <env key="OBJECT_MODE" value="32_64" />
                 <arg value="-j${available.procs}" />
             </exec>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+	        <env key="OBJECT_MODE" value="32_64" />
                 <arg value="install" />
             </exec>
         </sequential>
