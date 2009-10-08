@@ -312,13 +312,21 @@ public class Emitter {
 		return make_ref(name);
 	}
 	
-	public static String structMethodClass(ClassType classType, boolean fqn) {
-	    return structMethodClass(classType.fullName(), fqn);
-	}
-	    
-	public static String structMethodClass(QName qname, boolean fqn) {
+	public static String structMethodClass(ClassType ct, boolean fqn, boolean chevrons) {
+	    X10ClassType classType = (X10ClassType)ct;
+	    QName qname = classType.fullName();
 	    String name = fqn ? qname.toString() : qname.name().toString();
 	    name += "_methods";
+        if (chevrons && classType.typeArguments().size() != 0) {
+            String args = "";
+            int s = classType.typeArguments().size();
+            for (Type t: classType.typeArguments()) {
+                args += translateType(t, true); // type arguments are always translated as refs
+                if (--s > 0)
+                    args +=", ";
+            }
+            name += chevrons(args);
+        }
 	    name = translate_mangled_FQN(name);
 	    return name;
 	}
@@ -544,7 +552,7 @@ public class Emitter {
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
-		    h.write((container.isX10Struct() ? structMethodClass(container, true) : translateType(container))+ "::");
+		    h.write((container.isX10Struct() ? structMethodClass(container, true, true) : translateType(container))+ "::");
 		}
 		h.write(mangled_method_name(name));
 		h.write("(");
@@ -697,7 +705,7 @@ public class Emitter {
         printAllTemplateSignatures(n.classDef(), h);
 
         h.write("class ");
-        h.write(structMethodClass(n.classDef().asType(), false));
+        h.write(structMethodClass(n.classDef().asType(), false, false));
 
         h.unifiedBreak(0);
         h.end();
@@ -721,7 +729,7 @@ public class Emitter {
         // not a virtual method, this function is called only when the static type is precise
         h.write(rType + " ");
 		if (define) {
-		    h.write((container.isX10Struct() ? structMethodClass(container, true) : typeName) + "::"); 
+		    h.write((container.isX10Struct() ? structMethodClass(container, true, true) : typeName) + "::"); 
 		}
 		h.write((isMakeMethod ? SharedVarsMethods.MAKE : SharedVarsMethods.CONSTRUCTOR) + "(");
 		h.allowBreak(2, 2, "", 0);
@@ -760,7 +768,7 @@ public class Emitter {
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
 		    X10ClassType declClass = (X10ClassType)n.fieldDef().asInstance().container().toClass();
-			h.write((declClass.isX10Struct() ? structMethodClass(declClass, true) : translateType(declClass)) + "::");
+			h.write((declClass.isX10Struct() ? structMethodClass(declClass, true, true) : translateType(declClass)) + "::");
 		}
 		h.write(mangled_field_name(n.name().id().toString()));
 		h.end();
