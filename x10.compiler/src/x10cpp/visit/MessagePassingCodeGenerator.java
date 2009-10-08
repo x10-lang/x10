@@ -333,8 +333,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("{");
 		h.newline(4); h.begin(0);
 		h.write("public:"); h.newline();
-		h.write("static x10aux::RuntimeType rtt;"); h.newline();
-		h.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); h.newline();
+		if (!cd.isStruct()) {
+		    h.write("static x10aux::RuntimeType rtt;"); h.newline();
+		    h.write("static const x10aux::RuntimeType* getRTT() { return & rtt; }"); h.newline();
+		}
 		// First process all classes
 		for (ClassMember dec : context.pendingStaticDecls()) {
 			if (dec instanceof ClassDecl_c) {
@@ -392,10 +394,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10ClassType declClass = (X10ClassType)cd.asType().toClass();
-	    String declClassName = declClass.isX10Struct() ? Emitter.structMethodClass(declClass, true) : translate_mangled_FQN(cd.fullName().toString());
+	    String declClassName = declClass.isX10Struct() ? Emitter.structMethodClass(declClass, true, false) : translate_mangled_FQN(cd.fullName().toString());
 	    String container = declClassName+voidTemplateInstantiation(cd.typeParameters().size());
-	    sw.write("x10aux::RuntimeType "+container+"::rtt;");
-	    sw.newline();
+		if (!cd.isStruct()) {
+	    	sw.write("x10aux::RuntimeType "+container+"::rtt;");
+	    	sw.newline();
+	    }
 	    for (ClassMember dec : context.pendingStaticDecls()) {
 	        if (dec instanceof FieldDecl_c) {
 	            FieldDecl_c fd = (FieldDecl_c) dec;
@@ -471,7 +475,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    boolean sawInit = false;
 	    emitter.printTemplateSignature(currentClass.typeArguments(), sw);
 	    if (currentClass.isX10Struct()) {
-	        sw.write(retType + " " + Emitter.structMethodClass(currentClass, true) + "::" + methodName + "("+className+" *this_) {");
+	        sw.write(retType + " " + Emitter.structMethodClass(currentClass, true, true) + "::" + methodName + "("+className+" *this_) {");
 	    } else {
 	        sw.write(retType + " " + className + "::" + methodName + "() {");
 	    }
@@ -1458,14 +1462,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (seenToString) {
             // define redirection method
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
             sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
             sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true)+"::toString(*this);");
+            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::toString(*this);");
             sw.end(); sw.newline();
             sw.writeln("}");
         } else {
             // define default toString
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
             sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
             sw.newline(4); sw.begin(0);
             sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
@@ -1477,14 +1483,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (seenHashCode) {
             // define redirection method
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
             sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
             sw.newline(4); sw.begin(0);
-            sw.write("return "+Emitter.structMethodClass(currentClass, true)+"::hashCode(*this);");
+            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::hashCode(*this);");
             sw.end(); sw.newline();
             sw.writeln("}");
         } else {
             // define default hashCode by hashing all fields.
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
             sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
             sw.newline(4); sw.begin(0);
             sw.writeln("x10_int result = 0;");
@@ -1839,7 +1847,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 ConstructorCall call = (ConstructorCall)s;
                 if (call.kind() == ConstructorCall.SUPER) {
                     if (container.isX10Struct()) {
-                        String superClass = Emitter.structMethodClass(container.superClass().toClass().fullName(), true);
+                        String superClass = Emitter.structMethodClass(container.superClass().toClass(), true, true);
                         sw.write(superClass+"::"+CONSTRUCTOR+"(this_");
                         if (call.arguments().size() > 0) sw.write(", ");
                     } else {
@@ -1947,7 +1955,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        }
 	        sw.write(";");
 	        sw.newline();
-	        String container = declaringClass.isX10Struct() ? Emitter.structMethodClass(declaringClass, true) : Emitter.translateType(dec.fieldDef().asInstance().container());
+	        String container = declaringClass.isX10Struct() ? Emitter.structMethodClass(declaringClass, true, true) : Emitter.translateType(dec.fieldDef().asInstance().container());
 	        if (!globalInit) {
 	            generateStaticFieldInitializer(dec, container, sw);
 	        }
@@ -2669,7 +2677,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (xts.isStructType(mi.container())) {
 		    X10ClassType clsType = (X10ClassType)mi.container().toClass();
             sw.begin(0);
-            String targetMethodName = Emitter.structMethodClass(clsType, true)+"::"+mangled_method_name(n.name().id().toString());
+            String targetMethodName = Emitter.structMethodClass(clsType, true, true)+"::"+mangled_method_name(n.name().id().toString());
             String dangling = "";
             assert !n.isTargetImplicit() : "Huh, what's an implicit target for a struct???";
 
@@ -2940,7 +2948,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		
 		if (xts.isStructType(n.objectType().type())) {
-            sw.write(Emitter.structMethodClass(n.objectType().type().toClass(), true)+"::"+MAKE+"(");
+            sw.write(Emitter.structMethodClass(n.objectType().type().toClass(), true, true)+"::"+MAKE+"(");
 		} else {
 		    sw.write(Emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		}
@@ -3924,7 +3932,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (t == null)
 			throw new InternalCompilerError("Unknown type");
 		if (t instanceof X10ClassType && ((X10ClassType)t).isX10Struct()) {
-		   sw.write(Emitter.structMethodClass((X10ClassType)t, true));
+		   sw.write(Emitter.structMethodClass((X10ClassType)t, true, true));
 		} else {
 		    sw.write(Emitter.translateType(t));
 		}
