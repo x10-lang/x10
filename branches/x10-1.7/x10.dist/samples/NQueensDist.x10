@@ -29,11 +29,11 @@ public value class NQueensDist {
     /**
      * Return an array of P regions, which together block divide the 1-D region R.
      */
-    public static def block(R: Region(1), P: Int): ValRail[Region(1)](P) = {
+    public static def block(R: Region(1){rect}, P: Int): ValRail[Region(1){rect}](P) = {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1)](P, (i:Nat):Region(1) => {
+        ValRail.make[Region(1){rect}](P, (i:Nat):Region(1){rect} => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -59,7 +59,7 @@ public value class NQueensDist {
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search(R: Region(1)) {
+        def search(R: Region(1){rect}) {
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();
