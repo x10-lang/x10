@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.tigris.subversion.subclipse.core.svnnature">
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt,org.eclipse.imp.x10dt"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.core,org.eclipse.imp.x10dt.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.feature,org.eclipse.imp.x10dt.feature"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.help,org.eclipse.imp.x10dt.help"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.refactoring,org.eclipse.imp.x10dt.refactoring"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.ui,org.eclipse.imp.x10dt.ui"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.ui.launch.core,org.eclipse.imp.x10dt.ui.launch.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.ui.launch.cpp,org.eclipse.imp.x10dt.ui.launch.cpp"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.update,org.eclipse.imp.x10dt.update"/>
+</provider>
+</psf>
