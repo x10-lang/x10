@@ -321,9 +321,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		h.write("template <> class ");
-		h.write(mangled_non_method_name(cd.name().toString()));
+		if (cd.isStruct()) {
+		    h.write(Emitter.structMethodClass(cd.asType().toClass(), true, false));
+		} else {
+		    h.write(mangled_non_method_name(cd.name().toString()));
+		}
 		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
-		if (cd.superType() != null) {
+		if (!cd.isStruct() && cd.superType() != null) {
 		    h.write(" : public ");
 		    X10ClassDef sdef = ((X10ClassType) cd.superType().get()).x10Def();
 		    X10ClassType stype = (X10ClassType) sdef.asType();
@@ -816,7 +820,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          */
 		context.resetStateForClass(n.properties());
 
-		if (def.typeParameters().size() != 0) {
+		if (def.typeParameters().size() != 0 && !def.isStruct()) {
 			// Pre-declare the void specialization for statics
 			emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
 			h.write("class ");
@@ -2677,7 +2681,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (xts.isStructType(mi.container())) {
 		    X10ClassType clsType = (X10ClassType)mi.container().toClass();
             sw.begin(0);
-            String targetMethodName = Emitter.structMethodClass(clsType, true, true)+"::"+mangled_method_name(n.name().id().toString());
             String dangling = "";
             assert !n.isTargetImplicit() : "Huh, what's an implicit target for a struct???";
 
@@ -2690,7 +2693,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     dangling = ")";
                     targetGenerated = true;
                 } 
-                sw.write(targetMethodName);
+                sw.write(Emitter.structMethodClass(clsType, true, true)+"::"+mangled_method_name(n.name().id().toString()));
                 emitter.printTemplateInstantiation(mi, sw);
                 sw.write("(");
                 if (!targetGenerated) {
@@ -2698,9 +2701,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     if (!args.isEmpty()) sw.write(", ");
                 }
             } else if (target instanceof TypeNode) {
-                n.print(target, sw, tr);
-                sw.write("::");
-                sw.write(targetMethodName);
+                sw.write(Emitter.structMethodClass(clsType, true, false)+
+                         voidTemplateInstantiation(clsType.typeArguments().size())+
+                         "::"+mangled_method_name(n.name().id().toString()));
                 emitter.printTemplateInstantiation(mi, sw);
                 sw.write("(");       
             } else {
