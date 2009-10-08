@@ -70,7 +70,6 @@
             <isfalse value="${DISABLE_GC}" />
             <or>
                 <os family="unix" name="linux"/>
-                <os family="unix" name="aix"/>
             	<os family="mac"/>
             </or>
         </and>
