@@ -151,6 +151,7 @@ import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.ast.X10Field_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10Local_c;
@@ -2459,111 +2460,194 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(Atomic_c a) {
+    public void visit(Atomic_c a) {
         assert (false) : ("Atomic should have been desugared earlier");
-	}
+    }
 
-	public void visit(Await_c n) {
+    public void visit(Await_c n) {
         assert (false) : ("Await should have been desugared earlier");
-	}
+    }
 
-	public void visit(Next_c n) {
+    public void visit(Next_c n) {
         assert (false) : ("Next should have been desugared earlier");
-	}
+    }
 
 
-	public void visit(ForLoop_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+    /**
+     * Returns true if the domain expression is a compile-time constant region.
+     * FIXME: do proper region constant propagation.
+     */
+    private boolean isLiteralRegion(Expr domain) {
+        if (domain instanceof RegionMaker_c) {
+            return true;
+        }
+        if (domain instanceof ConstantDistMaker_c) {
+            return isLiteralRegion(((ConstantDistMaker_c) domain).arguments().get(0));
+        }
+        if (domain instanceof X10Field_c) {
+            X10Field_c df = (X10Field_c) domain;
+            if (df.name().toString().equals("region") && df.target() instanceof Expr)
+                return isLiteralRegion((Expr) df.target());
+        }
+        // TODO
+        //if (domain instanceof X10Binary_c) {
+        //    X10Binary_c op = (X10Binary_c) domain;
+        //    return isConstant(op.left()) && isConstant(op.right());
+        //}
+        return false;
+    }
 
-		X10Formal form = (X10Formal) n.formal();
+    /**
+     * Returns the upper and lower limit for a given domain (if available) as an
+     * array of 2 expressions, or null if the domain is not a constant.
+     */
+    private Expr[] getLimits(Expr domain, int dim) {
+        if (domain instanceof RegionMaker_c) {
+            RegionMaker_c rm = (RegionMaker_c) domain;
+            if (dim != 0) throw new InternalCompilerError("Attempting to get dimension "+dim+" of a 1-dim region");
+            List<Expr> args = rm.arguments();
+            return new Expr[] { args.get(0), args.get(1) };
+        }
+        if (domain instanceof ConstantDistMaker_c) {
+            ConstantDistMaker_c cdm = (ConstantDistMaker_c) domain;
+            Expr rgn = cdm.arguments().get(0);
+            assert (isLiteralRegion(rgn));
+            return getLimits(rgn, dim);
+        }
+        if (domain instanceof X10Field_c) {
+            X10Field_c df = (X10Field_c) domain;
+            if (df.name().toString().equals("region") && df.target() instanceof Expr) {
+                Expr rgn = (Expr) df.target();
+                assert (isLiteralRegion(rgn));
+                return getLimits(rgn, dim);
+            }
+        }
+        // TODO
+        //if (domain instanceof X10Binary_c) {
+        //    X10Binary_c op = (X10Binary_c) domain;
+        //    return null;
+        //}
+        return null;
+    }
 
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		Expr domain = n.domain();
-		Type dType = domain.type();
-		if (Configuration.LOOP_OPTIMIZATIONS &&
-		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
-		        (X10ArraysMixin.isRect(dType, context)))
-		{
-		    assert (xts.isPoint(form.type().type()));
-		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
+    public void visit(ForLoop_c n) {
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-		    // TODO: move this to the Desugarer
-		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
-		    if (xts.isX10Array(dType)) {
-		        Position pos = domain.position();
-		        FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
-		        dType = fDist.type();
-		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
-		    }
-		    if (xts.isDistribution(dType)) {
-		        Position pos = domain.position();
-		        FieldInstance fRegion = dType.toClass().fieldNamed(Name.make("region"));
-		        dType = fRegion.type();
-		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("region"))).fieldInstance(fRegion).type(dType);
-		    }
+        X10Formal form = (X10Formal) n.formal();
 
-		    sw.write("{");
-		    sw.newline(4); sw.begin(0);
+        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+        Expr domain = n.domain();
+        Type dType = domain.type();
+        if (Configuration.LOOP_OPTIMIZATIONS &&
+                form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
+                (X10ArraysMixin.isRect(dType, context)))
+        {
+            assert (xts.isPoint(form.type().type()));
+            assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
 
-		    String dom = getId();
-		    emitter.printType(dType, sw);
-		    sw.write(" " + dom + " = ");
-		    n.print(domain, sw, tr);
-		    sw.write(";");
-		    sw.newline();
+            // TODO: move this to the Desugarer
+            X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+            if (xts.isX10Array(dType)) {
+                Position pos = domain.position();
+                FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
+                dType = fDist.type();
+                domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
+            }
+            if (xts.isDistribution(dType)) {
+                Position pos = domain.position();
+                FieldInstance fRegion = dType.toClass().fieldNamed(Name.make("region"));
+                dType = fRegion.type();
+                domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("region"))).fieldInstance(fRegion).type(dType);
+            }
 
-		    LocalDef[] lis = form.localInstances();
-		    List<Formal> vars = form.vars();
-		    int rank = lis.length;
-		    String[] limit = new String[rank];
-		    for (int i = 0; i < rank; i++) {
-		        LocalInstance f = lis[i].asInstance();
-		        assert (f.type().isInt());
-		        limit[i] = getId();
-		        emitter.printType(f.type(), sw);
-		        sw.write(" " + limit[i] + ";");
-		        sw.newline();
-		        emitter.printType(f.type(), sw);
-		        sw.write(" ");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(";");
-		        sw.newline();
-		    }
-		    for (int i = 0; i < rank; i++) {
-		        LocalInstance f = lis[i].asInstance();
-		        assert (f.type().isInt());
-		        sw.write(limit[i] + " = " + dom + "->max(" + i + ");");
-		        sw.newline();
-		        sw.write("for (");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(" = " + dom + "->min(" + i + "); ");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(" <= " + limit[i] + "; ");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write("++) {");
-		        sw.newline(4); sw.begin(0);
-		    }
+            sw.write("{");
+            sw.newline(4); sw.begin(0);
 
-		    form.addDecls(tr.context());
-		    n.print(n.body(), sw, tr);
+            boolean constDomain = isLiteralRegion(domain);
+            LocalDef[] lis = form.localInstances();
+            int rank = lis.length;
+            String[] limit = new String[rank];
+            for (int i = 0; i < rank; i++) {
+                LocalInstance f = lis[i].asInstance();
+                assert (f.type().isInt());
+                limit[i] = getId();
+                emitter.printType(f.type(), sw);
+                sw.write(" " + limit[i] + ";");
+                sw.newline();
+                emitter.printType(f.type(), sw);
+                sw.write(" ");
+                sw.write(mangled_non_method_name(f.name().toString()));
+                sw.write(";");
+                sw.newline();
+            }
 
-		    for (int i = 0; i < rank; i++) {
-		        sw.end(); sw.newline();
-		        sw.write("}");
-		    }
+            if (!constDomain) {
+                String dom = getId();
+                emitter.printType(dType, sw);
+                sw.write(" " + dom + " = ");
+                n.print(domain, sw, tr);
+                sw.write(";");
+                sw.newline();
 
-		    sw.end(); sw.newline(0);
-		    sw.write("}");
-		    sw.newline(0);
-		    return;
-		}
+                for (int i = 0; i < rank; i++) {
+                    LocalInstance f = lis[i].asInstance();
+                    assert (f.type().isInt());
+                    sw.write(limit[i] + " = " + dom + "->max(" + i + ");");
+                    sw.newline();
+                    sw.write("for (");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write(" = " + dom + "->min(" + i + "); ");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write(" <= " + limit[i] + "; ");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write("++) {");
+                    sw.newline(4); sw.begin(0);
+                }
+            } else {
+                for (int i = 0; i < rank; i++) {
+                    LocalInstance f = lis[i].asInstance();
+                    assert (f.type().isInt());
+                    Expr[] limits = getLimits(domain, i);
+                    assert (limits.length == 2);
+                    sw.write(limit[i] + " = ");
+                    sw.begin(0);
+                    n.print(limits[1], sw, tr);
+                    sw.end();
+                    sw.write(";");
+                    sw.newline();
+                    sw.write("for (");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write(" = ");
+                    n.print(limits[0], sw, tr);
+                    sw.write("; ");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write(" <= " + limit[i] + "; ");
+                    sw.write(mangled_non_method_name(f.name().toString()));
+                    sw.write("++) {");
+                    sw.newline(4); sw.begin(0);
+                }
+            }
+
+            form.addDecls(tr.context());
+            n.print(n.body(), sw, tr);
+
+            for (int i = 0; i < rank; i++) {
+                sw.end(); sw.newline();
+                sw.write("}");
+            }
+
+            sw.end(); sw.newline(0);
+            sw.write("}");
+            sw.newline(0);
+            return;
+        }
 
         Type itType = null;
         assert (dType.isClass());
         X10ClassType domainType = (X10ClassType)dType.toClass();
         try {
             X10MethodInstance mi = xts.findMethod(domainType,
-                                xts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST, context));
+                    xts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST, context));
             assert (mi != null);
             assert (mi.returnType().isClass());
             List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
@@ -2574,58 +2658,58 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         sw.write("{");
-		sw.newline(4); sw.begin(0);
+        sw.newline(4); sw.begin(0);
 
-		String name = "__i" + form.name();
-		sw.write(emitter.translateType(xts.Iterator(form.type().type())));
-		sw.write("* " + name + " = &*"); // FIXME
+        String name = "__i" + form.name();
+        sw.write(emitter.translateType(xts.Iterator(form.type().type())));
+        sw.write("* " + name + " = &*"); // FIXME
         if (!xts.typeDeepBaseEquals(form.type().type(), itType, context)) {
             String fType = emitter.translateType(form.type().type(), true);
             sw.write("x10aux::convert_iterator"+chevrons(fType+","+emitter.translateType(itType, true)));
         }
         sw.write("((");
-		n.print(domain, sw, tr);
-		sw.write(")->iterator());");
-		sw.newline();
+        n.print(domain, sw, tr);
+        sw.write(")->iterator());");
+        sw.newline();
 
-		sw.write("for (");
-		sw.begin(0);
+        sw.write("for (");
+        sw.begin(0);
 
-		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write(name + "->hasNext();");
-		sw.allowBreak(2, " ");
+        sw.write(";"); sw.allowBreak(2, " ");
+        sw.write(name + "->hasNext();");
+        sw.allowBreak(2, " ");
 
-		sw.end();
-		sw.write(") {");
-		sw.newline(4); sw.begin(0);
+        sw.end();
+        sw.write(") {");
+        sw.newline(4); sw.begin(0);
 
-		n.print(form, sw, tr);
-		sw.write(";");
-		sw.newline();
-		sw.write(mangled_non_method_name(form.name().id().toString()));
-		sw.write(" = " + name + "->next();");
-		sw.newline();
-		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
-			Stmt l = (Stmt) li.next();
-			n.print(l, sw, tr);
-		}
+        n.print(form, sw, tr);
+        sw.write(";");
+        sw.newline();
+        sw.write(mangled_non_method_name(form.name().id().toString()));
+        sw.write(" = " + name + "->next();");
+        sw.newline();
+        for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
+            Stmt l = (Stmt) li.next();
+            n.print(l, sw, tr);
+        }
 
-		handleLabeledLoop(n);
+        handleLabeledLoop(n);
 
-		sw.end(); sw.newline(0);
-		sw.write("}");
-		sw.newline(0);
+        sw.end(); sw.newline(0);
+        sw.write("}");
+        sw.newline(0);
 
-		// [IP] It's always safe to free the iterator because it can't escape
-		// [DC] It's not safe to free the iterator because it has been cast to an interface
-		// FIXME: change the type of 'name' to be some kind of non-interface type
-		//sw.write("x10aux::dealloc(" + name + ");");
-		sw.newline();
+        // [IP] It's always safe to free the iterator because it can't escape
+        // [DC] It's not safe to free the iterator because it has been cast to an interface
+        // FIXME: change the type of 'name' to be some kind of non-interface type
+        //sw.write("x10aux::dealloc(" + name + ");");
+        sw.newline();
 
-		sw.end(); sw.newline(0);
-		sw.write("}");
-		sw.newline(0);
-	}
+        sw.end(); sw.newline(0);
+        sw.write("}");
+        sw.newline(0);
+    }
 
 
     public void visit(ForEach_c n) {
