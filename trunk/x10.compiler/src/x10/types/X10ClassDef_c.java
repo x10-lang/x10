@@ -144,10 +144,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XConstraint getRootClause() {
 	    if (rootClause == null) {
 		    if (computing) {
-			    this.rootClause = Types.<XConstraint>ref(new XConstraint_c());
+			    /*this.rootClause = Types.<XConstraint>ref(new XConstraint_c());
 			    this.rootClauseInvalid = 
 				    new SemanticException("The real clause of " + this + " depends upon itself.", position());
-			    return rootClause.get();
+			    return rootClause.get();*/
+		    	return new XConstraint_c();
 		    }
 		    
 		    computing = true;

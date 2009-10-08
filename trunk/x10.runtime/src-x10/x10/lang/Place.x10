@@ -14,7 +14,7 @@ package x10.lang;
  * @author tardieu
  * @author vj
  */
-public final value Place(id: int) {
+public final struct Place(id: int) {
     public const MAX_PLACES = x10.runtime.NativeRuntime.MAX_PLACES;
     public const places = Rail.makeVal[Place](MAX_PLACES, ((id: int) => new Place(id)));
     public const FIRST_PLACE: Place(0) = places(0) as Place(0);
