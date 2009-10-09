@@ -24,9 +24,9 @@ x10aux::itable_entry BootStrapClosure::_itables[2] = {
 };
 
 void x10aux::initialize_xrx() {
-    x10::lang::Place::FMGL(MAX_PLACES__do_init)();
-    x10::lang::Place::FMGL(places__do_init)();
-    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
+    x10::lang::Place_methods::FMGL(MAX_PLACES__do_init)();
+    x10::lang::Place_methods::FMGL(places__do_init)();
+    x10::lang::Place_methods::FMGL(FIRST_PLACE__do_init)();
     x10::runtime::Runtime::FMGL(runtime__do_init)();
     x10::io::Console::FMGL(OUT__do_init)();
     x10::io::Console::FMGL(ERR__do_init)();

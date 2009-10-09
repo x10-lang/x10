@@ -31,7 +31,7 @@ public interface Object {
     public def typeName(): String;
 
     @Native("java", "x10.lang.Place.place(#0.location())")
-    @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
+    @Native("c++", "x10::lang::Place_methods::place(x10aux::location(#0))")
     property def loc():Place;
 
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
