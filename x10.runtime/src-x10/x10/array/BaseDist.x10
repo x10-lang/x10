@@ -4,6 +4,7 @@
 package x10.array;
 
 import x10.util.ArrayList;
+import x10.util.GrowableRail;
 import x10.util.Set;
 
 /**
@@ -311,7 +312,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         // remove empty regions
         val rl = new ArrayList[Region]();
-        val pl = new ArrayList[Place]();
+        // FIXME: IP: work around the fact that we cannot create collections of structs
+        //val pl = new ArrayList[Place]();
+        val pl = new GrowableRail[Place]();
         for (var i:int=0; i<rs.length; i++) {
             if (!rs(i).isEmpty()) {
                 rl.add(rs(i));

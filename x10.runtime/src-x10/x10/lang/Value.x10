@@ -34,7 +34,7 @@ public value Value /* @EQ implements Equals[Value] */ implements Object {
     public native def typeName(): String;
 
     @Native("java", "x10.runtime.Runtime.here()")
-    @Native("c++", "x10::lang::Place::place(x10aux::here)")
+    @Native("c++", "x10::lang::Place_methods::place(x10aux::here)")
     public property def loc() = here;
 
     @Native("java", "true")
