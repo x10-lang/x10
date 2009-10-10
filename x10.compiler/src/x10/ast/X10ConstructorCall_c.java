@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,9 +33,11 @@ import polyglot.types.ErrorRef_c;
 import polyglot.types.Matcher;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -45,6 +48,7 @@ import x10.constraint.XConstraint;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MethodInstance;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -119,6 +123,18 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        Context context = tc.context();
             ClassType ct = context.currentClass();
 	        Type superType = ct.superClass();
+	        if (superType == null) {
+	        	// this can happen for structs, and for Object
+	        	X10Type type = (X10Type) context.currentClass();
+	        	if (X10TypeMixin.isStruct(type)
+	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
+	        		// the super() call inserted by the parser needs to be thrown out
+	        		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	        		return nf.Empty(Position.COMPILER_GENERATED);
+	        	}
+	        	throw new InternalCompilerError("Unexpected null supertype for " 
+	        			+ this, position());
+	        }
 
 	        // The qualifier specifies the enclosing instance of this inner class.
 	        // The type of the qualifier must be the outer class of this

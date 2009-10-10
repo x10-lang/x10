@@ -866,9 +866,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (isSubtype(x, t1, baseType2, allowValueInterfaces) && entails(c1,c2))
     		return true;
 
-    	if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
+    	/*if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
     		return true;
-    	}
+    	}*/
 
     	// Handle parametrized types and interfaces
     	if (baseType1 instanceof X10ClassType && baseType2 instanceof X10ClassType) {

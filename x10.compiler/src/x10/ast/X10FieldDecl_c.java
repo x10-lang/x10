@@ -53,6 +53,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
 import x10.types.X10Type;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
@@ -263,15 +264,22 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        
 	    @Override
 	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	    	X10Type type = (X10Type) this.type().type();
 	    	
-	            if (this.type().type().isVoid())
+	            if (type.isVoid())
 	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
 
-	            if (((X10Type)this.type().type()).isProto()) {
+	            if (type.isProto()) {
 	                throw new SemanticException("Field cannot have type " 
 	                		+ this.type().type() + " (a proto type).", position());
 	            	
 	            }
+	            if (X10TypeMixin.isStruct(fieldDef().container().get()) &&
+	            		! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
+	                throw new SemanticException("A struct may not have var fields.",
+	                		position());
+	            }
+	            	
 	            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	            X10Context context = (X10Context) tc.context();
@@ -319,7 +327,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                                                         "initializer \"" + init.type() +
                                                         "\" does not match that of " +
                                                         "the declaration \"" +
-                                                        type.type() + "\".",
+                                                        type + "\".",
                                                         init.position());
                         }
                     }

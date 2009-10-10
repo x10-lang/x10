@@ -2310,7 +2310,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 80:  ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 80:  ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
             //
             case 80: {
                //#line 1470 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
@@ -2325,11 +2325,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1468 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
                 //#line 1468 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                TypeNode Superopt = (TypeNode) getRhsSym(7);
+                List Interfacesopt = (List) getRhsSym(7);
                 //#line 1468 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                List Interfacesopt = (List) getRhsSym(8);
-                //#line 1468 "C:/eclipsews/v9/x10.compiler/src/x10/parser/x10.g"
-                ClassBody ClassBody = (ClassBody) getRhsSym(9);
+                ClassBody ClassBody = (ClassBody) getRhsSym(8);
                 //#line 1470 "C:/eclipsews/v9/lpg.generator/templates/java/btParserTemplateF.gi"
     checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
@@ -2337,7 +2335,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
     DepParameterExpr ci = WhereClauseopt;
     ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
     extractFlags(ClassModifiersopt, X10Flags.STRUCT), Identifier,  TypeParametersopt,
-    props, ci, Superopt, Interfacesopt, ClassBody));
+    props, ci, null, Interfacesopt, ClassBody));
     cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
     setResult(cd);
                       break;

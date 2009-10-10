@@ -1465,7 +1465,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(Identifier);
                     List TypeParametersopt = TypeParamsWithVarianceopt;
@@ -1473,7 +1473,7 @@ public static class MessageHandler implements IMessageHandler {
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
         extractFlags(ClassModifiersopt, X10Flags.STRUCT), Identifier,  TypeParametersopt,
-        props, ci, Superopt, Interfacesopt, ClassBody));
+        props, ci, null, Interfacesopt, ClassBody));
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
         setResult(cd);
           $EndJava
