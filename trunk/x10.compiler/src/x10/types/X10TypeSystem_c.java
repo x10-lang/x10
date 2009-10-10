@@ -852,7 +852,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             refType_ = (X10ParsedClassType) load("x10.lang.Ref");
         return refType_;
     }
-
+/*
     private X10ParsedClassType primitiveType_;
 
     public Type Primitive() {
@@ -861,7 +861,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return primitiveType_;
     }
 
-    
+    */
     private X10ParsedClassType boxType_;
 
     public Type Box() {
@@ -2642,4 +2642,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				throw new SemanticException();
 			}
      }
+   public  List<Type> abstractSuperInterfaces(Type t) {
+	   List<Type> result = super.abstractSuperInterfaces(t);
+	   // A work-around for the current transient state of the system in which
+	   // Object is an interface. 
+	   if (isStructType(t)) {
+		   result.remove(Object());
+	   }
+	   return result;
+   }
 }

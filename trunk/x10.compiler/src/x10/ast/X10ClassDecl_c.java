@@ -212,9 +212,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
         	thisType.superType(null);
         } 
-        else if (thisType.fullName().equals(QName.make("x10.lang.Primitive"))) {
-        	thisType.superType(null);
-        }
         else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
         }
@@ -229,13 +226,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	});
         	thisType.superType(superRef);
         } 
-        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
-        	superRef.setResolver(new Runnable() {
-        		public void run() {
-        			superRef.update(xts.Primitive());
-        		}
-        	});
-        	thisType.superType(superRef);
+         else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
+        	thisType.superType(null);
         }
         else if (superClass == null) {
         	superRef.setResolver(new Runnable() {
