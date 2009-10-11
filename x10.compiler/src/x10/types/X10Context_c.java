@@ -613,7 +613,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		//XConstrainedTerm currentHere = currentPlaceTerm();
 		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
 		
-		if (! type.toString().startsWith("x10.lang.")) 
+		if ( (type.kind() == ClassDef.ANONYMOUS) || ! type.toString().startsWith("x10.lang.")) 
 			try {
 				XTerm thisLoc = ((X10TypeSystem) typeSystem()).locVar(((X10ClassDef) classScope).thisVar(), 
 						this);

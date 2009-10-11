@@ -238,41 +238,59 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
         {
             MethodInstance converter = null;
+            Call c = null;
+            MethodInstance mi = converter;
+            Position p = position();
+            Expr e = expr;
 
             // Can convert if there is a static method toType.$convert(fromType)
             if (converter == null && convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
                 try {
-                    MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, operator_as, Collections.singletonList(fromType), context));
+                     mi = ts.findMethod(toType, ts.MethodMatcher(toType, operator_as, Collections.singletonList(fromType), context));
                     Type baseMiType = X10TypeMixin.baseType(mi.returnType());
                     if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
                         converter = mi;
+                        // Do the conversion.
+                        c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
+                        c = c.methodInstance(mi);
+                        c = (Call) c.type(mi.returnType());
                     }
                 }
-                catch (SemanticException e) {
+                catch (SemanticException z1) {
                 }
             }
+            // or  can convert if there is a static method fromType.$convert(ToType)
             
             if (converter == null) {
                 try {
-                    MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, implicit_operator_as, Collections.singletonList(fromType), context));
+                     mi = ts.findMethod(toType, ts.MethodMatcher(toType, implicit_operator_as, 
+                    		Collections.singletonList(fromType), context));
                     Type baseMiType = X10TypeMixin.baseType(mi.returnType());
                     if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
                         converter = mi;
+                        // Do the conversion.
+                        c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
+                        c = c.methodInstance(mi);
+                        c = (Call) c.type(mi.returnType());
                     }
                 }
-                catch (SemanticException e) {
+                catch (SemanticException z2) {
+                	try {
+                		mi = ts.findMethod(fromType, ts.MethodMatcher(toType, implicit_operator_as, 
+                				Collections.singletonList(fromType), context));
+                		Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+                		if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+                			converter = mi;
+                			   c = nf.Call(p, nf.CanonicalTypeNode(p, fromType), nf.Id(p, mi.name()), e);
+                               c = c.methodInstance(mi);
+                               c = (Call) c.type(mi.returnType());
+                		}
+                	} catch (SemanticException z) {
+                	}
                 }
             }
 
             if (converter != null) {
-                MethodInstance mi = converter;
-                Position p = position();
-                Expr e = expr;
-
-                // Do the conversion.
-                Call c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
-                c = c.methodInstance(mi);
-                c = (Call) c.type(mi.returnType());
 
                 // Now, do a coercion if needed to check any additional constraints on the type.
                 if (! ts.isParameterType(fromType) && ! mi.returnType().isSubtype(toType, context)) {
