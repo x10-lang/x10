@@ -66,6 +66,10 @@ namespace x10 {
       
             T* raw() { return _data; }
 
+            virtual x10aux::ref<ValRail<T> > view (void) {
+                return new (x10aux::alloc<ValRail<T> >()) ValRail<T>(FMGL(length),_data);
+            }
+
             virtual x10aux::ref<Iterator<T> > iterator() {
                 x10aux::ref<RailIterator<T> > tmp = new (x10aux::alloc<RailIterator<T> >()) RailIterator<T> (this->FMGL(length), this->raw());
                 return tmp;
@@ -88,6 +92,9 @@ namespace x10 {
             static void *_copy_from_buffer_finder(x10aux::deserialization_buffer&, x10_int);
 
             virtual void copyFrom (x10_int dst_off, x10aux::ref<Rail<T> > src, x10_int src_off,
+                                   x10_int len);
+
+            virtual void copyFrom (x10_int dst_off, x10aux::ref<ValRail<T> > src, x10_int src_off,
                                    x10_int len);
 
             virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
@@ -158,6 +165,7 @@ namespace x10 {
             x10aux::checkRailBounds(dst_off, this_->FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, this_->FMGL(length));
             return &this_->_data[dst_off];
+            // catch exception and update finish
         }
                                                                                            
         template<class T> const x10aux::serialization_id_t Rail<T>::_copy_to_serialization_id =
@@ -171,12 +179,29 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
+            x10_int dst_place = x10aux::location(dst);
+            if (dst_place == x10aux::here) {
+                if (dst==this) {
+                    fprintf(stderr,"TODO: implement rail self-copies ("__FILELINE__")\n");
+                    abort();
+                }
+                // check beginning and end of range
+                x10aux::checkRailBounds(dst_off, dst->FMGL(length));
+                x10aux::checkRailBounds(dst_off+len-1, dst->FMGL(length));
+                for (x10_int i=0 ; i<len ; ++i) {
+                    dst->_data[i+dst_off] = this->_data[i+src_off];
+                }
+                return;
+            }
             x10aux::serialization_buffer buf;
             x10aux::addr_map m;
             buf.realloc_func = x10aux::put_realloc;
+            //buf.write(finish_state, m);
             buf.write(dst, m);
             buf.write(dst_off, m);
-            x10aux::send_put(x10aux::location(dst), _copy_to_serialization_id,
+            // get finish state: runtime().finishStates.get(rid)
+            // f.notifySubActivitySpawn(PLACES[dst_place]);
+            x10aux::send_put(dst_place, _copy_to_serialization_id,
                              buf, &_data[src_off], len * sizeof(T));
 
         }
@@ -206,6 +231,20 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
+            x10_int src_place = x10aux::location(src);
+            if (src_place == x10aux::here) {
+                if (src==this) {
+                    fprintf(stderr,"TODO: implement rail self-copies ("__FILELINE__")\n");
+                    abort();
+                }
+                // check beginning and end of range
+                x10aux::checkRailBounds(src_off, src->FMGL(length));
+                x10aux::checkRailBounds(src_off+len-1, src->FMGL(length));
+                for (x10_int i=0 ; i<len ; ++i) {
+                    this->_data[i+dst_off] = src->_data[i+src_off];
+                }
+                return;
+            }
             x10aux::serialization_buffer buf;
             x10aux::addr_map m;
             buf.realloc_func = x10aux::get_realloc;
@@ -214,6 +253,22 @@ namespace x10 {
             x10aux::send_get(x10aux::location(src), _copy_from_serialization_id,
                              buf, &_data[dst_off], len * sizeof(T));
 
+        }
+
+        template <class T> void Rail<T>::copyFrom (x10_int dst_off,
+                                                   x10aux::ref<ValRail<T> > src, x10_int src_off,
+                                                   x10_int len)
+        {
+            // check beginning and end of range
+            x10aux::checkRailBounds(dst_off, FMGL(length));
+            x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
+            assert(src!=this); // rail and valrail may not overlap
+            // check beginning and end of range
+            x10aux::checkRailBounds(src_off, src->FMGL(length));
+            x10aux::checkRailBounds(src_off+len-1, src->FMGL(length));
+            for (x10_int i=0 ; i<len ; ++i) {
+                this->_data[i+dst_off] = src->_data[i+src_off];
+            }
         }
     }
 }
