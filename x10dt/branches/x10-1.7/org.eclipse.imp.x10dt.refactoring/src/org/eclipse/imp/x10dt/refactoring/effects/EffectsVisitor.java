@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin;
-import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
 import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 
 import polyglot.ast.Binary;
@@ -33,6 +32,7 @@ import polyglot.ast.While;
 import polyglot.ast.Unary.Operator;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtStmt;
+import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.ForLoop;
@@ -52,6 +52,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
@@ -114,6 +115,14 @@ public class EffectsVisitor extends NodeVisitor {
             result= followedBy(result, fEffects.get(node));
         }
         return result;
+    }
+
+    private boolean isValVariable(VarInstance<?> vi) {
+        return (vi.flags() instanceof X10Flags) ? ((X10Flags) vi.flags()).isValue() : false;
+    }
+
+    private boolean isValVariable(VarDecl vd) {
+        return (vd.flags() instanceof X10Flags) ? ((X10Flags) vd.flags().flags()).isValue() : false;
     }
 
     // ====================================================
@@ -202,6 +211,8 @@ public class EffectsVisitor extends NodeVisitor {
             if (old instanceof Async) {
                 Async async = (Async) old;
                 result= computeEffect(async);
+            } else if (old instanceof Atomic) {
+                result= computeEffect((Atomic) old);
             } else if (old instanceof AtStmt) {
                 result= fEffects.get(((AtStmt) old).body());
             } else if (old instanceof Binary) {
@@ -255,7 +266,7 @@ public class EffectsVisitor extends NodeVisitor {
         X10LocalInstance li= (X10LocalInstance) l.localInstance();
         Expr rhs= la.right();
 
-        if (((X10Flags) li.flags()).isValue()) {
+        if (isValVariable(li)) {
             Effect rhsEff= fEffects.get(rhs);
 //            Effect writeEff= Effects.makeEffect(Effects.FUN);
 //            writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
@@ -276,7 +287,7 @@ public class EffectsVisitor extends NodeVisitor {
         Receiver target= fa.target();
         Expr rhs= fa.right();
 
-        if (((X10Flags) fi.flags()).isValue()) {
+        if (isValVariable(fi)) {
             Effect rhsEff= fEffects.get(rhs);
             Effect writeEff= Effects.makeEffect(Effects.FUN);
             writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), new XVarDefWrapper(fi.def())));
@@ -295,6 +306,7 @@ public class EffectsVisitor extends NodeVisitor {
         Effect indexEff= fEffects.get(indexExpr);
         Effect arrayEff= fEffects.get(arrayExpr);
         Effect writeEff= Effects.makeEffect(Effects.FUN);
+
         writeEff.addWrite(createArrayLoc(arrayExpr, indexExpr));
         result= followedBy(arrayEff, indexEff);
         result= followedBy(result, rhsEff);
@@ -308,6 +320,7 @@ public class EffectsVisitor extends NodeVisitor {
     private Effect computeEffect(LocalDecl localDecl) throws XFailure {
         Expr init = localDecl.init();
         Effect result= null;
+
         if (init != null) {
             Effect initEff= fEffects.get(init);
             Effect write= Effects.makeEffect(Effects.FUN);
@@ -329,14 +342,21 @@ public class EffectsVisitor extends NodeVisitor {
     // Expressions
     // ============
     private Effect computeEffect(Local local) {
-        Effect result= Effects.makeEffect(Effects.FUN);
-        result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
+        Effect result;
+
+        if (isValVariable(local.localInstance())) {
+            result= null;
+        } else {
+            result= Effects.makeEffect(Effects.FUN);
+            result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
+        }
         return result;
     }
 
     private Effect computeEffect(Field field) {
         Receiver rcvr= field.target();
         Effect result= Effects.makeEffect(Effects.FUN);
+
         result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr), new XVarDefWrapper(field)));
         return result;
     }
@@ -345,6 +365,7 @@ public class EffectsVisitor extends NodeVisitor {
         Effect result= null;
         ConstructorInstance ctorInstance = neew.constructorInstance();
         List<Expr> args = neew.arguments();
+
         result= computeEffect(args);
         result= followedBy(result, getMethodEffects(ctorInstance));
         return result;
@@ -451,6 +472,15 @@ public class EffectsVisitor extends NodeVisitor {
         return followedBy(followedBy(condEff, thenEff), elseEff);
     }
 
+    private Effect computeEffect(Atomic atomic) {
+        Effect bodyEff= fEffects.get(atomic.body());
+        // TODO Should really mark that we've entered an atomic and change the
+        // processing of what's inside, rather than trying to do this after the
+        // body effects have already been created.
+        // TODO Create a means to mark an entire effect atomic to handle atomic blocks properly
+        return bodyEff;
+    }
+
     private Effect computeEffect(Async async) {
         Effect bodyEff= fEffects.get(async.body());
 
@@ -494,7 +524,7 @@ public class EffectsVisitor extends NodeVisitor {
         Effect result= effect;
         for(LocalDecl ld: decls) {
             XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
-            if (((X10Flags) ld.flags().flags()).isValue()) {
+            if (isValVariable(ld)) {
                 Expr init= ld.init();
                 XTerm initTerm= createTermForExpr(init);
                 result= result.exists(XTerms.makeLocal(localName), initTerm);
