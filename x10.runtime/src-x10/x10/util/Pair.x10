@@ -11,6 +11,10 @@ package x10.util;
 /**
  * This struct allows treating a pair of values as a single value, for example when returning from a method.
  */
+public struct Pair {
+}
+
+/*
 public struct Pair[T,U] {
     public val first:T;
     public val second:U;
@@ -24,3 +28,4 @@ public struct Pair[T,U] {
         return "(" + first + ", " + second + ")";
     }
 }
+*/
