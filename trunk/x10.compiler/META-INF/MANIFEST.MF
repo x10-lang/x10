@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
-Bundle-Version: 1.7.5.0
+Bundle-Version: 2.0.0
 Bundle-Localization: plugin
 Require-Bundle: x10.common,
  x10.constraints,
- lpg.runtime,
- polyglot3
+ polyglot3,
+ lpg.runtime;bundle-version="2.0.17"
 Export-Package: x10,
  x10.ast,
  x10.emitter,
