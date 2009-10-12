@@ -95,8 +95,8 @@ public final class Rail[T](length: nat)
                                 len:Int) : Void;
 
     @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
-    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
-    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    //@Native("c++", "x10::lang::System::copyFrom(#0,#4,#5,#6,#7)")
+    @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
     // U must be T. hack to get the type info.
     public  native def copyFrom [U](dst_off:Int, src:ValRail[U], src_off:Int, len:Int):Void; 
 
@@ -112,6 +112,6 @@ public final class Rail[T](length: nat)
                                 len:Int) : Void;
                                 
     @Native("java",  "#0.view()")
-    @Native("c++", "#0.view()")
+    @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
 }
