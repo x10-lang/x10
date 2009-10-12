@@ -79,8 +79,8 @@ public final class Rail[T](length: nat)
                               len:Int) : Void;
 
     @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4)")
-    @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
-    //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
+    //@Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
     public native def copyFrom (dst_off:Int, src:Rail[T], src_off:Int, len:Int) : Void;
 
 /* FIXME: This interface is not possible to define properly without structs:
