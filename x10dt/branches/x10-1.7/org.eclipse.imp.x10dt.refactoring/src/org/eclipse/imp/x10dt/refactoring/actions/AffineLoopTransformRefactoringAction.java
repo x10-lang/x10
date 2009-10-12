@@ -12,21 +12,21 @@
 package org.eclipse.imp.x10dt.refactoring.actions;
 
 import org.eclipse.imp.refactoring.RefactoringStarter;
-import org.eclipse.imp.x10dt.refactoring.LoopFlatParallelizationRefactoring;
-import org.eclipse.imp.x10dt.refactoring.wizards.LoopFlatParallelizationWizard;
+import org.eclipse.imp.x10dt.refactoring.AffineLoopTransformRefactoring;
+import org.eclipse.imp.x10dt.refactoring.wizards.AffineLoopTransformWizard;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-public class LoopFlatParallelizationRefactoringAction extends TextEditorAction {
-    public LoopFlatParallelizationRefactoringAction(ITextEditor editor) {
-        super(X10RefactoringMessages.ResBundle, "loopFlat.", editor);
+public class AffineLoopTransformRefactoringAction extends TextEditorAction {
+    public AffineLoopTransformRefactoringAction(ITextEditor editor) {
+        super(X10RefactoringMessages.ResBundle, "affineLoopTransform.", editor);
     }
 
     public void run() {
-        final LoopFlatParallelizationRefactoring refactoring = new LoopFlatParallelizationRefactoring(getTextEditor());
+        final AffineLoopTransformRefactoring refactoring = new AffineLoopTransformRefactoring(getTextEditor());
 
         if (refactoring != null)
-            new RefactoringStarter().activate(refactoring, new LoopFlatParallelizationWizard(refactoring),
+            new RefactoringStarter().activate(refactoring, new AffineLoopTransformWizard(refactoring),
                     getTextEditor().getSite().getShell(), refactoring.getName(), false);
     }
 }

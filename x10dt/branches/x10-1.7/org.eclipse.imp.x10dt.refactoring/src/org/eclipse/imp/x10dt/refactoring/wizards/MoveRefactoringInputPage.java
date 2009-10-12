@@ -11,7 +11,7 @@
 
 package org.eclipse.imp.x10dt.refactoring.wizards;
 
-import org.eclipse.imp.x10dt.refactoring.ExtractAsyncInFinishRefactoring;
+import org.eclipse.imp.x10dt.refactoring.MoveRefactoring;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,9 +19,11 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
-public class ExtractAsyncInFinishInputPage extends UserInputWizardPage {
-    public ExtractAsyncInFinishInputPage(String name) {
+public class MoveRefactoringInputPage extends UserInputWizardPage {
+    public MoveRefactoringInputPage(String name) {
         super(name);
     }
 
@@ -36,20 +38,22 @@ public class ExtractAsyncInFinishInputPage extends UserInputWizardPage {
         layout.numColumns = 4;
         result.setLayout(layout);
 
-        final Button verboseCB= new Button(result, SWT.CHECK);
-        verboseCB.setText("Verbose");
-        verboseCB.addSelectionListener(new SelectionListener() {
+        final Label targetLbl= new Label(result, SWT.NONE);
+        targetLbl.setText("Destination:");
+        final Text targetText= new Text(result, SWT.SINGLE);
+        final Button browsePB= new Button(result, SWT.PUSH);
+        browsePB.setText("Browse...");
+        browsePB.addSelectionListener(new SelectionListener() {
             public void widgetDefaultSelected(SelectionEvent e) { }
             public void widgetSelected(SelectionEvent e) {
-                boolean state= verboseCB.getSelection();
-                ExtractAsyncInFinishInputPage.this.getExtractAsyncInFinishRefactoring().setVerbose(state);
+                // TODO Bring up dialog to select the destination type for the move
             }
         });
 
         setControl(result);
     }
 
-    private ExtractAsyncInFinishRefactoring getExtractAsyncInFinishRefactoring() {
-        return (ExtractAsyncInFinishRefactoring) getRefactoring();
+    private MoveRefactoring getMoveRefactoring() {
+        return (MoveRefactoring) getRefactoring();
     }
 }

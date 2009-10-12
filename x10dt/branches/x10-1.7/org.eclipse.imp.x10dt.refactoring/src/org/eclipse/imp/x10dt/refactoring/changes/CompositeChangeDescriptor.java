@@ -9,16 +9,20 @@
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.imp.x10dt.refactoring.actions;
+package org.eclipse.imp.x10dt.refactoring.changes;
 
-import java.util.ResourceBundle;
+import java.util.List;
 
-public class X10RefactoringMessages /*extends NLS*/ {
-    private static final String BUNDLE_NAME= "org.eclipse.imp.x10dt.refactoring.X10RefactoringMessages";//$NON-NLS-1$
+public class CompositeChangeDescriptor extends ChangeDescriptor {
+    private final List<ChangeDescriptor> fChangeDescs;
 
-    public static ResourceBundle ResBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+    public CompositeChangeDescriptor(List<ChangeDescriptor> cds) {
+        fChangeDescs= cds;
+    }
 
-//    static {
-//        NLS.initializeMessages(BUNDLE_NAME, X10RefactoringMessages.class);
-//    }
+    @Override
+    public Object instantiate() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

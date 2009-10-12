@@ -11,23 +11,22 @@
 
 package org.eclipse.imp.x10dt.refactoring.wizards;
 
-import org.eclipse.imp.x10dt.refactoring.ExtractAsyncInFinishRefactoring;
+import org.eclipse.imp.x10dt.refactoring.MoveRefactoring;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
-public class ExtractAsyncInFinishWizard extends RefactoringWizard {
-    public ExtractAsyncInFinishWizard(ExtractAsyncInFinishRefactoring refactoring) {
+public class MoveRefactoringWizard extends RefactoringWizard {
+    public MoveRefactoringWizard(MoveRefactoring refactoring) {
         super(refactoring, DIALOG_BASED_USER_INTERFACE | PREVIEW_EXPAND_FIRST_NODE);
         setDefaultPageTitle(refactoring.getName());
     }
 
     protected void addUserInputPages() {
-        ExtractAsyncInFinishInputPage page= new ExtractAsyncInFinishInputPage(getRefactoring().getName());
+        MoveRefactoringInputPage page= new MoveRefactoringInputPage(getRefactoring().getName());
 
         addPage(page);
     }
 
-    public ExtractAsyncInFinishRefactoring getExtractAsyncInFinishRefactoring() {
-        return (ExtractAsyncInFinishRefactoring) getRefactoring();
+    public MoveRefactoring getMoveRefactoring() {
+        return (MoveRefactoring) getRefactoring();
     }
-
 }

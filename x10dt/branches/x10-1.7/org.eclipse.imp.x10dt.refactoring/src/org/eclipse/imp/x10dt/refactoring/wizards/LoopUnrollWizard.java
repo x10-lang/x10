@@ -11,22 +11,22 @@
 
 package org.eclipse.imp.x10dt.refactoring.wizards;
 
-import org.eclipse.imp.x10dt.refactoring.LoopFlatParallelizationRefactoring;
+import org.eclipse.imp.x10dt.refactoring.X10RefactoringBase;
 import org.eclipse.ltk.ui.refactoring.RefactoringWizard;
 
-public class LoopFlatParallelizationWizard extends RefactoringWizard {
-    public LoopFlatParallelizationWizard(LoopFlatParallelizationRefactoring refactoring) {
+public class LoopUnrollWizard extends RefactoringWizard {
+    public LoopUnrollWizard(X10RefactoringBase refactoring) {
         super(refactoring, DIALOG_BASED_USER_INTERFACE | PREVIEW_EXPAND_FIRST_NODE);
         setDefaultPageTitle(refactoring.getName());
     }
 
     protected void addUserInputPages() {
-        LoopFlatParallelizationInputPage page= new LoopFlatParallelizationInputPage(getRefactoring().getName());
+        LoopUnrollInputPage page= new LoopUnrollInputPage(getRefactoring().getName());
 
         addPage(page);
     }
 
-    public LoopFlatParallelizationRefactoring getLoopFlatParallelizationRefactoring() {
-        return (LoopFlatParallelizationRefactoring) getRefactoring();
+    public X10RefactoringBase getLoopUnrollRefactoring() {
+        return (X10RefactoringBase) getRefactoring();
     }
 }
