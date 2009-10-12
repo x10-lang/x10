@@ -322,7 +322,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		h.write("template <> class ");
 		if (cd.isStruct()) {
-		    h.write(Emitter.structMethodClass(cd.asType().toClass(), true, false));
+		    h.write(Emitter.structMethodClass(cd.asType().toClass(), false, false));
 		} else {
 		    h.write(mangled_non_method_name(cd.name().toString()));
 		}
