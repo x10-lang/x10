@@ -1,6 +1,18 @@
+/*******************************************************************************
+* Copyright (c) 2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*******************************************************************************/
+
 package org.eclipse.imp.x10dt.refactoring;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,6 +37,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import x10.effects.constraints.Effect;
+import x10.effects.constraints.Pair;
 
 public class ExtractAsyncRefactoring extends X10RefactoringBase {
     private static final String EXTRACT_ASYNC_REFACTORING_NAME= "Extract Async";
@@ -102,7 +115,15 @@ public class ExtractAsyncRefactoring extends X10RefactoringBase {
             fConsoleStream.println("Effect of context = " + contextEff);
 
             if (!selNodesEff.commutesWith(contextEff)) {
-                return RefactoringStatus.createErrorStatus("The selected code contains effects that don't commute with the surrounding context.");
+                Set<Pair<Effect,Effect>> interference= selNodesEff.interferenceWith(contextEff);
+
+                fConsoleStream.println("***");
+                fConsoleStream.println("The following effects do not commute:");
+                for(Pair<Effect,Effect> p: interference) {
+                    fConsoleStream.println(p.fst + " and " + p.snd);
+                }
+                Pair<Effect,Effect> first= interference.iterator().next();
+                return RefactoringStatus.createErrorStatus("The selected code contains effects that don't commute with the surrounding context, e.g. " + first.fst + " and " + first.snd);
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10DTRefactoringPlugin.kPluginID, ""));
         } catch (Exception e) {

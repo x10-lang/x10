@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (c) 2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*******************************************************************************/
+
 package org.eclipse.imp.x10dt.refactoring;
 
 import java.io.PrintStream;
@@ -5,15 +16,24 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
+import org.eclipse.imp.x10dt.refactoring.changes.EclipseChangeInterpreter;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
+import org.eclipse.imp.x10dt.ui.parser.CompilerDelegate;
+import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.text.edits.InsertEdit;
@@ -23,9 +43,14 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import polyglot.ast.Block;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Compiler;
+import polyglot.types.TypeSystem;
 
 public abstract class X10RefactoringBase extends Refactoring {
     /**
@@ -61,6 +86,12 @@ public abstract class X10RefactoringBase extends Refactoring {
     protected PrintStream fConsoleStream;
 
     private String fLineTerminator;
+
+    protected X10NodeFactory fNodeFactory;
+
+    protected X10TypeSystem fTypeSystem;
+
+    protected Compiler fCompiler;
 
     protected X10RefactoringBase(ITextEditor editor) {
         fEditor= editor;
@@ -241,5 +272,37 @@ public abstract class X10RefactoringBase extends Refactoring {
             fLineTerminator= doc.getLegalLineDelimiters()[0];
         }
         return fLineTerminator;
+    }
+
+    private final RefactoringStatus OK_STATUS= RefactoringStatus.create(new Status(IStatus.OK, X10DTRefactoringPlugin.kPluginID, ""));
+
+    protected RefactoringStatus okStatus() {
+        return OK_STATUS;
+    }
+
+    protected RefactoringStatus errorStatus(String msg) {
+        return RefactoringStatus.createErrorStatus("Exception occurred while analyzing loop: " + msg);
+    }
+
+    protected RefactoringStatus fatalStatus(String msg) {
+        return RefactoringStatus.createFatalErrorStatus("Exception occurred while analyzing loop: " + msg);
+    }
+
+    protected void getNodeFactoryTypeSystem() {
+        IParseController pc= ((IASTFindReplaceTarget) fEditor).getParseController();
+        CompilerDelegate cd= ((ParseController) pc).getCompiler();
+        ExtensionInfo extInfo = cd.getExtInfo();
+
+        fCompiler= cd.getCompiler();
+        fNodeFactory= (X10NodeFactory) extInfo.nodeFactory();
+        fTypeSystem= (X10TypeSystem) extInfo.typeSystem();
+    }
+
+    protected Change interpretChange(org.eclipse.imp.x10dt.refactoring.changes.Change change) {
+        IWorkspace ws= ResourcesPlugin.getWorkspace();
+        EclipseChangeInterpreter interp= new EclipseChangeInterpreter(ws, fCompiler, fNodeFactory, fTypeSystem, getLineTerminator());
+    
+        interp.perform(change, fSourceAST);
+        return interp.getResult();
     }
 }
