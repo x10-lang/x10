@@ -97,7 +97,7 @@ public class System {
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
-        at (dst_place) {
+        x10.runtime.NativeRuntime.runAt(dst_place.id, ()=>{
             val dst = dst_finder();
             val dst_off = 0; // FIXME: should come from dst_finder
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
@@ -105,7 +105,7 @@ public class System {
                 dst(dst_off+i) = to_serialize(src_off+i);
             }
             notifier();
-        }
+        });
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
