@@ -94,10 +94,11 @@ public final class Rail[T](length: nat)
                                 src_place:Place, src_finder:()=>Rail[T],
                                 len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4)")
+    @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
     @Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
     //@Native("c++", "(#0)->copyFrom(#1,#2,#3,#4)")
-    public native def copyFrom (dst_off:Int, src:ValRail[T], src_off:Int, len:Int) : Void;
+    // U must be T. hack to get the type info.
+    public  native def copyFrom [U](dst_off:Int, src:ValRail[U], src_off:Int, len:Int):Void; 
 
 /* FIXME: This interface is not possible to define properly without structs:
  * the closure needs to return both an offset and a ValRail. 

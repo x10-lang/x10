@@ -107,5 +107,8 @@ public class RailFactory {
         System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
         return new ValRail<T>(r.type, r.length, newArray);
     }
+    public static <T> ValRail<T> makeValRailViewFromRail(Type type, Rail<T> r) {
+        return new ValRail<T>(r.type, r);
+    }
     
 }

@@ -30,6 +30,10 @@ public final value class ValRail[+T](length: nat)
     @Native("java", "x10.core.RailFactory.<#2>makeValRailFromRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
     public native static operator [U](r: Rail[U]): ValRail[U]{self.length==r.length};
+    
+    @Native("java", "x10.core.RailFactory.<#2>makeValRailViewFromRail(#3, #4)")
+    @Native("c++", "x10::lang::ValRail<#1 >::makeView(#4)")
+    public native static def makeView[T](r: Rail[T]): ValRail[T]{self.length==r.length};
 
     @Native("java", "#0.get(#1)")
     @Native("c++", "(#0)->get(#1)")

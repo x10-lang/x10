@@ -32,7 +32,7 @@ public class System {
 
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
-    static def copyTo[T] (src:ValRail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
+    static public def copyTo[T] (src:ValRail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst.location) {
             for ((i):Point(1) in 0..len-1) {
@@ -42,7 +42,7 @@ public class System {
     }
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
-    static def copyTo[T] (src:ValRail[T], src_off:Int,
+    static public def copyTo[T] (src:ValRail[T], src_off:Int,
                           dst_place:Place, dst_finder:()=>Rail[T]!,
                           len:Int) {
         // could be further optimised to send only the part of the valrail needed
@@ -56,7 +56,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyTo[T] (src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
+    static public def copyTo[T] (src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
@@ -69,7 +69,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyTo[T] (src:Rail[T], src_off:Int,
+    static public def copyTo[T] (src:Rail[T], src_off:Int,
                           dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
                           len:Int) {
         // semantics allows an async per rail element inside a single finish
@@ -86,7 +86,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyFrom[T] (dst:Rail[T], dst_off:Int, src:Rail[T], src_off:Int, len:Int) {
+    static public def copyFrom[T] (dst:Rail[T], dst_off:Int, src:Rail[T], src_off:Int, len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
@@ -101,7 +101,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyFrom[T] (dst:Rail[T], dst_off:Int,
+    static public def copyFrom[T] (dst:Rail[T], dst_off:Int,
                             src_place:Place, src_finder:()=>Rail[T],
                             len:Int) {
         // semantics allows an async per rail element inside a single finish
@@ -120,7 +120,7 @@ public class System {
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
-    static def copyFrom[T] (dst:Rail[T]!, dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
+    static public def copyFrom[T] (dst:Rail[T]!, dst_off:Int, src:ValRail[T], src_off:Int, len:Int) {
         // source is always local
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to not use any asynchrony

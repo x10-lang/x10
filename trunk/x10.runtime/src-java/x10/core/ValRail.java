@@ -28,6 +28,12 @@ public final class ValRail<T> extends Value implements AnyRail<T> {
         this.value = array;
     }
     
+    public ValRail(Type<T> type, Rail<T> rail) {
+        this.length = rail.length;
+        this.type = type;
+        this.value = rail;
+    }
+    
 	public Iterator<T> iterator() {
 		return new RailIterator();
 	}
