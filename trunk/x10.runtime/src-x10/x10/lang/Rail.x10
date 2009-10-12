@@ -110,4 +110,8 @@ public final class Rail[T](length: nat)
     public native def copyFrom (dst_off:Int,
                                 src_place:Place, src_finder:()=>ValRail[T],
                                 len:Int) : Void;
+                                
+    @Native("java",  "#0.view()")
+    @Native("c++", "#0.view()")
+    public native def view(): ValRail[T]{self.length==this.length};
 }
