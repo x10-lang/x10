@@ -59,7 +59,7 @@ namespace x10 {
             }
 
 
-            x10_boolean struct_equals(PlaceLocalHandle<T> that) {
+            x10_boolean _struct_equals(PlaceLocalHandle<T> that) {
                 return FMGL(id) == that->FMGL(id);
             }
             
