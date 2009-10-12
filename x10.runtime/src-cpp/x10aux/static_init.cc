@@ -38,8 +38,6 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
         ::memmove(the_buf, p.msg, sz);
         x10rt_send_msg(p);
     }
-    // Free the buffer
-    x10rt_msg_realloc(the_buf, 0, 16);
 }
 
 void StaticInitBroadcastDispatcher::await() {
