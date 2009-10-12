@@ -35,7 +35,8 @@ public class System {
     static public def copyTo[T] (src:ValRail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst.location) {
-            for ((i):Point(1) in 0..len-1) {
+            //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+            for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = src(src_off+i);
             }
         }
@@ -49,7 +50,8 @@ public class System {
         at (dst_place) {
             val dst = dst_finder();
             val dst_off = 0; // FIXME: should come from dst_finder
-            for ((i):Point(1) in 0..len-1) {
+            //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+            for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = src(src_off+i);
             }
         }
@@ -62,7 +64,8 @@ public class System {
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
         at (dst.location) {
-            for ((i):Point(1) in 0..len-1) {
+            //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+            for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = to_serialize(src_off+i);
             }
         }
@@ -79,9 +82,29 @@ public class System {
         at (dst_place) {
             val dst = dst_finder();
             val dst_off = 0; // FIXME: should come from dst_finder
-            for ((i):Point(1) in 0..len-1) {
+            //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+            for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = to_serialize(src_off+i);
             }
+        }
+    }
+
+    // FIXME: this ought to be in Rail but @Native system does not allow this
+    static public def copyTo[T] (src:Rail[T], src_off:Int,
+                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
+                          len:Int, notifier:()=>Void) {
+        // semantics allows an async per rail element inside a single finish
+        // this version is optimised to use a single async for the whole rail
+        // it could be further optimised to send only the part of the rail needed
+        val to_serialize = src as ValRail[T];
+        at (dst_place) {
+            val dst = dst_finder();
+            val dst_off = 0; // FIXME: should come from dst_finder
+            //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+            for (var i:Int=0 ; i<len ; ++i) {
+                dst(dst_off+i) = to_serialize(src_off+i);
+            }
+            notifier();
         }
     }
 
@@ -93,7 +116,8 @@ public class System {
         at (src) {
             val to_serialize = src as ValRail[T];
             at (dst) {
-                for ((i):Point(1) in 0..len-1) {
+                //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+                for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = to_serialize(src_off+i);
                 }
             }
@@ -112,7 +136,8 @@ public class System {
             val src_off = 0; // FIXME: should come from dst_finder
             val to_serialize = src as ValRail[T];
             at (dst.location) {
-                for ((i):Point(1) in 0..len-1) {
+                //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+                for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = to_serialize(src_off+i);
                 }
             }
@@ -124,7 +149,8 @@ public class System {
         // source is always local
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to not use any asynchrony
-        for ((i):Point(1) in 0..len-1) {
+        //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+        for (var i:Int=0 ; i<len ; ++i) {
             dst(dst_off+i) = src(src_off+i);
         }
     }
@@ -142,7 +168,8 @@ public class System {
             val src = src_finder();
             val src_off = 0; // FIXME: should come from src_finder
             at (dst.location) {
-                for ((i):Point(1) in 0..len-1) {
+                //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
+                for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = src(src_off+i);
                 }
             }
