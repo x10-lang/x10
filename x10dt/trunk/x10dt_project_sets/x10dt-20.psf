@@ -3,6 +3,7 @@
 <provider id="org.tigris.subversion.subclipse.core.svnnature">
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt,org.eclipse.imp.x10dt"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.core,org.eclipse.imp.x10dt.core"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.debug,org.eclipse.imp.x10dt.debug"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.feature,org.eclipse.imp.x10dt.feature"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.help,org.eclipse.imp.x10dt.help"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.refactoring,org.eclipse.imp.x10dt.refactoring"/>
