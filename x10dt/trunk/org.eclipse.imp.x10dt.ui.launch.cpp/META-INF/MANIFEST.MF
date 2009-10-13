@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT UI Launch
 Bundle-SymbolicName: org.eclipse.imp.x10dt.ui.launch.cpp;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6,
  J2SE-1.5
