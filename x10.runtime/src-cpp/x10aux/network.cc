@@ -83,6 +83,7 @@ static void receive_async (const x10rt_msg_params &p) {
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
     if (async.isNull()) return;
     (async.operator->()->*(findITable<VoidFun_0_0>(async->_getITables())->apply))();
+    x10aux::dealloc(async.operator->());
 }
 
 void x10aux::register_async_handler (unsigned id) {
