@@ -96,7 +96,7 @@ public class InlineCallRefactoring extends AnnotationRefactoringBase {
 
     private void createInlineCallChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {
         CodeBlock block= fPathComputer.findEnclosingNode(fCall, CodeBlock.class);
-        outerChange.add(new InlineCallChange("Inline method call", fCall, block));
+        outerChange.add(new InlineCallChange("Inline method call", fCall, block, fSourceAST));
     }
 
     private void createAddInlineAnnotationChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {

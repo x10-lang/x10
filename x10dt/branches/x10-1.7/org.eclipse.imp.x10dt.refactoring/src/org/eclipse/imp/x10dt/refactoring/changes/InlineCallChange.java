@@ -15,6 +15,7 @@ import java.util.List;
 
 import polyglot.ast.Call;
 import polyglot.ast.CodeBlock;
+import polyglot.ast.SourceFile;
 
 /**
  *
@@ -22,14 +23,16 @@ import polyglot.ast.CodeBlock;
 public class InlineCallChange extends Change {
     private final Call fCall;
     private final CodeBlock fCallOwner;
+    private final SourceFile fSrcFile;
 
     /**
      * @param name
      */
-    public InlineCallChange(String name, Call call, CodeBlock owner) {
+    public InlineCallChange(String name, Call call, CodeBlock owner, SourceFile srcFile) {
         super(name);
         fCall= call;
         fCallOwner= owner;
+        fSrcFile= srcFile;
     }
 
     public Call getCall() {
@@ -38,6 +41,10 @@ public class InlineCallChange extends Change {
 
     public CodeBlock getCallOwner() {
         return fCallOwner;
+    }
+
+    protected SourceFile getSourceFile() {
+        return fSrcFile;
     }
 
     /* (non-Javadoc)
