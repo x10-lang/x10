@@ -3730,6 +3730,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = mangled_non_method_name(name);
             else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
                 name = SAVED_THIS;
+            else if (((X10Type)var.type()).isX10Struct()) // FIXME: duplication from visit(X10Special_c)
+                name = "this_";
             sw.write(name);
         }
         sw.write(")))");
