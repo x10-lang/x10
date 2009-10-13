@@ -162,6 +162,23 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
+  // Override for Cygwin, which needs a ".exe" here
+  protected IPath verifyExecutablePath(ILaunchConfiguration configuration) throws CoreException {
+    try {
+      return super.verifyExecutablePath(configuration);
+    } catch (CoreException e) {
+      if (!e.getStatus().getMessage().equals(org.eclipse.ptp.launch.messages.Messages.AbstractParallelLaunchConfigurationDelegate_Application_file_does_not_exist))
+        throw e;
+      // Try to append ".exe"
+      String exePath = getExecutablePath(configuration) + ".exe"; //$NON-NLS-1$
+      try {
+    	  return verifyResource(exePath, configuration);
+      } catch (CoreException e1) {
+    	  throw e; // this was the original error
+      }
+    }
+  }
+
   // --- Private code
   
   private void createExecutable(final IRemoteConnection connection, final IRemoteServices remoteServices,
