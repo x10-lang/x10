@@ -78,6 +78,7 @@ public final class X10CppBuilder extends AbstractX10Builder {
     options.output_directory = outputDir;
     options.source_path = ListUtils.transform(srcPaths, new IPathToFileFunc());
     options.compile_command_line_only = true;
+    options.post_compiler = null;
     Configuration.MAIN_CLASS = ""; //$NON-NLS-1$ We do generate main class stub during partial compilation.
   }
 

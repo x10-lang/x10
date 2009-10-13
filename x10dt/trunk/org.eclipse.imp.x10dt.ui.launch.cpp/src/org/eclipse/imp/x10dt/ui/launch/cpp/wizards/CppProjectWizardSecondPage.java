@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -127,7 +128,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
     final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
-      final IFileInfo fileInfo = fileManager.getResource(new Path(targetWorkspace), null).fetchInfo();
+      final IFileInfo fileInfo = fileManager.getResource(new Path(targetWorkspace), new NullProgressMonitor()).fetchInfo();
       if (fileInfo.exists()) {
         if (fileInfo.isDirectory()) {
           return true;

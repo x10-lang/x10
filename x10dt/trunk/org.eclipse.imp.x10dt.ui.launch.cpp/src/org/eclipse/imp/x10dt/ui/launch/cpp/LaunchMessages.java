@@ -73,8 +73,6 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_LinkingInterrupted;
 
-  public static String CLCD_NoMainCPFileError;
-
   public static String CLCD_NoMainFileAccessIOError;
 
   public static String CLCD_NoMainFileAccessOpError;

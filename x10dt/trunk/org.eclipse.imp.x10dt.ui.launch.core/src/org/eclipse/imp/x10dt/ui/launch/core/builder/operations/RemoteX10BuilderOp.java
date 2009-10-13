@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
@@ -50,7 +51,7 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
   public void transfer(final IContainer binaryContainer, final IProgressMonitor monitor) throws CoreException {
     try {
       final IRemoteFileManager fileManager = getRemoteFileManager();
-      final IFileStore fileStore = fileManager.getResource(new Path(getWorkspaceDir()), null);
+      final IFileStore fileStore = fileManager.getResource(new Path(getWorkspaceDir()), new NullProgressMonitor());
       if (fileStore.fetchInfo().exists()) {
         monitor.subTask(Messages.CPPB_DeletionTaskName);
         fileStore.delete(EFS.NONE, null);
@@ -84,7 +85,7 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
         fileStore.copy(destFile, EFS.OVERWRITE, null);
         if (name.endsWith(CC_EXT)) {
           String destPath = destFile.toURI().getPath();
-          if (destPath.matches("/.:/")) {
+          if (destPath.matches("/.:/.*")) {
         	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
         	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
         	  destPath = destPath.substring(1);

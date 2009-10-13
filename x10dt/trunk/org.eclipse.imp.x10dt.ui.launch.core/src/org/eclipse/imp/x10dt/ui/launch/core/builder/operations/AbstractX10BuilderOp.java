@@ -173,19 +173,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     this.fCompiledFiles.put(srcFile, destFilePath);
   }
 
-  protected final List<String> getCompilationCmd(final IX10PlatformConfiguration platform, final String workspaceDir, 
-                                                 final String fileName) {
-    final List<String> cmd = new ArrayList<String>();
-    cmd.add(platform.getCompiler());
-    cmd.add(platform.getCompilerOpts());
-    cmd.add(" -I" + workspaceDir); //$NON-NLS-1$
-    cmd.add(" -c "); //$NON-NLS-1$
-    cmd.add(fileName);
-    cmd.add(" -o "); //$NON-NLS-1$
-    cmd.add(fileName.replace(CC_EXT, ".o")); //$NON-NLS-1$
-    return cmd;
-  }
-  
   protected final IProject getProject() {
     return this.fProject;
   }

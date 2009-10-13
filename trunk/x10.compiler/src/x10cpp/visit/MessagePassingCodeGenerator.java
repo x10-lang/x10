@@ -1696,15 +1696,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass())
             container = getStaticMemberContainer(container);
-        sw.write("#include <x10/runtime/Runtime.h>");
-        sw.newline();
-        sw.write("#include <x10aux/bootstrap.h>");
-        sw.newline();
-        String mainTypeArgs = "x10::runtime::Runtime," + Emitter.translateType(container);
-        sw.write("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }");
-        sw.newline();
+        sw.write(createMainStub(Emitter.translateType(container)));
         sw.forceNewline(0);
     }
+
+	public static String createMainStub(String container) {
+		StringBuilder sb = new StringBuilder();
+        sb.append("#include <x10/runtime/Runtime.h>\n");
+        sb.append("#include <x10aux/bootstrap.h>\n");
+		String mainTypeArgs = "x10::runtime::Runtime," + container;
+        sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
+        return sb.toString();
+	}
 
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
