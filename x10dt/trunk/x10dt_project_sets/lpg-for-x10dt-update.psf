@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.eclipse.team.cvs.core.cvsnature">
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.generator,lpg.generator"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.generator.feature,lpg.generator.feature"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.generator.linux_x86,lpg.generator.linux_x86"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.generator.macosx_x86,lpg.generator.macosx_x86"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.generator.win32_x86,lpg.generator.win32_x86"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.runtime.feature,lpg.runtime.feature"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.runtime.java,lpg.runtime.java"/>
+<project reference="1.0,:pserver:lpg.cvs.sourceforge.net:/cvsroot/lpg,lpg.update,lpg.update"/>
+</provider>
+</psf>
