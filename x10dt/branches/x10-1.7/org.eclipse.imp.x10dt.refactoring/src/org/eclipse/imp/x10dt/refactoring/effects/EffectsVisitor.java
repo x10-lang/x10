@@ -39,6 +39,7 @@ import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.SettableAssign;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10LocalInstance;
@@ -178,6 +179,15 @@ public class EffectsVisitor extends NodeVisitor {
             List<Expr> indices= sa.index();
             ArrayElementLocs ael= Effects.makeArrayElementLocs(createTermForExpr(array), createTermForExpr(indices.get(0)));
             return ael;
+        } else if (expr instanceof Call) {
+            Call call= (Call) expr;
+            MethodInstance mi= call.methodInstance();
+            if (mi.container() instanceof ClassType && ((ClassType) mi.container()).fullName().toString().equals("x10.lang.Rail") &&
+                mi.name().toString().equals("apply") && mi.formalTypes().size() == 1) { // an array ref
+                List<Expr> args= call.arguments();
+
+                return createArrayLoc((Expr) call.target(), args.get(0));
+            }
         }
         return null;
     }
@@ -190,11 +200,22 @@ public class EffectsVisitor extends NodeVisitor {
 
         for (Type annoType : annotations) {
             if (annoType instanceof ClassType) {
-                ClassType annoClassType = (ClassType) annoType;
-                if (annoClassType.name().toString().equals("fun")) {
-                    return e.makeFun();
-                } else if (annoClassType.name().toString().equals("parfun")) {
-                    return e.makeParFun();
+                X10ClassType annoClassType = (X10ClassType) annoType;
+                String annoName= annoClassType.name().toString();
+                if (!annoName.equals("read") && !annoName.equals("write") && !annoName.equals("atomicInc")) {
+                    continue;
+                }
+                List<Expr> declaredLocs= annoClassType.propertyInitializers();
+                for(Expr declaredLoc: declaredLocs) {
+                    Locs locs= computeLocFor(declaredLoc);
+
+                    if (annoName.equals("read")) {
+                        e.addRead(locs);
+                    } else if (annoName.equals("write")) {
+                        e.addWrite(locs);
+                    } else if (annoName.equals("atomicInc")) {
+                        e.addAtomicInc(locs);
+                    }
                 }
             }
         }
