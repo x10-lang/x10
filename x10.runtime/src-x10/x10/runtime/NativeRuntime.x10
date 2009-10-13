@@ -46,6 +46,10 @@ public value NativeRuntime {
   @Native("c++", "x10aux::num_threads()")
   public const INIT_THREADS = 1;
     
+  @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
+  @Native("c++", "x10aux::static_threads()")
+  public const STATIC_THREADS = false;
+
   /**
    * Run body at place(id).
    * May be implemented synchronously or asynchronously.

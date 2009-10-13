@@ -44,7 +44,7 @@ class Monitor {
     	threads.push(thread);
     	while (threads.contains(thread)) {
 	   		unlock();
-   			Thread.park();
+   			Runtime.park();
    			lock();
 		}
     }
@@ -59,7 +59,7 @@ class Monitor {
     	val size = threads.size();
     	if (size > 0) {
 	    	Runtime.decreaseParallelism(size);
-	    	for (var i:Int = 0; i<size; i++) Thread.unpark(threads.pop());
+	    	for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
 	    }
     	unlock();
     }

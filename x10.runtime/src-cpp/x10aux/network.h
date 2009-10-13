@@ -128,6 +128,8 @@ namespace x10aux {
 
     x10_boolean no_steals();
 
+    x10_boolean static_threads();
+
     inline void shutdown() {
         _X_("X10RT shutdown starting");
         x10rt_finalize();
