@@ -7,7 +7,7 @@ Bundle-Activator: org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  org.eclipse.core.runtime,
- org.eclipse.imp.analysis,
+ org.eclipse.imp.analysis.p3,
  org.eclipse.imp.runtime;bundle-version="0.1.97",
  org.eclipse.imp.x10dt.ui;bundle-version="1.7.3",
  org.eclipse.imp.x10dt.core;bundle-version="1.7.3",
