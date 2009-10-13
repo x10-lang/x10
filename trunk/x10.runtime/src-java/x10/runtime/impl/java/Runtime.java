@@ -86,6 +86,11 @@ public abstract class Runtime implements Runnable {
 	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS_PER_PLACE", java.lang.Runtime.getRuntime().availableProcessors());
 
 	/**
+	 * Whether or not to start more threads while blocking
+	 */
+	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
+
+	/**
 	 * Synchronously executes body at place(id)
 	 */
 	public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {

@@ -73,6 +73,8 @@ x10_int x10aux::num_threads() {
 
 x10_boolean x10aux::no_steals() { return getenv("X10_NO_STEALS") != NULL; }
 
+x10_boolean x10aux::static_threads() { return (getenv("X10_STATIC_THREADS") != NULL); }
+
 static void receive_async (const x10rt_msg_params &p) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));

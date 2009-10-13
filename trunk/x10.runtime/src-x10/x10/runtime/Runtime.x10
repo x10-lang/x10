@@ -348,12 +348,32 @@ public final class Runtime {
 	
 	// notify the pool a worker is about to execute a blocking operation
 	static def increaseParallelism():Void {
-		NativeRuntime.runAtLocal(runtime().pool.location.id, runtime().pool.increase.());
+		if (!NativeRuntime.STATIC_THREADS) {
+			NativeRuntime.runAtLocal(runtime().pool.location.id, runtime().pool.increase.());
+		}
     }
 
 	// notify the pool a worker resumed execution after a blocking operation
 	static def decreaseParallelism(n:Int) {
-		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>runtime().pool.decrease(n));
+		if (!NativeRuntime.STATIC_THREADS) {
+			NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>runtime().pool.decrease(n));
+		}
+    }
+
+	// park current thread
+	static def park() {
+		if (!NativeRuntime.STATIC_THREADS) {
+			Thread.park();
+		} else {
+			NativeRuntime.event_probe();
+		}
+    }
+    
+    // unpark given thread
+    static def unpark(thread:Thread) {
+        if (!NativeRuntime.STATIC_THREADS) {
+	    	Thread.unpark(thread);
+	    }
     }
 
 	// run pending activities while waiting on condition
