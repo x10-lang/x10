@@ -93,7 +93,7 @@ public class Inliner {
             public NodeVisitor enter(Node n) {
                 if (n instanceof MethodDecl) {
                     MethodDecl md= (MethodDecl) n;
-                    if (md.methodDef().asInstance().equals(mi)) {
+                    if (md.methodDef().equals(mi.def())) {
                         result[0]= md;
                     }
                 }
