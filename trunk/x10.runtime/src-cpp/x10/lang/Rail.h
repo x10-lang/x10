@@ -6,12 +6,18 @@
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
 #include <x10aux/rail_utils.h>
+#include <x10aux/itables.h>
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Settable.h>
 #include <x10/lang/RailIterator.h>
 #include <x10/lang/ValRail.h>
+#include <x10/lang/Place.struct_h>
+
+namespace x10 { namespace lang { class VoidFun_0_0; } }
+namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
+
 
 namespace x10 {
 
@@ -84,12 +90,22 @@ namespace x10 {
 
             static void *_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
 
+            static void _copy_to_notifier(x10aux::deserialization_buffer&, x10_int);
+
             virtual void copyTo (x10_int src_off, x10aux::ref<Rail<T> > dst, x10_int dst_off,
                                  x10_int len);
+
+            virtual void copyTo (x10_int src_off,
+                                 x10::lang::Place dst_place,
+                                 x10aux::ref<Fun_0_0<x10aux::ref<Rail<T> > > > dst_finder,
+                                 x10_int len,
+                                 x10aux::ref<VoidFun_0_0> notifier);
 
             static const x10aux::serialization_id_t _copy_from_serialization_id;
 
             static void *_copy_from_buffer_finder(x10aux::deserialization_buffer&, x10_int);
+
+            static void _copy_from_notifier(x10aux::deserialization_buffer&, x10_int);
 
             virtual void copyFrom (x10_int dst_off, x10aux::ref<Rail<T> > src, x10_int src_off,
                                    x10_int len);
@@ -107,7 +123,23 @@ namespace x10 {
             static x10aux::RuntimeType rtt;
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
         };
-        
+    }
+}
+#endif
+
+#ifndef __X10_LANG_RAIL_H_NODEPS
+#define __X10_LANG_RAIL_H_NODEPS
+// #include <x10/lang/System.h> // causes cycle
+#include <x10/lang/VoidFun_0_0.h>
+#include <x10/lang/Fun_0_0.h>
+#include <x10aux/itables.h>
+#ifndef X10_LANG_RAIL_H_IMPLEMENTATION
+#define X10_LANG_RAIL_H_IMPLEMENTATION
+
+namespace x10 {
+
+    namespace lang {
+
         template<class T> void Rail<T>::_initRTT() {
             rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(),
@@ -158,19 +190,60 @@ namespace x10 {
                                                    x10aux::deserialization_buffer &buf,
                                                    x10_int len)
         {
+            typedef x10aux::ref<Rail<T> > R;
             assert(len%sizeof(T) == 0); // we can only transmit whole array elements
             len /= sizeof(T);
-            x10aux::ref<Rail<T> > this_ = buf.read<x10aux::ref<Rail<T> > >();
-            x10_int dst_off = buf.read<x10_int>();
-            x10aux::checkRailBounds(dst_off, this_->FMGL(length));
-            x10aux::checkRailBounds(dst_off+len-1, this_->FMGL(length));
+            x10_byte code = buf.read<x10_byte>();
+            R this_;
+            x10_int dst_off;
+            switch (code) {
+                case 0:
+                _X_("Finding a rail for copyTo (1)");
+                this_ = buf.read<R>();
+                dst_off = buf.read<x10_int>();
+                x10aux::checkRailBounds(dst_off, this_->FMGL(length));
+                x10aux::checkRailBounds(dst_off+len-1, this_->FMGL(length));
+                break;
+                case 1: {
+                    _X_("Finding a rail for copyTo (2)");
+                    dst_off = 0;
+                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<R> > >();
+                    this_ = (bf.operator->()->*(x10aux::findITable<Fun_0_0<R> >(bf->_getITables())->apply))();
+                    x10aux::dealloc(bf.operator->());
+                    x10aux::checkRailBounds(dst_off, this_->FMGL(length));
+                    x10aux::checkRailBounds(dst_off+len-1, this_->FMGL(length));
+                }
+            }
+            // FIXME: should catch exception here
             return &this_->_data[dst_off];
-            // catch exception and update finish
+        }
+                                                                                           
+        template <class T> void Rail<T>::_copy_to_notifier (
+                                                   x10aux::deserialization_buffer &buf,
+                                                   x10_int len)
+        {
+            typedef x10aux::ref<Rail<T> > R;
+            x10_byte code = buf.read<x10_byte>();
+            switch (code) {
+                case 0:
+                _X_("Completing a rail copyTo (1)");
+                break;
+                case 1: {
+                    _X_("Completing a rail copyTo (2)");
+                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<R> > >();
+                    x10aux::dealloc(bf.operator->());
+                    x10aux::ref<Object> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
+                    (vf.operator->()->*(x10aux::findITable<VoidFun_0_0>(vf->_getITables())->apply))();
+                    x10aux::dealloc(vf.operator->());
+                }
+            }
+            // FIXME: update finish here
         }
                                                                                            
         template<class T> const x10aux::serialization_id_t Rail<T>::_copy_to_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addPutBufferFinder(Rail<T>::_copy_to_buffer_finder);
+                ::addPutFunctions(Rail<T>::_copy_to_buffer_finder,
+                                  Rail<T>::_copy_to_notifier);
 
         template <class T> void Rail<T>::copyTo (x10_int src_off,
                                                  x10aux::ref<Rail<T> > dst, x10_int dst_off,
@@ -197,6 +270,8 @@ namespace x10 {
             x10aux::addr_map m;
             buf.realloc_func = x10aux::put_realloc;
             //buf.write(finish_state, m);
+            x10_byte code = 0;
+            buf.write(code, m);
             buf.write(dst, m);
             buf.write(dst_off, m);
             // get finish state: runtime().finishStates.get(rid)
@@ -205,6 +280,53 @@ namespace x10 {
                              buf, &_data[src_off], len * sizeof(T));
 
         }
+
+        template <class T> void Rail<T>::copyTo (x10_int src_off,
+                                                 x10::lang::Place dst_place_,
+                                                 x10aux::ref<Fun_0_0<x10aux::ref<Rail<T> > > > dst_finder,
+                                                 x10_int len,
+                                                 x10aux::ref<VoidFun_0_0> notifier)
+        {
+            x10aux::ref<Rail<T> > this_ = this;
+            x10_int dst_place = dst_place_.FMGL(id);
+
+            // check beginning and end of range
+            x10aux::checkRailBounds(src_off, FMGL(length));
+            x10aux::checkRailBounds(src_off+len-1, FMGL(length));
+            x10aux::ref<Object> df = dst_finder;
+            x10aux::ref<Object> n = notifier;
+            if (dst_place == x10aux::here) {
+                x10aux::ref<Rail<T> > dst = (df.operator->()->*(x10aux::findITable<Fun_0_0<x10aux::ref<Rail<T> > > >(df->_getITables())->apply))();
+                x10_int dst_off = 0; // TODO: get from calling closure
+                if (dst==this) {
+                    fprintf(stderr,"TODO: implement rail self-copies ("__FILELINE__")\n");
+                    abort();
+                }
+                // check beginning and end of range
+                x10aux::checkRailBounds(dst_off, dst->FMGL(length));
+                x10aux::checkRailBounds(dst_off+len-1, dst->FMGL(length));
+                for (x10_int i=0 ; i<len ; ++i) {
+                    dst->_data[i+dst_off] = this->_data[i+src_off];
+                }
+                (n.operator->()->*(x10aux::findITable<VoidFun_0_0>(n->_getITables())->apply))();
+                return;
+            }
+            x10aux::serialization_buffer buf;
+            x10aux::addr_map m;
+            buf.realloc_func = x10aux::put_realloc;
+            //buf.write(finish_state, m);
+            x10_byte code = 1;
+            buf.write(code, m);
+            buf.write(df, m);
+            buf.write(n, m);
+            // get finish state: runtime().finishStates.get(rid)
+            // f.notifySubActivitySpawn(PLACES[dst_place]);
+            x10aux::send_put(dst_place, _copy_to_serialization_id,
+                             buf, &_data[src_off], len * sizeof(T));
+
+        }
+
+
 
         template <class T> void *Rail<T>::_copy_from_buffer_finder (
                                                    x10aux::deserialization_buffer &buf,
@@ -220,9 +342,17 @@ namespace x10 {
             return &this_->_data[src_off];
         }
                                                                                            
+        template <class T> void Rail<T>::_copy_from_notifier (
+                                                   x10aux::deserialization_buffer &buf,
+                                                   x10_int len)
+        {
+            // can't be bothered yet
+        }
+                                                                                           
         template<class T> const x10aux::serialization_id_t Rail<T>::_copy_from_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addGetBufferFinder(Rail<T>::_copy_from_buffer_finder);
+                ::addGetFunctions(Rail<T>::_copy_from_buffer_finder,
+                                  Rail<T>::_copy_from_notifier);
 
         template <class T> void Rail<T>::copyFrom (x10_int dst_off,
                                                    x10aux::ref<Rail<T> > src, x10_int src_off,
@@ -273,6 +403,6 @@ namespace x10 {
     }
 }
 
-
+#endif
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

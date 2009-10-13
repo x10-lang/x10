@@ -17,6 +17,9 @@ namespace x10aux {
     typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
     template<> inline const char *typeName<BufferFinder>() { return "BufferFinder"; }
 
+    typedef void (*Notifier)(deserialization_buffer &buf, x10_int len);
+    template<> inline const char *typeName<Notifier>() { return "Notifier"; }
+
     typedef x10_short serialization_id_t;
 
     template<> inline const char *typeName<serialization_id_t>() { return "serialization_id_t"; }
@@ -27,10 +30,12 @@ namespace x10aux {
 
         
         BufferFinder *put_bfinder_v;
-        size_t put_bfinder_sz;
+        Notifier *put_notifier_v;
+        size_t put_sz;
 
         BufferFinder *get_bfinder_v;
-        size_t get_bfinder_sz;
+        Notifier *get_notifier_v;
+        size_t get_sz;
 
         Deserializer *deser_v;
         size_t deser_sz;
@@ -38,8 +43,8 @@ namespace x10aux {
         size_t next_id;
 
         public:
-        DeserializationDispatcher () : put_bfinder_v(NULL), put_bfinder_sz(0),
-                                       get_bfinder_v(NULL), get_bfinder_sz(0),
+        DeserializationDispatcher () : put_bfinder_v(NULL), put_notifier_v(NULL), put_sz(0),
+                                       get_bfinder_v(NULL), get_notifier_v(NULL), get_sz(0),
                                        deser_v(NULL), deser_sz(0), next_id(1) { }
         ~DeserializationDispatcher () {
             ::free(put_bfinder_v); // do not use GC
@@ -58,15 +63,19 @@ namespace x10aux {
         static serialization_id_t addDeserializer(Deserializer deser, bool is_async=false);
         serialization_id_t addDeserializer_(Deserializer deser, bool is_async);
 
-        static serialization_id_t addPutBufferFinder(BufferFinder bfinder);
-        serialization_id_t addPutBufferFinder_(BufferFinder bfinder);
+        static serialization_id_t addPutFunctions(BufferFinder bfinder, Notifier notifier);
+        serialization_id_t addPutFunctions_(BufferFinder bfinder, Notifier notifier);
         static BufferFinder getPutBufferFinder(serialization_id_t id);
         BufferFinder getPutBufferFinder_(serialization_id_t id);
+        static Notifier getPutNotifier(serialization_id_t id);
+        Notifier getPutNotifier_(serialization_id_t id);
 
-        static serialization_id_t addGetBufferFinder(BufferFinder bfinder);
-        serialization_id_t addGetBufferFinder_(BufferFinder bfinder);
+        static serialization_id_t addGetFunctions(BufferFinder bfinder, Notifier notifier);
+        serialization_id_t addGetFunctions_(BufferFinder bfinder, Notifier notifier);
         static BufferFinder getGetBufferFinder(serialization_id_t id);
         BufferFinder getGetBufferFinder_(serialization_id_t id);
+        static Notifier getGetNotifier(serialization_id_t id);
+        Notifier getGetNotifier_(serialization_id_t id);
 
         static void registerHandlers();
         void registerHandlers_();
@@ -78,6 +87,14 @@ namespace x10aux {
 
     inline BufferFinder DeserializationDispatcher::getGetBufferFinder (serialization_id_t id) {
         return it->getGetBufferFinder_(id); 
+    }
+
+    inline Notifier DeserializationDispatcher::getPutNotifier (serialization_id_t id) {
+        return it->getPutNotifier_(id); 
+    }
+
+    inline Notifier DeserializationDispatcher::getGetNotifier (serialization_id_t id) {
+        return it->getGetNotifier_(id); 
     }
 
     template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf,

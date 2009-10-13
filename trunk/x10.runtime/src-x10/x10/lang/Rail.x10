@@ -83,8 +83,8 @@ public final class Rail[T](length: nat)
  * For now we assume the offset on the remote side is 0.
  */
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
-    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
     public native def copyTo (src_off:Int,
                               dst_place:Place, dst_finder:()=>Rail[T],
                               len:Int, notifier:()=>Void) : Void;
