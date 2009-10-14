@@ -191,7 +191,7 @@ public class BaseTests extends TestCase {
 		e2.addAtomicInc(l1);
 		
 		boolean result = e1.commutesWith(e2);
-		assertFalse(result);
+		assertTrue(result);
 		
 	}
 	
