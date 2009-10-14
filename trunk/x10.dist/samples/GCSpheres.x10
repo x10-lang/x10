@@ -6,9 +6,6 @@ import x10.util.Random;
  * camera to be considered for rendering.  The naive implementation produces a
  * lot of objects and is thus a good benchmark for garbage collection in X10.
  *
- * The class has been annotated with 'ref' and 'inlined' params to show how the
- * inline proposal might be deployed to make this implementation more efficient.
- *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
 */
@@ -17,7 +14,7 @@ class GCSpheres {
     static type Real = Float;
 
 
-    static final value Vector3 {
+    static value Vector3 {
 
         public def this (x:Real, y:Real, z:Real) {
             this.x = x;
@@ -29,12 +26,12 @@ class GCSpheres {
         public def getY () = y;
         public def getZ () = z;
 
-        public def add (/*ref*/ other:Vector3)
+        public def add (other:Vector3)
             = new Vector3(this.x+other.x, this.y+other.y, this.z+other.z);
 
         public def neg () = new Vector3(-this.x, -this.y, -this.z);
 
-        public def sub (/*ref*/ other:Vector3) = add(other.neg());
+        public def sub (other:Vector3) = add(other.neg());
 
         public def length () = Math.sqrt(length2());
 
@@ -44,24 +41,24 @@ class GCSpheres {
     }
 
 
-    static final value WorldObject {
+    static value WorldObject {
 
         def this (x:Real, y:Real, z:Real, r:Real) {
             pos = new Vector3(x,y,z);
             renderingDistance = r;
         }
 
-        public def intersects (/*ref*/ home:Vector3)
+        public def intersects (home:Vector3)
             = home.sub(pos).length2() < renderingDistance*renderingDistance;
 
-        protected /*inlined*/ val pos:Vector3;
+        protected val pos:Vector3;
         protected val renderingDistance:Real;
     }
 
 
     public static def main (Rail[String]) {
 
-        val reps = 75;
+        val reps = 7500;
 
         // The following correspond to a modern out-door computer game:
         val num_objects = 50000;
@@ -73,7 +70,7 @@ class GCSpheres {
         // the array can go on the heap
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
-            ValRail.make[/*inlined*/ WorldObject](num_objects, (i:Int) => {
+            ValRail.make[WorldObject](num_objects, (i:Int) => {
                 val x = ran.nextDouble()*world_size as Real;
                 val y = ran.nextDouble()*world_size as Real;
                 val z = ran.nextDouble()*world_size as Real;
@@ -92,7 +89,7 @@ class GCSpheres {
             val y = ran.nextDouble()*world_size as Real;
             val z = ran.nextDouble()*world_size as Real;
 
-            /*inlined*/ val pos = new Vector3(x,y,z);
+            val pos = new Vector3(x,y,z);
 
             for ((i):Point in [0..spheres.length-1]) {
                 if (spheres(i).intersects(pos)) {
@@ -105,7 +102,7 @@ class GCSpheres {
         val time_taken = System.nanoTime() - time_start;
         Console.OUT.println("Total time: "+time_taken/1E9);
 
-        val expected = 1079;
+        val expected = 109332;
         if (counter != expected) {
             Console.ERR.println("number of intersections: "+counter
                                 +" (expected "+expected+")");
