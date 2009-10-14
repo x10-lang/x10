@@ -76,8 +76,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       distribLocGroup.setLayout(new GridLayout(1, false));
       distribLocGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
       distribLocGroup.setText(Messages.PCDWP_DistribGroup);
-      this.fPGASLocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_X10DistribLoc);
-      this.fX10LocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_PGASDistribLoc);
+      this.fPGASLocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_PGASDistribLoc);
+      this.fX10LocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_X10DistribLoc);
       if (this.fDefaultPlatformConf != null) {
         this.fPGASLocText.setText(this.fDefaultPlatformConf.getPGASLocation());
         this.fX10LocText.setText(this.fDefaultPlatformConf.getX10DistribLocation());
@@ -311,7 +311,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
           defaultX10Platform = new LinuxPlatform();
           break;
         case MAC:
-          defaultX10Platform = null;
+          defaultX10Platform = new MacPlatform();
           break;
         case UNIX:
           defaultX10Platform = null;
