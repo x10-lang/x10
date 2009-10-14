@@ -1082,6 +1082,17 @@ public class Emitter {
 		return "unsigned "+translateType(t);
 	}
 
+	public static void dumpString(String str, CodeWriter w) {
+	    int pos = 0;
+	    int nl = 0;
+	    while ((nl = str.indexOf('\n', pos)) != -1) {
+	        w.write(str.substring(pos, nl));
+	        w.newline(0);
+	        pos = nl+1;
+	    }
+	    w.write(str.substring(pos));
+	}
+
 	private static String dumpRegex(String id, Object[] components, String regex) {
 	    String retVal = "";
 	    for (int i = 0; i < components.length; i++) {
