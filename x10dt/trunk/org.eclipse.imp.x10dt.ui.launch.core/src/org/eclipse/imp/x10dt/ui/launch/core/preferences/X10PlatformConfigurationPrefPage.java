@@ -254,7 +254,7 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     final StringBuilder sb = new StringBuilder();
     sb.append(NLS.bind(Messages.XPCPP_ConfSummary, selection));
     sb.append(NLS.bind(Messages.XPCPP_X10DistribLoc, platformConfiguration.getX10DistribLocation()));
-    sb.append(NLS.bind(Messages.XPCPP_PGASLoc, platformConfiguration.getX10DistribLocation()));
+    sb.append(NLS.bind(Messages.XPCPP_PGASLoc, platformConfiguration.getPGASLocation()));
     sb.append(NLS.bind(Messages.XPCPP_Compiler, platformConfiguration.getCompiler()));
     sb.append(NLS.bind(Messages.XPCPP_CompilerOpts, platformConfiguration.getCompilerOpts()));
     if (platformConfiguration.hasArchivingStep()) {
