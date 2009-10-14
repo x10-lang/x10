@@ -107,6 +107,11 @@ xrx: x10rt $(XRX_ARCHIVE)
 .PHONY: xrx
 .PHONY: x10rt
 
+export CXX
+export AR
+export CXXFLAGS
+export ARFLAGS
+
 x10rt:
 	cd x10rt && $(MAKE)
 
