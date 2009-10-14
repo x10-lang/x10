@@ -11,6 +11,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Expr;
@@ -21,7 +22,9 @@ import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 
 /**
@@ -60,5 +63,17 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 //		//report.report(1, "regionmaker_c: type of |" + result + "| is " + result.type());
 //		return result;
 //    }
-	
+
+    @Override
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        w.write("[");
+
+        print(arguments.get(0), w, tr);
+        w.allowBreak(0, " ");
+        w.write("..");
+        w.allowBreak(0, " ");
+        print(arguments.get(1), w, tr);
+
+        w.write("]");
+    }
 }
