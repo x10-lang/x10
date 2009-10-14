@@ -196,6 +196,7 @@ public class EffectsVisitor extends NodeVisitor {
         X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
         X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
         List<Type> annotations= xpd.annotations();
+        boolean foundAnnotation= false;
         Effect e= Effects.makeEffect(false);
 
         for (Type annoType : annotations) {
@@ -217,9 +218,10 @@ public class EffectsVisitor extends NodeVisitor {
                         e.addAtomicInc(locs);
                     }
                 }
+                foundAnnotation= true;
             }
         }
-        return e; // TODO return 'bottom' here - don't know what the effects are, so be safe
+        return foundAnnotation ? e : Effects.BOTTOM_EFFECT; // return 'bottom' here - don't know what the effects are, so be safe
     }
 
     // ============
