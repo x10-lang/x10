@@ -24,15 +24,21 @@ public class InlineCallChange extends Change {
     private final Call fCall;
     private final CodeBlock fCallOwner;
     private final SourceFile fSrcFile;
+    private final boolean fSimplify;
 
     /**
      * @param name
      */
-    public InlineCallChange(String name, Call call, CodeBlock owner, SourceFile srcFile) {
+    public InlineCallChange(String name, Call call, CodeBlock owner, SourceFile srcFile, boolean simplify) {
         super(name);
         fCall= call;
         fCallOwner= owner;
         fSrcFile= srcFile;
+        fSimplify= simplify;
+    }
+
+    protected boolean getSimplify() {
+        return fSimplify;
     }
 
     public Call getCall() {

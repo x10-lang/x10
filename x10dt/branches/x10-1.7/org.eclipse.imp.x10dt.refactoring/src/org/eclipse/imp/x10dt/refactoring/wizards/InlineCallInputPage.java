@@ -14,7 +14,10 @@ package org.eclipse.imp.x10dt.refactoring.wizards;
 import org.eclipse.imp.x10dt.refactoring.InlineCallRefactoring;
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 public class InlineCallInputPage extends UserInputWizardPage {
@@ -32,6 +35,16 @@ public class InlineCallInputPage extends UserInputWizardPage {
 
         layout.numColumns = 4;
         result.setLayout(layout);
+
+        final Button simplifyCB= new Button(result, SWT.CHECK);
+        simplifyCB.setText("Simplify method body using actual parameters");
+        simplifyCB.addSelectionListener(new SelectionListener() {
+            public void widgetDefaultSelected(SelectionEvent e) { }
+            public void widgetSelected(SelectionEvent e) {
+                boolean state= simplifyCB.getSelection();
+                InlineCallInputPage.this.getInlineCallRefactoring().setSimplify(state);
+            }
+        });
 
         setControl(result);
     }

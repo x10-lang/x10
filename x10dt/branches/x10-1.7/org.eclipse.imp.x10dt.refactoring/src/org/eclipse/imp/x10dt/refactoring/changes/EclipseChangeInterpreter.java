@@ -173,7 +173,7 @@ public class EclipseChangeInterpreter extends ChangeInterpreter {
     protected void performInlineCall(InlineCallChange change) {
         Call call= change.getCall();
         Inliner inliner= new Inliner(call, change.getCallOwner(), change.getSourceFile(), fNodeFactory, fTypeSystem);
-        Node inlinedNode= inliner.perform();
+        Node inlinedNode= inliner.perform(change.getSimplify());
 
         int start= call.position().offset();
         int end= call.position().endOffset();
