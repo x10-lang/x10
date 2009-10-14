@@ -10,6 +10,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.util.Pair;
 
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
@@ -75,7 +76,7 @@ public final class Rail[T](length: nat)
     @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
     //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
     public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Rail[T],
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                               len:Int) : Void;
 
 /* FIXME: This interface is not possible to define properly without structs:

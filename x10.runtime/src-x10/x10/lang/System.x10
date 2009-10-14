@@ -11,6 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.io.Console;
 import x10.util.Timer;
+import x10.util.Pair;
 
 public class System {
 
@@ -73,15 +74,16 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
+                          dst_place:Place, dst_finder:()=>Pair[Rail[T]{self.at(here)},Int],
                           len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
         at (dst_place) {
-            val dst = dst_finder();
-            val dst_off = 0; // FIXME: should come from dst_finder
+            val pair = dst_finder();
+            val dst = pair.first;
+            val dst_off = pair.second;
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
             for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = to_serialize(src_off+i);
