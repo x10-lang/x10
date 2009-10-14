@@ -86,6 +86,11 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
                 // This is essentially the list of goals specified by the base class,
                 // up through and including type-checking.
                 goals.add(Parsed(job));
+                
+                // Grab AST early so outline view can use it even if these goals don't finish
+                if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
+                    goals.add(RetrieveASTearly(job));
+                }
                 goals.add(TypesInitialized(job));
                 goals.add(ImportTableInitialized(job));
                 goals.add(CastRewritten(job));
@@ -93,6 +98,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
                 goals.add(PreTypeCheck(job));
                 goals.add(TypeChecked(job));
 
+                // AST will be more complete here
                 if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
                     goals.add(RetrieveAST(job));
                 }
@@ -102,10 +108,24 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
             }
             /**
              * This goal simply retrieves the AST for the given job and squirrels it
-             * away into the map fInterestingASTs.
+             * away into the map fInterestingASTs.  This will overwrite the AST that was
+             * saved by the RetrieveASTearly goal
              */
             Goal RetrieveAST(Job job) {
                 return new SourceGoal_c("AST retriever", job) {
+                    @Override
+                    public boolean runTask() {
+                        ExtensionInfo.this.fInterestingASTs.put(job().source(), job().ast());
+                        return true;
+                    }
+                }.intern(scheduler);
+            }
+            /**
+             * This goal simply retrieves the AST for the given job and squirrels it
+             * away into the map fInterestingASTs.
+             */
+            Goal RetrieveASTearly(Job job) {
+                return new SourceGoal_c("AST early retriever", job) {
                     @Override
                     public boolean runTask() {
                         ExtensionInfo.this.fInterestingASTs.put(job().source(), job().ast());
