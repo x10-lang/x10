@@ -118,12 +118,13 @@ void recv_quit(const x10rt_msg_params &) { finished = true; }
 // {{{ show_help
 void show_help(FILE *out, char* name)
 {
+    if (x10rt_here()!=0) return;
     fprintf(out,"Usage: %s <args>\n", name);
     fprintf(out,"-h (--help)        ");
     fprintf(out,"this message\n");
     fprintf(out,"-l (--length) <n>      ");
     fprintf(out,"size of individual message\n");
-    fprintf(out,"-b (--batch) <n>       ");
+    fprintf(out,"-w (--window) <n>       ");
     fprintf(out,"number of pongs to wait for in parallel (window size)\n");
     fprintf(out,"-i (--iterations) <n>  ");
     fprintf(out,"top-level iterations (round trips)\n");
@@ -134,20 +135,20 @@ void show_help(FILE *out, char* name)
     fprintf(out,"-g (--get)    ");
     fprintf(out,"use x10rt_send_get instead of x10rt_send_msg\n");
     fprintf(out,"-a (--auto)    ");
-    fprintf(out,"test a variety of --length and --batch\n");
+    fprintf(out,"test a variety of --length and --window\n");
 } // }}}
 
 
-// {{{ run_test
+// {{{ run_test(iters,window,len,put,get) -- sends iters*window*(nplaces-1) msgs
 long long run_test(unsigned long iters,
-                   unsigned long batch,
+                   unsigned long window,
                    unsigned long len,
                    bool put = false,
                    bool get = false)
 {
     long long nanos = -nano_time();
     for (unsigned long i=0 ; i<iters ; ++i) {
-        for (unsigned long j=0 ; j<batch ; ++j) {
+        for (unsigned long j=0 ; j<window ; ++j) {
             for (unsigned long k=1 ; k<x10rt_nplaces() ; ++k) {
                 if (put) {
                     x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0};
@@ -186,8 +187,8 @@ int main(int argc, char **argv)
 
     x10rt_registration_complete();
 
-    size_t num_messages=320;
-    unsigned long batch = 100;
+    size_t iterations=320;
+    unsigned long window = 100;
     bool put = false;
     bool get = false;
     bool automatic = false;
@@ -205,15 +206,15 @@ int main(int argc, char **argv)
         } else if (!strcmp(argv[i], "-l")) {
             len = strtoul(argv[++i],NULL,0);
 
-        } else if (!strcmp(argv[i], "--batch")) {
-            batch = strtoul(argv[++i],NULL,0);
-        } else if (!strcmp(argv[i], "-b")) {
-            batch = strtoul(argv[++i],NULL,0);
+        } else if (!strcmp(argv[i], "--window")) {
+            window = strtoul(argv[++i],NULL,0);
+        } else if (!strcmp(argv[i], "-w")) {
+            window = strtoul(argv[++i],NULL,0);
 
         } else if (!strcmp(argv[i], "--iterations")) {
-            num_messages = strtoul(argv[++i],NULL,0);
+            iterations = strtoul(argv[++i],NULL,0);
         } else if (!strcmp(argv[i], "-i")) {
-            num_messages = strtoul(argv[++i],NULL,0);
+            iterations = strtoul(argv[++i],NULL,0);
 
         } else if (!strcmp(argv[i], "--validate")) {
             validate = true;
@@ -257,6 +258,15 @@ int main(int argc, char **argv)
             buf[i] = i;
         }
     }
+    
+    if (x10rt_here()==0) {
+        // warm up
+        for (int i=0 ; i<16 ; ++i) {
+            run_test(1, 1, 1024, false, false);
+            run_test(1, 1, 1024, true, false);
+            run_test(1, 1, 1024, true, true);
+        }
+    }
 
     if (x10rt_here()==0) {
 
@@ -271,17 +281,17 @@ int main(int argc, char **argv)
                 printf("%8d ", l);
                 float micros = 0;
                 for (int j=1 ; j<=16 ; ++j) {
-                    micros = run_test(num_messages/j, j, l, put, get)
-                             / 1E3 / (num_messages/j*j) / 2 / (x10rt_nplaces() - 1);
-                    printf("%4.0f ",micros);
+                    micros = run_test(iterations/j, j, l, put, get)
+                             / 1E3 / (iterations/j*j) / 2 / (x10rt_nplaces() - 1);
+                    printf("%6.1f ",micros);
                 }
                 printf("%0.3f\n", l/micros);
                 fflush(stdout);
             }
         } else {
-            float micros = run_test(num_messages/batch, batch, len, put, get)
-                           / 1E3 / (num_messages/batch*batch) / 2 / (x10rt_nplaces() - 1);
-            printf("Time taken: %f us  Bandwidth: %f MB/s\n",micros,len/micros);
+            float micros = run_test(iterations, window, len, put, get)
+                           / 1E3 / (iterations*window) / 2 / (x10rt_nplaces() - 1);
+            printf("Half roundtrip time: %f us  Bandwidth: %f MB/s\n",micros,len/micros);
         }
 
         for (unsigned long i=1 ; i<x10rt_nplaces() ; ++i) {
