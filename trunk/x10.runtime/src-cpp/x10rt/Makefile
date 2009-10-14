@@ -1,7 +1,8 @@
-CXX             = g++ -ansi -pedantic -Wno-long-long
+
+CXX 		?= g++
 MPICXX          = mpicxx
-CXXFLAGS        = -O3 -g -I..
-LDFLAGS         = -Llib -lpthread
+CXXFLAGS        += -g -I..
+LDFLAGS         += -Llib -lpthread
 
 BASE_TESTS      = test/x10rt_basic
 
@@ -12,6 +13,7 @@ default: all
 ifdef ENABLE_X10RT_MPI
   include mpi/mpi.mk
 endif
+
 include standalone/standalone.mk
 
 install: $(LIBS) $(PROPERTIES)
