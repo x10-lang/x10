@@ -33,6 +33,8 @@ public class InlineCallRefactoring extends AnnotationRefactoringBase {
 
     private Call fCall;
 
+    private boolean fSimplify;
+
     public InlineCallRefactoring(ITextEditor editor) {
         super(editor);
     }
@@ -40,6 +42,10 @@ public class InlineCallRefactoring extends AnnotationRefactoringBase {
     @Override
     public String getName() {
         return LOOP_UNROLL_REFACTORING_NAME;
+    }
+
+    public void setSimplify(boolean simplify) {
+        fSimplify= simplify;
     }
 
     @Override
@@ -96,7 +102,7 @@ public class InlineCallRefactoring extends AnnotationRefactoringBase {
 
     private void createInlineCallChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {
         CodeBlock block= fPathComputer.findEnclosingNode(fCall, CodeBlock.class);
-        outerChange.add(new InlineCallChange("Inline method call", fCall, block, fSourceAST));
+        outerChange.add(new InlineCallChange("Inline method call", fCall, block, fSourceAST, fSimplify));
     }
 
     private void createAddInlineAnnotationChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {
