@@ -50,6 +50,7 @@ import polyglot.ext.x10.ast.X10MethodDecl;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 import x10.effects.constraints.Pair;
 
 public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
@@ -181,12 +182,16 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
             }
             if (!commutes) {
                 fConsoleStream.println("***");
-                fConsoleStream.println("The following effects do not commute:");
-                for(Pair<Effect,Effect> p: interference) {
-                    fConsoleStream.println(p.fst + " and " + p.snd);
+                if (bodyEff == Effects.BOTTOM_EFFECT) {
+                    return RefactoringStatus.createErrorStatus("The loop body's effect is BOTTOM, which doesn't commute with anything.");
+                } else {
+                    fConsoleStream.println("The following effects do not commute:");
+                    for(Pair<Effect,Effect> p: interference) {
+                        fConsoleStream.println(p.fst + " and " + p.snd);
+                    }
+                    Pair<Effect,Effect> first= interference.iterator().next();
+                    return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute, e.g. " + first.fst + " and " + first.snd);
                 }
-                Pair<Effect,Effect> first= interference.iterator().next();
-                return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute, e.g. " + first.fst + " and " + first.snd);
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10DTRefactoringPlugin.kPluginID, ""));
         } catch (Exception e) {
