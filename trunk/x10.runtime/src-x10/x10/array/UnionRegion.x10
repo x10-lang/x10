@@ -89,6 +89,13 @@ public value class UnionRegion extends BaseRegion {
     incomplete public def projection(int): Region(1);
     incomplete public def eliminate(int): Region(rank-1);
 
+    public def translate(v: Point(rank)): Region(rank) {
+        val rs = new PolyRegionListBuilder(rank);
+        for (r:Region(rank) in regions)
+            rs.add(r.translate(v));
+        return make(rs);
+    }
+
     public def contains(p: Point): boolean {
         for (r:PolyRegion(rank) in regions)
             if (r.contains(p))
