@@ -162,7 +162,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
-  // Override for Cygwin, which needs a ".exe" here
+  /**
+   *  Override for Cygwin, which needs a ".exe" here
+   *  If superclass version of verifyExecutablePath fails, this is the fallback plan
+   */
   protected IPath verifyExecutablePath(ILaunchConfiguration configuration) throws CoreException {
     try {
       return super.verifyExecutablePath(configuration);
