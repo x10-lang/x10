@@ -48,7 +48,9 @@ ifeq ($(shell uname -s),AIX)
 
   ifdef USE_GCC
     ifdef OPTIMIZE
-      override CXXFLAGS += -O2 -finline-functions
+      # override CXXFLAGS += -O2 -finline-functions
+      # for HPCC challenge 2009, we are using GCC 4.4.0 and compiling everything with -O3
+      override CXXFLAGS += -O3
     endif
     override CXXFLAGS += -maix64
   else	
@@ -60,7 +62,9 @@ ifeq ($(shell uname -s),AIX)
       override CXXFLAGS += -q32
     endif
     ifdef OPTIMIZE
-      override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+      # override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+      # Work around for XLC bug. Include -O3 when fixed.
+      override CXXFLAGS += -O2 -qinline -qarch=pwr5 -qtune=pwr5
     endif
     override CXXFLAGS += -qrtti=all
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
