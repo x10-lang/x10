@@ -209,7 +209,7 @@ public class EffectsVisitor extends NodeVisitor {
                 List<Expr> declaredLocs= annoClassType.propertyInitializers();
                 for(Expr declaredLoc: declaredLocs) {
                     Locs locs= computeLocFor(declaredLoc);
-
+                    // TODO Perform substitutions of actual parameters for formal parameters
                     if (annoName.equals("read")) {
                         e.addRead(locs);
                     } else if (annoName.equals("write")) {

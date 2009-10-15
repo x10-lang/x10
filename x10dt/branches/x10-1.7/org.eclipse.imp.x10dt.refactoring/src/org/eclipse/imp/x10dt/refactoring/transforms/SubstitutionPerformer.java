@@ -9,7 +9,7 @@
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *******************************************************************************/
 
-package org.eclipse.imp.x10dt.refactoring.changes;
+package org.eclipse.imp.x10dt.refactoring.transforms;
 
 import java.util.HashMap;
 import java.util.HashSet;

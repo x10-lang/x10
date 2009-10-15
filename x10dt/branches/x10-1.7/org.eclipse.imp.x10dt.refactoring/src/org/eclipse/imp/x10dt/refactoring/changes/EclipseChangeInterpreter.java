@@ -17,6 +17,7 @@ import java.util.Stack;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.x10dt.refactoring.transforms.Inliner;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;

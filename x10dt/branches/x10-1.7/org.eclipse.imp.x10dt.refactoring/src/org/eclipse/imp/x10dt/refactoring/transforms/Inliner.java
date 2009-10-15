@@ -1,18 +1,17 @@
-package org.eclipse.imp.x10dt.refactoring.changes;
+package org.eclipse.imp.x10dt.refactoring.transforms;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import polyglot.ast.Assign;
-import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CodeBlock;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
-import polyglot.ast.If;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -79,64 +78,6 @@ public class Inliner {
                 result= fNodeFactory.Labeled(Position.COMPILER_GENERATED, fLabelID, result);
             }
             return result;
-        }
-    }
-
-    private class Simplifier extends NodeVisitor {
-        private Map<Expr,Object> fEvalResults= new HashMap<Expr, Object>();
-
-        @Override
-        public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-            if (n instanceof Binary) {
-                Binary b= (Binary) n;
-                Binary.Operator op= b.operator();
-                Expr left= b.left();
-                Expr right= b.right();
-                if (op == Binary.COND_AND || op == Binary.COND_OR) {
-                    if (fEvalResults.containsKey(left) && fEvalResults.containsKey(right)) {
-                        Boolean leftVal= (Boolean) fEvalResults.get(left);
-                        Boolean rightVal= (Boolean) fEvalResults.get(right);
-                        Boolean result= (op == Binary.COND_AND) ? leftVal && rightVal : leftVal || rightVal;
-
-                        fEvalResults.put(b, result);
-                    }
-                } else if (op == Binary.EQ || op == Binary.GE || op == Binary.GT || op == Binary.LE || op == Binary.LT || op == Binary.NE) {
-                    if (left.type().isInt() && right.type().isInt() && fEvalResults.containsKey(left) && fEvalResults.containsKey(right)) {
-                        Integer leftVal= (Integer) fEvalResults.get(left);
-                        Integer rightVal= (Integer) fEvalResults.get(right);
-                        boolean result= false;
-
-                        if (op == Binary.EQ) {
-                            result= leftVal == rightVal;
-                        } else if (op == Binary.GE) {
-                            result= leftVal >= rightVal;
-                        } else if (op == Binary.GT) {
-                            result= leftVal > rightVal;
-                        } else if (op == Binary.LE) {
-                            result= leftVal <= rightVal;
-                        } else if (op == Binary.LT) {
-                            result= leftVal < rightVal;
-                        } else if (op == Binary.NE) {
-                            result= leftVal != rightVal;
-                        }
-                        fEvalResults.put(b, result);
-                    }
-                }
-            } else if (n instanceof If) {
-                If ifStmt= (If) n;
-                Stmt thenStmt= ifStmt.consequent();
-                Stmt elseStmt= ifStmt.alternative();
-                Expr cond= ifStmt.cond();
-                if (fEvalResults.containsKey(cond)) {
-                    return (Boolean) fEvalResults.get(cond) ? thenStmt : elseStmt;
-                }
-            } else if (n instanceof Expr) {
-                Expr e= (Expr) n;
-                if (e.isConstant()) {
-                    fEvalResults.put(e, e.constantValue());
-                }
-            }
-            return super.leave(parent, old, n, v);
         }
     }
 
