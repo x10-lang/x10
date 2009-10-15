@@ -418,7 +418,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public Effect followedBy(Effect e, XConstraint c)  {
 		if (! isFun()) {
 			if (!commutesWith(e, c))
-				return null;
+				return Effects.BOTTOM_EFFECT;
 		}
 		return union(e);
 	}
