@@ -176,6 +176,7 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10ClassDecl_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -3239,6 +3240,63 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
+	/**
+	 * Returns true if the domain expression is a compile-time constant region.
+	 * FIXME: do proper region constant propagation.
+	 */
+	private boolean isLiteralRegion(Expr domain) {
+	    if (domain instanceof RegionMaker_c) {
+	        return true;
+	    }
+	    if (domain instanceof ConstantDistMaker_c) {
+	        return isLiteralRegion(((ConstantDistMaker_c) domain).arguments().get(0));
+	    }
+	    if (domain instanceof X10Field_c) {
+	        X10Field_c df = (X10Field_c) domain;
+	        if (df.name().toString().equals("region") && df.target() instanceof Expr)
+	            return isLiteralRegion((Expr) df.target());
+	    }
+	    // TODO
+	    //if (domain instanceof X10Binary_c) {
+	    //    X10Binary_c op = (X10Binary_c) domain;
+	    //    return isConstant(op.left()) && isConstant(op.right());
+	    //}
+	    return false;
+	}
+
+	/**
+	 * Returns the upper and lower limit for a given domain (if available) as an
+	 * array of 2 expressions, or null if the domain is not a constant.
+	 */
+	private Expr[] getLimits(Expr domain, int dim) {
+	    if (domain instanceof RegionMaker_c) {
+	        RegionMaker_c rm = (RegionMaker_c) domain;
+	        if (dim != 0) throw new InternalCompilerError("Attempting to get dimension "+dim+" of a 1-dim region");
+	        List<Expr> args = rm.arguments();
+	        return new Expr[] { args.get(0), args.get(1) };
+	    }
+	    if (domain instanceof ConstantDistMaker_c) {
+	        ConstantDistMaker_c cdm = (ConstantDistMaker_c) domain;
+	        Expr rgn = cdm.arguments().get(0);
+	        assert (isLiteralRegion(rgn));
+	        return getLimits(rgn, dim);
+	    }
+	    if (domain instanceof X10Field_c) {
+	        X10Field_c df = (X10Field_c) domain;
+	        if (df.name().toString().equals("region") && df.target() instanceof Expr) {
+	            Expr rgn = (Expr) df.target();
+	            assert (isLiteralRegion(rgn));
+	            return getLimits(rgn, dim);
+	        }
+	    }
+	    // TODO
+	    //if (domain instanceof X10Binary_c) {
+	    //    X10Binary_c op = (X10Binary_c) domain;
+	    //    return null;
+	    //}
+	    return null;
+	}
+
 	public void visit(ForLoop_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -3272,15 +3330,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.write("{");
 		    sw.newline(4); sw.begin(0);
 
-		    String dom = getId();
-		    emitter.printType(dType, sw);
-		    sw.write(" " + dom + " = ");
-		    n.print(domain, sw, tr);
-		    sw.write(";");
-		    sw.newline();
-
+		    boolean constDomain = isLiteralRegion(domain);
 		    LocalDef[] lis = form.localInstances();
-		    List<Formal> vars = form.vars();
 		    int rank = lis.length;
 		    String[] limit = new String[rank];
 		    for (int i = 0; i < rank; i++) {
@@ -3296,19 +3347,54 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(";");
 		        sw.newline();
 		    }
-		    for (int i = 0; i < rank; i++) {
-		        LocalInstance f = lis[i].asInstance();
-		        assert (f.type().isInt());
-		        sw.write(limit[i] + " = " + dom + "->max(" + i + ");");
-		        sw.newline();
-		        sw.write("for (");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(" = " + dom + "->min(" + i + "); ");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(" <= " + limit[i] + "; ");
-		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write("++) {");
-		        sw.newline(4); sw.begin(0);
+
+		    if (!constDomain) {
+	            String dom = getId();
+	            emitter.printType(dType, sw);
+	            sw.write(" " + dom + " = ");
+	            n.print(domain, sw, tr);
+	            sw.write(";");
+	            sw.newline();
+
+	            for (int i = 0; i < rank; i++) {
+	                LocalInstance f = lis[i].asInstance();
+	                assert (f.type().isInt());
+	                String name = mangled_non_method_name(f.name().toString());
+	                sw.write(limit[i] + " = " + dom + "->max(" + i + ");");
+	                sw.newline();
+	                sw.write("for (");
+	                sw.write(name);
+	                sw.write(" = " + dom + "->min(" + i + "); ");
+	                sw.write(name);
+	                sw.write(" <= " + limit[i] + "; ");
+	                sw.write(name);
+	                sw.write("++) {");
+	                sw.newline(4); sw.begin(0);
+	            }
+		    } else {
+		        for (int i = 0; i < rank; i++) {
+		            LocalInstance f = lis[i].asInstance();
+		            assert (f.type().isInt());
+		            String name = mangled_non_method_name(f.name().toString());
+		            Expr[] limits = getLimits(domain, i);
+		            assert (limits.length == 2);
+		            sw.write(limit[i] + " = ");
+		            sw.begin(0);
+		            n.print(limits[1], sw, tr);
+		            sw.end();
+		            sw.write(";");
+		            sw.newline();
+		            sw.write("for (");
+		            sw.write(name);
+		            sw.write(" = ");
+		            n.print(limits[0], sw, tr);
+		            sw.write("; ");
+		            sw.write(name);
+		            sw.write(" <= " + limit[i] + "; ");
+		            sw.write(name);
+		            sw.write("++) {");
+		            sw.newline(4); sw.begin(0);
+		        }
 		    }
 
 		    form.addDecls(tr.context());
