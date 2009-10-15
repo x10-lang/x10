@@ -265,6 +265,15 @@ public abstract value class Region(
     abstract public def product(that: Region): Region;
 
     /**
+     * Returns the region shifted by a Point (vector). The Point has
+     * to have the same rank as the region. For every point p in the
+     * resulting region, each coordinate is that of the corresponding
+     * point q shifted by the same coordinate of the given point.
+     */
+
+    abstract public def translate(v: Point(rank)): Region(rank);
+
+    /**
      * Returns the projection of a region onto the specified axis. The
      * projection is a rank-1 region such that for every point (i) in
      * the projection, there is some point p in this region such that
@@ -369,6 +378,10 @@ public abstract value class Region(
     public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
     public operator this * (that: Region) = product(that);
+
+    public operator this + (v: Point(rank)) = translate(v);
+
+    public operator (v: Point(rank)) + this = translate(v);
 
 
     //

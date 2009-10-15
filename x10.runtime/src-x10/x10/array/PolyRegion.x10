@@ -174,6 +174,28 @@ public value class PolyRegion extends BaseRegion {
     }
 
 
+    public def translate(v: Point(rank)): Region(rank) {
+        val pmb = new PolyMatBuilder(this.rank);
+        translate(pmb, this.mat, v);
+        val pm = pmb.toSortedPolyMat(false);
+        return PolyRegion.make(pm);
+    }
+
+    private static def translate(tt: PolyMatBuilder!, ff: PolyMat, v: Point(ff.rank)): void {
+        for (r:PolyRow in ff) {
+            val f = r;
+            val t = Rail.makeVar[int](ff.rank+1);
+            var s:Int = 0;
+            for (var i: int = 0; i<ff.rank; i++) {
+                t(i) = f(i);
+                s += f(i)*v(i);
+            }
+            t(ff.rank) = f(ff.rank) - s;
+            tt.add(new PolyRow(t));
+        }
+    }
+
+
     /**
      * -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
      */
