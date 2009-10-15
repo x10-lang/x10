@@ -71,7 +71,7 @@ public class EffectsVisitor extends NodeVisitor {
 
     private final XConstraint fMethodContext;
 
-    private final ValueMap fValueMap;
+    private final ValueMap fValueMap; // TODO Do we really need this in the first place?
 
     private boolean fVerbose;
 
@@ -221,7 +221,7 @@ public class EffectsVisitor extends NodeVisitor {
                 foundAnnotation= true;
             }
         }
-        return foundAnnotation ? e : Effects.BOTTOM_EFFECT; // return 'bottom' here - don't know what the effects are, so be safe
+        return e; // foundAnnotation ? e : Effects.BOTTOM_EFFECT; // return 'bottom' here - don't know what the effects are, so be safe
     }
 
     // ============
@@ -444,11 +444,17 @@ public class EffectsVisitor extends NodeVisitor {
             String ownerClassName = ownerClassType.fullName().toString();
 
             if (ownerClassName.equals("x10.lang.Array")) {
-                Expr targetExpr= (Expr) target;
-                if (call.name().id().toString().equals("apply")) {
-                    result= computeEffectOfArrayRead(call, targetExpr, args.get(0));
-                } else if (call.name().id().toString().equals("set")) {
-                    result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1));
+                if (methodInstance.flags().isStatic()) {
+                    if (call.name().id().toString().equals("make")) {
+                        
+                    }
+                } else {
+                    Expr targetExpr= (Expr) target;
+                    if (call.name().id().toString().equals("apply")) {
+                        result= computeEffectOfArrayRead(call, targetExpr, args.get(0));
+                    } else if (call.name().id().toString().equals("set")) {
+                        result= computeEffectOfArrayWrite(call, targetExpr, args.get(0), args.get(1));
+                    }
                 }
             } else {
                 // First compute the effects of argument evaluation

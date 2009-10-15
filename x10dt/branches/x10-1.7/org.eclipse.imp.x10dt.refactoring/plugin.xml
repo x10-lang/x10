@@ -42,4 +42,29 @@
       </specification>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            nameFilter="*"
+            id="org.eclipse.imp.x10dt.refactoring.projectContextMenu">
+         <menu
+               label="X10"
+               path="additions"
+               id="org.eclipse.imp.x10dt.core.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Analyze Effects"
+               icon="icons/builderEnable.gif"
+               tooltip="Analyze the memory effects of all the X10 classes in this project"
+               class="org.eclipse.imp.x10dt.refactoring.actions.AnalyzeEffects"
+               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
+               enablesFor="1"
+               id="org.eclipse.imp.x10dt.refactoring.analyzeEffectsAction">
+         </action>
+      </objectContribution>
+   </extension>
 </plugin>
