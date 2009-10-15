@@ -48,9 +48,7 @@ ifeq ($(shell uname -s),AIX)
 
   ifdef USE_GCC
     ifdef OPTIMIZE
-      # override CXXFLAGS += -O2 -finline-functions
-      # for HPCC challenge 2009, we are using GCC 4.4.0 and compiling everything with -O3
-      override CXXFLAGS += -O3
+      override CXXFLAGS += -O2 -finline-functions
     endif
     override CXXFLAGS += -maix64
   else	
