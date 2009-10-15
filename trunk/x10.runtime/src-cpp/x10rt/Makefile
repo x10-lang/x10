@@ -4,7 +4,7 @@ MPICXX          = mpicxx
 CXXFLAGS        += -g -I..
 LDFLAGS         += -Llib -lpthread
 
-BASE_TESTS      = test/x10rt_basic
+BASE_TESTS      = test/x10rt_basic test/x10rt_gups
 
 X10_HOME        = ../../..
 
