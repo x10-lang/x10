@@ -30,7 +30,7 @@ x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
 }
 
 const serialization_id_t Ref::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Ref::_deserialize<Object>);
+    DeserializationDispatcher::addDeserializer(Ref::_deserializer<Object>);
 
 RTT_CC_DECLS1(Ref, "x10.lang.Ref", Object)
 

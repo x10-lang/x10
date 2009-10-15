@@ -66,6 +66,13 @@ namespace x10aux {
         return ret;
     }
 
+    // Allocate an object with a void* prepended to it
+    template<class T> T* remote_alloc() {
+        _M_("Allocating a remote object of type " << TYPENAME(T));
+        T* ret = alloc<T>(sizeof(T)+sizeof(void*));
+        return (T*)(((char*)ret)+sizeof(void*));
+    }
+
     template<class T> T* realloc(T* src, size_t dsz) {
         _M_("Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC

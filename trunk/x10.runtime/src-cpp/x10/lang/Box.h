@@ -5,6 +5,7 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/serialization.h>
 
 
 #include <x10/lang/Ref.h>
@@ -14,6 +15,7 @@ namespace x10 {
 
     namespace lang {
 
+        class Object;
         class String;
 
         void _initRTTHelper_Box(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
@@ -27,8 +29,27 @@ namespace x10 {
             }
 
             x10aux::ref<Box<T> > _constructor(T contents_) {
+                this->Ref::_constructor();
                 FMGL(value) = contents_;
                 return this;
+            }
+
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                this->x10::lang::Ref::_serialize_body(buf, m);
+            }
+
+            template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf) {
+                x10aux::ref<Box> this_ = new (x10aux::remote_alloc<Box>()) Box();
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+
+            void _deserialize_body(x10aux::deserialization_buffer& buf) {
+                this->x10::lang::Ref::_deserialize_body(buf);
             }
 
             virtual T get() {
@@ -44,6 +65,9 @@ namespace x10 {
             T FMGL(value);
 
         };
+
+        template<class T> const x10aux::serialization_id_t Box<T>::_serialization_id =
+            x10aux::DeserializationDispatcher::addDeserializer(Box<T>::template _deserializer<Object>);
 
         template <> class Box<void> : public Ref {
         };

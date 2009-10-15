@@ -13,6 +13,7 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/String.h>
 #include <x10/lang/VoidFun_0_0.h>
+#include <x10aux/serialization.h>
 
 #include <pthread.h>
 
@@ -59,9 +60,28 @@ namespace x10 {
             
             x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::VoidFun_0_0> task,
                                              x10aux::ref<x10::lang::String> name) {
+                this->x10::lang::Ref::_constructor();
                 thread_init(task, name);
                 return this;
             } 
+
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                this->x10::lang::Ref::_serialize_body(buf, m);
+            }
+
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf) {
+                x10aux::ref<Thread> this_ = new (x10aux::remote_alloc<Thread>()) Thread();
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+
+            void _deserialize_body(x10aux::deserialization_buffer& buf) {
+                this->x10::lang::Ref::_deserialize_body(buf);
+            }
 
             // destructor
             ~Thread();

@@ -40,8 +40,8 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
     }
     deser_v[next_id] = deser;
     serialization_id_t r = next_id++;
-    _S_("DeserializationDispatcher registered the following handler for id: "
-        <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
+    //_S_("DeserializationDispatcher registered the following handler for id: "
+    //    <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
     (void) is_async; // TODO: use two numbering schemes
     return r;
 }
@@ -68,8 +68,8 @@ serialization_id_t DeserializationDispatcher::addPutFunctions_ (BufferFinder bfi
     put_bfinder_v[next_id] = bfinder;
     put_notifier_v[next_id] = notifier;
     serialization_id_t r = next_id++;
-    _S_("DeserializationDispatcher registered the following put handler for id: "
-        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    //_S_("DeserializationDispatcher registered the following put handler for id: "
+    //    <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
     return r;
 }
 
@@ -103,8 +103,8 @@ serialization_id_t DeserializationDispatcher::addGetFunctions_ (BufferFinder bfi
     get_bfinder_v[next_id] = bfinder;
     get_notifier_v[next_id] = notifier;
     serialization_id_t r = next_id++;
-    _S_("DeserializationDispatcher registered the following get handler for id: "
-        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    //_S_("DeserializationDispatcher registered the following get handler for id: "
+    //    <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
     return r;
 }
 
@@ -124,15 +124,15 @@ void DeserializationDispatcher::registerHandlers () {
 void DeserializationDispatcher::registerHandlers_ () {
     for (size_t i=0 ; i<next_id ; ++i) {
         if (i<deser_sz && deser_v[i]) {
-            _S_("(DeserializationDispatcher registered id "<<i<<" as an async)");
+            //_S_("(DeserializationDispatcher registered id "<<i<<" as an async)");
             x10aux::register_async_handler(i);
         }
         if (i<put_sz && put_bfinder_v[i]) {
-            _S_("(DeserializationDispatcher registered id "<<i<<" as a put)"); 
+            //_S_("(DeserializationDispatcher registered id "<<i<<" as a put)"); 
             x10aux::register_put_handler(i);
         }
         if (i<get_sz && get_bfinder_v[i]) {
-            _S_("(DeserializationDispatcher registered id "<<i<<" as a get)"); 
+            //_S_("(DeserializationDispatcher registered id "<<i<<" as a get)"); 
             x10aux::register_get_handler(i);
         }
     }

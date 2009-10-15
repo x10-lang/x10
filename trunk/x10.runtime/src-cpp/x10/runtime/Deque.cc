@@ -26,6 +26,7 @@ Deque::_make() {
 }
 
 ref<Deque> Deque::_constructor() {
+    this->x10::lang::Ref::_constructor();
     queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;
     queue->data = x10aux::alloc<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
@@ -34,6 +35,9 @@ ref<Deque> Deque::_constructor() {
     base = 0;
     return this;
 }
+
+const serialization_id_t Deque::_serialization_id =
+    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Object>);
 
 void Deque::growQueue() {
     Slots *oldQ = queue;

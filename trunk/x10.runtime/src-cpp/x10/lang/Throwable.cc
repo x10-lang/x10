@@ -37,12 +37,14 @@ const serialization_id_t Throwable::_serialization_id =
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    this->Value::_serialize_body(buf, m);
     buf.write(FMGL(cause),m);
     buf.write(FMGL(message),m);
 }
 
 void
 Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
+    this->Value::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Box<x10aux::ref<Throwable> > > >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
 }
@@ -70,6 +72,7 @@ Throwable::_make(x10aux::ref<String> message, x10aux::ref<Throwable> cause) {
 x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
                                                x10aux::ref<Throwable> cause)
 {
+    this->Value::_constructor();
     if (message==x10aux::null) { //hack, value types aren't supposed to be null
         this->FMGL(message) = String::Lit("");
     } else {

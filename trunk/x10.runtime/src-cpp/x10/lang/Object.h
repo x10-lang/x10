@@ -18,13 +18,15 @@ namespace x10 {
         class Value;
 
         class Object {
-            private:
+        private:
             static x10aux::itable_entry _itables[1];
             
-            public:
+        public:
             RTT_H_DECLS_CLASS
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
+
+            x10_int location;
             
             Object(){ }
 

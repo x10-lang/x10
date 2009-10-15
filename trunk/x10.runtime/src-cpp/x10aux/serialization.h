@@ -129,9 +129,11 @@ namespace x10aux {
     // [DC] instead of threading this around everywhere, why don't we encapsulate it within the
     // serialization_buffer?  That way the serialiation buffer always has it available, and noone
     // else has to be troubled by it.
+    // [IP] if we had proper cycle handling, we could.  As it stands now, we have to be able to
+    // handle two refs to the same object being written into the same buffer.  For that we need
+    // to reset the addr_map between them (but only up to a certain point).  That code is too
+    // complex to implement right now.
     class addr_map {
-#if 0
-NOT USED AT PRESENT
         int _size;
         const void** _ptrs;
         int _top;
@@ -139,15 +141,18 @@ NOT USED AT PRESENT
         void _add(const void* ptr);
         bool _find(const void* ptr);
     public:
-        addr_map(int init_size = 4) : _size(init_size), _ptrs(new (x10aux::alloc<const
-void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
+        addr_map(int init_size = 4) :
+            _size(init_size),
+            _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*)))
+                      const void*[init_size]),
+            _top(0)
+        { }
         template<class T> bool ensure_unique(const ref<T>& r) {
             return ensure_unique((void*) r.get());
         }
         bool ensure_unique(const void* p);
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
-#endif
     };
 
 
@@ -184,7 +189,6 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
             assert(buffer==NULL);
         }
 
-
         void grow (void);
 
         size_t length (void) { return cursor - buffer; }
@@ -192,7 +196,7 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
 
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
 
-        // default case for primitives and other things that never contain pointers
+        // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
         template<typename T> void write(const T &val, addr_map &m);
@@ -233,16 +237,17 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
     PRIMITIVE_WRITE(x10_ulong)
     PRIMITIVE_WRITE(x10_float)
     PRIMITIVE_WRITE(x10_double)
-    PRIMITIVE_WRITE(remote_ref)
+    //PRIMITIVE_WRITE(x10_addr_t) // already defined above
+    //PRIMITIVE_WRITE(remote_ref)
     
-    // case for references e.g. ref<Object>, 
+    // Case for references e.g. ref<Object>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
         static void _(serialization_buffer &buf, ref<T> val, addr_map &m);
     };
     template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
                                                                    ref<T> val, addr_map &m) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-        //depends what T is (interface/Ref/Value/FinalValue/Closure)
+        // Depends what T is (interface/Ref/Closure)
         T::_serialize(val,buf,m);
     }
     
@@ -258,19 +263,22 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         const char* cursor;
     public:
 
-        // we use the same buffers for serializing and deserializing so the
-        // const cast is necessary
-        // note that a serialization_buffer created this way can only be used for deserializing
         deserialization_buffer(const char *buffer_)
             : buffer(buffer_), cursor(buffer_)
         { }
 
         size_t consumed (void) { return cursor - buffer; }
 
-        // default case for primitives and other things that never contain pointers
+        // Default case for primitives and other things that never contain pointers
         template<class T> struct Read;
         template<class T> struct Read<ref<T> >;
         template<typename T> GPUSAFE T read();
+        template<typename T> GPUSAFE T peek() {
+            const char* saved_cursor = cursor;
+            T val = read<T>();
+            cursor = saved_cursor;
+            return val;
+        }
     };
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)
@@ -280,6 +288,7 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
     // General case for structs
     template<class T> T deserialization_buffer::Read<T>::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+        // Dispatch because we don't know what it is
         return T::_deserialize(buf);
     }
 
@@ -307,15 +316,16 @@ void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
     PRIMITIVE_READ(x10_ulong)
     PRIMITIVE_READ(x10_float)
     PRIMITIVE_READ(x10_double)
-    PRIMITIVE_READ(remote_ref)
+    //PRIMITIVE_READ(x10_addr_t) // already defined above
+    //PRIMITIVE_READ(remote_ref)
 
-    // case for references e.g. ref<Object>, 
+    // Case for references e.g. ref<Object>, 
     template<class T> struct deserialization_buffer::Read<ref<T> > {
         GPUSAFE static ref<T> _(deserialization_buffer &buf);
     };
     template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
-        //dispatch because we don't know what it is
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+        // Dispatch because we don't know what it is
         return T::template _deserialize<T>(buf);
     }
 

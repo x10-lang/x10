@@ -18,8 +18,8 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Ref(
         @Native("java", "x10.lang.Place.place(#0.location())")
-        @Native("c++", "x10::lang::Place_methods::place(x10aux::location(#0))")
-    	location: Place) 
+        @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
+        location: Place) 
     /* @EQ implements Equals[Ref] */
     implements Object
 {
@@ -48,15 +48,15 @@ public class Ref(
     public native def typeName() : String;
 
     @Native("java", "#0.location()")
-    @Native("c++", "x10::lang::Place_methods::place(x10aux::location(#0))")
+    @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     public property def loc() = location;
 
     @Native("java", "#0.at(#1.id)")
-    @Native("c++", "(x10aux::location(#0) == (#1)->FMGL(id))")
+    @Native("c++", "((#0)->location == (#1)->FMGL(id))")
     public property def at(p:Place) = location==p;
 
     @Native("java", "#0.at(#1)")
-    @Native("c++", "(x10aux::location(#0) == x10aux::location(#1))")
+    @Native("c++", "((#0)->location == (#1)->location)")
     public property def at(r:Ref) = location==r.location;
 
 }

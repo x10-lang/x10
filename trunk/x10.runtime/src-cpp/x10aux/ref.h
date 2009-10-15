@@ -12,29 +12,34 @@ namespace x10 { namespace lang { class Object; } }
 
 namespace x10aux {
 
+    typedef x10_ulong x10_addr_t;
+
     struct remote_ref {
-        static bool is_remote (void *ref) { return ((size_t)ref) & 1; }
-        static remote_ref *strip (void *ref) { return (remote_ref*)(((size_t)ref) & ~1); }
-        static void *mask (remote_ref *ref) { return (void*)(((size_t)ref) | 1); }
+        static void* get_remote_ref (void *obj) { return *(void**)(((char*)obj)-sizeof(void*)); }
+        static void set_remote_ref (void *obj, void *ref) { *(void**)(((char*)obj)-sizeof(void*)) = ref; }
 
-        x10_int loc;
-        x10_ulong addr;
+        //static bool is_remote (void *ref) { return ((size_t)ref) & 1; }
+        //static remote_ref *strip (void *ref) { return (remote_ref*)(((size_t)ref) & ~1); }
+        //static void *mask (remote_ref *ref) { return (void*)(((size_t)ref) | 1); }
 
-        // take a (possibly masked) pointer and provide a remote_ref struct for serialisation
-        static remote_ref make (void *ptr, bool immortalize=true);
+        //x10_int loc;
+        //x10_addr_t addr;
 
-        // take a remote_ref struct (presumably from the wire) and create a local representation
-        static void *take (remote_ref r);
+        //// take a (possibly masked) pointer and provide a remote_ref struct for serialisation
+        //static remote_ref make (void *ptr, bool immortalize=true);
 
-        // compare two (masked) remote_ref pointers
-        static bool equals (void *ptr1, void *ptr2);
+        //// take a remote_ref struct (presumably from the wire) and create a local representation
+        //static void *take (remote_ref r);
+
+        //// compare two (masked) remote_ref pointers
+        //static bool equals (void *ptr1, void *ptr2);
     };
 
-    #ifndef NO_IOSTREAM
-    inline std::ostream &operator<<(std::ostream &o, const remote_ref &rr) {
-        return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
-    }
-    #endif
+    //#ifndef NO_IOSTREAM
+    //inline std::ostream &operator<<(std::ostream &o, const remote_ref &rr) {
+    //    return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
+    //}
+    //#endif
 
     class __ref {
         protected:
@@ -151,6 +156,8 @@ namespace x10aux {
     }
 #endif
 
+    x10_int location (ref<x10::lang::Object> obj);
+
     void throwNPE() X10_PRAGMA_NORETURN;
 
     void throwBPE() X10_PRAGMA_NORETURN;
@@ -164,7 +171,8 @@ namespace x10aux {
 
     template <class T> inline ref<T> placeCheck(ref<T> obj) {
         #if !defined(NO_PLACE_CHECKS) && !defined(NO_EXCEPTIONS)
-        if (remote_ref::is_remote(obj.operator->())) throwBPE();
+        //if (remote_ref::is_remote(obj.operator->())) throwBPE();
+        if (location(obj) != here) throwBPE();
         #endif
         return obj;
     }
@@ -200,12 +208,6 @@ namespace x10aux {
     template<class T> bool operator==(const ref<T>& _ref, x10_ushort s) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_uint i) { return false; }
     template<class T> bool operator==(const ref<T>& _ref, x10_ulong l) { return false; }
-
-    x10_int location (void *ptr);
-
-    template<class T> x10_int location (x10aux::ref<T> ptr) {
-        return location(ptr.operator->());
-    }
 
 } //namespace x10
 
