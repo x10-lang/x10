@@ -8,7 +8,7 @@ PROPERTIES += etc/x10rt_standalone.properties
 	${CXX} ${CXXFLAGS} $< -o $@ ${LDFLAGS} -lx10rt_standalone
 
 lib/libx10rt_standalone.a: standalone/x10rt_standalone.o
-	${AR} rcu $@ $^
+	${AR} $(ARFLAGS) $@ $^
 
 etc/x10rt_standalone.properties:
 	echo "CXX=$(CXX)" > $@
