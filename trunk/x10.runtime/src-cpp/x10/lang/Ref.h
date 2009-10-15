@@ -32,6 +32,11 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
+                if (this_.isNull()) {
+                    _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
+                    buf.write((x10aux::serialization_id_t)0, m);
+                    return;
+                }
                 x10aux::serialization_id_t id = this_->_get_serialization_id();
                 _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"class id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
                 buf.write(id, m);
@@ -59,6 +64,10 @@ namespace x10 {
             // WARNING: this code interacts with the code in _serialize_body
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf) {
                 x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
+                if (id == 0) {
+                    _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" from buf: "<<&buf);
+                    return x10aux::null;
+                }
                 x10_int loc = buf.peek<x10_int>();
                 _S_("Attempting to deserialize a "<<ANSI_SER<<ANSI_BOLD<<"ref"<<ANSI_RESET<<
                         " (with id "<<id<<") at "<<loc<<" from buf: "<<&buf);
