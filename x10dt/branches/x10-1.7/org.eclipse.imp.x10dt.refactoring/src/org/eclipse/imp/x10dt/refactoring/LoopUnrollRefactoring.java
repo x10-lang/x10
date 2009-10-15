@@ -26,7 +26,8 @@ import org.eclipse.imp.x10dt.refactoring.changes.AddAnnotationChange;
 import org.eclipse.imp.x10dt.refactoring.changes.CopyStatementChange;
 import org.eclipse.imp.x10dt.refactoring.changes.FileChange;
 import org.eclipse.imp.x10dt.refactoring.changes.ReplaceExpressionChange;
-import org.eclipse.imp.x10dt.refactoring.changes.SubstitutionPerformer;
+import org.eclipse.imp.x10dt.refactoring.transforms.Simplifier;
+import org.eclipse.imp.x10dt.refactoring.transforms.SubstitutionPerformer;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -421,15 +422,18 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         for(int i= fLoopParams.fMin; i < fLoopParams.fMax && unrollIdx < fUnrollFactor; i += fLoopParams.fStride, unrollIdx++) {
             // TODO Handle substitution for refs to Point induction var
             Map<VarInstance<VarDef>, Node> subs= new HashMap<VarInstance<VarDef>, Node>(1);
-            Expr varValue= fNodeFactory.IntLit(Position.COMPILER_GENERATED, IntLit.INT, i);
+            Expr varValue= fNodeFactory.IntLit(Position.COMPILER_GENERATED, IntLit.INT, i).type(fTypeSystem.Int());
             Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
             subs.put((VarInstance) firstDimVar.localDef().asInstance(), varValue);
 
             SubstitutionPerformer subPerformer= new SubstitutionPerformer(subs);
             Stmt subbedBody = (Stmt) subPerformer.perform(fLoop.body(), fSourceAST);
+            Simplifier simplifier= new Simplifier();
+            Stmt simplifiedBody = (Stmt) subbedBody.visit(simplifier);
             Block loopParent= (Block) fPathComputer.getParent(fLoop);
             int stmtIdx= findIndexInParent(fLoop, loopParent);
-            CopyStatementChange copyChange= new CopyStatementChange("Copy loop body", subbedBody, loopParent, stmtIdx);
+            // TODO Use InsertStatementChange instead? The thing we're copying doesn't exist yet in the target AST...
+            CopyStatementChange copyChange= new CopyStatementChange("Copy loop body", simplifiedBody, loopParent, stmtIdx);
 
             outerChange.add(copyChange);
         }
