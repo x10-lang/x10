@@ -7,7 +7,9 @@ import x10.io.Console;
  */
 class HelloWorld {
   public static def main(args:Rail[String]):void {
-     Console.OUT.println("Hello World");
+     at (here.next()) {
+     	Console.OUT.println("Hello World from place "+here.id);
+     }
   }
 }
 
