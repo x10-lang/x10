@@ -2622,7 +2622,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
 	    if (e instanceof X10Special_c)
-	        return ((X10Special_c) e).qualifier() == null;
+	        return ((X10Special_c) e).qualifier() != null;
 	    if (e instanceof X10Cast_c)
 	        return needsPlaceCheck(((X10Cast_c) e).expr());
 	    return true;
@@ -2632,7 +2632,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
 	    if (e instanceof X10Special_c)
-	        return ((X10Special_c) e).qualifier() == null;
+	        return ((X10Special_c) e).qualifier() != null;
 	    if (e instanceof X10Cast_c)
 	        return needsNullCheck(((X10Cast_c) e).expr());
 	    return true;
