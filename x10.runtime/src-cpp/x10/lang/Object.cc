@@ -13,14 +13,9 @@ void Object::_serialize(x10aux::ref<Object> this_,
                         x10aux::serialization_buffer &buf,
                         x10aux::addr_map &m) 
 {
-    if (x10aux::remote_ref::is_remote(this_.operator->()) || this_.isNull()) {
-        // cannot dispatch for these "addresses", handle here
-        buf.write(Ref::_serialization_id,m);
-        buf.write(x10aux::remote_ref::make(this_.operator->()),m);
-        return;
-    }
-    _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface id"<<ANSI_RESET<<" to buf: "<<&buf);
-    buf.write(this_->_get_serialization_id(),m);
+    x10aux::serialization_id_t id = this_->_get_serialization_id();
+    _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
+    buf.write(id,m);
     _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
     this_->_serialize_body(buf, m);
 }

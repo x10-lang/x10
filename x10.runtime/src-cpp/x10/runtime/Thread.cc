@@ -82,6 +82,9 @@ Thread::_make(ref<x10::lang::VoidFun_0_0> task, ref<x10::lang::String> name) {
     return (new (alloc<Thread>()) Thread())->_constructor(task,name);
 }
 
+const serialization_id_t Thread::_serialization_id =
+    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Object>);
+
 
 // Helper method to initialize a Thread object.
 void

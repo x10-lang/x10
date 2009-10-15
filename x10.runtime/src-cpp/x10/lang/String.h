@@ -34,6 +34,7 @@ namespace x10 {
             // names that also ought not to be freed.
             static x10aux::ref<String> _make(const char *content, bool steal = false);
             x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
+                this->Value::_constructor();
                 this->FMGL(content) = content;
                 this->FMGL(content_length) = content_length;
                 return this;

@@ -17,6 +17,10 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS
 
+            Value() {
+                location = x10aux::here;
+            }
+
             static x10aux::ref<Value> _make();
 
             x10aux::ref<Value> _constructor() { return this; }
@@ -61,7 +65,7 @@ namespace x10 {
         }
 
         template<class T> x10aux::ref<T> Value::_deserializer(x10aux::deserialization_buffer &) {
-            x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
+            x10aux::ref<Value> this_ = new (x10aux::alloc<Value>()) Value();
             return this_;
         }
     }

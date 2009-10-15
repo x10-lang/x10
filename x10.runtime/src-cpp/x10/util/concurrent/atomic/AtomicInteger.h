@@ -9,6 +9,7 @@
 
 #include <x10rt17.h>
 #include <x10/lang/Ref.h>
+#include <x10aux/serialization.h>
 
 namespace x10 {
     namespace util {
@@ -26,7 +27,30 @@ namespace x10 {
                     static x10aux::ref<AtomicInteger> _make(x10_int val);
 
                 protected:
-                    x10aux::ref<AtomicInteger> _constructor(x10_int val) { _val = val; return this; }
+                    x10aux::ref<AtomicInteger> _constructor(x10_int val) {
+                        this->x10::lang::Ref::_constructor();
+                        _val = val;
+                        return this;
+                    }
+
+                public:
+                    static const x10aux::serialization_id_t _serialization_id;
+
+                    virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
+                    virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                        this->x10::lang::Ref::_serialize_body(buf, m);
+                    }
+
+                    template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf) {
+                        x10aux::ref<AtomicInteger> this_ = new (x10aux::remote_alloc<AtomicInteger>()) AtomicInteger();
+                        this_->_deserialize_body(buf);
+                        return this_;
+                    }
+
+                    void _deserialize_body(x10aux::deserialization_buffer& buf) {
+                        this->x10::lang::Ref::_deserialize_body(buf);
+                    }
 
                 private:
                     volatile x10_int _val;

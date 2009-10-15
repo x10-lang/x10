@@ -20,6 +20,9 @@ File__NativeFile::_make(x10aux::ref<String> s) {
     return (new (x10aux::alloc<File__NativeFile>()) File__NativeFile())->_constructor(s);
 }
 
+const x10aux::serialization_id_t File__NativeFile::_serialization_id =
+    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Object>);
+
 RTT_CC_DECLS1(File__NativeFile, "x10.io.File.NativeFile", Ref)
 
 x10aux::ref<String>

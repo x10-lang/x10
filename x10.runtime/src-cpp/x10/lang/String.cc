@@ -289,6 +289,7 @@ String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf,
 
 void
 String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+    this->Value::_serialize_body(buf, m);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
     buf.write(sz,m);

@@ -23,6 +23,9 @@ AtomicLong::_make(x10_long val) {
     return this_;
 }
 
+const x10aux::serialization_id_t AtomicLong::_serialization_id =
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Object>);
+
 RTT_CC_DECLS1(AtomicLong, "x10.util.concurrent.atomic.AtomicLong", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

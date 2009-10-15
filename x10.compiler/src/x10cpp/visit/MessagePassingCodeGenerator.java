@@ -1235,6 +1235,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                                     superClass, xts, "virtual ", h, members);
             }
 
+            emitter.generateClassSerializationMethods(currentClass, sw);
         }
 
         sw.end();

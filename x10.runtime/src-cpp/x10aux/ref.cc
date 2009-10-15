@@ -17,34 +17,38 @@ void x10aux::throwNPE() { throwException<NullPointerException>(); }
 
 void x10aux::throwBPE() { throwException<BadPlaceException>(); }
 
-remote_ref remote_ref::make (void *ptr, bool immortalize) {
-    if (remote_ref::is_remote(ptr)) return *strip(ptr);
-    #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-    if (immortalize) {
-        ReferenceLogger::log(ptr);
-    }
-    #endif
-    remote_ref r = { x10aux::here, (size_t)ptr };
-    return r;
+x10_int x10aux::location(x10aux::ref<x10::lang::Object> obj) {
+    return obj->location;
 }
 
-void *remote_ref::take (remote_ref r) {
-    if (r.loc==x10aux::here) return (void*)(size_t)r.addr;
-    if (r.addr==0) return NULL;
-    return mask(new remote_ref(r));
-}
+//remote_ref remote_ref::make (void *ptr, bool immortalize) {
+//    if (remote_ref::is_remote(ptr)) return *strip(ptr);
+//    #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
+//    if (immortalize) {
+//        ReferenceLogger::log(ptr);
+//    }
+//    #endif
+//    remote_ref r = { x10aux::here, (size_t)ptr };
+//    return r;
+//}
 
-x10_int x10aux::location (void *ptr) {
-    if (remote_ref::is_remote(ptr)) return remote_ref::strip(ptr)->loc;
-    return x10aux::here;
-}
+//void *remote_ref::take (remote_ref r) {
+//    if (r.loc==x10aux::here) return (void*)(size_t)r.addr;
+//    if (r.addr==0) return NULL;
+//    return mask(new remote_ref(r));
+//}
 
-bool remote_ref::equals (void *ptr1, void *ptr2) {
-    if (!remote_ref::is_remote(ptr1) || !remote_ref::is_remote(ptr2))
-        return false;
-    remote_ref *r1 = remote_ref::strip(ptr1);
-    remote_ref *r2 = remote_ref::strip(ptr2);
-    return r1->loc==r2->loc && r1->addr==r2->addr;
-}
+//x10_int x10aux::location (void *ptr) {
+//    if (remote_ref::is_remote(ptr)) return remote_ref::strip(ptr)->loc;
+//    return x10aux::here;
+//}
+
+//bool remote_ref::equals (void *ptr1, void *ptr2) {
+//    if (!remote_ref::is_remote(ptr1) || !remote_ref::is_remote(ptr2))
+//        return false;
+//    remote_ref *r1 = remote_ref::strip(ptr1);
+//    remote_ref *r2 = remote_ref::strip(ptr2);
+//    return r1->loc==r2->loc && r1->addr==r2->addr;
+//}
 
 // vim:tabstop=4:shiftwidth=4:expandtab
