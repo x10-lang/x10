@@ -55,7 +55,9 @@ namespace x10 {
             // effective at hoisting this extra load out of loop nests.
             T* const _data;
             
-            Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
+            Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) {
+                this->x10::lang::Ref::_constructor();
+            }
 
             GPUSAFE virtual T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
