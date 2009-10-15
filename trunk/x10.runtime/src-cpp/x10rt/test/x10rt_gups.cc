@@ -77,12 +77,10 @@ static void recv_update (const x10rt_msg_params &p)
     do_update(index, update);
 }
 
-
 static void recv_pong (const x10rt_msg_params &p)
 {
     pongs_outstanding--;
-} // }}}
-
+}
 
 static void do_main (unsigned long long logLocalTableSize, unsigned long long numUpdates) {
     unsigned long long mask = (1<<logLocalTableSize)-1;
@@ -105,7 +103,7 @@ static void do_main (unsigned long long logLocalTableSize, unsigned long long nu
             x10rt_send_msg(params);
         }
 
-        ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
+        ran = (ran << 1) ^ (((long long)ran)<0L ? POLY : 0L);
     }
     // HOT LOOP ENDS
 }
@@ -122,6 +120,7 @@ static void recv_main (const x10rt_msg_params &p) {
 
 void recv_quit(const x10rt_msg_params &) { finished = true; }
 
+// }}}
 
 // {{{ show_help
 void show_help(FILE *out, char* name)
@@ -139,7 +138,7 @@ void show_help(FILE *out, char* name)
 void runBenchmark(unsigned long long logLocalTableSize,
                   unsigned long long numUpdates)
 {
-    for (int p=1 ; p<x10rt_nplaces() ; ++p) {
+    for (unsigned long p=1 ; p<x10rt_nplaces() ; ++p) {
         unsigned char *buf = (unsigned char*)x10rt_msg_realloc(NULL,0, 16);
         memcpy(buf+0, &logLocalTableSize, 8);
         memcpy(buf+8, &numUpdates, 8);
