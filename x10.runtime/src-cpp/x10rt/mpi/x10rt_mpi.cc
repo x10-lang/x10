@@ -283,13 +283,13 @@ class x10rt_internal_state {
         int                 nprocs;
         MPI_Comm            mpi_comm;
         amSendCb          * amCbTbl;
-        int                 amCbTblSize;
+        unsigned            amCbTblSize;
         putCb1            * putCb1Tbl;
         putCb2            * putCb2Tbl;
-        int                 putCbTblSize;
+        unsigned            putCbTblSize;
         getCb1            * getCb1Tbl;
         getCb2            * getCb2Tbl;
-        int                 getCbTblSize;
+        unsigned            getCbTblSize;
         int                 _reserved_tag_get_data;
         int                 _reserved_tag_get_req;
         int                 _reserved_tag_put_data;
