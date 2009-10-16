@@ -38,6 +38,7 @@ public class LaunchMessages extends NLS {
   public static String CAT_AppProgGroupName;
 
   public static String CAT_LinkApp;
+  public static String CAT_LinkAppToolTip;
 
   public static String CAT_NoExistingProject;
 
