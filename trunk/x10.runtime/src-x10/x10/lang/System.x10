@@ -45,12 +45,13 @@ public class System {
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
     static public def copyTo[T] (src:ValRail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T]!,
+                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                           len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst_place) {
-            val dst = dst_finder();
-            val dst_off = 0; // FIXME: should come from dst_finder
+            val pair = dst_finder();
+            val dst = pair.first;
+            val dst_off = pair.second;
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
             for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = src(src_off+i);
@@ -74,7 +75,7 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Pair[Rail[T]{self.at(here)},Int],
+                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                           len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
@@ -93,15 +94,16 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Rail[T]{self.at(here)},
+                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
                           len:Int, notifier:()=>Void) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
         x10.runtime.NativeRuntime.runAt(dst_place.id, ()=>{
-            val dst = dst_finder();
-            val dst_off = 0; // FIXME: should come from dst_finder
+            val pair = dst_finder();
+            val dst = pair.first;
+            val dst_off = pair.second;
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
             for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = to_serialize(src_off+i);
@@ -109,6 +111,7 @@ public class System {
             notifier();
         });
     }
+
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyFrom[T] (dst:Rail[T], dst_off:Int, src:Rail[T], src_off:Int, len:Int) {
@@ -128,14 +131,15 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyFrom[T] (dst:Rail[T], dst_off:Int,
-                            src_place:Place, src_finder:()=>Rail[T],
+                            src_place:Place, src_finder:()=>Pair[Rail[T]!,Int],
                             len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         at (src_place) {
-            val src = src_finder();
-            val src_off = 0; // FIXME: should come from dst_finder
+            val pair = src_finder();
+            val src = pair.first;
+            val src_off = pair.second;
             val to_serialize = src as ValRail[T];
             at (dst.location) {
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
@@ -160,15 +164,16 @@ public class System {
     // FIXME: this ought to be in Rail but @Native system does not allow this
 /*  uncomment upon resolution of XTENLANG-533
     static def copyFrom[T] (dst:Rail[T], dst_off:Int,
-                            src_place:Place, src_finder:()=>ValRail[T],
+                            src_place:Place, src_finder:()=>Pair[ValRail[T]!,Int],
                             len:Int) {
         // not necessarily local, so go and fetch the ValRail...
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         at (src_place) {
-            val src = src_finder();
-            val src_off = 0; // FIXME: should come from src_finder
+            val pair = src_finder();
+            val src = pair.first;
+            val src_off = pair.second;
             at (dst.location) {
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {

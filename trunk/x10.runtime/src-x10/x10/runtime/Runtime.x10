@@ -146,9 +146,13 @@ public final class Runtime {
 		    runtime().finishStates.put(state);
 	        val rid = state.rid();
             if (ok) {
-                NativeRuntime.runAt(place.id, ()=>execute(new Activity(body, runtime().finishStates.get(rid), true)));
+                val closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true));
+                NativeRuntime.runAt(place.id, closure);
+                NativeRuntime.dealloc(closure);
             } else {
-                NativeRuntime.runAt(place.id, ()=>execute(new Activity(body, runtime().finishStates.get(rid), false)));
+                val closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false));
+                NativeRuntime.runAt(place.id, closure);
+                NativeRuntime.dealloc(closure);
             }
 		}
 	}

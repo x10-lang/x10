@@ -104,4 +104,7 @@ public value NativeRuntime {
   @Native("c++","x10aux::deserialized_bytes = #1")
   static def setDeserializedBytes(v:Long) { }
 
+  @Native("c++", "x10aux::dealloc(#4.operator->())")
+  static def dealloc[T] (o:T) { }
+
 }
