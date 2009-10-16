@@ -351,6 +351,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             fileMgr.showConnections(false);
             final String path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,IRemoteUIConstants.NONE);
             if (path != null) {
+            	CppApplicationTab.this.fAppProgText.setText(path);
               //if(path.endsWith(".exe")){// for windows remove exe suffix??
               //	  CppApplicationTab.this.fAppProgText.setText(path.substring(0, path.length() - 3));
               //}
