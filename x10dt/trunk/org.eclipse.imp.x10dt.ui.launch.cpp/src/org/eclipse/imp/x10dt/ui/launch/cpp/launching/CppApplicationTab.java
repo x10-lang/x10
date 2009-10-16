@@ -40,6 +40,7 @@ import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
@@ -189,7 +190,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     this.fShouldLink = createCheckButton(group, LaunchMessages.CAT_LinkApp);
     this.fShouldLink.setData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    this.fShouldLink.setSelection(true);
+    this.fShouldLink.setSelection(false);
+    this.fShouldLink.setToolTipText(LaunchMessages.CAT_LinkAppToolTip);
   }
   
   private void createProgramArgs(final Composite parent) {
@@ -347,10 +349,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath);
+            final String path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,IRemoteUIConstants.NONE);
             if (path != null) {
-              final String file = path.toString();
-              CppApplicationTab.this.fAppProgText.setText(file.substring(0, file.length() - 3));
+              //if(path.endsWith(".exe")){// for windows remove exe suffix??
+              //	  CppApplicationTab.this.fAppProgText.setText(path.substring(0, path.length() - 3));
+              //}
             }
           }
         }

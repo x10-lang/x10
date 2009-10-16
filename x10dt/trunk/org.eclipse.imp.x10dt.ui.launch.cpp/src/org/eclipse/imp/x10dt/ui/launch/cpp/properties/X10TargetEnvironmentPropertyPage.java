@@ -34,6 +34,7 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
@@ -341,9 +342,9 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/"); //$NON-NLS-1$
+            final String path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/",IRemoteUIConstants.NONE); //$NON-NLS-1$
             if (path != null) {
-              X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(path.toString());
+              X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(path);
             }
           }
         }
