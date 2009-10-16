@@ -63,18 +63,16 @@ public final class Rail[T](length: nat)
     @Native("c++", "(#0)->iterator()")
     public native safe def iterator(): Iterator[T];
 
+    // Transfer functions
+
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4)")
     //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
-/* FIXME: This interface is not possible to define properly without structs:
- * the closure needs to return both an offset and a Rail. 
- * For now we assume the offset on the remote side is 0.
- */
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4)")
-    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
-    //@Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
     public native def copyTo (src_off:Int,
                               dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                               len:Int) : Void;
@@ -89,6 +87,14 @@ public final class Rail[T](length: nat)
     public native def copyTo (src_off:Int,
                               dst_place:Place, dst_finder:()=>Rail[T],
                               len:Int, notifier:()=>Void) : Void;
+
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int,
+                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+                              len:Int, notifier:()=>Void) : Void;
+
 
     @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4)")
     //@Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
@@ -123,6 +129,7 @@ public final class Rail[T](length: nat)
                                 src_place:Place, src_finder:()=>ValRail[T],
                                 len:Int) : Void;
                                 
+
     @Native("java",  "#0.view()")
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};

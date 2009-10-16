@@ -10,6 +10,7 @@ package x10.runtime;
 
 import x10.util.Stack;
 import x10.util.concurrent.atomic.AtomicInteger;
+import x10.compiler.Native;
 
 /**
  * @author tardieu 
@@ -78,10 +79,15 @@ class RemoteFinish implements FinishState {
             } else {
                 t = new MultipleExceptions(e);
             }
-            NativeRuntime.runAt(rid.place.id, ()=>Runtime.findRoot(r).notify(c, t));
+            val closure = ()=>Runtime.findRoot(r).notify(c, t);
+            NativeRuntime.runAt(rid.place.id, closure);
+            NativeRuntime.dealloc(closure);
         } else {
-            NativeRuntime.runAt(rid.place.id, ()=>Runtime.findRoot(r).notify(c));
+            val closure = ()=>Runtime.findRoot(r).notify(c);
+            NativeRuntime.runAt(rid.place.id, closure);
+            NativeRuntime.dealloc(closure);
         }
+        NativeRuntime.dealloc(c);
     }
     
 	/** 
