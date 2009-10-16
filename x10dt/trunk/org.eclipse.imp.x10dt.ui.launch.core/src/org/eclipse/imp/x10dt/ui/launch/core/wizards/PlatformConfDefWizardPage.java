@@ -26,6 +26,7 @@ import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
@@ -391,9 +392,9 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
             if (fileManager != null) {
               fileManager.setConnection(rmConnection);
               fileManager.showConnections(false);
-              final IPath path = fileManager.browseDirectory(getShell(), Messages.PCDWP_DirectoryLocation, ""); //$NON-NLS-1$
+              final String path = fileManager.browseDirectory(getShell(), Messages.PCDWP_DirectoryLocation, "",IRemoteUIConstants.NONE); //$NON-NLS-1$
               if (path != null) {
-                locText.setText(path.toString());
+                locText.setText(path);
                 updateMessage();
               }
             }
