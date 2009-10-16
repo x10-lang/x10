@@ -1005,25 +1005,6 @@ public class Emitter {
             w.newline(); w.forceNewline();
         }
 
-        // _serialize()
-        if (!type.flags().isAbstract()) {
-            if (type.flags().isFinal()) {
-                h.write("public: ");
-                h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-                h.write(make_ref(klass)+" this_,"); h.newline();
-                h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
-                h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
-                h.write(    "if (this_ == x10aux::null) {"); h.newline(4); h.begin(0);
-                h.write(        klass+" v;"); h.newline(); // needed when we serialise uninitialised values
-                h.write(        "v._serialize_body(buf, m);"); h.end(); h.newline();
-                h.write(    "} else {"); h.newline(4); h.begin(0);
-                h.write(        "this_->_serialize_body(buf, m);"); h.end(); h.newline();
-                h.write(    "}"); h.end(); h.newline();
-                h.write("}"); h.newline();
-                h.forceNewline();
-            }
-        }
-
         // _serialize_id()
         if (!type.flags().isAbstract()) {
             h.write("public: ");
@@ -1079,18 +1060,6 @@ public class Emitter {
             h.write("return this_;");
             h.end(); h.newline();
             h.write("}"); h.newline(); h.forceNewline();
-        }
-
-        if (!type.flags().isAbstract()) {
-            if (type.flags().isFinal()) {
-                // _deserialize()
-                h.write("public: template<class __T> static ");
-                h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-                h.newline(4) ; h.begin(0);
-                h.write("return "+DESERIALIZER_METHOD+"<__T>(buf);");
-                h.end(); h.newline();
-                h.write("}"); h.newline(); h.forceNewline();
-            }
         }
 
         // _deserialize_body()
