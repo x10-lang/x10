@@ -1005,6 +1005,21 @@ public class Emitter {
             w.newline(); w.forceNewline();
         }
 
+        if (type.flags().isFinal()) {
+            // _serialize()
+            h.write("public: ");
+            h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
+            h.write(make_ref(klass)+" this_,"); h.newline();
+            h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
+            h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
+            h.write(    "_serialize_reference(this_, buf, m);"); h.newline();
+            h.write(    "if (this_ != x10aux::null) {"); h.newline(4); h.begin(0);
+            h.write(        "this_->_serialize_body(buf, m);"); h.end(); h.newline();
+            h.write(    "}"); h.end(); h.newline();
+            h.write("}"); h.newline();
+            h.forceNewline();
+        }
+
         // _serialize_id()
         if (!type.flags().isAbstract()) {
             h.write("public: ");
@@ -1053,11 +1068,27 @@ public class Emitter {
             // _deserialize()
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-            h.newline(4) ; h.begin(0);
+            h.newline(4); h.begin(0);
             h.write(make_ref(klass)+" this_ = "+
-                        "new (x10aux::remote_alloc"+chevrons(klass)+"()) "+klass+"();"); h.newline();
+                        "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();"); h.newline();
             h.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); h.newline();
             h.write("return this_;");
+            h.end(); h.newline();
+            h.write("}"); h.newline(); h.forceNewline();
+        }
+
+        if (type.flags().isFinal()) {
+            // _deserialize()
+            h.write("public: template<class __T> static ");
+            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            h.newline(4); h.begin(0);
+            h.write(    make_ref(klass)+" this_ = _deserialize_reference"+chevrons(klass)+"(buf);");
+            h.newline();
+            h.write(    "if (this_ != x10aux::null && this_->location != x10aux::here) {");
+            h.newline(4); h.begin(0);
+            h.write(        "this_->_deserialize_body(buf);"); h.end(); h.newline();
+            h.write(    "}"); h.newline();
+            h.write(    "return this_;");
             h.end(); h.newline();
             h.write("}"); h.newline(); h.forceNewline();
         }

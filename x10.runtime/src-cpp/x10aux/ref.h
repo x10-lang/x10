@@ -12,12 +12,14 @@ namespace x10 { namespace lang { class Object; } }
 
 namespace x10aux {
 
-    typedef x10_ulong x10_addr_t;
+    inline x10_addr_t get_remote_ref(void *obj) {
+        return *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t));
+    }
+    inline void set_remote_ref(void *obj, x10_addr_t ref) {
+        *(x10_addr_t*)(((char*)obj)-sizeof(x10_addr_t)) = ref;
+    }
 
     struct remote_ref {
-        static void* get_remote_ref (void *obj) { return *(void**)(((char*)obj)-sizeof(void*)); }
-        static void set_remote_ref (void *obj, void *ref) { *(void**)(((char*)obj)-sizeof(void*)) = ref; }
-
         //static bool is_remote (void *ref) { return ((size_t)ref) & 1; }
         //static remote_ref *strip (void *ref) { return (remote_ref*)(((size_t)ref) & ~1); }
         //static void *mask (remote_ref *ref) { return (void*)(((size_t)ref) | 1); }
