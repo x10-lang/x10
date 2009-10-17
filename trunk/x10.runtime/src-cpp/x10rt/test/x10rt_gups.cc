@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <cstdint>
+#include <stdint.h>
 
 #include <x10rt_api.h>
 
