@@ -79,11 +79,11 @@ class RemoteFinish implements FinishState {
             } else {
                 t = new MultipleExceptions(e);
             }
-            val closure = ()=>Runtime.findRoot(r).notify(c, t);
+            val closure = () => { Runtime.findRoot(r).notify(c, t); NativeRuntime.dealloc(c); };
             NativeRuntime.runAt(rid.place.id, closure);
             NativeRuntime.dealloc(closure);
         } else {
-            val closure = ()=>Runtime.findRoot(r).notify(c);
+            val closure = () => { Runtime.findRoot(r).notify(c) ; NativeRuntime.dealloc(c); };
             NativeRuntime.runAt(rid.place.id, closure);
             NativeRuntime.dealloc(closure);
         }
