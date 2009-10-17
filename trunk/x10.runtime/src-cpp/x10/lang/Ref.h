@@ -89,7 +89,7 @@ namespace x10 {
                 _S_("\ta local object come home");
                 x10aux::ref<T> obj = x10aux::DeserializationDispatcher::create<T>(buf, id); // consume the buffer
                 T* ptr = static_cast<T*>((void*)(size_t)ref);
-                //x10aux::dealloc_remote(obj.operator->());
+                x10aux::dealloc_remote(obj.operator->());
                 return ptr;
             }
             // extract the id and execute a callback to instantiate the right concrete class
