@@ -827,6 +827,19 @@ void check_pending(x10rt_req_queue * q)
     }
 }
 
+void x10rt_remote_op_fence (unsigned long place,
+                            unsigned long long addr, long long update)
+{
+    fprintf(stderr,"x10rt_remote_op_fence on MPI currently unimplemented\n");
+    abort();
+}
+
+void x10rt_remote_op_fence (void)
+{
+    fprintf(stderr,"x10rt_remote_op_fence on MPI currently unimplemented\n");
+    abort();
+}
+
 void x10rt_probe (void)
 {
     int arrived = 0;
