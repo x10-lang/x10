@@ -827,8 +827,8 @@ void check_pending(x10rt_req_queue * q)
     }
 }
 
-void x10rt_remote_op_fence (unsigned long place,
-                            unsigned long long addr, long long update)
+void x10rt_remote_xor (unsigned long place,
+                       unsigned long long addr, long long update)
 {
     fprintf(stderr,"x10rt_remote_op_fence on MPI currently unimplemented\n");
     abort();
