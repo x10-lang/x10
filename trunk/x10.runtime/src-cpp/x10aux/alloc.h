@@ -66,11 +66,11 @@ namespace x10aux {
         return ret;
     }
 
-    // Allocate an object with a void* prepended to it
-    template<class T> T* remote_alloc() {
+    // Allocate an object with an x10_addr_t prepended to it
+    template<class T> T* alloc_remote() {
         _M_("Allocating a remote object of type " << TYPENAME(T));
-        T* ret = alloc<T>(sizeof(T)+sizeof(void*));
-        return (T*)(((char*)ret)+sizeof(void*));
+        T* ret = alloc<T>(sizeof(T)+sizeof(x10_addr_t));
+        return (T*)(((char*)ret)+sizeof(x10_addr_t));
     }
 
     template<class T> T* realloc(T* src, size_t dsz) {
@@ -99,6 +99,13 @@ namespace x10aux {
 #else        
         free(obj);
 #endif        
+    }
+
+    // Deallocate an object with an x10_addr_t prepended to it
+    template<class T> void dealloc_remote(const T* obj_) {
+        _M_("Freeing a remote object of type " << TYPENAME(T));
+        const T* obj = (const T*)(((const char*)obj_)-sizeof(x10_addr_t));
+        dealloc(obj);
     }
 
 }

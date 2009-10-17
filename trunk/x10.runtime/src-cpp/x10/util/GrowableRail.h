@@ -45,7 +45,7 @@ namespace x10 {
             }
 
             template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf) {
-                x10aux::ref<GrowableRail> this_ = new (x10aux::remote_alloc<GrowableRail>()) GrowableRail();
+                x10aux::ref<GrowableRail> this_ = new (x10aux::alloc_remote<GrowableRail>()) GrowableRail();
                 this_->_deserialize_body(buf);
                 return this_;
             }

@@ -43,7 +43,7 @@ namespace x10 {
             }
 
             template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf) {
-                x10aux::ref<Box> this_ = new (x10aux::remote_alloc<Box>()) Box();
+                x10aux::ref<Box> this_ = new (x10aux::alloc_remote<Box>()) Box();
                 this_->_deserialize_body(buf);
                 return this_;
             }

@@ -43,7 +43,7 @@ namespace x10 {
                     }
 
                     template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf) {
-                        x10aux::ref<AtomicBoolean> this_ = new (x10aux::remote_alloc<AtomicBoolean>()) AtomicBoolean();
+                        x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc_remote<AtomicBoolean>()) AtomicBoolean();
                         this_->_deserialize_body(buf);
                         return this_;
                     }

@@ -106,6 +106,8 @@ typedef uint64_t x10_ulong;
 
 
 namespace x10aux {
+    typedef x10_ulong x10_addr_t;
+
     extern bool init_config_bools_done;
     void init_config_bools (void);
     extern bool use_ansi_colors_;
