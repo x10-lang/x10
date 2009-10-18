@@ -187,6 +187,11 @@ int main(int argc, char **argv)
 
     x10rt_registration_complete();
 
+    if (x10rt_nplaces()==1) {
+        fprintf(stderr, "This is a communications test so needs at least 2 places.\n");
+        exit(EXIT_FAILURE);
+    }
+
     size_t iterations=320;
     unsigned long window = 100;
     bool put = false;
