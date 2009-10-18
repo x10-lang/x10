@@ -55,7 +55,7 @@ enum id {
 
 unsigned long long *localTable;
 unsigned long long *globalTable;
-size_t localTableSize;
+unsigned long long localTableSize;
 
 long long pongs_outstanding = 0;
 bool finished = false;
@@ -284,7 +284,7 @@ int main(int argc, char **argv)
             globalTable[i] = intptr;
             pongs_outstanding--;
         } else {
-            char *buf = (char*)x10rt_msg_realloc(0,NULL,12);
+            char *buf = (char*)x10rt_msg_realloc(NULL,0,12);
             uint32_t src = x10rt_here();
             memcpy(buf+0, &src, 4);
             memcpy(buf+8, &intptr, 8);

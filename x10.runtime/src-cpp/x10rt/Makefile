@@ -1,7 +1,9 @@
 
-CXX 		?= g++
-MPICXX          = mpicxx
-CXXFLAGS        += -g -I..
+CXX             ?= g++
+MPICXX          ?= mpicxx
+CXXFLAGS        ?= -g -O3 -ansi -pedantic -Wall -Wextra -Wno-long-long
+
+CXXFLAGS        += -I..
 LDFLAGS         += -Llib -lpthread
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups

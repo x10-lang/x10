@@ -237,15 +237,19 @@ int main(int argc, char **argv)
             get = true;
 
         } else {
-            fprintf(stderr,"Didn't understand: \"%s\"\n", argv[i]);
-            show_help(stderr,argv[0]);
+            if (x10rt_here()==0) {
+                fprintf(stderr,"Didn't understand: \"%s\"\n", argv[i]);
+                show_help(stderr,argv[0]);
+            }
             exit(EXIT_FAILURE);
         }
     }
 
     if (put && get) {
-        fprintf(stderr, "You can't specify both put and get.\n");
-        show_help(stderr,argv[0]);
+        if (x10rt_here()==0) {
+            fprintf(stderr, "You can't specify both put and get.\n");
+            show_help(stderr,argv[0]);
+        }
         exit(EXIT_FAILURE);
     }
 
@@ -273,7 +277,7 @@ int main(int argc, char **argv)
         if (automatic) {
             printf("         ");
             for (int j=1 ; j<=16 ; ++j) {
-                    printf("%3d  ", j);
+                    printf("%5d  ", j);
             }
             printf(" b/w (MB)\n");
             fflush(stdout);
