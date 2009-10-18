@@ -50,6 +50,8 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   override CC = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
 
 else
+  MPICXX ?= mpicxx
+
   ifeq ($(shell uname -s),AIX)
 
     ifdef USE_GCC
