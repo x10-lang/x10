@@ -19,6 +19,7 @@
     <property name="NO_CHECKS" value="false" />
     <property name="USE_BFD" value="false" />
     <property name="X10RT_MPI" value="false" />
+    <property name="CROSS_COMPILE_BGP" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -89,6 +90,9 @@
     <condition property="cppmake.x10rt_mpi" value="ENABLE_X10RT_MPI=1" else="DISABLE_X10RT_MPI=1">
         <istrue value="${X10RT_MPI}" />
     </condition>
+    <condition property="cppmake.cross_compile_bgp" value="ENABLE_CROSS_COMPILE_BGP=1" else="DISABLE_CROSS_COMPILE_BGP=1">
+        <istrue value="${CROSS_COMPILE_BGP}" />
+    </condition>
     <condition property="x10c.optimize" value="-O" else="">
         <istrue value="${optimize}" />
     </condition>
@@ -130,6 +134,7 @@
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -219,6 +224,7 @@
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.use_bfd}" />
             <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
 
