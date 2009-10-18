@@ -17,7 +17,7 @@ INCLUDE_DIRS += -I.
 
 ifdef ENABLE_GC
   CXXFLAGS += -DX10_USE_BDWGC
-  BDWGC_INCLUDE_DIR= $(abspath ./bdwgc/install/include)
+  BDWGC_INCLUDE_DIR= ./bdwgc/install/include
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
@@ -44,50 +44,57 @@ endif
 
 CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
-ifeq ($(shell uname -s),AIX)
+ifdef ENABLE_CROSS_COMPILE_BGP
+  override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
+  override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+  override CC = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
 
-  ifdef USE_GCC
+else
+  ifeq ($(shell uname -s),AIX)
+
+    ifdef USE_GCC
+      ifdef OPTIMIZE
+        override CXXFLAGS += -O2 -finline-functions
+      endif
+      override CXXFLAGS += -maix64
+    else	
+      CXX = mpCC_r
+      override CXXFLAGS -= -g
+      ifndef USE_32BIT
+        override CXXFLAGS += -q64
+      else
+        override CXXFLAGS += -q32
+      endif
+      ifdef OPTIMIZE
+        # override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+        # Work around for XLC bug. Include -O3 when fixed.
+        override CXXFLAGS += -O2 -qinline -qarch=pwr5 -qtune=pwr5
+      endif
+      override CXXFLAGS += -qrtti=all
+      override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
+      override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+      ifeq ($(AR),ar) # use AIX default ar
+        AR = /usr/bin/ar
+      endif
+    endif
+
+    # FIXME
+    ifndef USE_32BIT
+      ARFLAGS := -X64 $(ARFLAGS)
+    else
+      ARFLAGS := -X32 $(ARFLAGS)
+    endif
+
+  else
+
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
     endif
-    override CXXFLAGS += -maix64
-  else	
-    CXX = mpCC_r
-    override CXXFLAGS -= -g
-    ifndef USE_32BIT
-      override CXXFLAGS += -q64
-    else
-      override CXXFLAGS += -q32
+
+    override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
+    ifeq ($(shell uname -s),Linux)
+      override CXXFLAGS += -pthread
     endif
-    ifdef OPTIMIZE
-      # override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
-      # Work around for XLC bug. Include -O3 when fixed.
-      override CXXFLAGS += -O2 -qinline -qarch=pwr5 -qtune=pwr5
-    endif
-    override CXXFLAGS += -qrtti=all
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
-    override CXXFLAGS += $(XLC_EXTRA_FLAGS)
-    ifeq ($(AR),ar) # use AIX default ar
-      AR = /usr/bin/ar
-    endif
-  endif
-
-  # FIXME
-  ifndef USE_32BIT
-    ARFLAGS := -X64 $(ARFLAGS)
-  else
-    ARFLAGS := -X32 $(ARFLAGS)
-  endif
-
-else
-
-  ifdef OPTIMIZE
-    override CXXFLAGS += -O2 -finline-functions
-  endif
-
-  override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
-  ifeq ($(shell uname -s),Linux)
-    override CXXFLAGS += -pthread
   endif
 endif
 
@@ -110,6 +117,7 @@ xrx: x10rt $(XRX_ARCHIVE)
 .PHONY: x10rt
 
 export CXX
+export MPICXX
 export AR
 export CXXFLAGS
 export ARFLAGS
@@ -264,7 +272,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	cd x10rt && $(MAKE) install
+	cd x10rt && $(MAKE) all install
 
 .PHONY: install
 
