@@ -863,6 +863,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sh.end();
             sh.newline(0);
             sh.writeln("};");
+            emitter.printRTTDefn((X10ClassType) def.asType(),
+                    def.typeParameters().size() != 0 ? sh : sw);
             extractGenericStaticDecls(def, sh, false);
         }
         h.end();
@@ -1527,8 +1529,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         
         sw.end();
         sw.newline();
-
-        emitter.printRTTDefn(currentClass, sw);
     }
 
 	private void generateITablesForClass(X10ClassType currentClass,
