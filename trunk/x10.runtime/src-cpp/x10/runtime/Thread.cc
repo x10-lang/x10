@@ -465,6 +465,14 @@ Thread::setName(ref<String> name)
     __thread_name = name;
 }
 
+void Thread::_serialize_body(serialization_buffer &buf, addr_map &m) {
+    this->Ref::_serialize_body(buf, m);
+}
+
+void Thread::_deserialize_body(deserialization_buffer& buf) {
+    this->Ref::_deserialize_body(buf);
+}
+
 RTT_CC_DECLS1(Thread, "x10.runtime.Thread", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

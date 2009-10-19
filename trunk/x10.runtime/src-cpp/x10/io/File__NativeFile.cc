@@ -20,6 +20,14 @@ File__NativeFile::_make(x10aux::ref<String> s) {
     return (new (x10aux::alloc<File__NativeFile>()) File__NativeFile())->_constructor(s);
 }
 
+void File__NativeFile::_serialize_body(serialization_buffer &buf, addr_map &m) {
+    this->Ref::_serialize_body(buf, m);
+}
+
+void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
+    this->Ref::_deserialize_body(buf);
+}
+
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Object>);
 

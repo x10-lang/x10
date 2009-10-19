@@ -24,11 +24,11 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS;
 
-            static x10aux::ref<Box<T> > _make(T contents_) {
+            static inline x10aux::ref<Box<T> > _make(T contents_) {
                 return (new (x10aux::alloc<Box<T> >())Box<T>())->_constructor(contents_);
             }
 
-            x10aux::ref<Box<T> > _constructor(T contents_) {
+            inline x10aux::ref<Box<T> > _constructor(T contents_) {
                 this->Ref::_constructor();
                 FMGL(value) = contents_;
                 return this;
@@ -36,21 +36,13 @@ namespace x10 {
 
             static const x10aux::serialization_id_t _serialization_id;
 
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+            virtual inline x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; }
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                this->x10::lang::Ref::_serialize_body(buf, m);
-            }
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
 
-            template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf) {
-                x10aux::ref<Box> this_ = new (x10aux::alloc_remote<Box>()) Box();
-                this_->_deserialize_body(buf);
-                return this_;
-            }
+            template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf);
 
-            void _deserialize_body(x10aux::deserialization_buffer& buf) {
-                this->x10::lang::Ref::_deserialize_body(buf);
-            }
+            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
             virtual T get() {
                 return FMGL(value);
@@ -68,6 +60,20 @@ namespace x10 {
 
         template<class T> const x10aux::serialization_id_t Box<T>::_serialization_id =
             x10aux::DeserializationDispatcher::addDeserializer(Box<T>::template _deserializer<Object>);
+
+        template<class T> void Box<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+            this->x10::lang::Ref::_serialize_body(buf, m);
+        }
+
+        template<class T> template<class U> x10aux::ref<U> Box<T>::_deserializer(x10aux::deserialization_buffer &buf) {
+            x10aux::ref<Box> this_ = new (x10aux::alloc_remote<Box>()) Box();
+            this_->_deserialize_body(buf);
+            return this_;
+        }
+
+        template<class T> void Box<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+            this->x10::lang::Ref::_deserialize_body(buf);
+        }
 
         template <> class Box<void> : public Ref {
         };

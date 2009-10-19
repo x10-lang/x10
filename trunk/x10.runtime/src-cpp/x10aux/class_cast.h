@@ -70,10 +70,7 @@ namespace x10aux {
     // Box primitives on casting to interfaces
     #define PRIMITIVE_INTERFACE_CAST(T,F) \
     template<> struct ClassCastNotBothRef<ref<T>,F> { \
-        static GPUSAFE ref<T> _ (F obj, bool checked) { \
-            _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(ref<T>)); \
-            return class_cast<ref<T> >(box(obj), checked); \
-        } \
+        static GPUSAFE ref<T> _ (F obj, bool checked); \
     }
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_boolean);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_byte);
@@ -100,14 +97,12 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_ulong);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_double);
+    #undef PRIMITIVE_INTERFACE_CAST
 
     // Unbox primitives on down-casting from interfaces
     #define INTERFACE_PRIMITIVE_CAST(T,F) \
     template<> struct ClassCastNotBothRef<T,ref<F> > { \
-        static GPUSAFE T _ (ref<F> obj, bool checked) { \
-            _CAST_(TYPENAME(ref<F>) <<" converted to "<<TYPENAME(T)); \
-            return unbox(class_cast<ref<x10::lang::Box<T> > >(obj, checked)); \
-        } \
+        static GPUSAFE T _ (ref<F> obj, bool checked); \
     }
     INTERFACE_PRIMITIVE_CAST(x10_boolean, x10::lang::Object);
     INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Object);
@@ -121,6 +116,7 @@ namespace x10aux {
     INTERFACE_PRIMITIVE_CAST(x10_ushort, x10::lang::Object);
     INTERFACE_PRIMITIVE_CAST(x10_uint, x10::lang::Object);
     INTERFACE_PRIMITIVE_CAST(x10_ulong, x10::lang::Object);
+    #undef INTERFACE_PRIMITIVE_CAST
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
         static GPUSAFE ref<T> _(F* obj, bool checked) {
@@ -155,17 +151,11 @@ namespace x10aux {
     // Primitive -> Value; Value -> Primitive
     #define PRIMITIVE_VALUE_CAST(P) \
     template<> struct ClassCastNotBothRef<ref<x10::lang::Value>,P> { \
-        static ref<x10::lang::Value> _(P obj, bool checked) {                        \
-            _CAST_("converted to value: "<<CAST_TRACER<P>(obj)<<" of type "<<TYPENAME(P)); \
-            return ref<x10::lang::Value>(new (x10aux::alloc<ValueBox<P> >()) ValueBox<P>(obj)); \
-        } \
+        static ref<x10::lang::Value> _(P obj, bool checked); \
     }
     #define VALUE_PRIMITIVE_CAST(P) \
     template<> struct ClassCastNotBothRef<P,ref<x10::lang::Value> > { \
-        static P _(ref<x10::lang::Value> obj, bool checked) {                        \
-            _CAST_("converted from value: "<<CAST_TRACER<ref<x10::lang::Value> >(obj)<<" of type "<<TYPENAME(P)); \
-            return ref<ValueBox<P> >(obj)->v; \
-        } \
+        static P _(ref<x10::lang::Value> obj, bool checked); \
     }
     #define PRIMITIVE_VALUE_CAST2(P) PRIMITIVE_VALUE_CAST(P); VALUE_PRIMITIVE_CAST(P)
     PRIMITIVE_VALUE_CAST2(x10_boolean);
@@ -180,6 +170,9 @@ namespace x10aux {
     PRIMITIVE_VALUE_CAST2(x10_ushort);
     PRIMITIVE_VALUE_CAST2(x10_uint);
     PRIMITIVE_VALUE_CAST2(x10_ulong);
+    #undef PRIMITIVE_VALUE_CAST2
+    #undef VALUE_PRIMITIVE_CAST
+    #undef PRIMITIVE_VALUE_CAST
 
     template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj, bool checked) {
         if (obj == x10aux::null) {

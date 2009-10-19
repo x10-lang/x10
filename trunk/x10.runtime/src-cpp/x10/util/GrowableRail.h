@@ -40,19 +40,11 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                this->x10::lang::Ref::_serialize_body(buf, m);
-            }
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
 
-            template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf) {
-                x10aux::ref<GrowableRail> this_ = new (x10aux::alloc_remote<GrowableRail>()) GrowableRail();
-                this_->_deserialize_body(buf);
-                return this_;
-            }
+            template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf);
 
-            void _deserialize_body(x10aux::deserialization_buffer& buf) {
-                this->x10::lang::Ref::_deserialize_body(buf);
-            }
+            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
             T set(T v, x10_int i);
 
@@ -187,6 +179,20 @@ namespace x10 {
         }
         
         template<class T> x10aux::RuntimeType GrowableRail<T>::rtt;
+
+        template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+            this->x10::lang::Ref::_serialize_body(buf, m);
+        }
+
+        template<class T> template<class U> x10aux::ref<U> GrowableRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
+            x10aux::ref<GrowableRail> this_ = new (x10aux::alloc_remote<GrowableRail>()) GrowableRail();
+            this_->_deserialize_body(buf);
+            return this_;
+        }
+
+        template<class T> void GrowableRail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+            this->x10::lang::Ref::_deserialize_body(buf);
+        }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Object>);

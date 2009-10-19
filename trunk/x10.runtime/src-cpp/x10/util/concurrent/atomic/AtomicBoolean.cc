@@ -23,6 +23,14 @@ AtomicBoolean::_make(x10_boolean val) {
     return this_;
 }
 
+void AtomicBoolean::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    this->Ref::_serialize_body(buf, m);
+}
+
+void AtomicBoolean::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    this->Ref::_deserialize_body(buf);
+}
+
 const x10aux::serialization_id_t AtomicBoolean::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(AtomicBoolean::_deserializer<Object>);
 

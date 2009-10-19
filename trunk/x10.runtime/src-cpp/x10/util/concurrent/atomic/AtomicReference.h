@@ -33,8 +33,26 @@ namespace x10 {
                 public:
                     RTT_H_DECLS_CLASS;
 
-                    static x10aux::ref<AtomicReference<T > > _make();
-                    static x10aux::ref<AtomicReference<T > > _make(T val);
+                    static x10aux::ref<AtomicReference<T> > _make();
+                    static x10aux::ref<AtomicReference<T> > _make(T val);
+
+                private:
+                    x10aux::ref<AtomicReference<T> > _constructor(x10::lang::Ref *data) {
+                        this->x10::lang::Ref::_constructor();
+                        _data = data;
+                        return this;
+                    }
+
+                public:
+                    static const x10aux::serialization_id_t _serialization_id;
+
+                    virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
+                    virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+
+                    template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf);
+
+                    virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
                 private:
                     volatile x10::lang::Ref* _data;
@@ -53,16 +71,16 @@ namespace x10 {
                     virtual x10aux::ref<x10::lang::String> toString();
                 };
 
-                template<class T> x10aux::ref<AtomicReference<T > > AtomicReference<T >::_make() {
-                    x10aux::ref<AtomicReference<T > > result = (new (x10aux::alloc<AtomicReference<T > >())AtomicReference<T >());
-                    result->_data = NULL;
+                template<class T> x10aux::ref<AtomicReference<T> > AtomicReference<T>::_make() {
+                    x10aux::ref<AtomicReference<T> > result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
+                    result->_constructor(NULL);
                     return result;
                 }
 
-                template<class T> x10aux::ref<AtomicReference<T > > AtomicReference<T >::_make(T val) {
-                    x10aux::ref<AtomicReference<T > > result = (new (x10aux::alloc<AtomicReference<T > >())AtomicReference<T >());
+                template<class T> x10aux::ref<AtomicReference<T> > AtomicReference<T>::_make(T val) {
+                    x10aux::ref<AtomicReference<T> > result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
                     x10::lang::Ref *tmp = val.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Ref* */
-                    result->_data = tmp;
+                    result->_constructor(tmp);
                     return result;
                 }
                 
@@ -98,19 +116,41 @@ namespace x10 {
                     return res;
                 }
 
-                template<class T> x10aux::ref<x10::lang::String> AtomicReference<T >::toString() {
+                template<class T> x10aux::ref<x10::lang::String> AtomicReference<T>::toString() {
                     x10::lang::Ref* tmp = (x10::lang::Ref*)_data; /* drops volatile */
                     x10aux::ref<x10::lang::Ref> tmp2 = tmp; /* boxes to ref */
                     T tmp3 = tmp2; /* downcast from ref<Ref> to T (ref<S) */
                     return x10aux::safe_to_string(tmp3);
                 }
                 
-                template<class T> void AtomicReference<T >::_initRTT() {
+                template<class T> void AtomicReference<T>::_initRTT() {
                     rtt.canonical = &rtt;
                     x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 
-                template<class T> x10aux::RuntimeType AtomicReference<T >::rtt;
+                template<class T> x10aux::RuntimeType AtomicReference<T>::rtt;
+
+                template<class T> void
+                AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                    this->Ref::_serialize_body(buf, m);
+                }
+
+                template<class T> void
+                AtomicReference<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+                    this->Ref::_deserialize_body(buf);
+                }
+
+                template<class T> template<class U> x10aux::ref<U>
+                AtomicReference<T>::_deserializer(x10aux::deserialization_buffer &buf) {
+                    x10aux::ref<AtomicReference<T> > this_ =
+                        new (x10aux::alloc_remote<AtomicReference<T> >()) AtomicReference<T> ();
+                    this_->_deserialize_body(buf);
+                    return this_;
+                }
+
+                template<class T>
+                const x10aux::serialization_id_t AtomicReference<T>::_serialization_id =
+                    x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::template _deserializer<Object>);
 
                 template<> class AtomicReference<void> {
                 public:

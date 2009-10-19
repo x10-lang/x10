@@ -1,3 +1,9 @@
+/*
+ * (c) Copyright IBM Corporation 2009
+ *
+ * This file is part of XRX/C++ native layer implementation.
+ */
+
 #include <x10/util/concurrent/atomic/AtomicReference.h>
 
 using namespace x10aux;

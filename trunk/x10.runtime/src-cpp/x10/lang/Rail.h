@@ -132,6 +132,10 @@ namespace x10 {
             virtual x10aux::ref<String> toString() { return x10aux::railToString<T,Rail<T> >(this); }
         };
 
+        void Rail_notifyEnclosingFinish(x10aux::deserialization_buffer& buf);
+
+        void Rail_serializeAndSend(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df, x10aux::serialization_id_t _id, void* data, size_t size);
+
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
 
         template<> class Rail<void> {
@@ -148,8 +152,6 @@ namespace x10 {
 // #include <x10/lang/System.h> // causes cycle
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Fun_0_0.h>
-#include <x10/runtime/Runtime.h>
-#include <x10/runtime/FinishStates.h>
 #include <x10aux/itables.h>
 #ifndef X10_LANG_RAIL_H_IMPLEMENTATION
 #define X10_LANG_RAIL_H_IMPLEMENTATION
@@ -270,11 +272,7 @@ namespace x10 {
                 case 1: {
                     x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<R> > >();
                     x10aux::dealloc(bf.operator->());
-                    x10::runtime::RID rid = buf.read<x10::runtime::RID>();
-                    x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
-                    x10aux::ref<Object> fs = rt->FMGL(finishStates)->get(rid);
-                    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
-                    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
+                    Rail_notifyEnclosingFinish(buf);
                     break;
                 }
                 // case 2 on death row
@@ -330,8 +328,8 @@ namespace x10 {
 
         template <class T> void Rail<T>::copyTo (x10_int src_off,
                                                  x10::lang::Place dst_place_,
-                                              x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >,
-                                                                                  x10_int> > > dst_finder,
+                                                 x10aux::ref<Fun_0_0<x10::util::Pair<x10aux::ref<Rail<T> >,
+                                                                                     x10_int> > > dst_finder,
                                                  x10_int len)
         {
             typedef x10aux::ref<Rail<T> > R;
@@ -359,21 +357,7 @@ namespace x10 {
                 }
                 return;
             }
-            x10aux::serialization_buffer buf;
-            x10aux::addr_map m;
-            buf.realloc_func = x10aux::put_realloc;
-            x10_byte code = 1;
-            buf.write(code, m);
-            buf.write(df, m);
-            x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
-            x10aux::ref<Object> fs = rt->currentState();
-            (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(dst_place_);
-            x10::runtime::Runtime::runtime()->FMGL(finishStates)->put(fs);
-            x10::runtime::RID rid = (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->rid))();
-            buf.write(rid, m);
-            x10aux::send_put(dst_place, _copy_to_serialization_id,
-                             buf, &_data[src_off], len * sizeof(T));
-
+            Rail_serializeAndSend(dst_place_, df, _copy_to_serialization_id, &_data[src_off], len * sizeof(T));
         }
 
 
