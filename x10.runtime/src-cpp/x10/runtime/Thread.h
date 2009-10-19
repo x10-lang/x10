@@ -69,19 +69,11 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                this->x10::lang::Ref::_serialize_body(buf, m);
-            }
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf) {
-                x10aux::ref<Thread> this_ = new (x10aux::alloc_remote<Thread>()) Thread();
-                this_->_deserialize_body(buf);
-                return this_;
-            }
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
 
-            void _deserialize_body(x10aux::deserialization_buffer& buf) {
-                this->x10::lang::Ref::_deserialize_body(buf);
-            }
+            virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
             // destructor
             ~Thread();
@@ -249,6 +241,12 @@ namespace x10 {
             static pthread_key_t __thread_mapper;
             static x10_boolean __thread_mapper_inited;
         };
+
+        template<class T> x10aux::ref<T> Thread::_deserializer(x10aux::deserialization_buffer &buf) {
+            x10aux::ref<Thread> this_ = new (x10aux::alloc_remote<Thread>()) Thread();
+            this_->_deserialize_body(buf);
+            return this_;
+        }
     }
 }
 

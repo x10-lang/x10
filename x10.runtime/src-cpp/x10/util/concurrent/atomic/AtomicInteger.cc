@@ -23,6 +23,14 @@ AtomicInteger::_make(x10_int val) {
     return this_;
 }
 
+void AtomicInteger::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    this->Ref::_serialize_body(buf, m);
+}
+
+void AtomicInteger::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    this->Ref::_deserialize_body(buf);
+}
+
 const x10aux::serialization_id_t AtomicInteger::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(AtomicInteger::_deserializer<Object>);
 

@@ -1910,29 +1910,36 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.pushCurrentStream(h);
             emitter.printHeader(dec, sw, tr, false, true, container.isX10Struct() ? typeName : make_ref(typeName));
             sw.popCurrentStream();
-            h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
+            ClassifiedStream b = h;
+            if (!container.isX10Struct()) {
+                h.write(";");
+                h.newline(); h.forceNewline();
+                b = sw.body();
+                emitter.printHeader(dec, sw, tr, true, true, make_ref(typeName));
+            }
+            b.allowBreak(0, " "); b.write("{"); b.newline(4); b.begin(0);
             if (container.isX10Struct()) {
-                h.write(typeName+" this_; "); h.newline();
-                h.write(CONSTRUCTOR+"(&this_");
-                if (!dec.formals().isEmpty()) h.write(", ");
+                b.write(typeName+" this_; "); b.newline();
+                b.write(CONSTRUCTOR+"(&this_");
+                if (!dec.formals().isEmpty()) b.write(", ");
             } else {
-                h.write(make_ref(typeName)+" this_ = "+
-                        "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
-                h.write("this_->"+CONSTRUCTOR+"(");
+                b.write(make_ref(typeName)+" this_ = "+
+                        "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); b.newline();
+                b.write("this_->"+CONSTRUCTOR+"(");
             }
             for (Iterator<Formal> i = dec.formals().iterator(); i.hasNext(); ) {
                 Formal f = i.next();
-                h.write(mangled_non_method_name(f.name().id().toString()));
+                b.write(mangled_non_method_name(f.name().id().toString()));
                 if (i.hasNext()) {
-                    h.write(",");
-                    h.allowBreak(0, " ");
+                    b.write(",");
+                    b.allowBreak(0, " ");
                 }
             }
-            h.write(");"); h.newline();
-            h.write("return this_;");
-            h.end(); h.newline();
-            h.write("}"); h.newline();
-            h.forceNewline();
+            b.write(");"); b.newline();
+            b.write("return this_;");
+            b.end(); b.newline();
+            b.write("}"); b.newline();
+            b.forceNewline();
         }
         
         sw.newline(); sw.forceNewline();

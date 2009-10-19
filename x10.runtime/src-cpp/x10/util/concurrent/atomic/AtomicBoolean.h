@@ -38,23 +38,15 @@ namespace x10 {
 
                     virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-                    virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                        this->x10::lang::Ref::_serialize_body(buf, m);
-                    }
+                    virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
 
-                    template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf) {
-                        x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc_remote<AtomicBoolean>()) AtomicBoolean();
-                        this_->_deserialize_body(buf);
-                        return this_;
-                    }
+                    template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
 
-                    void _deserialize_body(x10aux::deserialization_buffer& buf) {
-                        this->x10::lang::Ref::_deserialize_body(buf);
-                    }
+                    virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
                 private:
                     /*
-                     * Am x10_int that is constrained to a 0/1 and interpret as an x10_ boolean.
+                     * An x10_int that is constrained to a 0/1 and interpreted as an x10_boolean.
                      * We do this so that we know that compareAndSet_32 can work on the whole memory word.
                      */
                     volatile x10_int _val;
@@ -89,6 +81,12 @@ namespace x10 {
                         return x10aux::boolean_utils::toString(_val);
                     }
                 };
+
+                template<class T> x10aux::ref<T> AtomicBoolean::_deserializer(x10aux::deserialization_buffer &buf) {
+                    x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc_remote<AtomicBoolean>()) AtomicBoolean();
+                    this_->_deserialize_body(buf);
+                    return this_;
+                }
             }
         }
     }

@@ -23,6 +23,14 @@ AtomicLong::_make(x10_long val) {
     return this_;
 }
 
+void AtomicLong::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    this->Ref::_serialize_body(buf, m);
+}
+
+void AtomicLong::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    this->Ref::_deserialize_body(buf);
+}
+
 const x10aux::serialization_id_t AtomicLong::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Object>);
 
