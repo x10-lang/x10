@@ -64,7 +64,7 @@ namespace x10aux {
         public:
         static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
 
-        # Work around for an xlC ICE
+        // Work around for an xlC ICE
         //GPUSAFE ~ref() { }
 
         // Copy between refs of the same type
