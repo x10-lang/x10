@@ -68,9 +68,7 @@ else
         override CXXFLAGS += -q32
       endif
       ifdef OPTIMIZE
-        # override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
-        # Work around for XLC bug. Include -O3 when fixed.
-        override CXXFLAGS += -O2 -qinline -qarch=pwr5 -qtune=pwr5
+        override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
       endif
       override CXXFLAGS += -qrtti=all
       override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101

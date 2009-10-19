@@ -109,7 +109,7 @@ public class CXXCommandBuilder {
         }
         
         if (x10.Configuration.OPTIMIZE) {
-            cxxCmd.add("-O2");
+            cxxCmd.add(USE_XLC ? "-O3" : "-O2");
             cxxCmd.add("-DNDEBUG");
             cxxCmd.add(USE_XLC ? "-qinline" : "-finline-functions");
             if (USE_XLC) {

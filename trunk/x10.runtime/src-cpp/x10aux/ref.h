@@ -63,8 +63,9 @@ namespace x10aux {
     template<class T> class ref : public __ref {
         public:
         static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
-        
-        GPUSAFE ~ref() { }
+
+        # Work around for an xlC ICE
+        //GPUSAFE ~ref() { }
 
         // Copy between refs of the same type
         GPUSAFE ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
