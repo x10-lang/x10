@@ -27,7 +27,7 @@ public class AIX_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPreArgs(cxxCmd);
         
         if (USE_XLC) {
-            cxxCmd.add("-qsuppress=1540-0809:1500-029");
+            cxxCmd.add("-qsuppress=1540-0809:1540-1101:1500-029");
             cxxCmd.add("-q64"); // assume 64-bit
             cxxCmd.add("-qrtti=all");
             if (XLC_EXTRA_FLAGS != null) {
