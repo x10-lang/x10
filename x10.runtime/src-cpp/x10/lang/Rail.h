@@ -1,7 +1,6 @@
 #ifndef X10_LANG_RAIL_H
 #define X10_LANG_RAIL_H
 
-
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
@@ -15,6 +14,8 @@
 #include <x10/lang/ValRail.h>
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
+
+#include <stdio.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
