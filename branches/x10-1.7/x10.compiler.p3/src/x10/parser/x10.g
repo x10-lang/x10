@@ -1571,9 +1571,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
     
-    LabeledStatement ::= Identifier : LoopStatement
+    LabeledStatement ::= Identifier : Statement
         /.$BeginJava
-                    setResult(nf.Labeled(pos(), Identifier, LoopStatement));
+                    setResult(nf.Labeled(pos(), Identifier, Statement));
           $EndJava
         ./
         
