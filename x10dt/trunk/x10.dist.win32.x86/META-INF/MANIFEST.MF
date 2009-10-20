@@ -8,4 +8,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Eclipse-PlatformFilter: (& (osgi.os=win) (osgi.arch=x86))
+Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86))
