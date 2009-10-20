@@ -9,7 +9,6 @@
 #endif
 
 #include <x10/lang/Ref.h>
-#include <x10/lang/Box.h>
 
 namespace x10 {
     namespace lang {
@@ -21,7 +20,7 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS;
 
-            x10aux::ref<Box<x10aux::ref<Throwable> > > FMGL(cause);
+            x10aux::ref<Throwable> FMGL(cause);
             x10aux::ref<String> FMGL(message);
 
             //any longer than this and stacktrace will be truncated
@@ -51,7 +50,7 @@ namespace x10 {
 
         public:
             virtual x10aux::ref<String> getMessage() { return FMGL(message); }
-            virtual x10aux::ref<Box<x10aux::ref<Throwable> > > getCause() { return FMGL(cause); }
+            virtual x10aux::ref<Throwable> getCause() { return FMGL(cause); }
             virtual x10aux::ref<String> toString();
             virtual x10aux::ref<Throwable> fillInStackTrace();
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;

@@ -265,7 +265,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
 
 x10_boolean String::_struct_equals(ref<Object> p0) {
     if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->Value::_struct_equals(p0))
+    if (!this->Ref::_struct_equals(p0))
         return false;
     ref<String> that = (ref<String>) p0;
     nullCheck(that);
@@ -289,7 +289,7 @@ String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf,
 
 void
 String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
-    this->Value::_serialize_body(buf, m);
+    this->Ref::_serialize_body(buf, m);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
     buf.write(sz,m);
@@ -298,6 +298,6 @@ String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) 
     }
 }
 
-RTT_CC_DECLS1(String, "x10.lang.String", Value)
+RTT_CC_DECLS1(String, "x10.lang.String", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

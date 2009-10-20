@@ -6,7 +6,7 @@
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/Value.h>
+#include <x10/lang/Ref.h>
 
 #ifdef __CYGWIN__
 extern "C" char *strdup (const char *);
@@ -18,7 +18,7 @@ namespace x10 {
         template<class T> class Rail;
         template<class T> class ValRail;
 
-        class String : public Value {
+        class String : public Ref {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
@@ -34,7 +34,7 @@ namespace x10 {
             // names that also ought not to be freed.
             static x10aux::ref<String> _make(const char *content, bool steal = false);
             x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
-                this->Value::_constructor();
+                this->Ref::_constructor();
                 this->FMGL(content) = content;
                 this->FMGL(content_length) = content_length;
                 return this;
@@ -53,7 +53,7 @@ namespace x10 {
             }
 
             /*
-            operator x10aux::ref<Value> () {
+            operator x10aux::ref<Ref> () {
                 return x10aux::ref<String>(this);
             }
 
