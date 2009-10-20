@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <x10rt_api.h>
 
