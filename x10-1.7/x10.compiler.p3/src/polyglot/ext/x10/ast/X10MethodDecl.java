@@ -14,11 +14,8 @@ import polyglot.ast.Expr;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.TypeNode;
 
-public interface X10MethodDecl extends MethodDecl {
-	// The method's guard.
-	DepParameterExpr guard();
+public interface X10MethodDecl extends X10ProcedureDecl, MethodDecl {
 	X10MethodDecl guard(DepParameterExpr e);
 	
-	List<TypeParamNode> typeParameters();
 	X10MethodDecl typeParameters(List<TypeParamNode> typeParams);
 }
