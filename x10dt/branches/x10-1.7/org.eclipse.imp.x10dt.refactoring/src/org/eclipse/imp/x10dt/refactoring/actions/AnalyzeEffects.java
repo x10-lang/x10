@@ -46,8 +46,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
-import polyglot.ext.x10.ast.X10ConstructorDecl;
-import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.X10ProcedureDecl;
 import x10.constraint.XFailure;
 import x10.effects.constraints.Effect;
 
@@ -137,26 +136,22 @@ public class AnalyzeEffects implements IWorkbenchWindowActionDelegate {
 
             for(ClassMember member: members) {
                 if (member instanceof ProcedureDecl) {
-                    ProcedureDecl procedureDecl= (ProcedureDecl) member;
+                    X10ProcedureDecl procedureDecl= (X10ProcedureDecl) member;
                     String procID= procedureDecl.name() + "(" + procedureDecl.formals() + ")";
                     Effect bodyEff;
 
                     fConsStream.println("  Analyzing procedure " + procID);
 
-                    if (procedureDecl instanceof X10MethodDecl) {
-                        try {
-                            EffectsVisitor ev= new EffectsVisitor(null, (X10MethodDecl) procedureDecl);
-                            procedureDecl.visit(ev);
-                            bodyEff= ev.getEffectFor(procedureDecl.body());
+                    try {
+                        EffectsVisitor ev= new EffectsVisitor(null, procedureDecl);
 
-                            fConsStream.println("    Effect = " + bodyEff);
-                        } catch (XFailure e) {
-                            fConsStream.println("  *** Exception caught while processing procedure " + procID);
-                            e.printStackTrace(fConsStream);
-                        }
-                    } else if (procedureDecl instanceof X10ConstructorDecl) {
-                        // TODO EffectsVisitor doesn't yet handle constructors, due to API issue with guards
-                        // (needed to build the method's/constructor's context constraint).
+                        procedureDecl.visit(ev);
+                        bodyEff= ev.getEffectFor(procedureDecl.body());
+
+                        fConsStream.println("    Effect = " + bodyEff);
+                    } catch (XFailure e) {
+                        fConsStream.println("  *** Exception caught while processing procedure " + procID);
+                        e.printStackTrace(fConsStream);
                     }
                 }
             }
