@@ -8,7 +8,7 @@
 
 package x10.lang;
 
-public value BadPlaceException extends RuntimeException {
+public class BadPlaceException extends RuntimeException {
     public def this() = super("bad place exception");
     public def this(message: String) = super(message);
 }

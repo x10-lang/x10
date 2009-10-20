@@ -16,15 +16,15 @@ import x10.io.Console;
 
 @NativeRep("java", "java.lang.Throwable", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
-public value Throwable {
+public class Throwable {
     @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
     // Box is to make it nullable
-    val cause: Box[Throwable];
+    global val cause: Box[Throwable];
 
     @Native("java", "#0.getMessage()")
     @Native("c++", "(#0)->getMessage()")
-    val message: String;
+    global val message: String;
 
     public def this() = this("");
     public def this(message: String) {
@@ -41,23 +41,23 @@ public value Throwable {
     
     @Native("java", "#0.getMessage()")
     @Native("c++", "(#0)->getMessage()")
-    public def getMessage() = message;
+    public global def getMessage() = message;
     
     @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
-    public final def getCause(): Box[Throwable] = cause;
+    public final global def getCause(): Box[Throwable] = cause;
     
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public def toString() = typeName() + ": " + getMessage();
+    public global def toString() = typeName() + ": " + getMessage();
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
     @Native("c++", "(#0)->getStackTrace()")
-    public native def getStackTrace() : ValRail[String];
+    public global native def getStackTrace() : ValRail[String];
 
     @Native("java", "#0.printStackTrace()")
     @Native("c++", "(#0)->printStackTrace()")
-    public native def printStackTrace() : Void;
+    public global native def printStackTrace() : Void;
     
     @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
     @Native("c++", "do {\n"+
@@ -68,7 +68,7 @@ public value Throwable {
                    "        (#1)->println((*trace)[i]);\n"+
                    "    }\n"+
                    "} while (0)")
-    public native def printStackTrace(p: Printer) : Void;
+    public global native def printStackTrace(p: Printer) : Void;
 
     @Native("java", "#0.fillInStackTrace()")
     @Native("c++", "(#0)->fillInStackTrace()")

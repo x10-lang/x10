@@ -12,7 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.RuntimeException", null, null)
-public value RuntimeException extends Exception {
+public class RuntimeException extends Exception {
     public def this() { super(); } 
     public def this(message: String) { super(message); }
     public def this(message: String, cause: Throwable) { super(message, cause); }

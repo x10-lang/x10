@@ -4,7 +4,7 @@
 package x10.array;
 
 
-public value UnboundedRegionException extends RuntimeException {
+public class UnboundedRegionException extends RuntimeException {
 
     public def this(msg: String): UnboundedRegionException {
         super(msg);

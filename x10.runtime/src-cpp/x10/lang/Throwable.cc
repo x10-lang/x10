@@ -37,14 +37,14 @@ const serialization_id_t Throwable::_serialization_id =
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-    this->Value::_serialize_body(buf, m);
+    this->Ref::_serialize_body(buf, m);
     buf.write(FMGL(cause),m);
     buf.write(FMGL(message),m);
 }
 
 void
 Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    this->Value::_deserialize_body(buf);
+    this->Ref::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Box<x10aux::ref<Throwable> > > >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
 }
@@ -72,7 +72,7 @@ Throwable::_make(x10aux::ref<String> message, x10aux::ref<Throwable> cause) {
 x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
                                                x10aux::ref<Throwable> cause)
 {
-    this->Value::_constructor();
+    this->Ref::_constructor();
     if (message==x10aux::null) { //hack, value types aren't supposed to be null
         this->FMGL(message) = String::Lit("");
     } else {
@@ -432,23 +432,6 @@ void Throwable::printStackTrace() {
     x10aux::ref<ValRail<x10aux::ref<String> > > trace = nullCheck(this->getStackTrace());
     for (int i = 0; i < trace->FMGL(length); ++i)
         fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
-}
-
-x10_boolean Throwable::_struct_equals(ref<Object> p0) {
-    if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->Value::_struct_equals(p0))
-        return false;
-    ref<Throwable> that = (ref<Throwable>) p0;
-    if (this->FMGL(cause) != that->FMGL(cause))
-        return false;
-    if (!x10aux::struct_equals(this->FMGL(message), that->FMGL(message)))
-        return false;
-    if (this->FMGL(trace_size) != that->FMGL(trace_size))
-        return false;
-    for (int i = 0; i < this->FMGL(trace_size); i++)
-        if (this->FMGL(trace)[i] != that->FMGL(trace)[i])
-            return false;
-    return true;
 }
 
 RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Value)

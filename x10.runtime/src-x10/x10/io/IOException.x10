@@ -12,7 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.io.IOException", null, null)
-public value IOException extends Exception {
+public class IOException extends Exception {
     public def this() { super(); }
     public def this(message: String) { super(message); }
 }

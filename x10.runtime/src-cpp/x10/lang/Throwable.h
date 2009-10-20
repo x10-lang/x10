@@ -8,7 +8,7 @@
 #define MAX_TRACE_SIZE 1
 #endif
 
-#include <x10/lang/Value.h>
+#include <x10/lang/Ref.h>
 #include <x10/lang/Box.h>
 
 namespace x10 {
@@ -17,7 +17,7 @@ namespace x10 {
         class String;
         template<class T> class ValRail;
 
-        class Throwable : public Value {
+        class Throwable : public Ref {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -57,8 +57,6 @@ namespace x10 {
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
             virtual StringRail getStackTrace();
             virtual void printStackTrace();
-
-            virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
 
             static const x10aux::serialization_id_t _serialization_id;
 
