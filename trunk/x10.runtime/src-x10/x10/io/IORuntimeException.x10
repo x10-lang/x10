@@ -11,7 +11,7 @@ package x10.io;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public value IORuntimeException extends RuntimeException {
+public class IORuntimeException extends RuntimeException {
     public def this(): IORuntimeException { super(); }
     public def this(message: String): IORuntimeException { super(message); }
 }

@@ -4,7 +4,7 @@
 package x10.array;
 
 
-public value NoSuchElementException extends RuntimeException {
+public class NoSuchElementException extends RuntimeException {
 
     public def this(msg: String): NoSuchElementException {
         super(msg);
