@@ -13,7 +13,7 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.TypeNode;
 
-public interface X10ConstructorDecl extends ConstructorDecl {
+public interface X10ConstructorDecl extends X10ProcedureDecl, ConstructorDecl {
 	/**
 	 * Return the returnType associated with this constructor declaration.
 	 * @return
@@ -21,9 +21,7 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	TypeNode returnType();
 	X10ConstructorDecl returnType(TypeNode returnType);
 	
-	DepParameterExpr guard();
 	X10ConstructorDecl guard(DepParameterExpr e);
 	
-	List<TypeParamNode> typeParameters();
 	X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams);
 }
