@@ -38,7 +38,7 @@ import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.SettableAssign;
 import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.X10ProcedureDecl;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
@@ -77,9 +77,9 @@ public class EffectsVisitor extends NodeVisitor {
 
     private PrintStream fDiagStream= System.out;
 
-    public EffectsVisitor(ValueMap valueMap, X10MethodDecl method) throws XFailure {
+    public EffectsVisitor(ValueMap valueMap, X10ProcedureDecl proc) throws XFailure {
         fValueMap = valueMap;
-        fMethodContext= computeMethodContextConstraint(method);
+        fMethodContext= computeMethodContextConstraint(proc);
     }
 
     public void setVerbose(PrintStream diagStream) {
@@ -87,13 +87,13 @@ public class EffectsVisitor extends NodeVisitor {
         fDiagStream= diagStream;
     }
 
-    private final XConstraint computeMethodContextConstraint(X10MethodDecl method) throws XFailure {
+    private final XConstraint computeMethodContextConstraint(X10ProcedureDecl proc) throws XFailure {
         XConstraint result= null;
-        DepParameterExpr methodGuard= method.guard();
+        DepParameterExpr methodGuard= proc.guard();
         if (methodGuard != null) {
             result= conjunction(result, methodGuard.valueConstraint().get());
         }
-        List<Formal> formals= method.formals();
+        List<Formal> formals= proc.formals();
         for(Formal formal: formals) {
             X10Formal xFormal= (X10Formal) formal;
 //          X10LocalDef xDef= (X10LocalDef) xFormal.localDef();
@@ -209,7 +209,7 @@ public class EffectsVisitor extends NodeVisitor {
                 List<Expr> declaredLocs= annoClassType.propertyInitializers();
                 for(Expr declaredLoc: declaredLocs) {
                     Locs locs= computeLocFor(declaredLoc);
-                    // TODO Perform substitutions of actual parameters for formal parameters
+
                     if (annoName.equals("read")) {
                         e.addRead(locs);
                     } else if (annoName.equals("write")) {
@@ -439,6 +439,7 @@ public class EffectsVisitor extends NodeVisitor {
         List<Expr> args = call.arguments();
         Effect result= null;
 
+        // TODO Perform substitutions of actual parameters for formal parameters
         if (methodOwner instanceof ClassType) {
             ClassType ownerClassType = (ClassType) methodOwner;
             String ownerClassName = ownerClassType.fullName().toString();
