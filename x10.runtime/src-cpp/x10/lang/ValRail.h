@@ -9,6 +9,7 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/Value.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/RailIterator.h>

@@ -15,7 +15,6 @@ namespace x10 {
 
         class String;
         class Ref;
-        class Value;
 
         class Object {
         private:

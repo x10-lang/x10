@@ -2,7 +2,6 @@
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
 
-#include <x10/lang/Ref.h>
 #include <x10/runtime/PlaceLocalHandle.h>
 
 using namespace x10aux;
@@ -15,12 +14,11 @@ namespace x10 {
 
         void
         _initRTTHelper_PlaceLocalHandle(RuntimeType *location, const RuntimeType *rtt) {
-            const RuntimeType* parents[1] = { Value::getRTT()};
             const RuntimeType* params[1] = { rtt };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
             const RuntimeType *canonical = x10aux::getRTT<PlaceLocalHandle<void> >();
             const char *name = alloc_printf("x10.runtime.PlaceLocalHandle[+%s]",rtt->name());
-            location->init(canonical, name, 1, parents, 1, params, variances);
+            location->init(canonical, name, 0, NULL, 1, params, variances);
         }
     }
 }
