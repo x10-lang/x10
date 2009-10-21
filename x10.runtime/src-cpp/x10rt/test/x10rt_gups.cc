@@ -185,6 +185,8 @@ void show_help(FILE *out, char* name)
     fprintf(out,"this message\n");
     fprintf(out,"-m (--mem) <n>      ");
     fprintf(out,"amount of memory to use per node (log 2)\n");
+    fprintf(out,"-u (--updates) <n>      ");
+    fprintf(out,"number of updates per table element\n");
     fprintf(out,"-v (--validate) <n>      ");
     fprintf(out,"enables validation (not included in reported time)\n");
 } // }}}
@@ -240,6 +242,7 @@ int main(int argc, char **argv)
 
     unsigned long long logLocalTableSize = 12;
     bool enable_validate = false;
+    unsigned long long updates = 4;
 
     for (int i=1 ; i<argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
@@ -253,6 +256,11 @@ int main(int argc, char **argv)
             logLocalTableSize = strtoul(argv[++i],NULL,0);
         } else if (!strcmp(argv[i], "-m")) {
             logLocalTableSize = strtoul(argv[++i],NULL,0);
+
+        } else if (!strcmp(argv[i], "--updates")) {
+            updates = strtoul(argv[++i],NULL,0);
+        } else if (!strcmp(argv[i], "-u")) {
+            updates = strtoul(argv[++i],NULL,0);
 
         } else if (!strcmp(argv[i], "--validate")) {
             enable_validate = true;
@@ -268,7 +276,7 @@ int main(int argc, char **argv)
 
     localTableSize = 1 << logLocalTableSize;
     unsigned long long tableSize = localTableSize * x10rt_nplaces();
-    unsigned long long numUpdates = 4 * tableSize;
+    unsigned long long numUpdates = updates * tableSize;
 
     localTable = (unsigned long long*) malloc(localTableSize*sizeof(unsigned long long));
     for (unsigned int i=0 ; i<localTableSize ; ++i) localTable[i] = i;
