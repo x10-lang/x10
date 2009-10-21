@@ -1,0 +1,122 @@
+/**************************************************************************
+*                                                                         *
+*             Java Grande Forum Benchmark Suite - Version 2.0             *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         *
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*                 Original version of this code by                        *
+*            Florian Doyon (Florian.Doyon@sophia.inria.fr)                *
+*              and  Wilfried Klauser (wklauser@acm.org)                   *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 1999.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+package raytracer;
+
+//ok
+import java.util.Vector;;/**************************************************************************
+*                                                                         *
+*             Java Grande Forum Benchmark Suite - Version 2.0             *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         *
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*                 Original version of this code by                        *
+*            Florian Doyon (Florian.Doyon@sophia.inria.fr)                *
+*              and  Wilfried Klauser (wklauser@acm.org)                   *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 1999.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+package raytracer;
+
+//ok
+import java.util.Vector;
+
+public value class Scene {.{.{**************************************************************************
+*                                                                         *
+*             Java Grande Forum Benchmark Suite - Version 2.0             *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         *
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*                 Original version of this code by                        *
+*            Florian Doyon (Florian.Doyon@sophia.inria.fr)                *
+*              and  Wilfried Klauser (wklauser@acm.org)                   *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 1999.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+package raytracer;
+
+//ok
+import java.util.Vector;
+
+public value class Scene {
+	public val lights: Vector;
+	public val objects: Vector;
+	private val view: View;
+
+	public def this(var v: View): Scene = {
+		lights = new Vector ();
+		objects = new Vector ();
+		view = v;
+	}
+
+	public def addLight(var l: Light): void = {
+		this.lights.addElement(l);
+	}
+
+	public def addObject(var object: Primitive): void = {
+		this.objects.addElement(object);
+	}
+
+	public def getView(): View = {
+		return this.view;
+	}
+
+	public def getLight(var number: int): Light = {
+		return (Light) this.lights.elementAt(number);
+	}
+
+	public def getObject(var number: int): Primitive = {
+		return (Primitive) objects.elementAt(number);
+	}
+
+	public def getLights(): int = {
+		return this.lights.size();
+	}
+
+	public def getObjects(): int = {
+		return this.objects.size();
+	}
+
+	public def setObject(var object: Primitive, var pos: int): void = {
+		this.objects.setElementAt(object, pos);
+	}
+}
