@@ -25,17 +25,14 @@ x10_int InputStreamReader__InputStream::read(ref<Rail<x10_byte> > b,
     return i;
 }
 
-x10_boolean InputStreamReader__InputStream::_struct_equals(ref<Object> p0) {
-    if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->Value::_struct_equals(p0))
-        return false;
-//    ref<InputStreamReader__InputStream> that = (ref<InputStreamReader__InputStream>) p0;
-//    if (!struct_equals(this->FMGL(stream), that->FMGL(stream)))
-//        return false;
-    return true;
+void InputStreamReader__InputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+    x10::lang::Ref::_serialize_body(buf, m);
 }
 
+void InputStreamReader__InputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    x10::lang::Ref::_deserialize_body(buf);
+}
 
-RTT_CC_DECLS1(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", Value)
+RTT_CC_DECLS1(InputStreamReader__InputStream, "x10.io.InputStreamReader.InputStream", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

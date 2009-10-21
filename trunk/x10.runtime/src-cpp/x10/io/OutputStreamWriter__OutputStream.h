@@ -1,7 +1,7 @@
 #ifndef X10_IO_OUTPUTSTREAM_H
 #define X10_IO_OUTPUTSTREAM_H
 
-#include <x10/lang/Value.h>
+#include <x10/lang/Ref.h>
 
 namespace x10 {
 
@@ -12,7 +12,7 @@ namespace x10 {
 
     namespace io {
 
-        class OutputStreamWriter__OutputStream : public x10::lang::Value {
+        class OutputStreamWriter__OutputStream : public x10::lang::Ref {
             public:
             RTT_H_DECLS_CLASS;
 
@@ -27,7 +27,9 @@ namespace x10 {
             virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
 
-            virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
+            // Serialization
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+            void _deserialize_body(x10aux::deserialization_buffer& buf);
         };
     }
 }

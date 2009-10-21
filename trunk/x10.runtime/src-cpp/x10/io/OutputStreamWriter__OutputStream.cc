@@ -35,30 +35,14 @@ void OutputStreamWriter__OutputStream::write(ref<ValRail<x10_byte> > b,
         this->write((x10_int) b->operator[](off + i));
 }
 
-x10_boolean OutputStreamWriter__OutputStream::_struct_equals(ref<Object> p0) {
-    if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->Value::_struct_equals(p0))
-        return false;
-//    ref<OutputStreamWriter__OutputStream> that = (ref<OutputStreamWriter__OutputStream>) p0;
-//    if (!struct_equals(this->FMGL(stream), that->FMGL(stream)))
-//        return false;
-    return true;
+void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+    x10::lang::Ref::_serialize_body(buf, m);
 }
 
-/*
-void OutputStreamWriter__OutputStream::_printf(const char* format, ...) {
-    va_list parms;
-    va_start(parms, format);
-    _vprintf(format, parms);
-    va_end(parms);
+void OutputStreamWriter__OutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
+    x10::lang::Ref::_deserialize_body(buf);
 }
 
-void OutputStreamWriter__OutputStream::printf(const ref<String>& format) {
-    this->_printf("%s", ((const string&)(*format)).c_str());
-    this->flush(); // FIXME [IP] temp
-}
-*/
-
-RTT_CC_DECLS1(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", Value)
+RTT_CC_DECLS1(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

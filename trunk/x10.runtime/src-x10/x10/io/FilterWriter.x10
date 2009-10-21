@@ -8,15 +8,15 @@
 
 package x10.io;
 
-public value FilterWriter extends Writer {
-    val w: Writer;
+public class FilterWriter extends Writer {
+    global val w: Writer;
     
-    protected def inner(): Writer = w;
+    protected global def inner(): Writer = w;
 
     public def this(w: Writer) { this.w = w; }
 
-    public def close(): Void throws IOException = w.close();
-    public def flush(): Void throws IOException = w.flush();
+    public global def close(): Void throws IOException = w.close();
+    public global def flush(): Void throws IOException = w.flush();
 
-    public def write(b: Byte): Void throws IOException = w.write(b);
+    public global def write(b: Byte): Void throws IOException = w.write(b);
 }

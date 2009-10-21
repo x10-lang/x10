@@ -47,6 +47,14 @@ namespace x10 {
 
             static x10aux::ref<FileWriter__FileOutputStream> STANDARD_ERR;
 
+            // Serialization
+            static const x10aux::serialization_id_t _serialization_id;
+            virtual x10aux::serialization_id_t _get_serialization_id() {
+                return _serialization_id;
+            }
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+            template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
+            void _deserialize_body(x10aux::deserialization_buffer& buf);
         };
     }
 }

@@ -11,12 +11,12 @@ package x10.io;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public value FileReader extends InputStreamReader {
-    val file: File;
+public class FileReader extends InputStreamReader {
+    global val file:File;
 
     @NativeRep("java", "java.io.FileInputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
-    protected final static value FileInputStream extends InputStream {
+    protected final static class FileInputStream extends InputStream {
         public native def this(String);
     }
 
