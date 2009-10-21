@@ -221,7 +221,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/runtime/Lock.o \
 	x10/runtime/PlaceLocalHandle.o \
 	x10/runtime/Thread.o \
-	x10/tuningfork/ScalarType.o \
 	x10/util/GrowableRail.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \
