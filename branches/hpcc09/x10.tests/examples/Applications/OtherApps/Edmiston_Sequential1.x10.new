@@ -1,0 +1,185 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import java.lang.Integer;
+import harness.x10Test;;
+
+/**
+ * Sequential version of Edmiston's algorithm for Sequence Alignment.
+ * This code is an X10 port of the Edmiston_Sequential.c program written by
+ * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ */
+public class Edmiston_Sequential1 extends x10Test {
+	public const iGapPen: int = 2;
+	public const iMatch: int = 0;
+	public const iMisMatch: int = -1;
+	public const EXPECTED_CHECKSUM: int = 549;
+	public const rand: Random = new Random(1L);
+
+	/*
+	 * NOTE: the first two methods, findMin() and findEditDistance(), contain the core of the computation.
+	 * All remaining methods are helper functions that are unchaned in the serial & parallel versions
+	 */
+	/**
+	 * Function which determines the minimum value among North, NorthWest
+	 * West elements of the EditDistance Matrix for the given values of
+	 * Row and Column Numbers
+	 */
+	static def findMin(var iRow: int, var iCol: int, var cSeq1: Array[char], var cSeq2: Array[char], var iEditDist: Array[int]): int = {
+		var iNorth: intvar iWest: intvar iNorthWest: int;
+
+		if (iCol == 0) {
+			if (iRow == 0) // iCol == 0 && iRow == 0
+				return 0;
+			else // iCol == 0 && iRow > 0
+				return iEditDist(iRow-1, iCol)+iGapPen;
+		}
+		else { // iCol > 0
+			if (iRow == 0) // iRow == 0 && iCol > 0
+				return iEditDist(iRow, iCol-1)+iGapPen;
+			else { // iCol > 0 && iRow > 0
+				iNorth = iEditDist(iRow-1, iCol)+iGapPen;
+				iWest = iEditDist(iRow, iCol-1)+iGapPen;
+				iNorthWest = iEditDist(iRow-1, iCol-1)+isMatch(cSeq1(iRow-1), cSeq2(iCol-1));
+				return MIN3(iNorth, iWest, iNorthWest);
+			}
+		}
+	}
+
+	static def findEditDist(var cSeq1: Array[char][], var cSeq2: Array[char][]): Array[int] = {
+		final val iMatRowSize: int = cSeq1.length;
+		final val iMatColSize: int = cSeq2.length;
+		var iEditDist: Array[int];
+
+		System.out.println("cSeq1 = " + new String(cSeq1));
+		System.out.println("cSeq2 = " + new String(cSeq2));
+
+		System.out.println("iMatRowSize = " + iMatRowSize);
+		System.out.println("iMatColSize = " + iMatColSize);
+
+		iEditDist = initEditDistance(iMatRowSize, iMatColSize);
+
+		System.out.println("The EditDistance Matrix before computation is = ");
+		printEditDistance(cSeq1, cSeq2, iEditDist);
+
+		for (var i: int = 0; i <= iMatRowSize; i++) {
+			for (var j: int = 0; j <= iMatColSize; j++) {
+				iEditDist(i, j) = findMin(i, j, cSeq1, cSeq2, iEditDist);
+			}
+		}
+
+		return iEditDist;
+	}
+
+	/*
+	 * START OF HELPER FUNCTIONS (INCLUDING MAIN PROGRAM)
+	 */
+
+	private static def MIN(var a: int, var b: int): int = { return ((a) < (b) ? (a) : (b)); }
+
+	private static def MIN3(var a: int, var b: int, var c: int): int = { return MIN(MIN((a), (b)), (c)); }
+
+	/**
+	 * Create the EditDistance Matrix
+	 */
+	static def initEditDistance(var iMatRowSize: int, var iMatColSize: int): Array[int] = {
+		var R: region = [0..iMatRowSize, 0..iMatColSize];
+		var D: dist = Dist.makeConstant(R, here); // local distribution
+		var iEditDist: Array[int] = new Array[int](D);
+		return iEditDist;
+	} // initEditDistance()
+
+	/**
+	 * Print the Edit Distance Matrix
+	 */
+	static def printEditDistance(var cSeq1: Array[char], var cSeq2: Array[char], var iEditDist: Array[int]): void = {
+		final val iMatRowSize: int = cSeq1.length;
+		final val iMatColSize: int = cSeq2.length;
+
+		System.out.println("Matrix EditDistance is:");
+
+		System.out.print("        - ");
+		for (var j: int = 1; j <= iMatColSize; j++)
+			System.out.print("   " + cSeq2(j-1) + " ");
+
+		System.out.println();
+
+		for (var i: int = 0; i <= iMatRowSize; i++) {
+			if (i == 0)
+				System.out.print("   - ");
+			else
+				System.out.print("   " + cSeq1(i-1) + " ");
+			for (var j: int = 0; j <= iMatColSize; j++) {
+				var s: String = new Integer(iEditDist(i, j)).toString();
+				System.out.print(" "); // Print a leading blank
+				for (var k: int = 0 ; k < 3 - s.length() ; k++)
+					System.out.print(" "); // Print padding blanks
+				System.out.print(s); // Print distance (assume length is <= 3 chars)
+				System.out.print(" "); // Print trailing blank
+			}
+			System.out.println();
+		}
+	} // printEditDistance()
+
+	/**
+	 * Function to generate a random sequence and initialize it as the
+	 * input sequence
+	 */
+	static def initSeq(var cDest: Array[char]): void = {
+		for (var i: int = 0 ; i< cDest.length ; i++) {
+			// Randomly select one of 'A', 'C', 'G', 'T' and assign to cDest[i]
+			final val bit1: boolean = rand.nextBoolean();
+			final val bit2: boolean = rand.nextBoolean();
+			cDest(i) = bit1 ? (bit2 ? 'A' : 'C') : (bit2 ? 'G' : 'T');
+		}
+	}
+
+	static def printSeq(var cSeq: Array[char]): void = {
+		System.out.println("The Given String is = " + new String(cSeq));
+	}
+
+	/**
+	 * Function to determine if the characters of the input sequences
+	 * match at that particular index
+	 */
+	static def isMatch(var cChar1: char, var cChar2: char): int = {
+		return (cChar1 == cChar2) ? iMatch : iMisMatch;
+	}
+
+	/* The main method which implements the Edmiston's Algorithms */
+	public def run(): boolean = {
+		final val iMatRowSize: int = 10;
+		final val iMatColSize: int = 10;
+
+		var cSeq1: Array[char] = new Array[char](iMatRowSize);
+		var cSeq2: Array[char] = new Array[char](iMatColSize);
+
+		initSeq(cSeq1);
+		initSeq(cSeq2);
+
+		printSeq(cSeq1);
+		printSeq(cSeq2);
+
+		var iEditDist: Array[int] = findEditDist(cSeq1, cSeq2);
+
+		System.out.println("Inside main(): The Edit Distance Matrix After Computation is = ");
+		printEditDistance(cSeq1, cSeq2, iEditDist);
+
+		return iEditDist.sum() == EXPECTED_CHECKSUM;
+	}
+
+	/*
+	 * END OF HELPER FUNCTIONS
+	 */
+
+	public static def main(var args: Rail[String]): void = {
+		new Edmiston_Sequential1().execute();
+	}
+}
