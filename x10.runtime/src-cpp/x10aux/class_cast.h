@@ -37,32 +37,6 @@ namespace x10aux {
     // T stands for "to"
     // F stands for "from"
 
-    template<class T, class F> struct ClassCastNotBothRef {
-        // All possibilities accounted for, if you got here something has gone wrong
-    };
-
-    template<class T, class F> struct ClassCastNotBothRef<ref<T>,F> {
-        // All possibilities accounted for, if you got here something has gone wrong
-        static ref<T> _ (F obj, bool checked) {
-            throwClassCastException();
-            return NULL;
-        }
-    };
-
-    template<class T, class F> struct ClassCastNotBothRef<T,ref<F> > {
-      // All possibilities accounted for, if you got here something has gone wrong
-        static T _ (ref<F> obj, bool checked) {
-            throwClassCastException();
-            return NULL;
-        }
-    };
-
-    template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
-        static GPUSAFE ref<T> _(F* obj, bool checked) {
-            return ref<T>(ref<F>(obj));
-        }
-    };
-
     template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj, bool checked) {
         if (obj == x10aux::null) {
             // NULL passes any class cast check and remains NULL
@@ -85,20 +59,17 @@ namespace x10aux {
         return static_cast<ref<T> >(obj);
     }
 
-    // ClassCastBothRef
-    template<class T, class F> struct ClassCastBothRef { static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
-        return real_class_cast<T>(obj, checked);
-    } };
-
     // ClassCastNotPrimitive
     template<class T, class F> struct ClassCastNotPrimitive { static GPUSAFE T _(F obj, bool checked) {
-        return ClassCastNotBothRef<T,F>::_(obj, checked);
+        // If we get here, then we are doing a ref==>struct or struct==>ref, which is not allowed in X10 2.0.
+        throwClassCastException();
+        return NULL;
     } };
 
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
         static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
             _CAST_("Ref to ref cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
-            return ClassCastBothRef<T,F>::_(obj, checked);
+            return real_class_cast<T>(obj, checked);
         }
     };
 
