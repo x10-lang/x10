@@ -2,7 +2,7 @@ package x10.io;
 
 import x10.compiler.Native;
 
-public value Console {
+public class Console {
         @Native("java", "java.lang.System.out")
         @Native("c++", "x10::io::FileWriter__FileOutputStream::STANDARD_OUT")
         private native static def realOut(): FileWriter.FileOutputStream;
