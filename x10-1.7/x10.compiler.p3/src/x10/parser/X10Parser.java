@@ -2435,27 +2435,27 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 117:  LabeledStatement ::= Identifier : Statement
+            // Rule 117:  LabeledStatement ::= Identifier : LabelableStatement
             //
             case 117: {
                //#line 1576 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 1574 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 1574 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(3);
+                Stmt LabelableStatement = (Stmt) getRhsSym(3);
                 //#line 1576 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.Labeled(pos(), Identifier, Statement));
+                setResult(nf.Labeled(pos(), Identifier, LabelableStatement));
                       break;
             }
     
             //
-            // Rule 123:  ExpressionStatement ::= StatementExpression ;
+            // Rule 124:  ExpressionStatement ::= StatementExpression ;
             //
-            case 123: {
-               //#line 1588 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 124: {
+               //#line 1589 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1587 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1588 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1589 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 boolean eval = true;
                 if (StatementExpression instanceof X10Call) {
                     X10Call c = (X10Call) StatementExpression;
@@ -2478,85 +2478,85 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 131:  AssertStatement ::= assert Expression ;
+            // Rule 132:  AssertStatement ::= assert Expression ;
             //
-            case 131: {
-               //#line 1619 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1617 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 132: {
+               //#line 1620 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1618 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1619 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1620 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 132:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 133:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 132: {
-               //#line 1624 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1622 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 133: {
+               //#line 1625 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1623 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1622 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1623 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1624 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1625 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                       break;
             }
     
             //
-            // Rule 133:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 134:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 133: {
-               //#line 1630 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 134: {
+               //#line 1631 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1630 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1631 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                       break;
             }
     
             //
-            // Rule 134:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 135:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 134: {
-               //#line 1636 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1634 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 135: {
+               //#line 1637 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1634 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1636 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1637 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                       break;
             }
     
             //
-            // Rule 136:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 137:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 136: {
-               //#line 1644 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 137: {
+               //#line 1645 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1643 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1643 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1644 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1645 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                       break;
             }
     
             //
-            // Rule 137:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 138:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 137: {
-               //#line 1651 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1649 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 138: {
+               //#line 1652 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1649 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1651 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1652 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2565,13 +2565,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 138:  SwitchLabels ::= SwitchLabel
+            // Rule 139:  SwitchLabels ::= SwitchLabel
             //
-            case 138: {
-               //#line 1660 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1658 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 139: {
+               //#line 1661 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1659 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1660 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1661 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2579,97 +2579,97 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 139:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 140:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 139: {
-               //#line 1667 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1665 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 140: {
+               //#line 1668 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1666 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1665 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1666 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1667 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1668 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                       break;
             }
     
             //
-            // Rule 140:  SwitchLabel ::= case ConstantExpression :
+            // Rule 141:  SwitchLabel ::= case ConstantExpression :
             //
-            case 140: {
-               //#line 1674 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1672 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 141: {
+               //#line 1675 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1673 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1674 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1675 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                       break;
             }
     
             //
-            // Rule 141:  SwitchLabel ::= default :
+            // Rule 142:  SwitchLabel ::= default :
             //
-            case 141: {
-               //#line 1679 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 142: {
+               //#line 1680 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1679 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1680 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Default(pos()));
                       break;
             }
     
             //
-            // Rule 142:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 143:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 142: {
-               //#line 1685 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1683 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 143: {
+               //#line 1686 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1683 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1685 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1686 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 143:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 144:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 143: {
-               //#line 1691 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1689 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 144: {
+               //#line 1692 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1690 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1689 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1690 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1691 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1692 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                       break;
             }
     
             //
-            // Rule 146:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 147:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 146: {
-               //#line 1700 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 147: {
+               //#line 1701 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1699 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1699 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1699 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1699 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1700 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1701 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                       break;
             }
     
             //
-            // Rule 148:  ForInit ::= LocalVariableDeclaration
+            // Rule 149:  ForInit ::= LocalVariableDeclaration
             //
-            case 148: {
-               //#line 1707 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1705 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 149: {
+               //#line 1708 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1706 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1707 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1708 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2677,13 +2677,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 150:  StatementExpressionList ::= StatementExpression
+            // Rule 151:  StatementExpressionList ::= StatementExpression
             //
-            case 150: {
-               //#line 1717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1715 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 151: {
+               //#line 1718 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1716 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1718 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2691,105 +2691,105 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 151:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 152:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 151: {
-               //#line 1724 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1722 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 152: {
+               //#line 1725 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1723 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1722 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1723 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1724 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1725 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                       break;
             }
     
             //
-            // Rule 152:  BreakStatement ::= break Identifieropt ;
+            // Rule 153:  BreakStatement ::= break Identifieropt ;
             //
-            case 152: {
-               //#line 1730 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1728 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 153: {
+               //#line 1731 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1729 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1730 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1731 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 153:  ContinueStatement ::= continue Identifieropt ;
+            // Rule 154:  ContinueStatement ::= continue Identifieropt ;
             //
-            case 153: {
-               //#line 1736 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1734 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 154: {
+               //#line 1737 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1735 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1736 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1737 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 154:  ReturnStatement ::= return Expressionopt ;
+            // Rule 155:  ReturnStatement ::= return Expressionopt ;
             //
-            case 154: {
-               //#line 1742 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1740 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 155: {
+               //#line 1743 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1741 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1742 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1743 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                       break;
             }
     
             //
-            // Rule 155:  ThrowStatement ::= throw Expression ;
+            // Rule 156:  ThrowStatement ::= throw Expression ;
             //
-            case 155: {
-               //#line 1748 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1746 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 156: {
+               //#line 1749 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1747 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1748 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1749 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 156:  TryStatement ::= try Block Catches
+            // Rule 157:  TryStatement ::= try Block Catches
             //
-            case 156: {
-               //#line 1754 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1752 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 157: {
+               //#line 1755 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1753 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1752 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1753 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1754 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1755 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                       break;
             }
     
             //
-            // Rule 157:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 158:  TryStatement ::= try Block Catchesopt Finally
             //
-            case 157: {
-               //#line 1759 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1757 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 158: {
+               //#line 1760 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1757 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1757 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1759 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1760 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                       break;
             }
     
             //
-            // Rule 158:  Catches ::= CatchClause
+            // Rule 159:  Catches ::= CatchClause
             //
-            case 158: {
-               //#line 1765 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1763 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 159: {
+               //#line 1766 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1764 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1765 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1766 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2797,84 +2797,84 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 159:  Catches ::= Catches CatchClause
+            // Rule 160:  Catches ::= Catches CatchClause
             //
-            case 159: {
-               //#line 1772 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1770 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 160: {
+               //#line 1773 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1771 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1770 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1771 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1772 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1773 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                       break;
             }
     
             //
-            // Rule 160:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 161:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 160: {
-               //#line 1779 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1777 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 161: {
+               //#line 1780 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1778 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1777 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1778 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1779 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1780 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                       break;
             }
     
             //
-            // Rule 161:  Finally ::= finally Block
+            // Rule 162:  Finally ::= finally Block
             //
-            case 161: {
-               //#line 1785 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1783 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 162: {
+               //#line 1786 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1784 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1785 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1786 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
     
             //
-            // Rule 162:  NowStatement ::= now ( Clock ) Statement
+            // Rule 163:  NowStatement ::= now ( Clock ) Statement
             //
-            case 162: {
-               //#line 1791 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1789 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 163: {
+               //#line 1792 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1790 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1789 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1790 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1791 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1792 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                       break;
             }
     
             //
-            // Rule 163:  ClockedClause ::= clocked ( ClockList )
+            // Rule 164:  ClockedClause ::= clocked ( ClockList )
             //
-            case 163: {
-               //#line 1797 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1795 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 164: {
+               //#line 1798 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1796 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1797 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1798 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 164:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 165:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 164: {
-               //#line 1803 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1801 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 165: {
+               //#line 1804 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1802 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1801 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1802 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1801 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1802 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1803 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1804 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -2883,78 +2883,78 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 165:  AtStatement ::= at PlaceExpressionSingleList Statement
+            // Rule 166:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
-            case 165: {
-               //#line 1812 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1810 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 166: {
+               //#line 1813 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1811 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1810 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1811 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1812 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1813 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
                       break;
             }
     
             //
-            // Rule 166:  AtomicStatement ::= atomic Statement
+            // Rule 167:  AtomicStatement ::= atomic Statement
             //
-            case 166: {
-               //#line 1818 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1816 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 167: {
+               //#line 1819 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1817 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1818 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1819 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
                       break;
             }
     
             //
-            // Rule 167:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 168:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 167: {
-               //#line 1825 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1823 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 168: {
+               //#line 1826 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1824 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1823 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1824 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1825 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1826 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 168:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 169:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 168: {
-               //#line 1830 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1828 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 169: {
+               //#line 1831 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1829 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1828 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1829 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1828 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1829 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1828 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1829 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1830 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1831 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                       break;
             }
     
             //
-            // Rule 169:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
+            // Rule 170:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 169: {
-               //#line 1837 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1835 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 170: {
+               //#line 1838 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1835 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1835 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1835 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1837 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1838 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -2968,19 +2968,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 170:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
+            // Rule 171:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 170: {
-               //#line 1851 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1849 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 171: {
+               //#line 1852 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1850 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1849 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1850 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1849 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1850 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1849 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1850 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1851 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1852 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -2994,17 +2994,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 171:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
+            // Rule 172:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
-            case 171: {
-               //#line 1865 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 172: {
+               //#line 1866 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1865 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1866 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -3017,27 +3017,27 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 172:  FinishStatement ::= finish Statement
+            // Rule 173:  FinishStatement ::= finish Statement
             //
-            case 172: {
-               //#line 1878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1876 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 173: {
+               //#line 1879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement));
                       break;
             }
     
             //
-            // Rule 173:  AnnotationStatement ::= Annotations Statement
+            // Rule 174:  AnnotationStatement ::= Annotations Statement
             //
-            case 173: {
-               //#line 1885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1883 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 174: {
+               //#line 1886 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1884 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1883 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1884 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1886 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
                     Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
                 }
@@ -3046,48 +3046,48 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 174:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 175:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 174: {
-               //#line 1894 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1892 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 175: {
+               //#line 1895 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1893 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1894 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1895 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
                       break;
             }
     
             //
-            // Rule 176:  NextStatement ::= next ;
+            // Rule 177:  NextStatement ::= next ;
             //
-            case 176: {
-               //#line 1902 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 177: {
+               //#line 1903 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1902 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1903 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Next(pos()));
                       break;
             }
     
             //
-            // Rule 177:  AwaitStatement ::= await Expression ;
+            // Rule 178:  AwaitStatement ::= await Expression ;
             //
-            case 177: {
-               //#line 1908 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 178: {
+               //#line 1909 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1907 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1908 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1909 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Await(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 178:  ClockList ::= Clock
+            // Rule 179:  ClockList ::= Clock
             //
-            case 178: {
-               //#line 1914 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1912 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 179: {
+               //#line 1915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1913 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1914 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -3095,68 +3095,68 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 179:  ClockList ::= ClockList , Clock
+            // Rule 180:  ClockList ::= ClockList , Clock
             //
-            case 179: {
-               //#line 1921 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1919 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 180: {
+               //#line 1922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1920 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1919 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1920 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1921 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 180:  Clock ::= Expression
+            // Rule 181:  Clock ::= Expression
             //
-            case 180: {
-               //#line 1929 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1927 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 181: {
+               //#line 1930 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1928 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1929 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1930 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
     setResult(Expression);
                       break;
             }
     
             //
-            // Rule 181:  CastExpression ::= CastExpression as Type
+            // Rule 182:  CastExpression ::= CastExpression as Type
             //
-            case 181: {
-               //#line 1943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1941 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 182: {
+               //#line 1944 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 1941 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1944 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
                       break;
             }
     
             //
-            // Rule 182:  CastExpression ::= ConditionalExpression ! Expression
+            // Rule 183:  CastExpression ::= ConditionalExpression ! Expression
             //
-            case 182: {
-               //#line 1948 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1946 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 183: {
+               //#line 1949 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1947 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1946 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1947 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1948 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1949 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
                       break;
             }
     
             //
-            // Rule 184:  TypeParamWithVarianceList ::= TypeParamWithVariance
+            // Rule 185:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
-            case 184: {
-               //#line 1957 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1955 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 185: {
+               //#line 1958 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1956 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
-                //#line 1957 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1958 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParamWithVariance);
                 setResult(l);
@@ -3164,28 +3164,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 185:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
+            // Rule 186:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
-            case 185: {
-               //#line 1964 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1962 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 186: {
+               //#line 1965 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1963 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(1);
-                //#line 1962 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1963 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(3);
-                //#line 1964 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1965 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParamWithVarianceList.add(TypeParamWithVariance);
                 setResult(TypeParamWithVarianceList);
                       break;
             }
     
             //
-            // Rule 186:  TypeParameterList ::= TypeParameter
+            // Rule 187:  TypeParameterList ::= TypeParameter
             //
-            case 186: {
-               //#line 1971 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1969 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 187: {
+               //#line 1972 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1970 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 1971 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1972 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -3193,87 +3193,87 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 187:  TypeParameterList ::= TypeParameterList , TypeParameter
+            // Rule 188:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
-            case 187: {
-               //#line 1978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1976 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 188: {
+               //#line 1979 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 1976 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 1978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1979 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                       break;
             }
     
             //
-            // Rule 188:  TypeParamWithVariance ::= Identifier
+            // Rule 189:  TypeParamWithVariance ::= Identifier
             //
-            case 188: {
-               //#line 1985 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1983 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 189: {
+               //#line 1986 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1984 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1985 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1986 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
                       break;
             }
     
             //
-            // Rule 189:  TypeParamWithVariance ::= + Identifier
+            // Rule 190:  TypeParamWithVariance ::= + Identifier
             //
-            case 189: {
-               //#line 1990 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1988 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 190: {
+               //#line 1991 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1989 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1990 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1991 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
                       break;
             }
     
             //
-            // Rule 190:  TypeParamWithVariance ::= - Identifier
+            // Rule 191:  TypeParamWithVariance ::= - Identifier
             //
-            case 190: {
-               //#line 1995 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1993 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 191: {
+               //#line 1996 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1994 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1995 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1996 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
                       break;
             }
     
             //
-            // Rule 191:  TypeParameter ::= Identifier
+            // Rule 192:  TypeParameter ::= Identifier
             //
-            case 191: {
-               //#line 2001 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1999 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 192: {
+               //#line 2002 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2000 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2001 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2002 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 192:  Primary ::= here
+            // Rule 193:  Primary ::= here
             //
-            case 192: {
-               //#line 2007 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 193: {
+               //#line 2008 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2007 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2008 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                       break;
             }
     
             //
-            // Rule 194:  RegionExpressionList ::= RegionExpression
+            // Rule 195:  RegionExpressionList ::= RegionExpression
             //
-            case 194: {
-               //#line 2015 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2013 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 195: {
+               //#line 2016 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2014 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 2015 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2016 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -3281,107 +3281,107 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 195:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 196:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 195: {
-               //#line 2022 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 196: {
+               //#line 2023 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 2020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 2022 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2023 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                       break;
             }
     
             //
-            // Rule 196:  Primary ::= [ ArgumentListopt ]
+            // Rule 197:  Primary ::= [ ArgumentListopt ]
             //
-            case 196: {
-               //#line 2029 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2027 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 197: {
+               //#line 2030 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2028 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 2029 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2030 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                       break;
             }
     
             //
-            // Rule 197:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 198:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 197: {
-               //#line 2036 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 198: {
+               //#line 2037 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2035 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2035 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2036 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2037 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                       break;
             }
     
             //
-            // Rule 198:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
+            // Rule 199:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
             //
-            case 198: {
-               //#line 2043 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 199: {
+               //#line 2044 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(1);
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(2);
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 2041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2042 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
-                //#line 2043 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2044 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
                       break;
             }
     
             //
-            // Rule 199:  LastExpression ::= Expression
+            // Rule 200:  LastExpression ::= Expression
             //
-            case 199: {
-               //#line 2050 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2048 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 200: {
+               //#line 2051 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2049 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2050 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2051 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                       break;
             }
     
             //
-            // Rule 200:  ClosureBody ::= CastExpression
+            // Rule 201:  ClosureBody ::= CastExpression
             //
-            case 200: {
-               //#line 2056 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2054 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 201: {
+               //#line 2057 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2055 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2056 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2057 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
                       break;
             }
     
             //
-            // Rule 201:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 202:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 201: {
-               //#line 2061 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 202: {
+               //#line 2062 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2060 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2060 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2060 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2061 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2062 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -3392,15 +3392,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 202:  ClosureBody ::= Annotationsopt Block
+            // Rule 203:  ClosureBody ::= Annotationsopt Block
             //
-            case 202: {
-               //#line 2071 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 203: {
+               //#line 2072 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2071 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2072 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
                 setResult(b);
@@ -3408,248 +3408,248 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 203:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
+            // Rule 204:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
-            case 203: {
-               //#line 2080 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2078 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 204: {
+               //#line 2081 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2079 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2078 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2079 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2080 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2081 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 204:  AsyncExpression ::= async ClosureBody
+            // Rule 205:  AsyncExpression ::= async ClosureBody
             //
-            case 204: {
-               //#line 2086 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2084 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 205: {
+               //#line 2087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2085 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2086 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 205:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
+            // Rule 206:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
-            case 205: {
-               //#line 2091 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2089 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 206: {
+               //#line 2092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2090 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2089 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2090 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2091 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 206:  AsyncExpression ::= async [ Type ] ClosureBody
+            // Rule 207:  AsyncExpression ::= async [ Type ] ClosureBody
             //
-            case 206: {
-               //#line 2096 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2094 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 207: {
+               //#line 2097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2095 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2094 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2095 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2096 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 207:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 208:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 207: {
-               //#line 2101 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2099 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 208: {
+               //#line 2102 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2100 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2099 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2100 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2099 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2100 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2101 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2102 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 208:  FutureExpression ::= future ClosureBody
+            // Rule 209:  FutureExpression ::= future ClosureBody
             //
-            case 208: {
-               //#line 2107 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2105 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 209: {
+               //#line 2108 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2106 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2107 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2108 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 209:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
+            // Rule 210:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
-            case 209: {
-               //#line 2112 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2110 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 210: {
+               //#line 2113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2111 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2110 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2111 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2112 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 210:  FutureExpression ::= future [ Type ] ClosureBody
+            // Rule 211:  FutureExpression ::= future [ Type ] ClosureBody
             //
-            case 210: {
-               //#line 2117 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2115 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 211: {
+               //#line 2118 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2116 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2115 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2116 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2117 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2118 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                       break;
             }
     
             //
-            // Rule 211:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 212:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 211: {
-               //#line 2122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 212: {
+               //#line 2123 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2121 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2121 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2121 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2123 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                       break;
             }
     
             //
-            // Rule 212:  DepParametersopt ::= $Empty
+            // Rule 213:  DepParametersopt ::= $Empty
             //
-            case 212:
+            case 213:
                 setResult(null);
                 break;
 
             //
-            // Rule 214:  PropertyListopt ::= $Empty
+            // Rule 215:  PropertyListopt ::= $Empty
             //
-            case 214: {
-               //#line 2133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 215: {
+               //#line 2134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
     
             //
-            // Rule 216:  WhereClauseopt ::= $Empty
+            // Rule 217:  WhereClauseopt ::= $Empty
             //
-            case 216:
+            case 217:
                 setResult(null);
                 break;
 
             //
-            // Rule 218:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 219:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 218:
+            case 219:
                 setResult(null);
                 break;
 
             //
-            // Rule 220:  ClassModifiersopt ::= $Empty
+            // Rule 221:  ClassModifiersopt ::= $Empty
             //
-            case 220: {
-               //#line 2148 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 221: {
+               //#line 2149 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2148 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2149 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
             //
-            // Rule 222:  TypeDefModifiersopt ::= $Empty
+            // Rule 223:  TypeDefModifiersopt ::= $Empty
             //
-            case 222: {
-               //#line 2154 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 223: {
+               //#line 2155 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2154 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2155 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
             //
-            // Rule 224:  Unsafeopt ::= $Empty
+            // Rule 225:  Unsafeopt ::= $Empty
             //
-            case 224:
+            case 225:
                 setResult(null);
                 break;
 
             //
-            // Rule 225:  Unsafeopt ::= unsafe
+            // Rule 226:  Unsafeopt ::= unsafe
             //
-            case 225: {
-               //#line 2162 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 226: {
+               //#line 2163 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2162 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2163 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 // any value distinct from null
                 setResult(this);
                       break;
             }
     
             //
-            // Rule 226:  ClockedClauseopt ::= $Empty
+            // Rule 227:  ClockedClauseopt ::= $Empty
             //
-            case 226: {
-               //#line 2169 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 227: {
+               //#line 2170 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2169 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2170 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 228:  identifier ::= IDENTIFIER$ident
+            // Rule 229:  identifier ::= IDENTIFIER$ident
             //
-            case 228: {
-               //#line 2180 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2178 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 229: {
+               //#line 2181 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2179 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2180 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2181 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 229:  TypeName ::= Identifier
+            // Rule 230:  TypeName ::= Identifier
             //
-            case 229: {
-               //#line 2187 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2185 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 230: {
+               //#line 2188 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2186 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2187 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2188 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 230:  TypeName ::= TypeName . Identifier
+            // Rule 231:  TypeName ::= TypeName . Identifier
             //
-            case 230: {
-               //#line 2192 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2190 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 231: {
+               //#line 2193 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2191 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2190 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2191 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2192 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2193 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3659,25 +3659,25 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 232:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 233:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 232: {
-               //#line 2204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2202 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 233: {
+               //#line 2205 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2203 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 2204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2205 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
                       break;
             }
     
             //
-            // Rule 233:  TypeArgumentList ::= Type
+            // Rule 234:  TypeArgumentList ::= Type
             //
-            case 233: {
-               //#line 2211 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2209 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 234: {
+               //#line 2212 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2211 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2212 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -3685,41 +3685,41 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 234:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 235:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 234: {
-               //#line 2218 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 235: {
+               //#line 2219 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2218 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2219 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
                       break;
             }
     
             //
-            // Rule 235:  PackageName ::= Identifier
+            // Rule 236:  PackageName ::= Identifier
             //
-            case 235: {
-               //#line 2228 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2226 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 236: {
+               //#line 2229 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2227 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2228 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2229 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 236:  PackageName ::= PackageName . Identifier
+            // Rule 237:  PackageName ::= PackageName . Identifier
             //
-            case 236: {
-               //#line 2233 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2231 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 237: {
+               //#line 2234 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2232 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2231 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2232 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2233 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2234 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3729,57 +3729,27 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 237:  ExpressionName ::= Identifier
-            //
-            case 237: {
-               //#line 2249 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2247 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2249 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-                      break;
-            }
-    
-            //
-            // Rule 238:  ExpressionName ::= AmbiguousName . Identifier
+            // Rule 238:  ExpressionName ::= Identifier
             //
             case 238: {
-               //#line 2254 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2252 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2252 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 2254 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new X10ParsedName(nf,
-                                  ts,
-                                  pos(getLeftSpan(), getRightSpan()),
-                                  AmbiguousName,
-                                  Identifier));
+               //#line 2250 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2248 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2250 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 239:  MethodName ::= Identifier
+            // Rule 239:  ExpressionName ::= AmbiguousName . Identifier
             //
             case 239: {
-               //#line 2264 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2262 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(1);
-                //#line 2264 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-                      break;
-            }
-    
-            //
-            // Rule 240:  MethodName ::= AmbiguousName . Identifier
-            //
-            case 240: {
-               //#line 2269 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2267 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2255 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2253 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2267 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2253 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2269 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2255 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3789,27 +3759,57 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 241:  PackageOrTypeName ::= Identifier
+            // Rule 240:  MethodName ::= Identifier
             //
-            case 241: {
-               //#line 2279 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2277 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 240: {
+               //#line 2265 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2263 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2279 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2265 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 242:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 241:  MethodName ::= AmbiguousName . Identifier
+            //
+            case 241: {
+               //#line 2270 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2268 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
+                //#line 2268 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 2270 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new X10ParsedName(nf,
+                                  ts,
+                                  pos(getLeftSpan(), getRightSpan()),
+                                  AmbiguousName,
+                                  Identifier));
+                      break;
+            }
+    
+            //
+            // Rule 242:  PackageOrTypeName ::= Identifier
             //
             case 242: {
-               //#line 2284 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2282 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2280 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2278 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(1);
+                //#line 2280 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+                      break;
+            }
+    
+            //
+            // Rule 243:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            //
+            case 243: {
+               //#line 2285 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2283 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2282 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2283 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2284 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2285 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3819,27 +3819,27 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 243:  AmbiguousName ::= Identifier
+            // Rule 244:  AmbiguousName ::= Identifier
             //
-            case 243: {
-               //#line 2294 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2292 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 244: {
+               //#line 2295 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2293 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2294 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2295 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 244:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 245:  AmbiguousName ::= AmbiguousName . Identifier
             //
-            case 244: {
-               //#line 2299 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2297 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 245: {
+               //#line 2300 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2298 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2297 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2298 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2299 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2300 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3849,17 +3849,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 245:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 246:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
-            case 245: {
-               //#line 2311 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2309 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 246: {
+               //#line 2312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2310 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2309 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2310 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2309 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2310 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2311 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3875,13 +3875,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 246:  ImportDeclarations ::= ImportDeclaration
+            // Rule 247:  ImportDeclarations ::= ImportDeclaration
             //
-            case 246: {
-               //#line 2327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2325 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 247: {
+               //#line 2328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2326 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3889,15 +3889,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 247:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 248:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 247: {
-               //#line 2334 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2332 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 248: {
+               //#line 2335 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2333 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2332 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2333 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2334 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2335 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -3905,13 +3905,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 248:  TypeDeclarations ::= TypeDeclaration
+            // Rule 249:  TypeDeclarations ::= TypeDeclaration
             //
-            case 248: {
-               //#line 2342 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2340 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 249: {
+               //#line 2343 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2341 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2342 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2343 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -3920,15 +3920,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 249:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 250:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 249: {
-               //#line 2350 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2348 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 250: {
+               //#line 2351 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2349 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2348 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2349 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2350 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2351 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -3936,15 +3936,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 250:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 251:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 250: {
-               //#line 2358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2356 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 251: {
+               //#line 2359 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2356 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2359 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn);
@@ -3952,48 +3952,48 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 253:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 254:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 253: {
-               //#line 2372 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2370 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 254: {
+               //#line 2373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2371 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2372 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                       break;
             }
     
             //
-            // Rule 254:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 255:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 254: {
-               //#line 2378 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2376 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 255: {
+               //#line 2379 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2377 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2378 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2379 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                       break;
             }
     
             //
-            // Rule 258:  TypeDeclaration ::= ;
+            // Rule 259:  TypeDeclaration ::= ;
             //
-            case 258: {
-               //#line 2393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 259: {
+               //#line 2394 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2394 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
     
             //
-            // Rule 259:  ClassModifiers ::= ClassModifier
+            // Rule 260:  ClassModifiers ::= ClassModifier
             //
-            case 259: {
-               //#line 2401 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2399 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 260: {
+               //#line 2402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2400 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2401 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -4001,138 +4001,138 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 260:  ClassModifiers ::= ClassModifiers ClassModifier
+            // Rule 261:  ClassModifiers ::= ClassModifiers ClassModifier
             //
-            case 260: {
-               //#line 2408 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2406 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 261: {
+               //#line 2409 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2407 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2406 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2407 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2408 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2409 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassModifiers.addAll(ClassModifier);
                       break;
             }
     
             //
-            // Rule 261:  ClassModifier ::= Annotation
+            // Rule 262:  ClassModifier ::= Annotation
             //
-            case 261: {
-               //#line 2414 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2412 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 262: {
+               //#line 2415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2413 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2414 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 262:  ClassModifier ::= public
+            // Rule 263:  ClassModifier ::= public
             //
-            case 262: {
-               //#line 2419 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 263: {
+               //#line 2420 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2419 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2420 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 263:  ClassModifier ::= protected
+            // Rule 264:  ClassModifier ::= protected
             //
-            case 263: {
-               //#line 2424 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 264: {
+               //#line 2425 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2424 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2425 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 264:  ClassModifier ::= private
+            // Rule 265:  ClassModifier ::= private
             //
-            case 264: {
-               //#line 2429 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 265: {
+               //#line 2430 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2429 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2430 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 265:  ClassModifier ::= abstract
+            // Rule 266:  ClassModifier ::= abstract
             //
-            case 265: {
-               //#line 2434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 266: {
+               //#line 2435 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2435 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 266:  ClassModifier ::= static
+            // Rule 267:  ClassModifier ::= static
             //
-            case 266: {
-               //#line 2439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 267: {
+               //#line 2440 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2440 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 267:  ClassModifier ::= final
+            // Rule 268:  ClassModifier ::= final
             //
-            case 267: {
-               //#line 2444 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 268: {
+               //#line 2445 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2444 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2445 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 268:  ClassModifier ::= strictfp
+            // Rule 269:  ClassModifier ::= strictfp
             //
-            case 268: {
-               //#line 2449 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 269: {
+               //#line 2450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2449 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
     
             //
-            // Rule 269:  ClassModifier ::= safe
+            // Rule 270:  ClassModifier ::= safe
             //
-            case 269: {
-               //#line 2454 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 270: {
+               //#line 2455 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2454 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2455 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
     
             //
-            // Rule 270:  ClassModifier ::= value
+            // Rule 271:  ClassModifier ::= value
             //
-            case 270: {
-               //#line 2459 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 271: {
+               //#line 2460 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2459 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2460 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.VALUE)));
                       break;
             }
     
             //
-            // Rule 271:  TypeDefModifiers ::= TypeDefModifier
+            // Rule 272:  TypeDefModifiers ::= TypeDefModifier
             //
-            case 271: {
-               //#line 2465 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2463 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 272: {
+               //#line 2466 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2464 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2465 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2466 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -4140,117 +4140,117 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 272:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
+            // Rule 273:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
-            case 272: {
-               //#line 2472 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2470 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 273: {
+               //#line 2473 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2471 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2470 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2471 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2472 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2473 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                       break;
             }
     
             //
-            // Rule 273:  TypeDefModifier ::= Annotation
+            // Rule 274:  TypeDefModifier ::= Annotation
             //
-            case 273: {
-               //#line 2478 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2476 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 274: {
+               //#line 2479 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2477 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2478 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2479 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 274:  TypeDefModifier ::= public
+            // Rule 275:  TypeDefModifier ::= public
             //
-            case 274: {
-               //#line 2483 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 275: {
+               //#line 2484 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2483 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2484 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 275:  TypeDefModifier ::= protected
+            // Rule 276:  TypeDefModifier ::= protected
             //
-            case 275: {
-               //#line 2488 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 276: {
+               //#line 2489 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2488 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2489 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 276:  TypeDefModifier ::= private
+            // Rule 277:  TypeDefModifier ::= private
             //
-            case 276: {
-               //#line 2493 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 277: {
+               //#line 2494 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2493 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2494 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 277:  TypeDefModifier ::= abstract
+            // Rule 278:  TypeDefModifier ::= abstract
             //
-            case 277: {
-               //#line 2498 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 278: {
+               //#line 2499 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2498 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2499 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 278:  TypeDefModifier ::= static
+            // Rule 279:  TypeDefModifier ::= static
             //
-            case 278: {
-               //#line 2503 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 279: {
+               //#line 2504 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2503 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2504 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 279:  TypeDefModifier ::= final
+            // Rule 280:  TypeDefModifier ::= final
             //
-            case 279: {
-               //#line 2508 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 280: {
+               //#line 2509 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2508 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2509 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 280:  Interfaces ::= implements InterfaceTypeList
+            // Rule 281:  Interfaces ::= implements InterfaceTypeList
             //
-            case 280: {
-               //#line 2517 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2515 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 281: {
+               //#line 2518 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2516 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2517 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2518 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 281:  InterfaceTypeList ::= Type
+            // Rule 282:  InterfaceTypeList ::= Type
             //
-            case 281: {
-               //#line 2523 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2521 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 282: {
+               //#line 2524 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2522 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2523 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2524 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4258,55 +4258,55 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 282:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 283:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 282: {
-               //#line 2530 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2528 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 283: {
+               //#line 2531 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2529 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2528 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2529 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2530 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2531 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 283:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 284:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 283: {
-               //#line 2540 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2538 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 284: {
+               //#line 2541 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2539 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2540 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2541 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 285:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 286:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 285: {
-               //#line 2547 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2545 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 286: {
+               //#line 2548 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2546 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2545 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2546 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2547 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2548 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                       break;
             }
     
             //
-            // Rule 287:  ClassBodyDeclaration ::= InstanceInitializer
+            // Rule 288:  ClassBodyDeclaration ::= InstanceInitializer
             //
-            case 287: {
-               //#line 2555 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2553 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 288: {
+               //#line 2556 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2554 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Initializer InstanceInitializer = (Initializer) getRhsSym(1);
-                //#line 2555 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2556 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InstanceInitializer);
                 setResult(l);
@@ -4314,13 +4314,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 288:  ClassBodyDeclaration ::= StaticInitializer
+            // Rule 289:  ClassBodyDeclaration ::= StaticInitializer
             //
-            case 288: {
-               //#line 2562 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2560 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 289: {
+               //#line 2563 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2561 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Initializer StaticInitializer = (Initializer) getRhsSym(1);
-                //#line 2562 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2563 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(StaticInitializer);
                 setResult(l);
@@ -4328,13 +4328,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 289:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 290:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 289: {
-               //#line 2569 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2567 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 290: {
+               //#line 2570 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2568 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2569 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2570 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -4342,13 +4342,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 291:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 292:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 291: {
-               //#line 2578 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2576 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 292: {
+               //#line 2579 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2577 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2578 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2579 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4356,13 +4356,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 292:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 293:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 292: {
-               //#line 2585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2583 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 293: {
+               //#line 2586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2584 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -4370,13 +4370,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 293:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 294:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 293: {
-               //#line 2592 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2590 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 294: {
+               //#line 2593 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2591 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2592 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2593 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -4384,13 +4384,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 294:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 295:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 294: {
-               //#line 2599 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2597 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 295: {
+               //#line 2600 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2598 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2599 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2600 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4398,13 +4398,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 295:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 296:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 295: {
-               //#line 2606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2604 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 296: {
+               //#line 2607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2605 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4412,25 +4412,25 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 296:  ClassMemberDeclaration ::= ;
+            // Rule 297:  ClassMemberDeclaration ::= ;
             //
-            case 296: {
-               //#line 2613 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 297: {
+               //#line 2614 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2613 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2614 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                       break;
             }
     
             //
-            // Rule 297:  FormalDeclarators ::= FormalDeclarator
+            // Rule 298:  FormalDeclarators ::= FormalDeclarator
             //
-            case 297: {
-               //#line 2620 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2618 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 298: {
+               //#line 2621 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2619 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2620 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2621 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -4438,27 +4438,27 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 298:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 299:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 298: {
-               //#line 2627 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2625 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 299: {
+               //#line 2628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2626 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2625 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2626 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2627 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
                       break;
             }
     
             //
-            // Rule 299:  FieldDeclarators ::= FieldDeclarator
+            // Rule 300:  FieldDeclarators ::= FieldDeclarator
             //
-            case 299: {
-               //#line 2634 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2632 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 300: {
+               //#line 2635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2633 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2634 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -4466,28 +4466,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 300:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 301:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 300: {
-               //#line 2641 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2639 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 301: {
+               //#line 2642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2640 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2639 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2640 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2641 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                       break;
             }
     
             //
-            // Rule 301:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 302:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 301: {
-               //#line 2649 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2647 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 302: {
+               //#line 2650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2648 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 2649 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -4495,28 +4495,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 302:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 303:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 302: {
-               //#line 2656 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2654 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 303: {
+               //#line 2657 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2655 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2654 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2655 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 2656 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2657 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                       break;
             }
     
             //
-            // Rule 303:  VariableDeclarators ::= VariableDeclarator
+            // Rule 304:  VariableDeclarators ::= VariableDeclarator
             //
-            case 303: {
-               //#line 2663 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2661 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 304: {
+               //#line 2664 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2662 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2663 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2664 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -4524,28 +4524,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 304:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 305:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 304: {
-               //#line 2670 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2668 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 305: {
+               //#line 2671 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2669 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2668 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2669 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2670 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2671 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                       break;
             }
     
             //
-            // Rule 306:  FieldModifiers ::= FieldModifier
+            // Rule 307:  FieldModifiers ::= FieldModifier
             //
-            case 306: {
-               //#line 2679 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2677 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 307: {
+               //#line 2680 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2678 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2679 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2680 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -4553,129 +4553,129 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 307:  FieldModifiers ::= FieldModifiers FieldModifier
+            // Rule 308:  FieldModifiers ::= FieldModifiers FieldModifier
             //
-            case 307: {
-               //#line 2686 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 308: {
+               //#line 2687 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2685 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2685 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2686 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2687 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldModifiers.addAll(FieldModifier);
                       break;
             }
     
             //
-            // Rule 308:  FieldModifier ::= Annotation
+            // Rule 309:  FieldModifier ::= Annotation
             //
-            case 308: {
-               //#line 2692 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2690 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 309: {
+               //#line 2693 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2691 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2692 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2693 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 309:  FieldModifier ::= public
+            // Rule 310:  FieldModifier ::= public
             //
-            case 309: {
-               //#line 2697 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 310: {
+               //#line 2698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2697 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2698 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 310:  FieldModifier ::= protected
+            // Rule 311:  FieldModifier ::= protected
             //
-            case 310: {
-               //#line 2702 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 311: {
+               //#line 2703 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2702 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2703 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 311:  FieldModifier ::= private
+            // Rule 312:  FieldModifier ::= private
             //
-            case 311: {
-               //#line 2707 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 312: {
+               //#line 2708 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2707 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2708 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 312:  FieldModifier ::= static
+            // Rule 313:  FieldModifier ::= static
             //
-            case 312: {
-               //#line 2712 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 313: {
+               //#line 2713 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2712 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2713 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 313:  FieldModifier ::= transient
+            // Rule 314:  FieldModifier ::= transient
             //
-            case 313: {
-               //#line 2717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 314: {
+               //#line 2718 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2718 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.TRANSIENT)));
                       break;
             }
     
             //
-            // Rule 314:  FieldModifier ::= volatile
+            // Rule 315:  FieldModifier ::= volatile
             //
-            case 314: {
-               //#line 2722 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 315: {
+               //#line 2723 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2722 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2723 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
                       break;
             }
     
             //
-            // Rule 315:  ResultType ::= : Type
+            // Rule 316:  ResultType ::= : Type
             //
-            case 315: {
-               //#line 2728 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2726 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 316: {
+               //#line 2729 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2727 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2728 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2729 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 316:  FormalParameters ::= ( FormalParameterList )
+            // Rule 317:  FormalParameters ::= ( FormalParameterList )
             //
-            case 316: {
-               //#line 2734 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2732 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 317: {
+               //#line 2735 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2733 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2734 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2735 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterList);
                       break;
             }
     
             //
-            // Rule 317:  FormalParameterList ::= FormalParameter
+            // Rule 318:  FormalParameterList ::= FormalParameter
             //
-            case 317: {
-               //#line 2740 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2738 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 318: {
+               //#line 2741 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2739 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2740 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2741 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4683,107 +4683,107 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 318:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 319:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 318: {
-               //#line 2747 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2745 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 319: {
+               //#line 2748 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2746 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2745 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2746 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2747 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2748 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
                       break;
             }
     
             //
-            // Rule 319:  LoopIndexDeclarator ::= Identifier ResultTypeopt
+            // Rule 320:  LoopIndexDeclarator ::= Identifier ResultTypeopt
             //
-            case 319: {
-               //#line 2753 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2751 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 320: {
+               //#line 2754 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2752 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2751 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2752 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 2753 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2754 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 320:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
+            // Rule 321:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
             //
-            case 320: {
-               //#line 2758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2756 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 321: {
+               //#line 2759 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2757 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 2756 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2757 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2759 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 321:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
+            // Rule 322:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
             //
-            case 321: {
-               //#line 2763 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2761 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 322: {
+               //#line 2764 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2762 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2761 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2762 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 2761 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2762 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 2763 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2764 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 322:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
-            //
-            case 322: {
-               //#line 2769 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2767 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2767 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 2769 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-            Formal f;
-                        	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
-            Object[] o = LoopIndexDeclarator;
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            boolean unnamed = name == null;
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-               List exploded = (List) o[2];
-                        DepParameterExpr guard = (DepParameterExpr) o[3];
-                        TypeNode type = (TypeNode) o[4];
-                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-                        List explodedFormals = new ArrayList();
-                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
-                        	Id id = (Id) i.next();
-                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
-                        }
-            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
-            setResult(f);
-                      break;
-            }
-    
-            //
-            // Rule 323:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 323:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
             //
             case 323: {
-               //#line 2792 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2790 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 2770 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2768 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2790 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2768 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
+                //#line 2770 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            Formal f;
+                        	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+            Object[] o = LoopIndexDeclarator;
+            Position pos = (Position) o[0];
+            Id name = (Id) o[1];
+            boolean unnamed = name == null;
+            if (name == null) name = nf.Id(pos, Name.makeFresh());
+               List exploded = (List) o[2];
+                        DepParameterExpr guard = (DepParameterExpr) o[3];
+                        TypeNode type = (TypeNode) o[4];
+                        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+                        List explodedFormals = new ArrayList();
+                        for (Iterator i = exploded.iterator(); i.hasNext(); ) {
+                        	Id id = (Id) i.next();
+                        	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
+                        }
+            f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
+            f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+            setResult(f);
+                      break;
+            }
+    
+            //
+            // Rule 324:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            //
+            case 324: {
+               //#line 2793 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2791 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                List VariableModifiersopt = (List) getRhsSym(1);
+                //#line 2791 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2790 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2791 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 2792 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2793 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = LoopIndexDeclarator;
@@ -4807,15 +4807,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 324:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            // Rule 325:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
-            case 324: {
-               //#line 2816 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2814 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 325: {
+               //#line 2817 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2815 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2814 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2815 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2816 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2817 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -4840,17 +4840,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 325:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
+            // Rule 326:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
-            case 325: {
-               //#line 2840 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2838 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 326: {
+               //#line 2841 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2839 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2838 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2839 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2838 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2839 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2840 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2841 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -4875,13 +4875,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 326:  FormalParameter ::= Type
+            // Rule 327:  FormalParameter ::= Type
             //
-            case 326: {
-               //#line 2864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2862 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 327: {
+               //#line 2865 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2865 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST, true);
             setResult(f);
@@ -4889,13 +4889,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 327:  VariableModifiers ::= VariableModifier
+            // Rule 328:  VariableModifiers ::= VariableModifier
             //
-            case 327: {
-               //#line 2872 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2870 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 328: {
+               //#line 2873 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2871 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2872 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2873 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -4903,50 +4903,50 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 328:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 329:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 328: {
-               //#line 2879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 329: {
+               //#line 2880 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2880 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableModifiers.addAll(VariableModifier);
                       break;
             }
     
             //
-            // Rule 329:  VariableModifier ::= Annotation
+            // Rule 330:  VariableModifier ::= Annotation
             //
-            case 329: {
-               //#line 2885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2883 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 330: {
+               //#line 2886 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2884 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2886 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 330:  VariableModifier ::= shared
+            // Rule 331:  VariableModifier ::= shared
             //
-            case 330: {
-               //#line 2890 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 331: {
+               //#line 2891 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2890 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2891 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
                       break;
             }
     
             //
-            // Rule 331:  MethodModifiers ::= MethodModifier
+            // Rule 332:  MethodModifiers ::= MethodModifier
             //
-            case 331: {
-               //#line 2899 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2897 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 332: {
+               //#line 2900 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2898 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2899 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2900 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -4954,227 +4954,227 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 332:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 333:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 332: {
-               //#line 2906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2904 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 333: {
+               //#line 2907 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2904 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2907 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiers.addAll(MethodModifier);
                       break;
             }
     
             //
-            // Rule 333:  MethodModifier ::= Annotation
+            // Rule 334:  MethodModifier ::= Annotation
             //
-            case 333: {
-               //#line 2912 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2910 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 334: {
+               //#line 2913 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2911 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2912 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2913 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 334:  MethodModifier ::= public
+            // Rule 335:  MethodModifier ::= public
             //
-            case 334: {
-               //#line 2917 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 335: {
+               //#line 2918 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2917 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2918 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 335:  MethodModifier ::= protected
+            // Rule 336:  MethodModifier ::= protected
             //
-            case 335: {
-               //#line 2922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 336: {
+               //#line 2923 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2923 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 336:  MethodModifier ::= private
+            // Rule 337:  MethodModifier ::= private
             //
-            case 336: {
-               //#line 2927 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 337: {
+               //#line 2928 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2927 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2928 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 337:  MethodModifier ::= abstract
+            // Rule 338:  MethodModifier ::= abstract
             //
-            case 337: {
-               //#line 2932 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 338: {
+               //#line 2933 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2932 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2933 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 338:  MethodModifier ::= static
+            // Rule 339:  MethodModifier ::= static
             //
-            case 338: {
-               //#line 2937 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 339: {
+               //#line 2938 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2937 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2938 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 339:  MethodModifier ::= final
+            // Rule 340:  MethodModifier ::= final
             //
-            case 339: {
-               //#line 2942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 340: {
+               //#line 2943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 340:  MethodModifier ::= native
+            // Rule 341:  MethodModifier ::= native
             //
-            case 340: {
-               //#line 2947 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 341: {
+               //#line 2948 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2947 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2948 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 341:  MethodModifier ::= strictfp
+            // Rule 342:  MethodModifier ::= strictfp
             //
-            case 341: {
-               //#line 2952 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 342: {
+               //#line 2953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2952 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
     
             //
-            // Rule 342:  MethodModifier ::= atomic
+            // Rule 343:  MethodModifier ::= atomic
             //
-            case 342: {
-               //#line 2957 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 343: {
+               //#line 2958 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2957 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2958 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                       break;
             }
     
             //
-            // Rule 343:  MethodModifier ::= extern
+            // Rule 344:  MethodModifier ::= extern
             //
-            case 343: {
-               //#line 2962 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 344: {
+               //#line 2963 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2962 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2963 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                       break;
             }
     
             //
-            // Rule 344:  MethodModifier ::= safe
+            // Rule 345:  MethodModifier ::= safe
             //
-            case 344: {
-               //#line 2967 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 345: {
+               //#line 2968 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2967 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2968 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
     
             //
-            // Rule 345:  MethodModifier ::= sequential
+            // Rule 346:  MethodModifier ::= sequential
             //
-            case 345: {
-               //#line 2972 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 346: {
+               //#line 2973 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2972 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2973 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                       break;
             }
     
             //
-            // Rule 346:  MethodModifier ::= local
+            // Rule 347:  MethodModifier ::= local
             //
-            case 346: {
-               //#line 2977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 347: {
+               //#line 2978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.LOCAL)));
                       break;
             }
     
             //
-            // Rule 347:  MethodModifier ::= nonblocking
+            // Rule 348:  MethodModifier ::= nonblocking
             //
-            case 347: {
-               //#line 2982 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 348: {
+               //#line 2983 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2982 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2983 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                       break;
             }
     
             //
-            // Rule 348:  MethodModifier ::= incomplete
+            // Rule 349:  MethodModifier ::= incomplete
             //
-            case 348: {
-               //#line 2987 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 349: {
+               //#line 2988 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2987 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2988 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                       break;
             }
     
             //
-            // Rule 349:  MethodModifier ::= property
+            // Rule 350:  MethodModifier ::= property
             //
-            case 349: {
-               //#line 2992 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 350: {
+               //#line 2993 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2992 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2993 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                       break;
             }
     
             //
-            // Rule 350:  Throws ::= throws ExceptionTypeList
+            // Rule 351:  Throws ::= throws ExceptionTypeList
             //
-            case 350: {
-               //#line 2999 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2997 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 351: {
+               //#line 3000 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2998 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 2999 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3000 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExceptionTypeList);
                       break;
             }
     
             //
-            // Rule 351:  ExceptionTypeList ::= ExceptionType
+            // Rule 352:  ExceptionTypeList ::= ExceptionType
             //
-            case 351: {
-               //#line 3005 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3003 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 352: {
+               //#line 3006 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3004 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 3005 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3006 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -5182,41 +5182,41 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 352:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 353:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 352: {
-               //#line 3012 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3010 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 353: {
+               //#line 3013 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3011 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 3010 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3011 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 3012 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3013 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
                       break;
             }
     
             //
-            // Rule 354:  MethodBody ::= = LastExpression ;
+            // Rule 355:  MethodBody ::= = LastExpression ;
             //
-            case 354: {
-               //#line 3020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3018 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 355: {
+               //#line 3021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3019 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 3020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
                       break;
             }
     
             //
-            // Rule 355:  MethodBody ::= = { BlockStatementsopt LastExpression }
+            // Rule 356:  MethodBody ::= = { BlockStatementsopt LastExpression }
             //
-            case 355: {
-               //#line 3025 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3023 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 356: {
+               //#line 3026 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3024 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3023 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3024 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 3025 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3026 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -5225,80 +5225,80 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 356:  MethodBody ::= = Block
-            //
-            case 356: {
-               //#line 3033 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3031 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(2);
-                //#line 3033 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Block);
-                      break;
-            }
-    
-            //
-            // Rule 357:  MethodBody ::= Block
+            // Rule 357:  MethodBody ::= = Block
             //
             case 357: {
-               //#line 3038 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3036 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Block Block = (Block) getRhsSym(1);
-                //#line 3038 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3032 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Block Block = (Block) getRhsSym(2);
+                //#line 3034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
     
             //
-            // Rule 358:  MethodBody ::= ;
+            // Rule 358:  MethodBody ::= Block
             //
-            case 358:
+            case 358: {
+               //#line 3039 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3037 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Block Block = (Block) getRhsSym(1);
+                //#line 3039 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Block);
+                      break;
+            }
+    
+            //
+            // Rule 359:  MethodBody ::= ;
+            //
+            case 359:
                 setResult(null);
                 break;
 
             //
-            // Rule 359:  InstanceInitializer ::= Block
+            // Rule 360:  InstanceInitializer ::= Block
             //
-            case 359: {
-               //#line 3046 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3044 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 360: {
+               //#line 3047 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3045 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 3046 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3047 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
                       break;
             }
     
             //
-            // Rule 360:  StaticInitializer ::= static Block
+            // Rule 361:  StaticInitializer ::= static Block
             //
-            case 360: {
-               //#line 3052 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3050 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 361: {
+               //#line 3053 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3051 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 3052 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3053 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
                       break;
             }
     
             //
-            // Rule 361:  SimpleTypeName ::= Identifier
+            // Rule 362:  SimpleTypeName ::= Identifier
             //
-            case 361: {
-               //#line 3058 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3056 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 362: {
+               //#line 3059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3057 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3058 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 362:  ConstructorModifiers ::= ConstructorModifier
+            // Rule 363:  ConstructorModifiers ::= ConstructorModifier
             //
-            case 362: {
-               //#line 3064 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3062 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 363: {
+               //#line 3065 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3063 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 3064 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3065 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -5306,107 +5306,107 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 363:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 364:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 363: {
-               //#line 3071 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 364: {
+               //#line 3072 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 3069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 3071 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3072 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                       break;
             }
     
             //
-            // Rule 364:  ConstructorModifier ::= Annotation
+            // Rule 365:  ConstructorModifier ::= Annotation
             //
-            case 364: {
-               //#line 3077 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3075 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 365: {
+               //#line 3078 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3076 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3077 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3078 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 365:  ConstructorModifier ::= public
+            // Rule 366:  ConstructorModifier ::= public
             //
-            case 365: {
-               //#line 3082 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 366: {
+               //#line 3083 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3082 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3083 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 366:  ConstructorModifier ::= protected
+            // Rule 367:  ConstructorModifier ::= protected
             //
-            case 366: {
-               //#line 3087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 367: {
+               //#line 3088 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3088 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 367:  ConstructorModifier ::= private
+            // Rule 368:  ConstructorModifier ::= private
             //
-            case 367: {
-               //#line 3092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 368: {
+               //#line 3093 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3093 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 368:  ConstructorModifier ::= native
+            // Rule 369:  ConstructorModifier ::= native
             //
-            case 368: {
-               //#line 3097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 369: {
+               //#line 3098 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3098 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 369:  ConstructorBody ::= = ConstructorBlock
-            //
-            case 369: {
-               //#line 3103 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3101 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 3103 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(ConstructorBlock);
-                      break;
-            }
-    
-            //
-            // Rule 370:  ConstructorBody ::= ConstructorBlock
+            // Rule 370:  ConstructorBody ::= = ConstructorBlock
             //
             case 370: {
-               //#line 3108 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3106 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                Block ConstructorBlock = (Block) getRhsSym(1);
-                //#line 3108 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3104 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3102 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Block ConstructorBlock = (Block) getRhsSym(2);
+                //#line 3104 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
     
             //
-            // Rule 371:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 371:  ConstructorBody ::= ConstructorBlock
             //
             case 371: {
-               //#line 3113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3111 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3109 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3107 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                Block ConstructorBlock = (Block) getRhsSym(1);
+                //#line 3109 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(ConstructorBlock);
+                      break;
+            }
+    
+            //
+            // Rule 372:  ConstructorBody ::= = ExplicitConstructorInvocation
+            //
+            case 372: {
+               //#line 3114 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3112 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
-                //#line 3113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3114 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -5415,13 +5415,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 372:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 373:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 372: {
-               //#line 3121 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3119 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 373: {
+               //#line 3122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 3121 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
@@ -5431,22 +5431,22 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 373:  ConstructorBody ::= ;
+            // Rule 374:  ConstructorBody ::= ;
             //
-            case 373:
+            case 374:
                 setResult(null);
                 break;
 
             //
-            // Rule 374:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 375:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 374: {
-               //#line 3133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3131 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 375: {
+               //#line 3134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3132 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3131 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3132 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -5463,25 +5463,25 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 375:  Arguments ::= ( ArgumentListopt )
+            // Rule 376:  Arguments ::= ( ArgumentListopt )
             //
-            case 375: {
-               //#line 3150 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3148 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 376: {
+               //#line 3151 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3149 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 3150 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3151 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
                       break;
             }
     
             //
-            // Rule 377:  InterfaceModifiers ::= InterfaceModifier
+            // Rule 378:  InterfaceModifiers ::= InterfaceModifier
             //
-            case 377: {
-               //#line 3160 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3158 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 378: {
+               //#line 3161 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3159 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 3160 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3161 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -5489,105 +5489,105 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 378:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 379:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 378: {
-               //#line 3167 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3165 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 379: {
+               //#line 3168 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3166 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 3165 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3166 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 3167 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3168 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                       break;
             }
     
             //
-            // Rule 379:  InterfaceModifier ::= Annotation
+            // Rule 380:  InterfaceModifier ::= Annotation
             //
-            case 379: {
-               //#line 3173 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3171 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 380: {
+               //#line 3174 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3172 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3173 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3174 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 380:  InterfaceModifier ::= public
+            // Rule 381:  InterfaceModifier ::= public
             //
-            case 380: {
-               //#line 3178 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 381: {
+               //#line 3179 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3178 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3179 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 381:  InterfaceModifier ::= protected
+            // Rule 382:  InterfaceModifier ::= protected
             //
-            case 381: {
-               //#line 3183 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 382: {
+               //#line 3184 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3183 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3184 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 382:  InterfaceModifier ::= private
+            // Rule 383:  InterfaceModifier ::= private
             //
-            case 382: {
-               //#line 3188 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 383: {
+               //#line 3189 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3188 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3189 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 383:  InterfaceModifier ::= abstract
+            // Rule 384:  InterfaceModifier ::= abstract
             //
-            case 383: {
-               //#line 3193 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 384: {
+               //#line 3194 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3193 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3194 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 384:  InterfaceModifier ::= static
+            // Rule 385:  InterfaceModifier ::= static
             //
-            case 384: {
-               //#line 3198 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 385: {
+               //#line 3199 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3198 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3199 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 385:  InterfaceModifier ::= strictfp
+            // Rule 386:  InterfaceModifier ::= strictfp
             //
-            case 385: {
-               //#line 3203 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 386: {
+               //#line 3204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3203 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                       break;
             }
     
             //
-            // Rule 386:  ExtendsInterfaces ::= extends Type
+            // Rule 387:  ExtendsInterfaces ::= extends Type
             //
-            case 386: {
-               //#line 3209 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3207 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 387: {
+               //#line 3210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3208 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3209 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -5595,54 +5595,54 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 387:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 388:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 387: {
-               //#line 3216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3214 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 388: {
+               //#line 3217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3214 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
                       break;
             }
     
             //
-            // Rule 388:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 389:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 388: {
-               //#line 3225 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3223 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 389: {
+               //#line 3226 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3224 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 3225 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3226 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 390:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 391:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 390: {
-               //#line 3232 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3230 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 391: {
+               //#line 3233 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3231 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3230 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3231 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 3232 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3233 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                       break;
             }
     
             //
-            // Rule 391:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 392:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 391: {
-               //#line 3239 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3237 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 392: {
+               //#line 3240 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3238 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3239 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3240 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5650,13 +5650,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 392:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 393:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 392: {
-               //#line 3246 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3244 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 393: {
+               //#line 3247 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3245 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3246 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3247 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5664,13 +5664,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 393:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 394:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 393: {
-               //#line 3253 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3251 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 394: {
+               //#line 3254 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3252 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
-                //#line 3253 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3254 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.addAll(FieldDeclaration);
                 setResult(l);
@@ -5678,13 +5678,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 394:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 395:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 394: {
-               //#line 3260 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3258 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 395: {
+               //#line 3261 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3259 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3260 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3261 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5692,13 +5692,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 395:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 396:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 395: {
-               //#line 3267 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3265 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 396: {
+               //#line 3268 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3266 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3267 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3268 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5706,13 +5706,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 396:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 397:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 396: {
-               //#line 3274 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3272 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 397: {
+               //#line 3275 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3273 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3274 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3275 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5720,24 +5720,24 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 397:  InterfaceMemberDeclaration ::= ;
+            // Rule 398:  InterfaceMemberDeclaration ::= ;
             //
-            case 397: {
-               //#line 3281 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 398: {
+               //#line 3282 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3281 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3282 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 398:  Annotations ::= Annotation
+            // Rule 399:  Annotations ::= Annotation
             //
-            case 398: {
-               //#line 3287 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3285 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 399: {
+               //#line 3288 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3286 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3287 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3288 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5745,63 +5745,63 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 399:  Annotations ::= Annotations Annotation
+            // Rule 400:  Annotations ::= Annotations Annotation
             //
-            case 399: {
-               //#line 3294 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3292 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 400: {
+               //#line 3295 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3293 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3292 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3293 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3294 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3295 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
                       break;
             }
     
             //
-            // Rule 400:  Annotation ::= @ NamedType
+            // Rule 401:  Annotation ::= @ NamedType
             //
-            case 400: {
-               //#line 3300 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3298 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 401: {
+               //#line 3301 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3299 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3300 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3301 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                       break;
             }
     
             //
-            // Rule 401:  SimpleName ::= Identifier
+            // Rule 402:  SimpleName ::= Identifier
             //
-            case 401: {
-               //#line 3306 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3304 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 402: {
+               //#line 3307 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3305 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3306 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3307 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 402:  Identifier ::= identifier
+            // Rule 403:  Identifier ::= identifier
             //
-            case 402: {
-               //#line 3312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3310 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 403: {
+               //#line 3313 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3311 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3313 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                       break;
             }
     
             //
-            // Rule 403:  VariableInitializers ::= VariableInitializer
+            // Rule 404:  VariableInitializers ::= VariableInitializer
             //
-            case 403: {
-               //#line 3320 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3318 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 404: {
+               //#line 3321 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3319 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 3320 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3321 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -5809,40 +5809,40 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 404:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 405:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 404: {
-               //#line 3327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3325 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 405: {
+               //#line 3328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3326 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3325 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3326 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 3327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                       break;
             }
     
             //
-            // Rule 405:  Block ::= { BlockStatementsopt }
+            // Rule 406:  Block ::= { BlockStatementsopt }
             //
-            case 405: {
-               //#line 3345 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3343 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 406: {
+               //#line 3346 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3344 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 3345 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3346 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                       break;
             }
     
             //
-            // Rule 406:  BlockStatements ::= BlockStatement
+            // Rule 407:  BlockStatements ::= BlockStatement
             //
-            case 406: {
-               //#line 3351 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3349 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 407: {
+               //#line 3352 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3350 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 3351 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3352 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5850,28 +5850,28 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 407:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 408:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 407: {
-               //#line 3358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3356 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 408: {
+               //#line 3359 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3356 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 3358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3359 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                       break;
             }
     
             //
-            // Rule 409:  BlockStatement ::= ClassDeclaration
+            // Rule 410:  BlockStatement ::= ClassDeclaration
             //
-            case 409: {
-               //#line 3366 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3364 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 410: {
+               //#line 3367 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3365 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3366 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3367 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5879,13 +5879,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 410:  BlockStatement ::= TypeDefDeclaration
+            // Rule 411:  BlockStatement ::= TypeDefDeclaration
             //
-            case 410: {
-               //#line 3373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3371 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 411: {
+               //#line 3374 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3372 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3374 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5893,13 +5893,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 411:  BlockStatement ::= Statement
+            // Rule 412:  BlockStatement ::= Statement
             //
-            case 411: {
-               //#line 3380 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3378 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 412: {
+               //#line 3381 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3379 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3380 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3381 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5907,13 +5907,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 412:  IdentifierList ::= Identifier
+            // Rule 413:  IdentifierList ::= Identifier
             //
-            case 412: {
-               //#line 3388 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3386 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 413: {
+               //#line 3389 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3387 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3388 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3389 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5921,205 +5921,205 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 413:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 414:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 413: {
-               //#line 3395 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 414: {
+               //#line 3396 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3394 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3394 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3395 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3396 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
                       break;
             }
     
             //
-            // Rule 414:  FormalDeclarator ::= Identifier : Type
+            // Rule 415:  FormalDeclarator ::= Identifier : Type
             //
-            case 414: {
-               //#line 3401 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3399 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 415: {
+               //#line 3402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3400 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3399 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3400 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3401 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, Type, null });
                       break;
             }
     
             //
-            // Rule 415:  FormalDeclarator ::= ( IdentifierList ) : Type
+            // Rule 416:  FormalDeclarator ::= ( IdentifierList ) : Type
             //
-            case 415: {
-               //#line 3406 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3404 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 416: {
+               //#line 3407 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3405 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3404 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3405 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(5);
-                //#line 3406 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3407 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, Type, null });
                       break;
             }
     
             //
-            // Rule 416:  FormalDeclarator ::= Identifier ( IdentifierList ) : Type
+            // Rule 417:  FormalDeclarator ::= Identifier ( IdentifierList ) : Type
             //
-            case 416: {
-               //#line 3411 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3409 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 417: {
+               //#line 3412 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3410 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3409 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3410 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3409 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3410 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(6);
-                //#line 3411 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3412 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, Type, null });
                       break;
             }
     
             //
-            // Rule 417:  FieldDeclarator ::= Identifier : Type
+            // Rule 418:  FieldDeclarator ::= Identifier : Type
             //
-            case 417: {
-               //#line 3417 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 418: {
+               //#line 3418 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3416 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3416 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3417 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3418 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, Type, null });
                       break;
             }
     
             //
-            // Rule 418:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 419:  FieldDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
-            case 418: {
-               //#line 3422 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3420 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 419: {
+               //#line 3423 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3421 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3420 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3421 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3420 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3421 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3422 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3423 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 419:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
+            // Rule 420:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
-            case 419: {
-               //#line 3428 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3426 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 420: {
+               //#line 3429 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3427 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3426 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3427 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3426 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3427 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3428 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3429 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 420:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 421:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 420: {
-               //#line 3433 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3431 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 421: {
+               //#line 3434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3432 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3431 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3432 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3431 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3432 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3433 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 421:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
+            // Rule 422:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
-            case 421: {
-               //#line 3438 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3436 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 422: {
+               //#line 3439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3437 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3436 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3437 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3436 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3437 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3436 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3437 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3438 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 422:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
+            // Rule 423:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
             //
-            case 422: {
-               //#line 3444 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3442 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 423: {
+               //#line 3445 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3443 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3442 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3443 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3442 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3443 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3444 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3445 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 423:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 424:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
             //
-            case 423: {
-               //#line 3449 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3447 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 424: {
+               //#line 3450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3448 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3447 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3448 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3447 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3448 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3449 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 424:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
+            // Rule 425:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
             //
-            case 424: {
-               //#line 3454 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3452 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 425: {
+               //#line 3455 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3453 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3452 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3453 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3452 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3453 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3452 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3453 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3454 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3455 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 426:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            // Rule 427:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
-            case 426: {
-               //#line 3462 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3460 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 427: {
+               //#line 3463 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3461 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3460 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3461 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3460 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3461 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3462 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3463 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6153,15 +6153,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 427:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
+            // Rule 428:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
-            case 427: {
-               //#line 3495 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3493 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 428: {
+               //#line 3496 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3494 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3493 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3494 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
-                //#line 3495 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3496 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6196,17 +6196,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 428:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
+            // Rule 429:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
-            case 428: {
-               //#line 3529 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3527 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 429: {
+               //#line 3530 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3528 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3527 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3528 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3527 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3528 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3529 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3530 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6241,13 +6241,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 430:  Primary ::= TypeName . class
+            // Rule 431:  Primary ::= TypeName . class
             //
-            case 430: {
-               //#line 3570 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3568 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 431: {
+               //#line 3571 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3569 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3570 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3571 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeName instanceof ParsedName)
                 {
                     ParsedName a = (ParsedName) TypeName;
@@ -6258,59 +6258,59 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 431:  Primary ::= self
+            // Rule 432:  Primary ::= self
             //
-            case 431: {
-               //#line 3580 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 432: {
+               //#line 3581 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3580 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3581 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Self(pos()));
                       break;
             }
     
             //
-            // Rule 432:  Primary ::= this
+            // Rule 433:  Primary ::= this
             //
-            case 432: {
-               //#line 3585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 433: {
+               //#line 3586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos()));
                       break;
             }
     
             //
-            // Rule 433:  Primary ::= ClassName . this
+            // Rule 434:  Primary ::= ClassName . this
             //
-            case 433: {
-               //#line 3590 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3588 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 434: {
+               //#line 3591 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3589 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3590 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3591 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                       break;
             }
     
             //
-            // Rule 434:  Primary ::= ( Expression )
+            // Rule 435:  Primary ::= ( Expression )
             //
-            case 434: {
-               //#line 3595 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3593 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 435: {
+               //#line 3596 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3594 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3595 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3596 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 440:  OperatorFunction ::= TypeName . +
+            // Rule 441:  OperatorFunction ::= TypeName . +
             //
-            case 440: {
-               //#line 3606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3604 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 441: {
+               //#line 3607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3605 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6322,13 +6322,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 441:  OperatorFunction ::= TypeName . -
+            // Rule 442:  OperatorFunction ::= TypeName . -
             //
-            case 441: {
-               //#line 3617 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3615 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 442: {
+               //#line 3618 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3616 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3617 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3618 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6340,13 +6340,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 442:  OperatorFunction ::= TypeName . *
+            // Rule 443:  OperatorFunction ::= TypeName . *
             //
-            case 442: {
-               //#line 3628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3626 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 443: {
+               //#line 3629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3627 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6358,13 +6358,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 443:  OperatorFunction ::= TypeName . /
+            // Rule 444:  OperatorFunction ::= TypeName . /
             //
-            case 443: {
-               //#line 3639 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3637 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 444: {
+               //#line 3640 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3638 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3639 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3640 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6376,13 +6376,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 444:  OperatorFunction ::= TypeName . %
+            // Rule 445:  OperatorFunction ::= TypeName . %
             //
-            case 444: {
-               //#line 3650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3648 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 445: {
+               //#line 3651 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3649 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3650 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3651 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6394,13 +6394,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 445:  OperatorFunction ::= TypeName . &
+            // Rule 446:  OperatorFunction ::= TypeName . &
             //
-            case 445: {
-               //#line 3661 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3659 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 446: {
+               //#line 3662 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3660 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3661 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3662 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6412,13 +6412,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 446:  OperatorFunction ::= TypeName . |
+            // Rule 447:  OperatorFunction ::= TypeName . |
             //
-            case 446: {
-               //#line 3672 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3670 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 447: {
+               //#line 3673 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3671 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3672 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3673 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6430,13 +6430,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 447:  OperatorFunction ::= TypeName . ^
+            // Rule 448:  OperatorFunction ::= TypeName . ^
             //
-            case 447: {
-               //#line 3683 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3681 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 448: {
+               //#line 3684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3682 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3683 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3684 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6448,13 +6448,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 448:  OperatorFunction ::= TypeName . <<
+            // Rule 449:  OperatorFunction ::= TypeName . <<
             //
-            case 448: {
-               //#line 3694 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3692 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 449: {
+               //#line 3695 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3693 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3694 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3695 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6466,13 +6466,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 449:  OperatorFunction ::= TypeName . >>
+            // Rule 450:  OperatorFunction ::= TypeName . >>
             //
-            case 449: {
-               //#line 3705 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3703 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 450: {
+               //#line 3706 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3704 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3705 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3706 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6484,13 +6484,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 450:  OperatorFunction ::= TypeName . >>>
+            // Rule 451:  OperatorFunction ::= TypeName . >>>
             //
-            case 450: {
-               //#line 3716 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3714 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 451: {
+               //#line 3717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3715 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3716 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3717 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6502,13 +6502,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 451:  OperatorFunction ::= TypeName . <
+            // Rule 452:  OperatorFunction ::= TypeName . <
             //
-            case 451: {
-               //#line 3727 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3725 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 452: {
+               //#line 3728 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3726 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3727 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3728 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6520,13 +6520,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 452:  OperatorFunction ::= TypeName . <=
+            // Rule 453:  OperatorFunction ::= TypeName . <=
             //
-            case 452: {
-               //#line 3738 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3736 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 453: {
+               //#line 3739 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3737 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3738 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3739 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6538,13 +6538,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 453:  OperatorFunction ::= TypeName . >=
+            // Rule 454:  OperatorFunction ::= TypeName . >=
             //
-            case 453: {
-               //#line 3749 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3747 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 454: {
+               //#line 3750 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3748 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3749 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3750 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6556,13 +6556,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 454:  OperatorFunction ::= TypeName . >
+            // Rule 455:  OperatorFunction ::= TypeName . >
             //
-            case 454: {
-               //#line 3760 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3758 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 455: {
+               //#line 3761 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3759 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3760 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3761 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6574,13 +6574,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 455:  OperatorFunction ::= TypeName . ==
+            // Rule 456:  OperatorFunction ::= TypeName . ==
             //
-            case 455: {
-               //#line 3771 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3769 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 456: {
+               //#line 3772 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3770 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3771 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3772 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6592,13 +6592,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 456:  OperatorFunction ::= TypeName . !=
+            // Rule 457:  OperatorFunction ::= TypeName . !=
             //
-            case 456: {
-               //#line 3782 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3780 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 457: {
+               //#line 3783 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3781 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3782 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3783 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6610,138 +6610,138 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 457:  Literal ::= IntegerLiteral$IntegerLiteral
+            // Rule 458:  Literal ::= IntegerLiteral$IntegerLiteral
             //
-            case 457: {
-               //#line 3795 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3793 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 458: {
+               //#line 3796 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3794 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 3795 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3796 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 458:  Literal ::= LongLiteral$LongLiteral
+            // Rule 459:  Literal ::= LongLiteral$LongLiteral
             //
-            case 458: {
-               //#line 3801 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3799 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 459: {
+               //#line 3802 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3800 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 3801 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3802 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 459:  Literal ::= FloatingPointLiteral$FloatLiteral
+            // Rule 460:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
-            case 459: {
-               //#line 3807 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3805 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 460: {
+               //#line 3808 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3806 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 3807 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3808 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                       break;
             }
     
             //
-            // Rule 460:  Literal ::= DoubleLiteral$DoubleLiteral
+            // Rule 461:  Literal ::= DoubleLiteral$DoubleLiteral
             //
-            case 460: {
-               //#line 3813 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3811 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 461: {
+               //#line 3814 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3812 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 3813 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3814 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                       break;
             }
     
             //
-            // Rule 461:  Literal ::= BooleanLiteral
+            // Rule 462:  Literal ::= BooleanLiteral
             //
-            case 461: {
-               //#line 3819 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3817 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 462: {
+               //#line 3820 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3818 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3819 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3820 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                       break;
             }
     
             //
-            // Rule 462:  Literal ::= CharacterLiteral$CharacterLiteral
+            // Rule 463:  Literal ::= CharacterLiteral$CharacterLiteral
             //
-            case 462: {
-               //#line 3824 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3822 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 463: {
+               //#line 3825 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3823 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 3824 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3825 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                       break;
             }
     
             //
-            // Rule 463:  Literal ::= StringLiteral$str
+            // Rule 464:  Literal ::= StringLiteral$str
             //
-            case 463: {
-               //#line 3830 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3828 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 464: {
+               //#line 3831 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3829 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3830 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3831 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                       break;
             }
     
             //
-            // Rule 464:  Literal ::= null
+            // Rule 465:  Literal ::= null
             //
-            case 464: {
-               //#line 3836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 465: {
+               //#line 3837 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3836 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3837 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.NullLit(pos()));
                       break;
             }
     
             //
-            // Rule 465:  BooleanLiteral ::= true$trueLiteral
-            //
-            case 465: {
-               //#line 3842 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3840 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3842 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
-                      break;
-            }
-    
-            //
-            // Rule 466:  BooleanLiteral ::= false$falseLiteral
+            // Rule 466:  BooleanLiteral ::= true$trueLiteral
             //
             case 466: {
-               //#line 3847 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3845 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
-                IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3847 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 3843 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3841 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                IToken trueLiteral = (IToken) getRhsIToken(1);
+                //#line 3843 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 467:  ArgumentList ::= Expression
+            // Rule 467:  BooleanLiteral ::= false$falseLiteral
             //
             case 467: {
-               //#line 3856 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3854 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+               //#line 3848 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3846 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                IToken falseLiteral = (IToken) getRhsIToken(1);
+                //#line 3848 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(boolean_lit(getRhsFirstTokenIndex(1)));
+                      break;
+            }
+    
+            //
+            // Rule 468:  ArgumentList ::= Expression
+            //
+            case 468: {
+               //#line 3857 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3855 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3856 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3857 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6749,115 +6749,115 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 468:  ArgumentList ::= ArgumentList , Expression
+            // Rule 469:  ArgumentList ::= ArgumentList , Expression
             //
-            case 468: {
-               //#line 3863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3861 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 469: {
+               //#line 3864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3862 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3861 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3862 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3863 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3864 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
                       break;
             }
     
             //
-            // Rule 469:  FieldAccess ::= Primary . Identifier
+            // Rule 470:  FieldAccess ::= Primary . Identifier
             //
-            case 469: {
-               //#line 3869 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3867 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 470: {
+               //#line 3870 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3868 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3867 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3868 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3869 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3870 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                       break;
             }
     
             //
-            // Rule 470:  FieldAccess ::= super . Identifier
+            // Rule 471:  FieldAccess ::= super . Identifier
             //
-            case 470: {
-               //#line 3874 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3872 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 471: {
+               //#line 3875 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3873 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3874 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3875 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
             //
-            // Rule 471:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 472:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 471: {
-               //#line 3879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 472: {
+               //#line 3880 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3877 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3878 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3879 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3880 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
             //
-            // Rule 472:  FieldAccess ::= Primary . class$c
+            // Rule 473:  FieldAccess ::= Primary . class$c
             //
-            case 472: {
-               //#line 3884 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3882 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 473: {
+               //#line 3885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3883 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3882 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3883 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3884 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3885 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 473:  FieldAccess ::= super . class$c
+            // Rule 474:  FieldAccess ::= super . class$c
             //
-            case 473: {
-               //#line 3889 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3887 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 474: {
+               //#line 3890 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3888 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3889 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3890 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 474:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 475:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 474: {
-               //#line 3894 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3892 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 475: {
+               //#line 3895 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3893 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3892 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3893 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3892 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3893 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 3894 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3895 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     
             //
-            // Rule 475:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 476:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 475: {
-               //#line 3900 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3898 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 476: {
+               //#line 3901 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3899 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3898 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3899 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3898 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3899 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3900 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3901 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6865,71 +6865,71 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 476:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 477:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 476: {
-               //#line 3907 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 477: {
+               //#line 3908 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3905 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3906 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3907 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3908 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 477:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 478:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 477: {
-               //#line 3912 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3910 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 478: {
+               //#line 3913 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3911 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3910 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3911 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3910 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3911 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3912 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3913 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 478:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 479:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 478: {
-               //#line 3917 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 479: {
+               //#line 3918 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3916 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3916 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3916 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3916 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3915 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3916 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3917 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3918 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 479:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 480:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 479: {
-               //#line 3922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3920 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 480: {
+               //#line 3923 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3921 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3920 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3921 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3920 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3921 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3922 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3923 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -6949,17 +6949,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 480:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
+            // Rule 481:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
             //
-            case 480: {
-               //#line 3942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3940 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 481: {
+               //#line 3943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3941 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3940 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3941 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3940 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3941 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 3942 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3943 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6973,19 +6973,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 481:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 482:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 481: {
-               //#line 3955 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 482: {
+               //#line 3956 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3954 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3954 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3954 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3953 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3954 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3955 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3956 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6998,17 +6998,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 482:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 483:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 482: {
-               //#line 3967 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3965 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 483: {
+               //#line 3968 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3966 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3965 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3966 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3965 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3966 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3967 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3968 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7021,21 +7021,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 483:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
+            // Rule 484:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
-            case 483: {
-               //#line 3979 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 484: {
+               //#line 3980 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 3977 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3978 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
-                //#line 3979 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3980 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7048,111 +7048,111 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 485:  PostfixExpression ::= ExpressionName
+            // Rule 486:  PostfixExpression ::= ExpressionName
             //
-            case 485: {
-               //#line 3993 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3991 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 486: {
+               //#line 3994 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3992 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 3993 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3994 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 488:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 489:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 488: {
-               //#line 4001 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3999 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 489: {
+               //#line 4002 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4000 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4001 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4002 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                       break;
             }
     
             //
-            // Rule 489:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 490:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 489: {
-               //#line 4007 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4005 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 490: {
+               //#line 4008 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4006 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4007 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4008 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                       break;
             }
     
             //
-            // Rule 492:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 493:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 492: {
-               //#line 4015 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4013 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 493: {
+               //#line 4016 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4014 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4015 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4016 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 493:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 494:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 493: {
-               //#line 4020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4018 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 494: {
+               //#line 4021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4019 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4020 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4021 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 495:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 496:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 495: {
-               //#line 4027 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4025 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 496: {
+               //#line 4028 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4026 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4027 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4028 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 496:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 497:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 496: {
-               //#line 4033 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4031 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 497: {
+               //#line 4034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4032 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4033 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4034 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 498:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 499:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 498: {
-               //#line 4040 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4038 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 499: {
+               //#line 4041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4039 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4040 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4041 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 499:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
+            // Rule 500:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
-            case 499: {
-               //#line 4045 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4043 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 500: {
+               //#line 4046 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4044 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 4043 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4044 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4045 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4046 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -7160,1174 +7160,1174 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
     
             //
-            // Rule 500:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 501:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 500: {
-               //#line 4052 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4050 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 501: {
+               //#line 4053 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4051 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4052 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4053 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 502:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 503:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 502: {
-               //#line 4059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4057 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 503: {
+               //#line 4060 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4058 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4057 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4058 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4059 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4060 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 503:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 504:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 503: {
-               //#line 4064 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4062 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 504: {
+               //#line 4065 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4063 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4062 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4063 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4064 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4065 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 504:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 505:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 504: {
-               //#line 4069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4067 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 505: {
+               //#line 4070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4068 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4067 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4068 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4069 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4070 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 506:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 507:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 506: {
-               //#line 4076 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4074 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 507: {
+               //#line 4077 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4075 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4074 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4075 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4076 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4077 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 507:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 508:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 507: {
-               //#line 4081 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4079 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 508: {
+               //#line 4082 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4080 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4079 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4080 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4081 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4082 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 509:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 510:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 509: {
-               //#line 4088 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4086 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 510: {
+               //#line 4089 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4086 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4087 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4088 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4089 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 510:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 511:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 510: {
-               //#line 4093 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4091 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 511: {
+               //#line 4094 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4091 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4092 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4093 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4094 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 511:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 512:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 511: {
-               //#line 4098 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4096 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 512: {
+               //#line 4099 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4096 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4097 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4098 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4099 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 513:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 514:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 513: {
-               //#line 4105 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4103 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 514: {
+               //#line 4106 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4104 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4103 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4104 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 4105 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4106 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                       break;
             }
     
             //
-            // Rule 516:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 517:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 516: {
-               //#line 4114 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4112 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 517: {
+               //#line 4115 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4112 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4113 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4114 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4115 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 517:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 518:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 517: {
-               //#line 4119 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4117 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 518: {
+               //#line 4120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4118 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4117 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4118 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4119 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4120 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 518:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 519:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 518: {
-               //#line 4124 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 519: {
+               //#line 4125 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4123 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4122 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4123 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4124 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4125 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 519:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 520:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 519: {
-               //#line 4129 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4127 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 520: {
+               //#line 4130 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4128 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4127 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4128 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4129 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4130 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 520:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 521:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 520: {
-               //#line 4134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4132 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 521: {
+               //#line 4135 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4132 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4133 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 4134 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4135 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                       break;
             }
     
             //
-            // Rule 521:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 522:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 521: {
-               //#line 4139 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4137 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 522: {
+               //#line 4140 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4138 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4137 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4138 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 4139 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4140 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                       break;
             }
     
             //
-            // Rule 523:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 524:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 523: {
-               //#line 4146 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4144 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 524: {
+               //#line 4147 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4145 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4144 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4145 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4146 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4147 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 524:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 525:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 524: {
-               //#line 4151 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4149 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 525: {
+               //#line 4152 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4150 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4149 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4150 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4151 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4152 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 525:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 526:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 525: {
-               //#line 4156 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4154 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 526: {
+               //#line 4157 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4155 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4154 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4155 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 4156 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4157 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                       break;
             }
     
             //
-            // Rule 527:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 528:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 527: {
-               //#line 4163 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4161 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 528: {
+               //#line 4164 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4162 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4161 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4162 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 4163 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4164 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                       break;
             }
     
             //
-            // Rule 529:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 530:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 529: {
-               //#line 4170 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4168 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 530: {
+               //#line 4171 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4169 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4168 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4169 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 4170 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4171 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                       break;
             }
     
             //
-            // Rule 531:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 532:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 531: {
-               //#line 4177 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4175 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 532: {
+               //#line 4178 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4176 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4175 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4176 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4177 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4178 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 533:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 534:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 533: {
-               //#line 4184 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4182 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 534: {
+               //#line 4185 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4183 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4182 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4183 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4184 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4185 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 535:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 536:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 535: {
-               //#line 4191 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4189 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 536: {
+               //#line 4192 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4190 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4189 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4190 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 4191 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4192 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                       break;
             }
     
             //
-            // Rule 541:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 542:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 541: {
-               //#line 4203 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4201 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 542: {
+               //#line 4204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4202 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4201 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4202 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4201 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4202 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4203 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4204 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                       break;
             }
     
             //
-            // Rule 544:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 545:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 544: {
-               //#line 4212 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 545: {
+               //#line 4213 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4211 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4211 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4210 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4211 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4212 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4213 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 545:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 546:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 545: {
-               //#line 4217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 546: {
+               //#line 4218 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4215 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4216 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4217 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4218 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 546:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 547:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 546: {
-               //#line 4222 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4220 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 547: {
+               //#line 4223 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4221 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4220 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4221 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4220 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4221 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4220 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4221 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4222 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4223 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 547:  LeftHandSide ::= ExpressionName
+            // Rule 548:  LeftHandSide ::= ExpressionName
             //
-            case 547: {
-               //#line 4228 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4226 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 548: {
+               //#line 4229 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4227 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4228 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4229 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 549:  AssignmentOperator ::= =
+            // Rule 550:  AssignmentOperator ::= =
             //
-            case 549: {
-               //#line 4235 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 550: {
+               //#line 4236 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4235 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4236 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ASSIGN);
                       break;
             }
     
             //
-            // Rule 550:  AssignmentOperator ::= *=
+            // Rule 551:  AssignmentOperator ::= *=
             //
-            case 550: {
-               //#line 4240 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 551: {
+               //#line 4241 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4240 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4241 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MUL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 551:  AssignmentOperator ::= /=
+            // Rule 552:  AssignmentOperator ::= /=
             //
-            case 551: {
-               //#line 4245 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 552: {
+               //#line 4246 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4245 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4246 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.DIV_ASSIGN);
                       break;
             }
     
             //
-            // Rule 552:  AssignmentOperator ::= %=
+            // Rule 553:  AssignmentOperator ::= %=
             //
-            case 552: {
-               //#line 4250 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 553: {
+               //#line 4251 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4250 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4251 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MOD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 553:  AssignmentOperator ::= +=
+            // Rule 554:  AssignmentOperator ::= +=
             //
-            case 553: {
-               //#line 4255 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 554: {
+               //#line 4256 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4255 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4256 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ADD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 554:  AssignmentOperator ::= -=
+            // Rule 555:  AssignmentOperator ::= -=
             //
-            case 554: {
-               //#line 4260 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 555: {
+               //#line 4261 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4260 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4261 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SUB_ASSIGN);
                       break;
             }
     
             //
-            // Rule 555:  AssignmentOperator ::= <<=
+            // Rule 556:  AssignmentOperator ::= <<=
             //
-            case 555: {
-               //#line 4265 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 556: {
+               //#line 4266 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4265 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4266 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 556:  AssignmentOperator ::= >>=
+            // Rule 557:  AssignmentOperator ::= >>=
             //
-            case 556: {
-               //#line 4270 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 557: {
+               //#line 4271 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4270 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4271 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 557:  AssignmentOperator ::= >>>=
+            // Rule 558:  AssignmentOperator ::= >>>=
             //
-            case 557: {
-               //#line 4275 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 558: {
+               //#line 4276 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4275 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4276 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.USHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 558:  AssignmentOperator ::= &=
+            // Rule 559:  AssignmentOperator ::= &=
             //
-            case 558: {
-               //#line 4280 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 4281 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4280 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4281 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                       break;
             }
     
             //
-            // Rule 559:  AssignmentOperator ::= ^=
+            // Rule 560:  AssignmentOperator ::= ^=
             //
-            case 559: {
-               //#line 4285 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 560: {
+               //#line 4286 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4285 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4286 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 560:  AssignmentOperator ::= |=
+            // Rule 561:  AssignmentOperator ::= |=
             //
-            case 560: {
-               //#line 4290 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 561: {
+               //#line 4291 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4290 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4291 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 563:  PrefixOp ::= +
+            // Rule 564:  PrefixOp ::= +
             //
-            case 563: {
-               //#line 4301 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 564: {
+               //#line 4302 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4301 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4302 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.POS);
                       break;
             }
     
             //
-            // Rule 564:  PrefixOp ::= -
+            // Rule 565:  PrefixOp ::= -
             //
-            case 564: {
-               //#line 4306 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 565: {
+               //#line 4307 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4306 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4307 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NEG);
                       break;
             }
     
             //
-            // Rule 565:  PrefixOp ::= !
+            // Rule 566:  PrefixOp ::= !
             //
-            case 565: {
-               //#line 4311 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 566: {
+               //#line 4312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4311 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4312 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NOT);
                       break;
             }
     
             //
-            // Rule 566:  PrefixOp ::= ~
+            // Rule 567:  PrefixOp ::= ~
             //
-            case 566: {
-               //#line 4316 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 567: {
+               //#line 4317 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4316 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4317 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.BIT_NOT);
                       break;
             }
     
             //
-            // Rule 567:  BinOp ::= +
+            // Rule 568:  BinOp ::= +
             //
-            case 567: {
-               //#line 4322 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 568: {
+               //#line 4323 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4322 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4323 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.ADD);
                       break;
             }
     
             //
-            // Rule 568:  BinOp ::= -
+            // Rule 569:  BinOp ::= -
             //
-            case 568: {
-               //#line 4327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 4328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4327 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4328 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SUB);
                       break;
             }
     
             //
-            // Rule 569:  BinOp ::= *
+            // Rule 570:  BinOp ::= *
             //
-            case 569: {
-               //#line 4332 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 570: {
+               //#line 4333 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4332 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4333 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MUL);
                       break;
             }
     
             //
-            // Rule 570:  BinOp ::= /
+            // Rule 571:  BinOp ::= /
             //
-            case 570: {
-               //#line 4337 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 571: {
+               //#line 4338 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4337 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4338 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.DIV);
                       break;
             }
     
             //
-            // Rule 571:  BinOp ::= %
+            // Rule 572:  BinOp ::= %
             //
-            case 571: {
-               //#line 4342 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 572: {
+               //#line 4343 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4342 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4343 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MOD);
                       break;
             }
     
             //
-            // Rule 572:  BinOp ::= &
+            // Rule 573:  BinOp ::= &
             //
-            case 572: {
-               //#line 4347 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 573: {
+               //#line 4348 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4347 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4348 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_AND);
                       break;
             }
     
             //
-            // Rule 573:  BinOp ::= |
+            // Rule 574:  BinOp ::= |
             //
-            case 573: {
-               //#line 4352 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 574: {
+               //#line 4353 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4352 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4353 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_OR);
                       break;
             }
     
             //
-            // Rule 574:  BinOp ::= ^
+            // Rule 575:  BinOp ::= ^
             //
-            case 574: {
-               //#line 4357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 575: {
+               //#line 4358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4357 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4358 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_XOR);
                       break;
             }
     
             //
-            // Rule 575:  BinOp ::= &&
+            // Rule 576:  BinOp ::= &&
             //
-            case 575: {
-               //#line 4362 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 576: {
+               //#line 4363 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4362 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4363 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_AND);
                       break;
             }
     
             //
-            // Rule 576:  BinOp ::= ||
+            // Rule 577:  BinOp ::= ||
             //
-            case 576: {
-               //#line 4367 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 577: {
+               //#line 4368 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4367 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4368 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_OR);
                       break;
             }
     
             //
-            // Rule 577:  BinOp ::= <<
+            // Rule 578:  BinOp ::= <<
             //
-            case 577: {
-               //#line 4372 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 578: {
+               //#line 4373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4372 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4373 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHL);
                       break;
             }
     
             //
-            // Rule 578:  BinOp ::= >>
+            // Rule 579:  BinOp ::= >>
             //
-            case 578: {
-               //#line 4377 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 579: {
+               //#line 4378 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4377 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4378 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHR);
                       break;
             }
     
             //
-            // Rule 579:  BinOp ::= >>>
+            // Rule 580:  BinOp ::= >>>
             //
-            case 579: {
-               //#line 4382 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 580: {
+               //#line 4383 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4382 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4383 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.USHR);
                       break;
             }
     
             //
-            // Rule 580:  BinOp ::= >=
+            // Rule 581:  BinOp ::= >=
             //
-            case 580: {
-               //#line 4387 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 581: {
+               //#line 4388 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4387 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4388 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GE);
                       break;
             }
     
             //
-            // Rule 581:  BinOp ::= <=
+            // Rule 582:  BinOp ::= <=
             //
-            case 581: {
-               //#line 4392 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 582: {
+               //#line 4393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4392 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4393 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LE);
                       break;
             }
     
             //
-            // Rule 582:  BinOp ::= >
+            // Rule 583:  BinOp ::= >
             //
-            case 582: {
-               //#line 4397 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 583: {
+               //#line 4398 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4397 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4398 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GT);
                       break;
             }
     
             //
-            // Rule 583:  BinOp ::= <
+            // Rule 584:  BinOp ::= <
             //
-            case 583: {
-               //#line 4402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 584: {
+               //#line 4403 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4402 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4403 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LT);
                       break;
             }
     
             //
-            // Rule 584:  BinOp ::= ==
+            // Rule 585:  BinOp ::= ==
             //
-            case 584: {
-               //#line 4410 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 585: {
+               //#line 4411 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4410 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4411 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.EQ);
                       break;
             }
     
             //
-            // Rule 585:  BinOp ::= !=
+            // Rule 586:  BinOp ::= !=
             //
-            case 585: {
-               //#line 4415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 586: {
+               //#line 4416 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4415 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4416 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.NE);
                       break;
             }
     
             //
-            // Rule 586:  Catchesopt ::= $Empty
+            // Rule 587:  Catchesopt ::= $Empty
             //
-            case 586: {
-               //#line 4424 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 587: {
+               //#line 4425 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4424 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4425 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                       break;
             }
     
             //
-            // Rule 588:  Identifieropt ::= $Empty
+            // Rule 589:  Identifieropt ::= $Empty
             //
-            case 588:
+            case 589:
                 setResult(null);
                 break;
 
             //
-            // Rule 589:  Identifieropt ::= Identifier
+            // Rule 590:  Identifieropt ::= Identifier
             //
-            case 589: {
-               //#line 4433 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4431 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
+            case 590: {
+               //#line 4434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4432 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4433 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4434 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);
                       break;
             }
     
             //
-            // Rule 590:  ForUpdateopt ::= $Empty
+            // Rule 591:  ForUpdateopt ::= $Empty
             //
-            case 590: {
-               //#line 4439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 591: {
+               //#line 4440 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4439 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4440 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                       break;
             }
     
             //
-            // Rule 592:  Expressionopt ::= $Empty
+            // Rule 593:  Expressionopt ::= $Empty
             //
-            case 592:
+            case 593:
                 setResult(null);
                 break;
 
             //
-            // Rule 594:  ForInitopt ::= $Empty
+            // Rule 595:  ForInitopt ::= $Empty
             //
-            case 594: {
-               //#line 4450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 595: {
+               //#line 4451 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4450 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4451 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                       break;
             }
     
             //
-            // Rule 596:  SwitchLabelsopt ::= $Empty
+            // Rule 597:  SwitchLabelsopt ::= $Empty
             //
-            case 596: {
-               //#line 4457 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 597: {
+               //#line 4458 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4457 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4458 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                       break;
             }
     
             //
-            // Rule 598:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 599:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 598: {
-               //#line 4464 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 599: {
+               //#line 4465 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4464 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4465 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                       break;
             }
     
             //
-            // Rule 600:  VariableModifiersopt ::= $Empty
+            // Rule 601:  VariableModifiersopt ::= $Empty
             //
-            case 600: {
-               //#line 4471 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 601: {
+               //#line 4472 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4471 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4472 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 602:  VariableInitializersopt ::= $Empty
+            // Rule 603:  VariableInitializersopt ::= $Empty
             //
-            case 602:
+            case 603:
                 setResult(null);
                 break;
 
             //
-            // Rule 604:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 605:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 604: {
-               //#line 4482 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 605: {
+               //#line 4483 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4482 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4483 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 606:  ExtendsInterfacesopt ::= $Empty
+            // Rule 607:  ExtendsInterfacesopt ::= $Empty
             //
-            case 606: {
-               //#line 4489 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 607: {
+               //#line 4490 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4489 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4490 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 608:  InterfaceModifiersopt ::= $Empty
+            // Rule 609:  InterfaceModifiersopt ::= $Empty
             //
-            case 608: {
-               //#line 4496 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 609: {
+               //#line 4497 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4496 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4497 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 610:  ClassBodyopt ::= $Empty
+            // Rule 611:  ClassBodyopt ::= $Empty
             //
-            case 610:
+            case 611:
                 setResult(null);
                 break;
 
             //
-            // Rule 612:  Argumentsopt ::= $Empty
+            // Rule 613:  Argumentsopt ::= $Empty
             //
-            case 612: {
-               //#line 4507 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 613: {
+               //#line 4508 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4507 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4508 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 614:  ArgumentListopt ::= $Empty
+            // Rule 615:  ArgumentListopt ::= $Empty
             //
-            case 614: {
-               //#line 4514 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 615: {
+               //#line 4515 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4514 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4515 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 616:  BlockStatementsopt ::= $Empty
+            // Rule 617:  BlockStatementsopt ::= $Empty
             //
-            case 616: {
-               //#line 4521 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 617: {
+               //#line 4522 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4521 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4522 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                       break;
             }
     
             //
-            // Rule 618:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 619:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 618:
+            case 619:
                 setResult(null);
                 break;
 
             //
-            // Rule 620:  ConstructorModifiersopt ::= $Empty
+            // Rule 621:  ConstructorModifiersopt ::= $Empty
             //
-            case 620: {
-               //#line 4532 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 621: {
+               //#line 4533 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4532 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4533 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 622:  FormalParameterListopt ::= $Empty
+            // Rule 623:  FormalParameterListopt ::= $Empty
             //
-            case 622: {
-               //#line 4539 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 623: {
+               //#line 4540 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4539 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4540 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 624:  Throwsopt ::= $Empty
+            // Rule 625:  Throwsopt ::= $Empty
             //
-            case 624: {
-               //#line 4546 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 625: {
+               //#line 4547 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4546 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4547 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 626:  MethodModifiersopt ::= $Empty
+            // Rule 627:  MethodModifiersopt ::= $Empty
             //
-            case 626: {
-               //#line 4553 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 627: {
+               //#line 4554 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4553 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4554 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 628:  FieldModifiersopt ::= $Empty
+            // Rule 629:  FieldModifiersopt ::= $Empty
             //
-            case 628: {
-               //#line 4560 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 629: {
+               //#line 4561 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4560 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4561 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 630:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 631:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 630: {
-               //#line 4567 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 631: {
+               //#line 4568 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4567 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4568 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 632:  Interfacesopt ::= $Empty
+            // Rule 633:  Interfacesopt ::= $Empty
             //
-            case 632: {
-               //#line 4574 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 633: {
+               //#line 4575 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4574 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4575 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 634:  Superopt ::= $Empty
+            // Rule 635:  Superopt ::= $Empty
             //
-            case 634:
+            case 635:
                 setResult(null);
                 break;
 
             //
-            // Rule 636:  TypeParametersopt ::= $Empty
+            // Rule 637:  TypeParametersopt ::= $Empty
             //
-            case 636: {
-               //#line 4585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 637: {
+               //#line 4586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4585 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4586 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 638:  FormalParametersopt ::= $Empty
+            // Rule 639:  FormalParametersopt ::= $Empty
             //
-            case 638: {
-               //#line 4592 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 639: {
+               //#line 4593 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4592 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4593 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 640:  Annotationsopt ::= $Empty
+            // Rule 641:  Annotationsopt ::= $Empty
             //
-            case 640: {
-               //#line 4599 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 641: {
+               //#line 4600 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4599 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4600 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                       break;
             }
     
             //
-            // Rule 642:  TypeDeclarationsopt ::= $Empty
+            // Rule 643:  TypeDeclarationsopt ::= $Empty
             //
-            case 642: {
-               //#line 4606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 643: {
+               //#line 4607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4606 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4607 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                       break;
             }
     
             //
-            // Rule 644:  ImportDeclarationsopt ::= $Empty
+            // Rule 645:  ImportDeclarationsopt ::= $Empty
             //
-            case 644: {
-               //#line 4613 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 645: {
+               //#line 4614 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4613 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4614 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                       break;
             }
     
             //
-            // Rule 646:  PackageDeclarationopt ::= $Empty
+            // Rule 647:  PackageDeclarationopt ::= $Empty
             //
-            case 646:
+            case 647:
                 setResult(null);
                 break;
 
             //
-            // Rule 648:  ResultTypeopt ::= $Empty
+            // Rule 649:  ResultTypeopt ::= $Empty
             //
-            case 648:
+            case 649:
                 setResult(null);
                 break;
 
             //
-            // Rule 650:  TypeArgumentsopt ::= $Empty
+            // Rule 651:  TypeArgumentsopt ::= $Empty
             //
-            case 650: {
-               //#line 4628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 651: {
+               //#line 4629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4628 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4629 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 652:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 653:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 652: {
-               //#line 4635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 653: {
+               //#line 4636 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4635 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4636 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 654:  Propertiesopt ::= $Empty
+            // Rule 655:  Propertiesopt ::= $Empty
             //
-            case 654: {
-               //#line 4642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 655: {
+               //#line 4643 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4642 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4643 "/Users/rmfuhrer/eclipse/workspaces/x10-refactoring-1.7-3.4/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
     
             //
-            // Rule 656:  ,opt ::= $Empty
+            // Rule 657:  ,opt ::= $Empty
             //
-            case 656:
+            case 657:
                 setResult(null);
                 break;
 

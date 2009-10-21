@@ -1571,17 +1571,18 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
     
-    LabeledStatement ::= Identifier : Statement
+    LabeledStatement ::= Identifier : LabelableStatement
         /.$BeginJava
-                    setResult(nf.Labeled(pos(), Identifier, Statement));
+                    setResult(nf.Labeled(pos(), Identifier, LabelableStatement));
           $EndJava
         ./
-        
-    LoopStatement ::= ForStatement
+
+    LabelableStatement ::= ForStatement
                     | WhileStatement
                     | DoStatement
                     | AtEachStatement
                     | ForEachStatement
+                    | Block
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
@@ -4708,7 +4709,7 @@ public static class MessageHandler implements IMessageHandler {
     List ::= ExistentialListopt | ExistentialList 
     X10Formal ::= FormalParameter
     X10Formal ::= LoopIndex
-    Stmt ::= LoopStatement
+    Stmt ::= LabelableStatement
     List ::= Throwsopt | Throws
     Block ::= MethodBody
     Initializer ::= StaticInitializer
