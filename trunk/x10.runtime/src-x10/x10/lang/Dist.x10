@@ -293,9 +293,8 @@ public abstract class Dist(
      * Returns true iff both distributions are defined over the same
      * regions, and map every point in that region to the same place.
      */
-    // FIXME: EQUALS HACK
-    // abstract public def equals(that: Dist/*(rank) */): boolean;
-    //
+
+    abstract public global def equals(that:Object):boolean;
 
     //
     // other geometric ops

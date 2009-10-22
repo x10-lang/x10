@@ -67,9 +67,9 @@ namespace x10aux {
     }
 
     // Allocate an object with an x10_addr_t prepended to it
-    template<class T> T* alloc_remote() {
+    template<class T> T* alloc_remote(size_t size = sizeof(T)) {
         _M_("Allocating a remote object of type " << TYPENAME(T));
-        T* ret = alloc<T>(sizeof(T)+sizeof(x10_addr_t));
+        T* ret = alloc<T>(size+sizeof(x10_addr_t));
         return (T*)(((char*)ret)+sizeof(x10_addr_t));
     }
 

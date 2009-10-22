@@ -171,10 +171,10 @@ abstract public class BaseRegion extends Region {
         return that.difference(this).isEmpty();
     }
 
-    public global def equals(that:Object /* Region/ *(rank)*/): boolean { // XTENLANG-???
-	if (!(that instanceof Region)) return false;    /* FIXME: EQUALS HACK */
+    public global def equals(that:Object):boolean {
+	if (!(that instanceof Region)) return false;
         val t = that as Region(rank);
-        return this.contains(t/*that*/) && t/*that*/.contains(this);
+        return this.contains(t) && t.contains(this);
     }
 
 

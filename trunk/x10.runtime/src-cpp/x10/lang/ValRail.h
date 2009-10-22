@@ -1,7 +1,6 @@
 #ifndef X10_LANG_VALRAIL_H
 #define X10_LANG_VALRAIL_H
 
-
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
@@ -9,7 +8,7 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/Ref.h>
-#include <x10/lang/Value.h>
+#include <x10/lang/Value.h> /// HACK!!!!
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/RailIterator.h>
@@ -21,7 +20,7 @@ namespace x10 {
         void _initRTTHelper_ValRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                     const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
 
-        template<class T> class ValRail : public Value {
+        template<class T> class ValRail : public Ref {
 
             public:
             RTT_H_DECLS_CLASS;
@@ -68,8 +67,6 @@ namespace x10 {
                 x10aux::ref<x10::lang::RailIterator<T> > tmp = new (x10aux::alloc<x10::lang::RailIterator<T> >()) x10::lang::RailIterator<T>(this->FMGL(length), this->raw());
                 return tmp;
             }
-
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
 
             virtual x10_int hashCode() { return 0; }
 
@@ -121,27 +118,6 @@ namespace x10 {
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<ValRail<T> >())
         };
 
-        template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
-            if (other.operator->() == this) return true; // short-circuit trivial equality
-            if (!this->Value::_struct_equals(other)) return false;
-            x10aux::ref<ValRail> other_rail = other;
-            // different sizes so false
-            x10aux::nullCheck(other);
-            if (other_rail->FMGL(length) != this->FMGL(length)) return false;
-            if (x10aux::getRTT<T>()->subtypeOf(x10aux::getRTT<Value>())) {
-                // Value type; structurally compare elements
-                for (x10_int i = 0; i < this->FMGL(length); ++i)
-                    if (!x10aux::struct_equals((*other_rail)[i], this->raw()[i]))
-                        return false;
-            } else {
-                // Ref type; simple reference equality
-                for (x10_int i = 0; i < this->FMGL(length); ++i)
-                    if (!x10aux::struct_equals((*other_rail)[i],this->raw()[i]))
-                        return false;
-            }
-            return true;
-        }
-
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
             // Memset both for efficiency and to allow T to be a struct.
@@ -190,7 +166,7 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
+            x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length, true);
             for (x10_int i=0 ; i<length ; ++i) {
                 this_->raw()[i] = buf.read<T>(); // avoid bounds check
             }
