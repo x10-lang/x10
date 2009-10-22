@@ -288,6 +288,8 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     public String isValid(final String newText) {
       if (this.fConfNames.contains(newText)) {
         return NLS.bind(Messages.XPCPP_ConfNameAlreadyExists, newText);
+      } else if (newText.length() == 0) {
+        return Messages.XPCPP_EmptyRenamingError;
       } else {
         return null;
       }

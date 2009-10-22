@@ -98,6 +98,7 @@ public class Messages extends NLS {
   public static String XPCPP_ConfNameAlreadyExists;
   public static String XPCPP_ConfSummary;
   public static String XPCPP_EditBt;
+  public static String XPCPP_EmptyRenamingError;
   public static String XPCPP_Linker;
   public static String XPCPP_LinkingLibs;
   public static String XPCPP_LinkingOpts;
