@@ -11,22 +11,22 @@ package x10.lang;
 /**
  * @author tardieu
  */
-public abstract value Clock(name: String) {
+public abstract class Clock(name: String) {
     public static def make(): Clock = make("");
 
     public static def make(name: String): Clock = x10.runtime.Clock_c.make(name);
 
- 	protected def this(name: String) = property(name);
+    protected def this(name: String) = property(name);
 
-    public abstract def registered(): boolean;
+    public abstract global def registered(): boolean;
 
-    public abstract def dropped(): boolean;
+    public abstract global def dropped(): boolean;
 
-    public abstract def resume(): void;
+    public abstract global def resume(): void;
 
-    public abstract def next(): void;    
+    public abstract global def next(): void;    
 
-    public abstract def phase(): int;
+    public abstract global def phase(): int;
 
-    public abstract def drop(): void;
+    public abstract global def drop(): void;
 }
