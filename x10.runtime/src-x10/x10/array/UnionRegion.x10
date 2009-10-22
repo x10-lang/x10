@@ -14,7 +14,7 @@ package x10.array;
  * @author bdlucas
  */
 
-public value class UnionRegion extends BaseRegion {
+public class UnionRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -28,7 +28,7 @@ public value class UnionRegion extends BaseRegion {
     // value
     //
 
-    val regions: ValRail[PolyRegion(rank)]; // XTENLANG-118
+    global val regions: ValRail[PolyRegion(rank)]; // XTENLANG-118
 
 
     //
@@ -56,47 +56,47 @@ public value class UnionRegion extends BaseRegion {
     // algebra
     //
 
-    public def intersection(that: Region(rank)): Region(rank) {
+    public global def intersection(that: Region(rank)): Region(rank) {
         val rs = new PolyRegionListBuilder(rank);
         for (r:Region(rank) in regions)
             rs.add(r.intersection(that));
         return make(rs);
     }
 
-    public def complement(): Region(rank) {
+    public global def complement(): Region(rank) {
         var r: Region(rank) = Region.makeFull(rank);
         for (r1:Region(rank) in regions)
             r = r.intersection(r1.complement());
         return r;
     }
 
-    public def isEmpty(): boolean {
+    public global def isEmpty(): boolean {
         return regions.length==0;
     }
 
-    public def isConvex(): boolean {
+    public global def isConvex(): boolean {
         return false;
     }
 
-    public def size(): int {
+    public global def size(): int {
         var size: int = 0;
         for (r:Region in regions)
             size += r.size();
         return size;
     }
 
-    incomplete public def product(Region): Region(rank);
-    incomplete public def projection(int): Region(1);
-    incomplete public def eliminate(int): Region(rank-1);
+    incomplete public global def product(Region): Region(rank);
+    incomplete public global def projection(int): Region(1);
+    incomplete public global def eliminate(int): Region(rank-1);
 
-    public def translate(v: Point(rank)): Region(rank) {
+    public global def translate(v: Point(rank)): Region(rank) {
         val rs = new PolyRegionListBuilder(rank);
         for (r:Region(rank) in regions)
             rs.add(r.translate(v));
         return make(rs);
     }
 
-    public def contains(p: Point): boolean {
+    public global def contains(p: Point): boolean {
         for (r:PolyRegion(rank) in regions)
             if (r.contains(p))
                 return true;
@@ -124,7 +124,7 @@ public value class UnionRegion extends BaseRegion {
     }
 
 
-    public def scanners(): Iterator[Scanner] {
+    public global def scanners(): Iterator[Scanner] {
         return new Scanners();
     }
 
@@ -153,7 +153,7 @@ public value class UnionRegion extends BaseRegion {
         incomplete public def remove(): void;
     }
 
-    public def iterator(): Iterator[Point(rank)] {
+    public global def iterator(): Iterator[Point(rank)] {
         return new It();
     }
 
@@ -162,13 +162,13 @@ public value class UnionRegion extends BaseRegion {
     //
     //
 
-    val cache:Cache;
+    global val cache:Cache;
 
-    public def boundingBox(): Region(rank) {
+    public global def boundingBox(): Region(rank) {
         return cache.boundingBox() as Region(rank); // XXXX
     }
 
-    protected def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank) {
         val myMin = Rail.makeVar[int](rank);
         val myMax = Rail.makeVar[int](rank);
         for (var axis: int = 0; axis<rank; axis++)
@@ -188,11 +188,11 @@ public value class UnionRegion extends BaseRegion {
         return Region.makeRectangular(myMin, myMax);
     }
 
-    public def min(): ValRail[int] {
+    public global def min(): ValRail[int] {
         return boundingBox().min();
     }
 
-    public def max(): ValRail[int] {
+    public global def max(): ValRail[int] {
         return boundingBox().max();
     }
 
@@ -201,7 +201,7 @@ public value class UnionRegion extends BaseRegion {
     //
     //
 
-    public def toString(): String {
+    public global def toString(): String {
         var s: String = "(";
         for (var i:int=0; i<regions.length; i++) {
             if (i>0) s += " || ";

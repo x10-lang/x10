@@ -3,11 +3,9 @@
 
 package x10.array;
 
-//  why is this a value class?
-// Now we cant statically describe the place at which row is located.
-final value class VarRow extends Row {
+final class VarRow extends Row {
 
-    private val row: Rail[int];
+    private global val row:Rail[int]!;
 
     public def this(cols: nat, init: (nat)=>int) {
         super(cols);
@@ -19,8 +17,8 @@ final value class VarRow extends Row {
         row = Rail.makeVar[int](cols);
     }
     
-    def row() = row as Rail[int]!;
-    public safe def apply(i:nat) = row()(i);
+    global def row() = row as Rail[int]!;
+    public safe global def apply(i:nat) = row()(i);
 
-    public safe def set(v:int, i:nat) = (row()(i) = v);
+    public safe global def set(v:int, i:nat) = (row()(i) = v);
 }

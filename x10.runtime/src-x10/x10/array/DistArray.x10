@@ -13,7 +13,7 @@ package x10.array;
 import x10.runtime.PlaceLocalHandle;
 import x10.runtime.PlaceLocalStorage;
 
-final value class DistArray[T] extends BaseArray[T] {
+final class DistArray[T] extends BaseArray[T] {
 
     private static class LocalState[T] {
         val layout:RectLayout;
@@ -25,34 +25,34 @@ final value class DistArray[T] extends BaseArray[T] {
         }
     };
 
-    private val localHandle:PlaceLocalHandle[LocalState[T]];
-    final protected def raw():Rail[T]! = localHandle.get().raw;
-    final protected def layout() = localHandle.get().layout;
+    private global val localHandle:PlaceLocalHandle[LocalState[T]];
+    final protected global def raw():Rail[T]! = localHandle.get().raw;
+    final protected global def layout() = localHandle.get().layout;
 
     //
     // high-performance methods here to facilitate inlining
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe def apply(i0: int): T {
+    final public safe global def apply(i0: int): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         return raw()(layout().offset(i0));
     }
 
-    final public safe def apply(i0: int, i1: int): T {
+    final public safe global def apply(i0: int, i1: int): T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         return raw()(layout().offset(i0,i1));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int): T {
+    final public safe global def apply(i0: int, i1: int, i2: int): T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         return raw()(layout().offset(i0,i1,i2));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
+    final public safe global def apply(i0: int, i1: int, i2: int, i3: int): T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw()(layout().offset(i0,i1,i2,i3));
@@ -64,28 +64,28 @@ final value class DistArray[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public safe def set(v: T, i0: int): T {
+    final public safe global def set(v: T, i0: int): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         raw()(layout().offset(i0)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int): T {
+    final public safe global def set(v: T, i0: int, i1: int): T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         raw()(layout().offset(i0,i1)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
+    final public safe global def set(v: T, i0: int, i1: int, i2: int): T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+    final public safe global def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         raw()(layout().offset(i0,i1,i2,i3)) = v;
@@ -116,7 +116,7 @@ final value class DistArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public safe def restriction(d: Dist) {
+    public safe global def restriction(d: Dist) {
         if (d.constant)
             return new LocalArray[T](this, d as Dist{constant, here==self.onePlace});
         else

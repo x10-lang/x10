@@ -14,21 +14,21 @@ package x10.array;
  * @author bdlucas
  */
 
-final value class RectLayout(rank: int) extends Layout {
+final class RectLayout(rank: int) extends Layout {
 
-    val size: int;
+    global val size: int;
 
-    val min: ValRail[int];
-    val min0: int;
-    val min1: int;
-    val min2: int;
-    val min3: int;
+    global val min: ValRail[int];
+    global val min0: int;
+    global val min1: int;
+    global val min2: int;
+    global val min3: int;
 
-    val delta: ValRail[int];
-    val delta0: int;
-    val delta1: int;
-    val delta2: int;
-    val delta3: int;
+    global val delta: ValRail[int];
+    global val delta0: int;
+    global val delta1: int;
+    global val delta2: int;
+    global val delta3: int;
 
     def this(min: ValRail[int], max: ValRail[int]) {
         
@@ -63,36 +63,36 @@ final value class RectLayout(rank: int) extends Layout {
     // Layout
     //
 
-    final def size(): int {
+    final global def size(): int {
         return size;
     }
 
-    final def offset(pt: Point): int {
+    final global def offset(pt: Point): int {
         var offset: int = pt(0) - min(0);
         for (var i:int=1; i<rank; i++)
             offset = offset*delta(i) + pt(i) - min(i);
         return offset;
     }
 
-    final def offset(i0: int): int  {
+    final global def offset(i0: int): int  {
         var offset:int = i0 - min0;
         return offset;
     }
 
-    final def offset(i0: int, i1: int): int {
+    final global def offset(i0: int, i1: int): int {
         var offset:int  = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         return offset;
     }
 
-    final def offset(i0: int, i1: int, i2: int): int {
+    final global def offset(i0: int, i1: int, i2: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
         return offset;
     }
 
-    final def offset(i0: int, i1: int, i2: int, i3: int): int {
+    final global def offset(i0: int, i1: int, i2: int, i3: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
@@ -100,7 +100,7 @@ final value class RectLayout(rank: int) extends Layout {
         return offset;
     }
 
-    public def toString() {
+    public global def toString() {
         var s:String = "RectLayout[";
         s += "size=" + size;
         for (var i:int=0; i<min.length; i++)

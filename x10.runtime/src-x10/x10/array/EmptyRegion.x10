@@ -10,21 +10,21 @@ package x10.array;
  * @author bdlucas
  */
 
-value class EmptyRegion extends UnionRegion {
+class EmptyRegion extends UnionRegion {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
         super(new PolyRegionListBuilder(rank));
     }
 
-    public def product(r: Region): Region(rank) {
+    public global def product(r: Region): Region(rank) {
         return this;
     }
 
-    protected def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank) {
         throw U.illegal("bounding box not not defined for empty region");
     }
 
-    public def toString(): String {
+    public global def toString(): String {
         return "empty(" + rank + ")";
     }
 }
