@@ -15,19 +15,19 @@ import x10.compiler.ComparisonOps;
  * @author bdlucas
  */
 
-final public value class Point(rank: nat) implements (nat) => int {
+final public class Point(rank: nat) implements (nat) => int {
 
     /**
      * Returns the value of the ith coordinate.
      */
 
-    public def apply(i: nat): int = coords(i);
+    public global def apply(i: nat): int = coords(i);
 
     /**
      * Returns the coordinates as a ValRail[int].
      */
 
-    public def coords(): ValRail[int] = coords;
+    public global def coords(): ValRail[int] = coords;
 
 
     //
@@ -81,82 +81,82 @@ final public value class Point(rank: nat) implements (nat) => int {
     // arithmetic ops
     //
 
-    public operator + this: Point(rank) {
+    public global operator + this: Point(rank) {
         return this;
     }
 
-    public operator - this: Point(rank) {
+    public global operator - this: Point(rank) {
         val cs = Rail.makeVar[int](rank, (i:nat)=>-this.coords(i));
         return Point.make(cs);
     }
 
-    public operator this + (that: Point(rank)): Point(rank) {
+    public global operator this + (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) + that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this - (that: Point(rank)): Point(rank) {
+    public global operator this - (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) - that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this * (that: Point(rank)): Point(rank) {
+    public global operator this * (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) * that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this / (that: Point(rank)): Point(rank) {
+    public global operator this / (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) / that.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this + (c: int): Point(rank) {
+    public global operator this + (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) + c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this - (c: int): Point(rank) {
+    public global operator this - (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) - c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this * (c: int): Point(rank) {
+    public global operator this * (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) * c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator this / (c: int): Point(rank) {
+    public global operator this / (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) / c;
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator (c: int) + this: Point(rank) {
+    public global operator (c: int) + this: Point(rank) {
         val init = (i:nat) => c + this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator (c: int) - this: Point(rank) {
+    public global operator (c: int) - this: Point(rank) {
         val init = (i:nat) => c - this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator (c: int) * this: Point(rank) {
+    public global operator (c: int) * this: Point(rank) {
         val init = (i:nat) => c * this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
     }
 
-    public operator (c: int) / this: Point(rank) {
+    public global operator (c: int) / this: Point(rank) {
         val init = (i:nat) => c / this.coords(i);
         val cs = Rail.makeVar[int](rank, init);
         return Point.make(cs);
@@ -167,42 +167,42 @@ final public value class Point(rank: nat) implements (nat) => int {
     // comparison ops
     //
 
-    public operator this == (that: Point(rank)): boolean {
+    public global operator this == (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)==that.coords(i)))
                 return false;
         return true;
     }
 
-    public operator this < (that: Point(rank)): boolean {
+    public global operator this < (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)<that.coords(i)))
                 return false;
         return true;
     }
 
-    public operator this > (that: Point(rank)): boolean {
+    public global operator this > (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)>that.coords(i)))
                 return false;
         return true;
     }
 
-    public operator this <= (that: Point(rank)): boolean {
+    public global operator this <= (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)<=that.coords(i)))
                 return false;
         return true;
     }
 
-    public operator this >= (that: Point(rank)): boolean {
+    public global operator this >= (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)>=that.coords(i)))
                 return false;
         return true;
     }
 
-    public operator this != (that: Point(rank)): boolean {
+    public global operator this != (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)!=that.coords(i)))
                 return false;
@@ -213,7 +213,7 @@ final public value class Point(rank: nat) implements (nat) => int {
     //
     //
 
-    public def toString() {
+    public global def toString() {
         var s:String = "(";
         if (coords.length>0)
             s = s + coords(0); // XTENLANG-45
@@ -227,7 +227,7 @@ final public value class Point(rank: nat) implements (nat) => int {
     //
     //
 
-    private val coords: ValRail[int];
+    private global val coords: ValRail[int];
 
     private def this(cs: ValRail[int]): Point(cs.length) {
         property(cs.length);
