@@ -21,7 +21,7 @@ import x10.io.StringWriter;
  * @author bdlucas
  */
 
-public value class PolyRow(rank:nat) extends ValRow {
+public class PolyRow(rank:nat) extends ValRow {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
@@ -40,7 +40,7 @@ public value class PolyRow(rank:nat) extends ValRow {
         property(n);
     }
 
-      def this(p:Point, k:int) {
+    def this(p:Point, k:int) {
         super(p.rank+1, (i:nat) => i<p.rank? p(i) : k);
         property(p.rank);
     }
@@ -76,7 +76,7 @@ public value class PolyRow(rank:nat) extends ValRow {
      * allow for multiplication by positive constant
      */
 
-    def isParallel(that: PolyRow): boolean {
+    global def isParallel(that: PolyRow): boolean {
         for (var i: int = 0; i<cols-1; i++)
             if (this(i)!=that(i))
                 return false;
@@ -89,7 +89,7 @@ public value class PolyRow(rank:nat) extends ValRow {
      * non-zero
      */
 
-    def isRect(): boolean {
+    global def isRect(): boolean {
         var nz: boolean = false;
         for (var i: int = 0; i<cols-1; i++) {
             if (this(i)!=0) {
@@ -105,7 +105,7 @@ public value class PolyRow(rank:nat) extends ValRow {
      * determine whether point satisfies halfspace
      */
 
-    def contains(p: Point): boolean {
+    global def contains(p: Point): boolean {
         var sum: int = this(rank);
         for (var i: int = 0; i<rank; i++)
             sum += this(i)*p(i);
@@ -123,7 +123,7 @@ public value class PolyRow(rank:nat) extends ValRow {
      *   -a0*x0 - ... -ar+1 <=  0
      */
 
-    def complement(): PolyRow {
+    global def complement(): PolyRow {
         val init = (i:nat) => i<rank? -this(i) : -this(rank)+1;
         val as = Rail.makeVal[int](rank+1, init);
         return new PolyRow(as);
@@ -134,7 +134,7 @@ public value class PolyRow(rank:nat) extends ValRow {
      * print a halfspace in equation form
      */
 
-    def printEqn(ps: Printer, spc: String, row: int) {
+    global def printEqn(ps: Printer, spc: String, row: int) {
         var sgn: int = 0;
         var first: boolean = true;
         for (var i: int = 0; i<cols-1; i++) {

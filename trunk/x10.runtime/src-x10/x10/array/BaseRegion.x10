@@ -16,7 +16,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-abstract public value class BaseRegion extends Region {
+abstract public class BaseRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -85,23 +85,23 @@ abstract public value class BaseRegion extends Region {
     // basic information
     //
 
-    abstract public def isConvex(): boolean;
-    abstract public def isEmpty(): boolean;
-    abstract public def size(): int;
+    abstract public global def isConvex(): boolean;
+    abstract public global def isEmpty(): boolean;
+    abstract public global def size(): int;
 
 
     //
     // region composition
     //
 
-    public def union(that: Region(rank)): Region(rank) {
+    public global def union(that: Region(rank)): Region(rank) {
         val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that.difference(this));
         return UnionRegion.make(rs);
     }
 
-    public def disjointUnion(that: Region(rank)): Region(rank) {
+    public global def disjointUnion(that: Region(rank)): Region(rank) {
         if (!this.intersection(that).isEmpty())
             throw U.illegal("regions are not disjoint");
         val rs = new PolyRegionListBuilder(rank);
@@ -110,7 +110,7 @@ abstract public value class BaseRegion extends Region {
         return UnionRegion.make(rs);
     }
 
-    public def difference(that: Region(rank)): Region(rank) {
+    public global def difference(that: Region(rank)): Region(rank) {
         // complement might be expensive so we do some special casing
         if (this.isEmpty() || that.isEmpty())
             return this;
@@ -118,17 +118,17 @@ abstract public value class BaseRegion extends Region {
             return this.intersection(that.complement());
     }
 
-    public def disjoint(that: Region(rank)): boolean {
+    public global def disjoint(that: Region(rank)): boolean {
         return this.intersection(that).isEmpty();
     }
 
-    abstract public def complement(): Region(rank);
-    abstract public def intersection(that: Region(rank)): Region(rank);
-    abstract public def product(that: Region): Region;
-    abstract public def projection(axis: int): Region(1);
+    abstract public global def complement(): Region(rank);
+    abstract public global def intersection(that: Region(rank)): Region(rank);
+    abstract public global def product(that: Region): Region;
+    abstract public global def projection(axis: int): Region(1);
 
-    abstract public def boundingBox(): Region(rank);
-    abstract protected def computeBoundingBox(): Region(rank);
+    abstract public global def boundingBox(): Region(rank);
+    abstract protected global def computeBoundingBox(): Region(rank);
 
 
     //
@@ -141,24 +141,24 @@ abstract public value class BaseRegion extends Region {
     // performance
     //
 
-    def check(err:(Point)=>RuntimeException, pt: Point(rank)) {
+    global def check(err:(Point)=>RuntimeException, pt: Point(rank)) {
         if (!contains(pt))
             throw err(pt);
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
+    global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
         (this as BaseRegion(1)).check(err, [i0] as Point(1)); // XXXX cast?
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
         (this as BaseRegion(2)).check(err, [i0,i1] as Point(2)); // XXXX cast?
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
         (this as BaseRegion(3)).check(err, [i0,i1,i2] as Point(3)); // XXXX cast?
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
         (this as BaseRegion(4)).check(err, [i0,i1,i2,i3] as Point(4)); // XXXX cast?
     }
 
@@ -167,11 +167,11 @@ abstract public value class BaseRegion extends Region {
     // region comparison operations
     //
 
-    public def contains(that: Region(rank)): boolean {
+    public global def contains(that: Region(rank)): boolean {
         return that.difference(this).isEmpty();
     }
 
-    public def equals(that:Object /* Region/ *(rank)*/): boolean { // XTENLANG-???
+    public global def equals(that:Object /* Region/ *(rank)*/): boolean { // XTENLANG-???
 	if (!(that instanceof Region)) return false;    /* FIXME: EQUALS HACK */
         val t = that as Region(rank);
         return this.contains(t/*that*/) && t/*that*/.contains(this);
@@ -182,7 +182,7 @@ abstract public value class BaseRegion extends Region {
     // pointwise
     //
 
-    public def contains(p: Point): boolean {
+    public global def contains(p: Point): boolean {
         throw U.unsupported(this, "contains(Point)");
     }
 
@@ -195,11 +195,11 @@ abstract public value class BaseRegion extends Region {
     // PolyRegion.Iterator gives us a BaseRegion.Iterator
     //
 
-    public def scanners(): Iterator[Scanner] {
+    public global def scanners(): Iterator[Scanner] {
         throw U.unsupported(this, "scanners()");
     }
 
-    public def iterator(): Iterator[Point(rank)] {
+    public global def iterator(): Iterator[Point(rank)] {
         throw U.unsupported(this, "iterator()");
     }
 
@@ -208,7 +208,7 @@ abstract public value class BaseRegion extends Region {
     // debugging
     //
 
-    public def printInfo(out: Printer): void {
+    public global def printInfo(out: Printer): void {
         out.println("Region " + this/*.getClass().getName()*/);
     }
 
@@ -221,11 +221,11 @@ abstract public value class BaseRegion extends Region {
         super(rank, rect, zeroBased);
     }
 
-    public def min(): ValRail[int] {
+    public global def min(): ValRail[int] {
         throw U.unsupported(this, "min()");
     }
 
-    public def max(): ValRail[int] {
+    public global def max(): ValRail[int] {
         throw U.unsupported(this, "max()");
 
     }

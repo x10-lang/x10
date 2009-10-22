@@ -19,7 +19,7 @@ import x10.array.BaseRegion;
  * @author bdlucas
  */
 
-public abstract value class Region(
+public abstract class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
@@ -158,19 +158,19 @@ public abstract value class Region(
      * Returns the number of points in this region.
      */
 
-    public abstract def size(): int;
+    public abstract global def size(): int;
 
     /**
      * Returns true iff this region is convex.
      */
 
-    public abstract def isConvex(): boolean;
+    public abstract global def isConvex(): boolean;
 
     /**
      * Returns true iff this region is empty.
      */
 
-    public abstract def isEmpty(): boolean;
+    public abstract global def isEmpty(): boolean;
 
 
 
@@ -183,35 +183,35 @@ public abstract value class Region(
      * that contains all the points of r.
      */
 
-    abstract public def boundingBox(): Region(rank);
+    abstract public global def boundingBox(): Region(rank);
 
     /**
      * Returns the lower bounds of the bounding box of the region as a
      * Rail[int].
      */
 
-    abstract public def min(): ValRail[int];
+    abstract public global def min(): ValRail[int];
 
     /**
      * Returns the upper bounds of the bounding box of the region as a
      * Rail[int].
      */
 
-    abstract public def max(): ValRail[int];
+    abstract public global def max(): ValRail[int];
     
     /**
      * Returns the lower bound of the bounding box of the region along
      * the ith axis.
      */
 
-    public def min(i:nat) = min()(i);
+    public global def min(i:nat) = min()(i);
 
     /**
      * Returns the upper bound of the bounding box of the region along
      * the ith axis.
      */
 
-    public def max(i:nat) = max()(i);    
+    public global def max(i:nat) = max()(i);    
 
 
     //
@@ -223,28 +223,28 @@ public abstract value class Region(
      * region will be unbounded.
      */
 
-    abstract public def complement(): Region(rank);
+    abstract public global def complement(): Region(rank);
 
     /**
      * Returns the union of two regions: a region that contains all
      * points that are in either this region or that region.
      */
 
-    abstract public def union(that: Region(rank)): Region(rank);
+    abstract public global def union(that: Region(rank)): Region(rank);
 
     /**
      * Returns the union of two regions if they are disjoint,
      * otherwise throws an exception.
      */
 
-    abstract public def disjointUnion(that: Region(rank)): Region(rank);
+    abstract public global def disjointUnion(that: Region(rank)): Region(rank);
 
     /**
      * Returns the intersection of two regions: a region that contains all
      * points that are in both this region and that region.
      */
 
-    abstract public def intersection(that: Region(rank)): Region(rank);
+    abstract public global def intersection(that: Region(rank)): Region(rank);
 
     /**
      * Returns the difference between two regions: a region that
@@ -252,7 +252,7 @@ public abstract value class Region(
      * region.
      */
 
-    abstract public def difference(that: Region(rank)): Region(rank);
+    abstract public global def difference(that: Region(rank)): Region(rank);
 
     /**
      * Returns the Cartesian product of two regions. The Cartesian
@@ -262,7 +262,7 @@ public abstract value class Region(
      * are a point in that.region.
      */
 
-    abstract public def product(that: Region): Region;
+    abstract public global def product(that: Region): Region;
 
     /**
      * Returns the region shifted by a Point (vector). The Point has
@@ -271,7 +271,7 @@ public abstract value class Region(
      * point q shifted by the same coordinate of the given point.
      */
 
-    abstract public def translate(v: Point(rank)): Region(rank);
+    abstract public global def translate(v: Point(rank)): Region(rank);
 
     /**
      * Returns the projection of a region onto the specified axis. The
@@ -280,21 +280,21 @@ public abstract value class Region(
      * p(axis)==i.
      */
 
-    abstract public def projection(axis: int): Region(1);
+    abstract public global def projection(axis: int): Region(1);
 
     /**
      * Returns the projection of a region onto all axes but the
      * specified axis.
      */
 
-    abstract public def eliminate(axis: int): Region(rank-1);
+    abstract public global def eliminate(axis: int): Region(rank-1);
 
     /**
      * Returns true iff this region has no points in common with that
      * region.
      */
 
-    public abstract def disjoint(that: Region(rank)): boolean;
+    public abstract global def disjoint(that: Region(rank)): boolean;
 
 
     /**
@@ -329,7 +329,7 @@ public abstract value class Region(
      *        ... p ...
      */
 
-    public abstract def iterator(): Iterator[Point{self.rank==this.rank}];
+    public abstract global def iterator(): Iterator[Point{self.rank==this.rank}];
 
 
     /**
@@ -356,9 +356,9 @@ public abstract value class Region(
         def max(axis: int): int;
     }
 
-    public abstract def scanners(): Iterator[Scanner];
+    public abstract global def scanners(): Iterator[Scanner];
 
-    public def scan() = new x10.array.PolyScanner(this);
+    public global def scan() = new x10.array.PolyScanner(this);
 
 
     //
@@ -372,27 +372,27 @@ public abstract value class Region(
     // ops
     //
 
-    public operator ! this: Region(rank) = complement();
-    public operator this && (that: Region(rank)): Region(rank) = intersection(that);
-    public operator this || (that: Region(rank)): Region(rank) = union(that);
-    public operator this - (that: Region(rank)): Region(rank) = difference(that);
+    public global operator ! this: Region(rank) = complement();
+    public global operator this && (that: Region(rank)): Region(rank) = intersection(that);
+    public global operator this || (that: Region(rank)): Region(rank) = union(that);
+    public global operator this - (that: Region(rank)): Region(rank) = difference(that);
 
-    public operator this * (that: Region) = product(that);
+    public global operator this * (that: Region) = product(that);
 
-    public operator this + (v: Point(rank)) = translate(v);
+    public global operator this + (v: Point(rank)) = translate(v);
 
-    public operator (v: Point(rank)) + this = translate(v);
+    public global operator (v: Point(rank)) + this = translate(v);
 
 
     //
     // comparison
     //
 
-    abstract public def contains(that: Region(rank)): boolean;
+    abstract public global def contains(that: Region(rank)): boolean;
     // FIXME: EQUALS HACK
     // abstract public def equals(that: Region/*(rank)*/): boolean; 
     //
-    abstract public def contains(p: Point): boolean;
+    abstract public global def contains(p: Point): boolean;
 
 
     //

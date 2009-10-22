@@ -19,15 +19,15 @@ package x10.array;
  * @author bdlucas
  */
 
-abstract value class Layout {
+abstract class Layout {
 
-    abstract def size(): int;
+    abstract global def size(): int;
 
-    abstract def offset(pt: Point): int;
-    abstract def offset(i0: int): int;
-    abstract def offset(i0: int, i1: int): int;
-    abstract def offset(i0: int, i1: int, i2: int): int;
-    abstract def offset(i0: int, i1: int, i2: int, i3: int): int;
+    abstract global def offset(pt: Point): int;
+    abstract global def offset(i0: int): int;
+    abstract global def offset(i0: int, i1: int): int;
+    abstract global def offset(i0: int, i1: int, i2: int): int;
+    abstract global def offset(i0: int, i1: int, i2: int, i3: int): int;
 
     /*
       doesn't work (for now? for good?) - use constructor instead

@@ -7,10 +7,10 @@ import x10.io.Printer;
 import x10.io.StringWriter;
 
 
-abstract value class Row(cols:nat) implements (nat)=>int {
+abstract class Row(cols:nat) implements (nat)=>int {
 
-    public abstract def apply(i:nat): int;
-    public abstract def set(v:int, i:nat): int;
+    public abstract global def apply(i:nat): int;
+    public abstract global def set(v:int, i:nat): int;
 
     protected def this(cols:nat) = property(cols);
 
@@ -18,7 +18,7 @@ abstract value class Row(cols:nat) implements (nat)=>int {
      * print a row in both matrix and equation form
      */
 
-    public def printInfo(ps: Printer, row:int) {
+    public global def printInfo(ps: Printer, row:int) {
         ps.print("[");
         for (var i: int = 0; i<cols; i++) {
             ps.print(this(i));
@@ -33,7 +33,7 @@ abstract value class Row(cols:nat) implements (nat)=>int {
      * print a row in equation form
      */
 
-    def printEqn(ps: Printer, spc: String, row: int) {
+    global def printEqn(ps: Printer, spc: String, row: int) {
         var first: boolean = true;
         ps.print("y" + row + " = ");
         for (var i: int = 0; i<cols-1; i++) {
@@ -54,7 +54,7 @@ abstract value class Row(cols:nat) implements (nat)=>int {
         if (c!=0||first) ps.print((c>=0&&!first?"+":"") + c);
     }
 
-    public def toString(): String {
+    public global def toString(): String {
         val os = new StringWriter();
         val ps = new Printer(os);
         printEqn(ps, "", 0);

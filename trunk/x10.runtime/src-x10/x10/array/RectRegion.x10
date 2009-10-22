@@ -11,19 +11,19 @@ package x10.array;
  * @author bdlucas
  */
 
-final value class RectRegion extends PolyRegion{rect} {
+final class RectRegion extends PolyRegion{rect} {
 
-    val size: int;
+    global val size: int;
 
-    val min0:int;
-    val min1:int;
-    val min2:int;
-    val min3:int;
+    global val min0:int;
+    global val min1:int;
+    global val min2:int;
+    global val min3:int;
 
-    val max0:int;
-    val max1:int;
-    val max2:int;
-    val max3:int;
+    global val max0:int;
+    global val max1:int;
+    global val max2:int;
+    global val max3:int;
 
 
     /**
@@ -78,7 +78,7 @@ final value class RectRegion extends PolyRegion{rect} {
         return size;
     }
 
-    public def size(): int {
+    public global def size(): int {
         if (size<0)
             throw new UnboundedRegionException("unbounded");
         return size;
@@ -113,7 +113,7 @@ final value class RectRegion extends PolyRegion{rect} {
         }
     }
 
-    public def scanner(): Region.Scanner {
+    public global def scanner(): Region.Scanner {
         return new RectRegion.Scanner(this);
     }
 
@@ -177,14 +177,14 @@ final value class RectRegion extends PolyRegion{rect} {
     //const doChecks = Runtime.ARRAY_BOUNDS_RUNTIME_CHECK;
     const doChecks = true;
 
-    def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
+    global def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
         if (doChecks && (
             i0<min0 || i0>max0
         ))
             throw err([i0] as Point);
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1
@@ -192,7 +192,7 @@ final value class RectRegion extends PolyRegion{rect} {
             throw err([i0,i1] as Point);
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
@@ -201,7 +201,7 @@ final value class RectRegion extends PolyRegion{rect} {
             throw err([i0,i1,i2] as Point);
     }
 
-    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
+    global def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
@@ -217,16 +217,16 @@ final value class RectRegion extends PolyRegion{rect} {
     // region operations
     //
 
-    protected def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank) {
         return this;
     }
 
-    public def min() = mat.rectMin();
-    public def max() = mat.rectMax();
+    public global def min() = mat.rectMin();
+    public global def max() = mat.rectMax();
 
     // XTENLANG-28
 
-    public def equals(thatObj:Object): boolean {
+    public global def equals(thatObj:Object): boolean {
         if (!(thatObj instanceof Region)) return false; /* EQUALS HACK */
         val that:Region = thatObj as Region;
 
@@ -257,7 +257,7 @@ final value class RectRegion extends PolyRegion{rect} {
     //
     //
 
-    public def toString(): String {
+    public global def toString(): String {
         val thisMin = this.min();
         val thisMax = this.max();
         var s: String = "[";

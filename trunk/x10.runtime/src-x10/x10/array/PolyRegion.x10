@@ -17,7 +17,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-public value class PolyRegion extends BaseRegion {
+public class PolyRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -30,18 +30,18 @@ public value class PolyRegion extends BaseRegion {
     // value
     //
 
-    public val mat: PolyMat{self.rank==this.rank};
+    public global val mat: PolyMat{self.rank==this.rank};
 
 
     //
     // basic info
     //
 
-    public def isConvex(): boolean {
+    public global def isConvex(): boolean {
         return true;
     }
 
-    incomplete public def size():int;
+    incomplete public global def size():int;
 
 
     //
@@ -69,30 +69,30 @@ public value class PolyRegion extends BaseRegion {
         }
     };
 
-    public def scanners(): Iterator[Scanner] {
+    public global def scanners(): Iterator[Scanner] {
         return new Scanners();
     }
 
-    protected def scanner(): Region.Scanner {
+    protected global def scanner(): Region.Scanner {
 	val scanner = PolyScanner.make(mat);
         return scanner;
     }
 
 
-   /* public def iterator(): Iterator[Point(rank)]! {
+   /* public global def iterator(): Iterator[Point(rank)]! {
         //return new PointIt();
         //return scanner().iterator();
 	val scanner = PolyScanner.make(mat).iterator();
         return scanner;
     }*/
-    public def iterator()= PolyScanner.make(mat).iterator() as Iterator[Point{self.rank==this.rank}];
+    public global def iterator()= PolyScanner.make(mat).iterator() as Iterator[Point{self.rank==this.rank}];
   
 
     //
     // Region methods
     //
 
-    public def intersection(t: Region(rank)): Region(rank) {
+    public global def intersection(t: Region(rank)): Region(rank) {
 
         if (t instanceof PolyRegion) {
 
@@ -127,7 +127,7 @@ public value class PolyRegion extends BaseRegion {
      * all but the axis of interest.
      */
 
-    public def projection(axis: int): Region(1) {
+    public global def projection(axis: int): Region(1) {
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
@@ -140,7 +140,7 @@ public value class PolyRegion extends BaseRegion {
      */
 
     // XXX add a test case for this; also for projection!
-    public def eliminate(axis: int): Region(rank-1) {
+    public global def eliminate(axis: int): Region(rank-1) {
         val pm = mat.eliminate(axis, true); 
         val result = PolyRegion.make(pm);
         return result as Region(rank-1);
@@ -151,7 +151,7 @@ public value class PolyRegion extends BaseRegion {
      * the result blockwise
      */
 
-    public def product(r: Region): Region {
+    public global def product(r: Region): Region {
         if (!(r instanceof PolyRegion))
             throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
@@ -174,7 +174,7 @@ public value class PolyRegion extends BaseRegion {
     }
 
 
-    public def translate(v: Point(rank)): Region(rank) {
+    public global def translate(v: Point(rank)): Region(rank) {
         val pmb = new PolyMatBuilder(this.rank);
         translate(pmb, this.mat, v);
         val pm = pmb.toSortedPolyMat(false);
@@ -200,7 +200,7 @@ public value class PolyRegion extends BaseRegion {
      * -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
      */
 
-    public def complement(): Region(rank) {
+    public global def complement(): Region(rank) {
         
         val prlb = new PolyRegionListBuilder(rank);
 
@@ -221,8 +221,9 @@ public value class PolyRegion extends BaseRegion {
         return new UnionRegion(prlb);
     }
 
-    public def isEmpty(): boolean {
-        return mat.isEmpty();
+    public global def isEmpty(): boolean {
+        val tmp = mat.isEmpty();
+        return tmp;
     }
 
 
@@ -234,11 +235,11 @@ public value class PolyRegion extends BaseRegion {
 
     val cache:Cache;
 
-    public def boundingBox(): Region(rank) {
+    public global def boundingBox(): Region(rank) {
         return cache.boundingBox() as Region(rank); // XXXX
     }
 
-    protected def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank) {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
@@ -258,7 +259,7 @@ public value class PolyRegion extends BaseRegion {
      * point
      */
 
-    public def contains(p: Point): boolean {
+    public global def contains(p: Point): boolean {
 
         for (r:PolyRow in mat) {
             if (!r.contains(p))
@@ -346,11 +347,11 @@ public value class PolyRegion extends BaseRegion {
         cache = new Cache(this, hack198);
     }
 
-    public def min(): ValRail[int] {
+    public global def min(): ValRail[int] {
         return boundingBox().min();
     }
 
-    public def max(): ValRail[int] {
+    public global def max(): ValRail[int] {
         return boundingBox().max();
     }
 
@@ -359,11 +360,11 @@ public value class PolyRegion extends BaseRegion {
     // debugging
     //
 
-    public def printInfo(out: Printer): void {
+    public global def printInfo(out: Printer): void {
         mat.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 
-    public def toString(): String {
+    public global def toString(): String {
         return mat.toString();
     }
 

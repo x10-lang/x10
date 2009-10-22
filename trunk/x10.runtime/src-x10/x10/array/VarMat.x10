@@ -3,7 +3,7 @@
 
 package x10.array;
 
-final value class VarMat extends Mat[VarRow] {
+final class VarMat extends Mat[VarRow] {
     
     public def this(cols: nat, mat: ValRail[VarRow])
         = super(mat.length, cols, mat);

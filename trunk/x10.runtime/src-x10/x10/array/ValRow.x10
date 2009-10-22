@@ -7,9 +7,9 @@ import x10.io.Printer;
 import x10.io.StringWriter;
 
 
-public value class ValRow extends Row {
+public class ValRow extends Row {
 
-    private val row: ValRail[int];
+    global private val row: ValRail[int];
 
     public def this(row: ValRail[int]) {
         super(row.length);
@@ -25,9 +25,9 @@ public value class ValRow extends Row {
         row = Rail.makeVal[int](cols, init);
     }
     
-    public safe def apply(i:nat) = row(i);
+    public safe global def apply(i:nat) = row(i);
     
-    public safe def set(v:int, i:nat):int {
+    public safe global def set(v:int, i:nat):int {
         throw new IllegalOperationException("ValRow.set");
     }
 }

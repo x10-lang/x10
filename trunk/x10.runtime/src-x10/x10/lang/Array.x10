@@ -19,7 +19,7 @@ import x10.array.FastArray;
  * @author bdlucas
  */
 
-public abstract value class Array[T](dist:Dist)
+public abstract class Array[T](dist:Dist)
     implements (Point{self.rank==dist.region.rank})=>T,
                Iterable[Point{self.rank==dist.region.rank}]
 {
@@ -29,16 +29,16 @@ public abstract value class Array[T](dist:Dist)
     //
 
     // region via dist
-    public property region: Region(rank) = dist.region;
-    public property rank: int = dist.rank;
-    public property rect: boolean = dist.rect;
-    public property zeroBased: boolean = dist.zeroBased;
+    public global property region: Region(rank) = dist.region;
+    public global property rank: int = dist.rank;
+    public global property rect: boolean = dist.rect;
+    public global property zeroBased: boolean = dist.zeroBased;
     
     // dist
-    public property rail: boolean = dist.rail;
-    public property unique: boolean = dist.unique;
-    public property constant: boolean = dist.constant;
-    public property onePlace: Place = dist.onePlace;
+    public global property rail: boolean = dist.rail;
+    public global property unique: boolean = dist.unique;
+    public global property constant: boolean = dist.constant;
+    public global property onePlace: Place = dist.onePlace;
 
 
     //
@@ -110,40 +110,40 @@ public abstract value class Array[T](dist:Dist)
     // operations
     //
 
-    public abstract safe def apply(pt: Point(rank)): T;
-    public abstract safe def apply(i0: int) {rank==1}: T;
-    public abstract safe def apply(i0: int, i1: int) {rank==2}: T;
-    public abstract safe def apply(i0: int, i1: int, i2: int) {rank==3}: T;
-    public abstract safe def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe global def apply(pt: Point(rank)): T;
+    public abstract safe global def apply(i0: int) {rank==1}: T;
+    public abstract safe global def apply(i0: int, i1: int) {rank==2}: T;
+    public abstract safe global def apply(i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe global def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
     
-    public abstract safe def set(v:T, pt: Point(rank)): T;
-    public abstract safe def set(v:T, i0: int) {rank==1}: T;
-    public abstract safe def set(v:T, i0: int, i1: int) {rank==2}: T;
-    public abstract safe def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
-    public abstract safe def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe global def set(v:T, pt: Point(rank)): T;
+    public abstract safe global def set(v:T, i0: int) {rank==1}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int) {rank==2}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe global def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
 
-    public abstract safe def restriction(r: Region(rank)): Array[T];
-    public abstract safe def restriction(p: Place): Array[T];
+    public abstract safe global def restriction(r: Region(rank)): Array[T];
+    public abstract safe global def restriction(p: Place): Array[T];
 
-    public abstract safe operator + this: Array[T];
-    public abstract safe operator - this: Array[T];
+    public abstract safe global operator + this: Array[T];
+    public abstract safe global operator - this: Array[T];
 
-    public abstract safe operator this + (that: Array[T]): Array[T];
-    public abstract safe operator this - (that: Array[T]): Array[T];
-    public abstract safe operator this * (that: Array[T]): Array[T];
-    public abstract safe operator this / (that: Array[T]): Array[T];
+    public abstract safe global operator this + (that: Array[T]): Array[T];
+    public abstract safe global operator this - (that: Array[T]): Array[T];
+    public abstract safe global operator this * (that: Array[T]): Array[T];
+    public abstract safe global operator this / (that: Array[T]): Array[T];
 
-    public abstract safe operator this | (r: Region(rank)): Array[T];
-    public abstract safe operator this | (p: Place): Array[T];
+    public abstract safe global operator this | (r: Region(rank)): Array[T];
+    public abstract safe global operator this | (p: Place): Array[T];
 
 
     //
     // array operations
     //
 
-    public abstract def lift(op:(T)=>T): Array[T](dist);
-    public abstract def reduce(op:(T,T)=>T, unit:T): T;
-    public abstract def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+    public abstract global def lift(op:(T)=>T): Array[T](dist);
+    public abstract global def reduce(op:(T,T)=>T, unit:T): T;
+    public abstract global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
 
     //
     // further generalizations TBD:
@@ -151,11 +151,11 @@ public abstract value class Array[T](dist:Dist)
     // - op takes current Point
     //
     // also TBD:
-    //   public abstract def lift[U](op:(T)=>U): Array[U](dist);
-    //   public abstract def lift[U,V](op:(T,U)=>V, that:Array[U](dist)): Array[V](dist);
-    //   public abstract def overlay(that:Array[T](rank)): Array[T](rank);
-    //   public abstract def update(that:Array[T](rank)): Array[T](rank);
-    //   public abstract def sum(): T;
+    //   public abstract global def lift[U](op:(T)=>U): Array[U](dist);
+    //   public abstract global def lift[U,V](op:(T,U)=>V, that:Array[U](dist)): Array[V](dist);
+    //   public abstract global def overlay(that:Array[T](rank)): Array[T](rank);
+    //   public abstract global def update(that:Array[T](rank)): Array[T](rank);
+    //   public abstract global def sum(): T;
     //
 
     //
@@ -166,7 +166,7 @@ public abstract value class Array[T](dist:Dist)
     public static operator [T](r: ValRail[T]): Array[T] = make(r);
 
 
-    public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+    public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
 
     //

@@ -15,16 +15,14 @@ package x10.array;
 
 import x10.compiler.Native;
 
- // vj TODO: Find a way to avoid this runtime check.
- // FastArray should be a class not a value class or a struct.
-public final value class FastArray[T] extends BaseArray[T] {
+public final class FastArray[T] extends BaseArray[T] {
 
-    private val raw: Rail[T];
-    private val layout: RectLayout;
+    private global val raw:Rail[T]{self.at(dist.onePlace)};
+    private global val layout:RectLayout;
 
-    final public def raw() = raw as Rail[T]!;
+    final public global def raw() = raw as Rail[T]!;
 
-    final protected def layout(): RectLayout {
+    final protected global def layout(): RectLayout {
         return layout;
     }
 
@@ -43,29 +41,29 @@ public final value class FastArray[T] extends BaseArray[T] {
     val offset2: int;
     val offset3: int;
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
-    final public safe def apply(i0: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
+    final public safe global def apply(i0: int): T {
         var offset:int = i0;
         return raw()(-offset0 + offset);
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#1) * (#0)->FMGL(delta1) + (#2)]")
-    final public safe def apply(i0: int, i1: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#1) * (#0)->FMGL(delta1) + (#2)]")
+    final public safe global def apply(i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         return raw()(-offset1 + offset);
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)]")
-    final public safe def apply(i0: int, i1: int, i2: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)]")
+    final public safe global def apply(i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         return raw()(-offset2 + offset);
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)) * (#0)->FMGL(delta3) + (#4)]")
-    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)) * (#0)->FMGL(delta3) + (#4)]")
+    final public safe global def apply(i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -77,23 +75,23 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
-    final public safe def set(v: T, i0: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
+    final public safe global def set(v: T, i0: int): T {
         var offset:int = i0;
         raw()(offset - offset0) = v;
         return v;
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#2) * (#0)->FMGL(delta1) + (#3)] = (#1)")
-    final public safe def set(v: T, i0: int, i1: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#2) * (#0)->FMGL(delta1) + (#3)] = (#1)")
+    final public safe global def set(v: T, i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         raw()(offset - offset1) = v;
         return v;
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)] = (#1)")
-    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)] = (#1)")
+    final public safe global def set(v: T, i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -101,8 +99,8 @@ public final value class FastArray[T] extends BaseArray[T] {
         return v;
     }
 
-	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)) * (#0)->FMGL(delta3) + (#5)] = (#1)")
-    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+    @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)) * (#0)->FMGL(delta3) + (#5)] = (#1)")
+    final public safe global def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -123,7 +121,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         }
     }
 
-    public def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
+    public global def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
         return Array.make[T](dist, (p:Point):T => {
             a.result = op(a.result, apply(p as Point(rank)));
@@ -138,7 +136,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: Box[(Point)=>T]): FastArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: Box[(Point)=>T]){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -160,18 +158,15 @@ public final value class FastArray[T] extends BaseArray[T] {
         }
         */
 
-        layout = at (dist.onePlace) layout(region);
-	val pl = dist.onePlace;
-        raw = at (pl) {
-            val n = layout.size();
-            val r = Rail.makeVar[T](n);
-            if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
-                for (p:Point in region)
-                    r(layout.offset(p)) = f(p);
-            }
-            return r;
-        };
+        layout = layout(region);
+        val n = layout.size();
+        val r = Rail.makeVar[T](n);
+        if (init!=null) {
+            val f = init as (Point) => T;
+            for (p:Point in region)
+                r(layout.offset(p)) = f(p);
+        }
+        raw = r;
 
         delta0 = layout.delta0;
         delta1 = layout.delta1;
@@ -188,7 +183,7 @@ public final value class FastArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public safe def restriction(d: Dist): Array[T] {
+    public safe global def restriction(d: Dist): Array[T] {
         return new FastArray[T](this, d as Dist{constant});
     }
 

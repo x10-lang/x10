@@ -16,7 +16,7 @@ import x10.compiler.Native;
  * @author bdlucas
  */
 
-public abstract value class BaseArray[T] extends Array[T] {
+public abstract class BaseArray[T] extends Array[T] {
 
     // XTENLANG-49
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
@@ -42,9 +42,9 @@ public abstract value class BaseArray[T] extends Array[T] {
     public static def makeVar1[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist) {
         if (dist.constant) {
            if (checkBounds || checkPlace)
-               return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}, init) as Array[T](dist) }; // XXXXX ???
            else
-               return new FastArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here}, init) as Array[T](dist) }; // XXXXX ???
         }
         else {
             return new DistArray[T](dist, init);
@@ -68,8 +68,8 @@ public abstract value class BaseArray[T] extends Array[T] {
     // expose these if performance demands
     //
 
-    protected abstract def raw(): Rail[T]!;
-    protected abstract def layout(): RectLayout;
+    protected abstract global def raw(): Rail[T]!;
+    protected abstract global def layout(): RectLayout;
 
 
     //
@@ -77,16 +77,16 @@ public abstract value class BaseArray[T] extends Array[T] {
     // high-performance methods are in subclass to facilitate inlining
     //     
 
-    public final safe def apply(pt: Point(rank)): T {
+    public final safe global def apply(pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
 
-    public final safe def get(pt: Point(rank)): T = apply(pt);
+    public final safe global def get(pt: Point(rank)): T = apply(pt);
 
     // XXXX settable order
-    public final safe def set(v: T, pt: Point(rank)): T {
+    public final safe global def set(v: T, pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         val r = raw();
@@ -112,81 +112,81 @@ public abstract value class BaseArray[T] extends Array[T] {
     const checkBounds = !x10NoChecks;
     const checkPlace = !x10NoChecks;
 
-    val bounds = (pt:Point):RuntimeException =>
+    global val bounds = (pt:Point):RuntimeException =>
         new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
 
-    val place = (pt:Point):RuntimeException =>
+    global val place = (pt:Point):RuntimeException =>
         new BadPlaceException("point " + pt + " not defined at " + here);
 
-    safe def checkBounds(pt: Point(rank)) {
+    safe global def checkBounds(pt: Point(rank)) {
         (region as BaseRegion(rank)).check(bounds, pt);
     }
 
-    safe def checkBounds(i0: int) {
+    safe global def checkBounds(i0: int) {
         (region as BaseRegion(1)).check(bounds, i0);
     }
 
-    safe def checkBounds(i0: int, i1: int) {
+    safe global def checkBounds(i0: int, i1: int) {
         (region as BaseRegion(2)).check(bounds, i0, i1);
     }
 
-    safe def checkBounds(i0: int, i1: int, i2: int) {
+    safe global def checkBounds(i0: int, i1: int, i2: int) {
         (region as BaseRegion(3)).check(bounds, i0, i1, i2);
     }
 
-    safe def checkBounds(i0: int, i1: int, i2: int, i3: int) {
+    safe global def checkBounds(i0: int, i1: int, i2: int, i3: int) {
         (region as BaseRegion(4)).check(bounds, i0, i1, i2, i3);
     }
 
-    safe def checkPlace(pt: Point(rank)) {
+    safe global def checkPlace(pt: Point(rank)) {
         (dist.get(here) as BaseRegion(rank)).check(place, pt);
     }
 
-    safe def checkPlace(i0: int) {
+    safe global def checkPlace(i0: int) {
         (dist.get(here) as BaseRegion(1)).check(place, i0);
     }
 
-    safe def checkPlace(i0: int, i1: int) {
+    safe global def checkPlace(i0: int, i1: int) {
         (dist.get(here) as BaseRegion(2)).check(place, i0, i1);
     }
 
-    safe def checkPlace(i0: int, i1: int, i2: int) {
+    safe global def checkPlace(i0: int, i1: int, i2: int) {
         (dist.get(here) as BaseRegion(3)).check(place, i0, i1, i2);
     }
 
-    safe def checkPlace(i0: int, i1: int, i2: int, i3: int) {
+    safe global def checkPlace(i0: int, i1: int, i2: int, i3: int) {
         (dist.get(here) as BaseRegion(4)).check(place, i0, i1, i2, i3);
     }
     //
     // views
     //
 
-    public safe def restriction(r: Region(rank)): Array[T] {
+    public safe global def restriction(r: Region(rank)): Array[T] {
         return restriction(dist.restriction(r));
     }
 
-    public safe def restriction(p: Place): Array[T] {
+    public safe global def restriction(p: Place): Array[T] {
         return restriction(dist.restriction(p));
     }
 
     // must be internal only - assumes Dist places match
-    protected abstract safe def restriction(d: Dist): Array[T];
+    protected abstract safe global def restriction(d: Dist): Array[T];
 
 
     //
     // operations
     //
 
-    public def lift(op:(T)=>T): Array[T](dist)
+    public global def lift(op:(T)=>T): Array[T](dist)
         = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
 
-    //    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
+    //    incomplete public global def reduce(op:(T,T)=>T, unit:T):T;
 
 //
 // seems to be causing non-deterministic typechecking failures in
 // a(pt).  perhaps related to XTENLANG-128 and/or XTENLANG-135
 //
-    public def reduce(op:(T,T)=>T, unit:T):T {
+    public global def reduce(op:(T,T)=>T, unit:T):T {
 
         // scatter
         val ps = dist.places();
@@ -211,7 +211,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     }            
 
 /*
-    public def reduce(op:(T,T)=>T, unit:T):T {
+    public global def reduce(op:(T,T)=>T, unit:T):T {
 
         // scatter
         val ps = dist.places();
@@ -235,33 +235,33 @@ public abstract value class BaseArray[T] extends Array[T] {
 */
 
     // LocalArray only for now!
-    incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+    incomplete public global def scan(op:(T,T)=>T, unit:T): Array[T](dist);
 
 
     //
     // ops
     //
 
-    public safe operator this | (r: Region(rank)): Array[T] = restriction(r);
-    public safe operator this | (p: Place): Array[T] = restriction(p);
+    public safe global operator this | (r: Region(rank)): Array[T] = restriction(r);
+    public safe global operator this | (p: Place): Array[T] = restriction(p);
 
-    incomplete public safe operator + this: Array[T];
-    incomplete public safe operator - this: Array[T];
+    incomplete public safe global operator + this: Array[T];
+    incomplete public safe global operator - this: Array[T];
 
-    incomplete public safe operator this + (that: Array[T]): Array[T];
-    incomplete public safe operator this - (that: Array[T]): Array[T];
-    incomplete public safe operator this * (that: Array[T]): Array[T];
-    incomplete public safe operator this / (that: Array[T]): Array[T];
-    incomplete public safe operator this % (that: Array[T]): Array[T];
+    incomplete public safe global operator this + (that: Array[T]): Array[T];
+    incomplete public safe global operator this - (that: Array[T]): Array[T];
+    incomplete public safe global operator this * (that: Array[T]): Array[T];
+    incomplete public safe global operator this / (that: Array[T]): Array[T];
+    incomplete public safe global operator this % (that: Array[T]): Array[T];
 
-    incomplete public safe operator this == (x: Array[T]): boolean;
-    incomplete public safe operator this <  (x: Array[T]): boolean;
-    incomplete public safe operator this >  (x: Array[T]): boolean;
-    incomplete public safe operator this <= (x: Array[T]): boolean;
-    incomplete public safe operator this >= (x: Array[T]): boolean;
-    incomplete public safe operator this != (x: Array[T]): boolean;
+    incomplete public safe global operator this == (x: Array[T]): boolean;
+    incomplete public safe global operator this <  (x: Array[T]): boolean;
+    incomplete public safe global operator this >  (x: Array[T]): boolean;
+    incomplete public safe global operator this <= (x: Array[T]): boolean;
+    incomplete public safe global operator this >= (x: Array[T]): boolean;
+    incomplete public safe global operator this != (x: Array[T]): boolean;
 
-    // incomplete public def sum(): T; // XTENLANG-116
+    // incomplete public global def sum(): T; // XTENLANG-116
 
 
 
@@ -274,21 +274,22 @@ public abstract value class BaseArray[T] extends Array[T] {
      */
 
     // safe to call from witin a constructor, does not read fields.
-    protected proto def layout(r: Region): RectLayout {
+    protected proto global def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?
             val min = Rail.makeVal[int](r.rank, (nat)=>0);
             val max = Rail.makeVal[int](r.rank, (nat)=>-1);
             return new RectLayout(min, max);
-        } else
+        } else {
             return new RectLayout(r.min(), r.max());
+        }
     }
 
     protected def this(dist: Dist) {
         super(dist);
     }
 
-    public def toString(): String {
+    public global def toString(): String {
         return "Array(" + dist + ")";
     }
 

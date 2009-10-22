@@ -3,7 +3,7 @@
 
 package x10.array;
 
-public final value class XformMat extends Mat[ValRow] {
+public final class XformMat extends Mat[ValRow] {
     
     public def this(cols: nat, mat: ValRail[ValRow])
         = super(mat.length, cols, mat);
@@ -19,7 +19,7 @@ public final value class XformMat extends Mat[ValRow] {
      * Matrix multiplication
      */
 
-    public operator this * (that: XformMat): XformMat {
+    public global operator this * (that: XformMat): XformMat {
         return new XformMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
@@ -33,7 +33,7 @@ public final value class XformMat extends Mat[ValRow] {
      * Matrix times vector. Assumes homogeneous coordinates.
      */
 
-    public operator this * (p:Point):Point {
+    public global operator this * (p:Point):Point {
         return Point.make(rows-1, (i:nat)=> {
             var sum:int = this(i)(p.rank);
             for (var j:int=0; j<p.rank; j++)

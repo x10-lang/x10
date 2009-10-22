@@ -11,17 +11,17 @@ package x10.array;
  * @author bdlucas
  */
 
-value class FullRegion extends PolyRegion {
+class FullRegion extends PolyRegion {
 
     def this(val rank: int): FullRegion{self.rank==rank} {
         super((new PolyMatBuilder(rank)).toSortedPolyMat(false), true);
     }
 
-    protected def computeBoundingBox(): Region(rank) {
+    protected global def computeBoundingBox(): Region(rank) {
         return this;
     }
 
-    public def toString(): String {
+    public global def toString(): String {
         return "full(" + rank + ")";
     }
 }
