@@ -17,7 +17,7 @@ import x10.util.Set;
  * @author
  */
 
-public abstract value class Dist(
+public abstract class Dist(
     region: Region,
     unique: boolean,
     constant: boolean,
@@ -163,13 +163,13 @@ public abstract value class Dist(
      * point to.
      */
 
-    abstract public def places(): ValRail[Place];
+    abstract public global def places(): ValRail[Place];
 
     /**
      * Returns the set of regions that this distribution maps some place to.
      */
 
-    abstract public def regions(): ValRail[Region]; // essentially regionMap().values()
+    abstract public global def regions(): ValRail[Region]; // essentially regionMap().values()
 
     
     /**
@@ -177,7 +177,7 @@ public abstract value class Dist(
      * maps to the specified place.
      */
 
-    abstract public def get(p: Place): Region(rank);
+    abstract public global def get(p: Place): Region(rank);
 
 
 
@@ -190,13 +190,13 @@ public abstract value class Dist(
      * point to.
      */
 
-    abstract public def apply(pt: Point/*(rank)*/): Place;
+    abstract public global def apply(pt: Point/*(rank)*/): Place;
 
 
-    abstract public def apply(i0: int): Place;
-    abstract public def apply(i0: int, i1: int): Place;
-    abstract public def apply(i0: int, i1: int, i2: int): Place;
-    abstract public def apply(i0: int, i1: int, i2: int, i3: int): Place;
+    abstract public global def apply(i0: int): Place;
+    abstract public global def apply(i0: int, i1: int): Place;
+    abstract public global def apply(i0: int, i1: int, i2: int): Place;
+    abstract public global def apply(i0: int, i1: int, i2: int, i3: int): Place;
 
 
     //
@@ -211,7 +211,7 @@ public abstract value class Dist(
      *       ... p ...
      */
 
-    public def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public global def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
 
 
     //
@@ -224,7 +224,7 @@ public abstract value class Dist(
      * this distribution.
      */
 
-    abstract public def intersection(r: Region(rank)): Dist(rank);
+    abstract public global def intersection(r: Region(rank)): Dist(rank);
 
     /**
      * Returns the distribution defined over this.region-that.region,
@@ -232,7 +232,7 @@ public abstract value class Dist(
      * this distribution.
      */
 
-    abstract public def difference(r: Region(rank)): Dist(rank);
+    abstract public global def difference(r: Region(rank)): Dist(rank);
 
     /**
      * Returns the distribution defined over r, which must be
@@ -240,7 +240,7 @@ public abstract value class Dist(
      * region to the same place as this distribution.
      */
 
-    abstract public def restriction(r: Region(rank)): Dist(rank);
+    abstract public global def restriction(r: Region(rank)): Dist(rank);
 
 
     //
@@ -253,7 +253,7 @@ public abstract value class Dist(
      * distribution.
      */
 
-    abstract public def isSubdistribution(that: Dist(rank)): boolean;
+    abstract public global def isSubdistribution(that: Dist(rank)): boolean;
 
     /**
      * Returns a distribution containing only points that are
@@ -261,7 +261,7 @@ public abstract value class Dist(
      * and which the two distributions map to the same place.
      */
 
-    abstract public def intersection(that: Dist(rank)): Dist(rank);
+    abstract public global def intersection(that: Dist(rank)): Dist(rank);
 
     /**
      * Returns the distribtution that contains every point in this
@@ -270,7 +270,7 @@ public abstract value class Dist(
      * same place as this distribution.
      */
 
-    abstract public def difference(that: Dist(rank)): Dist(rank);
+    abstract public global def difference(that: Dist(rank)): Dist(rank);
 
     /**
      * If this distribution and that distribution are disjoint,
@@ -279,7 +279,7 @@ public abstract value class Dist(
      * distribution that contains p. Otherwise throws an exception.
      */
 
-    abstract public def union(that: Dist(rank)): Dist(rank);
+    abstract public global def union(that: Dist(rank)): Dist(rank);
 
     /**
      * Returns a distribution whose region is the union of the regions
@@ -287,7 +287,7 @@ public abstract value class Dist(
      * this(p) if p is contained in this, otherwise maps p to that(p).
      */
 
-    abstract public def overlay(that: Dist(rank)): Dist(rank);
+    abstract public global def overlay(that: Dist(rank)): Dist(rank);
 
     /**
      * Returns true iff both distributions are defined over the same
@@ -306,13 +306,13 @@ public abstract value class Dist(
      * maps to the specified place.
      */
 
-    abstract public def restriction(p: Place): Dist(rank);
+    abstract public global def restriction(p: Place): Dist(rank);
 
     /**
      * Returns true iff this.region contains p.
      */
 
-    abstract public def contains(p: Point): boolean;
+    abstract public global def contains(p: Point): boolean;
 
 
     //
