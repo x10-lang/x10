@@ -806,6 +806,18 @@ public class X10TypeMixin {
 	    return selfVar(c);
 	}
 	/**
+	 * Are instances of this type accessible from anywhere?
+	 * @param t
+	 * @return
+	 */
+	public static boolean isGlobalType(Type t) {
+		if (isStruct(t))
+			return true;
+		return false;
+		
+	}
+
+	/**
 	 * We need to ensure that there is a symbolic name for this type. i.e. self is bound to some variable.
 	 * So if it is not, please create a new EQV and bind self to it. 
 	 * 

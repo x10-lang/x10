@@ -294,6 +294,11 @@ public class X10Field_c extends Field_c {
 		if (ts.isHere(target, xc))
 			return;
 
+		if (xc.currentPlaceTerm().equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
+			throw new SemanticError("Place type error: " +
+					" field " + name() + " should be global.",
+					position());
+		}
 		throw new SemanticError("Place type error: " +
 				"either field target " 
 				+ target + " of type " + target.type() + " should be local "

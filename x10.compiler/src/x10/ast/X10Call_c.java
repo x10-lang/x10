@@ -325,6 +325,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
 		
 		call.checkProtoMethod();
+	
 		return call;
 	}
 	
@@ -434,6 +435,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			Node n =  null;
 			try {
 				n=this.typeCheckNullTarget(tc, typeArgs, argTypes, arguments);
+				
 			}
 			catch (SemanticException e) {
 				if (cc != null)
@@ -441,7 +443,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				throw new SemanticException("Method or static constructor not found for " +
 						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
 			}
-			
+			((X10Call_c) n).checkLocalReceiver(tc);
 			// We have 
 			if (cc != null) {
 			
@@ -583,6 +585,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		if (ts.isHere(target, xc))
 			return;
 
+		if (xc.currentPlaceTerm().equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
+			throw new SemanticError("Place type error: " +
+					" method " + name() + " should be global.",
+					position());
+		}
 		throw new SemanticError("Place type error: method target " 
 				+ target + " cannot be determined to be at " + xc.currentPlaceTerm(),
 				position());

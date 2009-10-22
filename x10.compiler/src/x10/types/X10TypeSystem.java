@@ -36,6 +36,7 @@ import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XLit;
 import x10.constraint.XRoot;
@@ -396,4 +397,6 @@ public interface X10TypeSystem extends TypeSystem {
      * @throws SemanticException
      */
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
+    
+    XConstrainedTerm globalPlace();
 }
