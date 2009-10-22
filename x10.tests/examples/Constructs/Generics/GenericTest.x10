@@ -7,6 +7,11 @@ import harness.x10Test;
  * Not a test. Convenience class to simplify debugging the test
  * cases. Perhaps this should be in x10Test
  *
+ * TODO: there's a check method in x10Test now, but it has 
+ * a different parameter order (actual, expected, message).
+ * We should rewrite all of the tests that are using these methods 
+ * to use x10Test.check instead... DG: 10/22/2009.
+ *
  * @author bdlucas 8/2008
  */
 
@@ -14,7 +19,6 @@ abstract class GenericTest extends x10Test {
 
     var result:boolean = true;
 
-    // XTENLANG-335: dup for Int and String because cannot assign to Value
     def check(test:String, actual:Int, expected:Int) = {
 
         var result:boolean = actual == expected;
@@ -26,21 +30,9 @@ abstract class GenericTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    // XTENLANG-335: dup for Int and String because cannot assign to Value
     def check(test:String, actual:String, expected:String) = {
 
-        var result:boolean = actual == expected;
-
-        if (!result) {
-            pr(test + " fails: expected " + expected + ", got " + actual);
-            this.result = false;
-        } else
-            pr(test + " succeeds: got " + actual);
-    }
-
-    def check(test:String, actual:Value, expected:Value) = {
-
-        var result:boolean = actual == expected;
+        var result:boolean = actual.equals(expected);
 
         if (!result) {
             pr(test + " fails: expected " + expected + ", got " + actual);
