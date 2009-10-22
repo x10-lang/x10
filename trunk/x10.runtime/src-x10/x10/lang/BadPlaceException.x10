@@ -9,6 +9,6 @@
 package x10.lang;
 
 public class BadPlaceException extends RuntimeException {
-    public def this() = super("bad place exception");
+    public def this() = super("bad place exception at "+here);
     public def this(message: String) = super(message);
 }
