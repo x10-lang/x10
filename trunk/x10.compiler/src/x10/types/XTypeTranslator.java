@@ -78,17 +78,30 @@ public class XTypeTranslator {
 	XConstrainedTerm firstPlace;
 	public XConstrainedTerm firstPlace() {
 		if (firstPlace == null)
-			firstPlace = makeFirstPlace();
+			firstPlace = makePlace(0, "FIRST_PLACE");
 		return firstPlace;
 	}
-	private XConstrainedTerm makeFirstPlace() {
+	/**
+	 * We should think of a place term as representing a set of places.
+	 * firstPlace represents {Place.places(0)}.
+	 * globalPlace represents the set of all places.
+	 * From the type checkers point of view code is typechecked in a context in which the
+	 * current place is constrained to be any place in this set.
+	 */
+	XConstrainedTerm globalPlace;
+	public XConstrainedTerm globalPlace() {
+		if (globalPlace == null)
+			globalPlace = XConstrainedTerm.make(XTerms.GLOBAL_PLACE);
+		return globalPlace;
+	}
+	private XConstrainedTerm makePlace(int i, String placeName) {
 		XConstraint c = new XConstraint_c();
 		X10FieldInstance fi = null;
 		Type type = ts.Place();
 		 XConstraint c2 = new XConstraint_c();
 		 try {
 			 XTerm id = Synthesizer.makeProperty(ts.Place(), c2.self(), "id");
-			 c.addBinding(id, XTerms.makeLit(0));
+			 c.addBinding(id, XTerms.makeLit(i));
 			 type = X10TypeMixin.xclause(type, c);
 		 } catch (XFailure z) {
 			 // wont happen
@@ -96,7 +109,7 @@ public class XTypeTranslator {
 		try {
 			Context con = ts.emptyContext();
 			fi = (X10FieldInstance) ts.findField(ts.Place(), 
-					ts.FieldMatcher(ts.Place(), Name.make("FIRST_PLACE"), con));
+					ts.FieldMatcher(ts.Place(), Name.make(placeName), con));
 		}
 		catch (SemanticException e) {
 			// ignore

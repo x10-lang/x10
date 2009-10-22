@@ -250,7 +250,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                 f.addDecls(c);
             }
         }
-        
+    	
+        // Ensure that if this method is global then its body is type-checked
+        // in a global context.
+       
+    	if (X10Flags.toX10Flags(methodDef().flags()).isGlobal() && 
+    			child == body) {
+    		
+    		c = ((X10Context) c).pushPlace(((X10TypeSystem) c.typeSystem()).globalPlace());
+    		
+    	}
+    
         // Add the method guard into the environment.
         if (guard != null) {
             Ref<XConstraint> vc = guard.valueConstraint();

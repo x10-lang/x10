@@ -78,6 +78,7 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -2576,7 +2577,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   return xtypeTranslator().trans(pc, target, 
 			   ((StructType) Ref()).fieldNamed(Name.make("location")));
    }
+   public XConstrainedTerm globalPlace() {
+	   return xtypeTranslator().globalPlace();
+   }
    public boolean isHere(Receiver r, X10Context xc) {
+	   // If the code is executing in a global context then
+	   // no receiver can be local.
+	   if (xc.currentPlaceTerm().term().equals(globalPlace()))
+		   return false;
+	   
 	   try {
 		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
 		   Type rType = r.type();
