@@ -279,12 +279,11 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
     return String::Lit(ss.str().c_str());
 }
 
-x10_boolean String::_struct_equals(ref<Object> p0) {
+x10_boolean String::equals(ref<Object> p0) {
+    nullCheck(p0);
     if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->Ref::_struct_equals(p0))
-        return false;
+    if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
-    nullCheck(that);
     if (strcmp(this->FMGL(content), that->FMGL(content)))
         return false;
     return true;
