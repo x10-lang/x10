@@ -198,7 +198,6 @@ namespace x10 {
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10aux::ref<ValRail<T> > other) {
             x10aux::nullCheck(other);
-            x10aux::placeCheck(other);
             x10_int length = other->FMGL(length);
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
             for (x10_int i=0 ; i<length ; ++i) {

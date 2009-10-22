@@ -3,7 +3,6 @@
 #include <x10aux/RTT.h>
 
 #include <x10/lang/Ref.h>
-#include <x10/lang/Value.h>
 #include <x10/lang/ValRail.h>
 
 using namespace x10aux;
@@ -16,7 +15,7 @@ namespace x10 {
         void
         _initRTTHelper_ValRail(RuntimeType *location, const RuntimeType *element,
                                const RuntimeType *p1, const RuntimeType *p2) {
-            const RuntimeType *parents[3] = { Value::getRTT(), p1, p2 };
+            const RuntimeType *parents[3] = { Ref::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::covariant };
             const RuntimeType *canonical = x10aux::getRTT<ValRail<void> >();
