@@ -89,7 +89,14 @@ public interface IX10PlatformConfiguration {
    * 
    * @return A possibly null value.
    */
-  public String getTargetOS();
+  public ETargetOS getTargetOS();
+  
+  /**
+   * Returns the locations where X10 distribution headers are installed.
+   * 
+   * @return A non-null non-empty string.
+   */
+  public String[] getX10HeadersLocations();
   
   /**
    * Returns the location where X10 distribution is installed.
@@ -97,6 +104,13 @@ public interface IX10PlatformConfiguration {
    * @return A non-null non-empty string.
    */
   public String getX10DistribLocation();
+  
+  /**
+   * Returns the locations where X10 distribution libraries are installed.
+   * 
+   * @return A non-null non-empty string.
+   */
+  public String[] getX10LibsLocations();
   
   /**
    * Returns if yes or no the archiving step is required.

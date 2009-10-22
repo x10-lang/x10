@@ -37,5 +37,4 @@ Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.ui.launch.cpp;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
  org.eclipse.imp.x10dt.ui.launch.cpp.builder;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
- org.eclipse.imp.x10dt.ui.launch.cpp.launching;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug",
- org.eclipse.imp.x10dt.ui.launch.cpp.utils;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug"
+ org.eclipse.imp.x10dt.ui.launch.cpp.launching;x-friends:="org.eclipse.imp.x10dt.ui.cpp.debug"

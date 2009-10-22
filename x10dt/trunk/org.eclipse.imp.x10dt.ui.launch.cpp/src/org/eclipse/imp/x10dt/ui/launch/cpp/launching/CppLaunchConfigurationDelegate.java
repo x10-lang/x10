@@ -12,13 +12,9 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTA
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +24,6 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -69,7 +64,6 @@ import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-import x10cpp.ExtensionInfo;
 import x10cpp.visit.MessagePassingCodeGenerator;
 
 /**
@@ -162,22 +156,14 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
-  /**
-   *  Override for Cygwin, which needs a ".exe" here
-   *  If superclass version of verifyExecutablePath fails, this is the fallback plan
-   */
-  protected IPath verifyExecutablePath(ILaunchConfiguration configuration) throws CoreException {
+  protected IPath verifyExecutablePath(final ILaunchConfiguration configuration) throws CoreException {
     try {
       return super.verifyExecutablePath(configuration);
-    } catch (CoreException e) {
-      if (!e.getStatus().getMessage().equals(org.eclipse.ptp.launch.messages.Messages.AbstractParallelLaunchConfigurationDelegate_Application_file_does_not_exist))
-        throw e;
-      // Try to append ".exe"
-      String exePath = getExecutablePath(configuration) + ".exe"; //$NON-NLS-1$
+    } catch (CoreException except) {
       try {
-    	  return verifyResource(exePath, configuration);
-      } catch (CoreException e1) {
-    	  throw e; // this was the original error
+        return verifyResource(getExecutablePath(configuration) + EXE_EXT, configuration);
+      } catch (CoreException except2) {
+        throw except;
       }
     }
   }
@@ -206,15 +192,17 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final List<String> command = new ArrayList<String>();
       command.add(platform.getLinker());
       command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingOpts()));
-      command.add(X10BuilderUtils.getCompilingIncludeOpt(workspaceDir, false));
-      command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getX10DistribLocation(), true));
-      command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getPGASLocation(), true));
+      command.add(INCLUDE_OPT + workspaceDir);
+      for (final String headerLoc : platform.getX10HeadersLocations()) {
+        command.add(INCLUDE_OPT + headerLoc);
+      }
       command.add(workspaceDir + '/' + MAIN_FILE_NAME);
       command.add("-o"); //$NON-NLS-1$
       command.add(appProgName);
-      command.add(X10BuilderUtils.getCompilingLibraryOpt(workspaceDir, false));
-      command.add(X10BuilderUtils.getCompilingLibraryOpt(platform.getX10DistribLocation(), true));
-      command.add(X10BuilderUtils.getCompilingLibraryOpt(platform.getPGASLocation(), true));
+      command.add(LIB_OPT + workspaceDir);
+      for (final String libLoc : platform.getX10LibsLocations()) {
+        command.add(LIB_OPT + libLoc);
+      }
       command.add("-l" + project.getName()); //$NON-NLS-1$
       command.addAll(X10BuilderUtils.getAllTokens(platform.getLinkingLibs()));
 
@@ -261,7 +249,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     try {
       final String progName = appProgName.substring(appProgName.lastIndexOf('/') + 1);
       // Firstly, generates the main stub,
-      String mainStub = MessagePassingCodeGenerator.createMainStub(progName);
+      final String mainStub = MessagePassingCodeGenerator.createMainStub(progName);
       final File tmpMainFile = new File(System.getProperty("java.io.tmpdir"), MAIN_FILE_NAME); //$NON-NLS-1$
       final BufferedWriter writer = new BufferedWriter(new FileWriter(tmpMainFile));          
       try {
@@ -273,7 +261,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         writer.close();
       }
       // Secondly, transfers the file in the remote directory.
-      final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), new NullProgressMonitor()).getChild(MAIN_FILE_NAME);
+      final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), null).getChild(MAIN_FILE_NAME);
       final IFileStore tmpMainFileStore = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
       tmpMainFileStore.copy(destFile, EFS.OVERWRITE, null);
       // Thirdly and finally, deletes the local temporary file.
@@ -286,8 +274,12 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   // --- Fields
   
-  private static final String PATTERN = "#0"; //$NON-NLS-1$
-  
   private static final String MAIN_FILE_NAME = "xxx_main_xxx.cc"; //$NON-NLS-1$
+  
+  private static final String EXE_EXT = ".exe"; //$NON-NLS-1$
+  
+  private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$
+  
+  private static final String LIB_OPT = "-L"; //$NON-NLS-1$
   
 }

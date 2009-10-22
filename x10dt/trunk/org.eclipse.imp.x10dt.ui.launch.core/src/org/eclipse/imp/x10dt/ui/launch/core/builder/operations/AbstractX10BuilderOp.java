@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
@@ -63,7 +64,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     archiveCmd.addAll(X10BuilderUtils.getAllTokens(platform.getArchivingOpts()));
     final StringBuilder libName = new StringBuilder();
     libName.append(this.fWorkspaceDir).append("/lib").append(this.fProject.getName()); //$NON-NLS-1$
-    if (platform.getTargetOS().equals("WINDOWS")) { //$NON-NLS-1$
+    if (platform.getTargetOS() == ETargetOS.WINDOWS) {
       libName.append(".lib"); //$NON-NLS-1$
     } else {
       libName.append(".a"); //$NON-NLS-1$
@@ -121,9 +122,10 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         final List<String> command = new ArrayList<String>();
         command.add(platform.getCompiler());
         command.addAll(X10BuilderUtils.getAllTokens(platform.getCompilerOpts()));
-        command.add(X10BuilderUtils.getCompilingIncludeOpt(this.fWorkspaceDir, false));
-        command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getX10DistribLocation(), true));
-        command.add(X10BuilderUtils.getCompilingIncludeOpt(platform.getPGASLocation(), true));
+        command.add(INCLUDE_OPT + this.fWorkspaceDir);
+        for (final String headerLoc : platform.getX10HeadersLocations()) {
+          command.add(INCLUDE_OPT + headerLoc);
+        }
         command.add("-c"); //$NON-NLS-1$
         command.add(entry.getValue());
         command.add("-o"); //$NON-NLS-1$
@@ -211,5 +213,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
   
   
   static final String CC_EXT = ".cc"; //$NON-NLS-1$
+  
+  private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$
 
 }

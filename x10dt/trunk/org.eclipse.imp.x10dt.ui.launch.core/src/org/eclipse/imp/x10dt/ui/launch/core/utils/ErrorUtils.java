@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.cpp.utils;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -53,7 +53,7 @@ public final class ErrorUtils {
    * @param status The status message to log and display in the dialog box.
    */
   public static void dialogWithLog(final Shell shell, final String title, final String dialogMessage, final IStatus status) {
-    CppLaunchCore.log(status);
+    LaunchCore.log(status);
     ErrorDialog.openError(shell, title, dialogMessage, status);
   }
 
@@ -117,8 +117,8 @@ public final class ErrorUtils {
   public static void dialogWithLog(final Shell shell, final String title, final String dialogMessage, final int severity,
                                    final String statusMessage, final Throwable exception) {
     assert statusMessage != null;
-    final IStatus status = new Status(severity, CppLaunchCore.PLUGIN_ID, statusMessage, exception);
-    CppLaunchCore.log(status);
+    final IStatus status = new Status(severity, LaunchCore.PLUGIN_ID, statusMessage, exception);
+    LaunchCore.log(status);
     ErrorDialog.openError(shell, title, dialogMessage, status);
   }
 

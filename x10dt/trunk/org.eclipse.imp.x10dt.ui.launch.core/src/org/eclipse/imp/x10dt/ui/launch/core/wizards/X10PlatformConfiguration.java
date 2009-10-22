@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 
 
@@ -54,12 +55,20 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
     return this.fResManagerId;
   }
 
-  public String getTargetOS() {
+  public ETargetOS getTargetOS() {
     return this.fTargetOS;
   }
   
+  public String[] getX10HeadersLocations() {
+    return this.fX10HeadersLocs;
+  }
+  
   public String getX10DistribLocation() {
-    return this.fX10DistribLoc;
+    return this.fX10DistLoc;
+  }
+  
+  public String[] getX10LibsLocations() {
+    return this.fX10LibsLocs;
   }
   
   public boolean hasArchivingStep() {
@@ -125,12 +134,20 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
     this.fResManagerId = resManagerId;
   }
   
-  void setTargetOS(final String targetOS) {
+  void setTargetOS(final ETargetOS targetOS) {
     this.fTargetOS = targetOS;
   }
   
-  void setX10DistribLoc(final String location) {
-    this.fX10DistribLoc = location;
+  void setX10HeadersLoc(final String[] locations) {
+    this.fX10HeadersLocs = locations;
+  }
+  
+  void setX10DistLoc(final String location) {
+    this.fX10DistLoc = location;
+  }
+  
+  void setX10LibsLoc(final String[] locations) {
+    this.fX10LibsLocs = locations;
   }
   
   // --- Fields
@@ -151,13 +168,17 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   
   private String fName;
   
+  private String fX10DistLoc;
+  
   private String fPGASLoc;
   
-  private String fX10DistribLoc;
+  private String[] fX10HeadersLocs;
+  
+  private String[] fX10LibsLocs;
   
   private String fResManagerId;
   
-  private String fTargetOS;
+  private ETargetOS fTargetOS;
   
   private boolean fIsCplusPlus;
   

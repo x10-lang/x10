@@ -16,8 +16,9 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
-import org.eclipse.imp.x10dt.ui.launch.cpp.utils.ErrorUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageOne;
@@ -107,8 +108,8 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
                                    final String folder) throws IOException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
-      ErrorUtils.dialogWithLog(getShell(), LaunchMessages.CPWFP_NoBundleDialogTitle, IStatus.ERROR, 
-                               NLS.bind(LaunchMessages.CPWFP_NoBundleDialogMsg, bundleName));
+      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
+                               NLS.bind(Messages.PCDWP_NoBundleDialogMsg, bundleName));
       throw new Error();
     } else {
       URL wURL = bundle.getResource(folder);

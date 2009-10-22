@@ -11,15 +11,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.osgi.util.NLS;
 
-import x10cpp.ExtensionInfo;
-import x10cpp.ExtensionInfo.X10CPPScheduler;
-import x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
+import x10cpp.ExtensionInfo;
+import x10cpp.ExtensionInfo.X10CPPScheduler;
+import x10cpp.visit.X10CPPTranslator;
 
 
 final class ExtendedX10Scheduler extends X10CPPScheduler {

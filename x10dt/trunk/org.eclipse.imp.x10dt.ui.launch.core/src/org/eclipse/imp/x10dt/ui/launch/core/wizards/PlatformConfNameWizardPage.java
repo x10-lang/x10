@@ -69,10 +69,10 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
   
   // --- IPlaftormConfWizardPage's interface methods implementation
   
-  public void performFinish(final X10PlatformConfiguration platformConfiguration) {
+  public boolean performFinish(final X10PlatformConfiguration platformConfiguration) {
     platformConfiguration.setName(this.fNameText.getText());
     
-    ((NextWizardNode) getSelectedNode()).getWizardPage().performFinish(platformConfiguration);
+    return ((NextWizardNode) getSelectedNode()).getWizardPage().performFinish(platformConfiguration);
   }
   
   // --- Overridden methods

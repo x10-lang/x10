@@ -5,14 +5,38 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.wizards;
+package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 /**
+ * Represents the different OS managed by X10 for compilation and running.
  * 
  * @author egeay
  */
-interface IPlaftormConfWizardPage {
+public enum ETargetOS {
   
-  boolean performFinish(final X10PlatformConfiguration platformConfiguration);
-
+  /**
+   * Windows OS.
+   */
+  WINDOWS,
+  
+  /**
+   * Linux OS.
+   */
+  LINUX,
+  
+  /**
+   * AIX OS.
+   */
+  AIX,
+  
+  /**
+   * Diverse UNIX systems.
+   */
+  UNIX,
+  
+  /**
+   * MAC OS.
+   */
+  MAC
+  
 }

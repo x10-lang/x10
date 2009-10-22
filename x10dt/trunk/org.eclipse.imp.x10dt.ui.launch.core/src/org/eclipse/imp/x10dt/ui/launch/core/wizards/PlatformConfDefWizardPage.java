@@ -7,16 +7,26 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -44,6 +54,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.framework.Bundle;
 
 
 final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage, IPlaftormConfWizardPage {
@@ -115,15 +126,42 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     
   // --- IPlaftormConfWizardPage's interface methods implementation
   
-  public void performFinish(final X10PlatformConfiguration platformConfiguration) {
+  public boolean performFinish(final X10PlatformConfiguration platformConfiguration) {
     if (this.fDefaultPlatformConf != null) {
       platformConfiguration.setName(this.fDefaultPlatformConf.getName());
     }
     if (this.fIsLocal) {
-      //TODO: Take location from an X10 distribution plugin
+      final Bundle x10DistBundle = Platform.getBundle(X10_DIST_PLUGIN_ID);
+      if (x10DistBundle == null) {
+        ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
+                                 NLS.bind(Messages.PCDWP_NoBundleDialogMsg, X10_DIST_PLUGIN_ID));
+        return false;
+      }
+      final URL headerURL = x10DistBundle.getResource(INCLUDE_DIR);
+      final URL libsURL = x10DistBundle.getResource(LIB_DIR);
+      try {
+        platformConfiguration.setX10HeadersLoc(new String[] { getLocalFile(headerURL).getAbsolutePath() });
+        final File libDir = getLocalFile(libsURL);
+        platformConfiguration.setX10LibsLoc(new String[] { libDir.getAbsolutePath() });
+        
+        platformConfiguration.setX10DistLoc(libDir.getParentFile().getAbsolutePath());
+        platformConfiguration.setPGASLoc(platformConfiguration.getX10DistribLocation());
+      } catch (Exception except) {
+        except.printStackTrace();
+      }
     } else {
-      platformConfiguration.setX10DistribLoc(this.fX10LocText.getText());
-      platformConfiguration.setPGASLoc(this.fPGASLocText.getText());
+      platformConfiguration.setPGASLoc(this.fPGASLocText.getText().trim());
+      platformConfiguration.setX10DistLoc(this.fX10LocText.getText().trim());
+      final String[] headersLoc = new String[] {
+        this.fX10LocText.getText().trim() + '/' + INCLUDE_DIR,
+        this.fPGASLocText.getText().trim() + '/' + INCLUDE_DIR
+      };
+      platformConfiguration.setX10HeadersLoc(headersLoc);
+      final String[] libsLoc = new String[] {
+        this.fX10LocText.getText() + '/' + LIB_DIR,
+        this.fPGASLocText.getText() + '/' + LIB_DIR
+      };
+      platformConfiguration.setX10LibsLoc(libsLoc);
     }
     platformConfiguration.setFlags(this.fIsCplusPlus, this.fIsLocal);
     platformConfiguration.setCompiler(this.fCompilerText.getText());
@@ -141,8 +179,10 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       platformConfiguration.setResManagerId(resourceManager.getID());
     }
     if (this.fTargetOSCombo.getSelectionIndex() != -1) {
-      platformConfiguration.setTargetOS(this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex()));
+      final String osName = this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex());
+      platformConfiguration.setTargetOS(X10BuilderUtils.getTargetOS(osName));
     }
+    return true;
   }
   
   // --- Internal services
@@ -410,6 +450,10 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     return locText;
   }
   
+  private File getLocalFile(final URL url) throws URISyntaxException, IOException {
+    return new File(FileLocator.resolve(url).toURI());
+  }
+  
   private IResourceManager getResourceManager() {
     if (this.fResManagerCombo.getSelectionIndex() == -1) {
       return null;
@@ -420,7 +464,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       return modelManager.getUniverse().getResourceManager(resId);
     }
   }
-  
+    
   private boolean isComplete() {
     if (! this.fIsLocal) {
       if ((this.fPGASLocText.getText() == null) || (this.fPGASLocText.getText().length() == 0)) {
@@ -471,20 +515,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   
   // --- Private classes
   
-  private enum ETargetOS {
-    
-    WINDOWS,
-    
-    LINUX,
-    
-    AIX,
-    
-    UNIX,
-    
-    MAC
-    
-  }
-  
   private final class UpdateMessageModifyListener implements ModifyListener {
     
     UpdateMessageModifyListener() {}
@@ -528,5 +558,12 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Text fLinkingOptsText;
   
   private Text fLinkingLibsText;
+  
+  
+  private static final String X10_DIST_PLUGIN_ID = "x10.dist.common"; //$NON-NLS-1$
+  
+  private static final String INCLUDE_DIR = "include"; //$NON-NLS-1$
+  
+  private static final String LIB_DIR = "lib"; //$NON-NLS-1$
 
 }

@@ -10,15 +10,17 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   
-  ImmutablePlatformConf(final String name, final String resManagerId, final String targetOS, final String x10DistLoc, 
-                        final String pgasLoc, final String compiler, final String compilerOpts, final String archiver, 
-                        final String archivingOpts, final String linker, final String linkingOpts, 
-                        final String linkingLibs, final boolean isCplusPlus, final boolean isLocal) {
+  ImmutablePlatformConf(final String name, final String resManagerId, final ETargetOS targetOS, final String x10DistLoc,
+                        final String pgasLoc, final String[] x10HeadersLocs, final String[] x10LibsLocs, final String compiler,
+                        final String compilerOpts, final String archiver, final String archivingOpts, final String linker,
+                        final String linkingOpts, final String linkingLibs, final boolean isCplusPlus, final boolean isLocal) {
     this.fName = name;
     this.fResManagerId = resManagerId;
     this.fTargetOS = targetOS;
-    this.fX10DistribLoc = x10DistLoc;
+    this.fX10DistLoc = x10DistLoc;
     this.fPGASLoc = pgasLoc;
+    this.fX10HeadersLocs = x10HeadersLocs;
+    this.fX10LibsLocs = x10LibsLocs;
     this.fCompiler = compiler;
     this.fCompilerOpts = compilerOpts;
     this.fArchiver = archiver;
@@ -63,7 +65,7 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   public String getName() {
     return this.fName;
   }
-
+  
   public String getPGASLocation() {
     return this.fPGASLoc;
   }
@@ -72,12 +74,20 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
     return this.fResManagerId;
   }
 
-  public String getTargetOS() {
+  public ETargetOS getTargetOS() {
     return this.fTargetOS;
   }
 
+  public String[] getX10HeadersLocations() {
+    return this.fX10HeadersLocs;
+  }
+
   public String getX10DistribLocation() {
-    return this.fX10DistribLoc;
+    return this.fX10DistLoc;
+  }
+  
+  public String[] getX10LibsLocations() {
+    return this.fX10LibsLocs;
   }
   
   public boolean hasArchivingStep() {
@@ -114,13 +124,17 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   
   private final String fName;
   
+  private final String fX10DistLoc;
+  
   private final String fPGASLoc;
   
-  private final String fX10DistribLoc;
+  private final String[] fX10HeadersLocs;
+  
+  private final String[] fX10LibsLocs;
   
   private final String fResManagerId;
   
-  private final String fTargetOS;
+  private final ETargetOS fTargetOS;
   
   private final boolean fIsCplusPlus;
   

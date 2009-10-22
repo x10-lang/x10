@@ -13,7 +13,6 @@ import java.util.Map;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -310,7 +309,8 @@ final class CppProjectWizardSecondPage extends WizardPage {
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final String path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/",IRemoteUIConstants.NONE); //$NON-NLS-1$
+            final String path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/", //$NON-NLS-1$
+                                                        IRemoteUIConstants.NONE);
             if (path != null) {
               CppProjectWizardSecondPage.this.fWorkspaceLocText.setText(path);
             }

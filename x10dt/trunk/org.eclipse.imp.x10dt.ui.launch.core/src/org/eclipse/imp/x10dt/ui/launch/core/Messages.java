@@ -66,6 +66,8 @@ public class Messages extends NLS {
   public static String PCDWP_LinkingGroup;
   public static String PCDWP_LinkingLibText;
   public static String PCDWP_LinkingOptText;
+  public static String PCDWP_NoBundleDialogMsg;
+  public static String PCDWP_NoBundleDialogTitle;
   public static String PCDWP_OSNotHandledWarning;
   public static String PCDWP_PGASDistribLoc;
   public static String PCDWP_ResourceManager;
@@ -85,6 +87,7 @@ public class Messages extends NLS {
   public static String PCNWP_WizDefaultMsg;
   public static String PCNWP_WizDescr;
   public static String PCNWP_WizTitle;
+  public static String XBU_NoOSMatch;
   public static String XNPC_EditWindowTitle;
   public static String XNPC_WindowTitle;
   public static String XPCPP_AddBt;

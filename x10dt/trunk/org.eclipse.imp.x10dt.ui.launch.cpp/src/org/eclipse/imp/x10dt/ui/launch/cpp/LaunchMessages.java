@@ -38,11 +38,10 @@ public class LaunchMessages extends NLS {
   public static String CAT_AppProgGroupName;
 
   public static String CAT_LinkApp;
+  
   public static String CAT_LinkAppToolTip;
 
   public static String CAT_NoExistingProject;
-
-  public static String CAT_NoMainMethod;
 
   public static String CAT_NoRunningResManager;
 
@@ -79,10 +78,6 @@ public class LaunchMessages extends NLS {
   public static String CLCD_NoMainFileAccessOpError;
 
   public static String CLCD_NoResManagerError;
-
-  public static String CPWFP_NoBundleDialogMsg;
-
-  public static String CPWFP_NoBundleDialogTitle;
 
   public static String CPWSP_LocationLabel;
 
@@ -153,8 +148,6 @@ public class LaunchMessages extends NLS {
   public static String PWSP_UpdateProjectTaskName;
 
   public static String DBG_Attributes_1;
-
-  // --- Private code
   
   public static String OXPCWTA_ErrorDialogMsg;
 
@@ -175,6 +168,8 @@ public class LaunchMessages extends NLS {
   public static String XTEPP_MissingX10PlatformError;
 
   public static String XTEPP_NoDirectoryError;
+  
+  // --- Private code
 
   private static final String BUNDLE_NAME = "org.eclipse.imp.x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$
 

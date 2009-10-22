@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -159,9 +158,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (className == null) {
           setErrorMessage(LaunchMessages.CAT_RequiredMainClassName);
           return false;
-        } else if (! hasMain(project, className)) {
-          setErrorMessage(LaunchMessages.CAT_NoMainMethod);
-          return false;
         }
       } else {
         setErrorMessage(NLS.bind(LaunchMessages.CAT_IllegalPrjName, projectName));
@@ -263,12 +259,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
   
-  private boolean hasMain(final IProject project, final String appProgName) {
-    // Be optimistic by default.
-    // TODO: This method should use X10DT in order to check if the file given has really an X10 main method in it.
-    return true;
-  }
-  
   // --- Private classes
   
   private final class ProjectBtSelectionListener implements SelectionListener {
@@ -349,12 +339,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final String path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,IRemoteUIConstants.NONE);
+            String path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,
+                                             IRemoteUIConstants.NONE);
             if (path != null) {
             	CppApplicationTab.this.fAppProgText.setText(path);
-              //if(path.endsWith(".exe")){// for windows remove exe suffix??
-              //	  CppApplicationTab.this.fAppProgText.setText(path.substring(0, path.length() - 3));
-              //}
             }
           }
         }
@@ -386,5 +374,5 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private Button fSearchAppProgBt;
   
   private Button fShouldLink;
-
+  
 }

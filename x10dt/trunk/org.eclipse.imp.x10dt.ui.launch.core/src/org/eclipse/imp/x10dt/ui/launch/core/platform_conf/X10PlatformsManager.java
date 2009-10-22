@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.XMLMemento;
@@ -43,6 +44,7 @@ public final class X10PlatformsManager {
                                                                      final String name) {
     return new ImmutablePlatformConf(name, configuration.getResourceManagerId(), configuration.getTargetOS(), 
                                      configuration.getX10DistribLocation(), configuration.getPGASLocation(), 
+                                     configuration.getX10HeadersLocations(), configuration.getX10LibsLocations(),
                                      configuration.getCompiler(), configuration.getCompilerOpts(), 
                                      configuration.getArchiver(), configuration.getArchivingOpts(), configuration.getLinker(),
                                      configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
@@ -65,6 +67,8 @@ public final class X10PlatformsManager {
         final String name = platformMemento.getString(NAME_TAG);
         final String x10DistLoc = platformMemento.getString(X10_DIST_LOC_TAG);
         final String pgasLoc = platformMemento.getString(PGAS_LOC_TAG);
+        final String[] x10HeadersLocs = platformMemento.getString(X10_DIST_HEADERS_LOC_TAG).split(PATH_SEP);
+        final String[] x10LibsLocs = platformMemento.getString(X10_DIST_LIBS_LOC_TAG).split(PATH_SEP);
         final String compiler = platformMemento.getString(COMPILER_TAG);
         final String compilerOpts = platformMemento.getString(COMPILER_OPTS_TAG);
         final String archiver = platformMemento.getString(ARCHIVER_TAG);
@@ -73,13 +77,14 @@ public final class X10PlatformsManager {
         final String linkingOpts = platformMemento.getString(LINKING_OPTS_TAG);
         final String linkingLibs = platformMemento.getString(LINKING_LIBS_TAG);
         final String resManagerId = platformMemento.getString(RES_MANAGER_ID_TAG);
-        final String targetOS = platformMemento.getString(TARGET_OS_TAG);
+        final String osName = platformMemento.getString(TARGET_OS_TAG);
+        final ETargetOS targetOS = (osName == null) ? null : X10BuilderUtils.getTargetOS(osName);
         final boolean isCplusPlus = platformMemento.getBoolean(IS_CPLUS_PLUS_TAG);
         final boolean isLocal = platformMemento.getBoolean(IS_LOCAL_TAG);
         
-        platforms.put(name, new ImmutablePlatformConf(name, resManagerId, targetOS, x10DistLoc, pgasLoc, compiler, 
-                                                      compilerOpts, archiver, archivingOpts, linker, linkingOpts, 
-                                                      linkingLibs, isCplusPlus, isLocal));
+        platforms.put(name, new ImmutablePlatformConf(name, resManagerId, targetOS, x10DistLoc, pgasLoc, x10HeadersLocs, 
+                                                      x10LibsLocs, compiler, compilerOpts, archiver, archivingOpts, linker,
+                                                      linkingOpts, linkingLibs, isCplusPlus, isLocal));
       }
     }
     return platforms;
@@ -101,6 +106,28 @@ public final class X10PlatformsManager {
       platformMemento.putString(NAME_TAG, platformConf.getName());
       platformMemento.putString(X10_DIST_LOC_TAG, platformConf.getX10DistribLocation());
       platformMemento.putString(PGAS_LOC_TAG, platformConf.getPGASLocation());
+      final StringBuilder headersBuilder = new StringBuilder();
+      int i = 0;
+      for (final String headerLoc : platformConf.getX10HeadersLocations()) {
+        if (i == 0) {
+          i = 1;
+        } else {
+          headersBuilder.append(PATH_SEP);
+        }
+        headersBuilder.append(headerLoc);
+      }
+      platformMemento.putString(X10_DIST_HEADERS_LOC_TAG, headersBuilder.toString());
+      final StringBuilder libsBuilder = new StringBuilder();
+      i = 0;
+      for (final String libLoc : platformConf.getX10LibsLocations()) {
+        if (i == 0) {
+          i = 1;
+        } else {
+          libsBuilder.append(PATH_SEP);
+        }
+        libsBuilder.append(libLoc);
+      }
+      platformMemento.putString(X10_DIST_LIBS_LOC_TAG, libsBuilder.toString());
       platformMemento.putString(COMPILER_TAG, platformConf.getCompiler());
       platformMemento.putString(COMPILER_OPTS_TAG, platformConf.getCompilerOpts());
       if (platformConf.getArchiver() != null) {
@@ -116,7 +143,7 @@ public final class X10PlatformsManager {
         platformMemento.putString(RES_MANAGER_ID_TAG, platformConf.getResourceManagerId());
       }
       if (platformConf.getTargetOS() != null) {
-        platformMemento.putString(TARGET_OS_TAG, platformConf.getTargetOS());
+        platformMemento.putString(TARGET_OS_TAG, platformConf.getTargetOS().name());
       }
       platformMemento.putBoolean(IS_CPLUS_PLUS_TAG, platformConf.isCplusPlus());
       platformMemento.putBoolean(IS_LOCAL_TAG, platformConf.isLocal());
@@ -131,6 +158,10 @@ public final class X10PlatformsManager {
   private static final String PLATFORM_TAG = "platform"; //$NON-NLS-1$
   
   private static final String NAME_TAG = "name"; //$NON-NLS-1$
+  
+  private static final String X10_DIST_HEADERS_LOC_TAG = "x10-dist-headers-loc"; //$NON-NLS-1$
+  
+  private static final String X10_DIST_LIBS_LOC_TAG = "x10-dist-libs-loc"; //$NON-NLS-1$
   
   private static final String X10_DIST_LOC_TAG = "x10-dist-loc"; //$NON-NLS-1$
   
@@ -160,5 +191,7 @@ public final class X10PlatformsManager {
   
   
   private static final String X10_PLATFORMS_FILE = "x10_platforms.xml"; //$NON-NLS-1$
+  
+  private static final String PATH_SEP = "#"; //$NON-NLS-1$
 
 }

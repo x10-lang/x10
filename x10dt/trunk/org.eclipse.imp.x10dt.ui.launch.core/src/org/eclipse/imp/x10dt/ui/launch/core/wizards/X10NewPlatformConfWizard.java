@@ -61,8 +61,7 @@ public final class X10NewPlatformConfWizard extends Wizard implements INewWizard
   
   public boolean performFinish() {
     this.fPlatformConfiguration = new X10PlatformConfiguration();
-    ((IPlaftormConfWizardPage) getStartingPage()).performFinish(this.fPlatformConfiguration);
-    return true;
+    return ((IPlaftormConfWizardPage) getStartingPage()).performFinish(this.fPlatformConfiguration);
   }
   
   // --- IWorkbenchWizard's interface methods implementation

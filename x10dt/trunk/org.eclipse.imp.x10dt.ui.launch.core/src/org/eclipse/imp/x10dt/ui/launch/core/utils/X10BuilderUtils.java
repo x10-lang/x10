@@ -10,6 +10,10 @@ package org.eclipse.imp.x10dt.ui.launch.core.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.osgi.util.NLS;
+
 import polyglot.util.QuotedStringTokenizer;
 
 /**
@@ -35,47 +39,23 @@ public final class X10BuilderUtils {
   }
   
   /**
-   * Creates the include compiling option. It will create either "-I`directory`", or "-I`directory`/include" depending of
-   * the flag value provided.
+   * Returns the {@link ETargetOS} instance for a given OS name.
    * 
-   * @param directory The directory to consider.
-   * @param withIncludeSubDir True if we need to add "include" directory at the end, false otherwise.
-   * @return A non-null non-empty string.
+   * @param osName The OS name for which one wants the associated ETargetOS.
+   * @return A non-null value.
+   * @throws AssertionError Occurs if the OS name given is not in the {@link ETargetOS} enumeration.
    */
-  public static String getCompilingIncludeOpt(final String directory, final boolean withIncludeSubDir) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(INCLUDE_COMP_OPT).append(directory);
-    if (withIncludeSubDir) {
-      sb.append(INCLUDE_SUBDIR);
+  public static ETargetOS getTargetOS(final String osName) {
+    for (final ETargetOS targetOS : ETargetOS.values()) {
+      if (targetOS.name().equals(osName)) {
+        return targetOS;
+      }
     }
-    return sb.toString();
+    throw new AssertionError(NLS.bind(Messages.XBU_NoOSMatch, osName));
   }
   
-  /**
-   * Creates the library compiling option. It will create either "-L`directory`", or "-L`directory`/lib" depending of
-   * the flag value provided.
-   * 
-   * @param directory The directory to consider.
-   * @param withLibSubDir True if we need to add "lib" directory at the end, false otherwise.
-   * @return A non-null non-empty string.
-   */
-  public static String getCompilingLibraryOpt(final String directory, final boolean withLibSubDir) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(LIB_COMP_OPT).append(directory);
-    if (withLibSubDir) {
-      sb.append(LIB_SUBDIR);
-    }
-    return sb.toString();
-  }
+  // --- Private code
   
-  // --- Fields
+  private X10BuilderUtils() {}
   
-  private static final String INCLUDE_COMP_OPT = "-I"; //$NON-NLS-1$
-  
-  private static final String INCLUDE_SUBDIR = "/include"; //$NON-NLS-1$
-  
-  private static final String LIB_COMP_OPT = "-L"; //$NON-NLS-1$
-  
-  private static final String LIB_SUBDIR = "/lib"; //$NON-NLS-1$
-
 }
