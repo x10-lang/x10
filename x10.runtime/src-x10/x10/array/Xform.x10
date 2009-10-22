@@ -31,7 +31,7 @@ public abstract class Xform {
 
         // reverse transform
         val t = new MatBuilder(rank+1, 2*rank+1);
-        t.setDiagonal(0, 0, sizes.length, sizes);
+        t.setDiagonal(0, 0, sizes.length, (x:nat)=>sizes(x));
         t.setDiagonal(0, rank, rank, (nat)=>1);
         t(rank, 2*rank) = 1;
         val T = t.toXformMat();
