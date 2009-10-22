@@ -14,8 +14,7 @@ import x10.compiler.NativeRep;
  * Interface with native runtime
  * @author tardieu
  */
-//@NativeRep("java", "x10.runtime.impl.java.Runtime", null, null)
-public value NativeRuntime {
+public class NativeRuntime {
 
   @Native("java", "System.out.println(#1)")
   @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")

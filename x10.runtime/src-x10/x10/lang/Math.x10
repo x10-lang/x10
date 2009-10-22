@@ -10,7 +10,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 
-public final value Math {
+public final class Math {
    public const E = 2.718281828459045D;
    public const PI = 3.141592653589793D;
 

@@ -243,10 +243,10 @@ abstract public class BaseRegion extends Region {
 // around issue with virtual method calls in constructor (XTENLANG-198)
 //
 
-value class Cache {
+class Cache {
 
-    val boundingBox: Box[Region];
-    val boundingBoxException: Box[RuntimeException];
+    global val boundingBox: Box[Region];
+    global val boundingBoxException: Box[RuntimeException];
 
     def this(r:BaseRegion, hack198:boolean) {
         var boundingBox: Box[Region] = null;
@@ -261,7 +261,7 @@ value class Cache {
         this.boundingBoxException = boundingBoxException;
     }
 
-    def boundingBox(): Region {
+    global def boundingBox(): Region {
         if (boundingBoxException!=null) {
             val e: RuntimeException =
                 at (boundingBoxException.location)
