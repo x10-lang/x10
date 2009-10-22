@@ -1086,7 +1086,7 @@ public class Emitter {
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             h.newline(4); h.begin(0);
-            h.write(    make_ref(klass)+" this_ = _deserialize_reference"+chevrons(klass)+"(buf);");
+            h.write(    make_ref(klass)+" this_ = x10::lang::Ref::_deserialize_reference"+chevrons(klass)+"(buf);");
             h.newline();
             h.write(    "if (this_ != x10aux::null && this_->location != x10aux::here) {");
             h.newline(4); h.begin(0);
