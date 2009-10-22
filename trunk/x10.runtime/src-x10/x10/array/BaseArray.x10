@@ -267,7 +267,7 @@ public abstract class BaseArray[T] extends Array[T] {
 
     /**
      * for now since we only have RectLayouts we hard-code that here
-     * for efficiency, since RectLayout is a final value class.
+     * for efficiency, since RectLayout is a final class.
      *
      * if/when we have other layouts, this might need to be a generic
      * type parameter, i.e. BaseArray[T,L] where L is a layout class
