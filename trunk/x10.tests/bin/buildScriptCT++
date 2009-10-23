@@ -159,7 +159,7 @@ main() {
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
 	fi
-	svnUpdatePolyglotHack $POLYGLOT_HOME $POLYGLOT_SVNROOT
+	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
