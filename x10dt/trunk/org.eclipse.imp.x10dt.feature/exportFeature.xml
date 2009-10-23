@@ -30,7 +30,7 @@
                                 </tokenfilter>
                         </filterchain>
 		</loadfile>
-		<echo message="Feature contains the following plugin projects: ${projects.list}"/>
+		<echo message="Feature contains the following plugin projects: ${projects.names}"/>
 	</target>
 
 	<target name="build.all.plugins" depends="init">
