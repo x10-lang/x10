@@ -204,8 +204,8 @@ public final class Runtime {
 	 * Eval future expression
 	 */
 	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-		val futur = at (place) new Future_c[T](eval);
-		async (place) futur.run();
+		val futur:Future_c[T]{self.location == place} = at (place) new Future_c[T](eval);
+		async (place) (futur as Future_c[T]!).run(); // XTENLANG-565
 		return futur;
 	}
     

@@ -201,7 +201,6 @@ public class PolyRegion extends BaseRegion {
      */
 
     public global def complement(): Region(rank) {
-        
         val prlb = new PolyRegionListBuilder(rank);
 
         for (r:PolyRow in mat) {
@@ -218,7 +217,7 @@ public class PolyRegion extends BaseRegion {
             prlb.add(region as Region(rank)); // XXXX
         }
 
-        return new UnionRegion(prlb);
+        return new UnionRegion(prlb as PolyRegionListBuilder!{self.rank == this.rank}); // HACK: place type inference really should be able to figure this out
     }
 
     public global def isEmpty(): boolean {
@@ -233,7 +232,7 @@ public class PolyRegion extends BaseRegion {
      * projection on each axis because it re-uses the FME results.
      */
 
-    val cache:Cache;
+    global val cache:Cache;
 
     public global def boundingBox(): Region(rank) {
         return cache.boundingBox() as Region(rank); // XXXX

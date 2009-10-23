@@ -31,15 +31,15 @@ public final class FastArray[T] extends BaseArray[T] {
     // fast, so don't do any checking (place or bounds)
     //
 
-    val delta0: int;
-    val delta1: int;
-    val delta2: int;
-    val delta3: int;
+    global val delta0: int;
+    global val delta1: int;
+    global val delta2: int;
+    global val delta3: int;
 
-    val offset0: int;
-    val offset1: int;
-    val offset2: int;
-    val offset3: int;
+    global val offset0: int;
+    global val offset1: int;
+    global val offset2: int;
+    global val offset3: int;
 
     @Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
     final public safe global def apply(i0: int): T {
