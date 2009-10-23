@@ -34,7 +34,7 @@ public class Clock_c extends Clock {
         if (dropped()) throw new ClockUseException();
         val ph = ph_c();
         if (ph < 0) throw new ClockUseException();
-        finish async (state.location) (state as ClockState!).resume(); // XTENLANG-565
+        state.resume(); 
         Runtime.clockPhases().put(this, -ph);
     }
 
@@ -51,7 +51,7 @@ public class Clock_c extends Clock {
     public global def drop():Void {
         if (dropped()) throw new ClockUseException();
         val ph = Runtime.clockPhases().remove(this) as Int;
-        async (state.location) (state as ClockState!).drop(ph);  // XTENLANG-565
+        state.drop(ph);  
     }
     
     public global def hashCode():Int {
@@ -61,26 +61,26 @@ public class Clock_c extends Clock {
     global def resume_c():Void {
         val ph = ph_c();
         if (ph < 0) return;
-        finish async (state.location) (state as ClockState!).resume(); // XTENLANG-565
+        state.resume(); 
         Runtime.clockPhases().put(this, -ph);
     }
 
     global def next_c():Void {
         val ph = ph_c();
-        finish async (state.location) (state as ClockState!).next(ph); // XTENLANG-565
+        state.next(ph); 
         Runtime.clockPhases().put(this, Math.abs(ph) + 1);
     }    
 
     global def register_c():Int {
         if (dropped()) throw new ClockUseException();
         val ph = ph_c();
-        finish async (state.location) (state as ClockState!).register(ph); // XTENLANG-565
+        state.register(ph); 
         return ph;
     }    
 
     global def drop_c():Void {
         val ph = ph_c(); 
-        async (state.location) (state as ClockState!).drop(ph); // XTENLANG-565
+        state.drop(ph); 
     }
     
     private global def ph_c():Int {
