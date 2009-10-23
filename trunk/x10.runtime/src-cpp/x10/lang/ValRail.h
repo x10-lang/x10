@@ -166,7 +166,7 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length, true);
+            x10aux::ref<ValRail> this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
             for (x10_int i=0 ; i<length ; ++i) {
                 this_->raw()[i] = buf.read<T>(); // avoid bounds check
             }

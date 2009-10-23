@@ -30,7 +30,7 @@ namespace x10aux {
         #endif
     }
 
-    template<class T, class R> R* alloc_rail(x10_int length, bool remote = false);
+    template<class T, class R> R* alloc_rail(x10_int length);
     template<class T, class R> R* alloc_rail(x10_int length, T v0);
     template<class T, class R> R* alloc_rail(x10_int length, T v0, T v1);
     template<class T, class R> R* alloc_rail(x10_int length, T v0, T v1, T v2);
@@ -63,7 +63,8 @@ namespace x10aux {
         #endif
     }
 
-    template<class T, class R> R* alloc_rail(x10_int length, bool remote) {
+    
+    template<class T, class R> R* alloc_rail_internal(x10_int length, bool remote) {
         /*
          * We allocate a single piece of storage that is big enough for both
          * R and its (aligned) backing data array. We then do some pointer arithmetic
@@ -84,6 +85,14 @@ namespace x10aux {
         return rail;
     }
 
+    template<class T, class R> R* alloc_rail(x10_int length) {
+        return alloc_rail_internal<T,R>(length, false);
+    }
+
+    template<class T, class R> R* alloc_rail_remote(x10_int length) {
+        return alloc_rail_internal<T,R>(length, true);
+    }
+    
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {
         R* rail = alloc_rail<T,R>(length);
         T* data = rail->raw();
