@@ -560,7 +560,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Text fLinkingLibsText;
   
   
-  private static final String X10_DIST_PLUGIN_ID = "x10.dist.common"; //$NON-NLS-1$
+  private static final String X10_DIST_PLUGIN_ID = "x10.dist.host"; //$NON-NLS-1$
   
   private static final String INCLUDE_DIR = "include"; //$NON-NLS-1$
   
