@@ -288,7 +288,7 @@ int main(int argc, char **argv)
     // make sure everyone knows the address of everyone else's rail
     pongs_outstanding = x10rt_nplaces();
     for (unsigned long i=0 ; i<x10rt_nplaces() ; ++i) {
-        uint64_t intptr = (uint64_t) localTable;
+        uint64_t intptr = (uint64_t) (size_t) localTable;
         if (i==x10rt_here()) {
             globalTable[i] = intptr;
             pongs_outstanding--;
