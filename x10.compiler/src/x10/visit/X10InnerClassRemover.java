@@ -33,6 +33,7 @@ import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 import x10.types.ParameterType.Variance;
 
@@ -96,7 +97,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         if (subst != null)
             outerType = subst.reinstantiate(outerType);
         
-        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), Flags.FINAL.Private(), Types.ref(outerType), OUTER_FIELD_NAME);
+        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), X10Flags.GLOBAL.Final().Private(), Types.ref(outerType), OUTER_FIELD_NAME);
         fi.setNotConstant();
         
         currClass.addField(fi);
