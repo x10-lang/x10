@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+
 #include <stdint.h>
-#include <stdio.h>
 
 #include <x10rt_api.h>
 
@@ -177,18 +177,15 @@ void recv_quit(const x10rt_msg_params &) { finished = true; }
 
 
 // {{{ show_help
-void show_help(FILE *out, char* name)
+void show_help(std::ostream &out, char* name)
 {
     if (x10rt_here()!=0) return;
-    fprintf(out,"Usage: %s <args>\n", name);
-    fprintf(out,"-h (--help)        ");
-    fprintf(out,"this message\n");
-    fprintf(out,"-m (--mem) <n>      ");
-    fprintf(out,"amount of memory to use per node (log 2)\n");
-    fprintf(out,"-u (--updates) <n>      ");
-    fprintf(out,"number of updates per table element\n");
-    fprintf(out,"-v (--validate) <n>      ");
-    fprintf(out,"enables validation (not included in reported time)\n");
+    out << "Usage: "<<name<<" <args>\n"
+        << "-h (--help)         this message\n"
+        << "-m (--mem) <n>      amount of memory to use per node (log 2)\n"
+        << "-u (--updates) <n>  number of updates per table element\n"
+        << "-v (--validate) <n> enables validation (not included in reported time)"
+        << std::endl;
 } // }}}
 
 
@@ -246,10 +243,10 @@ int main(int argc, char **argv)
 
     for (int i=1 ; i<argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
-            show_help(stdout,argv[0]);
+            show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
         } else if (!strcmp(argv[i], "-h")) {
-            show_help(stdout,argv[0]);
+            show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
 
         } else if (!strcmp(argv[i], "--mem")) {
@@ -268,8 +265,8 @@ int main(int argc, char **argv)
             enable_validate = true;
 
         } else {
-            fprintf(stderr,"Didn't understand: \"%s\"\n", argv[i]);
-            show_help(stderr,argv[0]);
+            std::cerr<< "Didn't understand: \""<<argv[i]<<"\""<<std::endl;
+            show_help(std::cerr,argv[0]);
             exit(EXIT_FAILURE);
         }
     }
