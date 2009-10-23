@@ -1069,16 +1069,18 @@ public class Emitter {
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
-            printTemplateSignature(ct.typeArguments(), w);
-            w.write("template<class __T> ");
-            w.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-            w.newline(4); w.begin(0);
-            w.write(make_ref(klass)+" this_ = "+
-                        "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();"); w.newline();
-            w.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); w.newline();
-            w.write("return this_;");
-            w.end(); w.newline();
-            w.write("}"); w.newline(); w.forceNewline();
+            sw.pushCurrentStream(context.templateFunctions);
+            printTemplateSignature(ct.typeArguments(), sw);
+            sw.write("template<class __T> ");
+            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln(make_ref(klass)+" this_ = "+
+                        "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
+            sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
+            sw.write("return this_;");
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
+            sw.popCurrentStream();
         }
 
         if (type.flags().isFinal()) {
