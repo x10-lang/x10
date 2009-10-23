@@ -18,26 +18,35 @@ class ClockState {
 	private var alive:Int = 1;
 	private var phase:Int = FIRST_PHASE; 
 
-	atomic def register(ph:Int):Void {
-		++count;
-		if (-ph != phase) ++alive;
+	global def register(ph:Int):Void {
+		at (this) atomic {
+		  ++count;
+		  if (-ph != phase) ++alive;
+		}
 	}
 
-	atomic def resume():Void {
-		if (--alive == 0) {
-			alive = count;
-			++phase;
+	global def resume():Void {
+		at (this) {
+		  atomic 
+		    if (--alive == 0) {
+			   alive = count;
+			   ++phase;
+		    }
 		}
 	}
 	
-	def next(ph:Int):Void {
-		if (ph > 0) resume();
-		val abs = Math.abs(ph);
-		await (abs < phase);
+	global def next(ph:Int):Void {
+		at (this) {
+		  if (ph > 0) resume();
+		  val abs = Math.abs(ph);
+		  await (abs < phase);
+		}
 	}
 
-	atomic def drop(ph:Int):Void {
-		--count;
-		if (-ph != phase) resume();
+	global def drop(ph:Int):Void {
+		at (this) atomic {
+		  --count;
+		  if (-ph != phase) resume();
+		}
 	}
 }
