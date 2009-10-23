@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -30,6 +31,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.osgi.framework.Bundle;
+
+import sun.net.www.protocol.jar.JarURLConnection;
 
 
 final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
@@ -97,15 +100,16 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
 
   private IClasspathEntry[] createX10RuntimeEntries() throws Error, IOException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR);
-    addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
+    if (! addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
+      addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
+    }
     addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);
     addClassPathEntries(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASSES_DIR);
     return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
   }
   
-  private void addClassPathEntries(final List<IClasspathEntry> cpEntries, final String bundleName,
-                                   final String folder) throws IOException {
+  private boolean addClassPathEntries(final List<IClasspathEntry> cpEntries, final String bundleName,
+		                              final String folder) throws IOException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
       ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
@@ -115,11 +119,22 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
       URL wURL = bundle.getResource(folder);
       if (wURL == null) {
         // We access the root of the jar where the resources should be located.
-        wURL = bundle.getResource("."); //$NON-NLS-1$
+        wURL = bundle.getResource(""); //$NON-NLS-1$
       }
       final URL url = FileLocator.resolve(wURL);
-      cpEntries.add(JavaCore.newLibraryEntry(new Path(url.getFile()), null /* sourceAttachmentPath */, 
+      final boolean deployed;
+      final IPath path;
+      if (url.getProtocol().equals("jar")) {
+    	final JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+    	path = new Path(jarConnection.getJarFileURL().getFile());
+    	deployed = true;
+      } else {
+    	path = new Path(url.getFile());
+    	deployed = false;
+      }
+      cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, 
                                              null /* sourceAttachmentRootPath */));
+      return deployed;
     }
   }
 

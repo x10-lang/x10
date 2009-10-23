@@ -207,32 +207,32 @@ final class CppProjectWizardSecondPage extends WizardPage {
     this.fBrowseBt.addSelectionListener(new BrowseBtSelectionListener());
     this.fBrowseBt.setEnabled(false);
     
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        final int index = CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex();
-        final String resManagerName = CppProjectWizardSecondPage.this.fResManagerCombo.getItem(index);
-        final String resManagerId = (String) CppProjectWizardSecondPage.this.fResManagerCombo.getData(resManagerName);
-        if (checkDirectory(CppProjectWizardSecondPage.this.fWorkspaceLocText.getText().trim(), resManagerId)) {
-          setErrorMessage(null);
-          updateMessage();
-        }
-      }
-    };
-    final Listener keyListener = new Listener() {
-      
-      public void handleEvent(final Event event) {
-        getShell().getDisplay().timerExec(1500, runnable);
-      }
-      
-    };
-    
-    this.fWorkspaceLocText.addListener(SWT.KeyDown, keyListener);
-    this.fWorkspaceLocText.addDisposeListener(new DisposeListener() {
-      
-      public void widgetDisposed(final DisposeEvent event) {
-        CppProjectWizardSecondPage.this.fWorkspaceLocText.removeListener(SWT.KeyDown, keyListener);
-      }
-    });
+//    final Runnable runnable = new Runnable() {
+//      public void run() {
+//        final int index = CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex();
+//        final String resManagerName = CppProjectWizardSecondPage.this.fResManagerCombo.getItem(index);
+//        final String resManagerId = (String) CppProjectWizardSecondPage.this.fResManagerCombo.getData(resManagerName);
+//        if (checkDirectory(CppProjectWizardSecondPage.this.fWorkspaceLocText.getText().trim(), resManagerId)) {
+//          setErrorMessage(null);
+//          updateMessage();
+//        }
+//      }
+//    };
+//    final Listener keyListener = new Listener() {
+//      
+//      public void handleEvent(final Event event) {
+//        getShell().getDisplay().timerExec(1500, runnable);
+//      }
+//      
+//    };
+//    
+//    this.fWorkspaceLocText.addListener(SWT.KeyDown, keyListener);
+//    this.fWorkspaceLocText.addDisposeListener(new DisposeListener() {
+//      
+//      public void widgetDisposed(final DisposeEvent event) {
+//        CppProjectWizardSecondPage.this.fWorkspaceLocText.removeListener(SWT.KeyDown, keyListener);
+//      }
+//    });
   }
   
   private void createX10Platform(final Composite parent) {

@@ -175,7 +175,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
                                 final IProgressMonitor monitor) throws CoreException {
     final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
-      final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR) + '/' + project.getName();
+      final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
       final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final IX10PlatformConfiguration platform = platforms.get(platformConfName);
@@ -261,7 +261,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         writer.close();
       }
       // Secondly, transfers the file in the remote directory.
-      final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), null).getChild(MAIN_FILE_NAME);
+      final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), new NullProgressMonitor()).getChild(MAIN_FILE_NAME);
       final IFileStore tmpMainFileStore = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
       tmpMainFileStore.copy(destFile, EFS.OVERWRITE, null);
       // Thirdly and finally, deletes the local temporary file.

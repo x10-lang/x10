@@ -162,12 +162,12 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         return false;
       } else {
         final String targetWorkspace = this.fWorkspaceLocText.getText().trim();
-        final String resManagerName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
-        final String resManagerId = (String) this.fResManagerCombo.getData(resManagerName);
-        
-        if (! checkDirectory(targetWorkspace, resManagerId)) {
-          return false;
-        }
+//        final String resManagerName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
+//        final String resManagerId = (String) this.fResManagerCombo.getData(resManagerName);
+//        
+//        if (! checkDirectory(targetWorkspace, resManagerId)) {
+//          return false;
+//        }
         project.setPersistentProperty(Constants.WORKSPACE_DIR, targetWorkspace);
       }
     } catch (CoreException except) {
