@@ -78,6 +78,7 @@ import x10.ast.X10Unary_c;
 import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.types.ClosureDef;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -239,14 +240,14 @@ public class Desugarer extends ContextVisitor {
         return async(pos, a.body(), a.clocks(), a.place());
     }
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
-    	if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
-          	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
-          }
-    	if (clocks.size() == 0) 
+        if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
+            place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
+        }
+        if (clocks.size() == 0) 
         	return async(pos, body, place);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
-    	
+        
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })), 
                              new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
                              body);
@@ -271,12 +272,12 @@ public class Desugarer extends ContextVisitor {
     }
     
     private Stmt async(Position pos, Stmt body) throws SemanticException {
-    	return makeAsyncBody(pos, new LinkedList<Expr>(), 
+        return makeAsyncBody(pos, new LinkedList<Expr>(), 
     			new LinkedList<Type>(), body);
     }
  
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
-    	Closure closure = synth.makeClosure(body.position(), xts.Void(), 
+    	 Closure closure = synth.makeClosure(body.position(), xts.Void(), 
             		synth.toBlock(body), xContext());
     	 exprs.add(closure);
     	 types.add(closure.closureDef().asType());
@@ -601,27 +602,87 @@ public class Desugarer extends ContextVisitor {
         return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(ret);
     }
 
-    // e as T{c} -> ((x:T):T{c}=>{if (!c[self/x) throwCCE(); return x;})(e as T)
+    /**
+     * Concatenates the given list of clauses with &&, creating a conjunction.
+     * Any occurrence of "self" in the list of clauses is replaced by self.
+     */
+    private Expr conjunction(Position pos, List<Expr> clauses, Expr self) {
+        assert clauses.size() > 0;
+        Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(self)) {
+            protected Expr subst(Expr n) {
+                if (n instanceof X10Special_c && ((X10Special_c) n).kind() == X10Special_c.SELF)
+                    return by.get(0);
+                return n;
+            }
+        };
+        Expr left = null;
+        for (Expr clause : clauses) {
+            Expr right = (Expr) clause.visit(subst);
+            if (left == null)
+                left = right;
+            else
+                left = xnf.Binary(pos, left, X10Binary_c.COND_AND, right).type(xts.Boolean());
+        }
+        return left;
+    }
+
+    private DepParameterExpr getClause(TypeNode tn) {
+        if (tn instanceof X10CanonicalTypeNode) {
+            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
+            return ctn.constraintExpr();
+        } else if (tn instanceof FunctionTypeNode) {
+            FunctionTypeNode ftn = (FunctionTypeNode)tn;
+            return ftn.guard();
+        } else {
+            assert false : "Unknown type node type: "+tn.getClass();
+        }
+        return null;
+    }
+
+    private TypeNode stripClause(TypeNode tn) {
+        Type t = tn.type();
+        if (tn instanceof X10CanonicalTypeNode) {
+            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
+            return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
+        } else if (tn instanceof FunctionTypeNode) {
+            FunctionTypeNode ftn = (FunctionTypeNode)tn;
+            return ftn.guard(null);
+        } else {
+            assert false : "Unknown type node type: "+tn.getClass();
+        }
+        return tn;
+    }
+
+    // e as T{c} -> ((x:T):T{c}=>{if (!c[self/x]) throwCCE(); return x;})(e as T)
     private Expr visitCast(X10Cast_c n) throws SemanticException {
         Position pos = n.position();
         Expr e = n.expr();
         TypeNode tn = n.castType();
-        DepParameterExpr depClause = null;
-        if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            depClause = ctn.constraintExpr();
-            tn = ctn.constraintExpr(null);
-        } else if (tn instanceof FunctionTypeNode) {
-            FunctionTypeNode ftn = (FunctionTypeNode)tn;
-            depClause = ftn.guard();
-            tn = ftn.guard(null);
-        } else {
-            assert false : "Unknown type node type: "+tn.getClass();
-        }
+        Type ot = tn.type();
+        DepParameterExpr depClause = getClause(tn);
+        tn = stripClause(tn);
         if (depClause == null)
             return n;
-        // TODO
-        return n;
+        Name xn = getTmp();
+        Type t = tn.type(); // the base type of the cast
+        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(t), xn);
+        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, t), xnf.Id(pos, xn)).localDef(xDef);
+        Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
+        List<Expr> condition = depClause.condition();
+        Expr cond = xnf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(xts.Boolean());
+        Type ccet = xts.ClassCastException();
+        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, ccet);
+        Expr msg = xnf.StringLit(pos, ot.toString()).type(xts.String());
+        X10ConstructorInstance ni = xts.findConstructor(ccet, xts.ConstructorMatcher(ccet, Collections.singletonList(xts.String()), context));
+        Expr newCCE = xnf.New(pos, CCE, Collections.singletonList(msg)).constructorInstance(ni).type(ccet);
+        Stmt throwCCE = xnf.Throw(pos, newCCE);
+        Stmt check = xnf.If(pos, cond, throwCCE);
+        Block body = xnf.Block(pos, check, xnf.Return(pos, xl));
+        Closure c = synth.makeClosure(pos, ot, Collections.singletonList(x), body, (X10Context) context);
+        Expr cast = xnf.X10Cast(pos, tn, e, X10Cast.ConversionType.CHECKED).type(t);
+        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        return xnf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
 
     // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e) 
@@ -629,51 +690,25 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         Expr e = n.expr();
         TypeNode tn = n.compareType();
-        Type t = tn.type();
-        XConstraint xclause = X10TypeMixin.xclause(t);
-        DepParameterExpr depClause = null;
-        if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            depClause = ctn.constraintExpr();
-            tn = xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
-        } else if (tn instanceof FunctionTypeNode) {
-            FunctionTypeNode ftn = (FunctionTypeNode)tn;
-            depClause = ftn.guard();
-            tn = ftn.guard(null);
-        } else {
-            assert false : "Unknown type node type: "+tn.getClass();
-        }
+        DepParameterExpr depClause = getClause(tn);
+        tn = stripClause(tn);
         if (depClause == null)
             return n;
-        List<Expr> condition = depClause.condition();
-        List<Formal> parms = new ArrayList<Formal>();
         Name xn = getTmp();
         Type et = e.type();
         LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(et), xn);
         Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, et), xnf.Id(pos, xn)).localDef(xDef);
-        parms.add(x);
         Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
         Expr iof = xnf.Instanceof(pos, xl, tn).type(xts.Boolean());
         Expr cast = xnf.X10Cast(pos, tn, xl, X10Cast.ConversionType.CHECKED).type(tn.type());
-        Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(cast)) {
-            protected Expr subst(Expr n) {
-                if (n instanceof X10Special_c && ((X10Special_c) n).kind() == X10Special_c.SELF)
-                    return by.get(0);
-                return n;
-            }
-        };
-        Expr left = iof;
-        for (Expr clause : condition) {
-            Expr right = (Expr) clause.visit(subst);
-            left = xnf.Binary(depClause.position(), left, X10Binary_c.COND_AND, right).type(xts.Boolean());
-        }
-        Block body = xnf.Block(pos, xnf.Return(pos, left));
-        Closure c = synth.makeClosure(pos, xts.Boolean(), parms, body, (X10Context) context);
-        List<Expr> args = new ArrayList<Expr>(1);
-        args.add(e);
+        List<Expr> condition = depClause.condition();
+        Expr cond = conjunction(depClause.position(), condition, cast);
+        Expr rval = xnf.Binary(pos, iof, X10Binary_c.COND_AND, cond).type(xts.Boolean());
+        Block body = xnf.Block(pos, xnf.Return(pos, rval));
+        Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, (X10Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
-        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(xts.Boolean());
+        return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
     }
 
     public static class Substitution<T extends Node> extends ErrorHandlingVisitor {
