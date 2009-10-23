@@ -659,8 +659,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					List<Expr> conds = dep.condition();
 					X10Context xct = (X10Context) tr.context();
 					boolean inAnonObjectScope = xct.inAnonObjectScope();
-					assert (! inAnonObjectScope)
-					: "Internal error: Recursive entry into  anon object scope not supported.";
 					xct.setAnonObjectScope();
 					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
 					xct.restoreAnonObjectScope(inAnonObjectScope);
