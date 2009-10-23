@@ -42,6 +42,8 @@ import com.sun.javadoc.WildcardType;
 public class X10ClassDoc extends X10Doc implements ClassDoc {
 	X10ClassDef classDef;
 	X10ClassDoc containingClass;
+	X10ClassDoc superclass;
+	Type superclassType;
 	X10PackageDoc containingPackage;
 	X10RootDoc rootDoc;
 	LinkedHashMap<String, X10TypeVariable> typeParams;
@@ -50,6 +52,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	LinkedHashMap<String, X10MethodDoc> methods;
 	ArrayList<X10ClassDoc> innerClasses;
 	ArrayList<X10ClassDoc> interfaces;
+	ArrayList<Type> interfaceTypes;
 	boolean included;
 
 	public X10ClassDoc(X10ClassDef classDef, X10ClassDoc containingClass, String comment) {
@@ -62,18 +65,30 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		this.methods = new LinkedHashMap<String, X10MethodDoc>();
 		this.innerClasses = new ArrayList<X10ClassDoc>();
 		this.interfaces = new ArrayList<X10ClassDoc>();
+		this.interfaceTypes = new ArrayList<Type>();
 		this.included = false;
+
+		this.superclass = null;
+		this.superclassType = null;
 		
 		initTypeParameters();
 		
 		// addDeclTag(declString());
+	}
+	
+	public void setSuperclass(X10ClassDoc superclass) {
+		this.superclass = superclass;
+	}
+
+	public void setSuperclassType(Type superclassType) {
+		this.superclassType = superclassType;
 	}
 
 	void initTypeParameters() {
 		List<ParameterType> params = classDef.typeParameters();
 		typeParams = new LinkedHashMap<String, X10TypeVariable>(params.size());
 		Ref inv = classDef.classInvariant();
-		System.out.println("classInvariant: " + ((inv == null) ? "" : inv.get()));
+		// System.out.println("classInvariant: " + ((inv == null) ? "" : inv.get()));
 		TypeConstraint c = classDef.typeGuard().get();
 		for (ParameterType p: params) {
 			X10TypeVariable v = new X10TypeVariable(p, this);
@@ -86,6 +101,49 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		// System.out.println("TypeGuard: " + classDef.typeGuard().get());
 		for (SubtypeConstraint s: classDef.typeGuard().get().terms()) {
 			// System.out.println("SubtypeConstraint: " + s);
+		}
+	}
+
+	// initializations that are common to specified and unspecified classes 
+	public void initialize() {
+		// set package of class
+		this.containingPackage = rootDoc.getPackage(classDef.package_());
+		this.containingPackage.addClass(this);
+
+		// obtain ClassDoc and Type objects for superclass
+		Ref<? extends polyglot.types.Type> reft = classDef.superType();
+		polyglot.types.Type t = ((reft==null) ? null : reft.get());
+		X10ClassDef cdef = (X10ClassDef) ((t == null) ? null : t.toClass().def());
+		this.superclass = rootDoc.getUnspecClass(cdef);
+		this.superclassType = rootDoc.getType(t);
+		
+		// add interfaces implemented by the class
+		addInterfaces();
+	}
+
+	public void addInterfaces() {
+		for (Ref<? extends polyglot.types.Type> ref: classDef.interfaces()) {
+			this.interfaces.add(rootDoc.getUnspecClass((X10ClassDef) ref.get().toClass().def()));
+			this.interfaceTypes.add(rootDoc.getType(ref.get()));
+		}
+
+//		System.out.println("---- start interface tree ----");
+//		System.out.println("X10ClassDoc{" + classDef + "}.interfaceTypes = " + 
+//				           Arrays.toString(interfaceTypes.toArray(new Type[0])));
+//		for (Type y: interfaceTypes) {
+//			printInterfaceTree(y);
+//		}
+//		System.out.println("---- end interface tree ----");
+	}
+	
+	public static void printInterfaceTree(Type t) {
+		if (t instanceof X10ParameterizedType) {
+			X10ParameterizedType x = (X10ParameterizedType)t;
+			System.out.println("X10ParameterizedType{" + x + "}.interfaceTypes = " + 
+				               Arrays.toString(x.interfaceTypes()));
+			for (Type y: x.interfaceTypes()) {
+				printInterfaceTree(y);
+			}
 		}
 	}
 
@@ -179,6 +237,13 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
 	}
 	
+	public void addDeclsToMethodComments() {
+		for (X10MethodDoc md: methods.values()) {
+			// md.addNewLineToComment(md.declString());
+			md.addDeclTag(md.declString());
+		}
+	}
+	
 	public static String fieldKey(X10FieldDef fd) {
 		return fd.name().toString();
 	}
@@ -230,7 +295,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		}
 		else {
 			// md.setIncluded(true);
-			md.setRawCommentText(comments);
+			// commented to avoid duplicate addition of declaration comments
+			// TODO: determine what needs to be done here or use another method/method name
+			// md.setRawCommentText(comments);
 		}
 		return md;
 	}
@@ -275,7 +342,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 
 	public X10MethodDoc getMethod(X10MethodDef mdef) {
-		System.out.println("X10ClassDoc.getMethod: methods.keySet() = " + Arrays.toString(methods.keySet().toArray(new String[0])));
+		// System.out.println("X10ClassDoc.getMethod: methods.keySet() = " + Arrays.toString(methods.keySet().toArray(new String[0])));
 		return methods.get(methodKey(mdef));
 	}
 
@@ -298,17 +365,14 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 
 	public ParameterizedType asParameterizedType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public TypeVariable asTypeVariable() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public WildcardType asWildcardType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -366,7 +430,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
 	public ClassDoc findClass(String arg0) {
 		// TODO Auto-generated method stub
-		return null;
+		return rootDoc.classNamed(arg0);
 	}
 
 	public ClassDoc[] importedClasses() {
@@ -416,15 +480,15 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			System.out.println("ClassDoc.interfaceTypes() called for "+name());
 		// needs to be updated to handle generic types; the result is an array of ClassDoc 
 		// or ParametrizedType objects
-		return interfaces();
+		return interfaceTypes.toArray(new Type[0]);
 	}
 
 	public boolean isAbstract() {
-		return classDef.flags().isAbstract();
+		return (classDef.flags().isAbstract() || isInterface());
 	}
 
 	public boolean isClass() {
-		return true;
+		return (!isInterface());
 	}
 
 	@Override
@@ -579,17 +643,21 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 
 	public ClassDoc superclass() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.superClass() called for "+name());
-		return null;
+		if (isInterface()) {
+			return null;
+		}
+		return superclass;
 	}
 
 	public Type superclassType() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.superClassType() called for "+name());
-		return null;
+		if (isInterface()) {
+			return null;
+		}
+		return superclassType;
 	}
 
 	public String typeName() {

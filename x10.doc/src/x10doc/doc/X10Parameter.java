@@ -13,6 +13,13 @@ public class X10Parameter implements Parameter {
 		this.type = type;
 	}
 	
+	public boolean hasConstraints() {
+		if (type instanceof X10ClassDoc) {
+			return false;
+		}
+		return ((X10Type)type).hasConstraints();
+	}
+	
 	public AnnotationDesc[] annotations() {
 		// TODO Auto-generated method stub
 		return new AnnotationDesc[0];

@@ -23,6 +23,7 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.SilentErrorQueue;
 import x10.ast.PropertyDecl;
+import x10.ast.PropertyDecl_c;
 import x10.ast.TypeDecl_c;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl_c;
@@ -87,10 +88,11 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		((ExtensionInfo) job.extensionInfo()).setRoot(this.rootDoc);
 
 		// for all specified classes, add comments displaying constraints
-		for (ClassDoc c: rootDoc.specifiedClasses()) {
-			X10ClassDoc cd = (X10ClassDoc) c;
-			cd.addDeclTag(cd.declString());
-		}
+//		for (ClassDoc c: rootDoc.specifiedClasses()) {
+//			X10ClassDoc cd = (X10ClassDoc) c;
+//			cd.addDeclTag(cd.declString());
+//			cd.addDeclsToMethodComments();
+//		}
 
 		rootDoc.printStats();
 		this.parser = null;
@@ -128,7 +130,6 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		}
 		System.out.println();
 
-
 		X10ClassDoc containingClass = (stack.isEmpty() ? null : stack.peek());
 		X10ClassDef classDef = (X10ClassDef) n.classDef();
 		// System.out.println("ClassDef.fullname() = " + classDef.fullName());
@@ -154,6 +155,10 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		// 		(containingClass != null && containingClass.isIncluded())));
 
 		stack.push(cd);
+		for (PropertyDecl p: n.properties()) {
+			// properties are not included in n.body().member()
+			visitAppropriate(p);
+		}
 		for (ClassMember cm: n.body().members()) {
 			visitAppropriate(cm);
 		}
@@ -162,6 +167,15 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		if (containingClass != null) {
 			containingClass.addInnerClass(cd);
 		}
+	}
+
+	@Override
+	public void visit(PropertyDecl_c n) {
+		String comments = "/** Property. */";
+		
+		FieldDef fd = n.fieldDef();
+		X10ClassDoc cd = stack.peek();
+		cd.updateField((X10FieldDef) fd, comments);
 	}
 
 	@Override

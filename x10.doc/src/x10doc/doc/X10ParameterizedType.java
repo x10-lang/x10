@@ -1,7 +1,15 @@
 package x10doc.doc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import polyglot.types.ClassType;
+import polyglot.types.Ref;
+
+import x10.types.ParameterType;
+import x10.types.ParametrizedType;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
 
@@ -10,20 +18,62 @@ import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.Type;
 
 public class X10ParameterizedType extends X10Type implements ParameterizedType {
+	boolean depType; // true if this object represents an X10 ConstrainedType (with/without type parameters)
 	X10ClassDoc classDoc;
+	X10RootDoc rootDoc;
 	Type[] typeArgs;
+	Type superclassType;
+	ArrayList<Type> interfaceTypes;
 
+	// the created X10ParameterizedType object represents a parameterized type with/without constraints 
+	public X10ParameterizedType(x10.types.X10Type t, X10TypeVariable[] methodTypeVars, boolean depType) {
+		super(t);
+
+		this.depType = depType;
+		rootDoc = X10RootDoc.getRootDoc();
+		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
+
+		x10.types.X10Type b = (depType ? ((x10.types.X10Type) X10TypeMixin.baseType(t)) : t);
+		List<polyglot.types.Type> args = ((X10ClassType)b).typeArguments();
+		typeArgs = new Type[args.size()];
+		for (int i = 0; i < typeArgs.length; i++) {
+			typeArgs[i] = rootDoc.getType(args.get(i), methodTypeVars);
+		}
+
+		ClassType c = t.toClass();
+		superclassType = ((c.def().flags().isInterface()) ? null : 
+		                  rootDoc.getType(c.superClass(), methodTypeVars));
+
+		this.interfaceTypes = new ArrayList<Type>();
+		for (polyglot.types.Type y: c.interfaces()) {
+			this.interfaceTypes.add(rootDoc.getType(y, methodTypeVars));
+		}
+		
+//		System.out.println("X10ParameterizedType(" + t + "): superclassType = " + 
+//		                   superclassType + ", interfaceTypes = " + Arrays.toString(interfaceTypes.toArray(new Type[0])));
+	}
+
+	// creates an X10ParameterizedType representing an X10 ConstrainedType that does not have any type 
+	// parameters, in other words a ConstrainedType for whose base type b, |b.typeParameters()| == 0  
 	public X10ParameterizedType(x10.types.X10Type t) {
 		super(t);
-		
+		this.depType = true;
 		X10RootDoc rootDoc = X10RootDoc.getRootDoc();
 		classDoc = rootDoc.getUnspecClass(((X10ClassType)X10TypeMixin.baseType(t)).x10Def());
 
-		List<polyglot.types.Type> args = ((x10.types.X10ClassType)t).typeArguments();
-		typeArgs = new Type[args.size()];
-		for (int i = 0; i < typeArgs.length; i++) {
-			typeArgs[i] = rootDoc.getType(args.get(i));
+		// the following may need to be changed, e.g., if the superclass of a ConstrainedType ct is the super class
+		// obtained below with the constraints of ct; similar argument for interfaceTypes
+		this.superclassType = classDoc.superclassType();
+		this.interfaceTypes = new ArrayList<Type>();
+		for (Type y: classDoc.interfaceTypes()) {
+			this.interfaceTypes.add(y);
 		}
+		
+		typeArgs = new Type[0];
+	}
+
+	public boolean hasConstraints() {
+		return depType;
 	}
 
 	public Type containingType() {
@@ -32,13 +82,13 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	}
 
 	public Type[] interfaceTypes() {
-		// TODO Auto-generated method stub
-		return new Type[0];
+		return interfaceTypes.toArray(new Type[0]);
+		// return new Type[0];
 	}
 
 	public Type superclassType() {
-		// TODO Auto-generated method stub
-		return null;
+		return superclassType;
+		// return null;
 	}
 
 	public Type[] typeArguments() {
@@ -74,4 +124,8 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		return super.typeName();
 	}
 
+	// temporary defn used in println statement in constructor 
+	public String toString() {
+		return pType.toString();
+	}
 }

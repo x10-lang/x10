@@ -32,7 +32,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	private X10ClassDoc containingClass;
 	private X10RootDoc rootDoc;
 	private Type returnType;
-	private ArrayList<Parameter> parameters;
+	private ArrayList<X10Parameter> parameters;
 	private X10TypeVariable[] typeParams;
 	// private LinkedHashMap<String, X10TypeVariable> typeParams;
 
@@ -69,7 +69,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		// initialize parameters
 		List<LocalDef> formals = methodDef.formalNames();
 		int n = ((formals == null) ? 0 : formals.size());
-		parameters = new ArrayList<Parameter>(n);
+		parameters = new ArrayList<X10Parameter>(n);
 		for (LocalDef ld: formals) {
 			String paramName = ld.name().toString();
 			polyglot.types.Type paramType = ld.type().get();
@@ -96,6 +96,27 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 	public static String typeParameterKey(ParameterType p) {
 		return p.name().toString();
+	}
+	
+	public String declString() {
+		// the X10 method declaration needs to be displayed in the method's comments only if a param type 
+		// or the return type contains constraints; at a later point, closures will also be displayed
+		// through comments
+		if (!(X10Type.hasConstraints(returnType))) {
+			boolean hasConstraints = false;
+			for (X10Parameter p: parameters) {
+				if (p.hasConstraints()) {
+					hasConstraints = true;
+					break;
+				}
+			}
+			if (!hasConstraints) {
+				return "";
+			}
+		}
+		String result = "<PRE>\n</PRE><B>Declaration</B>: " + methodDef.signature() +
+		                ": " + X10Type.toString(returnType);
+		return result; 
 	}
 
 	public boolean isAbstract() {
@@ -133,7 +154,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 	public MethodDoc overriddenMethod() {
 		// TODO Auto-generated method stub
-		System.out.println(name() + ".overriddenMethod() called.");
+		// System.out.println(name() + ".overriddenMethod() called.");
 		return null;
 	}
 
@@ -145,7 +166,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 	public boolean overrides(MethodDoc arg0) {
 		// TODO Auto-generated method stub
-		System.out.println(name() + ".overrides(" + arg0.name() + ") called.");
+		// System.out.println(name() + ".overrides(" + arg0.name() + ") called.");
 		return false; 
 	}
 
@@ -168,7 +189,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	}
 	
 	public String flatSignature() {
-		System.out.println(name() + ".flatSignature() called.");
+		// System.out.println(name() + ".flatSignature() called.");
 		return signature();
 	}
 
@@ -183,23 +204,23 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	}
 
 	public boolean isVarArgs() {
-		System.out.println(name() + ".isVarArgs() called.");
+		// System.out.println(name() + ".isVarArgs() called.");
 		return false; // no var. args. methods in current implementation of X10
 	}
 
 	public ParamTag[] paramTags() {
 		// TODO Auto-generated method stub
-		System.out.println(name() + ".paramTags() called.");
+		// System.out.println(name() + ".paramTags() called.");
 		return new ParamTag[0];
 	}
 
 	public Parameter[] parameters() {
-		System.out.println(name() + ".parameters() called.");
+		// System.out.println(name() + ".parameters() called.");
 		return parameters.toArray(new Parameter[0]);
 	}
 
 	public String signature() {
-		System.out.println(name() + ".signature() called. result = " + signature(methodDef));
+		// System.out.println(name() + ".signature() called. result = " + signature(methodDef));
 		return signature(methodDef);
 		// String sig = methodDef.signature();
 		// return sig.substring(sig.indexOf('('));

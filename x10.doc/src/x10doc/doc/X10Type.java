@@ -13,7 +13,26 @@ public class X10Type implements Type {
 	public X10Type(polyglot.types.Type t) {
 		pType = t;
 	}
-	
+
+	public boolean hasConstraints() {
+		return false;
+	}
+
+	public static boolean hasConstraints(Type t) {
+		if (!(t instanceof X10Type)) {
+			// meant to handle the case when t is of type X10ClassDoc
+			return false;
+		}
+		return ((X10Type)t).hasConstraints();
+	}
+
+	public static String toString(Type t) {
+		if (t instanceof X10ClassDoc) {
+			return ((X10ClassDoc)t).qualifiedName();
+		}
+		return ((X10Type)t).pType.toString();
+	}
+
 	public AnnotationTypeDoc asAnnotationTypeDoc() {
 		// TODO Auto-generated method stub
 		return null;
@@ -60,5 +79,4 @@ public class X10Type implements Type {
 		return pType.toString();
 		// return "!!TYPENAME!!";
 	}
-
 }

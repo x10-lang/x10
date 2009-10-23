@@ -83,6 +83,9 @@ public class X10Doc implements Doc {
 		// TODO: creating Tag objects for block tags and storing them in a field of this object
 	}
 	
+	// used to add comment lines displaying X10 class declarations, specifically the class constraints in 
+	// the declarations; the declaration string argument contains @link tags to entities in the constraint
+	// TODO: update this.rawComment, this.comment appropriately
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
@@ -99,6 +102,19 @@ public class X10Doc implements Doc {
 		}
 		// newTags[i] = new X10Tag(declString, this);
 		inlineTags = newTags;
+	}
+
+	// used to add a comment line displaying X10 type of a field, method/constructor return value, 
+	// and method/constructor parameter, specifically the constraints in these X10 types; argument str
+	// cannot have any inline (or block) tags
+	// TODO: will not work if comment contains block tags
+	public void addNewLineToComment(String str) {
+		if (str == null || str.equals("")) {
+			return;
+		}
+		String newLine = "<PRE>\n</PRE>" + str;
+		this.rawComment = this.rawComment + newLine;
+		setComment(comment + newLine);
 	}
 	
 	/**
