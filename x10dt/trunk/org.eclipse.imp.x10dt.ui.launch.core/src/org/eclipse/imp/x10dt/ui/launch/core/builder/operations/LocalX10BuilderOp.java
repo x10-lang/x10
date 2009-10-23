@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.operations;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -34,7 +36,21 @@ public final class LocalX10BuilderOp extends AbstractX10BuilderOp implements IX1
   // --- Interface methods implementation
 
   public void transfer(final IContainer binaryContainer, final IProgressMonitor monitor) throws CoreException {
-    // Nothing to do.
+    collectFilesToCompile(new File(getWorkspaceDir()));
+  }
+  
+  // --- Private code
+  
+  private void collectFilesToCompile(final File dir) {
+  	for (final File file : dir.listFiles()) {
+  		if (file.isDirectory()) {
+  			collectFilesToCompile(file);
+  		} else {
+  			if (file.getName().endsWith(CC_EXT)) {
+  				addCompiledFile(file, file.getAbsolutePath());
+  			}
+  		}
+  	}
   }
   
 }

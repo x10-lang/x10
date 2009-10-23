@@ -43,7 +43,7 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
    * @param resourceManager The resource manager to consider.
    */
   public RemoteX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager) {
-    super(resourceManager, project, workspaceDir + '/' + project.getName());
+    super(resourceManager, project, workspaceDir);
   }
 
   // --- Interface methods implementation
