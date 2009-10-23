@@ -7,6 +7,19 @@
 # This file is part of X10/C++ Test Harness.
 # Simple in-place test harness to test X10/C++ backend.
 
+# get new pgas sockets port number for mpirun launch
+# (based on Igor's script for Columbia cluster)
+# usage: getPGASPort
+function getPGASPort {
+    DEFAULT_PORT=21053
+    IP=$(host -t A $(hostname) | awk '{print $NF}')
+    PORT=$(expr $DEFAULT_PORT + $$ % 1024)
+    while netstat -n -a | grep tcp | grep -q "${IP}.${PORT}"; do
+        let 'PORT = PORT + 1'
+    done
+    PGASRT_HOME_PORT=$PORT
+}
+
 # log file header
 # usage: writeLogHead
 function writeLogHead {
@@ -222,19 +235,11 @@ function findTests {
 	#eval "find $1 -type d -name '.svn' -prune -o -type f -name '*.x10' -print"
 	if [[ -n "$testPat" && "${testPat}" != "." ]]; then
 		#findpat="$(printf "%q " "${testPat}" | sed 's/\\\\\([\*\?]\)/\1/g')"
-		if [[ "$(uname -s)" == "Darwin" ]]; then
-			eval "oldfind $testPat -type d -name '.svn' -prune -o -type f -name '*.x10'  -print | sort"
-		else
-			eval "find $testPat -type d -name '.svn' -prune -o -type f -name '*.x10'  -print | sort"
-		fi
+		eval "find $testPat -type d -name '.svn' -prune -o -type f -name '*.x10'  -print | sort"
 	else
 		dirlist="$(eval "find -type d -name '.svn' -prune -o -type d -name '*' -print | sort")"
 		dirlist="$(echo $dirlist | tr '\n' ' ')"
-		if [[ "$(uname -s)" == "Darwin" ]]; then
-			eval "oldfind $dirlist -maxdepth 1 -type f -name '*.x10' -print"
-		else
-			eval "find $dirlist -maxdepth 1 -type f -name '*.x10' -print"
-		fi
+		eval "find $dirlist -maxdepth 1 -type f -name '*.x10' -print"
 	fi
 }
 
@@ -762,7 +767,13 @@ function main {
 			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $my_nplaces -msg_api lapi -hostfile $tchostfile"
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		else
+if [[ "$(uname -s)" == "Darwin" ]]; then
+			PGASRT_HOME_PORT=""
+			getPGASPort
+			run_cmd="/usr/bin/time -p mpirun -x PGASRT_HOME_PORT=$PGASRT_HOME_PORT -np $my_nplaces ./${tctarget}"
+else
 			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
+fi
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi
 
