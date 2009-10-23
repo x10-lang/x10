@@ -222,6 +222,12 @@ public class XTypeTranslator {
 		        }
 		    }
 		    XRoot thisVar = xc == null ? null : xc.thisVar();
+		    for (X10Context outer = (X10Context) xc.pop();
+		    outer != null && thisVar == null;
+		    outer = (X10Context) outer.pop())
+		    {
+		        thisVar = outer.thisVar();
+		    }
 		    if (thisVar == null) {
 		        SemanticException e = new SemanticException("Cannot refer to |this| from the context "
 		        		+ xc);
