@@ -1,0 +1,172 @@
+\section{Algorithmic Details}
+
+The goal of the {\it extract concurrent} refactoring is to allow
+users to (somewhat) safely introduce parallelism/concurrency to
+array accesses and updates that are done within a {\tt for}
+loop.
+%Since so much work has been done attempting to automate the
+%parallel transformation of such loops, and
+Since loops tend to be execution hotspots, and X10 supports explicit
+asynchronous event constructs, this
+refactoring is the type that X10 users should expect to find in an IDE
+like Eclipse.
+
+The general schema for the transformation is illustrated by the two
+code skeletons shown in Figure~\ref{fig:transformSchema}, which
+depict the original and the transformed code.
+
+\begin{figure}[tp]
+ Before:
+\begin{code}
+for(\=$\ldots$) \{\\
+\> $\ldots$ target $\ldots$\\
+\}
+\end{code}
+
+After:
+\begin{code}
+for(\=$\ldots$)\= \{\\
+\> $\ldots$\\
+\> targetFuture = future \{ target \};\\
+\> $\ldots$\\
+\}\\\\
+for($\ldots$) \{\\
+\> $\ldots$ targetFuture.force() $\ldots$\\
+\}
+\end{code}
+\caption{\label{fig:transformSchema}The transformation schema for futurizing an expression.}
+\end{figure}
+
+A basic assumption of this transformation is that it will introduce
+no activities that remain unfinished outside the scope of the parent
+construct containing the target distributed array.
+As a result, the developer need not expend mental effort to determine
+when the results of the activity will be available.
+%At the same time, in the {\tt async} case, the code generated will not
+%allow overlapped execution between the two loops.
+%This is conservatively safe, but comes at the cost of potentially
+%useful concurrency.
+In this case, overlap between the two loops can be
+easily permitted, since the {\tt force()} calls in the second loop
+perform all of the necessary synchronization.
+%The synchronization required to in{\tt async} case is
+%significantly more complex, due to the difference in nature between the
+%data-centric {\tt future} construct and the operation-centric {\tt async}.
+
+\subsection{Pre-conditions}
+
+\begin{figure}[tp]
+\begin{code}
+Lo\=op (InductionVars $\ldots$)\{ \\
+\> Block1 \\
+\> Result = (Exp1 op f(Target[])) op Exp2; \\
+\> Block2 \\
+\}
+\end{code}
+\caption{\label{fig:basic_loop}The generic loop structure for the {\it
+extract concurrent} refactoring.}
+\end{figure}
+
+In general, the code for a candidate {\tt for} loop will look as in
+Figure~\ref{fig:basic_loop}. In this case, the user would be
+interested in potentially making the function {\tt f(Target[])} representing
+the targeted expression -- which is not
+necessarily a method call -- into a futurized expression. The
+candidate expression or statement will be called the {\em target}. Here,
+{\tt Block1} and {\tt Block2} are both arbitrary blocks of
+code%, although they must not define an {\tt atomic} block that starts
+%in {\tt Block1} and ends in {\tt Block2}; concurrent activities cannot be
+%spawned from within an {\tt atomic} block. There may also be no clock
+%manipulations present in the body of the loop -- the sole exception
+%here is {\tt resume}, since it is a non-blocking update to the clock
+%which cannot have loop-carried dependencies.
+
+As with all parallelizing algorithms, the most important information to
+track is loop-carried dependencies. In this case, all loop-carried dependencies
+must be reproducible on all executions of the loop. As a result, the following
+pre-conditions must be met in order to refactor the code:
+\begin{itemize}
+\item No loop-carried dependencies are allowed on the target distributed array.
+%\item The pivot must not have side-effects that affect any loop-carried
+%      dependencies.
+\item The target must not produce side-effects.
+\item There must be no loop-carried dependencies on user input or the
+      evaluation of any chaotic functions (e.g., random number generators).
+%\item {\tt Exp2} and {\tt Block2} must not have side-effects on the target
+\item Loop-carried dependent statements that occur semantically after the
+target may not have side-effects that directly affect the target.
+\end{itemize}
+
+\subsection{Interactions with X10 Constructs}
+
+In this section, the interaction of the transformation with various
+X10 constructs will be discussed. Because the transformation is
+aimed at targets residing within loops, any errors that are a
+result of poorly formed code outside of the loop will be omitted from
+this discussion. It is noted, however, that any asynchronous activity
+that remains unfinished or unforced before the loop is entered may
+create data races within the program.
+
+{\bf Asyncs} -- %If the target is contained within an unfinished async
+%block, 
+%it is not clear that the transformation will provide improved
+%parallelism unless the activity occurs in a different place than the
+%target. Such a situation should be 
+%the decision to apply the refactoring is left to the programmer
+%to
+%determine, although support could be provided to warn a programmer who
+%ttempts to refactor under these circumstances. 
+Unfinished
+asynchronous activities that have (possibly indirect) side-effects on
+the target and occur semantically before the target in the loop should be
+must stop the transformation from occurring.
+%This points out a potential race condition in the original 
+%code, so we abort the transformation to avoid exacerbating the problem.
+All other finished
+asynchronous activity is allowed if it conforms with the X10 language
+rules and meets the pre-conditions stated
+in the previous subsection. Note that choosing to extract concurrent on
+a target within a finished async block effectively precludes
+introduction of new parallelism.
+
+{\bf Futures} -- Futures, in general, are treated the same as asyncs.
+However, code inserted between the two
+constructed loops must not have side-effects on any futurized expression that
+is used in the second loop
+
+ {\bf Atomics} -- As long as the target does not fall
+within an atomic block, there are no restrictions on the use of atomic in the
+loop. The target may contain an atomic block itself.
+
+{\bf Clocks} -- Because the transformation creates new paths in the program,
+%many clock-associated operations are disallowed within the loop. In
+%particular, the {\tt registered} and {\tt resume} methods may be called at any
+%time within the loop. But 
+{\tt next} and {\tt drop} may not be called on a clock in the
+first half of the loop or in any statement which has loop-carried
+dependencies. %Since clock operations that exist in the loop probably
+%signal that a full iteration of a loop has occurred, executing one of
+%these operations during evaluation of the first half of the transformed loop
+%would break this assumption. However, {\tt registered} and {\tt resume} are
+%harmless operations in that multiple calls to either will not cause any
+%effects when {\tt next} and {\tt drop} cannot be called. Since {\tt resume}
+%does not return a value, it is also safe to completely remove it from the
+%first loop and place it in the second with a slicing algorithm. 
+After execution of the target can be guaranteed to have completed (i.e., at any
+non-loop-carried dependent statement after the target), it is safe to perform
+any of the clock operations.
+
+{\bf Exceptions} -- If the target is within a try block, then as a
+conservative measure, we force the transformation to fail.
+This is based on the semantics of X10: uncaught exceptions thrown by
+asynchronous activities are accumulated by the collecting {\tt finish}.
+Thus, exceptions thrown by activities spawned inside a try block are not
+propagated to the try block's catch clauses.
+%In particular, if the exception's purpose was to short-circuit the loop,
+%delaying its delivery would result in a change to the loop's control
+%flow (i.e., in improper execution of code that would not otherwise
+%have executed).
+%Note that forcing the transformation to fail is a bit overly conservative in
+%that the target may not throw any exception named in the {\tt catch} blocks,
+%so that moving the target would not change the exception behavior of
+%the code.

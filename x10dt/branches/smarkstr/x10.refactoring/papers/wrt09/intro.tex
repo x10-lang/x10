@@ -1,0 +1,372 @@
+\section{Introduction}
+
+The industry's shift to multicore processors has sparked a trend
+toward pushing parallel programming into the mainstream.  This trend
+poses a significant challenge, since creating and maintaining parallel
+programs that are both efficient and reliable is notoriously
+difficult.  One response to this challenge
+by the programming languages community has been to create new (and
+revisit old) language
+abstractions and programming models 
+for parallel programming and to
+develop new languages based on these abstractions.  % For example, there
+% has been lots of recent work on support for software transactional
+% memory~\cite{}, and the DARPA PERCS project is funding several new
+% parallel programming languages~\cite{}.
+
+While new languages can greatly aid programmers in developing 
+parallel programs, we believe that new languages cannot
+achieve mainstream success without associated tooling support.
+Modern integrated development environments
+(IDEs) such as Eclipse~\cite{eclipse} provide many benefits that programmers
+have come to rely upon, helping
+them to more easily navigate through a program, understand
+dependencies among parts of a program, and safely evolve a program to
+improve its quality along some dimension.  The latter benefit is typically
+provided through code {\em refactorings}.  
+% Part of the difficulty in programming for concurrent systems is
+% that they have often lagged behind in tooling support. Practitioners of most
+% modern sequential languages have the advantage of employing a wide variety of
+% analyses and refactorings in order to improve the quality of their code. While
+% analysis research has continued to show forward momentum in the parallel
+% language context, we believe that similar tooling support for refactorig in
+% parallel languages will help users improve the quality of their parallel code;
+% a belief that a number of others also share~\cite{Kennedy91, Liao99, Overbey05}.
+
+We believe that
+specialized refactoring support will be a critical tool to help programmers improve the
+quality of parallel code.  Such refactorings could be used
+to improve efficiency while preserving program behavior and key
+concurrency invariants (e.g., atomicity, deadlock-freedom).
+%Such
+%refactorings could also be used to improve a parallel program's readability and
+%extensibility.
+
+Any set of refactorings will of necessity be tailored to the needs of a particular
+parallel programming model and language.
+We focus on providing refactoring support for the
+\emph{partitioned global address space} (PGAS) memory model as
+embodied in the X10~\cite{X10,Charles05}, UPC~\cite{ElGhazawi03} and
+Titanium~\cite{Yelick98} programming languages.  In this model, the
+programmer sees a uniform 
+representation of data and data structures over distributed nodes, regardless
+of the physical location of the data.  However, each piece of data is
+assigned to a fixed partition (or {\em place} in X10 terminology)
+and can only be accessed by {\em activities}
+that run at that place.
+% That is, a reference to a piece of
+% data is treated as a first-class entity in this system and can be treated
+% similarly to a local reference even if the owner of said data is at a
+% different location. In such cases, the language's compiler or virtual machine
+% will handle the messy details of handling message and data passing. The PGAS
+% model attempts to minimize background communication overhead by
+% locating data at a place where it has good data or processing affinity.
+
+In this presentation, we focus on the X10 language, an object-oriented language
+providing first-class, high-level constructs for asynchronous activities, synchronization,
+phased computations, data distribution, and atomicity.
+%Further, as stated in the introduction, the X10 language is in the family of
+%concurrent languages with a {\em partitioned global address space} (PGAS)
+%memory model. In the case of X10, the set of partitions in the global address
+%space is fixed at the start of the program.
+By incorporating such abstractions as first-class constructs in the language,
+the burden of reasoning about various program properties is often reduced
+from global reasoning involving complex control flow to simple and modular
+reasoning about lexical containment.
+In fact, many interesting properties (e.g. deadlock freedom) can often
+be ensured statically.
+In this way, X10's constructs simplify both the programmer's task of
+understanding and tools' tasks of static program analysis.
+% make all asynchronous and atomic code apparent
+%to both the analysis engine and the programmer.
+
+The PGAS model provides particular opportunities and challenges for
+automated refactorings.  On the one hand, code transformations are
+simplified since the code need not explicitly handle inter-processor
+communication.  
+On the other hand, transformations must properly handle the
+asynchronicity that arises among activities and must respect
+the synchronization constraints imposed on these activities by the
+semantics of the various language constructs. 
+% Transformations must also
+% ensure that an activity only accesses data from the current place.
+In the rest of this paper we describe an initial concurrency
+refactoring for X10 that we
+have been developing inside the X10DT plugin for Eclipse.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% Previous Version: for comparison
+% 
+% \section{Introduction}
+% 
+% Many modern parallel languages, particularly high-performance computing (HPC)
+% languages, have trended towards a \emph{global address
+% space} (GAS) memory model. In fact, all three of the remaining DARPA HPC
+% Challenge programming languages have built their languages around a GAS
+% model. A GAS model simplifies the development of code since the programmer
+% does not have to deal with the explicit passing of data from one
+% place of execution to another via interfaces such as MPI or OpenMP. Instead, a
+% programmer can directly reference any desired data and the language's compiler
+% or virtual machine will handle the messy details. This surface simplicity comes
+% with a small caveat, though: a lot of extra communication may be incurred in
+% order to actually determine which place actually owns some piece of data, all
+% of which is hidden at the source level. One solution to this issue is to
+% use a \emph{partitioned global address space} (PGAS) model in which data is
+% created and kept in a single place for its lifetime, thus minimizing such
+% communication overhead. The PGAS model itself is employed in a number of
+% languages, such as UPC, Titanium, and X10~\cite{ElGhazawi03, Yelick98, Charles05}.
+% 
+% Even in languages with an abstracted memory model like the GAS model, creating
+% efficient code poses a challenge. Programmers still struggle with such tasks
+% as introducing maximal concurrency, avoiding deadlock, minimizing transaction
+% conflicts, and numerous other plagues of the parallel world. Making
+% such code readable and extensible is
+% even more daunting. Most modern sequential languages often employ
+% refactoring and other transformation engines to make code more efficient
+% without sacrificing readability or introducing errors. We believe that
+% similar tooling support for parallel languages can provide these benefits to the
+% parallel programming community; a belief that a number of others also
+% share~\cite{Kennedy91, Liao99, Overbey05}. 
+% 
+% We propose a framework in which a refactoring engine, standing alone or coupled
+% with an IDE, is available to aid in the creation of parallel programs.
+% The refactoring engine should be capable of performing its own program analysis
+% to guarantee that transforming the code will not introduce new and subtle
+% errors. Its associated transformation can also use the results of the analysis
+% to transform the code appropriately. We feel that such sanity checks are vitally
+% important to ensuring that new bugs are not introduced, in contrast to current
+% commonly-used refactorings which are mostly unchecked but relatively
+% cosmetic such as renaming variables or abstracting blocks as methods. Having
+% such a refactoring engine allows a developer to write simple and readable
+% code with the idea that the refactoring engine will improve the performance of
+% the areas in the code that she has identified as good candidates for increased
+% efficiency.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%Since the advent of inter-processor communication, the desire to
+%%create programs which take advantage of parallel execution has
+%%existed. 
+% The desire to take advantage of parallel execution has
+% existed since the advent of the computer processor, and this desire is only
+% more fervent in this age of processor ubiquity. However, the creation and
+% maintenance of parallel programs involves the difficult challenges of
+% enforcing proper program and memory consistency and synchronization.
+%%To compound the issue,
+%%A. J. Bernstein has already shown that, in the general case,
+%%automatically determining parallelism of sequential code is an
+%%undecidable problem~\cite{Bernstein66}.
+% In the programming language community, two main schools of thought exist on
+% solving these problems. One school of thought is to simply develop languages
+% that included explicit constructs or compiler optimizations for parallelism.
+%% These include variants of Fortran and Lisp and languages built with parallel
+%% execution or data distribution support like Ada, Linda, and
+%% Emerald~\cite{Allen87, Hutchinson87, Griss82, Ada, Gelernter85}. 
+% Even with language level support, though, it is still difficult for
+% programmers to quickly create error-free code which efficiently uses
+% parallelism. Another approach is to automate the parallelization of
+% sequential code via extensive program analysis at points in a program, such as
+% loops, that seem to provide natural boundaries for parallel execution. However, this
+% is complicated by the difficulty of
+%%Fortunately, certain sequential programming language constructs do
+%%seem to provide natural boundaries for automatic parallel compiler
+%%optimizations: loops~\cite{Lamport74, Allen84, Allen87}. By
+%%recognizing that the majority of time in running programs is spent
+%%executing the same set of calculations over a different set of data,
+%%it is natural to establish parallel execution of loop bodies on
+%%different processors or using vector supercomputers. One drawback to
+%%this approach, though, is that 
+% precise static analysis of the parallelism targets.
+% %% is a very difficult task. 
+% Dependence on structured memory usage, such as
+% arrays, which benefit the most from parallel execution, complicates
+% loop analysis further.
+
+% We believe that 
+% %%Many research projects found that 
+% the key for better parallelism detection is to take advantage of user
+% interaction, 
+
+
+%%As a result, user interactivity in the form of 
+% In particular, we hold that
+% source code refactoring support in IDEs such as Eclipse can be a
+% powerful ally in aiding parallelization.
+%%in the compiler optimization and program transformation process
+%%A typical way of involving the user in this process
+%%solution for these systems 
+%%is to build support for some parallel transformations into an IDE and display
+%%the
+%%collected memory dependence information for a given line of code to the user. If
+%%the user determines that the dependences would not prevent parallel
+%%execution, then the user can choose to transform the code. For a whole
+%%program analysis, such a presentation might be overwhelming and difficult to
+%%decipher, and is probably not the best way to involve the user. Our approach
+%%is to 
+
+% We think that programmers often know which statements in their code could
+% benefit the most from
+% added efficiency, even if they do not know how best to introduce this
+% efficiency on their own.
+% %  and where they would like to insert more concurrency.
+% Static and dynamic analysis tools can also help users identify hotspots
+% in their programs.
+% %In either case, the
+% The tasks of identification of suitable parallelism candidates and of
+% transforming the code to introduce/manipulate parallelism are separable.
+%%Thus, programmers can specify which lines of code
+%%would like to refactor into a concurrent form and 
+
+
+% provides the link
+% between these two vectors of concurrency introduction. The refactoring
+% engine should determine if refactoring at these points is safe
+% and how the code should be transformed to introduce more concurrency. A developer can then
+
+% of which
+% statements could benefit from added parallelism or use a tool to identify possible target sites
+% %%, such as the code in Figure~\ref{fig:CHM-X10}, 
+% and then use 
+
+
+% Moreover,
+% we believe that this approach can be applied to other application concerns of
+% parallel programmers, such as introducing new synchronization points or
+% refitting blocks as atomic.
+%%, such as the code in
+%%Figures~\ref{fig:CHM-X10-future} and~\ref{fig:CHM-X10-async}.
+%%information is often difficult for a user to decipher for a whole program, though,
+%%and is not Because following the flow of data for parallel programs is
+%%difficult in these IDEs, advanced concurrency slicing techniques were
+%%developed~\cite{Zhao99,Chen01,Chen02,Krinke03}. We believe that
+%%including user input is an essential part of making parallelism
+%%apparent to the programmer
+
+%%\bug{Now introduce we will use X10 and why we like it: explicit higher-level
+%%constructs and PGAS model} 
+
+%%The target of our research is to develop practical refactoring schemes for
+%%introducing increased parallelism in the X10 language. X10 includes explicit
+%higher-level concurrency constructs such as asynchronous blocks and future
+%%expressions. It also incorporates a {\em partitioned global address space}
+%%(PGAS) model of data consistency. The combination of the explicit constructs
+%%and the PGAS model in X10 allows data dependency analysis to be simplified.
+
+%%Many recent languages have been developed with a focus on
+%%the {\em partitioned global address space} (PGAS) model of data consistency
+%%including UPC, Titanium, Co-Array Fortran, and X10~\cite{ElGhazawi03,
+%%Yelick98, Numrich98, Charles05}. The target of our research is to develop
+%%a practical refactoring scheme for X10, although this scheme should be
+%%adaptable to other languages based on the PGAS model. 
+
+% To deal with some of the static analysis issues associated with parallelization,
+% we focus focus our refactorings on languages with a {\em partitioned global 
+% address space} (PGAS) model of data consistency. In the PGAS model,
+% %%The primary goal of the PGAS model is to allow parallel asynchronous activity to
+% %%occur among multiple concurrent platforms, each having its own local memory and
+% %%potentially lacking a joint shared memory, without losing the ability to read
+% %%and write to global data. Global 
+% shared data is actually owned by local processors but is globally addressable.
+% Other processors which would like
+% to access or update global data then communicate directly with the owning
+% location to perform any necessary actions. Thus, programmers take an active role
+% in defining how data in arrays or data structures is distributed
+% over the address space so as to maximize locality, thus taking maximum advantage
+% of their concurrent environments. This removes the programmer's (or analysis')
+% burden of determining
+% how complicated structures should be partitioned to the various execution sites at
+% refactoring points in the code where parallelism is desired (e.g., inside 
+% loops). As a result, the required static analysis is reduced to determining
+% local and loop-carried dependencies that prevent a statement from being
+% asynchronously executed.\bug{This statement really applies to this particular
+% transformation. I.e., the programmer does have to determine the partitioning at
+% some point, but doesn't need to worry about it while applying this
+% transformation. So perhaps we should say that we envision different kinds of
+% {\em lateral} moves, e.g.: manipulate concurrency while keeping the distribution
+% fixed, and manipulating the distribution while keeping concurrency relatively
+% unchanged.}
+% 
+% We chose to implement our refactoring scheme in the X10 language. X10 not only
+% has a PGAS data consistency model, but also includes explicit higher-level
+% concurrency constructs such as asynchronous blocks and future
+% expressions. These concurrency constructs further simplify the analysis of X10
+% code by making all asynchronous and atomic code apparent to both the analysis
+% engine and the programmer.
+% 
+% %%\begin{figure}[tp]
+% %%  \begin{code}
+% %%    int mcsum=0; \\
+% %%    fo\=r (i=0; i<segments.length; i++)\{ \\
+% %%    \>  mcsum += mc[i] = segments[i].modCount(); \\
+% %%    \>  if\=(segments[i].containsValue(value)) \\
+% %%    \>\>    return true; \\
+% %%    \} \\
+% %%  \end{code}
+% %%\caption{\label{fig:CHM} A Java code excerpt from the library class {\tt
+% %%java.util.concurrent.ConcurrentHashMap} which illustrates a loop that
+% %%would not be parallelizable via traditional automatic loop
+% %%parallelization methods.}
+% %%\end{figure}
+% 
+% %%Because languages designed for the PGAS model do not focus on
+% %%providing support for the parallel execution of the same code over
+% % different sets of data, they can provide a more flexible alternative
+% % to whole loop parallelization: the loops can be executed sequentially
+% % and updates to distributed data structures can occur in parallel. 
+% As an example, consider the X10 code in Figure~\ref{fig:CHM-X10}, an excerpt 
+% from an X10 implementation of the {\tt java.util.concurrent.ConcurrentHashMap} 
+% class. In this example, it is possible the {\tt modCount} and {\tt 
+% containsValue} method invocations are a both very expensive operations. Because 
+% of the PGAS model, the individual elements of the array {\tt segments} could 
+% exist anywhere in the global address space. However, automatic whole loop 
+% parallelization techniques developed previously would fail on this code because 
+% of the conditional return statement and the loop carried dependency summing
+% the results of the calls to {\tt modCount}. However, the programmer might still
+% be able to take advantage of parallel execution by making the invocations of
+% {\tt modCount} asynchronous and caching the results.
+% Figures~\ref{fig:CHM-X10-async} and~\ref{fig:CHM-X10-future} show examples of
+% adding concurrency in this fashion.
+% 
+% We present in this paper the source code transformation {\em extract concurrent} for
+% the X10 language which allows a programmer to transform loop code
+% like that in Figure~\ref{fig:CHM-X10} to one that takes maximum advantage of
+% asynchronous execution. We acheive this refactoring through two means:
+% 
+% \begin{enumerate}
+% \item {\em Loop dependence analysis.} Since introducing parallelism in
+% the middle of a loop might affect the ability of other statements in a
+% loop to properly evaluate, it is important that loops do not carry
+% dependence on the results of any asynchronously evaluated statements. We
+% have developed a series of analyses to determine whether {\em extract
+% concurrent} will adversely affect the execution of the code and
+% violate its sequential consistency.
+% 
+% \item {\em Transformation pattern.} We have developed a general
+% pattern for the {\em extract concurrent} transformation on viable
+% sequential loops. This pattern uses program slicing
+% techniques to split a loop in two. The first loop will allow introduction of
+% parallelism while the second loop utilizes the results of the asynchronous
+% execution. Because this split requires some code duplication, we
+% present the results of a formal analysis on how the transformation
+% affects the runtime of the loop and define the conditions under which
+% the transformation provides the potential for better runtime. In practice, this
+% transformation is more widely applicable to multiple statements or expressions.
+% We present here only the single statement or expression case.
+% \end{enumerate}
+% 
+% We have implemented the transformation as refactoring in the X10DT, a
+% development framework for the X10 language in Eclipse, however we believe that
+% the transformation is adapatable to all languages with a PGAS consistency model.
+% \bug{We will insert more about the implementation when it's actually been done.}
+
+% The rest of the paper is organized as follows. Section 2 presents an
+% overview of the X10 programming language. Section 3 contains a
+% description and analysis of the the algorithm for determining loop
+% candidacy for the transformation. Section 4 details the {\em extract
+% concurrent} transformation and discusses the impact of the
+% transformation on running time. Section 5 presents the implementation
+% and evaluation of the transformation in X10DT. Section 6 describes the
+% related work and Section 7 contains the conclusion and a summary of
+% the paper.

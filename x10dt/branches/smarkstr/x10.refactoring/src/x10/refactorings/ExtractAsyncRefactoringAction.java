@@ -17,8 +17,9 @@ public class ExtractAsyncRefactoringAction extends TextEditorAction {
     }
 
     public void run() {
+//    	throw new Error();
 	final ExtractAsyncRefactoring refactoring= new ExtractAsyncRefactoring((UniversalEditor) this.getTextEditor());
-
+	System.out.println("refactoring engine is "+refactoring);
 	if (refactoring != null)
 		new RefactoringStarter().activate(refactoring, new ExtractAsyncWizard(refactoring, "Extract Async"), this.getTextEditor().getSite().getShell(), "Extract Async", false);
     }

@@ -33,7 +33,7 @@ import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.IMethod;
-import com.ibm.wala.eclipse.util.EclipseProjectPath;
+import com.ibm.wala.ide.util.EclipseProjectPath;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.CallGraph;
@@ -180,7 +180,7 @@ public class ExtractAsyncStaticTools {
 	public static void dumpIR(CallGraph cg) throws IOException {
 //	    WarningSet warnings= new WarningSet();
 	    IClassHierarchy cha = cg.getClassHierarchy();
-	    IClassLoader sourceLoader = cha.getLoader(EclipseProjectPath.SOURCE_REF);
+	    IClassLoader sourceLoader = cha.getLoader(JavaSourceAnalysisScope.SOURCE);
 	    for(Iterator iter= sourceLoader.iterateAllClasses(); iter.hasNext(); ) {
 		IClass clazz= (IClass) iter.next();
 

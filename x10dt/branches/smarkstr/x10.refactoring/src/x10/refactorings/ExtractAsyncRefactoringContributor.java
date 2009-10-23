@@ -5,7 +5,7 @@ import org.eclipse.imp.services.IRefactoringContributor;
 import org.eclipse.jface.action.IAction;
 
 public class ExtractAsyncRefactoringContributor implements IRefactoringContributor {
-    public ExtractAsyncRefactoringContributor() { }
+    public ExtractAsyncRefactoringContributor() { System.err.println("ExtractAsyncRefactoringContributor");}
 
     public IAction[] getEditorRefactoringActions(UniversalEditor editor) {
 	return new IAction[] {

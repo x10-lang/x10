@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -92,8 +93,7 @@ import com.ibm.wala.classLoader.IField;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceFileModule;
-import com.ibm.wala.client.impl.AbstractAnalysisEngine;
-import com.ibm.wala.eclipse.util.CancelException;
+import com.ibm.wala.client.AbstractAnalysisEngine;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.CallGraph;
@@ -126,6 +126,7 @@ import com.ibm.wala.types.FieldReference;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeName;
+import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.util.intset.OrdinalSet;
@@ -262,7 +263,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		IParseController parseController = ed.getParseController();
 		Node_c root = (Node_c) parseController.getCurrentAst();
 //		SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
-		ISourcePositionLocator locator = parseController.getNodeLocator();
+		ISourcePositionLocator locator = ((ParseController) parseController).getNodeLocator();
 
 		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
 		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
@@ -1256,7 +1257,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// rewriter.
 
 		IParseController parseController = ed.getParseController();
-		ISourcePositionLocator locator = parseController.getNodeLocator();
+		ISourcePositionLocator locator = ((ParseController) parseController).getNodeLocator();
 		int startOffset = locator.getStartOffset(fPivot);
 		int endOffset = locator.getEndOffset(fPivot);
 
