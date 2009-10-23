@@ -6,12 +6,14 @@ import x10.io.Console;
 
    @author vj
  */
-public value class NQueensDist {
+public class NQueensDist {
     public static val expectedSolutions =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
-    val N:Int, P:Int;
-    val results:Array[Int](1);
+    global val N:Int;
+    global val P:Int;
+    global val results:Array[Int](1);
+
     def this(N:Int, P:Int) { 
 	this.N=N; 
 	this.P=P;
@@ -39,8 +41,8 @@ public value class NQueensDist {
         })
     }
 
-    value class Board {
-        val q: ValRail[Int];
+    class Board {
+        global val q: ValRail[Int];
         def this() {
             q = Rail.makeVal[Int](0, (Nat)=>0);
         }
@@ -48,7 +50,7 @@ public value class NQueensDist {
             val n = old.length;
             q = Rail.makeVal[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
         }
-        def safe(j: int) {
+        global def safe(j: int) {
             val n = q.length;
             for ((k) in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
@@ -59,13 +61,13 @@ public value class NQueensDist {
         /** Search for all solutions in parallel, on finding
          * a solution update nSolutions.
          */
-        def search(R: Region(1){rect}) {
+        global def search(R: Region(1){rect}) {
             for ((k) in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
 
-        def search()  {
+        global def search()  {
             if (q.length == N) {
                 atomic NQueensDist.this.results(here.id)++;
                 return;
