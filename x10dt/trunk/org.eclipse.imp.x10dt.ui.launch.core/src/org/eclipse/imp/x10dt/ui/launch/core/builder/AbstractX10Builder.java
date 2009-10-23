@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +41,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
@@ -63,7 +63,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Abstract methods definition
   
-  protected abstract ExtensionInfo createExtensionInfo(final IJavaProject javaProject, final IContainer binaryContainer,
+  protected abstract ExtensionInfo createExtensionInfo(final IJavaProject javaProject, final String workspaceDir,
                                                        final IProgressMonitor monitor) throws CoreException;
   
   // --- Abstract methods implementation
@@ -83,10 +83,29 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       collectSourceFilesToCompile(kind, dependentProjects, new SubProgressMonitor(monitor, 2));
       clean(new SubProgressMonitor(monitor, 2));
       clearMarkers(kind);
-
-      compileX10Files(new SubProgressMonitor(monitor, 36));
       
-      return compileGeneratedFiles(dependentProjects, new SubProgressMonitor(monitor, 60));
+      final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
+      final String platformConfName = getProject().getPersistentProperty(Constants.X10_PLATFORM_CONF);
+      final IX10PlatformConfiguration platform = platforms.get(platformConfName);
+
+      final String workspaceDir = getProject().getPersistentProperty(Constants.WORKSPACE_DIR);
+      final File outputDir;
+      if (platform.isLocal()) {
+      	outputDir = new File(workspaceDir);
+      } else {
+      	outputDir = new File(this.fBinaryContainer.getLocationURI());
+      }
+      if (! outputDir.exists()) {
+      	outputDir.mkdirs();
+      }
+      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 36));
+      
+      return compileGeneratedFiles(dependentProjects, workspaceDir, platform, new SubProgressMonitor(monitor, 60));
+    } catch (IOException except) {
+      IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
+      										       IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
+      return new IProject[0];
     } finally {
       monitor.done();
     }
@@ -102,14 +121,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         if (this.fProjectWrapper == null) {
           this.fProjectWrapper = JavaCore.create(getProject());
         }
-        final IContainer binaryContainer = getBinaryContainer();
+        
+        final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
+        final IContainer binaryContainer = getBinaryContainer(outpuLoc);
         if (binaryContainer != null) {
-          binaryContainer.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
-          final IResource[] members = binaryContainer.members();
-          monitor.beginTask(Messages.CPPB_DeletingTaskName, members.length);
-          for (final IResource member : members) {
-            member.delete(true /* force */, new SubProgressMonitor(monitor, 1));
-          }
+        	binaryContainer.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
+        	final IResource[] members = binaryContainer.members();
+        	monitor.beginTask(Messages.CPPB_DeletingTaskName, members.length);
+        	for (final IResource member : members) {
+        		member.delete(true /* force */, new SubProgressMonitor(monitor, 1));
+        	}
         }
       }
     } finally {
@@ -153,15 +174,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
-  private IProject[] compileGeneratedFiles(final Set<IProject> dependentProjects,
-                                           final IProgressMonitor monitor) throws CoreException {
+  private IProject[] compileGeneratedFiles(final Set<IProject> dependentProjects, final String workspaceDir,
+  		                                     final IX10PlatformConfiguration platform,
+  		                                     final IProgressMonitor monitor) throws CoreException {
     try {
-      final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
-      final String platformConfName = getProject().getPersistentProperty(Constants.X10_PLATFORM_CONF);
-      final IX10PlatformConfiguration platform = platforms.get(platformConfName);
-      
-      final String workspaceDir = getProject().getPersistentProperty(Constants.WORKSPACE_DIR);
-      
       final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
       final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
       final IResourceManager resourceManager = modelManager.getUniverse().getResourceManager(resManagerID);
@@ -193,18 +209,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
       return new IProject[0];
-    } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      LaunchCore.log(IStatus.ERROR, Messages.XPCPP_LoadingErrorLogMsg, except);
-      return new IProject[0];
     }
     
     return dependentProjects.toArray(new IProject[dependentProjects.size()]);
   }
   
-  private void compileX10Files(final IProgressMonitor monitor) throws CoreException {
-    final ExtensionInfo extInfo = createExtensionInfo(this.fProjectWrapper, this.fBinaryContainer, monitor);
+  private void compileX10Files(final String workspaceDir, final IProgressMonitor monitor) throws CoreException {
+    final ExtensionInfo extInfo = createExtensionInfo(this.fProjectWrapper, workspaceDir, monitor);
     
     final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(1000000, getProject(), extInfo.compilerName()));
     Globals.initialize(compiler);
@@ -212,15 +223,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     compiler.compile(toSources(this.fSourcesToCompile));
   }
   
-  private IContainer getBinaryContainer() {
+  private IContainer getBinaryContainer(final IPath outputLoc) {
     if (this.fBinaryContainer == null) {
-      try {
-        final IPath outputLoc = this.fProjectWrapper.getOutputLocation();
-        this.fBinaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outputLoc);
-      } catch (JavaModelException except) {
-        LaunchCore.log(except.getStatus());
-        return null;
-      }
+    	this.fBinaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outputLoc);
     }
     return this.fBinaryContainer;
   }
