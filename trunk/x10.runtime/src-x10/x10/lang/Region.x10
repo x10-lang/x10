@@ -409,5 +409,10 @@ public abstract class Region(
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
         property(r, t, z);
     }
+
+    /** 
+      Override Object's toString() and mark it global.
+     */
+    abstract public global def toString():String;
 }
 
