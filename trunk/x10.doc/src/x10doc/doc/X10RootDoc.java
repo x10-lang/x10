@@ -14,13 +14,16 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
+import x10.types.ConstrainedType;
 import x10.types.ParameterType;
+import x10.types.ParametrizedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -93,13 +96,24 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		boolean inOther = otherClasses.containsKey(className);
 		if (!inOther) {
 			cd = new X10ClassDoc(classDef, containingClass, comments);
-			cd.setIncluded(true);
-			X10PackageDoc containingPackage = getPackage(classDef.package_());
-			cd.setPackage(containingPackage);
-			containingPackage.addClass(cd);
-			addInterfaces(classDef, cd);
 			specClasses.put(className, cd);
-			// create arrays of fields, constructors, methods etc. of ClassDoc
+
+			cd.initialize();
+			cd.setIncluded(true);
+
+//			X10PackageDoc containingPackage = getPackage(classDef.package_());
+//			cd.setPackage(containingPackage);
+//			containingPackage.addClass(cd);
+//			// obtain ClassDoc and Type objects for superclass
+//			Ref<? extends polyglot.types.Type> reft = classDef.superType();
+//			polyglot.types.Type t = ((reft==null) ? null : reft.get());
+//			X10ClassDef cdef = (X10ClassDef) ((t == null) ? null : t.toClass().def());
+//			X10ClassDoc superClass = getUnspecClass(cdef);
+//			Type superType = getType(t);
+//			cd.setSuperclass(superClass);
+//			cd.setSuperclassType(superType);
+//			addInterfaces(classDef, cd);
+
 			return cd;
 		}
 		else {
@@ -162,10 +176,10 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * @return ClassDoc or TypeVariable or ParameterizedType or X10Type (for void) object
 	 */
 	public Type getType(polyglot.types.Type t, X10TypeVariable[] methodTypeVars) {
-		System.out.print("getType(" + t +"): ");
+		// System.out.println("getType(" + t +"): t.getClass() = " + t.getClass());
 		if (t == null) return null;
 		if (t.isPrimitive()) {
-			System.out.println("Primitive X10Type returned.");
+			// System.out.println("Primitive X10Type returned.");
 			return getPrimitiveType(t);
 		}
 		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
@@ -187,7 +201,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //			}
 			else if (owner instanceof X10MethodDef || owner instanceof X10ConstructorDef) {
 				assert(methodTypeVars != null) : "X10RootDoc.getType(" + t + 
-				", null): expects non-null array of type variables defined by method/constructor.";
+				", null): expects non-null array of type variables defined by method/constructor" 
+				+ owner;
 				return findTypeVariable(p, methodTypeVars);
 			  // X10MethodDef mdef = (X10MethodDef) owner;
 			  // X10ClassDoc cd = (X10ClassDoc) classNamed(classKey((X10ClassDef) mdef.container().get().toClass().def()));
@@ -217,16 +232,30 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			}
 		}
 		// if (t.typeEquals(X10TypeMixin.baseType(t), t.typeSystem().emptyContext())) {
+//		if (classDef.typeParameters().size() == 0) {
+//			System.out.println("X10ClassDoc returned.");
+//			return getUnspecClass(classDef);
+//		}
+//		if (t instanceof ParametrizedType) {
+//			return new X10ParameterizedType((x10.types.X10Type)t);
+//		}
 		X10ClassDef classDef = (X10ClassDef) t.toClass().def();
-		if (classDef.typeParameters().size() == 0) {
-			// return createRecClassDoc(((X10ClassType)t).x10Def());
-			System.out.println("X10ClassDoc returned.");
+		if (t instanceof X10ParsedClassType) {
+			if (((X10ParsedClassType)t).typeArguments().size() > 0) {
+				return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, false);
+			}
 			return getUnspecClass(classDef);
 		}
-		else {
-			// return new X10ParameterizedType((x10.types.X10Type)t);
-			return getUnspecClass(classDef);
+		else if (t instanceof ConstrainedType) {
+			polyglot.types.Type base = X10TypeMixin.baseType(t);
+			if (base instanceof X10ParsedClassType) {
+				if (((X10ParsedClassType)base).typeArguments().size() > 0) {
+					return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, true); 
+				}
+			}
+			return new X10ParameterizedType((x10.types.X10Type)t);
 		}
+		return getUnspecClass(classDef);
 	}
 
 	public static X10TypeVariable findTypeVariable(ParameterType p, X10TypeVariable[] typeVars) {
@@ -256,14 +285,26 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		Ref<? extends ClassDef> ref = classDef.outer();
 		X10ClassDef contClassDef = ((ref==null) ? null : (X10ClassDef) ref.get());
 		X10ClassDoc containingClass = getUnspecClass(contClassDef);
-		
+
 		// cd = createUnspecClass(classDef, containingClass);
 		cd = new X10ClassDoc(classDef, containingClass, "");
-		X10PackageDoc containingPackage = getPackage(classDef.package_());
-		cd.setPackage(containingPackage);
-		containingPackage.addClass(cd);
 		otherClasses.put(ckey, cd);
 
+		cd.initialize();
+		
+//		X10PackageDoc containingPackage = getPackage(classDef.package_());
+//		cd.setPackage(containingPackage);
+//		containingPackage.addClass(cd);
+//		// obtain ClassDoc and Type objects for superclass
+//		Ref<? extends polyglot.types.Type> reft = classDef.superType();
+//		polyglot.types.Type t = ((reft==null) ? null : reft.get());
+//		X10ClassDef cdef = (X10ClassDef) ((t == null) ? null : t.toClass().def());
+//		X10ClassDoc superClass = getUnspecClass(cdef);
+//		Type superType = getType(t);
+//		cd.setSuperclass(superClass);
+//		cd.setSuperclassType(superType);
+//		addInterfaces(classDef, cd);
+		
 		for (FieldDef fd: classDef.fields()) {
 			// cd.addField(new X10FieldDoc(((X10FieldDef) fd), cd, ""));
 			cd.updateField((X10FieldDef) fd, "");
@@ -277,7 +318,6 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			// update cd with a MethodDoc object for method md 
 			cd.updateMethod(((X10MethodDef) md), "");
 		}
-		addInterfaces(classDef, cd);
 		// inner classes may need to be added
 		return cd;
 	}
@@ -286,7 +326,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * Return a ClassDoc for the specified or unspecified class or interface name.
 	 */
 	public ClassDoc classNamed(String arg0) {
-		System.out.println("RootDoc.classNamed(" + arg0 + ") called.");
+		// System.out.println("RootDoc.classNamed(" + arg0 + ") called.");
 		if (specClasses.containsKey(arg0)) {
 			return specClasses.get(arg0);
 		}
@@ -325,7 +365,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * Return a PackageDoc for the specified package name.
 	 */
 	public PackageDoc packageNamed(String arg0) {
-		System.out.println("RootDoc.packageNamed() called.");
+		// System.out.println("RootDoc.packageNamed() called.");
 		if (specPackages.containsKey(arg0)) {
 			return specPackages.get(arg0);
 		}
