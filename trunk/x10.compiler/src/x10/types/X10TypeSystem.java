@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
@@ -380,6 +381,27 @@ public interface X10TypeSystem extends TypeSystem {
      * @return
      */
     boolean isHere(Receiver r, X10Context context);
+    
+    /**
+     * Returns true if the receiver r is known statically to be at placeTerm.
+     * Will always return false if placeTerm is globalPlace().
+     * @param r
+     * @param placeTerm
+     * @param context
+     * @return
+     */
+    boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context context);
+    
+    /**
+     * Returns true if the receiver r is known statically to be at place.
+     * Will always return false if place is 
+     * @param r
+     * @param place
+     * @param context
+     * @return
+     */
+    boolean isAtPlace(Receiver r, Expr place, X10Context context);
+    
     XConstraint isHereConstraint(Receiver r, X10Context xc);
     /**
      * Return r.location.

@@ -2542,7 +2542,62 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return null;
     }
  
-   
+    public boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
+    	XConstraint_c c = new XConstraint_c();
+    	XTerm placeTerm = xtypeTranslator().trans(c, place, xc);
+    	if (placeTerm == null) 
+    		return false;
+    	return isAtPlace(r, place, xc);
+    }
+    
+    public boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
+    	// If the code is executing in a global context then
+    	// no receiver can be local.
+ 	   if (placeTerm.equals(globalPlace()))
+ 		   return false;
+ 	   
+ 	   try {
+ 		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
+ 		   Type rType = r.type();
+ 		   XTerm target = X10TypeMixin.selfVarBinding(rType); // 
+ 		   if (target == null) {
+ 			   target = xtypeTranslator().trans(pc, r, xc);
+ 			   if (target == null)
+ 			   // The receiver is not named. So make up a new name.
+ 			   // The only thing we know about the name is that it is of rType,
+ 			   target = XConstraint_c.genEQV();
+ 		   } 
+ 		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
+ 		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
+ 		   assert xc.currentPlaceTerm() != null;
+ 		   assert locVar(target, xc) != null;
+ 		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
+ 		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
+ 		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+
+ 		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
+ 		   XRoot thisVar = xc.thisVar();
+ 		   for (X10Context outer = (X10Context) xc.pop();
+ 		        outer != null && thisVar == null;
+ 		        outer = (X10Context) outer.pop())
+ 		   {
+ 		       thisVar = outer.thisVar();
+ 		   }
+ 		   sigma.addBinding(locVar(thisVar,xc), placeTerm);
+ 		   if (targetConstraint.entails(pc,sigma)) {
+ 			   // Gamma|- here==e.location
+ 			   return true;
+ 		   }
+
+ 	   } catch (SemanticException z) {
+ 		   // fall through
+ 	   } catch (XFailure z) {
+ 		   // fall through
+ 	   }
+ 	   return false;
+
+    }
+    
    public XConstraint isHereConstraint(Receiver r, X10Context xc) {
 	   XConstraint pc = new XConstraint_c();
 
@@ -2581,52 +2636,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   return xtypeTranslator().globalPlace();
    }
    public boolean isHere(Receiver r, X10Context xc) {
-	   // If the code is executing in a global context then
-	   // no receiver can be local.
-	   if (xc.currentPlaceTerm().term().equals(globalPlace()))
-		   return false;
-	   
-	   try {
-		   XConstraint pc = xc.currentPlaceTerm().xconstraint();
-		   Type rType = r.type();
-		   XTerm target = X10TypeMixin.selfVarBinding(rType); // 
-		   if (target == null) {
-			   target = xtypeTranslator().trans(pc, r, xc);
-			   if (target == null)
-			   // The receiver is not named. So make up a new name.
-			   // The only thing we know about the name is that it is of rType,
-			   target = XConstraint_c.genEQV();
-		   } 
-		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
-		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
-		   assert xc.currentPlaceTerm() != null;
-		   assert locVar(target, xc) != null;
-		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
-		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
-		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
-
-		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
-		   XRoot thisVar = xc.thisVar();
-		   for (X10Context outer = (X10Context) xc.pop();
-		        outer != null && thisVar == null;
-		        outer = (X10Context) outer.pop())
-		   {
-		       thisVar = outer.thisVar();
-		   }
-		   sigma.addBinding(locVar(thisVar,xc), xc.currentThisPlace().term());
-		   if (targetConstraint.entails(pc,sigma)) {
-			   // Gamma|- here==e.location
-			   return true;
-		   }
-
-	   } catch (SemanticException z) {
-		   // fall through
-	   } catch (XFailure z) {
-		   // fall through
-	   }
-	   return false;
-
+	   return isAtPlace(r, xc.currentThisPlace().term(), xc);
    }
+	
    
    public FieldInstance findField(Type container, TypeSystem_c.FieldMatcher matcher)
 	throws SemanticException {
