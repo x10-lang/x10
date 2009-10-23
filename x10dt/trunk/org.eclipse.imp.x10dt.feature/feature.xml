@@ -18,6 +18,7 @@
       <import feature="lpg.runtime" version="2.0.17" match="greaterOrEqual"/>
       <import feature="polyglot3" version="3.1.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.imp.runtime" version="0.1.99" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.java.hosted" version="0.1.1"/>
    </requires>
 
    <plugin
@@ -108,14 +109,57 @@
          id="org.eclipse.imp.x10dt.ui.launch.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui.launch.cpp"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="2.0.0"
          unpack="false"/>
+
+   <plugin
+         id="x10.dist.host"
+         download-size="0"
+         install-size="0"
+         version="2.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.dist.linux.x86.fragment"
+         os="linux"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.linux.x86_64.fragment"
+         os="linux"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="2.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.macosx.x86.fragment"
+         os="macosx"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.win32.x86.fragment"
+         os="win32"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="2.0.0"
+         fragment="true"/>
 
 </feature>
