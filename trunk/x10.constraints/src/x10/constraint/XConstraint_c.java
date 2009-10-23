@@ -68,6 +68,8 @@ import java.util.Set;
  */
 public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 
+    private static final boolean DEBUG = false;
+
     /** Variable to use for self in the constraint. */
     XRoot self;
 
@@ -1040,7 +1042,7 @@ public XConstraint_c() {
     
     public void setThisVar(XVar var) {
     	if (var == null) return;
-    	if (thisVar != null && ! thisVar.equals(var))
+    	if (DEBUG && thisVar != null && ! thisVar.equals(var))
     		System.err.println("Thisvar for " + this + " was " + thisVar + " (#"  + thisVar.hashCode() 
     				+ ") being now set to " + var + " (#" + var.hashCode());
     	thisVar = var;
