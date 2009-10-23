@@ -294,6 +294,9 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        	typeDef.setType(tn.typeRef());
 	        }
 
+	        // FIXME: [IP] HACK
+	        ((TypeDef_c) typeDef).setAstNode(type());
+	        
 	        n = (TypeDecl_c) n.typeDef(typeDef);
 	        
 	        // Add to the system resolver if the type def takes no arguments.
