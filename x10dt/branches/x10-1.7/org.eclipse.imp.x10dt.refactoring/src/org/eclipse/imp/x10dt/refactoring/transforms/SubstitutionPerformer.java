@@ -131,6 +131,8 @@ public class SubstitutionPerformer {
                 String localName= local.name().toString();
 
                 if (fVarContext.hasBinding(localName)) {
+                    // TODO Do something more sensible than just throwing an exception
+                    // This info needs to get back to the user in consumable form
                     throw new IllegalStateException("Inlining failed: unintended name capture for " + localName);
                 }
             } else if (n instanceof MethodDecl) {
