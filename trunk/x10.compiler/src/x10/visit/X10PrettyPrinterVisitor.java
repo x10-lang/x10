@@ -1061,15 +1061,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write("}");
-}
-
-
+	}
 
 	public void visit(FieldDecl_c n) {
 		if (er.hasAnnotation(n, QName.make("x10.lang.shared"))) {
 			w.write ("volatile ");
 		}
-		visit((Node) n);
+		
+        // Hack to ensure that X10Flags are not printed out .. javac will
+        // not know what to do with them.
+        Flags flags = X10Flags.toX10Flags(n.flags().flags());
+
+		visit((Node) n.flags(n.flags().flags(flags)));
 	}
 
 	public void visit(PropertyDecl_c dec) {
