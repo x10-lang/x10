@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.AmbExpr;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
+import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
@@ -22,6 +24,8 @@ import polyglot.ast.TypeNode_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.LazyRef;
+import polyglot.types.LocalDef;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -38,13 +42,17 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XRoot;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.TypeDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 
@@ -275,7 +283,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
 	LazyRef<Type> sym = (LazyRef<Type>) n.type;
 	assert sym != null;
 
-        TypeChecker childtc = (TypeChecker) tc.enter(parent, n);
+        final TypeChecker childtc = (TypeChecker) tc.enter(parent, n);
         
         Prefix prefix = (Prefix) visitChild(n.prefix, childtc);
         Id name = (Id) visitChild(n.name, childtc);
@@ -318,8 +326,6 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
         }
         
         if (t instanceof MacroType) {
-            typeArgs = Collections.EMPTY_LIST;
-            args = Collections.EMPTY_LIST;
             n = (AmbMacroTypeNode_c) n.typeArgs(Collections.EMPTY_LIST);
             n = (AmbMacroTypeNode_c) n.args(Collections.EMPTY_LIST);
         }
@@ -349,10 +355,51 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
         // dependency error, but instead get a less precise type.
         sym.update(t);
         
-        if (! typeArgs.isEmpty() || ! args.isEmpty())
+        if (! n.typeArgs().isEmpty() || ! n.args().isEmpty())
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
             
         CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
+        // FIXME: [IP] HACK
+        if (t instanceof MacroType) {
+            TypeDef_c def = (TypeDef_c) ((MacroType) t).def();
+            TypeNode defNode = def.astNode();
+            if (defNode instanceof AmbDepTypeNode) {
+                AmbDepTypeNode adtNode = (AmbDepTypeNode) defNode;
+                adtNode = (AmbDepTypeNode) adtNode.typeCheck(childtc);
+                DepParameterExpr depExpr = adtNode.constraint();
+                final List<LocalDef> names = def.formalNames();
+                final XVar selfBinding = XTerms.makeEQV("self");
+                final Type selfType = X10TypeMixin.setSelfVar(t, selfBinding);
+                x10.visit.Desugarer.Substitution<Expr> subst =
+                    new x10.visit.Desugarer.Substitution<Expr>(Expr.class, args) {
+                        protected Expr subst(Expr n) {
+                            if (n instanceof Local) {
+                                LocalDef d = ((Local) n).localInstance().def();
+                                for (int i = 0; i < names.size(); i++) {
+                                    if (names.get(i) == d)
+                                        return by.get(i);
+                                }
+                            } else if (n instanceof AmbExpr) {
+                                Name name = ((AmbExpr) n).name().id();
+                                for (int i = 0; i < names.size(); i++) {
+                                    if (names.get(i).name().equals(name))
+                                        return by.get(i);
+                                }
+                            } else if (n instanceof X10Special_c) {
+                                return ((X10Special_c) n).type(selfType);
+                            }
+                            try {
+                                return (Expr) n.typeCheck(childtc);
+                            } catch (SemanticException e) {
+                                e.printStackTrace();
+                                return n;
+                            }
+                        }
+                    };
+                depExpr = (DepParameterExpr) depExpr.visit(subst);
+                result = ((X10CanonicalTypeNode)result).constraintExpr(depExpr);
+            }
+        }
         return postprocess(result, n, childtc);   
     }
     

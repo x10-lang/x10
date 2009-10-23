@@ -44,6 +44,7 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtEach;
@@ -53,8 +54,10 @@ import x10.ast.Atomic;
 import x10.ast.Await;
 import x10.ast.Closure;
 import x10.ast.Closure_c;
+import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.ForEach;
+import x10.ast.FunctionTypeNode;
 import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.Next;
@@ -64,15 +67,20 @@ import x10.ast.When;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
 import x10.ast.X10Formal;
+import x10.ast.X10Instanceof_c;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
+import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.util.Synthesizer;
@@ -88,7 +96,7 @@ public class Desugarer extends ContextVisitor {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
         xnf = (X10NodeFactory) nf;
-        synth = new Synthesizer(xnf,xts);
+        synth = new Synthesizer(xnf, xts);
     }
 
     private static int count;
@@ -166,6 +174,10 @@ public class Desugarer extends ContextVisitor {
             return visitBinary((X10Binary_c) n);
         if (n instanceof X10Unary_c)
             return visitUnary((X10Unary_c) n);
+        if (n instanceof X10Cast_c)
+            return visitCast((X10Cast_c) n);
+        if (n instanceof X10Instanceof_c)
+            return visitInstanceof((X10Instanceof_c) n);
         return n;
     }
 
@@ -584,5 +596,98 @@ public class Desugarer extends ContextVisitor {
         args.add(0, n.array());
         args.add(n.right());
         return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(ret);
+    }
+
+    // e as T{c} -> ((x:T):T{c}=>{if (!c[self/x) throwCCE(); return x;})(e as T)
+    private Expr visitCast(X10Cast_c n) throws SemanticException {
+        Position pos = n.position();
+        Expr e = n.expr();
+        TypeNode tn = n.castType();
+        DepParameterExpr depClause = null;
+        if (tn instanceof X10CanonicalTypeNode) {
+            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
+            depClause = ctn.constraintExpr();
+            tn = ctn.constraintExpr(null);
+        } else if (tn instanceof FunctionTypeNode) {
+            FunctionTypeNode ftn = (FunctionTypeNode)tn;
+            depClause = ftn.guard();
+            tn = ftn.guard(null);
+        } else {
+            assert false : "Unknown type node type: "+tn.getClass();
+        }
+        if (depClause == null)
+            return n;
+        // TODO
+        return n;
+    }
+
+    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e) 
+    private Expr visitInstanceof(X10Instanceof_c n) throws SemanticException {
+        Position pos = n.position();
+        Expr e = n.expr();
+        TypeNode tn = n.compareType();
+        Type t = tn.type();
+        XConstraint xclause = X10TypeMixin.xclause(t);
+        DepParameterExpr depClause = null;
+        if (tn instanceof X10CanonicalTypeNode) {
+            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
+            depClause = ctn.constraintExpr();
+            tn = xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
+        } else if (tn instanceof FunctionTypeNode) {
+            FunctionTypeNode ftn = (FunctionTypeNode)tn;
+            depClause = ftn.guard();
+            tn = ftn.guard(null);
+        } else {
+            assert false : "Unknown type node type: "+tn.getClass();
+        }
+        if (depClause == null)
+            return n;
+        List<Expr> condition = depClause.condition();
+        List<Formal> parms = new ArrayList<Formal>();
+        Name xn = getTmp();
+        Type et = e.type();
+        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(et), xn);
+        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, et), xnf.Id(pos, xn)).localDef(xDef);
+        parms.add(x);
+        Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(et);
+        Expr iof = xnf.Instanceof(pos, xl, tn).type(xts.Boolean());
+        Expr cast = xnf.X10Cast(pos, tn, xl, X10Cast.ConversionType.CHECKED).type(tn.type());
+        Substitution<Expr> subst = new Substitution<Expr>(Expr.class, Collections.singletonList(cast)) {
+            protected Expr subst(Expr n) {
+                if (n instanceof X10Special_c && ((X10Special_c) n).kind() == X10Special_c.SELF)
+                    return by.get(0);
+                return n;
+            }
+        };
+        Expr left = iof;
+        for (Expr clause : condition) {
+            Expr right = (Expr) clause.visit(subst);
+            left = xnf.Binary(depClause.position(), left, X10Binary_c.COND_AND, right).type(xts.Boolean());
+        }
+        Block body = xnf.Block(pos, xnf.Return(pos, left));
+        Closure c = synth.makeClosure(pos, xts.Boolean(), parms, body, (X10Context) context);
+        List<Expr> args = new ArrayList<Expr>(1);
+        args.add(e);
+        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(xts.Boolean());
+    }
+
+    public static class Substitution<T extends Node> extends ErrorHandlingVisitor {
+        protected final List<T> by;
+        private final Class<T> cz;
+        public Substitution(Class<T> cz, List<T> by) {
+            super(null, null, null);
+            this.cz = cz;
+            this.by = by;
+        }
+        protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+            if (cz.isInstance(n))
+                return subst((T)n);
+            return n;
+        }
+        protected T subst(T n) {
+            return n;
+        }
     }
 }
