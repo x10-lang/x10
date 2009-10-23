@@ -2606,7 +2606,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
 
 		   sigma.addBinding(XTerms.HERE, xc.currentPlaceTerm().term());
-		   sigma.addBinding(locVar(xc.thisVar(),xc), xc.currentThisPlace().term());
+		   XRoot thisVar = xc.thisVar();
+		   for (X10Context outer = (X10Context) xc.pop();
+		        outer != null && thisVar == null;
+		        outer = (X10Context) outer.pop())
+		   {
+		       thisVar = outer.thisVar();
+		   }
+		   sigma.addBinding(locVar(thisVar,xc), xc.currentThisPlace().term());
 		   if (targetConstraint.entails(pc,sigma)) {
 			   // Gamma|- here==e.location
 			   return true;
