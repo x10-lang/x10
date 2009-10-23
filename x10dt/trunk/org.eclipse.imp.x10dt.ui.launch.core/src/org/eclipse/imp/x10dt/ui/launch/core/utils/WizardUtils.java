@@ -124,9 +124,9 @@ public final class WizardUtils {
     }
     sb.append(" {\n"); //$NON-NLS-1$
     if (createMain) {
-      sb.append("    public static def main(var args: Rail[String]): void = {\n"); //$NON-NLS-1$
+      sb.append("    public static def main(var args: Rail[String]!) {\n"); //$NON-NLS-1$
       sb.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
-      sb.append("         var h :Hello = new Hello();\n"); //$NON-NLS-1$
+      sb.append("         var h :Hello! = new Hello();\n"); //$NON-NLS-1$
       sb.append("         var myBool:boolean = h.myMethod();\n"); //$NON-NLS-1$
       sb.append("         Console.OUT.println(\"The answer is: \"+myBool);\n"); //$NON-NLS-1$
       sb.append("    }\n"); //$NON-NLS-1$
