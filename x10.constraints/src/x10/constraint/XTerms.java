@@ -30,6 +30,7 @@ public class XTerms {
 	//public static final XLit PLACE_ZERO = new XLit_c("placeZero");
 	public static final XLocal HERE = makeLocal(makeName("here"));
 	//public static final XLit INIT_PLACE = new XLit_c("initPlace");
+	public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 	public static final XLit NULL = new XLit_c(null);
 	public static final XLit TRUE = new XLit_c(true);
 	public static final XLit FALSE = new XLit_c(false);
