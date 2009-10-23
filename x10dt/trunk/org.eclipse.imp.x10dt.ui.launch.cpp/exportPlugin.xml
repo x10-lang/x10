@@ -26,6 +26,7 @@
 			<fileset dir="icons/"/>
 		</copy>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
+		<copy file="plugin.properties" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
 			manifest="META-INF/MANIFEST.MF"/>
