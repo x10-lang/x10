@@ -55,13 +55,13 @@ public class Future_c[T] extends Future[T] {
         };
     }
 
-    global def run():Void {
+    def run():Void {
         try {
             finish result().add(eval());
-              latch.release();
+            latch.release();
         } catch (t:Throwable) {
             exception.add(t);
-              latch.release();
+            latch.release();
         }
     }
     

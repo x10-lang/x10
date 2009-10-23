@@ -45,7 +45,7 @@ public class Ref(
 
     @Native("java", "#0.getClass().getName()")
     @Native("c++", "x10aux::type_name(#0)")
-    public native def typeName() : String;
+    public global native def typeName() : String;
 
     @Native("java", "#0.location()")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
