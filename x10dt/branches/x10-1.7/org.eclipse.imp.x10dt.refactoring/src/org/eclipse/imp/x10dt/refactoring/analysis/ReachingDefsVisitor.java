@@ -69,13 +69,19 @@ public class ReachingDefsVisitor extends DataFlow {
             Set<Term> terms = fMap.get(vd);
             if (terms == null) {
                 terms = new HashSet<Term>();
+                fMap.put(vd, terms);
             }
             terms.add(t);
-            fMap.put(vd, terms);
         }
 
-        public void addValues(ValueMap vm) {
-            fMap.putAll(vm.fMap);
+        public void merge(ValueMap vm) {
+            for(VarDef vd: vm.fMap.keySet()) {
+                if (fMap.containsKey(vd)) {
+                    fMap.get(vd).addAll(vm.fMap.get(vd)); // merge term sets
+                } else {
+                    fMap.put(vd, vm.fMap.get(vd));
+                }
+            }
         }
 
         public Set<VarDef> getKeys() {
@@ -91,9 +97,26 @@ public class ReachingDefsVisitor extends DataFlow {
         }
 
         @Override
-        public boolean equals(Object i) {
-            if (i instanceof ValueMap) {
-                return fMap.equals(((ValueMap) i).fMap);
+        public boolean equals(Object o) {
+            if (o instanceof ValueMap) {
+                ValueMap other= (ValueMap) o;
+                boolean result= fMap.equals(other.fMap);
+//                if (result == false) {
+//                    Map<VarDef,Set<Term>> otherMap= other.fMap;
+//                    for(VarDef vd: fMap.keySet()) {
+//                        if (!otherMap.containsKey(vd)) {
+//                            System.out.println("  entry added/deleted for var def " + vd.name());
+//                        } else if (!fMap.get(vd).equals(otherMap.get(vd))) {
+//                            System.out.println("  value changed for var def " + vd.name() + ": " + fMap.get(vd) + " => " + otherMap.get(vd));
+//                        }
+//                    }
+//                    for(VarDef ovd: otherMap.keySet()) {
+//                        if (!fMap.containsKey(ovd)) {
+//                            System.out.println("  entry added/deleted for var def " + ovd.name());
+//                        }
+//                    }
+//                }
+                return result;
             }
             return false;
         }
@@ -111,6 +134,7 @@ public class ReachingDefsVisitor extends DataFlow {
                 sb.append(" : ");
                 sb.append(fMap.get(vd));
                 sb.append(", ");
+                sb.append('\n');
             }
             sb.append('}');
             return sb.toString();
@@ -164,6 +188,7 @@ public class ReachingDefsVisitor extends DataFlow {
             return result;
         }
 
+//        System.out.println("Computing outbound flow for term " + t + "; in = " + in);
         if (t instanceof LocalAssign) {
             LocalAssign localAssign = (LocalAssign) t;
             LocalDef def = localAssign.local().localInstance().def();
@@ -185,6 +210,7 @@ public class ReachingDefsVisitor extends DataFlow {
             result.kill(def);
             result.defineValue(def, forLoop.domain());
         } else if (t instanceof SettableAssign) {
+            // TODO Need to consider this assignment to all slots of all arrays that flow into settableAssign.array()
             SettableAssign settableAssign = (SettableAssign) t;
 //          result.defineValue(settableAssign.array(), settableAssign);
         }
@@ -206,7 +232,7 @@ public class ReachingDefsVisitor extends DataFlow {
         ValueMap result = new ValueMap();
         for(Iterator iter= items.iterator(); iter.hasNext(); ) {
             ValueMap vm = (ValueMap) iter.next();
-            result.addValues(vm);
+            result.merge(vm);
         }
         return result;
     }
