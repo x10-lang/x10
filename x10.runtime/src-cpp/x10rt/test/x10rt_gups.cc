@@ -78,7 +78,7 @@ static void recv_dist (const x10rt_msg_params &p) {
     uint64_t address;
     unsigned char *buf = (unsigned char*) p.msg;
     memcpy(&src, buf+0, 4);
-    memcpy(&address, buf+8, 8);
+    memcpy(&address, buf+4, 8);
     globalTable[src] = address;
     x10rt_msg_params p2 = {src, PONG_ID, NULL, 0};
     x10rt_send_msg(p2);
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
             char *buf = (char*)x10rt_msg_realloc(NULL,0,12);
             uint32_t src = x10rt_here();
             memcpy(buf+0, &src, 4);
-            memcpy(buf+8, &intptr, 8);
+            memcpy(buf+4, &intptr, 8);
             x10rt_msg_params p = {i, DIST_ID, buf, 12};
             x10rt_send_msg(p);
         }
