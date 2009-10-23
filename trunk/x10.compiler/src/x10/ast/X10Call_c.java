@@ -444,11 +444,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 						((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c));
 			}
 			
-			// HACK: DG TEMP DISABLE TO AVOID KILLING OVERNIGHT REGRESSION TESTS.  MUST RE-ENABLE!!! 
-			// ((X10Call_c) n).checkLocalReceiver(tc);
-			// END HACK
+			if (n instanceof X10Call_c)
+			 ((X10Call_c) n).checkLocalReceiver(tc);
 			
-			// We have 
+			
+			// We have both!
 			if (cc != null) {
 			
 				throw new SemanticException("Ambiguous call; both " + 
@@ -591,7 +591,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 		if (xc.currentPlaceTerm().equals(((X10TypeSystem) tc.typeSystem()).globalPlace())) {
 			throw new SemanticError("Place type error: " +
-					" method " + name() + " should be global.",
+					" method " + name() + " called in the body of a global method; should be global.",
 					position());
 		}
 		throw new SemanticError("Place type error: method target " 

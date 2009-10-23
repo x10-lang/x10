@@ -239,11 +239,14 @@ public class Desugarer extends ContextVisitor {
         return async(pos, a.body(), a.clocks(), a.place());
     }
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
-        if (clocks.size() == 0) 
+    	if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
+          	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
+          }
+    	if (clocks.size() == 0) 
         	return async(pos, body, place);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
-        
+    	
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })), 
                              new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
                              body);
@@ -273,7 +276,7 @@ public class Desugarer extends ContextVisitor {
     }
  
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
-    	 Closure closure = synth.makeClosure(body.position(), xts.Void(), 
+    	Closure closure = synth.makeClosure(body.position(), xts.Void(), 
             		synth.toBlock(body), xContext());
     	 exprs.add(closure);
     	 types.add(closure.closureDef().asType());

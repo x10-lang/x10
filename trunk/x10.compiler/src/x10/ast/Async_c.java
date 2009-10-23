@@ -31,6 +31,8 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.PruningVisitor;
+import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
@@ -130,6 +132,27 @@ public class Async_c extends Stmt_c implements Async {
 		return reconstruct(place, clocks, body);
 	}
 
+	XConstrainedTerm placeTerm;
+	
+	 @Override
+	    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    	NodeVisitor v = tc.enter(parent, this);
+	    	
+	    	if (v instanceof PruningVisitor) {
+	    		return this;
+	    	}
+
+	    	if (placeTerm == null) {
+	    		placeTerm = PlacedClosure_c.computePlaceTerm((Expr) visitChild(this.place, v),
+	    				 (X10Context) tc.context(),ts);
+	    	}
+	    	
+	    	// now that placeTerm is set in this node, continue visiting children
+	    	// enterScope will ensure that placeTerm is installed in the context.
+	    	
+	    	return null;
+	    }
 	/**
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
@@ -149,6 +172,10 @@ public class Async_c extends Stmt_c implements Async {
 	            }
 	        }
 	        xc = (X10Context) xc.pushCode(asyncInstance);
+
+
+	        if (placeTerm != null)
+	        	xc = (X10Context) xc.pushPlace(placeTerm);
 
                 /*
 	        
@@ -189,8 +216,12 @@ public class Async_c extends Stmt_c implements Async {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-		Type placeType = place.type();
 		Expr newPlace = place;
+		// vj: No need to check this. This will be checked when computing
+		// the placeTerm, as part of place type checking.
+		/* 
+		Type placeType = place.type();
+	
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
 		if (! placeIsPlace) {
                         throw new SemanticException(
@@ -198,6 +229,7 @@ public class Async_c extends Stmt_c implements Async {
                             ts.Place() + "\", not \"" + place.type() + "\".",
                             place.position());
 		}
+		*/
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
 			throw new SemanticException("async may not be invoked in sequential code.", position());
