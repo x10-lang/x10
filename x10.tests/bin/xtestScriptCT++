@@ -768,12 +768,12 @@ function main {
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		else
 if [[ "$(uname -s)" == "Darwin" ]]; then
-			PGASRT_HOME_PORT=""
-			getPGASPort
-			run_cmd="/usr/bin/time -p mpirun -x PGASRT_HOME_PORT=$PGASRT_HOME_PORT -np $my_nplaces ./${tctarget}"
-else
-			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
+                        stale_pid=`lsof -t -i ':21053'`
+			if (( $? == 0 )); then
+				kill -9 $stale_pid >/dev/null
+			fi
 fi
+			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
 			printf "\n${run_cmd}\n" >> $tcoutdat
 		fi
 
