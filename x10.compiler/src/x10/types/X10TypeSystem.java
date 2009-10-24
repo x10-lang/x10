@@ -425,4 +425,6 @@ public interface X10TypeSystem extends TypeSystem {
     void existsStructWithName(Id name, ContextVisitor tc) throws SemanticException;
     
     XConstrainedTerm globalPlace();
+    
+    boolean isX10Array(Type me);
 }
