@@ -55,7 +55,7 @@ public class QueryEngine {
 		Type t = a.array().type();
 	        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 	        if (X10TypeMixin.isX10Array(t))
-	            return X10TypeMixin.isRail(t, context) || (X10TypeMixin.isZeroBased(t, context) && X10TypeMixin.isRankOne(t, context) && X10TypeMixin.isRect(t, context));
+	            return (X10TypeMixin.isZeroBased(t, context) && X10TypeMixin.isRankOne(t, context) && X10TypeMixin.isRect(t, context));
 	        else
 	            return false;
 	}
