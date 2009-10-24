@@ -25,7 +25,7 @@ class Summer[T]{T<:Sum} {
   def sum(a:T) = a.sum();
 }
 
-public class StructInterfaceTest extends x10Test {
+public class StructInterfaceGenericTest extends x10Test {
   public def run(): boolean {
     val a = S(3,4);
     val b = new C(a);
@@ -39,7 +39,7 @@ public class StructInterfaceTest extends x10Test {
   }
 
   public static def main(Rail[String]) {
-    new StructInterfaceTest().execute();
+    new StructInterfaceGenericTest().execute();
   }
 
 }
