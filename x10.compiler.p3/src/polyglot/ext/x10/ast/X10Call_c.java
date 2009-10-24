@@ -467,8 +467,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    // RMF 10/24/09 - omit the ".apply" for array accesses
 	    X10Type targetType= (X10Type) this.target.type();
 	    X10TypeSystem ts= (X10TypeSystem) targetType.typeSystem();
-	    // RMF - it seems targetType.isArray() returns false, even for something like x10.lang.Array[x10.lang.Float]{...} ???
-        if (this.name.toString().equals("apply") && (targetType instanceof ConstrainedType) && (((ConstrainedType) targetType).baseType().get() instanceof X10ClassType) && ((X10ClassType) ((ConstrainedType) targetType).baseType().get()).def().asType().isSubtype(ts.Array(), ts.emptyContext())) {
+
+        if (this.name.toString().equals("apply") && ts.isX10Array(targetType)) {
 	        // omit the ".apply()"
 	        w.begin(0);
 	        if (!targetImplicit) {
