@@ -256,9 +256,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    throw new SemanticException("The target of a closure call must be a function type, not " + targetType + ".", target.position());
 	}
 	*/
-	
-List<Type> typeArgs = Collections.EMPTY_LIST;
-    //new ArrayList<Type>(this.typeArgs.size());
+
+	List<Type> typeArgs = Collections.EMPTY_LIST;
+	//new ArrayList<Type>(this.typeArgs.size());
 
 /*	for (TypeNode tn : this.typeArgs) {
 		typeArgs.add(tn.type());
