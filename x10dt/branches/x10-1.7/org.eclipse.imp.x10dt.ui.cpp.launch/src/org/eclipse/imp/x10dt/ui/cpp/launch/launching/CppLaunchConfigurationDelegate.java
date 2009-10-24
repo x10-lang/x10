@@ -213,19 +213,15 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final String workspaceDir = configuration.getAttribute(ATTR_WORK_DIRECTORY, (String) null);
       final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-      
-      try {
-        IFileStore appProg = fileManager.getResource(new Path(appProgName), monitor);
-        if (appProg.fetchInfo(EFS.NONE, monitor).exists() && ! shouldLinkApp) {
-          return;
-        }
-        // Cygwin needs a ".exe" here
-        appProg = fileManager.getResource(new Path(appProgName+".exe"), monitor); //$NON-NLS-1$
-        if (appProg.fetchInfo(EFS.NONE, monitor).exists() && ! shouldLinkApp) {
-          return;
-        }
-      } catch (IOException except) {
-        // We failed on checking if we should link... but let's try to perform the link step.
+
+      IFileStore appProg = fileManager.getResource(appProgName);
+      if (appProg.fetchInfo(EFS.NONE, monitor).exists() && !shouldLinkApp) {
+    	  return;
+      }
+      // Cygwin needs a ".exe" here
+      appProg = fileManager.getResource(appProgName + ".exe"); //$NON-NLS-1$
+      if (appProg.fetchInfo(EFS.NONE, monitor).exists() && !shouldLinkApp) {
+    	  return;
       }
       
       createMainFile(fileManager, appProgName, workspaceDir, monitor);
@@ -308,7 +304,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
           }
           IFileStore mainFile = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
           // Secondly, transfers the file in the remote directory.
-          IFileStore dir = fileManager.getResource(new Path(workspaceDir), monitor);
+          IFileStore dir = fileManager.getResource(workspaceDir);
           IFileStore destFile = dir.getChild(MAIN_FILE_NAME);
           mainFile.copy(destFile, EFS.OVERWRITE, monitor);
           // Thirdly and finally, deletes the local temporary file.
