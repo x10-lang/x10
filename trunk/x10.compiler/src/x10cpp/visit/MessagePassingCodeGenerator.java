@@ -1383,7 +1383,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        // generateITablesForClass(currentClass, xts, "", sh); //FIXME: itable codegen for structs
+        generateITablesForStruct(currentClass, xts, "", sh, h);
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1568,7 +1568,41 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-    private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
+	private void generateITablesForStruct(X10ClassType currentClass,
+	                                      X10TypeSystem xts, String maybeVirtual, ClassifiedStream sh,
+	                                      ClassifiedStream h) {
+	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
+	    int numInterfaces = allInterfaces.size();
+	    if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
+	        /* ITables declarations */
+	        sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
+	        sh.writeln(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); sh.forceNewline();
+	        int itableNum = 0;
+
+	        /* ITables initialization */
+	        itableNum = 0;
+	        for (Type interfaceType : allInterfaces) {
+	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+	            itableNum += 1;
+	        }
+
+	        if (!currentClass.typeArguments().isEmpty()) {
+	            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+	        }
+	        String clsCType = Emitter.translateType(currentClass, false);
+	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
+	        itableNum = 0;
+	        for (Type interfaceType : allInterfaces) {
+	            sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+	                     clsCType+"_ithunk"+itableNum+"::itable), ");
+	            itableNum += 1;
+	        }
+	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	    }
+	}
+	
+	private void generateProxiesForOverriddenMethods(X10CPPContext_c context,
     		X10ClassType currentClass, X10ClassType superClass,
     		X10TypeSystem xts, String maybeVirtual, ClassifiedStream h,
     		List<ClassMember> members) {
