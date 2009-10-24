@@ -198,7 +198,11 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isRail(Type t);
 
+    public boolean isRailOf(Type t, Type p);
+
     boolean isValRail(Type t);
+
+    public boolean isValRailOf(Type t, Type p);
 
     Type Rail(Type arg);
 
