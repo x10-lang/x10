@@ -770,7 +770,7 @@ function main {
 if [[ "$(uname -s)" == "Darwin" ]]; then
                         stale_pid=`lsof -t -i ':21053'`
 			if (( $? == 0 )); then
-				kill -9 $stale_pid >/dev/null
+				kill -9 $stale_pid 2>/dev/null
 			fi
 fi
 			run_cmd="/usr/bin/time -p mpirun -np $my_nplaces ./${tctarget}"
