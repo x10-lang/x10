@@ -256,6 +256,15 @@ public class EclipseChangeInterpreter extends ChangeInterpreter {
     }
 
     @Override
+    protected void performReplaceStatement(ReplaceStatementChange stmtChange) {
+        Stmt oldStmt= stmtChange.getOldStmt();
+        Stmt newStmt= stmtChange.getNewStmt();
+        Position pos= oldStmt.position();
+
+        addTextEdit(new ReplaceEdit(pos.offset(), pos.endOffset() - pos.offset() + 1, toString(newStmt)));
+    }
+
+    @Override
     protected void performSubstitutionChange(SubstitutionChange substitutionChange) {
         // TODO Auto-generated method stub
     }

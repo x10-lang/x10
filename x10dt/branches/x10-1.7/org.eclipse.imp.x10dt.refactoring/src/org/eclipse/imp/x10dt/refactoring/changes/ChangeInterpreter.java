@@ -60,6 +60,8 @@ public abstract class ChangeInterpreter {
 
     protected abstract void performReplaceExpr(ReplaceExpressionChange exprChange);
 
+    protected abstract void performReplaceStatement(ReplaceStatementChange stmtChange);
+
     protected abstract void performSubstitutionChange(SubstitutionChange substitutionChange);
 
     public void perform(Change change, SourceFile srcFile) {
@@ -117,6 +119,9 @@ public abstract class ChangeInterpreter {
 
         } else if (change instanceof ReplaceExpressionChange) {
             performReplaceExpr((ReplaceExpressionChange) change);
+
+        } else if (change instanceof ReplaceStatementChange) {
+            performReplaceStatement((ReplaceStatementChange) change);
 
         } else if (change instanceof SubstitutionChange) {
             performSubstitutionChange((SubstitutionChange) change);

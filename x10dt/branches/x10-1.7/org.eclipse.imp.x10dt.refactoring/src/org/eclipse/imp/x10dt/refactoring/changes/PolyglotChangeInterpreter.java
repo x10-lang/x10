@@ -129,6 +129,12 @@ public class PolyglotChangeInterpreter extends ChangeInterpreter {
     }
 
     @Override
+    protected void performReplaceStatement(ReplaceStatementChange stmtChange) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
     protected void performSubstitutionChange(SubstitutionChange substitutionChange) {
         throw new UnsupportedOperationException("substitution");
     }
