@@ -23,6 +23,7 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -32,9 +33,11 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.PrettyPrinter;
 import x10.constraint.XConstraint;
 
 public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10CanonicalTypeNode {
@@ -202,6 +205,22 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    }
 	}
     }
-    
 
+    @Override
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        if (type == null) {
+            super.prettyPrint(w, tr);
+        } else {
+            // RMF 10/24/09 - HACK don't qualify types from x10.lang
+            // This will break if the user defines their own type with the same name as
+            // something in x10.lang in the same context, or imports it.
+            // TODO Properly determine whether the type really needs qualification or not.
+            Type t= type.get();
+            if (t.isClass() && ((ClassType) t).fullName().toString().startsWith("x10.lang")) {
+                w.write(((ClassType) t).name().toString());
+            } else {
+                t.print(w);
+            }
+        }
+      }
 }
