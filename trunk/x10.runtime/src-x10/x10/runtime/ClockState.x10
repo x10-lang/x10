@@ -26,14 +26,17 @@ class ClockState {
 	}
 
 	global def resume():Void {
-		at (this) {
+		at (this) 
+		resumeLocal();
+	}
+	def resumeLocal(){here==this.location}:Void {
 		  atomic 
 		    if (--alive == 0) {
 			   alive = count;
 			   ++phase;
 		    }
 		}
-	}
+	
 	
 	global def next(ph:Int):Void {
 		at (this) {
@@ -46,7 +49,7 @@ class ClockState {
 	global def drop(ph:Int):Void {
 		at (this) atomic {
 		  --count;
-		  if (-ph != phase) resume();
+		  if (-ph != phase) resumeLocal();
 		}
 	}
 }
