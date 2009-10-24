@@ -1570,7 +1570,7 @@ public class Emitter {
 
 	
 	
-	X10ClassType annotationNamed(TypeSystem ts, Node o, QName name) throws SemanticException {
+	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name) throws SemanticException {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
