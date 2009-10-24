@@ -446,7 +446,7 @@ public final class CppBuilder extends IncrementalProjectBuilder {
       final StringBuilder workspaceDir = new StringBuilder();
       workspaceDir.append(getProject().getPersistentProperty(Constants.WORKSPACE_DIR)).append('/')
                   .append(getProject().getName());
-      IFileStore dir = fileManager.getResource(new Path(workspaceDir.toString()), monitor);
+      IFileStore dir = fileManager.getResource(workspaceDir.toString());
       if (dir.fetchInfo(EFS.NONE, monitor).exists()) {
         monitor.subTask(LaunchMessages.CPPB_DeletionTaskName);
         dir.delete(EFS.NONE, monitor);
@@ -455,12 +455,13 @@ public final class CppBuilder extends IncrementalProjectBuilder {
       monitor.subTask(LaunchMessages.CPPB_TransferTaskName);
       final IPath rootDir = getBinaryContainer().getLocation();
       copyGeneratedFiles(fileManager, dir, rootDir, remoteFiles, monitor);
-    } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
-      return false;
-    } catch (CoreException except) {
+//      catch (IOException except) {
+//      IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
+//                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+//      LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
+//      return false;
+    } 
+    catch (CoreException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(LaunchMessages.CPPB_RemoteOpError, resourceManagerName), except);
