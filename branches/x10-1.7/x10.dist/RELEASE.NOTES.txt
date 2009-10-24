@@ -34,8 +34,9 @@ Here's a list of known issues with the C++ backend:
 - Operator overloading does not work correctly sometimes
 - Hash codes are not computed correctly for some classes
 
-Below is a summary of JIRA issues addressed for the X10 1.7.7 release.
+X10 1.7.7 uses polyglot version 3.1.1.
 
+Below is a summary of JIRA issues addressed for the X10 1.7.7 release.
 
 ** Bug
     * [XTENLANG-408] - Cannot create a new X10 run configuration in X10 mode
