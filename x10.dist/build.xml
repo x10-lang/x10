@@ -17,7 +17,7 @@
     <property name="ecj.jar.url" value="${ecj.url}/ecj-3.4.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
-    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.0.jar"/>
+    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.1.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common.17"/>
