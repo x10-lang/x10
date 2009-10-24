@@ -87,8 +87,9 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("for(");
-		printBlock(formal, w, tr);
-		w.write(" : ");
+		// RMF 10/24/09 - don't output the "final" flag - it seems the compiler doesn't like it being explicit
+		printBlock(formal.flags(formal.flags().flags(formal.flags().flags().clearFinal())), w, tr);
+		w.write(" in ");
 		printBlock(domain, w, tr);
 		w.write(") ");
 		printSubStmt(body, w, tr);
