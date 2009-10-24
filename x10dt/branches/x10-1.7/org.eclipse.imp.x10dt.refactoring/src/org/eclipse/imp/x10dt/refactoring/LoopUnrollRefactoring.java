@@ -520,8 +520,8 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
             Expr domainMaxCall= fNodeFactory.Call(PCG, domain, id("max"), intLit(0));
             Name minName= makeFreshInContext("min", fLoop.body());
             Name maxName= makeFreshInContext("max", fLoop.body());
-            Stmt minDecl= valueLocalDecl(minName, intTypeNode(), domainMinCall);
-            Stmt maxDecl= valueLocalDecl(maxName, intTypeNode(), domainMaxCall);
+            Stmt minDecl= finalLocalDecl(minName, intTypeNode(), domainMinCall);
+            Stmt maxDecl= finalLocalDecl(maxName, intTypeNode(), domainMaxCall);
             Expr minPlusFactor= fNodeFactory.Binary(PCG, local(minName), Binary.ADD, intLit(fUnrollFactor));
             Expr ifCond= fNodeFactory.Binary(PCG, local(maxName), Binary.GT, minPlusFactor);
             List<Stmt> ifBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
