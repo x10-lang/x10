@@ -40,6 +40,7 @@ import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
@@ -347,9 +348,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath);
-            if (path != null) {
-              final String file = path.toString();
+            final String file = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,IRemoteUIConstants.NONE);
+            if (file != null) {
               CppApplicationTab.this.fAppProgText.setText(file.substring(0, file.length() - 3));
             }
           }
