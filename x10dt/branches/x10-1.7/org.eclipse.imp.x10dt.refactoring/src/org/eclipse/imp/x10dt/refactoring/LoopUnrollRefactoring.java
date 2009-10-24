@@ -11,6 +11,8 @@
 
 package org.eclipse.imp.x10dt.refactoring;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +27,9 @@ import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 import org.eclipse.imp.x10dt.refactoring.changes.AddAnnotationChange;
 import org.eclipse.imp.x10dt.refactoring.changes.CopyStatementChange;
 import org.eclipse.imp.x10dt.refactoring.changes.FileChange;
+import org.eclipse.imp.x10dt.refactoring.changes.InsertStatementChange;
 import org.eclipse.imp.x10dt.refactoring.changes.ReplaceExpressionChange;
+import org.eclipse.imp.x10dt.refactoring.changes.ReplaceStatementChange;
 import org.eclipse.imp.x10dt.refactoring.transforms.Simplifier;
 import org.eclipse.imp.x10dt.refactoring.transforms.SubstitutionPerformer;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
@@ -33,13 +37,18 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
@@ -51,11 +60,12 @@ import polyglot.ext.x10.ast.RegionMaker;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10MethodDecl;
-import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.types.ClassType;
+import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
-import polyglot.types.StructType;
+import polyglot.types.Name;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
@@ -74,22 +84,27 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
 
     private class LoopParams {
         final VarDecl fLoopVar;
+        final Expr fLoopDomain;
         Set<Expr> fLoopDomainValues= new HashSet<Expr>();
+        boolean fExtentUnknown;
         int fMin;
         Expr fMinSymbolic;
         int fMax;
         Expr fMaxSymbolic;
         int fStride;
 
-        public LoopParams(VarDecl vd) {
+        public LoopParams(VarDecl vd, Expr domain) {
             fLoopVar= vd;
+            fLoopDomain= domain;
+            fExtentUnknown= true;
         }
 
-        public LoopParams(VarDecl vd, int min, int max, int stride) {
-            this(vd);
+        public LoopParams(VarDecl vd, Expr domain, int min, int max, int stride) {
+            this(vd, domain);
             fMin= min;
             fMax= max;
             fStride= stride;
+            fExtentUnknown= false;
         }
 
         protected void addDomainValue(Expr e) {
@@ -107,6 +122,7 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         protected void setMin(int min, Expr minSymbolic) {
             fMin= min;
             fMinSymbolic= minSymbolic;
+            fExtentUnknown= false;
         }
 
         protected int getMax() {
@@ -120,6 +136,7 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         protected void setMax(int max, Expr maxSymbolic) {
             fMax= max;
             fMaxSymbolic= maxSymbolic;
+            fExtentUnknown= false;
         }
 
         protected int getStride() {
@@ -136,10 +153,19 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
      */
     private ForLoop fLoop;
 
+    /**
+     * the user-supplied number of times to unroll the loop
+     */
     private int fUnrollFactor;
 
+    /**
+     * records symbolic and constant information about the loop iteration domain
+     */
     private LoopParams fLoopParams;
 
+    /**
+     * provides information on reaching values for various
+     */
     private ValueMap fValueMap;
 
     public LoopUnrollRefactoring(ITextEditor editor) {
@@ -213,7 +239,7 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
     }
 
     private RefactoringStatus findLoopParams() {
-        fLoopParams= new LoopParams(fLoop.formal());
+        fLoopParams= new LoopParams(fLoop.formal(), fLoop.domain());
 
         X10Formal loopVar = (X10Formal) fLoop.formal();
         List<Formal> explodedVars= loopVar.vars();
@@ -276,7 +302,10 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
                 return fatalStatus("Don't understand iteration domain: " + call);
             }
         } else {
-            return fatalStatus("Don't understand iteration domain: " + v);
+            if (!checkDomainIs1D(v)) {
+                return fatalStatus("Cannot determine that iteration domain is 1-dimensional: " + fLoopParams.fLoopDomain);
+            }
+            fLoopParams.fExtentUnknown= true;
         }
         return okStatus();
     }
@@ -414,10 +443,118 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         return interpretChange(outerChange);
     }
 
+    private static Position PCG= Position.COMPILER_GENERATED;
+
+    private IntLit intLit(int i) {
+        return (IntLit) fNodeFactory.IntLit(PCG, IntLit.INT, i).type(fTypeSystem.Int());
+    }
+
+    private Id id(String name) {
+        return fNodeFactory.Id(PCG, name);
+    }
+
+    private CanonicalTypeNode intTypeNode() {
+        return fNodeFactory.CanonicalTypeNode(PCG, fTypeSystem.Int());
+    }
+
+    private FlagsNode finalFlag() {
+        return fNodeFactory.FlagsNode(PCG, Flags.FINAL);
+    }
+
+    private FlagsNode valueFlag() {
+        return fNodeFactory.FlagsNode(PCG, X10Flags.VALUE);
+    }
+
+    private Id id(Name name) {
+        return fNodeFactory.Id(PCG, name);
+    }
+
+    private Local local(Name name) {
+        return fNodeFactory.Local(PCG, id(name));
+    }
+
+    private LocalDecl finalLocalDecl(Name name, CanonicalTypeNode intTypeNode, Expr init) {
+        return fNodeFactory.LocalDecl(PCG, finalFlag(), intTypeNode, id(name), init);
+    }
+
+    private LocalDecl valueLocalDecl(Name name, CanonicalTypeNode intTypeNode, Expr init) {
+        return fNodeFactory.LocalDecl(PCG, valueFlag(), intTypeNode, id(name), init);
+    }
+
+    /**
+     * Creates a name with the given prefix that is unique within the given context.
+     * The name will be just the prefix if that does not cause unintended name capture.
+     * @param prefix
+     * @param context
+     * @return
+     */
+    private Name makeFreshInContext(String prefix, Node context) {
+        return Name.makeFresh(prefix);
+    }
+
     private void createUnrollChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {
+        Block loopParent= (Block) fPathComputer.getParent(fLoop);
+        int stmtIdx= findIndexInParent(fLoop, loopParent);
+
+        if (fLoopParams.fExtentUnknown) {
+            // Have to do this the hard way: Generate code to ask the loop domain for its min and max,
+            // wrap unrolled loop body copies in a dynamic check that it can be unrolled that many times,
+            // and re-generate the loop to take care of the remainder of the iteration domain.
+            // The code will look like this:
+            //
+            // {  min = loopRegion.min(0);
+            //    max = loopRegion.max(0);
+            //    if (max > min + `fUnrollFactor`) {
+            //        loopBody[min / loopVar]
+            //        loopBody[min+1 / loopVar]
+            //        ...
+            //        loopBody[min+`fUnrollFactor`-1 / loopVar]
+            //    }
+            //    for(loopVar in [`fUnrollFactor`+1 .. max]) {
+            //        loopBody
+            //    }
+            // }
+            //
+            Expr domain= fLoopParams.fLoopDomain;
+            Expr domainMinCall= fNodeFactory.Call(PCG, domain, id("min"), intLit(0));
+            Expr domainMaxCall= fNodeFactory.Call(PCG, domain, id("max"), intLit(0));
+            Name minName= makeFreshInContext("min", fLoop.body());
+            Name maxName= makeFreshInContext("max", fLoop.body());
+            Stmt minDecl= valueLocalDecl(minName, intTypeNode(), domainMinCall);
+            Stmt maxDecl= valueLocalDecl(maxName, intTypeNode(), domainMaxCall);
+            Expr minPlusFactor= fNodeFactory.Binary(PCG, local(minName), Binary.ADD, intLit(fUnrollFactor));
+            Expr ifCond= fNodeFactory.Binary(PCG, local(maxName), Binary.GT, minPlusFactor);
+            List<Stmt> ifBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
+
+            for(int i= 0; i < fUnrollFactor; i++) {
+                Map<VarInstance<VarDef>, Node> subs= new HashMap<VarInstance<VarDef>, Node>(1);
+                Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
+                Expr varValue= intLit(i);
+                subs.put((VarInstance) firstDimVar.localDef().asInstance(), varValue);
+                SubstitutionPerformer subPerformer= new SubstitutionPerformer(subs);
+                Stmt subbedBody = (Stmt) subPerformer.perform(fLoop.body(), fSourceAST);
+                Simplifier simplifier= new Simplifier();
+                Stmt simplifiedBody = (Stmt) subbedBody.visit(simplifier);
+
+                ifBodyStmts.add(simplifiedBody);
+            }
+            Block ifBody= fNodeFactory.Block(PCG, ifBodyStmts);
+            Stmt ifStmt= fNodeFactory.If(PCG, ifCond, ifBody);
+            Expr remainderDomain= fNodeFactory.RegionMaker(PCG, intLit(fUnrollFactor+1), local(maxName));
+            X10Formal remainderFormal= (X10Formal) fNodeFactory.Formal(PCG, fNodeFactory.FlagsNode(PCG, Flags.NONE), fNodeFactory.CanonicalTypeNode(PCG, fTypeSystem.Point()), fLoop.formal().name());
+            Formal remainderFormal1stDim= fNodeFactory.Formal(PCG, fNodeFactory.FlagsNode(PCG, Flags.NONE), fNodeFactory.CanonicalTypeNode(PCG, fTypeSystem.Int()), id("d"));
+            remainderFormal= remainderFormal.vars(Arrays.asList(remainderFormal1stDim));
+            Stmt remainderLoop= fNodeFactory.ForLoop(PCG, remainderFormal, remainderDomain, (Stmt) fLoop.body().copy());
+            Block unrollBlock= fNodeFactory.Block(PCG, Arrays.asList(minDecl, maxDecl, ifStmt, remainderLoop));
+
+            outerChange.add(new ReplaceStatementChange("Unroll loop body", fLoop, unrollBlock, loopParent));
+            return;
+        }
+
         if (fLoopParams.fStride <= 0) {
             return;
         }
+
         int unrollIdx= 0;
         for(int i= fLoopParams.fMin; i < fLoopParams.fMax && unrollIdx < fUnrollFactor; i += fLoopParams.fStride, unrollIdx++) {
             // TODO Handle substitution for refs to Point induction var
@@ -430,8 +567,6 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
             Stmt subbedBody = (Stmt) subPerformer.perform(fLoop.body(), fSourceAST);
             Simplifier simplifier= new Simplifier();
             Stmt simplifiedBody = (Stmt) subbedBody.visit(simplifier);
-            Block loopParent= (Block) fPathComputer.getParent(fLoop);
-            int stmtIdx= findIndexInParent(fLoop, loopParent);
             // TODO Use InsertStatementChange instead? The thing we're copying doesn't exist yet in the target AST...
             CopyStatementChange copyChange= new CopyStatementChange("Copy loop body", simplifiedBody, loopParent, stmtIdx);
 
