@@ -645,6 +645,10 @@ public class X10CPPTranslator extends Translator {
 
         protected boolean gcEnabled() { return false; }
 
+        protected String defaultPostCompiler() {
+            return "g++-4";
+        }
+
         protected void addPreArgs(ArrayList<String> cxxCmd) {
             super.addPreArgs(cxxCmd);
             for (int i = 0; i < preArgsCygwin.length; i++) {
@@ -787,6 +791,43 @@ public class X10CPPTranslator extends Translator {
         }
     }
 
+    private static class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
+        public static final boolean USE_X86 = PLATFORM.endsWith("_x86");
+        /** These go before the files */
+        public static final String[] preArgsMacOSX = new String[] {
+            "-Wno-long-long",
+            "-Wno-unused-parameter",
+            "-pthread",
+            USE_X86 ? "-msse2" : DUMMY,
+            USE_X86 ? "-mfpmath=sse" : DUMMY,
+        };
+        /** These go after the files */
+        public static final String[] postArgsMacOSX = new String[] {
+            "-lrt",
+        };
+
+        public MacOSX_CXXCommandBuilder(Options options) {
+            super(options);
+            assert (PLATFORM.startsWith("macosx_"));
+        }
+
+        protected boolean gcEnabled() { return false; }
+
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            super.addPreArgs(cxxCmd);
+            for (int i = 0; i < preArgsMacOSX.length; i++) {
+                cxxCmd.add(preArgsMacOSX[i]);
+            }
+        }
+
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            super.addPostArgs(cxxCmd);
+            for (int i = 0; i < postArgsMacOSX.length; i++) {
+                cxxCmd.add(postArgsMacOSX[i]);
+            }
+        }
+    }
+
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix_")?"lapi":"sockets";
 
@@ -799,6 +840,8 @@ public class X10CPPTranslator extends Translator {
             return new AIX_CXXCommandBuilder(options);
         if (PLATFORM.startsWith("sunos_"))
             return new SunOS_CXXCommandBuilder(options);
+        if (PLATFORM.startsWith("macosx_"))
+            return new MacOSX_CXXCommandBuilder(options);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
         return new CXXCommandBuilder(options);
@@ -806,7 +849,7 @@ public class X10CPPTranslator extends Translator {
 
     public static final String postcompile = "postcompile";
 
-    /**
+	/**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
 	 * Using '%' instead of '#' to delimit a section will cause the default values in that section to be omitted.
@@ -816,8 +859,8 @@ public class X10CPPTranslator extends Translator {
 			return false;
 
 		if (options.post_compiler != null && !options.output_stdout) {
-            Collection<String> outputFiles = compiler.outputFiles();
-            String[] cxxCmd = getCXXCommandBuilder(options, eq).buildCXXCommandLine(outputFiles);
+			Collection<String> outputFiles = compiler.outputFiles();
+			String[] cxxCmd = getCXXCommandBuilder(options, eq).buildCXXCommandLine(outputFiles);
 
 			if (Report.should_report(postcompile, 1)) {
 				StringBuffer cmdStr = new StringBuffer();
@@ -827,7 +870,7 @@ public class X10CPPTranslator extends Translator {
 			}
 
 			try {
-                Runtime runtime = Runtime.getRuntime();
+				Runtime runtime = Runtime.getRuntime();
 				Process proc = runtime.exec(cxxCmd, null, options.output_directory);
 
 				InputStreamReader err = new InputStreamReader(proc.getErrorStream());
