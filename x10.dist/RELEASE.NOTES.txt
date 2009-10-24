@@ -45,6 +45,7 @@ Below is a summary of JIRA issues addressed for the X10 1.7.7 release.
     * [XTENLANG-507] - x10c & x10cpp broken with polyglot svn head
     * [XTENLANG-535] - Broken value equality in C++
     * [XTENLANG-545] - Segmentation fault on remote reference comparison
+    * [XTENLANG-568] - Post-compiler warnings reported as errors
 
 ** Improvement
     * [XTENLANG-566] - Promote method isX10Array() on X10TypeSystem_c to X10TypeSystem interface
