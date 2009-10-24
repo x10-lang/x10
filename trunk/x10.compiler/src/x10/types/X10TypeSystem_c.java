@@ -1707,10 +1707,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return hasSameClassDef(t, Rail());
     }
 
+    public boolean isRailOf(Type t, Type p) {
+        if (!isRail(t)) return false;
+        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        assert (ta.size() == 1);
+        return ta.get(0).typeEquals(p, createContext());
+    }
+
     public boolean isValRail(Type t) {
         return hasSameClassDef(t, ValRail());
     }
   
+    public boolean isValRailOf(Type t, Type p) {
+        if (!isValRail(t)) return false;
+        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        assert (ta.size() == 1);
+        return ta.get(0).typeEquals(p, createContext());
+    }
+
     public boolean hasSameClassDef(Type t1, Type t2) {
         Type b1 = X10TypeMixin.baseType(t1);
         Type b2 = X10TypeMixin.baseType(t2);
