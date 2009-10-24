@@ -22,7 +22,11 @@ namespace x10 {
 
 
         public:
-
+            x10aux::ref<InputStreamReader__InputStream> _constructor() {
+                this->x10::lang::Ref::_constructor();
+                return this;
+            }
+            
             virtual void close() { }
 
             virtual x10_int read() = 0;
