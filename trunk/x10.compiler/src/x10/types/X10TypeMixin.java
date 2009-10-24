@@ -675,12 +675,7 @@ public class X10TypeMixin {
 	}
 
 	public static boolean isZeroBased(Type t, X10Context context) {
-	        if (isRail(t, context)) return true;
-	        return amIProperty(t, Name.make("zeroBased"), context);
-	}
-
-	public static boolean isRail(Type t, X10Context context) {
-	    return amIProperty(t, Name.make("rail"), context);
+	return amIProperty(t, Name.make("zeroBased"), context);
 	}
 
 	public static XTerm distribution(Type t) {
@@ -715,7 +710,7 @@ public class X10TypeMixin {
 
 	public static boolean isRankOne(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	        return isRail(t, context) || xts.ONE().equals(X10TypeMixin.rank(t, context));
+	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
 	}
 
 	public static boolean isRankTwo(Type t, X10Context context) {
@@ -745,8 +740,6 @@ public class X10TypeMixin {
 
 	public static XTerm rank(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	    if (isRail(t, context))
-	       return xts.ONE();
 	    return findOrSythesize(t, Name.make("rank"));
 	}
 
