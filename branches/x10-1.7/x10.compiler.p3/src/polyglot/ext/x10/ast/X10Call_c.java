@@ -10,6 +10,7 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Call_c;
@@ -22,13 +23,16 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
+import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.ParametrizedType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -51,12 +55,14 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 
@@ -454,6 +460,50 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
 		return super.typeCheck(tc);
+	}
+
+	@Override
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    // RMF 10/24/09 - omit the ".apply" for array accesses
+	    X10Type targetType= (X10Type) this.target.type();
+	    X10TypeSystem ts= (X10TypeSystem) targetType.typeSystem();
+	    // RMF - it seems targetType.isArray() returns false, even for something like x10.lang.Array[x10.lang.Float]{...} ???
+        if (this.name.toString().equals("apply") && (targetType instanceof ConstrainedType) && (((ConstrainedType) targetType).baseType().get() instanceof X10ClassType) && ((X10ClassType) ((ConstrainedType) targetType).baseType().get()).def().asType().isSubtype(ts.Array(), ts.emptyContext())) {
+	        // omit the ".apply()"
+	        w.begin(0);
+	        if (!targetImplicit) {
+	            if (target instanceof Expr) {
+	                printSubExpr((Expr) target, w, tr);
+	            }
+	            else if (target != null) {
+	                print(target, w, tr);
+	            }
+//	            w.write(".");
+	            w.allowBreak(2, 3, "", 0);
+	        }
+
+//          w.write(name + "(");
+	        w.write("(");
+	        if (arguments.size() > 0) {
+	            w.allowBreak(2, 2, "", 0); // miser mode
+	            w.begin(0);
+
+	            for (Iterator<Expr> i = arguments.iterator(); i.hasNext(); ) {
+	                Expr e = i.next();
+	                print(e, w, tr);
+
+	                if (i.hasNext()) {
+	                    w.write(",");
+	                    w.allowBreak(0, " ");
+	                }
+	            }
+
+	            w.end();
+	        }
+	        w.write(")");
+	        w.end();
+	    } else
+	        super.prettyPrint(w, tr);
 	}
 
 	@Override
