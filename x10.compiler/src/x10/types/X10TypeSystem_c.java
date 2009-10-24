@@ -365,7 +365,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
         // Instantiate the super type on the new parameters.
-        X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams, ci.returnType().isVoid(), null).asType();
+        X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams, ci.returnType().isVoid(), 
+        		def.formalNames(), def.guard()).asType();
 
         assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
         sup = sup.typeArguments(typeArgs);
@@ -378,11 +379,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, 
     		final boolean isVoid) {
-    	return closureBaseInterfaceDef(numTypeParams, numValueParams, isVoid, null);
+    	return closureBaseInterfaceDef(numTypeParams, numValueParams, isVoid, null, null);
     }
     		
     public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, 
-    		final boolean isVoid, final Ref<XConstraint> guard) {
+    		final boolean isVoid, List<LocalDef> formalNames, final Ref<XConstraint> guard) {
         final X10TypeSystem xts = this;
         final Position pos = Position.COMPILER_GENERATED;
 
@@ -460,8 +461,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 
+        if (formalNames == null) {
+        	formalNames = dummyLocalDefs(argTypes);
+        }
         X10MethodDef mi = methodDef(pos, Types.ref(ct), Flags.PUBLIC.Abstract(), Types.ref(rt), Name.make("apply"), typeParams, argTypes, thisVar,
-                                    dummyLocalDefs(argTypes), guard, null, Collections.EMPTY_LIST, null);
+                                    formalNames, guard, null, Collections.EMPTY_LIST, null);
         cd.addMethod(mi);
 
         return cd;
@@ -1213,7 +1217,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
           //  Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes) {
         Type rt = Types.get(returnType);
-        X10ClassDef def = closureBaseInterfaceDef(0 /*typeParams.size()*/, argTypes.size(), rt.isVoid(), guard);
+        X10ClassDef def = closureBaseInterfaceDef(0 /*typeParams.size()*/, argTypes.size(), rt.isVoid(), formalNames, guard);
         ClosureType ct = (ClosureType) def.asType();
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {

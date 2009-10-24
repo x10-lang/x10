@@ -93,7 +93,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
                 sb.append(", ");
             sb.append(t);
         }
-        return "(" + sb.toString() + ") => " + mi.returnType();
+        return "(" + sb.toString() + ")" + guard() + "=> " + mi.returnType();
     }
 
 	@Override
