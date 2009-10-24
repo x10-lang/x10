@@ -50,11 +50,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
@@ -366,5 +368,18 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		return explode(tc, name, pos, flags, vars, null);
 	}
 	
+    /** Write the formal to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        print(flags, w, tr);
+        tr.print(this, name, w);
+        if (hasExplodedVars()) {
+            w.write("(");
+            for(Formal v: vars()) {
+                w.write(v.name().toString());
+            }
+            w.write(")");
+        }
+        w.write(":");
+        print(type, w, tr);
+    }
 }
-
