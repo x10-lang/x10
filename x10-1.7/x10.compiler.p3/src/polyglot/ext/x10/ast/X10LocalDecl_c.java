@@ -207,7 +207,12 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         boolean printSemi = tr.appendSemicolon(true);
         boolean printType = tr.printType(true);
 
-        print(flags, w, tr);
+        if (flags.flags().isFinal()) {
+            w.write("val ");
+        } else {
+            w.write("var ");
+        }
+        print(flags.flags(flags.flags().clearFinal()), w, tr);
         tr.print(this, name, w);
         if (printType) {
             w.write(":");
