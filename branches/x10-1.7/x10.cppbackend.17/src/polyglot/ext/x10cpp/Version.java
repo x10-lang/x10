@@ -14,5 +14,5 @@ public class Version extends polyglot.main.Version {
 
 	public int major() { return 1; }
 	public int minor() { return 7; }
-	public int patch_level() { return 6; }
+	public int patch_level() { return 7; }
 }
