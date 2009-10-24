@@ -733,9 +733,6 @@ public class Desugarer extends ContextVisitor {
         if (tn instanceof X10CanonicalTypeNode) {
             X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
             return ctn.constraintExpr();
-        } else if (tn instanceof FunctionTypeNode) {
-            FunctionTypeNode ftn = (FunctionTypeNode)tn;
-            return ftn.guard();
         } else {
             assert false : "Unknown type node type: "+tn.getClass();
         }
@@ -747,9 +744,6 @@ public class Desugarer extends ContextVisitor {
         if (tn instanceof X10CanonicalTypeNode) {
             X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
             return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
-        } else if (tn instanceof FunctionTypeNode) {
-            FunctionTypeNode ftn = (FunctionTypeNode)tn;
-            return ftn.guard(null);
         } else {
             assert false : "Unknown type node type: "+tn.getClass();
         }
