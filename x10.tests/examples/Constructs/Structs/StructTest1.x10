@@ -1,6 +1,6 @@
 import harness.x10Test;
 
-struct S1 {
+struct S {
   val x:int;
   val y:int;
 
@@ -8,46 +8,34 @@ struct S1 {
 
   public final def sum() = x + y;
 
-  public final def sum4(o:S1) = sum() + o.sum() + o.x;
-}
-
-struct S2 extends  S1 {
-  val z:int;
-  public def this(a:int, b:int, c:int) {
-    super(a, b);
-    z =c;
-  }
-  
-  public final def sum2() = sum() + z;
+  public final def sum4(o:S) = sum() + o.sum() + o.x;
 }
 
 class C {
-  val f1: S2;
+  val f1: S;
   
-  public def this(a: S2) { f1 = a; }
+  public def this(a:S) { f1 = a; }
 
   public def sum() = f1.sum() + 3;
 }
 
 public class StructTest1 extends x10Test {
   public def run(): boolean {
-    val a: S1 = S1(3,4);
-    val b: S2 = S2(1, 2,3);
+    val a: S = S(3,4);
+    val b: S = S(10,20);
     
     chk(a.sum() == 7, "a.sum() == 7");
-    chk(b.sum() == 3, "b.sum() == 3");
-    chk(b.sum2() == 6, "b.sum2() == 6");
-    chk(b.sum4(a) == 13, "b.sum4(a) == 13");
+    chk(a.sum4(b) == 47, "a.sum4(b) == 47");
 
-    chk(new C(S2(100, 50, 1000)).sum() == 153);
+    chk(new C(S(100, 50)).sum() == 153);
 
-    chk(test1(a, b) == 16);
+    chk(test1(a, b) == 40);
     
     return true;
   }
 
-  public static def test1(a: S1, b: S2) {
-    return a.sum() + b.sum2() + a.x;
+  public static def test1(a:S, b:S) {
+    return a.sum() + b.sum() + a.x;
   }
 
   public static def main(Rail[String]) {
