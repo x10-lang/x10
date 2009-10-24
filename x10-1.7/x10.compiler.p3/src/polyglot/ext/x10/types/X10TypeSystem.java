@@ -182,6 +182,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type ValRail(Type arg);
 
+    boolean isX10Array(Type arg);
+
     Type Settable();
 
     Type Settable(Type domain, Type range);
