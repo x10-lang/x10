@@ -153,6 +153,8 @@ public class KMeansSPMD {
                         next;
 
                         if (here == central_clusters.location) {
+                            val finished3 = finished as Cell[Boolean]!;
+
                             for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
                                 for (var d:Int=0 ; d<DIM ; ++d) { 
                                     central_clusters(k*DIM+d) /= central_cluster_counts(k);
@@ -161,10 +163,10 @@ public class KMeansSPMD {
 
                             // TEST FOR CONVERGENCE
                             var b:Boolean = true;
-                            finished.set(true);
+                            finished3.set(true);
                             for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) { 
                                 if (Math.abs(central_clusters_old(j)-central_clusters(j))>0.0001) {
-                                    finished.set(false);
+                                    finished3.set(false);
                                     break;
                                 }
                             }
