@@ -365,7 +365,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
         // Instantiate the super type on the new parameters.
-        X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams, ci.returnType().isVoid()).asType();
+        X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams, ci.returnType().isVoid(), null).asType();
 
         assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
         sup = sup.typeArguments(typeArgs);
@@ -376,7 +376,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return cd;
     }
 
-    public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, final boolean isVoid) {
+    public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, 
+    		final boolean isVoid) {
+    	return closureBaseInterfaceDef(numTypeParams, numValueParams, isVoid, null);
+    }
+    		
+    public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, 
+    		final boolean isVoid, final Ref<XConstraint> guard) {
         final X10TypeSystem xts = this;
         final Position pos = Position.COMPILER_GENERATED;
 
@@ -455,7 +461,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XRoot thisVar = XTerms.makeLocal(thisName);
 
         X10MethodDef mi = methodDef(pos, Types.ref(ct), Flags.PUBLIC.Abstract(), Types.ref(rt), Name.make("apply"), typeParams, argTypes, thisVar,
-                                    dummyLocalDefs(argTypes), null, null, Collections.EMPTY_LIST, null);
+                                    dummyLocalDefs(argTypes), guard, null, Collections.EMPTY_LIST, null);
         cd.addMethod(mi);
 
         return cd;
@@ -1207,7 +1213,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
           //  Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes) {
         Type rt = Types.get(returnType);
-        X10ClassDef def = closureBaseInterfaceDef(0 /*typeParams.size()*/, argTypes.size(), rt.isVoid());
+        X10ClassDef def = closureBaseInterfaceDef(0 /*typeParams.size()*/, argTypes.size(), rt.isVoid(), guard);
         ClosureType ct = (ClosureType) def.asType();
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {
@@ -2547,7 +2553,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	XTerm placeTerm = xtypeTranslator().trans(c, place, xc);
     	if (placeTerm == null) 
     		return false;
-    	return isAtPlace(r, place, xc);
+    	return isAtPlace(r, placeTerm, xc);
     }
     
     public boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
@@ -2571,7 +2577,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
  		   assert xc.currentPlaceTerm() != null;
  		   assert locVar(target, xc) != null;
- 		  pc.addBinding(locVar(target,xc), xc.currentPlaceTerm().term());
+ 		  pc.addBinding(locVar(target,xc), placeTerm);
  		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
  		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
 
@@ -2583,7 +2589,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  		   {
  		       thisVar = outer.thisVar();
  		   }
- 		   sigma.addBinding(locVar(thisVar,xc), placeTerm);
+ 		   sigma.addBinding(locVar(thisVar,xc), xc.currentThisPlace().term());
  		   if (targetConstraint.entails(pc,sigma)) {
  			   // Gamma|- here==e.location
  			   return true;
@@ -2636,7 +2642,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   return xtypeTranslator().globalPlace();
    }
    public boolean isHere(Receiver r, X10Context xc) {
-	   return isAtPlace(r, xc.currentThisPlace().term(), xc);
+	   return isAtPlace(r, xc.currentPlaceTerm().term(), xc);
    }
 	
    
