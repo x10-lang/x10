@@ -95,7 +95,9 @@ import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
+import polyglot.ext.x10.ast.X10Formal_c;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10LocalDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.ast.X10Special;
@@ -2185,7 +2187,39 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 //		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
 	}
-	
+
+	public void visit(X10LocalDecl_c n) {
+        boolean printSemi = tr.appendSemicolon(true);
+        boolean printType = tr.printType(true);
+
+        tr.print(n, n.flags(), w);
+        if (printType) {
+            tr.print(n, n.type(), w);
+            w.write(" ");
+        }
+        tr.print(n, n.name(), w);
+
+        if (n.init() != null) {
+            w.write(" =");
+            w.allowBreak(2, " ");
+            tr.print(n, n.init(), w);
+        }
+
+        if (printSemi) {
+            w.write(";");
+        }
+
+        tr.printType(printType);
+        tr.appendSemicolon(printSemi);
+	}
+
+	public void visit(X10Formal_c n) {
+	    tr.print(n, n.flags(), w);
+	    tr.print(n, n.type(), w);
+	    w.write(" ");
+	    tr.print(n, n.name(), w);
+	}
+
 	public void visit(Formal_c f) {
 	    if (f.name().id().toString().equals(""))
 		f = (Formal_c) f.name(f.name().id(Name.makeFresh("a")));
