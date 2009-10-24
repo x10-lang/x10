@@ -875,6 +875,7 @@ public class X10CPPTranslator extends Translator {
 
 				InputStreamReader err = new InputStreamReader(proc.getErrorStream());
 
+				String output = null;
 				try {
 					char[] c = new char[72];
 					int len;
@@ -884,7 +885,7 @@ public class X10CPPTranslator extends Translator {
 					}
 
 					if (sb.length() != 0) {
-						eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, sb.toString());
+						output = sb.toString();
 					}
 				}
 				finally {
@@ -896,11 +897,14 @@ public class X10CPPTranslator extends Translator {
 				if (!options.keep_output_files) {
 					String[] rmCmd = new String[1+outputFiles.size()];
 					rmCmd[0] = "rm";
-					Iterator iter = outputFiles.iterator();
+					Iterator<String> iter = outputFiles.iterator();
 					for (int i = 1; iter.hasNext(); i++)
-						rmCmd[i] = (String) iter.next();
+						rmCmd[i] = iter.next();
 					runtime.exec(rmCmd);
 				}
+
+				if (output != null)
+					eq.enqueue(proc.exitValue() > 0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
 
 				if (proc.exitValue() > 0) {
 					eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
@@ -909,7 +913,7 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 			catch(Exception e) {
-				eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
+				eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
 				return false;
 			}
 			// FIXME: [IP] HACK: Prevent the java post-compiler from running
