@@ -149,6 +149,7 @@ public class ReachingDefsVisitor extends DataFlow {
     /**
      * The ValueMap for the top-most node handed to this visitor (presumably a method decl)
      */
+    // TODO Need to provide access to the ValueMap's for each AST node, not just the top one
     private ValueMap fTopValueMap;
 
     private boolean fVerbose;
