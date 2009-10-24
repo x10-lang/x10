@@ -84,8 +84,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 		if (throwTypes.size() != 0)
 			throw new SemanticException("Function types with throws clauses are currently unsupported.", position());
-		if (guard != null)
-			throw new SemanticException("Function types with guards are currently unsupported.", position());
+		//if (guard != null)
+		//	throw new SemanticException("Function types with guards are currently unsupported.", position());
 		if (typeParams.size() != 0)
 			throw new SemanticException("Function types with type parameters are currently unsupported.", position());
 		Type result = ts.closureType(position(), returnType.typeRef(),
@@ -168,7 +168,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	public FunctionTypeNode guard(DepParameterExpr guard) {
 		FunctionTypeNode_c n = (FunctionTypeNode_c) copy();
-		this.guard = guard;
+		n.guard = guard;
 		return n;
 	}
 
