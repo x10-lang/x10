@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.Assign;
+import polyglot.ast.Binary_c;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
@@ -24,6 +25,7 @@ import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
+import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -32,16 +34,20 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
+import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.NoClassException;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
@@ -61,6 +67,7 @@ import x10.ast.FunctionTypeNode;
 import x10.ast.Future;
 import x10.ast.Here;
 import x10.ast.Next;
+import x10.ast.ParExpr;
 import x10.ast.SettableAssign_c;
 import x10.ast.Tuple;
 import x10.ast.When;
@@ -77,7 +84,9 @@ import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
+import x10.emitter.Emitter;
 import x10.types.ClosureDef;
+import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
@@ -237,8 +246,102 @@ public class Desugarer extends ContextVisitor {
         Position pos = a.position();
         if (old instanceof Async && ((Async) old).place() instanceof Here)
             return async(pos, a.body(), a.clocks());
+        Stmt specializedAsync = specializeAsync(old, a);
+        if (specializedAsync != null)
+            return specializedAsync;
         return async(pos, a.body(), a.clocks(), a.place());
     }
+
+    // FIXME: code copied from Emitter
+    public boolean hasAnnotation(Node n, QName name) {
+        try {
+            if (Emitter.annotationNamed(xts, n, name) != null)
+                return true;
+        } catch (NoClassException e) {
+            if (!e.getClassName().equals(name.toString()))
+                throw new InternalCompilerError("Something went terribly wrong", e);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Something is terribly wrong", e);
+        }
+        return false;
+    }
+
+    // TODO: add more rules from SPMDcppCodeGenerator
+    // TODO: also handle ValRail.apply() and global field accesses
+    private boolean isGloballyAvailable(Expr e) {
+        if (e instanceof Local)
+            return true;
+        return false;
+    }
+
+    private static final Name XOR = Name.make("xor");
+    private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName REMOTE_OPERATION = QName.make("x10.runtime.RemoteOperation");
+
+    /**
+     * Recognize the following pattern:
+     * <pre>
+     * @Immediate async (p) {
+     *     r(i) ^= v;
+     * }
+     * </pre>
+     * where <tt>p: Place</tt>, <tt>r: Rail[T]!p</tt>, <tt>i:Int</tt>, and <tt>v:T</tt>,
+     * and compile it into an optimized remote operation.
+     * @param a the async statement
+     * @return an invocation of the remote operation, or null if no match
+     * @throws SemanticException 
+     * TODO: move into a separate pass!
+     */
+    private Stmt specializeAsync(Node old, Async a) throws SemanticException {
+        if (!hasAnnotation(a, QName.make("x10.compiler.Immediate")))
+            return null;
+        if (a.clocks().size() != 0)
+            return null;
+        if (!(old instanceof Async))
+            return null;
+        Async o = (Async) old;
+        Stmt body = o.body();
+        if (body instanceof Block) {
+            List<Stmt> stmts = ((Block) body).statements();
+            if (stmts.size() != 1)
+                return null;
+            body = stmts.get(0);
+        }
+        if (!(body instanceof Eval))
+            return null;
+        Expr e = ((Eval) body).expr();
+        if (!(e instanceof SettableAssign_c))
+            return null;
+        if (((SettableAssign_c) e).operator() != Assign.BIT_XOR_ASSIGN)
+            return null;
+        List<Expr> is = ((SettableAssign_c) e).index();
+        if (is.size() != 1)
+            return null;
+        Expr i = is.get(0);
+        Expr p = a.place();
+        Expr r = ((SettableAssign_c) e).array();
+        Expr v = ((SettableAssign_c) e).right();
+        if (!isGloballyAvailable(r) || !isGloballyAvailable(i) || !isGloballyAvailable(v))
+            return null;
+        List<Type> ta = ((X10ClassType) X10TypeMixin.baseType(r.type())).typeArguments();
+        if (!v.type().isLong() || !xts.isRailOf(r.type(), xts.Long()))
+            return null;
+        if (!xts.isAtPlace(r, p, xContext()))
+            return null;
+        ClassType RemoteOperation = (ClassType) xts.typeForName(REMOTE_OPERATION);
+        Position pos = a.position();
+        List<Expr> args = new ArrayList<Expr>();
+        Expr p1 = (Expr) leaveCall(null, p, this);
+        args.add(p1);
+        args.add((Expr) leaveCall(null, r, this));
+        args.add((Expr) leaveCall(null, i, this));
+        args.add((Expr) leaveCall(null, v, this));
+        Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
+        Expr cond = xnf.Binary(pos, p1, Binary_c.EQ, visitHere(xnf.Here(pos))).type(xts.Boolean());
+        Stmt cns = a.body();
+        return xnf.If(pos, cond, cns, alt);
+    }
+
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
         if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
             place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
@@ -259,7 +362,7 @@ public class Desugarer extends ContextVisitor {
     	l.add(place);
     	List<Type> t = new ArrayList<Type>(1);
     	t.add(xts.Place());
-    	 return makeAsyncBody(pos, l, t, body);
+    	return makeAsyncBody(pos, l, t, body);
     }
     	
     private Stmt async(Position pos, Stmt body, List clocks) throws SemanticException {
@@ -273,18 +376,18 @@ public class Desugarer extends ContextVisitor {
     
     private Stmt async(Position pos, Stmt body) throws SemanticException {
         return makeAsyncBody(pos, new LinkedList<Expr>(), 
-    			new LinkedList<Type>(), body);
+                new LinkedList<Type>(), body);
     }
  
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
-    	 Closure closure = synth.makeClosure(body.position(), xts.Void(), 
-            		synth.toBlock(body), xContext());
-    	 exprs.add(closure);
-    	 types.add(closure.closureDef().asType());
-            Stmt result = xnf.Eval(pos,
-            		synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs, 
-            				xts.Void(), types, xContext()));
-            return result;
+        Closure closure = synth.makeClosure(body.position(), xts.Void(), 
+                synth.toBlock(body), xContext());
+        exprs.add(closure);
+        types.add(closure.closureDef().asType());
+        Stmt result = xnf.Eval(pos,
+                synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs, 
+                        xts.Void(), types, xContext()));
+        return result;
     }
     // end Async
   
