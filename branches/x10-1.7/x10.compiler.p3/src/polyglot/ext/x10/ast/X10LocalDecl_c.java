@@ -34,11 +34,13 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
@@ -188,12 +190,42 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		return cc;
 	}
 	
-        public Type childExpectedType(Expr child, AscriptionVisitor av) {
-            if (child == init) {
-                TypeSystem ts = av.typeSystem();
-                return type.type();
-            }
+	public Type childExpectedType(Expr child, AscriptionVisitor av) {
+	    if (child == init) {
+	        TypeSystem ts = av.typeSystem();
+	        return type.type();
+	    }
 
-            return child.type();
+	    return child.type();
+	}
+
+	/**
+	 * like the base-class impl, but writes "ident: type" instead, per X10 syntax
+	 */
+	@Override
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        boolean printSemi = tr.appendSemicolon(true);
+        boolean printType = tr.printType(true);
+
+        print(flags, w, tr);
+        tr.print(this, name, w);
+        if (printType) {
+            w.write(":");
+            print(type, w, tr);
+            w.write(" ");
         }
+
+        if (init != null) {
+            w.write(" =");
+            w.allowBreak(2, " ");
+            print(init, w, tr);
+        }
+
+        if (printSemi) {
+            w.write(";");
+        }
+
+        tr.printType(printType);
+        tr.appendSemicolon(printSemi);
+    }
 }
