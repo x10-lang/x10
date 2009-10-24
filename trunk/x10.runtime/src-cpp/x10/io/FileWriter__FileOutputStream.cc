@@ -12,7 +12,9 @@ x10aux::ref<FileWriter__FileOutputStream> FileWriter__FileOutputStream::STANDARD
 
 x10aux::ref<FileWriter__FileOutputStream>
 FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
-    return new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream (x10aux::io::FILEPtrStream::open_file(name, "w"));
+    ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream (x10aux::io::FILEPtrStream::open_file(name, "w"));
+    this_->OutputStreamWriter__OutputStream::_constructor();
+    return this_;
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 

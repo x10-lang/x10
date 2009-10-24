@@ -29,7 +29,9 @@ namespace x10 {
             static x10aux::itable_entry _railItITables[2];
             virtual x10aux::itable_entry* _getITables() { return _railItITables; }
     
-            RailIterator(x10_int length_, T* data_) : index(0), length(length_), data(data_) { }
+            RailIterator(x10_int length_, T* data_) : index(0), length(length_), data(data_) {
+                this->x10::lang::Ref::_constructor();
+            }
 
             virtual x10_boolean hasNext() {
                 return index < length;

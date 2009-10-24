@@ -19,6 +19,11 @@ namespace x10 {
             virtual void write(const char* str) = 0;
 
             public:
+            x10aux::ref<OutputStreamWriter__OutputStream> _constructor() {
+                this->x10::lang::Ref::_constructor();
+                return this;
+            }
+
             virtual void close() { }
             virtual void flush() { }
             virtual void write(x10_int b) = 0;

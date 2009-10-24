@@ -9,7 +9,9 @@ x10aux::ref<FileReader__FileInputStream> FileReader__FileInputStream::STANDARD_I
 
 x10aux::ref<FileReader__FileInputStream>
 FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
-    return new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (x10aux::io::FILEPtrStream::open_file(name, "r"));
+    ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (x10aux::io::FILEPtrStream::open_file(name, "r"));
+    this_->InputStreamReader__InputStream::_constructor();
+    return this_;
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 

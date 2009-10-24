@@ -30,6 +30,7 @@ using namespace x10aux;
 x10aux::ref<Lock>
 Lock::_make() {
     x10aux::ref<Lock> this_ = new (x10aux::alloc<Lock>()) Lock();
+    this_->x10::lang::Ref::_constructor();
     this_->initialize();
     return this_;
 }
