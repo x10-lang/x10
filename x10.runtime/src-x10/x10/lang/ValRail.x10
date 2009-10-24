@@ -32,12 +32,12 @@ public final class ValRail[+T](length: nat) implements (nat) => T, Iterable[T] {
 
     @Native("java", "#0.get(#1)")
     @Native("c++", "(#0)->get(#1)")
-    public global native def get(i: nat): T;
+    public global native safe def get(i: nat): T;
 
     @Native("java", "#0.apply(#1)")
     @Native("c++", "(*#0)[#1]")
     @Native("cuda", "(#0)[#1]")
-    public global native def apply(i: nat): T;
+    public global native safe def apply(i: nat): T;
     
     @Native("java", "#0.iterator()")
     @Native("c++", "(#0)->iterator()")
