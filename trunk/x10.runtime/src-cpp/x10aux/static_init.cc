@@ -43,7 +43,9 @@ void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the
 }
 
 void StaticInitBroadcastDispatcher::await() {
+    x10::runtime::Runtime::lock();
     x10::runtime::Runtime::await();
+    x10::runtime::Runtime::release();
 }
 
 void StaticInitBroadcastDispatcher::notify() {
