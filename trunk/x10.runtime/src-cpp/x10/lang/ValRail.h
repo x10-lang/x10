@@ -120,6 +120,7 @@ namespace x10 {
 
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
@@ -128,6 +129,7 @@ namespace x10 {
         template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             x10aux::ref<x10::lang::Object> initAsObj = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -140,6 +142,7 @@ namespace x10 {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }

@@ -12,7 +12,7 @@ import x10.core.fun.Fun_0_1;
 import x10.types.Type;
 import x10.types.Types;
 
-public final class ValRail<T> extends Value implements AnyRail<T> {
+public final class ValRail<T> extends Ref implements AnyRail<T> {
     public final int length;
     
     public final Object value;

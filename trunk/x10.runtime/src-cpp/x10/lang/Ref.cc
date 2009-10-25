@@ -86,6 +86,14 @@ void Ref::_serialize_reference(ref<Ref> this_, serialization_buffer &buf, addr_m
     }
 }
 
+void Ref::dealloc_object(const Ref* obj) {
+    _M_("Attempting to dealloc object "<<(void*)obj<<", location="<<obj->location);
+    if (obj->location == x10aux::here)
+        dealloc(obj);
+    else
+        dealloc_remote(obj);
+}
+
 
 RTT_CC_DECLS1(Ref, "x10.lang.Ref", Object)
 

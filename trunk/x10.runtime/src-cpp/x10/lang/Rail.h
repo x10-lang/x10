@@ -57,9 +57,7 @@ namespace x10 {
             // effective at hoisting this extra load out of loop nests.
             T* const _data;
             
-            Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) {
-                this->x10::lang::Ref::_constructor();
-            }
+            Rail(x10_int length_, T* storage) : FMGL(length)(length_),  _data(storage) { }
 
             GPUSAFE virtual T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
@@ -76,9 +74,13 @@ namespace x10 {
       
             T* raw() { return _data; }
 
+            #if 0
             virtual x10aux::ref<ValRail<T> > view (void) {
-                return new (x10aux::alloc<ValRail<T> >()) ValRail<T>(FMGL(length),_data);
+                ValRail<T>* rail = new (x10aux::alloc<ValRail<T> >()) ValRail<T>(FMGL(length),_data);
+                rail->x10::lang::Ref::_constructor();
+                return rail;
             }
+            #endif
 
             virtual x10aux::ref<Iterator<T> > iterator() {
                 x10aux::ref<RailIterator<T> > tmp = new (x10aux::alloc<RailIterator<T> >()) RailIterator<T> (this->FMGL(length), this->raw());
@@ -180,6 +182,7 @@ namespace x10 {
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
@@ -188,6 +191,7 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             x10aux::ref<x10::lang::Object> initAsObj = init;
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
@@ -200,6 +204,7 @@ namespace x10 {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }

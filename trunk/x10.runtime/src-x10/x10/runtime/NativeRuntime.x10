@@ -103,10 +103,13 @@ public class NativeRuntime {
   @Native("c++","x10aux::deserialized_bytes = #1")
   static def setDeserializedBytes(v:Long) { }
 
-  // Do not call this with a struct.
-  // The only reason it is not constrained to prevent T being a struct is that
-  // we need it for closures and there is no supertype for all function types.
+  @Native("c++", "x10::lang::Ref::dealloc_object((x10::lang::Ref*)#1.operator->())")
+  public static def deallocObject (o:Ref) { }
+
   @Native("c++", "x10aux::dealloc(#4.operator->())")
-  public static def dealloc[T] (o:T) { }
+  public static def dealloc[T] (o:()=>T) { }
+
+  @Native("c++", "x10aux::dealloc(#1.operator->())")
+  public static def dealloc (o:()=>Void) { }
 
 }
