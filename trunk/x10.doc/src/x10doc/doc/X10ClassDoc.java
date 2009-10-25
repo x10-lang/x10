@@ -15,6 +15,7 @@ import x10.constraint.XConstraint;
 import x10.types.ParameterType;
 import x10.types.SubtypeConstraint;
 import x10.types.TypeConstraint;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ConstructorDef;
@@ -49,7 +50,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	LinkedHashMap<String, X10TypeVariable> typeParams;
 	LinkedHashMap<String, X10FieldDoc> fields;
 	LinkedHashMap<String, X10ConstructorDoc> constructors;
-	LinkedHashMap<String, X10MethodDoc> methods;
+	LinkedHashMap<String, MethodDoc> methods;
 	ArrayList<X10ClassDoc> innerClasses;
 	ArrayList<X10ClassDoc> interfaces;
 	ArrayList<Type> interfaceTypes;
@@ -62,7 +63,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		this.rootDoc = X10RootDoc.getRootDoc();
 		this.fields = new LinkedHashMap<String, X10FieldDoc>();
 		this.constructors = new LinkedHashMap<String, X10ConstructorDoc>();
-		this.methods = new LinkedHashMap<String, X10MethodDoc>();
+		this.methods = new LinkedHashMap<String, MethodDoc>();
 		this.innerClasses = new ArrayList<X10ClassDoc>();
 		this.interfaces = new ArrayList<X10ClassDoc>();
 		this.interfaceTypes = new ArrayList<Type>();
@@ -153,7 +154,8 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		if ((refC == null) && (refG == null)) {
 			return null;
 		}
-		String result = "<PRE>\n</PRE><B>Constraints in Declaration</B>: " + name();
+		String temp = classDef.asType().toString();
+		String result = "<PRE>\n</PRE><B>Declaration</B>: " + name();
 		TypeVariable[] params = typeParameters();
 		if (refG != null && (params.length > 0)) {
 			result += Arrays.toString(params);
@@ -186,7 +188,8 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 				else {
 					constraint += ", ";
 				}
-				constraint += linkTag(st.subtype()) + " <: " + linkTag(st.supertype());
+				// constraint += linkTag(st.subtype()) + " <: " + linkTag(st.supertype());
+				constraint += st.toString();
 			}
 		}
 		if (constraint.equals("{")) {
@@ -238,9 +241,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 	
 	public void addDeclsToMethodComments() {
-		for (X10MethodDoc md: methods.values()) {
-			// md.addNewLineToComment(md.declString());
-			md.addDeclTag(md.declString());
+		for (MethodDoc md: methods.values()) {
+			X10Doc d = (X10Doc) md;
+			d.addDeclTag(d.declString());
 		}
 	}
 	
@@ -257,6 +260,11 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		return md.signature();
 	}
 	
+	public static String methodKey(TypeDef td) {
+		// return md.name().toString() + X10MethodDoc.signature(md);
+		return td.signature();
+	}
+
 	public static String typeParameterKey(ParameterType p) {
 		return p.name().toString();
 	}
@@ -287,8 +295,8 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		return cd;
 	}
 
-	public X10MethodDoc updateMethod(X10MethodDef mdef, String comments) {
-		X10MethodDoc md = getMethod(mdef);
+	public MethodDoc updateMethod(X10MethodDef mdef, String comments) {
+		MethodDoc md = getMethod(mdef);
 		if (md == null) {
 			md = new X10MethodDoc(mdef, this, comments);
 			methods.put(methodKey(mdef), md);
@@ -300,6 +308,21 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			// md.setRawCommentText(comments);
 		}
 		return md;
+	}
+
+	public MethodDoc updateTypeDef(TypeDef tdef, String comments) {
+		MethodDoc td = getMethod(tdef);
+		if (td == null) {
+			td = new X10TypeDefDoc(tdef, this, comments);
+			methods.put(methodKey(tdef), td);
+		}
+		else {
+			// md.setIncluded(true);
+			// commented to avoid duplicate addition of declaration comments
+			// TODO: determine what needs to be done here or use another method/method name
+			// md.setRawCommentText(comments);
+		}
+		return td;
 	}
 
 	public void addInnerClass(X10ClassDoc cd) {
@@ -337,13 +360,17 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		return constructors.get(methodKey(cdef));
 	}
 
-	public X10MethodDoc getMethod(String name) {
+	public MethodDoc getMethod(String name) {
 		return methods.get(name);
 	}
 
-	public X10MethodDoc getMethod(X10MethodDef mdef) {
+	public MethodDoc getMethod(X10MethodDef mdef) {
 		// System.out.println("X10ClassDoc.getMethod: methods.keySet() = " + Arrays.toString(methods.keySet().toArray(new String[0])));
 		return methods.get(methodKey(mdef));
+	}
+
+	public MethodDoc getMethod(TypeDef tdef) {
+		return methods.get(methodKey(tdef));
 	}
 
 	public X10TypeVariable getTypeVariable(ParameterType p) {

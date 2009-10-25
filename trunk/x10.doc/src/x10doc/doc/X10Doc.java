@@ -91,19 +91,43 @@ public class X10Doc implements Doc {
 			return;
 		}
 		X10Tag[] declTags = createInlineTags(declString);
-		int len = inlineTags.length + declTags.length;
-		X10Tag[] newTags = new X10Tag[len];
-		int i;
-		for (i = 0; i < inlineTags.length; i++) {
-			newTags[i] = inlineTags[i];
-		}
-		for (int j = 0 ; i < len; i++, j++) {
-			newTags[i] = declTags[j];
-		}
-		// newTags[i] = new X10Tag(declString, this);
-		inlineTags = newTags;
+
+		firstSentenceTags = concat(firstSentenceTags, declTags);
+		inlineTags = concat(inlineTags, declTags);
+		
+//		int len = inlineTags.length + declTags.length;
+//		X10Tag[] newTags = new X10Tag[len];
+//		int i;
+//		for (i = 0; i < inlineTags.length; i++) {
+//			newTags[i] = inlineTags[i];
+//		}
+//		for (int j = 0 ; i < len; i++, j++) {
+//			newTags[i] = declTags[j];
+//		}
+//		inlineTags = newTags;
 	}
 
+    public X10Tag[] concat(X10Tag[] orig, X10Tag[] newTags) {
+    	int len = orig.length + newTags.length;
+    	X10Tag[] result = new X10Tag[len];
+    	int i;
+		for (i = 0; i < orig.length; i++) {
+			result[i] = orig[i];
+		}
+		for (int j = 0 ; i < len; i++, j++) {
+			result[i] = newTags[j];
+		}
+		return result;
+    }
+	
+	// method to be overriden in sub-classes such as X10FieldDoc, X10MethodDoc, X10ConstructorDoc, 
+	// X10TypeDefDoc, etc; the return string may be a description of the field type or declaration of
+	// the method etc., and is expected to be added to the comments of the associated Doc object, by 
+	// a method such as X10Doc.addDeclTag(...)
+	public String declString() {
+		return "";
+	}
+	
 	// used to add a comment line displaying X10 type of a field, method/constructor return value, 
 	// and method/constructor parameter, specifically the constraints in these X10 types; argument str
 	// cannot have any inline (or block) tags
@@ -147,7 +171,7 @@ public class X10Doc implements Doc {
 	public String commentText() {
 		if (X10RootDoc.printSwitch)
 			System.out.println("Doc.commentText() called for "+name());
-		new Exception().printStackTrace();
+		// new Exception().printStackTrace();
 		return comment;
 	}
 

@@ -14,16 +14,16 @@ public class X10Type implements Type {
 		pType = t;
 	}
 
-	public boolean hasConstraints() {
+	public boolean isX10Specific() {
 		return false;
 	}
 
-	public static boolean hasConstraints(Type t) {
+	public static boolean isX10Specific(Type t) {
 		if (!(t instanceof X10Type)) {
 			// meant to handle the case when t is of type X10ClassDoc
 			return false;
 		}
-		return ((X10Type)t).hasConstraints();
+		return ((X10Type)t).isX10Specific();
 	}
 
 	public static String toString(Type t) {

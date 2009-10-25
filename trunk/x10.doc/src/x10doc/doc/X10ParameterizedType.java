@@ -7,10 +7,12 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.Ref;
 
+import x10.types.ClosureType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Def;
 import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.ClassDoc;
@@ -68,11 +70,13 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		for (Type y: classDoc.interfaceTypes()) {
 			this.interfaceTypes.add(y);
 		}
-		
 		typeArgs = new Type[0];
 	}
 
-	public boolean hasConstraints() {
+	public boolean isX10Specific() {
+		if (classDoc.classDef.asType() instanceof ClosureType) {
+			return true;
+		}
 		return depType;
 	}
 
