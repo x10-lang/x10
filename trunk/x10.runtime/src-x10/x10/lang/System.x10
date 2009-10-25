@@ -13,6 +13,8 @@ import x10.io.Console;
 import x10.util.Timer;
 import x10.util.Pair;
 
+import x10.runtime.PlaceLocalHandle;
+
 public class System {
 
     private def this() {}
@@ -45,8 +47,8 @@ public class System {
 
     // FIXME: this ought to be in ValRail but @Native system does not allow this
     static public def copyTo[T] (src:ValRail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
-                          len:Int) {
+                                 dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
+                                 len:Int) {
         // could be further optimised to send only the part of the valrail needed
         at (dst_place) {
             val pair = dst_finder();
@@ -75,8 +77,8 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
-                          len:Int) {
+                                 dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
+                                 len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
@@ -94,8 +96,8 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyTo[T] (src:Rail[T], src_off:Int,
-                          dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
-                          len:Int, notifier:()=>Void) {
+                                 dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
+                                 len:Int, notifier:()=>Void) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
@@ -111,6 +113,37 @@ public class System {
             notifier();
         });
     }
+
+    // This function exists because we do not want to call dealloc in user code (finder)
+    public static def copyTo[T] (srcRail:Rail[T]!, srcIndex:Int,
+                                 dst:Place, dstHandle:PlaceLocalHandle[Rail[T]], dstIndex:Int,
+                                 size:Int) {
+        val finder = ()=>Pair[Rail[T],Int](dstHandle.get(), dstIndex);
+        srcRail.copyTo[T](srcIndex, dst, finder, size);
+        x10.runtime.NativeRuntime.dealloc(finder);
+    }   
+
+    // This function exists because we do not want to call dealloc in user code (finder, notifier)
+    // Also it is arguably a simpler interface because it has one less param
+    public static def copyTo[T] (handle:PlaceLocalHandle[Rail[T]],
+                                 dst:Place, size:Int, notifier:()=>Void) {
+        val finder = ()=>Pair[Rail[T],Int](handle.get(), 0);
+        handle.get().copyTo[T](0, dst, finder, size, notifier);
+        x10.runtime.NativeRuntime.dealloc(finder);
+        x10.runtime.NativeRuntime.dealloc(notifier);
+    }
+
+    // This function exists because we do not want to call dealloc in user code (finder, notifier)
+    public static def copyTo[T] (src:Rail[T]!, src_off:Int, dst:Rail[T], dst_off:Int,
+                                 len:Int, notifier:()=>Void) {
+        val finder = ()=>Pair[Rail[T],Int](dst,0);
+        src.copyTo[T](0, dst.location, finder, len, notifier);
+        x10.runtime.NativeRuntime.dealloc(finder);
+        x10.runtime.NativeRuntime.dealloc(notifier);
+    }
+
+
+
 
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
@@ -131,8 +164,8 @@ public class System {
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyFrom[T] (dst:Rail[T], dst_off:Int,
-                            src_place:Place, src_finder:()=>Pair[Rail[T]!,Int],
-                            len:Int) {
+                                   src_place:Place, src_finder:()=>Pair[Rail[T]!,Int],
+                                   len:Int) {
         // semantics allows an async per rail element inside a single finish
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed

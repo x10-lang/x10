@@ -11,6 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Pair;
+import x10.runtime.PlaceLocalHandle;
 
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
@@ -63,6 +64,9 @@ public final class Rail[T](length: nat)
     @Native("c++", "(#0)->iterator()")
     public native safe def iterator(): Iterator[T];
 
+
+
+
     // Transfer functions
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4)")
@@ -70,30 +74,46 @@ public final class Rail[T](length: nat)
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
 
-    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4)")
-    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4)")
-    public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
-                              len:Int) : Void;
+    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7)")
+    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7)")
+    public native def copyTo[U] (src_off:Int,
+                                 dst_place:Place, dst_finder:()=>Pair[Rail[U],Int],
+                                 len:Int) : Void;
 
 /* FIXME: This interface is not possible to define properly without structs:
  * the closure needs to return both an offset and a Rail. 
  * For now we assume the offset on the remote side is 0.
  */
-    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
-    public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Rail[T],
-                              len:Int, notifier:()=>Void) : Void;
+    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7,#8)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7,#8)")
+    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7,#8)")
+    public native def copyTo[U] (src_off:Int,
+                                 dst_place:Place, dst_finder:()=>Rail[U],
+                                 len:Int, notifier:()=>Void) : Void;
+
+    @Native("java", "x10.lang.System.copyTo(#3, #0,#4,#5,#6,#7,#8)")
+    //@Native("c++", "x10::lang::System::copyTo(#0,#4,#5,#6,#7,#8)")
+    @Native("c++", "(#0)->copyTo(#4,#5,#6,#7,#8)")
+    public native def copyTo[U] (src_off:Int,
+                                 dst_place:Place, dst_finder:()=>Pair[Rail[U],Int],
+                                 len:Int, notifier:()=>Void) : Void;
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
-    //@Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
-    public native def copyTo (src_off:Int,
-                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    public native def copyTo(src_off:Int,
+                             dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                             len:Int) : Void;
+
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
+    public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int,
                               len:Int, notifier:()=>Void) : Void;
+
+
+
+
+
 
 
     @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4)")
@@ -129,6 +149,9 @@ public final class Rail[T](length: nat)
                                 src_place:Place, src_finder:()=>ValRail[T],
                                 len:Int) : Void;
                                 
+
+
+
 
     @Native("java",  "#0.view()")
     @Native("c++", "#0->view()")

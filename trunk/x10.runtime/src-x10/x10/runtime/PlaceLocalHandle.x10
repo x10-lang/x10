@@ -60,5 +60,10 @@ public final struct PlaceLocalHandle[T]{T <: Ref} {
   @Native("c++", "x10::runtime::PlaceLocalHandle<#1 >::createHandle()")
   @Native("java", "x10.runtime.impl.java.PlaceLocalHandle.createHandle()")
   static native def createHandle[T]():PlaceLocalHandle[T];
+ 
+
+  @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3)")
+  @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3)")
+  public native def copyTo (dst:Place, len:Int, notifier:()=>Void) : Void;
 
 }
