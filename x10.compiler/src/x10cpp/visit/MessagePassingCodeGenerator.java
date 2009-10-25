@@ -304,7 +304,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // [IP] HACK for XTENLANG-486.  The only way a native expression would be marked a constant
 	    // is if it's a field access.
 	    String pat = e instanceof Field_c ? getCppImplForDef((X10FieldDef) ((Field_c) e).fieldInstance().def()) : null;
-	    return e.isConstant() && pat == null;
+	    return query.isConstantExpression(e) && pat == null;
 	}
 
 	private boolean isGlobalInit(FieldDecl_c fd) {

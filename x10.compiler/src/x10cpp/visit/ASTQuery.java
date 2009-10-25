@@ -6,18 +6,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Block_c;
+import polyglot.ast.BooleanLit;
 import polyglot.ast.Call_c;
+import polyglot.ast.Cast;
+import polyglot.ast.Conditional;
 import polyglot.ast.Eval;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Field_c;
+import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
+import polyglot.ast.IntLit;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Name;
@@ -31,6 +39,9 @@ import polyglot.util.InternalCompilerError;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 import x10.ast.Async_c;
+import x10.ast.Closure;
+import x10.ast.ClosureCall;
+import x10.ast.ParExpr;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
@@ -328,5 +339,48 @@ public class ASTQuery {
 	        }
 	    }
 	    return null;
+	}
+
+	boolean isConstantExpression(Expr e) {
+	    if (!e.isConstant())
+	        return false;
+	    if (e instanceof BooleanLit)
+	        return true;
+	    if (e instanceof IntLit)
+	        return true;
+	    if (e instanceof FloatLit)
+	        return true;
+	    if (e instanceof Cast)
+	        return isConstantExpression(((Cast) e).expr());
+	    if (e instanceof ParExpr)
+	        return isConstantExpression(((ParExpr) e).expr());
+	    if (e instanceof Unary)
+	        return isConstantExpression(((Unary) e).expr());
+	    if (e instanceof Binary)
+	        return isConstantExpression(((Binary) e).left()) &&
+	               isConstantExpression(((Binary) e).right());
+	    if (e instanceof Conditional)
+	        return isConstantExpression(((Conditional) e).cond()) &&
+	               isConstantExpression(((Conditional) e).consequent()) &&
+	               isConstantExpression(((Conditional) e).alternative());
+	    if (e instanceof Closure) {
+	        Closure c = (Closure) e;
+	        List<Stmt> ss = c.body().statements();
+            if (ss.size() != 1)
+	            return false;
+	        if (!(ss.get(0) instanceof Return))
+	            return false;
+	        return isConstantExpression(((Return) ss.get(0)).expr());
+	    }
+	    if (e instanceof ClosureCall) {
+	        ClosureCall cc = (ClosureCall) e;
+	        List<Expr> as = ((ClosureCall) e).arguments();
+	        for (Expr a : as) {
+	            if (!isConstantExpression(a))
+	                return false;
+            }
+	        return  isConstantExpression(cc.target());
+	    }
+	    return false;
 	}
 }
