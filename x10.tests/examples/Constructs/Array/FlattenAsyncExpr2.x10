@@ -18,13 +18,13 @@ import harness.x10Test;
 
 public class FlattenAsyncExpr2 extends x10Test {
 
-    var a: Array[int](1);
+    global var a: Array[int](1);
 
     public def this(): FlattenAsyncExpr2 = {
         a = Array.make[int](1..10 -> here, ((j): Point): int => { return 2*j;});
     }
 
-    def m(var x: int): int = {
+    global def m(var x: int): int = {
         return x;
     }
     

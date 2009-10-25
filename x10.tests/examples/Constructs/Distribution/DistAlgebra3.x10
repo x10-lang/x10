@@ -26,7 +26,7 @@ public class DistAlgebra3 extends x10Test {
         chk(D4.equals(D));
         try {
             val D5 = D || D2; // not disjoint
-        } catch (IllegalOperationException e) {
+        } catch (e: IllegalOperationException) {
             return true;
         }
         return false;

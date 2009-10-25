@@ -24,7 +24,7 @@ public class FlattenAsyncExpr extends x10Test {
         a = Array.make[int](1..10 -> here, ((j): Point): int => { return j;});
     }
 
-    def m(var x: int): int = {
+    global def m(var x: int): int = {
       return x;
     }
     
