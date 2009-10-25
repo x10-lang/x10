@@ -62,6 +62,16 @@
 #ifndef NO_IOSTREAM
 #  include <iostream>
 #  include <sstream>
+   // workaround for buggy ctype header on some platforms
+#  undef _U
+#  undef _L
+#  undef _N
+#  undef _S
+#  undef _P
+#  undef _C
+#  undef _X
+#  undef _B
+   // end workaround
 #endif
 #include <stdint.h>
 
