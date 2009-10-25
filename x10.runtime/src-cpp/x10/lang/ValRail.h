@@ -81,17 +81,24 @@ namespace x10 {
 
             static const x10aux::serialization_id_t _serialization_id;
 
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
             static void _serialize(x10aux::ref<ValRail<T> > this_,
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
             void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+
+            void _deserialize_body(x10aux::deserialization_buffer &buf);
+
+            template<class S> static x10aux::ref<S> _deserializer(x10aux::deserialization_buffer &buf);
+
             template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
         };
 
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::template _deserialize<Object>);
+                ::addDeserializer(ValRail<T>::template _deserializer<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
             rtt.canonical = &rtt;
@@ -108,17 +115,17 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
         };
 
-        template <class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::iterator);
+        template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::iterator);
 
-        template <class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply);
+        template<class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply);
 
-        template <class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
+        template<class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
             x10aux::itable_entry(&Iterable<T>::rtt, &ValRail<T>::_itable_iterable),
             x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt, &ValRail<T>::_itable_fun),
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<ValRail<T> >())
         };
 
-        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
+        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
             rail->x10::lang::Ref::_constructor();
             // Memset both for efficiency and to allow T to be a struct.
@@ -126,7 +133,7 @@ namespace x10 {
             return rail;
         }
 
-        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
+        template<class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
                                                                      x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
             rail->x10::lang::Ref::_constructor();
@@ -149,31 +156,51 @@ namespace x10 {
             return rail;
         }
 
+        // Specialized serialization
         template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
                                                        x10aux::serialization_buffer &buf,
                                                        x10aux::addr_map &m) {
-            if (this_ == x10aux::null) {
-                ValRail<T> v;
-                v._serialize_body(buf, m);
-            } else {
+            Ref::_serialize_reference(this_, buf, m);
+            if (this_ != x10aux::null) {
                 this_->_serialize_body(buf, m);
             }
         }
 
         template <class T> void ValRail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-            buf.write(this->FMGL(length),m);
-            for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
-                buf.write(this->raw()[i], m); // avoid bounds check
+            x10_int length = this->FMGL(length);
+            buf.write(length, m);
+            this->Ref::_serialize_body(buf, m); // intentional change of order
+            T* raw = this->raw();
+            for (x10_int i=0 ; i<length ; ++i) {
+                buf.write(raw[i], m); // avoid bounds check
             }
         }
 
-        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
-            x10_int length = buf.read<x10_int>();
-            x10aux::ref<ValRail> this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
+        template <class T> void ValRail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
+            // length read out earlier, in _deserializer()
+            this->Ref::_deserialize_body(buf);
+            x10_int length = this->FMGL(length);
+            T* raw = this->raw();
             for (x10_int i=0 ; i<length ; ++i) {
-                this_->raw()[i] = buf.read<T>(); // avoid bounds check
+                raw[i] = buf.read<T>(); // avoid bounds check
             }
+        }
+
+        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
+            x10_int length = buf.read<x10_int>();
+            x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
+            this_->_deserialize_body(buf);
             return this_;
+        }
+
+        // Specialized deserialization
+        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
+            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            x10aux::ref<ValRail<T> > this_;
+            if (rr.ref != 0) {
+                this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
+            }
+            return Ref::_finalize_reference<T>(this_, rr);
         }
     }
 }

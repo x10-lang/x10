@@ -40,11 +40,11 @@ namespace x10 {
             //
             //      "All instances of all my subclasses are de/serialised by the same code"
             //
-            // Examples of classes that satisfy this property:  All final value classes, and Ref.
+            // Examples of classes that satisfy this property:  All final classes, and root classes
+            // in hierarchies that use double dispatch for deserialization (to save serialization id
+            // space).
             //
-            // These functions should not be overridden in subclasses of classes that override these
-            // functions, i.e., any strict subclass of Ref.  If one is overridden, the other should
-            // be too.
+            // If one of these functions is overridden, the other should be too.
             //
             // Note these functions are static as we want to dispatch on the static type.
 

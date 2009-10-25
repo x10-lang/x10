@@ -290,28 +290,44 @@ x10_boolean String::equals(ref<Object> p0) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserialize<Object>);
+    DeserializationDispatcher::addDeserializer(String::_deserializer<Object>);
 
-void
-String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-    if (this_==x10aux::null) {
-        String v;
-        v._serialize_body(buf,m);
-    } else {
+// Specialized serialization
+void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    Ref::_serialize_reference(this_, buf, m);
+    if (this_ != x10aux::null) {
         this_->_serialize_body(buf, m);
     }
 }
 
-void
-String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+void String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
     this->Ref::_serialize_body(buf, m);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
-    buf.write(sz,m);
-    for (x10_int i=0 ; i<sz ; ++i) {
-        buf.write((x10_char)FMGL(content)[i],m);
+    buf.write(sz, m);
+    const char* content = FMGL(content);
+    for (x10_int i = 0; i < sz; ++i) {
+        buf.write((x10_char)content[i], m);
     }
 }
+
+void String::_destructor() {
+    dealloc(FMGL(content));
+}
+
+void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
+    this->Ref::_deserialize_body(buf);
+    x10_int sz = buf.read<x10_int>();
+    char *content = x10aux::alloc<char>(sz+1);
+    for (x10_int i = 0; i < sz; ++i) {
+        content[i] = (char)buf.read<x10_char>().v;
+    }
+    content[sz] = '\0';
+    this->FMGL(content) = content;
+    this->FMGL(content_length) = strlen(content);
+    _S_("Deserialized string was: \""<<this<<"\"");
+}
+
 
 RTT_CC_DECLS1(String, "x10.lang.String", Ref)
 

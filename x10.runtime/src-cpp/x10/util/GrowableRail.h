@@ -46,6 +46,8 @@ namespace x10 {
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
+            // No specialized serialization methods - not optimizing this final class
+
             T set(T v, x10_int i);
 
             void add(T v);

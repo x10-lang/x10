@@ -99,13 +99,19 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
-
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m);
+
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &buf);
+
+            void _deserialize_body(x10aux::deserialization_buffer &buf);
+
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
+
+            virtual void _destructor();
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
@@ -141,19 +147,22 @@ namespace x10 {
         }
         #endif
 
-        template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf){
-            x10_int sz = buf.read<x10_int>();
-            char *content = x10aux::alloc<char>(sz+1);
-            for (x10_int i=0 ; i<sz ; ++i) {
-                content[i] = (char)buf.read<x10_char>().v;
-            }
-            content[sz] = '\0';
-            // there are no fields
-            x10aux::ref<String> this_ = Steal(content);
-            _S_("Deserialized string was: \""<<this_<<"\"");
+        template<class T> x10aux::ref<T> String::_deserializer(x10aux::deserialization_buffer& buf) {
+            x10aux::ref<String> this_ = new (x10aux::alloc_remote<String>()) String();
+            this_->_deserialize_body(buf);
             return this_;
         }
-        
+
+        // Specialized deserialization
+        template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf) {
+            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            x10aux::ref<String> this_;
+            if (rr.ref != 0) {
+                this_ = String::_deserializer<String>(buf);
+            }
+            return Ref::_finalize_reference<T>(this_, rr);
+        }
+
     } // namespace x10::lang
 
 } // namespace x10

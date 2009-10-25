@@ -31,7 +31,8 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            // A helper method for serializing a final ref with no global state
+            // A helper method for serializing reference state
+            // Client responsible for checking for null
             static void _serialize_reference(x10aux::ref<Ref> this_,
                                              x10aux::serialization_buffer &buf,
                                              x10aux::addr_map &m);
@@ -44,8 +45,25 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
-            // A helper method for deserializing a final ref with no global state
-            template<class R> static x10aux::ref<R> _deserialize_reference(x10aux::deserialization_buffer &buf);
+            struct _reference_state {
+                x10_int loc;
+                x10aux::x10_addr_t ref;
+            };
+            // A helper method for deserializing reference state
+            // Client responsible for checking for null
+            static Ref::_reference_state _deserialize_reference_state(x10aux::deserialization_buffer &buf) {
+                _reference_state rr;
+                rr.loc = buf.read<x10_int>();
+                rr.ref = buf.read<x10aux::x10_addr_t>();
+                if (rr.ref == x10aux::null)
+                    _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" from buf: "<<&buf);
+                return rr;
+            }
+
+            // A helper method for computing the final deserialized reference
+            // res is ignored if rr.ref is null, and could even be uninitialized
+            // res is freed if rr.loc is here
+            template<class R> static x10aux::ref<R> _finalize_reference(x10aux::ref<Ref> res, Ref::_reference_state rr);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer &buf) { }
 
@@ -67,7 +85,11 @@ namespace x10 {
                 return false;
             }
 
-            static void dealloc_object(const Ref*);
+            // Like the destructor, but called only by dealloc_object()
+            // Needed only for native classes that have alloc'ed state
+            virtual void _destructor() { }
+
+            static void dealloc_object(Ref*);
         };
 
         template<class T> x10aux::ref<T> Ref::_deserializer(x10aux::deserialization_buffer &buf) {
@@ -77,52 +99,35 @@ namespace x10 {
         }
 
         template<class T> x10aux::ref<T> Ref::_deserialize(x10aux::deserialization_buffer &buf) {
+            // extract the id
             x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
-            // FIXME: factor out common code with _deserialize_reference
-            x10_int loc = buf.read<x10_int>();
-            x10aux::x10_addr_t ref = buf.read<x10aux::x10_addr_t>();
-            if (ref == 0 /*TODO: id == 0*/) {
-                _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" from buf: "<<&buf);
-                return x10aux::null;
+            _reference_state rr = _deserialize_reference_state(buf);
+            x10aux::ref<Ref> res;
+            if (rr.ref != 0) {
+                _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                        " (with id "<<id<<") at "<<rr.loc<<" from buf: "<<&buf);
+                // execute a callback to instantiate the right concrete class
+                res = x10aux::DeserializationDispatcher::create<T>(buf, id);
             }
-            _S_("Attempting to deserialize a "<<ANSI_SER<<ANSI_BOLD<<"ref"<<ANSI_RESET<<
-                    " (with id "<<id<<") at "<<loc<<" from buf: "<<&buf);
-            if (loc == x10aux::here) { // a remote object coming home to roost
-                _S_("\ta local object come home");
-                x10aux::ref<T> obj = x10aux::DeserializationDispatcher::create<T>(buf, id); // consume the buffer
-                T* ptr = static_cast<T*>((void*)(size_t)ref);
-                x10aux::dealloc_remote(obj.operator->());
-                return ptr;
-            }
-            // extract the id and execute a callback to instantiate the right concrete class
-            _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
-                    " (with id "<<id<<") from buf: "<<&buf);
-            x10aux::ref<Ref> obj = x10aux::DeserializationDispatcher::create<T>(buf, id);
-            obj->location = loc;
-            x10aux::set_remote_ref(obj.operator->(), ref);
-            return obj;
+            // res is uninitialized if rr.ref is null
+            return _finalize_reference<T>(res, rr);
         }
 
-        // FIXME: factor out common code with _deserialize
-        template<class R> x10aux::ref<R> Ref::_deserialize_reference(x10aux::deserialization_buffer &buf) {
-            x10_int loc = buf.read<x10_int>();
-            x10aux::x10_addr_t ref = buf.read<x10aux::x10_addr_t>();
-            if (ref == 0 /*TODO: id == 0*/) {
-                _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" from buf: "<<&buf);
+        // Given a deserialized object pointer (allocated with alloc_remote) and
+        // remote reference info, return the reference to the right object
+        template<class R> x10aux::ref<R> Ref::_finalize_reference(x10aux::ref<Ref> obj, Ref::_reference_state rr) {
+            if (rr.ref == 0) {
                 return x10aux::null;
             }
-            _S_("Attempting to deserialize a "<<ANSI_SER<<ANSI_BOLD<<"ref"<<ANSI_RESET<<
-                    " of type "<<TYPENAME(R)<<" at "<<loc<<" from buf: "<<&buf);
-            if (loc == x10aux::here) { // a remote object coming home to roost
+            if (rr.loc == x10aux::here) { // a remote object coming home to roost
                 _S_("\ta local object come home");
-                // Nothing left in the buffer (if _serialize_reference was used to serialize the object)
-                return static_cast<R*>((void*)(size_t)ref);
+                x10aux::dealloc_remote(obj.operator->());
+                return static_cast<R*>((void*)(size_t)rr.ref);
             }
-            x10aux::ref<R> obj = new (x10aux::alloc_remote<R>()) R();
-            _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
-                    " "<<obj->_type()->name()<<" from buf: "<<&buf);
-            obj->location = loc;
-            x10aux::set_remote_ref(obj.operator->(), ref);
+            _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                    " "<<obj->_type()->name());
+            obj->location = rr.loc;
+            x10aux::set_remote_ref(obj.operator->(), rr.ref);
             return obj;
         }
 

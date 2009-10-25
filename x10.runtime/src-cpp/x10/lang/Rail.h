@@ -92,6 +92,22 @@ namespace x10 {
                                               x10aux::ref<Fun_0_1<x10_int,T> > init);
             static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
+
+            static void _serialize(x10aux::ref<Rail<T> > this_,
+                                   x10aux::serialization_buffer &buf,
+                                   x10aux::addr_map &m);
+
+            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+
+            void _deserialize_body(x10aux::deserialization_buffer &buf);
+
+            template<class S> static x10aux::ref<S> _deserializer(x10aux::deserialization_buffer &buf);
+
+            template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
+
             static const x10aux::serialization_id_t _copy_to_serialization_id;
 
             static void *_copy_to_buffer_finder(x10aux::deserialization_buffer&, x10_int);
@@ -534,6 +550,47 @@ namespace x10 {
 
         // }}}
 
+        template<class T> const x10aux::serialization_id_t Rail<T>::_serialization_id =
+            x10aux::DeserializationDispatcher
+                ::addDeserializer(Rail<T>::template _deserializer<Object>);
+
+        // Specialized serialization
+        template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,
+                                                    x10aux::serialization_buffer &buf,
+                                                    x10aux::addr_map &m) {
+            Ref::_serialize_reference(this_, buf, m);
+            if (this_ != x10aux::null) {
+                this_->_serialize_body(buf, m);
+            }
+        }
+
+        template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+            x10_int length = this->FMGL(length);
+            buf.write(length, m);
+            this->Ref::_serialize_body(buf, m); // intentional change of order
+        }
+
+        template <class T> void Rail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
+            // length read out earlier, in _deserializer()
+            this->Ref::_deserialize_body(buf);
+        }
+
+        template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
+            x10_int length = buf.read<x10_int>();
+            x10aux::ref<Rail<T> > this_ = x10aux::alloc_rail_remote<T,Rail<T> >(length);
+            this_->_deserialize_body(buf);
+            return this_;
+        }
+
+        // Specialized deserialization
+        template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
+            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            x10aux::ref<Rail<T> > this_;
+            if (rr.ref != 0) {
+                this_ = Rail<T>::template _deserializer<Rail<T> >(buf);
+            }
+            return Ref::_finalize_reference<T>(this_, rr);
+        }
     }
 }
 
