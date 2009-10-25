@@ -13,11 +13,14 @@ void Object::_serialize(x10aux::ref<Object> this_,
                         x10aux::serialization_buffer &buf,
                         x10aux::addr_map &m) 
 {
-    x10aux::serialization_id_t id = this_->_get_serialization_id();
+    bool isNull = this_.isNull();
+    x10aux::serialization_id_t id = isNull ? 0 : this_->_get_serialization_id();
     _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
     buf.write(id,m);
-    _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
-    this_->_serialize_body(buf, m);
+    if (!isNull) {
+        _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
+        this_->_serialize_body(buf, m);
+    }
 }
 
 x10_boolean Object::equals(x10aux::ref<Object> other) {
