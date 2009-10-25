@@ -15,6 +15,7 @@ import polyglot.types.Ref;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10MethodDef;
+import x10.types.X10ProcedureDef;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.ProgramElementDoc;
@@ -30,10 +31,10 @@ import com.sun.javadoc.TypeVariable;
 public class X10MethodDoc extends X10Doc implements MethodDoc {
 	private X10MethodDef methodDef;
 	private X10ClassDoc containingClass;
+	private X10TypeVariable[] typeParams;
 	private X10RootDoc rootDoc;
 	private Type returnType;
 	private ArrayList<X10Parameter> parameters;
-	private X10TypeVariable[] typeParams;
 	// private LinkedHashMap<String, X10TypeVariable> typeParams;
 
 	public X10MethodDoc() {
@@ -90,9 +91,9 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		}
 	}
 	
-	public X10MethodDef getMethodDef() {
-		return methodDef;
-	}
+//	public X10MethodDef getMethodDef() {
+//		return methodDef;
+//	}
 
 	public static String typeParameterKey(ParameterType p) {
 		return p.name().toString();
@@ -102,10 +103,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		// the X10 method declaration needs to be displayed in the method's comments only if a param type 
 		// or the return type contains constraints; at a later point, closures will also be displayed
 		// through comments
-		if (!(X10Type.hasConstraints(returnType))) {
+		if (!(X10Type.isX10Specific(returnType))) {
 			boolean hasConstraints = false;
 			for (X10Parameter p: parameters) {
-				if (p.hasConstraints()) {
+				if (p.isX10Specific()) {
 					hasConstraints = true;
 					break;
 				}
@@ -115,7 +116,8 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 			}
 		}
 		String result = "<PRE>\n</PRE><B>Declaration</B>: " + methodDef.signature() +
-		                ": " + X10Type.toString(returnType);
+		                ": " + methodDef.returnType().toString();
+			// earlier: ... + X10Doc.toString(this.returnType)
 		return result; 
 	}
 

@@ -17,6 +17,7 @@ import polyglot.types.Ref;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -199,7 +200,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //				return constrDoc.getTypeVariable(p);
 //				
 //			}
-			else if (owner instanceof X10MethodDef || owner instanceof X10ConstructorDef) {
+			else if (owner instanceof X10MethodDef || owner instanceof X10ConstructorDef || owner instanceof TypeDef) {
 				assert(methodTypeVars != null) : "X10RootDoc.getType(" + t + 
 				", null): expects non-null array of type variables defined by method/constructor" 
 				+ owner;

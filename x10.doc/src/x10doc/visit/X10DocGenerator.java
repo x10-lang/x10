@@ -32,6 +32,7 @@ import x10.ast.X10FieldDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.parser.X10Parser;
 import x10.types.ParameterType;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
@@ -86,13 +87,6 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 			visitAppropriate(td);
 		}
 		((ExtensionInfo) job.extensionInfo()).setRoot(this.rootDoc);
-
-		// for all specified classes, add comments displaying constraints
-//		for (ClassDoc c: rootDoc.specifiedClasses()) {
-//			X10ClassDoc cd = (X10ClassDoc) c;
-//			cd.addDeclTag(cd.declString());
-//			cd.addDeclsToMethodComments();
-//		}
 
 		rootDoc.printStats();
 		this.parser = null;
@@ -218,7 +212,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	    	}
 	    }
 	    System.out.println(")");
-
+	    
 	    X10ClassDoc cd = stack.peek();
 	    // cd.addConstructor(new X10ConstructorDoc(((X10ConstructorDef) n.constructorDef()), cd, comments));
 	    // X10ConstructorDoc constrDoc = new X10ConstructorDoc(((X10ConstructorDef) n.constructorDef()), cd, comments);
@@ -250,9 +244,13 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 
 	@Override
 	public void visit(TypeDecl_c n) {
-		System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
+		// System.out.println("visit(TypeDecl_c{" + n + "}: node not handled");
+		String comments = printDocComments(n.position().offset());
+		TypeDef def = n.typeDef();
+		X10ClassDoc cd = stack.peek();
+		cd.updateTypeDef(def, comments);
 	}
-
+	
 	// go through comments preceding a given offset corresponding to a class/method/... 
 	// declaration, and print documentation comments
 	String printDocComments(int offset) {

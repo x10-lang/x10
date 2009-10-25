@@ -13,11 +13,11 @@ public class X10Parameter implements Parameter {
 		this.type = type;
 	}
 	
-	public boolean hasConstraints() {
+	public boolean isX10Specific() {
 		if (type instanceof X10ClassDoc) {
 			return false;
 		}
-		return ((X10Type)type).hasConstraints();
+		return ((X10Type)type).isX10Specific();
 	}
 	
 	public AnnotationDesc[] annotations() {
