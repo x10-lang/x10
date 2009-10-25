@@ -26,7 +26,7 @@ class SeqRandomAccess1 extends Benchmark {
 
     final value LocalTable {
     
-        val a: Rail[long];
+        val a: Rail[long]!this.location;
         val mask: int;
         
         def this(size:int) {

@@ -14,7 +14,7 @@ import harness.x10Test;
 
 public class FlattenInitFor extends x10Test {
 
-    val a: Array[int](2){self.at(this)};
+    global val a: Array[int](2){self.at(this)};
 
     public def this(): FlattenInitFor = {
         a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i;});

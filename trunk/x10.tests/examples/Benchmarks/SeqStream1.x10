@@ -20,7 +20,7 @@ public class SeqStream1 extends Benchmark {
     //
     //
 
-    val as = Rail.makeVal[Rail[double]](PARALLELISM, (p:int) =>
+    val as = Rail.makeVal[Rail[double]!](PARALLELISM, (p:int) =>
         Rail.makeVar[double](localSize)
     );
     

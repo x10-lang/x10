@@ -89,7 +89,7 @@ public class UserArrayBounds2D extends x10Test {
         var val: int;
         public def this(var x: int): boxedInt = { val = x; }
         public def equals(var other: boxedInt): boolean = {
-            return this.val == other.val;
+            return other.at(here) && this.val == (other as boxedInt!).val;
         }
     }
 }
