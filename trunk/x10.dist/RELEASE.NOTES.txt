@@ -1,13 +1,21 @@
-Release SVN HEAD
+Release 2.0.0
 
 This release includes both the C++ and Java code generation backends.
 
-<HIGHLIGHTS>
-
-Language changes from 1.7 to 2.0
-
-<LIST HERE>
-
+There are several major language changes from X10 1.7 to 2.0. 
+ - We have added structs to the language.  Structs provide a
+   mechanism for defining headerless inlined aggregates.
+   For an example of a struct, see x10.lang.Complex.
+ - We have added the ability to declare val instance fields
+   and instance methods of a class to be global. This means
+   that the fields/methods can be accessed/invoked at any place.
+ - We have eliminated Values from the language.  
+   The combination of structs and global fields/methods cover all
+   of the use cases for Values.
+ - We have added static place type checking.
+ - We have added unsigned integral types.
+For more details on these and other minor language changes, please
+see the language manual or the X10 2.0 tutorial found on x10-lang.org.
 
 The following features described in the 2.0 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
@@ -30,9 +38,7 @@ the subsequent releases:
 - Generic virtual methods
 - Exception stack traces on Cygwin and AIX
 
-Here's a list of known issues with the C++ backend:
-
-Below is a summary of JIRA issues addressed for the X10 VERSION release.
+Below is a summary of JIRA issues addressed for the X10 2.0 release.
 <LIST HERE>
 
 For the details of JIRA issues fixed in this release, see
