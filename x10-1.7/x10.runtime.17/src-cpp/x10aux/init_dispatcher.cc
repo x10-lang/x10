@@ -1,5 +1,6 @@
 #include <x10aux/config.h>
 #include <x10aux/init_dispatcher.h>
+#include <stdio.h>
 
 using namespace x10aux;
 using namespace x10::lang;
