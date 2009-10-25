@@ -2828,6 +2828,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                        sw.write("(((x10::lang::Object*)(_.operator->()))->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
 		                        dangling = "; }))";
 		                    }
+		                } else if (xts.isParameterType(t)) {
+		                    if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
+                                ITable itable= ITable.getITable((X10ClassType)mi.container().toClass());
+                                targetMethodName = itable.mangledName(mi);
+                                isInterfaceInvoke = true;
+                                sw.write("(__extension__ ({ "+Emitter.translateType(t)+" _ = "); 
+                                // FIXME: need some template magic to define a placeCheck/nullCheck that is a no-op on structs,
+                                //        but does something on ref.  Defer to 2.0.1.
+                                // if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
+                                // if (needsNullCheck) sw.write("x10aux::nullCheck(");
+                                n.printSubExpr((Expr) target, assoc, sw, tr);
+                                // if (needsNullCheck) sw.write(")");
+                                // if (needsPlaceCheck) sw.write(")");
+                                sw.write("; ");
+                                sw.write("(((x10::lang::Object*)(_.operator->()))->*(x10aux::findITable"+chevrons(Emitter.translateType(mi.container(), false))+"(_->_getITables())->"+itable.mangledName(mi)+"))");
+                                dangling = "; }))";
+		                    }
 		                }
 		                
 		                if (!isInterfaceInvoke) {
@@ -2838,6 +2855,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             if (needsPlaceCheck) sw.write(")");
 		                    sw.write("->");
 		                }
+
+		                
 		            }
 		        } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
 		            n.print(target, sw, tr);
