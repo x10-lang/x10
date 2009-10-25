@@ -1,0 +1,105 @@
+Sat Aug 18 18:50:37 2007
+
+Doug:
+Vijay Saraswat wrote:
+
+> D
+>
+>> Today on queue imbalances. With 4 edges per node in SpanT, you tend to get
+>> too rapid growth of queues because other threads can't steal fast enough.
+>> There's a known reasonable way to cope: steal-half (Shavit et al),
+>> but it doesn't work so well with my queue representation. And I'm
+>> not yet sure whether to change a few things to make it work better.
+>
+>
+
+Actually, the main problem was not so much rapid growth per se,
+but blowing processor caches, which sometimes led to
+10X slowdowns. (I should have known to look at this first. This
+was the source of similar Azul anomalies on some test programs a
+month or so ago -- they have much smaller caches.)
+For SpanT, it turns out to help a lot to localize
+more stuff in the "V" nodes. This was more effective than a few
+bulk-steal schemes I tried. (See attached, that makes each node
+a task.) I still get occasional slow runs, that seem to be associated
+with resizing and/or GC, but I don't know why yet.
+
+(In this process of exploring this I improved quiescence scheme
+a bit.)
+
+> Alternatively, each node can produce work items that consist of sets
+>of nodes. The key issue is how does the user determine the size of
+>work items. Stealing a single vertex seems wrong.
+
+Not so sure. During early processing, most nodes represent a fair
+amount of work. And toward the end, almost all entail almost no work (no
+uncolored neighbors).  Which is OK, even wrt stealing -- everyone
+is helping get rid of the task nodes, some more slowly than
+others. The in-between cases are the bad ones, but this seems more
+like an application-level issue. For example, maybe on average you'd
+generate fewer ultimately useless tasks if each task locally did one level of
+breadth-first expansion before descending.
+
+-Doug
+
+
+=========================
+To underscore the fact that modern processors and VMs have
+very obscure performance models, I found that changing SpanT graph
+neighbor representation from array of indices to array of refs
+gave up to a 50% speedup. My guess about cause is that with refs,
+(1) the compiler generates prefetches for the nodes in visit loop
+(2) GC is faster, since all the nodes can be marked live with
+less effort, so parallel GC interferes less with computation.
+
+Sample runs (best of 9 runs per size, p==16)
+SpanT9 -- uses arrays of refs.
+N: 1000000   0.096
+N: 2000000   0.204
+N: 3000000   0.329
+N: 4000000   0.504
+N: 5000000   0.676
+
+SpanT8 -- uses arrays of indices.
+N: 1000000   0.148
+N: 2000000   0.301
+N: 3000000   0.487
+N: 4000000   0.745
+N: 5000000   1.018
+=========================
+
+
+06/07/2007
+
+Vijay Saraswat wrote:
+
+> Excellent! I was thinking of doing this myself. Will convert SpanCID now..
+>
+
+Besides uncovering stall effects etc., the reason for trying this
+is to try to find where real costs are wrt lazy steals.
+A bit more on this:
+
+There are two basic costs for actively creating task and
+push/pop vs lazy: (1) The push/pop, which are around 20-30 cycles each
+more expensive than a pure local stack (basically the cost of a
+StoreLoad barrier, plus some hindrance of other optimizations, some of
+which hotspot is a bit stupid about not doing in the presence of volatiles,
+so could do better.) (2) Creation of task, later GC, and heavier compute()
+code since it uses fields rather than params.  The cost interacts with
+(1) though, since in the absence of those fences, the VM can and sometimes
+does elide some of it by stack-allocating object, so you can't
+firmly estimate. But manually emulating seems to show that the best case
+is very close to direct call. I ought to explore this on J9 as well someday.
+
+This suggests something like the following that wouldn't demand
+that programmers supply unrolled direct call etc: Upon steal in lazy
+version, invoke Object.clone (tasks would need to be Cloneable)
+that would create a non-stack-allocatable copy of task, allowing
+original to always be stack-allocatable. This entails fairly fragile
+interactions with underlying JVM policies/capabilities though, and might
+not actually have the right effect.
+
+-Doug
+
+

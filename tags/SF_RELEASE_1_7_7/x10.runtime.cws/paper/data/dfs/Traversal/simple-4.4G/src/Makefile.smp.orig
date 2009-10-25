@@ -1,0 +1,18 @@
+SIMPLE_DIR  =  ..
+
+EXTRA_CLEAN = $(LIBSMPNODE) Makefile.smp.bak
+
+OPT         = -O$(O_LEVEL)
+# OPT       = -g
+
+include $(SIMPLE_DIR)/Makefile.smp.mk
+
+default : $(POE_CFG) objclean $(LIBSMPNODE) $(OBJ_DIR)/simple-f-main.o
+
+$(LIBSMPNODE): $(SMPLIBPOBJS)
+	@$(RM) -f $(SIMPLELIBDIR)/$(LIBSMPNODE)
+	$(AR) r$(ARZ) $(SIMPLELIBDIR)/$(LIBSMPNODE) $(SMPLIBPOBJS)
+ifeq (,$(findstring SGI,$(TARGET_ARCH)))
+	$(RANLIB) $(SIMPLELIBDIR)/$(LIBSMPNODE)
+endif
+

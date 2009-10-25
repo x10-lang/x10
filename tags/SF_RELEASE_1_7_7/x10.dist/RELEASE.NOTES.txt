@@ -1,0 +1,61 @@
+Release 1.7.7
+
+This release includes both the C++ and Java code generation backends.
+
+There were no language changes since the 1.7.6 release of X10.
+
+The following features described in the 1.7 language manual do not
+currently work with the Java backend and will be fixed in the subsequent
+releases:
+
+- Type parameters on closures
+- Non-static type definitions as class or interface members
+  (static type defs do work)
+- Type definitions as package members (i.e., in the outermost scope of
+  a compilation unit)
+- AST externalization to XML
+- Shared local variables
+- Extern methods
+
+Additionally, the following features described in the 1.7 language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+
+- Garbage collection on Cygwin and AIX
+- Generic virtual methods
+- Exception stack traces on Cygwin
+
+Here's a list of known issues with the C++ backend:
+
+- Default values are not assigned to some value types
+- Static initialization is sometimes incorrectly ordered (at the moment
+  it's very brittle, though somewhat controllable by the link order of
+  files)
+- Operator overloading does not work correctly sometimes
+- Hash codes are not computed correctly for some classes
+
+X10 1.7.7 uses polyglot version 3.1.1.
+
+Below is a summary of JIRA issues addressed for the X10 1.7.7 release.
+
+** Bug
+    * [XTENLANG-408] - Cannot create a new X10 run configuration in X10 mode
+    * [XTENLANG-457] - Performance problems due to changes to the Throwable implementation
+    * [XTENLANG-497] - Trouble reading a binary file with readInt method FileReader class
+    * [XTENLANG-507] - x10c & x10cpp broken with polyglot svn head
+    * [XTENLANG-535] - Broken value equality in C++
+    * [XTENLANG-545] - Segmentation fault on remote reference comparison
+    * [XTENLANG-568] - Post-compiler warnings reported as errors
+
+** Improvement
+    * [XTENLANG-566] - Promote method isX10Array() on X10TypeSystem_c to X10TypeSystem interface
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/15601
+
+Additional bug fixes have been made throughout the system.
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

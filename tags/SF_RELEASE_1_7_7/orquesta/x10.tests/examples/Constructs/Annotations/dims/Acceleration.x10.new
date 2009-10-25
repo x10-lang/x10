@@ -1,0 +1,5 @@
+package dims;
+
+interface public interface Acceleration extends Measure {
+    var g: double = 9.8;
+}

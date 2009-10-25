@@ -1,0 +1,2 @@
+// SYNOPSIS: (nullable #0) #1 #0=type #1=object
+((#0) x10.lang.Runtime.nullCheck(#1))

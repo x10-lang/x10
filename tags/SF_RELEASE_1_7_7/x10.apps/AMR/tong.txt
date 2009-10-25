@@ -1,0 +1,186 @@
+/***
+To learn AMR from start, the good references are Chombo Design Document and Martin & Cartwright's paper on AMR Poisson, (I would recommend to start with the paper and maybe the first two chapters of the design document.) which are available in the AMR directory.  Also, the SC07 paper would be a much better reference than the IPDPS paper, particularly if reader's backgroud is more computer science related. This paper should be available shortly.
+
+I will try to answer the following questions briefly without touching too many details of AMR. It takes time to learn AMR thoroughly because the algorithms are complex. 
+***/
+
+I am slowly working my way through the paper (Wen + Collella), and Phil's slides, with the aim of understanding all the details, and have several questions.
+
+(1) Can you ask Phil if the code he describes in his SciDAC 07 talk (with the scaling to thousands of processors) is the code available from the Chombo download?
+
+-Will do
+
+(2) I have created x10.apps/AMR as a working directory for the new AMR work in X10. I believe that Doug Lovell's code lives in a top-level AMR directory on the Purdue CVS. Did you also create a separate AMR directory?
+
+-I didn't create a separate directory for AMR. Other AMR codes are in x10.apps on rlseyzcvs1.watson.ibm.com.
+
+(3)  Phil's slides
+
+Slide 15: Morton ordering allocation of patches to processors ... is this done "offline" (i.e. is the time to determine allocation not measured?) 
+
+-Yes. And it is not expensive.
+
+Exchanging ghost-cell data less frequently in point relaxation ... what does this mean?
+
+-don't know exactly. It has to be algorithm related.
+
+Slide 16: Why is it necessary for every processor to have a copy of the meta-data?
+
+-so that you know which grid you need to talk to and at which part of it. This is necessary particularly for MPI optimizations. One process packs the data into the buffer and the other unpacks it using the meta data . (It knows how the source process has packed the buffer and just reverses the procedure.) 
+
+Slide 19: What does rebalancing mean? Is there some on-the-fly load balancing?
+
+I am still quite confused about regridding. Shouldnt there be some step where based on the data values a determination is made about which part of the mesh to further refine. This will then lead to computation to determine the partitioning of patches to processors. Is this all done in parallel? Or is this done statically, between the timed runs of the algorithm? (In the latter case it would seem to me that AMR has not been completely parallelized...)
+
+I know I keep asking this question! Perhaps this is what "Parallel grid generation" on P23 is all about.
+
+-I think setups (grid generation, load balancing, etc.) are not timed here. In general, load balancing is not expensive and can be parallelized. (My Titanium implementation just run the load balancing algorithm on the global meta data for each process so that it knows how grids are assigned globally. However, the meta data will be large if in the current format when the numbers of grids and processors become large. So it makes sense to do some parallel processing then.) Regriding involves exactly the things mentioned above. Determining where to further refine should be done in parallel. After this step, grid generation is also not expensive and can be done in parallel. I don't how they are implemented in this case. The communication intensive part in regriding is to move data from the old grid hierarchy to the new one. In summary, load balancing and grid generation (not including the procedure to determine where to further refine in the problem domain and later the moving of data around) are not expensive, but parallel processing may be needed when the number of grids and the number of processors become very large.
+
+P23 talks about load-balancing based on run-time measurements (already done in LMC). So some form of dynamic load-balancing is implemented!
+
+P23: What are "line solves".
+
+-For anisotropic problems, you may need to handle each direction separately. For example, when solving Poisson's equation on 3D AMR grids from Ocean Modeling where the horizontal dimensions are of much larger scale than the vertical one, one has to treat the horizontal ones differently than the vertical one. You can do point relaxation plane by plane for the horizontal dimensions, then do an implicit solve for each column  in the vertical dimension (line solve).
+ 
+P24: has the parallel load balancing algorithm been developed already? 
+
+-I think it hasn't been developed (don't it is hard though).
+
+(4) Questions on your paper: The basic problem I have is that the presentation is geared towards a computational scientist -- so a lot of applied mathematics is assumed. If the paper was written a bit more carefully it could be accessible to a much wider audience, e.g. computer scientists. 
+
+-A much better reference in this sense is the SC 07 paper and it is coming soon.
+
+
+Here are the things I struggled with:
+
+(a) As a computer scientist I am extremely concerned about representational and inferencing and computational issues. So on P2, when you say L phi = f in Omega (2.1), I want to know ... how are L, phi, f and Omega represented? 
+
+Is f implemented as a fixed (unchanging) array at each refinement level?
+
+-Yes. And Omega is a rectangular region.
+
+L is the Laplacian. Good. So then it is represented in code??
+
+-Its discretized version is represented as a stencil operation.
+
+I take it phi is the solution we are after. We are given the value of phi on the boundary of Omega --- is that what "do Omega" is in (2.2)?
+
+-Yes. This specifies the physical boundary condition.
+
+(b)  Bottom of Page 2, col 2. Isnt it the case that each multidimensional array has to be represented in the Fortran style, so that Fortran code can be run to perform stencil operations?
+
+-For Chombo, it is the case.
+
+(c) Page 3 claim -- "basic AMR operations are implemented in 1200
+lines of Titanium code, whereas the corresponding part in Chombo has
+around 6500 lines of code." I dont understand why. In fact I am quite
+surprised. A good OO design in Chombo should yield about the same line
+count as the Titanium code.
+
+-The latest result is 1081 vss 2990. The number 6500 was provided by Phil. I recomputed the current number by not including empty lines and comments, as well as parts not implemented by the Titanium version.
+
+(d) Page 3 Dont understand: "In the multigrid algorithm described
+here, a simplified version of L^l denoted by L^l_nf is also used,
+where it is assumed there is no finer levels above l." Did you mean
+... no finer levels above nf?
+
+-If the next finer level is considered, then we need to modify the result of L at the coarse-fine boundary, that is, the boundary between this level (l) and its adjacent finer level (l+1). L^l_nf means the discretized Laplacian operator at level l without considering the next finer level. If there is one, it is level l+1.
+ 
+How is L^l_nf represented? I see it takes two arguments, whereas L^l
+takes only one argument.
+
+-As mentioned above, it involes data at two levels of refinement. It is equal to ordinary L^l plus correction at the boundary between levels l and l+1 (if there is one).
+
+(e) Is this multigrid method an implicit method? Can I match up
+successive values of phi obtained by applying a V cycle to progress in
+time? I think not. I think this is an implicit method and successive V
+cycles are helping get closer and closer to the root. That is why one
+terminates when the norm is small. PLEASE VERIFY.
+
+-This is an explict method. No linear solve is involved. This is an equilibrium state problem. Not very clear about what you are asking here. 
+
+(f) The code in Figure 2 is highly confusing. To make computational
+sense, I need a lot more details.
+
+1  procedure AMRSolve():
+2    R^comp = f^comp - L^comp(phi^comp)
+3 while (||R^comp|| > e ||f^comp||)
+4     AMRVCycle(l_max)
+5     R^comp = f^comp - L^comp(phi^comp)
+6 end while
+
+OK. Here is what I dont know
+
+   -- What is the datatype associated with R^comp, f^comp, L^comp and
+      phi^comp?
+
+      My guess is that R represents a residual and is implemented as
+      an array of doubles. But does this array have one element per
+      processor, or one element per patch, i dont know.
+
+      -They are composite data structures defined on the whole grid hierarchy. R^comp is a set of level arrays. A level array is the union of (double) arrays defined on the grids at one level, one array per grid. If there are m levels of refinement, then R^comp is the set of m level arrays. That is, R^comp is the combination of R at each refinement level. But in R^comp, only data on grids not covered by any finer grids is meaningful. 
+
+   -- Where are these variables declared, i.e. are these global
+      variables?
+
+      -Yes, they are global.
+
+   -- How are they initialized? On entry to ARMSolve, f, L and phi are
+      read. So they already have values! Where did these values come
+      from? e.g. is the phi value a "guess"? if so, how does one make
+      the initial guess?
+
+      -f is known and the discretization of L is static. The initialization of phi (the unkowns) can be arbitrary, for instance, it can be set to one in Omega. 
+
+   -- My guess is that AMRVCyle side-effects R and phi -- that is the
+      reason for invoking it. And e, phi and delta are local variables
+      in AMRVCycle whose value is not carried over from one invocation
+      of AMRVCycle to another.
+      
+      -Yes. e, phi_copy and delta_e are local variables.
+
+      Is delta e related to e in any way, or is it a completely
+      different variable?
+
+      -they are different variables and only related logically.
+
+   -- What is the communication and computation structure of line 2
+      (and line 5) above? i.e. is this all done in (data-)parallel
+      using an owners-compute rule, with a barrier at the end?
+
+      -The evaluation of Laplacian operator L_nf is performed at each level one by one. At each level, computations in data-parallel are separated with communications for updating boundary conditions by global barriers. Then correction is done at the coarse-fine boundary. 
+
+   -- Similarly is AMRVCycle invoked by one processor? All processors?
+      (I suspect all processors.) i.e. is the pseudo-code an SPMD code
+      or a forkjoin code?
+
+      -SPMD code.
+
+   -- I want to see an abstraction of the actual code, with the step
+      for filling in the ghost cells. This way I can see where there
+      is communication and where there is computation.
+      
+      -Communication is bulk-synchronous and it is logically simple: each grid just does array copies from its neighbors. Computation follows after communication is done globally.
+
+   -- Where is Interpolate defined? My suspicion is that its
+      definition is very simple. One simply fits a linear curve
+      between two given end points to compute the required value at an
+      intermediate point, right?
+
+      -Yes. The curve is quadratic though, requiring three data points.
+
+   -- I have no idea what Omega^f_BLACK and Omega^f_RED are!! Prolly a
+      coloring of the patches are RED and BLACK so that we avoid
+      read/write conflicts.
+      
+      -Yes. You color the region like a chess board (2D case). Omega_black is a region of stride 2 for the 2D case, and it is a set of regions of stride 2 for the 3D case.
+
+The structure of a "V" cycle arises because there is a recursive call
+to AMRVCycle in the body of AMRVCycle. The code before this call is
+executed on the way down in the V-cycle and the code after it is
+executed on the way back up. The "nested V" arises because mgRelax has
+a similar recursive call to mgRelax.
+
+-Yes.
+
+BTW I have started a glossary.txt -- please feel free to update it. 
