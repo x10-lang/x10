@@ -296,12 +296,12 @@ public class X10Context_c extends Context_c implements X10Context {
         return null;
     }
     
-    protected TypeConstraint currentTypeConstraint;
+    protected Ref<TypeConstraint> currentTypeConstraint;
     public TypeConstraint currentTypeConstraint() { 
     	if (currentTypeConstraint == null) 
     		return new TypeConstraint_c(); 
-    	return currentTypeConstraint; }
-    public void setCurrentTypeConstraint(TypeConstraint c) { 
+    	return currentTypeConstraint.get(); }
+    public void setCurrentTypeConstraint(Ref<TypeConstraint> c) { 
     	currentTypeConstraint = c; 
     }
 

@@ -67,7 +67,7 @@ public interface X10Context extends Context {
 
 	/** Current constraint on type variables in scope */
 	TypeConstraint currentTypeConstraint();
-	void setCurrentTypeConstraint(TypeConstraint c);
+	void setCurrentTypeConstraint(Ref<TypeConstraint> c);
 
 	/**
 	 * Looks up a property in the current scope.

@@ -287,7 +287,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 }
                 X10Context xc = (X10Context) context.pushBlock();
                 equals.addIn(xc.currentTypeConstraint());
-                xc.setCurrentTypeConstraint(equals);
+                xc.setCurrentTypeConstraint(Types.ref(equals));
                 if (! consistent(c, xc))
                     return false;
             }
@@ -2262,8 +2262,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10MethodMatcher m = (X10MethodMatcher) matcher;
 
         List<MethodInstance> candidates = new ArrayList<MethodInstance>();
-
-        for (Type t : env(matcher.context()).upperBounds(container, true)) {
+ 
+        List<Type> types = env(matcher.context()).upperBounds(container, true);
+        for (Type t : types) {
             List<MethodInstance> ms = super.findAcceptableMethods(t, matcher);
             candidates.addAll(ms);
         }

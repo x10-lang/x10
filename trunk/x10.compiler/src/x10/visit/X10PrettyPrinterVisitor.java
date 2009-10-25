@@ -527,6 +527,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			for (TypeParamNode tp : n.typeParameters()) {
 				w.write(sep);
 				n.print(tp, w, tr);
+				List<Type> sups = tp.upperBounds();
+				if (sups.size() > 0) {
+					//TODO: Decide what to do with multiple upper bounds. Not sure how Java will handle this.
+					w.write(" extends ");
+					er.printType(sups.get(0), PRINT_TYPE_PARAMS | NO_VARIANCE);
+				}
 				sep = ", ";
 			}
 			w.end();

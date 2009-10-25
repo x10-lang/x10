@@ -427,4 +427,6 @@ public interface X10TypeSystem extends TypeSystem {
     XConstrainedTerm globalPlace();
     
     boolean isX10Array(Type me);
+    
+    Context emptyContext();
 }

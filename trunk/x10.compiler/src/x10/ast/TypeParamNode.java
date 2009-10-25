@@ -8,6 +8,8 @@
 
 package x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.Id;
 import polyglot.ast.Term;
 import polyglot.types.Ref;
@@ -22,4 +24,6 @@ public interface TypeParamNode extends Term {
 	TypeParamNode type(ParameterType type);
 	public ParameterType.Variance variance();
 	public TypeParamNode variance(ParameterType.Variance variance);
+	
+	List<Type> upperBounds();
 }
