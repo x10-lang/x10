@@ -60,7 +60,7 @@ public class KMeans(myDim:Int) {
             }
             return dist;
         }
-        def dist(a:SumVector(dim)):Float {
+        def dist(a:SumVector(dim)!):Float {
             var dist:Float=0.0F;
             for ((i) in 0..dim-1) {
                 val tmp = vec(i)-a(i);
