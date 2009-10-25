@@ -11,6 +11,7 @@ import polyglot.types.Context;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -161,9 +162,13 @@ public final class ITable {
 	    if (cls.isX10Struct()) {
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
-            String thunkType = clsCType + "_ithunk"+itableNum;
+            X10ClassDef cd = ((X10ClassType) cls).x10Def();
+            String thunkType = Emitter.mangled_non_method_name(cd.name().toString()) + "_ithunk"+itableNum;
             boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
-
+            
+            if (cd.package_() != null) {
+                Emitter.openNamespaces(sw, cd.package_().get().fullName()); sw.newline();
+            }            
             if (!cls.typeArguments().isEmpty()) {
                 emitter.printTemplateSignature(cls.typeArguments(), sw);
             }
@@ -209,7 +214,10 @@ public final class ITable {
                 sw.write("&"+thunkType+"::"+Emitter.mangled_method_name(meth.name().toString()));
                 methodNum++;
             }
-            sw.write(");"); sw.newline();    
+            sw.write(");"); sw.newline();
+            if (cd.package_() != null) {
+                Emitter.closeNamespaces(sw, cd.package_().get().fullName()); sw.newline();
+            }
 	    } else {
 	        String interfaceCType = Emitter.translateType(interfaceType, false);
 	        String clsCType = Emitter.translateType(cls, false);
