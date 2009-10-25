@@ -134,15 +134,16 @@ abstract public class BaseRegion extends Region {
      * projection on each axis because it re-uses the FME results.
      */
 
-    global val boundingBoxException: RuntimeException;
-    global val boundingBox:Region(rank);
+   // global val boundingBoxException: RuntimeException;
+   // global val boundingBox:Region(rank);
 
     public global def boundingBox(): Region(rank) {
-        if (boundingBoxException != null)
+    	return computeBoundingBox();
+       /* if (boundingBoxException != null)
 	    throw boundingBoxException;
-        return boundingBox;
+        return boundingBox;*/
     }
-    abstract protected global def computeBoundingBox(): Region(rank);
+    abstract global protected  def computeBoundingBox(): Region(rank);
 
 
     //
@@ -229,13 +230,13 @@ abstract public class BaseRegion extends Region {
     protected def this(rank: int, rect: boolean, zeroBased: boolean): BaseRegion {
         super(rank, rect, zeroBased);
 	// XTENLANG-571
-	try {
-	    boundingBox = computeBoundingBox();
+	/*try {
+	    boundingBox = this.computeBoundingBox();
 	    boundingBoxException = null;
 	} catch (z:RuntimeException) {
 	    boundingBox = null;
 	    boundingBoxException = z;
-	}
+	}*/
     }
 
     public global def min(): ValRail[int] {
