@@ -16,6 +16,10 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected boolean gcEnabled() { return false; }
 
+    protected String defaultPostCompiler() {
+        return "g++-4";
+    }
+
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
         cxxCmd.add("-Wno-long-long");
