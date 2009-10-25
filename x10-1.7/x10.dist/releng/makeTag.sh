@@ -33,6 +33,6 @@ if [[ -z "$TAG" ]]; then
     exit 1
 fi
 
-svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/trunk/ \
+svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-1.7/ \
          https://x10.svn.sourceforge.net/svnroot/x10/tags/$TAG \
-         -m "Tagging trunk revision $REVISION as $TAG release of X10"
+         -m "Tagging x10-1.7 branch revision $REVISION as $TAG release of X10"
