@@ -66,6 +66,8 @@ namespace x10 {
                 }
                 return false;
             }
+
+            static void dealloc_object(const Ref*);
         };
 
         template<class T> x10aux::ref<T> Ref::_deserializer(x10aux::deserialization_buffer &buf) {

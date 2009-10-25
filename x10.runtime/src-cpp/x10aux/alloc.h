@@ -103,7 +103,7 @@ namespace x10aux {
 
     // Deallocate an object with an x10_addr_t prepended to it
     template<class T> void dealloc_remote(const T* obj_) {
-        _M_("Freeing a remote object of type " << TYPENAME(T));
+        _M_("Freeing a remote object "<< (void*)obj_ << " of type " << TYPENAME(T));
         const T* obj = (const T*)(((const char*)obj_)-sizeof(x10_addr_t));
         dealloc(obj);
     }
