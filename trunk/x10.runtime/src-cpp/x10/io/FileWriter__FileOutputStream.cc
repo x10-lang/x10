@@ -22,37 +22,23 @@ const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
     OutputStreamWriter__OutputStream::_serialize_body(buf, m);
+    // This class simply has no global state.
     // TODO: attempting to serialize _outputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
-    //       
-    assert(false);
-    //buf.write(this->_outputStream,m);
-}
-
-template<class __T> x10aux::ref<__T> FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
-    // TODO: attempting to serialize _outputStream is nonsensical.
-    //       The old 1.7 definition of this class simply didn't work either,
-    //       it just silently didn't serialize the FILEPtrInputSteam field.
-    //       
-    assert(false);
-    // x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc_remote<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
-    // this_->_deserialize_body(buf);
-    // return this_;
-    return NULL;
+    // assert(false);
+    // buf.write(this->_outputStream,m);
 }
 
 void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
     OutputStreamWriter__OutputStream::_deserialize_body(buf);
+    // This class simply has no global state.
     // TODO: attempting to serialize _outputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
-    //       
-    assert(false);
+    // assert(false);
     // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
 }
-
-
 
 RTT_CC_DECLS1(FileWriter__FileOutputStream, "x10.io.FileWriter.FileOutputStream", OutputStreamWriter__OutputStream)
 

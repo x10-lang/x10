@@ -992,6 +992,8 @@ public class Emitter {
         h.write("// Serialization"); h.newline();
         String klass = translateType(type);
 
+        String template = context.inTemplate() ? "template " : "";
+
         if (!type.flags().isAbstract()) {
             // _serialization_id
             h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
@@ -1000,7 +1002,6 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            String template = context.inTemplate() ? "template " : "";
             w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons(translateType(ts.Object()))+");");
             w.newline(); w.forceNewline();
         }
@@ -1011,13 +1012,19 @@ public class Emitter {
             h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
             h.write(make_ref(klass)+" this_,"); h.newline();
             h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
-            h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
-            h.write(    "_serialize_reference(this_, buf, m);"); h.newline();
-            h.write(    "if (this_ != x10aux::null) {"); h.newline(4); h.begin(0);
-            h.write(        "this_->_serialize_body(buf, m);"); h.end(); h.newline();
-            h.write(    "}"); h.end(); h.newline();
-            h.write("}"); h.newline();
-            h.forceNewline();
+            h.write("x10aux::addr_map& m);"); h.end();
+            h.newline(); h.forceNewline();
+            printTemplateSignature(ct.typeArguments(), w);
+            w.write("void "+klass+"::"+SERIALIZE_METHOD+"("); w.begin(0);
+            w.write(make_ref(klass)+" this_,"); w.newline();
+            w.write(SERIALIZATION_BUFFER+"& buf,"); w.newline();
+            w.write("x10aux::addr_map& m) {"); w.end(); w.newline(4); w.begin(0);
+            w.write(    "_serialize_reference(this_, buf, m);"); w.newline();
+            w.write(    "if (this_ != x10aux::null) {"); w.newline(4); w.begin(0);
+            w.write(        "this_->_serialize_body(buf, m);"); w.end(); w.newline();
+            w.write(    "}"); w.end(); w.newline();
+            w.write("}"); w.newline();
+            w.forceNewline();
         }
 
         // _serialize_id()
@@ -1065,7 +1072,7 @@ public class Emitter {
         w.newline(); w.forceNewline();
 
         if (!type.flags().isAbstract()) {
-            // _deserialize()
+            // _deserializer()
             h.write("public: template<class __T> static ");
             h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
             h.newline(); h.forceNewline();
@@ -1075,7 +1082,7 @@ public class Emitter {
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
-                        "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
+                       "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
             sw.end(); sw.newline();
@@ -1086,17 +1093,25 @@ public class Emitter {
         if (type.flags().isFinal()) {
             // _deserialize()
             h.write("public: template<class __T> static ");
-            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
-            h.newline(4); h.begin(0);
-            h.write(    make_ref(klass)+" this_ = x10::lang::Ref::_deserialize_reference"+chevrons(klass)+"(buf);");
-            h.newline();
-            h.write(    "if (this_ != x10aux::null && this_->location != x10aux::here) {");
-            h.newline(4); h.begin(0);
-            h.write(        "this_->_deserialize_body(buf);"); h.end(); h.newline();
-            h.write(    "}"); h.newline();
-            h.write(    "return this_;");
-            h.end(); h.newline();
-            h.write("}"); h.newline(); h.forceNewline();
+            h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf);");
+            h.newline(); h.forceNewline();
+            sw.pushCurrentStream(context.templateFunctions);
+            printTemplateSignature(ct.typeArguments(), sw);
+            sw.write("template<class __T> ");
+            sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln("x10::lang::Ref::_reference_state rr = " +
+                    "x10::lang::Ref::_deserialize_reference_state(buf);");
+            sw.writeln(make_ref(klass)+" this_;");
+            sw.write("if (rr.ref != 0) {");
+            sw.newline(4); sw.begin(0);
+            sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.end(); sw.newline();
+            sw.writeln("}");
+            sw.write("return x10::lang::Ref::_finalize_reference"+chevrons("__T")+"(this_, rr);");
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
+            sw.popCurrentStream();
         }
 
         // _deserialize_body()
