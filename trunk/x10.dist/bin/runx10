@@ -1,7 +1,7 @@
 #!/bin/bash
-# Use to run an X10 program in a single place
+# Use to run an X10 program linked against PGAS in a single place
 # Can also be used to invoke valgrind, gdb, etc
-# Should work on Cygwin, Linux, AIX
+# Should work on Cygwin, Linux, Darwin, AIX
 
 PATH="$PATH:."
 
