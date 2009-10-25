@@ -39,7 +39,6 @@ public class UnionRegion extends BaseRegion {
         super(rs.rank, false, false);
         this.regions = rs.toValRail() as ValRail[PolyRegion(rank)]; 
 	//(rs as PolyRegionListBuilder(rank)).toValRail();
-        cache = new Cache(this, false);
     }
 
     public static def make(rs: PolyRegionListBuilder!): Region(rs.rank) {
@@ -162,11 +161,6 @@ public class UnionRegion extends BaseRegion {
     //
     //
 
-    global val cache:Cache;
-
-    public global def boundingBox(): Region(rank) {
-        return cache.boundingBox() as Region(rank); // XXXX
-    }
 
     protected global def computeBoundingBox(): Region(rank) {
         val myMin = Rail.makeVar[int](rank);

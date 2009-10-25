@@ -225,19 +225,6 @@ public class PolyRegion extends BaseRegion {
         return tmp;
     }
 
-
-    /**
-     * Bounding box is computed by taking the projection on each
-     * axis. This implementation is more efficient than computing
-     * projection on each axis because it re-uses the FME results.
-     */
-
-    global val cache:Cache;
-
-    public global def boundingBox(): Region(rank) {
-        return cache.boundingBox() as Region(rank); // XXXX
-    }
-
     protected global def computeBoundingBox(): Region(rank) {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
@@ -343,7 +330,9 @@ public class PolyRegion extends BaseRegion {
         this.mat = pm.simplifyAll() as PolyMat{self.rank==this.rank}; // safe..
 
         // cache stuff up front
-        cache = new Cache(this, hack198);
+        // vj: no dont. THis creates a cycle of global values
+        // Not handled in 2.0
+	//        cache = new Cache(this, hack198);
     }
 
     public global def min(): ValRail[int] {

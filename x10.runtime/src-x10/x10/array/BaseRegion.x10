@@ -127,7 +127,21 @@ abstract public class BaseRegion extends Region {
     abstract public global def product(that: Region): Region;
     abstract public global def projection(axis: int): Region(1);
 
-    abstract public global def boundingBox(): Region(rank);
+    // XTENLANG-571
+    /**
+     * Bounding box is computed by taking the projection on each
+     * axis. This implementation is more efficient than computing
+     * projection on each axis because it re-uses the FME results.
+     */
+
+    global val boundingBoxException: RuntimeException;
+    global val boundingBox:Region(rank);
+
+    public global def boundingBox(): Region(rank) {
+        if (boundingBoxException != null)
+	    throw boundingBoxException;
+        return boundingBox;
+    }
     abstract protected global def computeBoundingBox(): Region(rank);
 
 
@@ -212,13 +226,16 @@ abstract public class BaseRegion extends Region {
         out.println("Region " + this/*.getClass().getName()*/);
     }
 
-
-    //
-    //
-    //
-
     protected def this(rank: int, rect: boolean, zeroBased: boolean): BaseRegion {
         super(rank, rect, zeroBased);
+	// XTENLANG-571
+	try {
+	    boundingBox = computeBoundingBox();
+	    boundingBoxException = null;
+	} catch (z:RuntimeException) {
+	    boundingBox = null;
+	    boundingBoxException = z;
+	}
     }
 
     public global def min(): ValRail[int] {
@@ -231,43 +248,3 @@ abstract public class BaseRegion extends Region {
     }
 }
 
-//
-// This should be cached and computed on demand, but that will
-// require place-local storage to do in a distributed setting, so
-// we cache it up front for now.
-//
-// XXX should be an inner class and Region should be Region(rank) and
-// this(Region) should be this(), but XTENLANG-163 prevents that
-//
-// XXX added hack198 (see also hack198 in other x10 files!) to work
-// around issue with virtual method calls in constructor (XTENLANG-198)
-//
-
-class Cache {
-
-    global val boundingBox: Box[Region];
-    global val boundingBoxException: Box[RuntimeException];
-
-    def this(r:BaseRegion, hack198:boolean) {
-        var boundingBox: Box[Region] = null;
-        var boundingBoxException: Box[RuntimeException] = null;
-        try {
-            // XTENLANG-198
-            boundingBox = hack198? r : r.computeBoundingBox() as Box[Region];
-        } catch (e:RuntimeException) {
-            boundingBoxException = e as Box[RuntimeException];
-        }
-        this.boundingBox = boundingBox;
-        this.boundingBoxException = boundingBoxException;
-    }
-
-    global def boundingBox(): Region {
-        if (boundingBoxException!=null) {
-            val e: RuntimeException =
-                at (boundingBoxException.location)
-                    boundingBoxException as RuntimeException;
-            throw e;
-        }
-        return at (boundingBox.location) boundingBox as Region;
-    }
-}
