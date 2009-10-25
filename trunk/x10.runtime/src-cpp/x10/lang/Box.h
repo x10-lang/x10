@@ -63,7 +63,8 @@ namespace x10 {
 
         template<class T> void Box<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
             this->x10::lang::Ref::_serialize_body(buf, m);
-            buf.write(this->FMGL(value), m);
+            // FIXME: [IP] HACK to get around circularity in Region
+            //buf.write(this->FMGL(value), m);
         }
 
         template<class T> template<class U> x10aux::ref<U> Box<T>::_deserializer(x10aux::deserialization_buffer &buf) {
@@ -74,7 +75,8 @@ namespace x10 {
 
         template<class T> void Box<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
             this->x10::lang::Ref::_deserialize_body(buf);
-            this->FMGL(value) = buf.read<T>();
+            // FIXME: [IP] HACK to get around circularity in Region
+            //this->FMGL(value) = buf.read<T>();
         }
 
         template <> class Box<void> : public Ref {
