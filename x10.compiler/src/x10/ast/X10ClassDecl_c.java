@@ -374,15 +374,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		for (ParameterType t : type.typeParameters()) {
     			xc.addNamed(t);
     		}
-    		/*    vj TODO: This causes a loop. Need to investigate.
-    		 * DepParameterExpr v = classInvariant();
+    		 DepParameterExpr v = classInvariant();
                if (v != null) {
             	   Ref<TypeConstraint> tc = v.typeConstraint();
             	   if (tc != null) {
-            		    xc.setCurrentTypeConstraint(tc.get());
+            		    xc.setCurrentTypeConstraint(tc);
             	   }
                }
-    		 */
+    		 
     		// Now add this.location == currentLocation
 /*    		XConstrainedTerm placeTerm = xc.currentPlaceTerm().copy();
     		XRoot thisVar = type.thisVar();
@@ -477,41 +476,41 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         // Add all the constraints on the supertypes into the invariant.
         c.setResolver(new Runnable() {
-            public void run() {
-        	XConstraint x = new XConstraint_c();
-        	try {
-        	    if (ci != null) {
-        		XConstraint xi = ci.valueConstraint().get();
-        		x.addIn(xi);
-        		TypeConstraint ti = ci.typeConstraint().get();
-        	    }
-        	    if (nn.superClass != null) {
-        		Type t = nn.superClass.type();
-        		XConstraint tc = X10TypeMixin.xclause(t);
-        		if (tc != null)
-        		    x.addIn(tc);
-        	    }
-        	    for (TypeNode tn : nn.interfaces) {
-        		Type t = tn.type();
-        		XConstraint tc = X10TypeMixin.xclause(t);
-        		if (tc != null)
-        		    x.addIn(tc);
-        	    }
+        	public void run() {
+        		XConstraint x = new XConstraint_c();
+        		try {
+        			if (ci != null) {
+        				XConstraint xi = ci.valueConstraint().get();
+        				x.addIn(xi);
+        				TypeConstraint ti = ci.typeConstraint().get();
+        			}
+        			if (nn.superClass != null) {
+        				Type t = nn.superClass.type();
+        				XConstraint tc = X10TypeMixin.xclause(t);
+        				if (tc != null)
+        					x.addIn(tc);
+        			}
+        			for (TypeNode tn : nn.interfaces) {
+        				Type t = tn.type();
+        				XConstraint tc = X10TypeMixin.xclause(t);
+        				if (tc != null)
+        					x.addIn(tc);
+        			}
+        		}
+        		catch (XFailure e) {
+        			x.setInconsistent();
+        		}
+        		c.update(x);
         	}
-        	catch (XFailure e) {
-        	    x.setInconsistent();
-        	}
-        	c.update(x);
-            }
         });
         
         def.setClassInvariant(c);
         
-        final Ref<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint_c());
+        final LazyRef<TypeConstraint> tc = new LazyRef_c<TypeConstraint>(new TypeConstraint_c());
 
         
         // Set the type bounds for the def.
-        c.setResolver(new Runnable() {
+       tc.setResolver(new Runnable() {
         	public void run() {
         		TypeConstraint x = new TypeConstraint_c();
 

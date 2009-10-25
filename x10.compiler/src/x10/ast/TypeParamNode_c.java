@@ -19,6 +19,7 @@ import polyglot.types.Def;
 import polyglot.types.Named;
 import polyglot.types.SemanticException;
 import polyglot.types.Types;
+import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -28,6 +29,8 @@ import polyglot.visit.TypeBuilder;
 import x10.types.ParameterType;
 import x10.types.ParameterType_c;
 import x10.types.X10Context;
+import x10.types.X10Context_c;
+import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeSystem;
 
 public class TypeParamNode_c extends Term_c implements TypeParamNode {
@@ -111,5 +114,12 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	@Override
 	public void prettyPrint(CodeWriter w, PrettyPrinter pp) {
 	    pp.print(this, name, w);
+	}
+	public List<Type> upperBounds() {
+		Type type = type();
+		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		X10Context_c xc = (X10Context_c) ts.emptyContext();
+		List<Type> results = new X10TypeEnv_c(xc).upperBounds(type, false);
+		return results;
 	}
 }

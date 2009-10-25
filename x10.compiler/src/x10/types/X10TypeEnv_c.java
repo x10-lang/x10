@@ -775,7 +775,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		for (SubtypeConstraint tt : newEnv) {
     			ec.addTerm(tt);
     		}
-    		xc2.setCurrentTypeConstraint(ec);
+    		xc2.setCurrentTypeConstraint(Types.ref(ec));
 
     		X10TypeEnv_c tenv = copy();
     		tenv.context = xc2;
@@ -1008,7 +1008,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             for (SubtypeConstraint tt : newEnv) {
                 ec.addTerm(tt);
             }
-            xc2.setCurrentTypeConstraint(ec);
+            xc2.setCurrentTypeConstraint(Types.ref(ec));
 
             if (term.isEqualityConstraint()) {
                 SubtypeConstraint eq = term;
