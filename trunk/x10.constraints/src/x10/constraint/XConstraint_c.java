@@ -212,6 +212,9 @@ public XConstraint_c() {
 */
     public List<XFormula> atoms() {
     	List<XFormula> r = new LinkedList<XFormula>();
+    	if (roots == null)
+    		return r;
+    		
     	for (XTerm t : roots.keySet()) {
     		if (t instanceof XFormula) {
     			r.add((XFormula) t);
