@@ -1,0 +1,644 @@
+\chapter{Expressions}\label{XtenExpressions}\index{expressions}
+
+\Xten{} supports a rich expression language similar to
+\Java{}'s.
+Evaluating an expression produces a value, which may be either
+an instance of a value class or an instance of a reference
+class. Expressions may also be \xcd"void"; that is, they produce no
+value.
+Expression evaluation may have side effects: assignment to a
+variable, allocation, method calls, or exceptional control-flow.
+Evaluation is strict and is performed left to right.
+
+\section{Literals}
+
+\Xten{} supports the following literal expressions: 
+\begin{itemize}
+\item A 32-bit integer literal is a value of type \xcd"x10.lang.Int".
+\item A 64-bit long literal is a value of type \xcd"x10.lang.Long".
+\item A 32-bit unsigned integer literal is a value of type \xcd"x10.lang.UInt".
+\item A 64-bit unsigned long literal is a value of type \xcd"x10.lang.ULong".
+\item A 32-bit floating-point literal is a value of type \xcd"x10.lang.Float".
+\item A 64-bit floating-point literal is a value of type \xcd"x10.lang.Double".
+\item A character literal is a value of type \xcd"x10.lang.Char".
+\item A string literal is a value of type \xcd"x10.lang.String".
+\item The boolean literals \xcd"true" and \xcd"false" are of type
+\xcd"x10.lang.Boolean".
+\item The \xcd"null" literal is of the null type, a subtype of all reference types.
+\end{itemize}
+
+\section{\Xcd{this}}
+
+\begin{grammar}
+ThisExpression \: \xcd"this" \\
+\| ClassName \xcd"." \xcd"this" \\
+\end{grammar}
+
+The expression \xcd"this" is a final local variable containing a reference
+to an instance of the lexically enclosing class.
+It may be used only within the body of an instance method, a
+constructor, or in the initializer of a instance field.
+
+Within an inner class, \xcd"this" may be qualified with the
+name of a lexically enclosing class.  In this case, it
+represents an instance of that enclosing class.
+
+The type of a \xcd"this" expression is the
+innermost enclosing class, or the qualifying class,
+constrained by the class invariant and the
+method guard, if any.
+
+The \xcd"this" expression may also be used within constraints in
+a class or interface header (the class invariant and
+\xcd"extends" and \xcd"implements" clauses).  Here, the type of
+\xcd"this" is restricted so that only properties declared in the
+class header itself, and specifically not any members declared in the class
+body or in supertypes, are accessible through \xcd"this".
+
+\section{Local variables}
+
+
+\begin{grammar}
+LocalExpression \: Identifier \\
+\end{grammar}
+
+A local variable expression consists simply of the name of the
+local variable.
+
+
+\section{Field access}
+\label{FieldAccess}
+
+
+\begin{grammar}
+FieldExpression \: Expression \xcd"." Identifier \\
+                \| \xcd"super" \xcd"." Identifier \\
+                \| ClassName \xcd"." Identifier \\
+                \| ClassName \xcd"." \xcd"super" \xcd"." Identifier \\
+\end{grammar}
+
+A field of an object instance may be  accessed
+with a field access expression.
+
+The type of the access is the declared type of the field with the
+actual target substituted for \xcd"this" in the type.  If the actual
+target is not a final access path (\Sref{FinalAccessPath}),
+an anonymous path is substituted for \xcd"this".
+
+The field accessed is selected from the fields and value properties
+of the static type of the target and its superclasses.
+
+If the field target is given by the keyword \xcd"super",
+the target's type is
+the superclass of the enclosing class, as
+constrained by the superclass's class invariant, if any.
+
+If the field target is \xcd"null", a \xcd"NullPointerException"
+is thrown.
+
+If the field target is a class name, a static field is selected.
+
+It is illegal to access  a field that is not visible from
+the current context.
+It is illegal to access a non-static field
+through a static field access expression.
+
+\input{Closures}
+
+\section{Calls}
+\label{Call}
+\label{MethodInvocation}
+\label{MethodInvocationSubstitution}
+
+\begin{grammar}
+MethodCall \: TypeName \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| ClassName \xcd"." \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+Call \: Primary TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+TypeArguments \: \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
+\end{grammar}
+
+A \grammarrule{MethodCall} may be to either \xcd"static" or to
+instance methods.  A \grammarrule{Call} may to either a method
+or a closure.  The syntax is ambiguous; the target must be
+type-checked to determine if it is the name of a method or if it
+refers to a closure.
+
+It is a static error if a call may resolve to both a closure
+call or to a method call.  
+
+A closure call \xcdmath"e($\dots$)" is shorthand for a method call \xcdmath"e.apply($\dots$)".
+
+Method selection rules are similar to that of \java{}.
+For a call with no explicit type arguments, a method with 
+no parameters is considered more specific than a method with one or more
+type parameters that would have to be inferred.
+
+Type arguments may be omitted and inferred, as described in
+\Sref{TypeInference}.
+
+It is a static error if a method's \grammarrule{Guard} is not satisfied by the caller.
+
+\section{Assignment}\index{assignment}\label{AssignmentStatement}
+
+\begin{grammar}
+Expression \: Assignment \\
+Assignment \: SimpleAssignment \\
+           \| OpAssignment \\
+SimpleAssignment \: LeftHandSide \xcd"=" Expression \\
+OpAssignment \: LeftHandSide \xcd"+=" Expression \\
+             \: LeftHandSide \xcd"-=" Expression \\
+             \: LeftHandSide \xcd"*=" Expression \\
+             \: LeftHandSide \xcd"/=" Expression \\
+             \: LeftHandSide \xcd"%=" Expression \\
+             \: LeftHandSide \xcd"&=" Expression \\
+             \: LeftHandSide \xcd"|=" Expression \\
+             \: LeftHandSide \xcd"^=" Expression \\
+             \: LeftHandSide \xcd"<<=" Expression \\
+             \: LeftHandSide \xcd">>=" Expression \\
+             \: LeftHandSide \xcd">>>=" Expression \\
+LeftHandSide \: Identifier \\
+             \| Primary \xcd"." Identifier \\
+             \| Primary \xcd"(" Expression \xcd")" \\
+\end{grammar}
+
+%It is often the case that an \Xten{} variable is assigned to only
+%once. The user may declare such variables as \xcd"final". However,
+%this is sometimes syntactically cumbersome.
+%
+%{}\Xten{} supports the syntax \xcd"l := r" for assignment to mutable
+%variables.  The user is strongly enouraged to use this syntax to
+%assign variables that are intended to be assigned to more than
+%once. The \Xten{} compiler may issue a warning if it detects code 
+%that uses \xcd"=" assignment statements on \xcd"mutable" variables.
+
+The assignment expression \xcd"x = e" assigns a value given by
+expression \xcd"e"
+to a mutable variable \xcd"x".  There are three forms of
+assignment: \xcd"x" may be a local variable, it may be a field
+\xcd"y.f", or it may be the variable obtained by evaluating the expression \xcd"a(i)".
+In the last case, \xcd"a" must be an instance of a class implementing the interface
+ \xcd"x10.lang.Settable[S,T]", where 
+\xcd"S" and \xcd"T" are the types of \xcd"i" and \xcd"e", respectively.
+
+This interface is defined thus:
+\begin{xten}
+package x10.lang;
+public interface Settable[S,T] {
+    def set[S,T](i: S, v: T): T;
+}
+\end{xten}
+The assignment \xcd"a(i) = e" is equivalent to the call
+\xcd"a.set(i, e)".
+
+\eat{
+For array variables, the right-hand-side
+expression \xcd"e" 
+must have the same distribution \xcd"a(i)". This
+statement involves control communication between the sites hosting
+\xcd"D". Each site performs the assignment(s) of array components
+locally. The assignment terminates when assignment has terminated at
+all sites hosting \xcd"D".
+}
+
+%% vj: fix. Use some other word for a mutable memory location, not ``location''. 
+For a binary operator
+$\mathit{op}$,
+the
+$\mathit{op}$-assignment expression \xcdmath"x $\mathit{op}$= e"
+evaluates \xcd"x" to a memory location, then evaluates \xcd"e",
+applies the operation \xcdmath"x \mathit{op} e", and assigns the
+result into the location computed for \xcd"x".
+The expression is equivalent to \xcdmath"x = x $\mathit{op}$ e"
+except that any subexpressions of \xcd"x" are evaluated only
+once.
+
+%% TODO: Sectional assignment??
+
+%\input{rmi.tex}
+
+
+\section{Increment and decrement}
+
+The operators \xcd"++" and \xcd"--" increment and decrement
+a variable, respectively.  The variable must be non-final
+and of numeric type.
+
+When the operator is prefix, the variable is
+incremented or decremented by \xcd"1" and the result of the expression is
+the new value of the variable.
+When the operator is postfix, the variable is incremented or
+decremented by \xcd"1" and the result of the expression is the old value of
+the variable.
+
+The new value of the variable $v$ is identical to the result of
+the expressions
+\xcdmath"$v$+1" or \xcdmath"$v$-1", as appropriate.
+
+\section{Numeric promotion}
+\label{XtenPromotions}
+\index{promotion}
+\index{numeric promotion}
+
+The unary and binary operators promote their operands as
+follows.
+Values are sign extended and converted to instances of the
+promoted type.
+
+\begin{itemize}
+\item  The unary promotion of \xcd"Byte", \xcd"Short", and \xcd"Int" is \xcd"Int".
+\item  The unary promotion of \xcd"Long" is \xcd"Long".
+\item  The unary promotion of \xcd"Float" is \xcd"Float".
+\item  The unary promotion of \xcd"Double" is \xcd"Double".
+\item  The unary promotion of \xcd"UByte", \xcd"UShort", and \xcd"UInt" is \xcd"UInt".
+\item  The unary promotion of \xcd"ULong" is \xcd"ULong".
+\item The binary promotion of two types is the  
+greater of the unary promotion of each type
+according to the following partial order:
+\begin{itemize}
+\item \xcd"Int" $<$ \xcd"Long"
+\item \xcd"UInt" $<$ \xcd"ULong"
+\item \xcd"Long" $<$ \xcd"Float"
+\item \xcd"ULong" $<$ \xcd"Float"
+\item \xcd"Float" $<$ \xcd"Double"
+\end{itemize}
+\end{itemize}
+
+\section{Unary plus and unary minus}
+
+The unary \xcd"+" operator applies unary numeric promotion to
+its operand.   The operand must be of numeric type.
+
+The unary \xcd"-" operator
+applies unary numeric promotion to its operand
+and then
+subtracts the promoted operand from \xcd"0".
+The operand must be of numeric type.
+The type of the result is promoted type.
+
+\section{Bitwise complement}
+
+ The unary \xcd"~" operator
+applies unary numeric promotion to its operand
+and then
+ evaluates to the bitwise complement of
+ the promoted operand.
+  The operand must be of integral type.
+The type of the result is promoted type.
+
+\section{Binary arithmetic operations} 
+
+The binary arithmetic operations apply binary numeric promotion
+to their operands. The operands must be of numeric type.
+The type of the result is the promoted type.
+The
+\xcd"+" operator adds the promoted operands. The \xcd"-" operator
+subtracts the second operand from the first. The \xcd"*" operator
+multiplies the  promoted  operands. The \xcd"/" operator
+divides the
+first  operand  by the second.
+The \xcd"%" operator evaluates to
+the remainder of the division of the first operand by the
+second.
+
+Floating point operations are determined by the IEEE 754
+standard. 
+The integer \xcd"/" and \xcd"%" throw a \xcd"DivideByZeroException"
+if the right operand is zero.
+
+\section{Binary shift operations}
+
+Unary promotion is performed on each operand separately. 
+The operands must be of integral type.
+The type of the result is the promoted type of the left operand.
+
+If the promoted type of the left operand is \xcd"Int",
+the right operand is masked with \xcd"0x1f" using the bitwise
+AND (\xcd"&") operator.
+If the promoted type of the left operand is \xcd"Long",
+the right operand is masked with \xcd"0x3f" using the bitwise
+AND (\xcd"&") operator.
+
+The \xcd"<<" operator left-shifts the left operand by the number of
+bits given by the right operand.
+
+The \xcd">>" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is sign extended;
+that is, if the right operand is $k$,
+the most significant $k$ bits of the result are set to the most
+significant bit of the operand.
+
+The \xcd">>>" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is not sign extended;
+that is, if the right operand is $k$,
+the most significant $k$ bits of the result are set to \xcd"0".
+
+\section{Binary bitwise operations}
+
+The binary bitwise operations apply binary numeric promotion
+to their operands. The operands must be of integral type.
+The type of the result is the promoted type.
+The \xcd"&" operator  performs the bitwise AND of the promoted operands.
+The \xcd"|" operator  performs the bitwise inclusive OR of the promoted operands.
+The \xcd"^" operator  performs the bitwise exclusive OR of the promoted operands.
+
+\section{String concatenation}
+
+The \xcd"+"  operator is used for string concatenation 
+ as well as addition.
+If either operand is of static type \xcd"x10.lang.String",
+ the other operand is converted to a \xcd"String", if needed,
+  and  the two strings  are concatenated.
+
+ String conversion of a non-\xcd"null" value is  performed by invoking the
+ \xcd"toString()" method of the value.
+  If the value is \xcd"null", the value is converted to 
+  \xcd'"null"'.
+
+The type of the result is \xcd"String".
+
+\section{Logical negation}
+
+The operand of the  unary \xcd"!" operator 
+must be of type \xcd"x10.lang.Boolean".
+The type of the result is \xcd"Boolean".
+If the value of the operand is \xcd"true", the result is \xcd"false"; if
+if the value of the operand  is \xcd"false", the result is \xcd"true".
+
+\section{Boolean logical operations}
+
+Operands of the binary boolean logical operators must be of type \xcd"Boolean".
+The type of the result is \xcd"Boolean"
+
+The \xcd"&" operator  evaluates to \xcd"true" if both of its
+operands evaluate to \xcd"true"; otherwise, the operator
+evaluates to \xcd"false".
+
+The \xcd"|" operator  evaluates to \xcd"false" if both of its
+operands evaluate to \xcd"false"; otherwise, the operator
+evaluates to \xcd"true".
+
+\section{Boolean conditional operations}
+
+Operands of the binary boolean conditional operators must be of type \xcd"Boolean".
+The type of the result is \xcd"Boolean"
+
+The \xcd"&&" operator  evaluates to \xcd"true" if both of its
+operands evaluate to \xcd"true"; otherwise, the operator
+evaluates to \xcd"false".
+Unlike the logical operator \xcd"&",
+if the first operand is \xcd"false",
+the second operand is not evaluated.
+
+The \xcd"||" operator  evaluates to \xcd"false" if both of its
+operands evaluate to \xcd"false"; otherwise, the operator
+evaluates to \xcd"true".
+Unlike the logical operator \xcd"||",
+if the first operand is \xcd"true",
+the second operand is not evaluated.
+
+\section{Relational operations} 
+
+The relational operations apply binary numeric promotion
+to their operands. The operands must be of numeric type.
+The type of the result is \xcd"Boolean".
+
+The \xcd"<" operator evaluates to \xcd"true" if the left operand is
+less than the right.
+The \xcd"<=" operator evaluates to \xcd"true" if the left operand is
+less than or equal to the right.
+The \xcd">" operator evaluates to \xcd"true" if the left operand is
+greater than the right.
+The \xcd">=" operator evaluates to \xcd"true" if the left operand is
+greater than or equal to the right.
+
+Floating point comparison is determined by the IEEE 754
+standard.  Thus,
+if either operand is NaN, the result is \xcd"false".
+Negative zero and positive zero are considered to be equal.
+All finite values are less than positive infinity and greater
+than negative infinity.
+
+\section{Conditional expressions}
+\label{Conditional}
+
+\begin{grammar}
+ConditionalExpression \: Expression
+                \xcd"?" Expression
+                \xcd":" Expression \\
+\end{grammar}
+
+A conditional expression evaluates its first subexpression (the
+condition); if \xcd"true"
+the second subexpression (the consequent) is evaluated; otherwise,
+the third subexpression (the alternative) is evaluated.
+
+The type of the condition must be \xcd"Boolean".
+The type of the conditional expression is the least common
+ancestor (\Sref{LCA}) of the types of the consequent and the alternative.
+
+\section{Stable equality}\label{StableEquality}\index{==}\index{!=}
+
+\begin{grammar}
+EqualityExpression \: Expression \xcd"==" Expression \\
+\| Expression \xcd"!=" Expression \\
+\end{grammar}
+
+The \xcd"==" and \xcd"!=" operators provide \emph{stable
+equality}; that is, the result of the equality operation is not affected
+by the mutable state of the program.
+
+Two operands may be compared with the infix predicate \xcd"==".
+The operation
+evaluates to \xcd"true" if and only if no action taken by any
+user program can distinguish between the two operands.  In more detail,
+the rules are as follows.
+
+If the operands both have reference type, then the operation
+evaluates to \xcd"true" if both are references to
+the same object (even if the object has no mutable fields). 
+
+If one operand evaluates to \xcd"null" then the predicate
+evaluates to \xcd"true" if and only if the
+other operand is also \xcd"null".
+
+If the operands both have value type, then they must be structurally equal;
+that is, they must be instances of the same value class or value array
+data type and all their fields or components must be \xcd"==". 
+
+If one operand is of reference type and the other is of value type,
+the result is \xcd"false".
+
+If the operands both have numeric type, binary promotion
+(\Sref{XtenPromotions}) is performed on the operands before the
+comparison.  If the operands do not have numeric type, no
+conversions are performed.
+
+The predicate \xcd"!=" returns \xcd"true" (\xcd"false") on two
+arguments if and only if the operand \xcd"==" returns \xcd"false"
+(\xcd"true") on the same operands.
+
+The predicates \xcd"==" and \xcd"!=" may not be overridden by the
+programmer.
+
+\section{Allocation}
+\label{ClassCreation}
+
+\begin{grammar}
+NewExpression \: \xcd"new" ClassName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
+        ClassBody\opt \\
+  \| \xcd"new" InterfaceName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
+        ClassBody
+\end{grammar}
+
+An allocation expression creates a new instance of a class and
+invokes a constructor of the class.
+The expression designates the class name and passes
+type and value arguments to the constructor.
+
+The allocation expression may have an optional class body.
+In this case, an anonymous subclass of the given class is
+allocated.   An anonymous class allocation may also specify a
+single super-interface rather than a superclass; the superclass
+of the anonymous class is \xcd"x10.lang.Object".
+
+If the class is anonymous---that is, if a class body is
+provided---then the constructor is selected from the superclass.
+The constructor to invoke is selected using the same rules as
+for method invocation (\Sref{MethodInvocation}).
+
+The type of an allocation expression
+is the return type of the constructor invoked, with appropriate
+substitutions  of actual arguments for formal parameters, as
+specified in \Sref{MethodInvocationSubstitution}.
+
+It is illegal to allocate an instance of an \xcd"abstract" class.
+It is illegal to allocate an instance of a class or to invoke a
+constructor that is not visible at
+the allocation expression.
+
+
+\section{Casts}\label{ClassCast}\index{classcast}
+
+The cast operation may be used to cast an expression to a given type:
+
+\begin{grammar}
+UnaryExpression \: CastExpression \\
+CastExpression \: UnaryExpression \xcd"as" Type \\
+\end{grammar}
+
+The result of this operation is a value of the given type if the cast
+is permissible at run time.
+
+The \xcd"as" operation converts the value to the given type or
+throws \xcd"x10.lang.ClassCastException" if the value cannot be 
+converted.
+Object identity need not be preserved by the conversion.
+Type conversion is checked according to the
+rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
+For constrained types, both the base
+type and the constraint are checked.
+If the
+value cannot be cast to the appropriate type, a
+\xcd"ClassCastException"
+is thrown.
+%If the value cannot be cast to the
+%appropriate place type a \xcd"BadPlaceException" is thrown. 
+
+% Any attempt to cast an expression of a reference type to a value type
+% (or vice versa) results in a compile-time error. Some casts---such as
+% those that seek to cast a value of a subtype to a supertype---are
+% known to succeed at compile-time. Such casts should not cause extra
+% computational overhead at run time.
+
+\section{\Xcd{instanceof}}\label{instanceOf}\index{instanceof@\xcd"instanceof"}
+
+\Xten{} permits types to be used in an in instanceof expression
+to determine whether an object is an instance of the given type:
+
+\begin{grammar}
+RelationalExpression \: RelationalExpression \xcd"instanceof" Type
+\end{grammar}
+
+In the above expression, \grammarrule{Type} is any type including
+constrained types and value types. 
+At run time, the result of this operator is
+\xcd"true" if the \grammarrule{RelationalExpression} can be
+coerced
+to \grammarrule{Type} without a \xcd"TypeCastException" being
+thrown.  Otherwise the result is \xcd"false".
+This determination may involve checking
+that the
+constraint, if any, associated with the type is true for the
+given expression.
+
+\section{Subtyping expressions}
+
+\begin{grammar}
+SubtypingExpression \: Expression \xcd"<:" Expression \\
+                    \| Expression \xcd":>" Expression \\
+                    \| Expression \xcd"==" Expression \\
+\end{grammar}
+
+The subtyping expression \xcdmath"T$_1$ <: T$_2$"
+evaluates to  \xcd"true"  
+                         \xcdmath"T$_1$"
+                         is a subtype of
+                         \xcdmath"T$_2$".
+
+The expression \xcdmath"T$_1$ :> T$_2$"
+evaluates to  \xcd"true"  
+                         \xcdmath"T$_2$"
+                         is a subtype of
+                         \xcdmath"T$_1$".
+
+The expression \xcdmath"T$_1$ == T$_2$"
+evaluates to  \xcd"true"  
+                         \xcdmath"T$_1$"
+                         is a subtype of
+                         \xcdmath"T$_2$"
+                         and if
+                         \xcdmath"T$_2$"
+                         is a subtype of
+                         \xcdmath"T$_1$".
+
+                         Subtyping expressions are used in
+                         subtyping constraints for generic
+                         types.
+
+\section{Contains expressions}
+
+\begin{grammar}
+ContainsExpression \: Expression \xcd"in" Expression \\
+\end{grammar}
+
+The expression \xcd"p in r" tests if a value \xcd"p" is in a collection
+\xcd"r"; it evaluates to \xcd"r.contains(p)".
+The collection \xcd"r"
+must be of type \xcd"Collection[T]" and the value \xcd"p" must
+be of type \xcd"T".
+
+\section{Rail constructors}
+\label{RailConstructors}
+
+\begin{grammar}
+RailConstructor \: \xcd"[" Expressions \xcd"]" \\
+Expressions \: Expression ( \xcd"," Expression )\star \\
+\end{grammar}
+
+The rail constructor \xcdmath"[a$_0$, $\dots$, a$_{k-1}$]"
+creates an instance of \xcd"ValRail" with length $k$
+where the $i$th element is
+\xcdmath"a$_i$".  The element type of the array (\xcd"T") is
+bound to the least common ancestor of the types of the
+\xcdmath"a$_i$" (\Sref{LCA}).
+
+Since arrays are subtypes of \xcd"(Point) => T",
+rail constructors can be passed into the \xcd"Array" and
+\xcd"ValArray" constructors as initializer functions.
+
+Rail constructors of type \xcd"ValRail[Int]" and length \xcd"n" 
+may be implicitly converted to type \xcd"Point{rank==n}".
+Rail constructors of type \xcd"ValRail[Region]" and length \xcd"n" 
+may be implicitly converted to type \xcd"Region{rank==n}".
+

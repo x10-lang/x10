@@ -1,0 +1,71 @@
+Classes are not types.
+
+Interfaces define types. Types specify behavioral contracts. Classes
+define code. Code implements contracts. Variables in the code have
+types. The type hierarchy permits multiple inheritance. Classes permit
+single inheritance of code.
+
+An interface may extend multiple interfaces (as in Java). An interface
+specifies the signature of methods, constants and nested
+interfaces. We will add syntax to allow the programmer to specify pre-
+and post-conditions for methods.
+
+The type hierarchy is singly rooted, in x10.lang.Object. 
+
+A public class automatically defines a public interface, namely the
+"native" interface formed from its public methods.  The class
+automatically implements this interface, which has the same FQN as the
+class. Since classes and interfaces live in different name spaces,
+there is no risk of confusion. We require that a class be implemented
+in such a way that methods on its native interface can be invoked
+efficiently, without going through a level of indirection usually
+associated with the invocation of methods on interfaces.
+
+A class may implement multiple interfaces, as done today in Java, but
+a class may extend at most one class. Every class automatically
+implements the interface x10.lang.Object.  An instance of a class can
+correctly be passed only into a variable declared at a type that is
+the interface generated from the class or an interface implemented by
+the class, or a super-interface.  A class may have static state
+(members, fields, class and interface declarations) that is accessed
+by using the name of the class.
+
+Certain type qualifiers are provided as "tagging interfaces"
+(interfaces that do not have any members) and may be used in any
+variable declaration (method argument, argument of for loops, local
+variable, field declaration, catch clauses). The qualifier "value"
+indicates that the fields of any object of that type are immutable.
+The qualifier "pure" indicates that an instance of the type does not
+possess any mutable state.
+
+Note that the final modifier to a class definition is an assertion
+about the class code (that it cannot be subclassed), not about the
+type automatically generated from the class.
+
+A value class declaration, in this design declares that this class
+(and all its subclasses) implement the value interface.
+
+The key flexibility this design provides is increased modularity. It
+is not possible (in a language with these rules) to write code that
+explicitly builds in dependencies to particular classes (code).  No
+context in the language can distinguish between two instances of
+different classes that implement the same interface and are
+behaviorally indistinguishable. No context can have an implicit
+dependency on the identity of the class used to instantiate an object
+passed to it.
+
+For instance consider the value class int.  It automatically generates
+an interface that can be implemented by any other (value) class, say
+myInt. An instance of myInt can be passed into any context at type int
+and would be indistinguishable from the corresponding instance of the
+pre-defined class int (except perhaps for performance).
+
+So we simply define some of these built in interfaces to specify
+certain contracts.
+
+  exact: this value is exactly of this type
+  pure:  this is a recursively immutable type.
+  immutable: this is top-level immutable type.
+  bound: for reference types only. the value is not null.
+  final: (type specifier) this variable is once-assignable only.
+

@@ -1,0 +1,258 @@
+\chapter{API}\label{XtenAPI}
+
+The \Xten{} implementation is required to implement a number of
+classes in the package \xcd"x10.lang".
+
+\section{Base types}
+
+\begin{xten}
+package x10.lang;
+
+/** The top of the type hierarchy. */
+public interface Object {
+    public def equals(o: Object): Boolean;
+    public def hashCode(): Int;
+    public def toString(): String;
+    /** Return the full name of the class, e.g., "x10.lang.String" */
+    public def className(): String;
+}
+
+/**
+ * Base class of all value classes; implemented by any class
+ * declared value; a Ref class cannot implement Value.
+ */
+public value Value { }
+
+/** Base class of all reference classes, except Object. */
+public class Ref(location: Place) {
+    public def this() { property(here); }
+}
+\end{xten}
+
+\section{Boolean}
+
+\begin{xten}
+package x10.lang;
+
+public value Boolean { ... }
+\end{xten}
+
+\section{Char}
+
+\begin{xten}
+package x10.lang;
+
+public value Char { ... }
+\end{xten}
+
+\section{Numeric values types}
+
+\begin{xten}
+package x10.lang;
+
+public value Byte   { ... }
+public value Short  { ... }
+public value Int    { ... }
+public value Long   { ... }
+public value UByte  { ... }
+public value UShort { ... }
+public value UInt   { ... }
+public value ULong  { ... }
+public value Float  { ... }
+public value Double { ... }
+
+// Type aliases
+public type boolean = Boolean;
+public type char = Char;
+public type byte = Byte;
+public type short = Short;
+public type int = Int;
+public type long = Long;
+public type ubyte = UByte;
+public type ushort = UShort;
+public type uint = UInt;
+public type ulong = ULong;
+public type float = Float;
+public type double = Double;
+
+public type Int8    = Byte;
+public type Int16   = Short;
+public type Int32   = Int;
+public type Int64   = Long;
+
+public type UInt8   = UByte;
+public type UInt16  = UShort;
+public type UInt32  = UInt;
+public type UInt64  = ULong;
+
+public type Float32 = Float;
+public type Float64 = Double;
+
+public type Boolean(x: Boolean) = Boolean{self == x};
+public type Byte   (x: Byte)    = Byte   {self == x};
+public type Short  (x: Short)   = Short  {self == x};
+public type Char   (x: Char)    = Char   {self == x};
+public type Int    (x: Int)     = Int    {self == x};
+public type Long   (x: Long)    = Long   {self == x};
+public type Float  (x: Float)   = Float  {self == x};
+public type Double (x: Double)  = Double {self == x};
+\end{xten}
+
+\section{String}
+
+\begin{xten}
+package x10.lang;
+
+public value String implements (Int) => Char {
+    // methods of java.lang.String
+    def apply(i: Int) = charAt(i);
+}
+
+public type String (x: String) = String {self == x};
+
+public type string = String;
+
+public class StringBuffer implements (Int) => Char {
+    // methods of java.lang.StringBuilder
+    def apply(i: Int) = charAt(i);
+}
+\end{xten}
+
+\section{Native rails}
+
+\begin{xten}
+package x10.lang;
+
+public interface Indexable[T](base: Region) extends (Point(base)) => T { } 
+
+public interface Settable[T](base: Region) extends (Point(base)) => T {
+    public def set(p: Point(base), v: T): Void;
+} 
+
+interface NativeRail[T](length: Nat) extends Indexable[T](0..length-1) { }
+
+interface NativeValRail[T](length: Nat) extends NativeRail[T](length) { }
+
+interface NativeVarRail[T](length: Nat) extends NativeRail[T](length),
+    Settable[T](0..length-1) { }
+\end{xten}
+
+\section{Rails}
+
+
+A rail is an array over the distribution \xcd"[0..n-1]-> here".
+A \xcd"ValRail" is an immutable rail of \xcd"T"s.
+A \xcd"Rail" is a mutable rail of \xcd"T"s.
+
+\begin{xten}
+public value Rail[T](length: Nat) 
+    implements Array[T], Arithmetic[Rail[T](length)]{T <: Arithmetic[T]}
+{
+}
+\end{xten}
+
+
+
+\section{Arrays}
+
+\begin{xten}
+abstract class AbstractArray[T,R](dist: Dist){R <: NativeRail[T]]
+    implements Indexable[T](dist.region)
+{
+    def this[T,R](dist: Dist, init: (Point(dist.region)) => T):
+        AbstractArray[T,R](dist);
+
+    def get(p: Point(dist.region)): T;
+    def apply(p: Point(dist.region)) = get(p);
+
+    def map[S](op: (T) => S): ValArray[S](dist);
+    def map[S,U](b: Array[S](dist), op: (T,S) => U): ValArray[U](dist);
+    def map[S,U](b: ValArray[S](dist), op: (T,S) => U): ValArray[U](dist);
+
+    def reduce(z: S, op: (T,T) => S): S;
+
+    def andReduce(op: (T) => Boolean): Boolean;
+    def andReducePoint(op: (Point(base)) => Boolean): Boolean;
+
+    def orReduce(op: (T) => Boolean): Boolean;
+    def orReducePoint(op: (Point(base)) => Boolean): Boolean;
+}
+        
+public class ValArray[T](dist: Dist) extends AbstractArray[T,NativeValRail[T]]
+    implements Arithmetic[ValArray[T]]
+{
+    def this[T](dist: Dist, init: (Point(dist.region)) => T):
+        ValArray[T](dist);
+    def this[T](n: Int, init: (Int) => T):
+        ValArray[T]([0..n-1]->here);
+
+    def add(x: ValArray[T]){T <: Arithmetic[T]}: ValArray[T];
+}
+
+public class Array[T](dist: Dist) extends AbstractArray[T,NativeVarRail[T]]
+    implements Arithmetic[ValArray[T]], Settable[T](dist.region)
+{
+    def this[T](dist: Dist, init: (Point(dist.region)) => T):
+        ValArray[T](dist);
+    def this[T](n: Int, init: (Int) => T):
+        ValArray[T]([0..n-1]->here);
+
+    def set(p: Point(dist.region), x: T);
+}
+\end{xten}
+
+\section{Points, regions, distributions}
+
+\begin{xten}
+public value Point(rank: Int{self >= 0}) implements
+    (Int{0 <= self, self < rank}) => Int
+{ }
+
+public value Region(rank: Int{self >= 0},
+                    rect: Boolean) {
+}
+
+public value Dist(region: Region, onePlace: Box[Place]) extends ValArray[Place](region) {
+    property rank = region.rank;
+    property zeroBased = region.zeroBased;
+    property rect = region.rect;
+    property rail = zeroBased && rect && onePlace != null;
+}
+\end{xten}
+
+\section{Clocks}
+
+\begin{xten}
+public value Clock { }
+\end{xten}
+
+\section{Places}
+
+\begin{xten}
+public value Place { }
+\end{xten}
+
+\section{Boxed types}
+
+\begin{xten}
+public class Box[T](value: T) { }
+\end{xten}
+
+\if 0
+\section{Function types}
+
+The library contains the following family of interfaces.
+
+\begin{xtenmath}
+public interface Fun_$k$_$n$[X$_1$, $\dots$, X$_k$] {
+    def apply(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): T;
+}
+\end{xtenmath}
+
+Closures implement the appropriate \xcd"Fun" interface.  The
+function type \xcdmath"[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => T"
+is equivalent to the interface \xcdmath"Fun_$k$_$n$".
+
+A closure call \xcd"e1(e2)" is equivalent to 
+the method call \xcd"e1.apply(e2)".
+\fi
