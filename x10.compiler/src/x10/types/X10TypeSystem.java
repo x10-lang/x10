@@ -119,9 +119,11 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type Runtime(); // used by asyncCodeInstance
 
-    Type Value();
-
-    Type Ref();
+    //Type Value();
+    
+    Type Object();
+    
+    Type Any();
 
     XLit FALSE();
 
@@ -321,15 +323,15 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isBox(Type type);
 
-    boolean isFunction(Type type, X10Context context);
+    boolean isFunctionType(Type type);
 
     X10ClassDef closureAnonymousClassDef(ClosureDef def);
 
-    List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
+  //  List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
 
     boolean isInterfaceType(Type toType);
 
-    ClosureType closureType(Position position, Ref<? extends Type> typeRef, 
+    FunctionType closureType(Position position, Ref<? extends Type> typeRef, 
     	//	List<Ref<? extends Type>> typeParams, 
     		List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames, Ref<XConstraint> guard, 
@@ -429,4 +431,5 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isX10Array(Type me);
     
     Context emptyContext();
+    Type Struct();
 }

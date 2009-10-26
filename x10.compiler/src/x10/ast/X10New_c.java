@@ -130,12 +130,12 @@ public class X10New_c extends New_c implements X10New {
             if (!flags.isInterface()) {
                 anonType.superType(ct);
             }
-            else if (flags.isValue()) {
+            else /*if (flags.isValue()) {
                 anonType.superType(Types.<Type> ref(ts.Value()));
                 anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
             }
-            else {
-                anonType.superType(Types.<Type> ref(ts.Ref()));
+            else */{
+                anonType.superType(Types.<Type> ref(ts.Object()));
                 anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
             }
 

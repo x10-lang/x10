@@ -308,7 +308,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public Kind kind(Type t) {
         X10Context  c = (X10Context) this.context;
         t = X10TypeMixin.baseType(t);
-        if (t instanceof ClosureType)
+        if (t instanceof FunctionType)
             return Kind.VALUE;
         if (t instanceof ClassType) {
             ClassType ct = (ClassType) t;
@@ -638,7 +638,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public boolean isSubtype(Type t1, Type t2) {
-        return isSubtype(t1, t2, false);
+        return isSubtype(t1, t2, true);
     }
 
     public boolean behavesLike(Type t1, Type t2) {
@@ -660,7 +660,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
    
     public boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces) {
-    	return isSubtype(null, t1, t2, allowValueInterfaces);
+    	return isSubtype(null, t1, t2, true);
     }
 
     /* (non-Javadoc)
@@ -725,7 +725,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
 
     	// HACK: treat (S) => T as a subtype of Value.
-    	if (ts.isFunction(t1, xcontext) 
+    /*	if (ts.isFunction(t1, xcontext) 
     			&& ts.typeEquals(t2, ts.Value(), xcontext))
     		return true;
 
@@ -746,7 +746,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				&& ts.isReferenceOrInterfaceType(t1, xcontext))
     			return false;
     	}
-
+*/
     	if (typeEquals(t1, t2))
     		return true;
 

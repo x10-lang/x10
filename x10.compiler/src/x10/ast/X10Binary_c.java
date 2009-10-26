@@ -86,7 +86,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 		if (lt == null || rt == null)
 			return false;
-		if (operator() == Binary.EQ || operator() == Binary.NE) {
+	/*	In X10 2.0, nothing can be of Value type.
+	 * if (operator() == Binary.EQ || operator() == Binary.NE) {
 		    X10Context context = (X10Context) xts.emptyContext();
 		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
 			return true;
@@ -97,6 +98,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		    if (xts.isValueType(rt, context) && lt.isNull())
 			return true;
 		}
+		*/
 		return false;
 	}
 
@@ -114,27 +116,29 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10Context context = (X10Context) xts.emptyContext();
 		
 		// [IP] An optimization: an value and null can never be equal
-		if (op == EQ) {
-		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
+	
+	 if (op == EQ) {
+		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
 			return Boolean.FALSE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
+		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.FALSE;
-		    if ( xts.isValueType(lt, context) && rt.isNull())
+		    if ( xts.isStructType(lt) && rt.isNull())
 			return Boolean.FALSE;
-		    if ( xts.isValueType(rt, context) && lt.isNull())
+		    if ( xts.isStructType(rt) && lt.isNull())
 			return Boolean.FALSE;
 		}
 		if (op == NE) {
-		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
+		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
 			return Boolean.TRUE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
+		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.TRUE;
-		    if (xts.isValueType(lt, context) && rt.isNull())
+		    if (xts.isStructType(lt) && rt.isNull())
 			return Boolean.TRUE;
-		    if (xts.isValueType(rt, context) && lt.isNull())
+		    if (xts.isStructType(rt) && lt.isNull())
 			return Boolean.TRUE;
 		    return null;
 		}
+		
         return null;
     }
 
@@ -305,6 +309,19 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
 
+        if (op == EQ || op == NE) {
+        	if (xts.isFunctionType(lbase)) {
+        		 throw new SemanticException("The " + op +
+                         " operator cannot be applied to the function " + left,
+                         position());
+        	}
+        	if (xts.isFunctionType(rbase)) {
+       		 throw new SemanticException("The " + op +
+                        " operator cannot be applied to the function " + right,
+                        position());
+       	}
+        	
+        }
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
             Object rv = right.isConstant() ? right.constantValue() : null;

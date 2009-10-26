@@ -49,7 +49,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.X10Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
@@ -173,11 +173,11 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                 Type containerType = ff.type().type();
 	                 Type indexType = null;
 	                 
-	                 if (ts.isFunction(containerType, context)) {
+	                 if (ts.isFunctionType(containerType)) {
 	                     List<Type> actualTypes = Collections.singletonList(ts.Int());
 
 	                     try {
-	                         // Find the most-specific closure type.
+	                         // Find the most-specific function type.
 	                         X10MethodInstance mi = ts.findMethod(containerType, 
 	                        		 ts.MethodMatcher(containerType, Name.make("apply"), 
 	                        				 Collections.EMPTY_LIST, actualTypes, context));
@@ -204,7 +204,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	     X10Formal_c n = (X10Formal_c) super.typeCheck(tc);
 	     if (n.type() instanceof UnknownTypeNode || n.type().type() instanceof UnknownType) {
-	         throw new SemanticException("Could not infer type for formal parameter.", position());
+	         throw new SemanticException("Could not infer type for formal parameter " + n + ".", position());
 	     }
 	     if (n.type().type().isVoid())
 	         throw new SemanticException("Formal parameter cannot have type " + this.type().type() + ".", position());

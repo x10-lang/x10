@@ -53,7 +53,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.X10MethodInstance;
 import x10.types.X10MethodInstance_c;
 import x10.types.X10TypeSystem;
@@ -294,8 +294,8 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 	// Find the most-specific closure type.
 	
-	if (mi.container() instanceof ClosureType) {
-	    X10MethodInstance ci = ((ClosureType) mi.container()).applyMethod();
+	if (mi.container() instanceof FunctionType) {
+	    X10MethodInstance ci = ((FunctionType) mi.container()).applyMethod();
 	    ClosureCall_c n = this;
 	    n = (ClosureCall_c) n.arguments(args);
 	    return n.closureInstance(ci).type(ci.returnType());

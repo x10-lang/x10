@@ -116,16 +116,16 @@ public class System {
 
     // This function exists because we do not want to call dealloc in user code (finder)
     public static def copyTo[T] (srcRail:Rail[T]!, srcIndex:Int,
-                                 dst:Place, dstHandle:PlaceLocalHandle[Rail[T]], dstIndex:Int,
+                                 dst:Place, dstHandle:PlaceLocalHandle[Rail[T]]!, dstIndex:Int,
                                  size:Int) {
-        val finder = ()=>Pair[Rail[T],Int](dstHandle.get(), dstIndex);
+        val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size);
         x10.runtime.NativeRuntime.dealloc(finder);
     }   
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
     // Also it is arguably a simpler interface because it has one less param
-    public static def copyTo[T] (handle:PlaceLocalHandle[Rail[T]],
+    public static def copyTo[T] (handle:PlaceLocalHandle[Rail[T]]!,
                                  dst:Place, size:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](handle.get(), 0);
         handle.get().copyTo[T](0, dst, finder, size, notifier);

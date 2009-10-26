@@ -206,33 +206,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // during bootstrapping: Object, refers to Int, refers to Object, ...
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
-        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
+        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
-        }
-        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
-        	thisType.superType(null);
-        } 
-        else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
+        } else  if (thisType.fullName().equals(QName.make("x10.lang.Struct"))) {
         	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
         	thisType.superType(null);
         }
-        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isValue()) {
-        	superRef.setResolver(new Runnable() {
-        		public void run() {
-        			superRef.update(xts.Value());
-        		}
-        	});
-        	thisType.superType(superRef);
-        } 
-         else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
-        	thisType.superType(null);
+        else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isStruct()) {
+        	 final LazyRef<Type> Struct = Types.lazyRef(null);
+     		Struct.setResolver(new Runnable() {
+     			public void run() {
+     				Struct.update(xts.Struct());
+     			}
+     		});
+        	thisType.superType(Struct);
         }
         else if (superClass == null) {
         	superRef.setResolver(new Runnable() {
         		public void run() {
-        			superRef.update(xts.Ref());
+        			superRef.update(xts.Object());
         		}
         	});
         	thisType.superType(superRef);
@@ -244,54 +238,29 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-        final X10TypeSystem xts = (X10TypeSystem) ts;
+    	final X10TypeSystem xts = (X10TypeSystem) ts;
 
-//        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
-//            // We need to lazily set the superclass, otherwise we go into an infinite loop
-//            // during bootstrapping: Object, refers to Int, refers to Object, ...
-//            final LazyRef<Type> superRef = Types.lazyRef(null);
-//            superRef.setResolver(new Runnable() {
-//                public void run() {
-//                    superRef.update(xts.Object());
-//                }
-//            });
-//            thisType.addInterface(superRef);
-//            if (! interfaces.isEmpty()) {
-//                super.setInterfaces(ts, thisType);
-//            }
-//        }
-//        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
-//            // We need to lazily set the superclass, otherwise we go into an infinite loop
-//            // during bootstrapping: Object, refers to Int, refers to Object, ...
-//            final LazyRef<Type> superRef = Types.lazyRef(null);
-//            superRef.setResolver(new Runnable() {
-//                public void run() {
-//                    superRef.update(xts.Object());
-//                }
-//            });
-//            thisType.addInterface(superRef);
-//            if (! interfaces.isEmpty()) {
-//                super.setInterfaces(ts, thisType);
-//            }
-//        }
-//        else 
-        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
-        }
-        else if (interfaces.isEmpty() && flags().flags().isInterface()) {
-            // We need to lazily set the superclass, otherwise we go into an infinite loop
-            // during bootstrapping: Object, refers to Int, refers to Object, ...
-            final LazyRef<Type> superRef = Types.lazyRef(null);
-            superRef.setResolver(new Runnable() {
-                public void run() {
-                    superRef.update(xts.Object());
-                }
-            });
-            thisType.addInterface(superRef);
-        }
-        else {
-            super.setInterfaces(ts, thisType);
-        }
+    	// For every struct and interface, add the implicit Any interface.
+    	X10Flags flags = X10Flags.toX10Flags(flags().flags());
+    	if (flags.isStruct() 
+    			|| (flags.isInterface() && ! name.toString().equals("Any"))
+    			|| thisType.fullName().equals(QName.make("x10.lang.Object"))
+    			|| xts.isParameterType(thisType.asType())) {
+
+    		// We need to lazily set the superclass, otherwise we go into an infinite loop
+    		// during bootstrapping: Object, refers to Int, refers to Object, ...
+    		final LazyRef<Type> ANY = Types.lazyRef(null);
+    		ANY.setResolver(new Runnable() {
+    			public void run() {
+    				ANY.update(xts.Any());
+    			}
+    		});
+    		thisType.addInterface(ANY);
+    	}
+    	
+    	super.setInterfaces(ts, thisType);
     }
+
 
     public Node disambiguate(ContextVisitor ar) throws SemanticException {
     	ClassDecl n = (ClassDecl) super.disambiguate(ar);
@@ -806,8 +775,128 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	return tn;
     }
 
+    public Node superConformanceCheck(ContextVisitor tc) throws SemanticException {
+        TypeSystem ts = tc.typeSystem();
+
+        ClassType type = this.type.asType();
+        Name name = this.name.id();
+
+        // The class cannot have the same simple name as any enclosing class.
+        if (type.isNested()) {
+            ClassType container = type.outer();
+
+            while (container != null) {
+                if (!container.isAnonymous()) {
+                    Name cname = container.name();
+
+                    if (cname.equals(name)) {
+                        throw new SemanticException("Cannot declare member " +
+                                "class \"" + type.fullName() +
+                                "\" inside class with the " +
+                                "same name.", position());
+                    }
+                }
+                if (container.isNested()) {
+                    container = container.outer();
+                }
+                else {
+                    break;
+                }
+            }
+        }
+
+        // A local class name cannot be redeclared within the same
+        // method, constructor or initializer, and within its scope                
+        if (type.isLocal()) {
+            Context ctxt = tc.context();
+
+            if (ctxt.isLocal(name)) {
+                // Something with the same name was declared locally.
+                // (but not in an enclosing class)                                    
+                Named nm = ctxt.find(ts.TypeMatcher(name));
+                if (nm instanceof Type) {
+                    Type another = (Type) nm;
+                    if (another.isClass() && another.toClass().isLocal()) {
+                        throw new SemanticException("Cannot declare local " +
+                                "class \"" + this.type + "\" within the same " +
+                                "method, constructor or initializer as another " +
+                                "local class of the same name.", position());
+                    }
+                }
+            }                
+        }
+
+        // check that inner classes do not declare member interfaces
+        if (type.isMember() && type.flags().isInterface() &&
+                type.outer().isInnerClass()) {
+            // it's a member interface in an inner class.
+            throw new SemanticException("Inner classes cannot declare " + 
+                    "member interfaces.", this.position());             
+        }
+
+        // Make sure that static members are not declared inside inner classes
+        if (type.isMember() && type.flags().isStatic() 
+                && type.outer().isInnerClass()) {
+            throw new SemanticException("Inner classes cannot declare static " 
+                    + "member classes.", position());
+        }
+
+        if (type.superClass() != null) {
+            if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
+                throw new SemanticException("Cannot extend non-class \"" +
+                        type.superClass() + "\".",
+                        position());
+            }
+
+            if (type.superClass().toClass().flags().isFinal()) {
+                throw new SemanticException("Cannot extend final class \"" +
+                        type.superClass() + "\".",
+                        position());
+            }
+
+            if (type.typeEquals(ts.Object(), tc.context())) {
+                throw new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
+                        superClass.position());
+            }
+        }
+
+        for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
+            TypeNode tn = (TypeNode) i.next();
+            Type t = tn.type();
+
+            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
+                throw new SemanticException("Superinterface " + t + " of " +
+                        type + " is not an interface.", tn.position());
+            }
+
+           /* if (type.typeEquals(ts.Object(), tc.context())) {
+                throw new SemanticException("Class " + this.type + " cannot have a superinterface.",
+                        tn.position());
+            }*/
+        }
+
+        try {
+            if (type.isTopLevel()) {
+                ts.checkTopLevelClassFlags(type.flags());
+            }
+            if (type.isMember()) {
+                ts.checkMemberClassFlags(type.flags());
+            }
+            if (type.isLocal()) {
+                ts.checkLocalClassFlags(type.flags());
+            }
+        }
+        catch (SemanticException e) {
+            throw new SemanticException(e.getMessage(), position());
+        }
+
+        // Check the class implements all abstract methods that it needs to.
+        ts.checkClassConformance(type, enterChildScope(body, tc.context()));
+
+        return this;
+    }
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
-    	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
+    	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
     	X10Context context = (X10Context) tc.context();
     	
     	// Check that we're in the right file.
@@ -825,24 +914,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	
     	Type superClass = type.asType().superClass();
 
-    	if (! flags.flags().isInterface()) {
-    	    if (X10Flags.toX10Flags(flags.flags()).isValue()) {
-    		if (superClass != null && ! ts.isValueType(superClass, context)) {
-    		    throw new SemanticException("Value class " + type + " cannot extend reference class " + superClass + ".", position());
-    		}
-    	    }
-    	    else {
-    		if (superClass != null && ts.isValueType(superClass, context)) {
-    		    throw new SemanticException("Reference class " + type + " cannot extend value class " + superClass + ".", position());
-    		}
-    	    }
+
+    	if (flags.flags().isInterface() && superClass != null) {
+    		throw new SemanticException("Interface " + this.type + " cannot have a superclass.",
+    				superClass.position());
     	}
-    	else {
-            if (superClass != null) {
-        	throw new SemanticException("Interface " + this.type + " cannot have a superclass.",
-        	                            superClass.position());
-            }
-    	}
+
 
     	if (superClass != null) {
     	    for (PropertyDecl pd : properties()) {

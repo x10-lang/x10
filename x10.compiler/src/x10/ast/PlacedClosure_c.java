@@ -120,7 +120,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
 						term + " and constraint " + d + ".");
 			}
     	} else {
-    		boolean placeIsRef = ts.isImplicitCastValid(placeType, ts.Ref(), xc);
+    		boolean placeIsRef = ts.isImplicitCastValid(placeType, ts.Object(), xc);
     		if (placeIsRef) {
     			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
     			if (src == null) {
@@ -137,7 +137,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     		} else 
     			throw new SemanticException(
     					"Place expression |" + place + "| must be of type \"" +
-    					ts.Place() + "\", or " + ts.Ref() + ", not \"" + place.type() + "\".",
+    					ts.Place() + "\", or " + ts.Object() + ", not \"" + place.type() + "\".",
     					place.position());
     	}
     

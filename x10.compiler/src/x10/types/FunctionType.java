@@ -25,7 +25,7 @@ import x10.constraint.XConstraint;
  * return type and throwable exception types).
  * @author rfuhrer
  */
-public interface ClosureType extends X10ParsedClassType {
+public interface FunctionType extends X10ParsedClassType {
 //    ClosureDef closureDef();
     
 //    ClosureInstance closureInstance();

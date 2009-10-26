@@ -48,4 +48,8 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
      * @return
      */
     boolean isStruct();
+    /**
+     * Is this the class def for an X10 function?
+     */
+    boolean isFunction();
 }

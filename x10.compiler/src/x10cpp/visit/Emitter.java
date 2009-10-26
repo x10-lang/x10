@@ -52,7 +52,7 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -247,7 +247,7 @@ public class Emitter {
 			}
 
 		    if (ct.isAnonymous()) {
-		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof ClosureType) {
+		        if (ct.interfaces().size() == 1 && ct.interfaces().get(0) instanceof FunctionType) {
 		            return translateType(ct.interfaces().get(0), asRef);
 		        } else {
 		            assert false : "unexpected anonymous type " + ct;
@@ -608,7 +608,7 @@ public class Emitter {
           h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
           h.write("rtt.canonical = &rtt;"); h.newline();
           h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
-          h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+          h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
           for (Type iface : ct.interfaces()) {
               h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
           }
@@ -624,7 +624,7 @@ public class Emitter {
             h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
             h.write("rtt.canonical = &rtt;"); h.newline();
             h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
-            h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+            h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
             for (Type iface : ct.interfaces()) {
                 h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
             }

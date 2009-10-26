@@ -190,8 +190,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
         String c = convert == ConversionType.UNKNOWN_CONVERSION ? "cast" : "implicitly convert";
 
-        throw new SemanticException("Cannot " + c + " expression of type \"" 
-                                    + fromType + "\" to type \"" 
+        throw new SemanticException("Golden!! Cannot " + c + " expression of type \n\"" 
+                                    + fromType + "\"\n to type \"" 
                                     + toType + "\".",
                                     position());
     }

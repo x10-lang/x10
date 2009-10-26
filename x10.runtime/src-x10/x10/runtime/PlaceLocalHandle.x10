@@ -34,7 +34,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("c++", "x10::runtime::PlaceLocalHandle<#1 >", "x10::runtime::PlaceLocalHandle<#1 >", null)
 @NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
-public final struct PlaceLocalHandle[T]{T <: Ref} {
+public final struct PlaceLocalHandle[T]{T <: Object} {
 
   /**
    * @return the object mapped to the handle at the current place
@@ -50,6 +50,8 @@ public final struct PlaceLocalHandle[T]{T <: Ref} {
   @Native("c++", "(#0)->toString()")
   @Native("java", "#0.toString()")
   public native def toString():String;
+
+  public def typeName()="x10.runtime.PlaceLocalHandle";
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "(#0)->set(#1)")

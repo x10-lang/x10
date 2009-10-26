@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.util.concurrent.atomic.AtomicReference<#1>", null, null)
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicReference<#1 > >", "x10::util::concurrent::atomic::AtomicReference<#1 >", null)
-public class AtomicReference[T]{T<:Ref} {
+public class AtomicReference[T]{T<:Object} {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127
 	// public native def this():AtomicReference[T];

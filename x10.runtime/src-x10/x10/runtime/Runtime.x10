@@ -190,7 +190,7 @@ public final class Runtime {
     	return box(0);
     }
 
-    public static def evalAt[T](place:Ref, eval:()=>T):T {
+    public static def evalAt[T](place:Object, eval:()=>T):T {
     	val ret = here;
     	val box = new GrowableRail[T]();
     	at (place.location) {
@@ -216,9 +216,14 @@ public final class Runtime {
 	 * Java place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && !(o instanceof Worker) && (o as Ref).location.id != p.id) {
-			NativeRuntime.println("BAD PLACE EXCEPTION");
-			throw new BadPlaceException("object=" + (at ((o as Ref).location) o.toString()) + " access at place=" + p);
+		if (NativeRuntime.PLACE_CHECKS && null != o 
+		    && o instanceof Object 
+		    && !(o instanceof Worker) 
+		    && (o as Object!).location.id != p.id) {
+		    NativeRuntime.println("BAD PLACE EXCEPTION");
+		    throw new BadPlaceException("object=" 
+						+ (at (o) o.toString()) 
+						+ " access at place=" + p);
 		}
 		return o;
 	}
