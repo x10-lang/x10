@@ -575,7 +575,7 @@ public class Emitter {
 		h.end();
 		if (!qualify) {
 			assert (!flags.isNative());
-			if (n.body() == null && !flags.isExtern() && !flags.isProperty())
+			if (n.body() == null && !flags.isExtern() && !flags.isProperty() && !isStruct)
 				h.write(" = 0");
 		}
 	}
