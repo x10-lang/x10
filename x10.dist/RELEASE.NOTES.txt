@@ -21,7 +21,6 @@ The following features described in the 2.0 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
 releases:
 
-- Type parameters on closures
 - Non-static type definitions as class or interface members
   (static type defs do work)
 - Type definitions as package members (i.e., in the outermost scope of
@@ -30,13 +29,18 @@ releases:
 - Shared local variables
 - Extern methods
 
-Additionally, the following features described in the 1.7 language
+Additionally, the following features described in the 2.0 language
 manual do not currently work with the C++ backend and will be fixed in
 the subsequent releases:
 
 - Garbage collection on Cygwin and AIX
 - Generic virtual methods
 - Exception stack traces on Cygwin and AIX
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.3.2.  On AIX, you
+may either use g++ 4.2 or better or xlC 10.01.0000.0003 or better.
+
 
 Below is a summary of JIRA issues addressed for the X10 2.0 release.
 <LIST HERE>
