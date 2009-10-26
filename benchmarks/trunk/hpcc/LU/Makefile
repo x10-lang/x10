@@ -1,0 +1,37 @@
+
+
+PACKAGE	:= rc7
+
+SRCS = ${PACKAGE}/LU.x10 ${PACKAGE}/BlockedArray.x10 ${PACKAGE}/Comm.x10 ${PACKAGE}/Timer.x10
+
+NATIVE_HDR 	:= ${PACKAGE}/essl_natives.h
+NATIVE_SRC 	:= ${PACKAGE}/essl_natives.cc ${PACKAGE}/Comm.cc
+NATIVE_INC	:= ${PACKAGE}/Comm.h
+NATIVE_LIB	:= ${BLAS_LIB} ${EXTRA_LIBS}
+
+all: lu-opt lu-dbg
+
+lu-opt: $(SRCS)
+	${MKDIR} opt-gen/${PACKAGE}
+	${CP} ${NATIVE_SRC} ${NATIVE_INC} opt-gen/${PACKAGE}
+	${X10CXX} -x10rt ${X10TRANSPORT} -O -d opt-gen ${X10CXXFLAGS} ${SRCS} \
+		-post '${POSTCOMPILE_CXX} ${POSTCOMPILE_INCLUDEOPT}../${NATIVE_HDR} ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_OPTFLAGS} -DTRANSPORT=${X10TRANSPORT} # ${NATIVE_SRC} # ${NATIVE_LIB}' -o $@
+ifeq ($(USE_MEDIUM_PAGES), 1)
+ifeq ($(shell uname -s), AIX)
+	ldedit -bnolpdata $@
+	ldedit -btextpsize:64K -bdatapsize:64K -bstackpsize:64K $@
+endif
+endif
+
+
+lu-dbg: $(SRCS)
+	${MKDIR} dbg-gen/${PACKAGE}
+	${CP} ${NATIVE_SRC} ${NATIVE_INC} dbg-gen/${PACKAGE}
+	${X10CXX} -x10rt ${X10TRANSPORT} -d dbg-gen ${X10CXXFLAGS} ${SRCS} \
+		-post '${POSTCOMPILE_CXX} ${POSTCOMPILE_INCLUDEOPT}../${NATIVE_HDR} ${POSTCOMPILE_CXXFLAGS} ${POSTCOMPILE_DBGFLAGS} -DTRANSPORT=${X10TRANSPORT} # ${NATIVE_SRC} # ${NATIVE_LIB}' -o $@
+
+
+clean:
+	rm -rf opt-gen dbg-gen
+	rm -f lu-opt lu-dbg
+	rm -f lu-opt.exe lu-dbg.exe

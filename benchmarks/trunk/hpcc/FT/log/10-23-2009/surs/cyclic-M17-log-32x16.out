@@ -1,0 +1,92 @@
+   0:M=17 SQRTN=131072 N=17179869184 nRows=256 localSize=67108864 MAX_PLACES=512 Mem=524288.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:execution time=61.330906000000006 secs Gigaflops=47.620000286315673
+   0:Step transpose1 took 20.189831000000002 s
+   0:Step row_ffts1 took 4.305731000000001 s
+   0:Step transpose2 took 19.778770000000002 s
+   0:Step twiddle took 2.516452 s
+   0:Step row_ffts2 took 4.2853 s
+   0:Step transpose3 took 10.254822000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=68.356081000000003 secs Gigaflops=42.72593920766171
+   0:Step transpose1 took 18.496443000000003 s
+   0:Step row_ffts1 took 4.147121 s
+   0:Step transpose2 took 19.659428000000002 s
+   0:Step twiddle took 2.517016 s
+   0:Step row_ffts2 took 4.127470000000001 s
+   0:Step transpose3 took 19.408603000000003 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=129.686987000000016 secs Gigaflops=45.040413519361039
+   0:Start verification
+   0:Verification complete
+   0:M=17 SQRTN=131072 N=17179869184 nRows=256 localSize=67108864 MAX_PLACES=512 Mem=524288.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:execution time=67.330008000000007 secs Gigaflops=43.377059472204422
+   0:Step transpose1 took 20.286254 s
+   0:Step row_ffts1 took 4.256521 s
+   0:Step transpose2 took 19.193514 s
+   0:Step twiddle took 2.472329 s
+   0:Step row_ffts2 took 4.25262 s
+   0:Step transpose3 took 16.868770000000001 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=68.979877999999999 secs Gigaflops=42.339561129406462
+   0:Step transpose1 took 19.094546000000001 s
+   0:Step row_ffts1 took 4.119476000000001 s
+   0:Step transpose2 took 19.678256000000001 s
+   0:Step twiddle took 2.473074 s
+   0:Step row_ffts2 took 4.134997 s
+   0:Step transpose3 took 19.479529000000003 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=136.309886000000006 secs Gigaflops=42.852031455444099
+   0:Start verification
+   0:Verification complete
+   0:M=17 SQRTN=131072 N=17179869184 nRows=256 localSize=67108864 MAX_PLACES=512 Mem=524288.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:execution time=70.138135000000005 secs Gigaflops=41.640368128978615
+   0:Step transpose1 took 20.155718 s
+   0:Step row_ffts1 took 4.257921000000001 s
+   0:Step transpose2 took 19.833020000000001 s
+   0:Step twiddle took 2.534119 s
+   0:Step row_ffts2 took 4.307693 s
+   0:Step transpose3 took 19.049664 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=69.075327999999999 secs Gigaflops=42.281055274612662
+   0:Step transpose1 took 19.910590000000003 s
+   0:Step row_ffts1 took 4.127495000000001 s
+   0:Step transpose2 took 19.414406 s
+   0:Step twiddle took 2.514835 s
+   0:Step row_ffts2 took 4.14332 s
+   0:Step transpose3 took 18.964682 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=139.21346299999999 secs Gigaflops=41.958266080630438
+   0:Start verification
+   0:Verification complete
+   0:M=17 SQRTN=131072 N=17179869184 nRows=256 localSize=67108864 MAX_PLACES=512 Mem=524288.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:execution time=68.255739000000005 secs Gigaflops=42.788750133963084
+   0:Step transpose1 took 19.042295000000003 s
+   0:Step row_ffts1 took 4.214647 s
+   0:Step transpose2 took 19.05536 s
+   0:Step twiddle took 2.500278 s
+   0:Step row_ffts2 took 4.217241 s
+   0:Step transpose3 took 19.225918 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=69.406390000000002 secs Gigaflops=42.079378588628508
+   0:Step transpose1 took 19.816033000000001 s
+   0:Step row_ffts1 took 4.036332 s
+   0:Step transpose2 took 19.124937000000003 s
+   0:Step twiddle took 2.499836 s
+   0:Step row_ffts2 took 4.039191000000001 s
+   0:Step transpose3 took 19.890061000000003 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=137.662128999999993 secs Gigaflops=42.431099714867841
+   0:Start verification
+   0:Verification complete
