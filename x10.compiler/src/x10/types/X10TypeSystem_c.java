@@ -1208,14 +1208,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return boxType_;
     }
 
-    protected ClassType valueType_;
-
-    public Type Value() {
-        if (valueType_ == null)
-            valueType_ = load("x10.lang.Value");
-        return valueType_;
-    }
-
     public Type boxOf(Ref<? extends Type> base) {
         return boxOf(Position.COMPILER_GENERATED, base);
     }
@@ -2109,6 +2101,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return me instanceof ConstrainedType;
     }
 
+    public boolean isAny(Type me) {
+        return typeEquals(me, Any(), emptyContext());
+    }
+    
     public boolean isClock(Type me) {
         return isSubtype(me, Clock(), emptyContext());
     }

@@ -594,7 +594,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	private boolean inBootLoads(ClassDef classScope) {
 		QName q = classScope.fullName();
 		return q.equals(QName.make("x10.lang.Place"))
-		|| q.equals(QName.make("x10.lang.Value"))
 		|| q.equals(QName.make("x10.lang.Int"))
 		|| q.equals(QName.make("x10.lang.Boolean"))
 			|| q.equals(QName.make("x10.lang.Object"))

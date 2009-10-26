@@ -84,9 +84,6 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Ref"))) {
 		return tb.nodeFactory().Empty(position());
 	    }
-	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Value"))) {
-		return tb.nodeFactory().Empty(position());
-	    }
 
 	    ConstructorCall_c n = this;
 
