@@ -142,9 +142,7 @@ public final class X10PlatformsManager {
       if (platformConf.getResourceManagerId() != null) {
         platformMemento.putString(RES_MANAGER_ID_TAG, platformConf.getResourceManagerId());
       }
-      if (platformConf.getTargetOS() != null) {
-        platformMemento.putString(TARGET_OS_TAG, platformConf.getTargetOS().name());
-      }
+      platformMemento.putString(TARGET_OS_TAG, platformConf.getTargetOS().name());
       platformMemento.putBoolean(IS_CPLUS_PLUS_TAG, platformConf.isCplusPlus());
       platformMemento.putBoolean(IS_LOCAL_TAG, platformConf.isLocal());
     }

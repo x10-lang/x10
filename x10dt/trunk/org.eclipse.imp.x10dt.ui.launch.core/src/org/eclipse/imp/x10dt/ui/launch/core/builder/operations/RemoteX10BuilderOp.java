@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elements.IResourceManager;
@@ -41,9 +42,12 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
    * @param project The project associated with the compilation.
    * @param workspaceDir The workspace directory.
    * @param resourceManager The resource manager to consider.
+   * @param targetOS The target OS for the remote system.
    */
-  public RemoteX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager) {
+  public RemoteX10BuilderOp(final IProject project, final String workspaceDir, final IResourceManager resourceManager,
+                            final ETargetOS targetOS) {
     super(resourceManager, project, workspaceDir);
+    this.fTargetOS = targetOS;
   }
 
   // --- Interface methods implementation
@@ -85,9 +89,7 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
         fileStore.copy(destFile, EFS.OVERWRITE, null);
         if (name.endsWith(CC_EXT)) {
           String destPath = destFile.toURI().getPath();
-          if (destPath.matches("/.:/.*")) {
-        	  // FIXME: HACK (bad things will happen with Unix and a path that starts with a /X:/
-        	  // On Windows, a "/" is prepended to what would otherwise be an absolute path
+          if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$
         	  destPath = destPath.substring(1);
           }
           addCompiledFile(fileStore.toLocalFile(EFS.NONE, null), destPath);
@@ -96,4 +98,9 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
       }
     }
   }
+  
+  // --- Fields
+  
+  private final ETargetOS fTargetOS;
+  
 }

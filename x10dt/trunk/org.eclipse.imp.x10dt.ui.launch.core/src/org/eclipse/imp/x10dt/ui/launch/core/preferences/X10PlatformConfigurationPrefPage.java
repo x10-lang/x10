@@ -269,9 +269,7 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     if (platformConfiguration.getResourceManagerId() != null) {
       sb.append(NLS.bind(Messages.XPCPP_ResourceManagerId, platformConfiguration.getResourceManagerId()));
     }
-    if (platformConfiguration.getTargetOS() != null) {
-      sb.append(NLS.bind(Messages.XPCPP_TargetOS, platformConfiguration.getTargetOS()));
-    }
+    sb.append(NLS.bind(Messages.XPCPP_TargetOS, platformConfiguration.getTargetOS()));
     this.fPlatformConfSummaryText.setText(sb.toString());
   }
   

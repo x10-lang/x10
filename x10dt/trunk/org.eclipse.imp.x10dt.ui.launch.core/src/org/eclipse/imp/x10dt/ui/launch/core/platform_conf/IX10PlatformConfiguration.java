@@ -87,7 +87,7 @@ public interface IX10PlatformConfiguration {
   /**
    * Returns the OS where X10 distribution is installed.
    * 
-   * @return A possibly null value.
+   * @return A non-null value.
    */
   public ETargetOS getTargetOS();
   

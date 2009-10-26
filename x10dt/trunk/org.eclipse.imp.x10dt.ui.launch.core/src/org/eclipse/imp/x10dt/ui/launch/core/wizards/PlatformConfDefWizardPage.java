@@ -178,10 +178,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     if (resourceManager != null) {
       platformConfiguration.setResManagerId(resourceManager.getID());
     }
-    if (this.fTargetOSCombo.getSelectionIndex() != -1) {
-      final String osName = this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex());
-      platformConfiguration.setTargetOS(X10BuilderUtils.getTargetOS(osName));
-    }
+    final String osName = this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex());
+    platformConfiguration.setTargetOS(X10BuilderUtils.getTargetOS(osName));
     return true;
   }
   
@@ -329,7 +327,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       this.fTargetOSCombo.add(targetOs.name());
       this.fTargetOSCombo.setData(targetOs.name(), targetOs);
     }
-    if ((this.fDefaultPlatformConf != null) && (this.fDefaultPlatformConf.getTargetOS() != null)) {
+    if ((this.fDefaultPlatformConf != null)) {
       for (final ETargetOS targetOs : ETargetOS.values()) {
         if (targetOs.name().equals(this.fDefaultPlatformConf.getTargetOS())) {
           this.fTargetOSCombo.select(targetOs.ordinal());
@@ -466,6 +464,9 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   }
     
   private boolean isComplete() {
+    if (this.fTargetOSCombo.getSelectionIndex() == -1) {
+      return false;
+    }
     if (! this.fIsLocal) {
       if ((this.fPGASLocText.getText() == null) || (this.fPGASLocText.getText().length() == 0)) {
         return false;

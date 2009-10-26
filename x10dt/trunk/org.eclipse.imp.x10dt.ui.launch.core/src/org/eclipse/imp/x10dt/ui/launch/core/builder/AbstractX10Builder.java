@@ -198,7 +198,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       if (platform.isLocal()) {
         builderOp = new LocalX10BuilderOp(getProject(), workspaceDir, resourceManager);
       } else {
-        builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager);
+        builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager, platform.getTargetOS());
       }
       
       builderOp.transfer(this.fBinaryContainer, new SubProgressMonitor(monitor, 10));
