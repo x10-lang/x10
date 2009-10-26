@@ -73,9 +73,14 @@
     </target>
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
+<!-- HACK: DG: Break dependency on dist-java for dist-cpp while working on getting C++ codegen working for 2.0 
+     Restore these two lines once Java codegen is working again
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
-
+-->
+    <target name="dist-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-cpp"/>
+    <target name="dist" depends="dist-cpp"/>
+<!-- END HACK -->
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${lpg.jar.url}" dest="${lib}/lpg-plugin.jar"/>
