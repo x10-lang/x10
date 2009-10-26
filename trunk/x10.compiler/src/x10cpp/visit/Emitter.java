@@ -603,19 +603,31 @@ public class Emitter {
         X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 		String x10name = ct.fullName().toString();
 		int num_parents = 1 + ct.interfaces().size();
+		// ADJUST FOR ANY.
+		if (ct.superClass() != null && xts.isAny(ct.superClass())) num_parents--;
+		if (ct.interfaces().size() > 0) num_parents--; // IGNORE ANY, which shows up everywhere.
+		
 		if (ct.typeArguments().isEmpty()) {
+		  boolean first = true;
           h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
           h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
           h.write("rtt.canonical = &rtt;"); h.newline();
           h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
-          h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
+          if (ct.superClass() != null && !xts.isAny(ct.superClass())) {
+              h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+              first = false;
+          }
           for (Type iface : ct.interfaces()) {
-              h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
+              if (xts.isAny(iface)) continue; // IGNORE ANY
+              if (!first) h.write(", ");
+              h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
+              first = false;
           }
           h.write("};"); h.newline();          
           h.write("rtt.init(&rtt, \""+ct.fullName()+"\", "+num_parents+ ", parents, 0, NULL, NULL);"); h.end(); h.newline();
           h.write("}"); h.newline();
         } else {
+            boolean first = true;
         	int numTypeParams = ct.typeArguments().size();
             printTemplateSignature(ct.typeArguments(), h);
             h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
@@ -624,14 +636,20 @@ public class Emitter {
             h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
             h.write("rtt.canonical = &rtt;"); h.newline();
             h.write("const x10aux::RuntimeType* parents["+num_parents+"] = { ");
-            h.write("x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Object()) : translateType(ct.superClass())) + "()");
-            for (Type iface : ct.interfaces()) {
+            if (ct.superClass() != null && !xts.isAny(ct.superClass())) {
+                h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
+                first = false;
+            }
+           for (Type iface : ct.interfaces()) {
+                if (xts.isAny(iface)) continue; // IGNORE ANY
+                if (!first) h.write(", ");
                 h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
+                first = false;
             }
             h.write("};"); h.newline();
             
             h.write("const x10aux::RuntimeType* params["+numTypeParams+"] = { ");
-            boolean first = true;
+            first = true;
             for (Type param : ct.typeArguments()) {
             	if (!first) h.write(", ");
                 h.write("x10aux::getRTT"+chevrons(translateType(param))+"()");

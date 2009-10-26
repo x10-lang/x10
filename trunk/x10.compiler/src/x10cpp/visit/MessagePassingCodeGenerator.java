@@ -741,6 +741,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		for (TypeNode i : n.interfaces()) {
 		    ClassType ct = i.type().toClass();
+		    if (xts.isAny(ct)) continue; // IGNORE ANY
 		    X10ClassDef icd = (X10ClassDef) ct.def();
 		    if (icd != def) {
 		        String header = getHeader(ct);
@@ -791,6 +792,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		ArrayList<ClassType> types = referencedTypes(n, def);
         for (ClassType ct : types) {
+            if (xts.isAny(ct)) continue; // IGNORE ANY
             X10ClassDef cd = (X10ClassDef) ct.def();
             if (cd == def)
                 continue;
@@ -1534,13 +1536,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private void generateITablesForClass(X10ClassType currentClass,
 			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
 		List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
-		int numInterfaces = allInterfaces.size();
+		int numInterfaces = allInterfaces.size() - 1; // IGNORE ANY by subtracting 1
 		if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
 			/* ITables declarations */
 			h.write("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.newline(); h.forceNewline();
 			h.write(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 			int itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
+			    if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableDecl(currentClass, itableNum, emitter, h);
 				itableNum += 1;
@@ -1550,6 +1553,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			/* ITables initialization */
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
+                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
 				itableNum += 1;
@@ -1561,6 +1565,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
+                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
@@ -1572,7 +1577,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                                      X10TypeSystem xts, String maybeVirtual, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
-	    int numInterfaces = allInterfaces.size();
+        int numInterfaces = allInterfaces.size() - 1; // IGNORE ANY by subtracting 1
 	    if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
 	        /* ITables declarations */
 	        sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
@@ -1582,6 +1587,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        /* ITables initialization */
 	        itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
+	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
 	            itableNum += 1;
@@ -1594,6 +1600,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
 	        itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
+	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 	            sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
 	                     clsCType+"_ithunk"+itableNum+"::itable), ");
 	            itableNum += 1;
@@ -3753,8 +3760,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("class "+cname+" : "); inc.begin(0);
-        inc.write("public "+Emitter.translateType(xts.Value()));
+        inc.write("class "+cname); inc.begin(0);
         inc.write("{") ; inc.end() ; inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
