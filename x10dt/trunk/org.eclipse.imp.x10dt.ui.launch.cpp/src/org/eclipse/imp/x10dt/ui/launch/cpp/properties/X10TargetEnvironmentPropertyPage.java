@@ -10,12 +10,9 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.properties;
 import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
@@ -30,7 +27,6 @@ import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
@@ -161,14 +157,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         setErrorMessage(LaunchMessages.XTEPP_MissingTargetWorkspaceError);
         return false;
       } else {
-        final String targetWorkspace = this.fWorkspaceLocText.getText().trim();
-//        final String resManagerName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
-//        final String resManagerId = (String) this.fResManagerCombo.getData(resManagerName);
-//        
-//        if (! checkDirectory(targetWorkspace, resManagerId)) {
-//          return false;
-//        }
-        project.setPersistentProperty(Constants.WORKSPACE_DIR, targetWorkspace);
+        project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
       }
     } catch (CoreException except) {
       setErrorMessage(NLS.bind(LaunchMessages.XTEPP_DataStoringError, except.getMessage()));
@@ -177,33 +166,6 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
   }
   
   // --- Private code
-  
-  private boolean checkDirectory(final String targetWorkspace, final String resManagerId) {
-    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-    final IResourceManager resourceManager = modelManager.getUniverse().getResourceManager(resManagerId);
-    final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
-    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
-    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-    final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
-    final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
-    try {
-      final IFileInfo fileInfo = fileManager.getResource(new Path(targetWorkspace), new NullProgressMonitor()).fetchInfo();
-      if (fileInfo.exists()) {
-        if (fileInfo.isDirectory()) {
-          return true;
-        } else {
-          setErrorMessage(LaunchMessages.XTEPP_NoDirectoryError);
-          return false;
-        }
-      } else {
-        setErrorMessage(LaunchMessages.XTEPP_DirNotFound);
-        return false;
-      }
-    } catch (IOException except) {
-      setErrorMessage(except.getMessage());
-      return false;
-    }
-  }
   
   private void createResourceManager(final Composite parent) {
     final Composite composite = new Composite(parent, SWT.NONE);

@@ -157,8 +157,6 @@ public class LaunchMessages extends NLS {
 
   public static String XTEPP_DataStoringError;
 
-  public static String XTEPP_DirNotFound;
-
   public static String XTEPP_InitializationError;
 
   public static String XTEPP_MissingRMError;
@@ -167,8 +165,6 @@ public class LaunchMessages extends NLS {
 
   public static String XTEPP_MissingX10PlatformError;
 
-  public static String XTEPP_NoDirectoryError;
-  
   // --- Private code
 
   private static final String BUNDLE_NAME = "org.eclipse.imp.x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$

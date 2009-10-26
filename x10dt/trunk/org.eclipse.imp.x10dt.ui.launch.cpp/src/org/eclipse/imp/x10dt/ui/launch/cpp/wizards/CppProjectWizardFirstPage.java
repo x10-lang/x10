@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.wizards;
 
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.osgi.framework.Bundle;
-
-import sun.net.www.protocol.jar.JarURLConnection;
 
 
 final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
@@ -71,7 +70,7 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
     this.fGenHelloProgBt = new Button(composite, SWT.CHECK);
     this.fGenHelloProgBt.setText(LaunchMessages.PWFP_SampleCodeGenButton);
     this.fGenHelloProgBt.setSelection(true);
-    
+
     setControl(composite);
   }
 
@@ -89,7 +88,7 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
       return new IClasspathEntry[0];
     }
   }
-  
+
   // --- Internal Services
 
   boolean shouldGenerateHelloWorldProgram() {
@@ -100,19 +99,19 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
 
   private IClasspathEntry[] createX10RuntimeEntries() throws Error, IOException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    if (! addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
+    if (!addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
       addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
     }
     addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);
     addClassPathEntries(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASSES_DIR);
     return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
   }
-  
-  private boolean addClassPathEntries(final List<IClasspathEntry> cpEntries, final String bundleName,
-		                              final String folder) throws IOException {
+
+  private boolean addClassPathEntries(final List<IClasspathEntry> cpEntries, final String bundleName, 
+                                      final String folder) throws IOException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
-      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
+      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR,
                                NLS.bind(Messages.PCDWP_NoBundleDialogMsg, bundleName));
       throw new Error();
     } else {
@@ -124,16 +123,15 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
       final URL url = FileLocator.resolve(wURL);
       final boolean deployed;
       final IPath path;
-      if (url.getProtocol().equals("jar")) {
-    	final JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-    	path = new Path(jarConnection.getJarFileURL().getFile());
-    	deployed = true;
+      if (url.getProtocol().equals("jar")) { //$NON-NLS-1$
+        final JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+        path = new Path(jarConnection.getJarFileURL().getFile());
+        deployed = true;
       } else {
-    	path = new Path(url.getFile());
-    	deployed = false;
+        path = new Path(url.getFile());
+        deployed = false;
       }
-      cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, 
-                                             null /* sourceAttachmentRootPath */));
+      cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, null /* sourceAttachmentRootPath */));
       return deployed;
     }
   }
@@ -141,16 +139,15 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
   // --- Fields
 
   private Button fGenHelloProgBt;
-  
-  
+
   private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
-  
+
   private static final String X10_COMMON_BUNDLE = "x10.common"; //$NON-NLS-1$
-  
+
   private static final String X10_CONSTRAINTS_BUNDLE = "x10.constraints"; //$NON-NLS-1$
-  
+
   private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
-  
+
   private static final String SRC_X10_DIR = "src-x10"; //$NON-NLS-1$
 
 }
