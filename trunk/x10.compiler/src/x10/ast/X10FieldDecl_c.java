@@ -98,10 +98,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
         X10Context context = (X10Context) tc.context();
-        if (xts.isValueType(ref, context) && !fi.flags().isFinal()) {
+   /*     if (xts.isValueType(ref, context) && !fi.flags().isFinal()) {
             throw new SemanticException("Cannot declare a non-final field in a value class.", position());
         }
-
+*/
         if (ref instanceof X10Type) {
         	X10Type container = (X10Type) ref;
         	if (container.isX10Struct()) {

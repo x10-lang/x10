@@ -38,7 +38,7 @@ class Activity {
 	/**
 	 * Create activity.
 	 */
-    def this(body:()=>Void, finishState:FinishState{self.at(here)}, safe:Boolean) {
+    def this(body:()=>Void, finishState:FinishState!, safe:Boolean) {
 	this.finishState = finishState;
 	this.safe = safe;
         finishState.incr();

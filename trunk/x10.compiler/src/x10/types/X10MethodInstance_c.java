@@ -398,7 +398,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public String containerString() {
         Type container = container();
         container = X10TypeMixin.baseType(container);
-        if (container instanceof ClosureType) {
+        if (container instanceof FunctionType) {
             return "(" + container.toString() + ")";
         }
         if (container instanceof Named) {

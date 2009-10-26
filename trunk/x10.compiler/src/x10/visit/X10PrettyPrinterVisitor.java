@@ -151,7 +151,7 @@ import x10.emitter.Template;
 import x10.emitter.TypeExpander;
 import x10.extension.X10Ext;
 import x10.query.QueryEngine;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -584,7 +584,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		er.generateRTTMethods(def);
 
-		boolean isValueType = xts.isValueType(def.asType(), (X10Context) tr.context());
+//		boolean isValueType = xts.isValueType(def.asType(), (X10Context) tr.context());
 		if (def.isTopLevel()) {
 			er.generateRTType(def);
 		}

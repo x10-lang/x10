@@ -533,12 +533,12 @@ public class XTypeTranslator {
 				// if s is of Ref type, then return s.location = t is Place ? t : t.location
 
 				if (xmi.name().equals(Name.make("at"))
-						&& ts.typeEquals(xmi.def().container().get(), ts.Object(), xc)
+						&& ts.typeEquals(xmi.def().container().get(), ts.Any(), xc)
 						&& t.arguments().size()==1) {
-					FieldInstance fi = ts.findField(ts.Ref(), ts.FieldMatcher(ts.Ref(), 
+					FieldInstance fi = ts.findField(ts.Object(), ts.FieldMatcher(ts.Object(), 
 							Name.make("location"), xc));
-					XTerm lhs =  (ts.isSubtype(t.target().type(), ts.Value(), xc))? 
-							transHere(xc) : trans(c, r, fi, ts.Place());
+					XTerm lhs =  /*(ts.isSubtype(t.target().type(), ts.Value(), xc))? 
+							transHere(xc) : */trans(c, r, fi, ts.Place());
 
 							// replace by r.location == arg0 or r.location == arg0.location
 							XTerm y = trans(c, t.arguments().get(0), xc);

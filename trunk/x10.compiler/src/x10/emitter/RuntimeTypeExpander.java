@@ -8,7 +8,7 @@ import java.util.List;
 import polyglot.types.Type;
 import polyglot.visit.Translator;
 import x10.constraint.XConstraint;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -57,8 +57,8 @@ final public class RuntimeTypeExpander extends Expander {
             return;
         }
 
-        if (at instanceof ClosureType) {
-            ClosureType ct = (ClosureType) at;
+        if (at instanceof FunctionType) {
+            FunctionType ct = (FunctionType) at;
             List<Type> args = ct.argumentTypes();
             Type ret = ct.returnType();
             er.w.write("new ");

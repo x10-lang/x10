@@ -45,9 +45,9 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 	    return def();
     }
     
-    ClosureType type;
+    FunctionType type;
 
-    public ClosureType type() {
+    public FunctionType type() {
 	    X10TypeSystem xts = (X10TypeSystem) ts;
 	    assert false;
 	    if (type == null) {

@@ -42,4 +42,5 @@ public final struct Place(id: int) {
 	public def isLast(): boolean = id == MAX_PLACES - 1;
 
     public def toString() = "(Place " + id + ")";
+    public def typeName() = "x10.lang.Place";
 }    

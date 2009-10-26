@@ -158,7 +158,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public String containerString() {
 	Type container = container();
 	container = X10TypeMixin.baseType(container);
-	if (container instanceof ClosureType) {
+	if (container instanceof FunctionType) {
 	    return "(" + container.toString() + ")";
 	}
 	if (container instanceof Named) {

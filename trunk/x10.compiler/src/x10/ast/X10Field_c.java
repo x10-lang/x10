@@ -288,7 +288,7 @@ public class X10Field_c extends Field_c {
 		X10Context xc = (X10Context) tc.context();
 		
 		Receiver target = target();
-		if (! ts.isSubtype(target.type(), ts.Ref(), xc))
+		if (! ts.isSubtype(target.type(), ts.Object(), xc))
 			return;
 
 		if (ts.isHere(target, xc))

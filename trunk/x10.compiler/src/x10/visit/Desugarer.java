@@ -202,7 +202,7 @@ public class Desugarer extends ContextVisitor {
     
     private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
-    	if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
+    	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
         	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
         }
     	
@@ -224,7 +224,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
-      	if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
+      	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
           	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
           }
         Closure closure = 
@@ -343,7 +343,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
-        if (xts.isImplicitCastValid(place.type(), xts.Ref(), context)) {
+        if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
             place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
         }
         if (clocks.size() == 0) 
@@ -768,7 +768,7 @@ public class Desugarer extends ContextVisitor {
         Expr xl = xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(t);
         List<Expr> condition = depClause.condition();
         Expr cond = xnf.Unary(pos, conjunction(depClause.position(), condition, xl), Unary.NOT).type(xts.Boolean());
-        if (xts.isSubtype(t, xts.Ref(), context)) {
+        if (xts.isSubtype(t, xts.Object(), context)) {
             Expr nonnull = xnf.Binary(pos, xl, X10Binary_c.NE, xnf.NullLit(pos).type(xts.Null())).type(xts.Boolean());
             cond = xnf.Binary(pos, nonnull, X10Binary_c.COND_AND, cond);
         }

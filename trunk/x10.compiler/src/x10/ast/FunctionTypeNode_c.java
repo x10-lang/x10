@@ -18,6 +18,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
+import polyglot.frontend.SetResolverGoal;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
@@ -38,6 +39,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
@@ -91,7 +93,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		Type result = ts.closureType(position(), returnType.typeRef(),
 				//   typeParams, 
 				formalTypes, formalNames, 
-				guard != null ? guard.valueConstraint() : null,
+				guard != null ? guard.valueConstraint() 
+						: Types.<XConstraint>lazyRef(new XConstraint_c()),
 						// guard != null ? guard.typeConstraint() : null,
 						throwTypes);
 

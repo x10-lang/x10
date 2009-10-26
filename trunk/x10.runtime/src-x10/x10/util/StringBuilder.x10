@@ -3,7 +3,7 @@ package x10.util;
 import x10.compiler.Native;
 
 public class StringBuilder implements Builder[Object,String] {
-    val buf: ValRailBuilder[Char]!;
+     val buf: ValRailBuilder[Char]!;
 
     public def this() {
         buf = new ValRailBuilder[Char]();
@@ -13,7 +13,7 @@ public class StringBuilder implements Builder[Object,String] {
         if (o == null)
             return addString("null");
         else
-            return addString(o.toString());
+            return addString((o as Object!).toString());
     }
 
     public def add(x:Boolean) = addString(x.toString());
@@ -48,7 +48,7 @@ public class StringBuilder implements Builder[Object,String] {
     private static native def makeString(ValRail[Char]): String;
 
     public def result(): String {
-        return makeString(buf.result());
+        return makeString(at (this) buf.result());
     }
     
     public def toString() = result();

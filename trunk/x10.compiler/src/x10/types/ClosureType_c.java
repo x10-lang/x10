@@ -47,7 +47,7 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
 
-public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
+public class ClosureType_c extends X10ParsedClassType_c implements FunctionType {
     private static final long serialVersionUID = 2768150875334536668L;
 
 //    protected ClosureInstance ci;

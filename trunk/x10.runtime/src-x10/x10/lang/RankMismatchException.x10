@@ -14,13 +14,13 @@ package x10.lang;
    statically.
  */
 public class RankMismatchException extends x10.lang.Exception {
-    private global val p: Box[Point];
-    private global val r: Box[Region];
-    private global val d: Box[Dist];
+    private global val p: Point;
+    private global val r: Region;
+    private global val d: Dist;
     private global val n: int;
 
     public def this(p_: Point, n_:int)  = {
-        p = p_ as Box[Point];
+        p = p_;
         r = null;
         d = null;
         n = n_;
@@ -28,7 +28,7 @@ public class RankMismatchException extends x10.lang.Exception {
 
     public def this(r_: Region, n_:int) = {
         p = null;
-        r = r_ as Box[Region];
+        r = r_;
         d = null;
         n = n_;
     }
@@ -36,7 +36,7 @@ public class RankMismatchException extends x10.lang.Exception {
     public def this(d_: Dist, n_:Int) = {
         p = null;
         r = null;
-        d = d_ as Box[Dist];
+        d = d_;
         n = n_;
     }
 

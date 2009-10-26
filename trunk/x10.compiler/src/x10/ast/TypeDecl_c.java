@@ -199,7 +199,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (! local && ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    throw new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position());
 		}
-
+/*
 		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
 		    // If this is a top-level typedef, add it to a dummy class for the package.
 		    // When looking up types, we'll look for the package class then walk through the members.
@@ -222,7 +222,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 			ts.systemResolver().install(dummyClass, ct.asType());
 		    }
 		}
-		
+*/		
 		TypeDef typeDef;
 
 		XRoot thisVar = ct != null ? ct.thisVar() : null;

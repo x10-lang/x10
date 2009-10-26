@@ -98,10 +98,10 @@ final class LocalArray[T] extends BaseArray[T] {
 
     public global global def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
-        return Array.make[T](dist, (p:Point):T => {
+        return Array.make[T](dist, new Box[(Point)=>T]((p:Point):T => {
             a.result = op(a.result, apply(p as Point(rank)));
             return a.result;
-        });
+        }));
 
     }
 

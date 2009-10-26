@@ -27,15 +27,15 @@ import x10.compiler.Native;
 public class Printer extends FilterWriter {
     public def this(w: Writer) { super(w); }
 
-    private const NEWLINE = '\n'; // System.getProperty("line.separator");
+    private const NEWLINE:Char = '\n'; // System.getProperty("line.separator");
 
-    public global def println(): Void = print(NEWLINE as Box[Char]);
+    public global def println(): Void = print(new Box[Char](NEWLINE));
     
     public global def print(o:Object): Void {
         if (o == null)
             print("null");
         else
-            print(o.toString());
+            print(at (o) o.toString());
     }
 
     public global def print(s:String): Void {

@@ -34,7 +34,7 @@ import polyglot.types.Type;
 public interface ClosureInstance extends FunctionInstance<ClosureDef>, X10ProcedureInstance<ClosureDef> {
     CodeInstance<?> methodContainer();
     ClassType typeContainer();
-    ClosureType type();
+    FunctionType type();
     
     public ClosureInstance returnTypeRef(Ref<? extends Type> returnType);
 }

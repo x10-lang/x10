@@ -329,4 +329,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public boolean isStruct() {
     	return X10Flags.toX10Flags(flags()).isStruct();
     }
+    // This is overridden by the synthetic Fun_** classes created in X10TypeSystem_c.
+    public boolean isFunction() {
+    	return false;
+    }
 }
