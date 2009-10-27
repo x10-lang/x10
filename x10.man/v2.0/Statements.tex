@@ -168,8 +168,7 @@ constants.  Case labels cannot be duplicated within the
 \xcd"switch" statement.
 
 \section{While statement}
-
-\index{while@\xcd"while"}
+\index{\Xcd{while}}
 
 \begin{grammar}
 Statement \: WhileStatement \\
@@ -186,8 +185,7 @@ exits.
 The condition must be of type \xcd"Boolean".
 
 \section{Do--while statement}
-
-\index{do@\xcd"do"}
+\index{\Xcd{do}}
 
 \begin{grammar}
 Statement \: DoWhileStatement \\
@@ -202,8 +200,7 @@ Otherwise, the loop exits.
 The condition must be of type \xcd"Boolean".
 
 \section{For statement}
-
-\index{for@\xcd"for"}
+\index{\Xcd{for}}
 
 \begin{grammar}
 Statement \: ForStatement \\
@@ -338,5 +335,5 @@ ReturnStatement \: \xcd"return" Expression \xcd";" \\
 
 Methods and closures may return values using a return statement.
 If the method's return type is expliclty declared \xcd"Void",
-the method may return without a value; otherwise, it must return
+the method must return without a value; otherwise, it must return
 a value of the appropriate type.

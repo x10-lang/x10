@@ -174,7 +174,7 @@ quiescent on \xcd"c" forever (unless the system takes some action),
 since no other activity can become registered with \xcd"c".  That is,
 quiescence on a clock is a {\em stable property}.
 
-Once the implementation has detected quiecence on \xcd"c", the system
+Once the implementation has detected quiescence on \xcd"c", the system
 marks all activities registered with \xcd"c" as being able to progress
 on \xcd"c". An activity blocked on \xcd"next" resumes execution once
 it is marked for progress by all the clocks it is registered with.

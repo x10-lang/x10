@@ -21,11 +21,20 @@
 
 \usepackage{commands}
 
+\usepackage[
+pdfauthor={Vijay Saraswat},
+pdftitle={Report on the Language X10},
+pdfcreator={pdftex},
+pdfkeywords={X10},
+linkcolor=blue,
+citecolor=blue,
+urlcolor=blue
+]{hyperref}
 
 \ifpdf
           \pdfinfo {
-              /Author   (Nathaniel Nystrom)
-              /Title    (Report on the Experimental Language X10)
+              /Author   (Vijay Saraswat)
+              /Title    (Report on the Language X10)
               /Keywords (X10)
               /Subject  ()
               /Creator  (TeX)
@@ -108,6 +117,8 @@
 \input{Packages}
 \input{Interfaces}
 \input{Classes}
+\input{Structs}
+\input{functions}
 \input{TypeDefs}
 \input{VariableDeclarations}	
 \input{Statements}	
@@ -130,9 +141,71 @@
 %\addtolength{\baselineskip}{-0.1pt}
 
 \clearpage
-
 \input{x10.ind}
 
+\appendix
+\section{Changes from \Xten{} v1.7}
+
+The language has changed in the following way:
+\begin{itemize}
+
+\item {\bf Type system changes}: There are now three kinds of entities
+  in an \Xten{} computation: objects, structs and functions. Their
+  associated types are class types, struct types and function
+  types. 
+
+  Class and struct types are called {\em container types} in that they
+  specify a collection of fields and methods. Container types have a
+  name and a signature (the collection of members accessible on that
+  type). Collection types support primitive equality \Xcd{==} and may
+  support user-defined equality if they implement the {\tt
+    x10.lang.Equals} interface. 
+
+  Container types (and interface types) may be further qualified with
+  constraints.
+
+  A function type specifies a set of arguments and their type, the
+  result type, and (optionally) a guard. A function application
+  type-checks if the arguments are of the given type and the guard is
+  satisfied, and the return value is of the given type.  A function
+  type does not permit \Xcd{==} checks. Closure literals create
+  instances of the corresponding function type.
+
+  Container types may implement interfaces and zero or more function
+  types.
+
+  All types support a basic set of operations that return a string
+  representation, a type name, and specify the location of the entity.
+
+  The type system is not unitary. However, any type may be used to
+  instantiate a generic type. 
+
+  There is no longer any notion of \Xcd{value} classes. \Xcd{value}
+  classes must be re-written into structs or (reference) classes. 
+
+\item {\bf Global object model}: Objects are instances of
+  classes. Each object is associated with a globally unique
+  identifier. Two objects are considered identical \Xcd{==} if their
+  ids are identical. Classes may specify \Xcd{global} fields and
+  methods. These can be accessed at any place. (\Xcd{global} fields
+  must be immutable.)
+
+\item{\bf Proto types.} For the decidability of dependent type
+  checking it is necessary that the property graph is acyclic. This is
+  ensured by enforcing rules on the leakage of \Xcd{this} in
+  constructors. The rules are flexible enough to permit cycles to be
+  created with normal fields, but not with properties.
+
+\item{Place types.} Place types are now implemented. This means that
+  non-global methods can be invoked on a variable, only if the
+  variable's type is either a struct type or a function type, or a
+  class type whose constraint specifies that the object is located in
+  the current place.
+
+  There is still no support for statically checking array access
+  bounds, or performing place checks on array accesses.
+
+\end{itemize}
 {\em The \Xten{} language has been developed as part of the IBM PERCS
 Project, which is supported in part by the Defense Advanced Research
 Projects Agency (DARPA) under contract No. NBCH30390004.}

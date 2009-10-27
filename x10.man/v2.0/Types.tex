@@ -1,64 +1,73 @@
 \chapter{Types}
 \label{XtenTypes}\index{types}
 
-{}\Xten{} is a {\em strongly typed} object-oriented language: every variable
-and expression has a type that is known at compile-time. Further,
-\Xten{} has a {\em unified} type system: all data items created at
-run time are {\em objects} (\Sref{XtenObjects}). Types limit the
-values that variables can hold and specify the places at which these
-values lie.
+{}\Xten{} is a {\em strongly typed} object-oriented language: every
+variable and expression has a type that is known at compile-time.
+Types limit the values that variables can hold and specify the places
+at which these values lie.
 
-{}\Xten{} supports two kinds of objects, {\em reference objects} and
-{\em value objects}.  Reference objects are instances of {\em
-reference classes} (\Sref{ReferenceClasses}). They may contain
-mutable fields and must stay resident in the place in which they were
-created. Value objects are instances of {\em value classes}
-(\Sref{ValueClasses}). They are immutable and may be freely copied
-from place to place. Either reference or value objects may be 
-{\em scalar} (instances of a non-array class) or {\em aggregate} (instances
-of arrays).
-Only variables of reference types may be assigned \xcd"null".
 
-Types are used in variable declarations, explicit coercions and
-conversions, object creation, array
-creation, class literals and \xcd"instanceof" expressions.\footnote{In
-order to allow this version of the language to focus on the core new
-ideas, \XtenCurrVer{} does not have user-definable class loaders,
-though there is no technical reason why they could not have been
-added.}
+{}\Xten{} supports three kinds of runtime entities, {\em objects},
+{\em structs}, and {\em functions}. Objects are instances of {\em
+  classes} (\Sref{ReferenceClasses}). They may contain mutable fields
+and must stay resident in the place in which they were
+created. Objects are said to be {\em boxed} in that variables of a
+class type are implemented through a single memory location that
+contains a reference to the memory containing the declared state of
+the object (and other meta-information such as the list of methods of
+the object). Thus objects are represented through an extra level of
+indirection. A consequence of this flexibility is that every class
+type contains the value \Xcd{null} corresponding to the invalid
+reference. \Xcd{null} is often useful as a default value. Further, two
+objects may be compared for equality (\Xcd{==}) in constant time by
+simply containing references to the memory used to represent the
+objects.
+
+Structs are instances of {\em struct classes}
+(\Sref{StructClasses}). They are immutable and may be freely copied
+from place to place.  Further, they may be allocated inline, i.e.{}
+using only as much memory as necessary to hold the fields of the
+struct (and any additional memory necessary to satisfy alignment
+constraints for data layout. 
+
+Functions are instances of {\em function types|} {\Sref{Functions})
+  and are created using function literals
+  \Xcd{(x1:T1,...,xn:Tn)\{c\}:T => e}. Functions contain no
+  user-visible mutable or immutable state; their representation,
+  however, contains enough memory to hold the values of the variables
+  in the envirnonment that are referenced in the body of the function
+  (\Xcd{e}). Functions may be freely copied from place to place and
+  may be repeatedly applied to a set of arguments, provided that the
+  precondition \Xcd{c} is satisfied.
+
+These runtime entities are classified into different groups using {\em
+  types}.  Types are used in variable declarations, explicit coercions
+and conversions, object creation, array creation, class literals,
+static state and method accessors, and \xcd"instanceof"
+expressions.\footnote{In order to allow this version of the language
+  to focus on the core new ideas, \XtenCurrVer{} does not have
+  user-definable class loaders, though there is no technical reason
+  why they could not have been added.}
 
 Types in \Xten{} are specified through declarations and through
 type constructors, described in the remainder of the chapter:
 
 \begin{itemize}
 \item A class declaration defines a \emph{class type}
-(\Sref{ReferenceTypes}), which
-may be either a reference class or a value class.
+(\Sref{ReferenceTypes}).
 \item An interface declaration defines an \emph{interface type}
 (\Sref{InterfaceTypes}).
-\item The \emph{boxed type} constructor produces a reference
-type from a value type (\Sref{BoxedTypes}).
-\iftypeparams\else
-\item Classes and interface have \emph{type properties}, which
-are instance members and introduce \emph{path types}
-(\Sref{PathTypes}).
-A class or interface with one or more type properties is a
-\emph{generic class} or \emph{generic interface}
-(\Sref{Generics}).
-\fi
-\iftypeparams
 \item Classes and interface have \emph{type parameters}.
 A class or interface with one or more type parameters is a
 \emph{generic class} or \emph{generic interface}
 (\Sref{Generics}).
-\fi
 \item New type constructors may be defined with \emph{type
 definitions} (\Sref{TypeDefs}).
 \item Methods, constructors, closures, and type definitions may
 have \emph{type parameters}, which are instantiated with
 concrete types at invocation (\Sref{TypeParameters}).
 \item \emph{Function type} constructors are used to define
-function types; closures and method selectors have function
+function types; functions and method selectors have function
 type (\Sref{FunctionTypes}).
 \item A \emph{constrained type} constrains the properties of
 a base type (\Sref{ConstrainedTypes}).
@@ -67,6 +76,7 @@ a base type (\Sref{ConstrainedTypes}).
 may be processed by compiler plugins.
 \end{itemize}
 
+%%TODOvj: Revisit grammer for types.
 \begin{grammar}
 Type \: FunctionType \\
     \| ConstrainedType  \\
@@ -125,24 +135,17 @@ InterfaceBaseType \: TypeName \\
         Class instances are created via
         constructor calls.  Class instances have fields and
         methods, type members, and
-\iftypeparams
         value properties bound at construction time.
-\else
-        value and type properties bound at construction time.
-\fi
         In addition, classes have static
         members: constant fields, type definitions, and member
         classes and member interfaces.
 
-\iftypeparams
+
         A class with type parameters is {\em generic}.  A class
         type is legal only if all of its parameters are instantiated
         on concrete types.
-\fi
 
-\Xten{} does
-not
-permit mutable static state, so the role of static methods and
+\Xten{} does not permit mutable static state, so the role of static methods and
 initializers is quite limited. Instead programmers should use
 singleton classes to carry mutable static state.
 
@@ -152,80 +155,34 @@ singleton classes to carry mutable static state.
         Classes
         are structured in a
         single-inheritance hierarchy.  All reference classes
-        extend the class \xcd"x10.lang.Ref".
-        All value classes extend the class \xcd"x10.lang.Value".
+        extend the class \xcd"x10.lang.Objet".
         Classes are declared to extend a single
-        superclass (except for \xcd"Ref" and \xcd"Value", which extend
-        no other class),
-        All classes implement the
-        interface \xcd"x10.lang.Object"
-        and zero or more other interfaces.
+        superclass (except for \xcd"Object", which extends
+        no other class).
+
 
 \xcd"Object" has the following signature:
 
 \begin{xten}
 package x10.lang;
 
-public interface Object {
+public class Object {
     public def toString(): String;
-    public def equals(Object): Boolean;
-    public def hashCode(): Int;
-    public def className(): String;
+    public def typeName(): String;
+    public def loc():Place;
+    public def at(p:Place):boolean;
+    public def at(o:Object):boolean;
 }
 \end{xten}
 
 
 \index{class!reference class}
 \index{reference class type}
-\index{types!value class types}
 \index{class!value class}
-\index{value class declaration}
-\index{declaration!value class declaration}
-\index{\Xcd{Ref}}
-\index{\Xcd{x10.lang.Ref}}
-\index{\Xcd{Value}}
-\index{\Xcd{x10.lang.Value}}
+\index{\Xcd{Object}}
+\index{\Xcd{x10.lang.Object}}
 
-        Classes may be declared to be either reference classes,
-        or value classes.
-A \emph{value class type}
-is a class type in which all fields of the class are final.
-%
-Variables of reference class type may be \xcd"null"; 
-variables of value class type may not be \xcd"null".
-%
-        All reference classes extend the
-        \xcd"x10.lang.Ref" class; all value classes
-        extend the \xcd"x10.lang.Value" class.
-
-        It is a static error if a value class extends
-        \xcd"Ref" (or any subclass of \xcd"Ref").
-        It is a static error if a reference class extends
-        \xcd"Value" (or any subclass of \xcd"Value").
-
-\xcd"Ref" and \xcd"Value" have the following signatures:
-
-\begin{xten}
-package x10.lang;
-
-public class Ref(location: Place) {
-    public Ref() { property(here); }
-}
-
-public class Value { }
-\end{xten}
-
-
-\index{class!reference class}
-\index{reference class type}
-\index{types!value class types}
-\index{class!value class}
-\index{value class declaration}
-\index{declaration!value class declaration}
-\index{\Xcd{Ref}}
-\index{\Xcd{x10.lang.Ref}}
-\index{\Xcd{Value}}
-\index{\Xcd{x10.lang.Value}}
+Variables of reference class type may contain the value \xcd"null". 
 
 \subsection{Interface types}
 \label{InterfaceTypes}
@@ -243,22 +200,19 @@ public class Value { }
         and member classes and interfaces.
 
         An interface may extend multiple interfaces.
-        All interfaces extend \xcd"x10.lang.Object".
 
-Classes may be declared to implement 
-multiple interfaces. 
+Classes may be declared to implement multiple interfaces.
 Semantically, the interface type is the set of all objects that are
-instances of (value or reference) classes that implement the
-interface. A class implements an interface if it is declared to
-and if
-it implements all the methods and properties defined in the interface.
+instances of classes that implement the interface. A class implements
+an interface if it is declared to and if it implements all the methods
+and properties defined in the interface.
 
 \subsection{Value properties}
 
 \index{properties!value properties}
 
         Classes and interfaces may have {\em value properties},
-        public final fields bound to object creation.  
+        public final instance fields bound to object creation.  
 %
         For example, the following code declares a class named
         \xcd"Point" with properties \xcd"x" and \xcd"y"
@@ -277,78 +231,6 @@ class Point(x: Int, y: Int) {
         \xcd"Point{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
 
-
-\iftypeparams
-\else
-
-\subsection{Type properties}
-\label{TypeProperties}
-
-\index{types!type properties}
-\index{properties!type properties}
-
-        Classes and interfaces may have {\em type properties}, bound
-        to concrete types on object creation.
-        A class or interface type
-        with one or more type properties is called a {\em
-        generic type}.
-
-The following code declares a class \xcd"Cell" with a type
-property named \xcd"X".
-\begin{xten}
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x: }
-}
-\end{xten}
-The class has a mutable field \xcd"x", initialized by the
-constructor, and has a getter method and a setter method.
-
-This example shows that type properties are in many ways similar to
-type parameters as provided in languages such as Java and Scala.
-Type properties are types in their own right:
-they may be used in any context a type may be used,
-including in \xcd"instanceof" and cast expressions.
-
-\label{PathTypes}
-\index{types!path types}
-
-However, the key semantic distinction between type properties
-and type parameters is that type properties are instance
-members.
-% vj: fixed the text that follows Wed Jun 18 02:01:11 2008
-        Type properties introduce {\em path types}.
-        Let \xcd"o" be the object obtained by evaluating an expression
-	\xcd"e" of type \xcd"T", where 
-        \xcd"T" is a class or interface type declared with
-        a type property \xcd"X". Then \xcd"e.X" is an expression
-	which evaluates to the type \xcd"T" that \xcd"X" was bound to when 
-	\xcd"o" was created. 
-Thus, for an expression \xcd"e" of type \xcd"Cell" (\xcd"e" must be a
-final access path, see below), \xcd"e.X" is a type and \xcd"e.get()"
-returns a value of that type.
-
-Within the body of a class, a property name \xcd"X" resolves
-to \xcd"this.X" (or to \xcd"C.this.X" if \xcd"X" is a property of
-an enclosing class \xcd"C"), just as value property names are
-resolved.
-\fi
-
-\iftypeparams
-\else
-\subsection{Final access paths}
-\label{FinalAccessPath}
-\index{final access path}
-
-        To ensure soundness of the type system, the expression \xcd"e"
-	used in a path type \xcd"e.X" must be a \emph{final access
-	path}, either a final local variable or formal parameter
-	(including the special variables \xcd"this" and \xcd"self"),
-	or a final field or value property of a final access path.
-\fi
-
 \section{Type parameters}
 \label{TypeParameters}
 
@@ -365,22 +247,14 @@ resolved.
         whose scope is the signature and body of the declaring
         class, interface, method,
         or closure.
-\else
-        A method, constructor, or closure may have type parameters
-        whose scope is the signature and body of the declaring method,
-        constructor or closure.
-\fi
+
         Similarly, a type definition may have
         type parameters that scope over the body of the type
         definition.
 
         Type parameters may be constrained by a {\em guard} on the declaration
         (\Sref{ClassGuard}, \Sref{TypeDefGuard},
-\iftypeparams\else
-        \Sref{ConstructorGuard},
-\fi
         \Sref{MethodGuard},\Sref{ClosureGuard}).
-\iftypeparams
         The type parameters of classes and interfaces must be
         bound to concrete types (possibly to a type parameter)
         for the type to be legal; thus \xcd"List[int]" and
@@ -388,17 +262,11 @@ resolved.
         not.
         The type parameters of
         methods and closures
-\else
-        The type parameters of
-        methods, constructors, and closures,
-\fi
         must be bound to
         concrete types at invocation.
         Parametrized type definitions specify new type
         constructors; the type parameters of a type definition must be bound
         to yield a type.
-
-\iftypeparams
 
 \subsection{Generic types}
 \label{Generics}
@@ -427,8 +295,8 @@ This declares a class \xcd"Cell" with a type parameter \xcd"X".
 \xcd"Cell" alone is not a legal type because the parameter is
 not bound.
 
-Parameters may be declares as invariant, covariant, or
-contravariant.  The \xcd"X" parameter of \xcd"Cell" above is
+Parameters may be declares as {\em invariant}, {\em covariant}, or
+{\em contravariant}.  The \xcd"X" parameter of \xcd"Cell" above is
 invariant.  
 Consider the following classes:
 \begin{xten}
@@ -465,8 +333,6 @@ If the parameter of \xcd"Cell" is invariant, then
 \xcd"S" is a {\em equal} to \xcd"T".
 \end{itemize}
 
-\fi
-
 
 
 \section{Type definitions}
@@ -500,7 +366,7 @@ The constraint \xcd"c" is called the \emph{guard} of
 \xcd"X".  Finally, \xcd"U" is the defining type of \xcd"X".
 \label{TypeDefGuard}
 
-The expresion \xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
+The expression \xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
 denotes a type whenever 
 \xcdmath"S$_1$", \dots, \xcdmath"S$_m$" are type arguments and 
 \xcdmath"e$_1$", \dots, \xcdmath"e$_n$" are value arguments with
@@ -541,29 +407,17 @@ is a type.
 
 \iftypeparams
 Instance member type definitions declare \emph{path types}.
-\else
-Type properties and
-instance member type definitions 
-declare \emph{path types}.
-\fi
+
 If the type definition is parametrized, the definition specifies
 a type constructor; instantiating the parameters yields a type.
 A path type (constructor)
 is of the form \xcd"p.X", and consists of a final access path
-\xcd"p", and a type
-member
-\iftypeparams\else
-or type property
-\fi
-\xcd"X".
+\xcd"p", and a type member \xcd"X".
 The final access path \xcd"p" must be either \xcd"this", \xcd"self", a final
 local variable, or a final field or value property whose target
 is itself a final access path.  The path must type-check 
 as a normal expression in the scope in which it appears.
 The type member
-\iftypeparams
-or property
-\fi
 \xcd"X" must be an instance member of the type of the
 path \xcd"p".
 
@@ -573,17 +427,6 @@ If an identifier \xcd"X" resolves to a type member or property
 of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
 the path type \xcd"T.this.X".
 
-\iftypeparams
-\subsection{Final access paths}
-\label{FinalAccessPath}
-\index{final access path}
-
-        To ensure soundness of the type system, the expression \xcd"e"
-	used in a path type \xcd"e.X" must be a \emph{final access
-	path}, either a final local variable or formal parameter
-	(including the special variables \xcd"this" and \xcd"self"),
-	or a final field or value property of a final access path.
-\fi
 
 \section{Constrained types}
 \label{ConstrainedTypes}
@@ -615,36 +458,8 @@ the path type \xcd"T.this.X".
 
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
-\if 0
-\iftypeparams
-A type may also be constrained using argument lists.
-The syntax 
-\xcdmath"C(e$_1$,$\dots$,e$_n$)" is sugar for
-\xcdmath"C{x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
-where the \xcdmath"x$_i$" are the
-value properties of \xcd"C".  
-If the list of arguments is empty, it may be omitted.
-\else
-A type may also be constrained using lists of type arguments and
-value arguments.
-The syntax 
-\xcdmath"C[T$_1$,$\dots$,T$_m$](e$_1$,$\dots$,e$_n$)" is sugar for
-\xcdmath"C{X$_1$==T$_1$,$\dots$,X$_m$==T$_m$,x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
-where \xcdmath"X$_i$" are the type properties and \xcdmath"x$_i$" are the
-value properties of \xcd"C".  
-If either list of properties is empty, it may be omitted.
-\fi
 
-\iftypeparams\else
-In this shortened syntax, a type \xcd"T" used may also be annotated
-with
-a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
-if \xcd"X" is a type property, then
-the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
-\xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
-\xcd"C[T]" is sugar \xcd"C{X==T}".
-\fi
-\fi
+
 
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
@@ -668,7 +483,6 @@ Constraints must be of type \xcd"Boolean".
 The
 compiler supports the following constraint syntax.
 
-\iftypeparams
 
 \begin{grammar}
 Constraint \: ValueArguments     Guard\opt \\
@@ -680,26 +494,9 @@ Guard            \: \xcd"{" DepExpression \xcd"}" \\
 DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
-\else
-
-\begin{grammar}
-Constraint \: TypeArguments     ValueArguments\opt Guard\opt \\
-           \| TypeArguments\opt ValueArguments     Guard\opt \\
-           \| TypeArguments\opt ValueArguments\opt Guard     \\
-           \\
-TypeArguments    \:  \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
-ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
-ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
-Guard            \: \xcd"{" DepExpression \xcd"}" \\
-DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
-\end{grammar}
-
-\fi
-
 The default \Xten{} constraint system supports equality expressions
 (\xcd"=="), conjunction (\xcd"&&"), and subtyping and supertyping (\xcd"<:" and
-\xcd":>") expressions over constants, final access paths, and
-types, and existential quantification over typed variables.
+\xcd":>") expressions over constants and types, and existential quantification over typed variables.
 
 \emph{
 Subsequent implementations are intended to support boolean algebra,
@@ -709,92 +506,14 @@ if not all, dynamic array bounds and place checks from \Xten{}.
 }
 
 
-\iftypeparams
-\else
+\subsubsection{Acyclicity restriction}
+To ensure that type-checking is decidable, we introduce restrictions to ensure that
+it is impossible to create cycles using just properties. Concretely, it is not possible
+in \Xten{} to write a program which can create at runtime a set of objects such that
+the graph formed by taking objects as nodes and adding an edge from $m$ to $n$ if
+$m$ has a property whose value is $n$ has a cycle in it. 
 
-\subsection{Generic types}
-\label{Generics}
-\index{types!generic types}
-        A {\em generic class} is a class
-        declared with one or more type properties.  Generic
-        classes can be instantiated by constraining the type
-        properties of the base type.
-
-As with value properties, type properties may be constrained
-by predicates to produce new types.
-Type properties are constrained using type equality and
-subtyping expressions.
-
-Consider the following declaration of a \xcd"Cell" class.
-\begin{xten}
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x: }
-}
-\end{xten}
-The following are legal types that constrain \xcd"Cell".
-
-\begin{itemize}
-\item \xcd"Cell".  This type has no constraints on \xcd"X".
-Any type that constrains \xcd"X", including the three below,
-is a subtype of \xcd"Cell".  The type \xcd"Cell" is equivalent to
-\xcd"Cell{true}".
-%
-For a \xcd"Cell" \xcd"c", the return type of the \xcd"get" method 
-is \xcd"c.X".  
-Since the property \xcd"X" is unconstrained,  
-the caller can only assign the return value of \xcd"get"
-to a variable of type \xcd"c.X" or of type \xcd"Object".
-In the following code, \xcd"y" cannot be passed to the \xcd"set" method
-because, since \xcd"X" is not bounded,
-it cannot be determined statically if \xcd"Object" is a
-subtype of \xcd"c.X".
-\begin{xten}
-val x: c.X = c.get();
-val y: Object = c.get();
-c.set(x); // legal
-c.set(y); // illegal
-\end{xten}
-
-\item \xcd"Cell{X==Float}" or \xcd"Cell[Float]".
-The type property \xcd"X" is bound to \xcd"Float".
-Assuming \xcd"c" has this type, the following code is legal:
-\begin{xten}
-val x: Float = c.get();
-c.set(1.0);
-\end{xten}
-The type of \xcd"c.get()" is \xcd"c.X", which is equivalent to
-\xcd"Float".
-Similarly, the \xcd"set" method takes a \xcd"Float" as argument.
-
-\item \xcd"Cell{X<:Int}" or \xcd"Cell[+Int]".
-This type constrains \xcd"X" to be a subtype of \xcd"Int".
-All instances of this type must bind \xcd"X" to a subtype of \xcd"Int".
-The following expressions have this type:
-\begin{xten}
-new Cell[Int](1);
-new Cell[Int{self==3}](3);
-\end{xten}
-The cell in the first expression may contain any \xcd"Int".
-The cell in the second expression may contain only \xcd"3".
-%
-If \xcd"c" has the type \xcd"Cell{X<:Int}",
-then \xcd"c.get()" has type \xcd"c.X", which is an unknown but
-fixed subtype of \xcd"Int".  The \xcd"set" method of \xcd"c" can
-only be called with an object of type \xcd"c.X".
-
-\item \xcd"Cell{X:>String}" or \xcd"Cell[-String]".  This type bounds the type property
-\xcd"X"
-from below.  The \xcd"set" method may be called with any
-supertype of \xcd"String"; the return type of the \xcd"get"
-method is known to be a
-supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
-\end{itemize}
-
-\fi
-
+The restirction is implemented by using the {\em proto} rules for visibility of {\tt this} during constructor execution (\Sref{Protorules}).
 
 
 \input{PlaceTypes}
@@ -1052,10 +771,9 @@ is consistent.
 \end{example}
 
 \section{Function types}
+\subsection{Function types}
 \label{FunctionTypes}
-
-
-
+\index{function!types}
 \index{types!function types}
 
         Function types are defined via the \xcd"=>" type
@@ -1063,13 +781,12 @@ is consistent.
         selectors (\Sref{MethodSelectors}) are of function type.
         The general form of a function type is:
 \begin{xtenmath}
-[X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T
+(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => T
         throws S$_1$, $\dots$, S$_k$
 \end{xtenmath}
         This
-        is the type of functions that take type parameters
-        \xcdmath"X$_i$"
-        and value parameters
+        is the type of functions that take 
+        value parameters
         \xcdmath"x$_i$"
         of types
         \xcdmath"T$_i$"
@@ -1078,18 +795,11 @@ is consistent.
         exceptions of 
         types S$_i$.
 
-The
-\iftypeparams
-type and value parameters
-\else
-type and value properties
-\fi
-are in scope throughout the function signature---they may be
-used
-in the types of other formal parameters and in the return type.
-Value parameters names (but not types) may be omitted if
-they are not used. 
-Like other types, function types may be constrained.
+The value parameters are in scope throughout the function
+signature---they may be used in the types of other formal parameters
+and in the return type.  Value parameters names  may be
+omitted if they are not used.  The guard specifies a condition that 
+must hold for an application to be well-typed.
 
 \begin{grammar}
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")" Constraint\opt
@@ -1100,26 +810,77 @@ TypeParameter \: Identifier \\
 Formals \: Formal ( \xcd"," Formal )\star \\
 \end{grammar}
 
-\subsection{Functions are value objects}
-\label{FunctionsAreObjects}
 
-Functions in \Xten{} are value objects.  
-The function type
-\xcdmath"[X$_1$, $\dots$, X$_k$](x$_1$: T$_1$ $\dots$, x$_n$: T$_n$) => S"
-may be considered equivalent to an interface type
-with a method:
-\begin{xtenmath}
-def apply[X$_1$, $\dots$, X$_k$](x$_1$: Y$_1$, $\dots$, x$_n$: Y$_n$): Z;
-\end{xtenmath}
-Classes and interfaces may implement or extend a function type
-by defining the \xcd"apply" method.  Since each function type is 
-anonymous, a class or interface may implement or extend
-more than one function type as long as the \xcd"apply" methods
-do not have the same signature.
+For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
+\xcd"x1,...,xn" and constraint \xcd"c", the expression
+\xcd"(x1:T1,...,xn:Tn)\{c\}=>T" is a \emph{function type}. It stands for
+ the set of all functions \xcd"f" which can be applied in a place \xcd"p" to a
+ list of values \xcd"(v1,...,vn)" provided that the constraint
+ \xcd"c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
+ type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"\{c\}" can be
+ omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
+ omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
+ \xcd"(x1:T1,...,xn:Tn)\{true\}=>T", for some variables \xcd"x1,...,xn".
 
-As objects, closure body may refer to
-\xcd"this", which is a reference to the current function,
-and use it to invoke the closure recursively.
+
+Juxtaposition is used to express function application: the expression
+\xcd"f(a1,..,an)" expresses the application of a function \xcd"f" to the argument
+list \xcd"a1,...,an".
+
+
+Note that function invocation may throw unchecked exceptions. 
+
+A function type is covariant in its result type and contravariant in
+each of its argument types. That is, let 
+\xcd"S1,...,Sn,S,T1,...Tn,T" be any
+types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
+\xcd"(x1:T1,...,xn:Tn){c}=>S" is a subtype of
+\xcd"(x1:S1,...,xn:Sn){c}=>T".
+
+
+For convenience, a value \xcd"f" of a function type
+\xcd"(x1:T1,...,xn:Tn){c}=>T" has two other functions associated with
+it: \xcd"toString(): ()=> String" and \xcd"typeName():()=$>$String". These
+functions are called using the method invocation syntax,
+viz. \xcd"f.toString()" and \xcd"f.typeName()". The first returns an
+implementation-defined string. The second returns a string
+representation of the function type, \xcd"(x1:T1,...xn:Tn,)=$>$T". These
+functions can also be named using method selector notation,
+viz. \xcd"f.toString.()" and \xcd"f.typeName.()".
+
+
+Function types do not support equality. Specifically, it is a
+compile-time error for a value of a function type to be passed as
+the first or second argument of an invocation of the operators \xcd"==" or
+\xcd"!=". An important consequence is that the creation of a function does
+not require the generation of a globally unique id.
+
+
+A function type \xcd"F=(x1:T1,...,xn:Tn){c}=>T" can be used as the declared type of local variables, parameters, loop variables, return types of methods and in \xcd"_  instanceof F" and \xcd"_ as F expressions". 
+
+
+A class or struct definition may use a function type "F" in its
+implements clause; this declares an abstract method def
+"apply(x1:T1,...,xn:Tn)\{c\}:T" on that class. Similarly, an interface
+definition may specify a function type "F" in its "extends" clause. A
+class or struct implementing such an interface implicitly defines an
+abstract method "def apply(x1:T1,..,xn:Tn)\{c\}:T". Expressions of such
+a struct, class or interface type can be assigned to variables of type
+"F" and can be applied via juxtaposition to an argument list of the
+right type.
+
+
+Thus, objects and structs in \Xten{} may behave like functions. 
+
+A function type \xcd"F" is not a class type in that it does not extend any
+type or implement any interfaces, or support equality tests. \xcd"F" cannot be extended by any type. It
+is not an interface type in that it is not a subtype of
+\xcd"x10.lang.Object". (Values of type \xcd"F" cannot be assigned to variables of
+type \xcd"x10.lang.Object".) It is not a struct type in that it has no
+defined fields and hence no notion of structural equality.
+
+\xcd"null" is not a legal value for a function type. 
+
 
 \section{Boxed types}
 \label{BoxedTypes}
@@ -1128,60 +889,13 @@ and use it to invoke the closure recursively.
 \index{types!boxed type}
 \index{\Xcd{Box}}
 
-The reference type \xcd"x10.lang.Box[T]" is a \emph{boxed type},
-and allows a value type \xcd"T" to be used at a
-reference type.
-%
-If \xcd"T" is a value type, \xcd"Box[T]" is a reference type
-with the same methods and fields as \xcd"T".
-If \xcd"T" is a reference type, \xcd"Box[T]" is equivalent to
-\xcd"T".
-
-Fields and methods of \xcd"T" may be accessed through an
-expression of type \xcd"Box[T]".
-If \xcd"T" implements an interface \xcd"I", then
-\xcd"Box[T]" also implements \xcd"I". 
-%% It used to say 
-%% Note that if \xcd"T" is a subtype of \xcd"S",
-%% then \xcd"Box[T]" and \xcd"Box[S]" are unrelated
-%% But what have we said before that would allow the reader to infer this?
+The type \xcd"x10.lang.Box[T]" is a \emph{boxed type},
+and allows a struct type \xcd"T" to be used as a 
+reference type. The programmer may wish to define his/her own 
+conversions from structs to objects.
 
 If \xcd"T" is a subtype of \xcd"S", then \xcd"Box[T]" and \xcd"Box[S]"
 are unrelated.
-
-There are implicit coercions from value objects to boxed value
-objects (\Sref{XtenConversions}).
-
-% The type \xcd"Box[T]" is a subtype of \xcd"T".
-
-The \xcd"to" expression may be used to convert to and from a
-boxed type:
-
-\begin{xten}
-val x = new Box[Int](0); // box using constructor call
-val y = x to Int;        // unbox using to-operation
-val z = y to Box;        // box using to-operation
-\end{xten}
-
-Assignment of a value type \xcd"T" into a variable of compatible reference type
-(either \xcd"Box[T]", \xcd"Ref", \xcd"Object", or an interface that is
-implemented by \xcd"T")
-automatically boxes the value.  Assignment of a boxed type
-\xcd"Box[T]" into
-a variable of value type \xcd"T" automatically unboxes the value.
-
-\eat{
-Access to a field of a value of boxed type
-automatically unboxes the value and accesses the field
-of the unboxed value; that is, if \xcd"x: Box[T]",
-then \xcd"x.f" is equivalent to \xcd"(x to T).f".
-
-A method invocation on a value of boxed type
-automatically unboxes the value and 
-invokes the method on the unboxed value; that is, if \xcd"x: Box[T]",
-then \xcd"x.m()" is equivalent to \xcd"(x to T).m()".
-}
-
 
 \section{Annotated types}
 \label{AnnotatedTypes}
@@ -1316,41 +1030,28 @@ least common ancestor type is \xcd"x10.lang.Object".
 The package \xcd"x10.lang" provides a number of built-in class and
 interface declarations that can be used to construct types.
 
-\subsection{The interface \Xcd{Object}}
-\label{Object}\index{\Xcd{Object}}\index{\Xcd{x10.lang.Object}}
+\subsection{The class \Xcd{Object}}
+\label{Object}
+\index{\Xcd{Object}}
+\index{\Xcd{x10.lang.Object}}
 
-The interface \xcd"x10.lang.Object" is the supertype of all
-reference and value classes.
-A variable of this type can hold a reference to an instance of any
-reference type, including boxed value types.
-
+The class \xcd"x10.lang.Object" is the supertype of all classes.
+A variable of this type can hold a reference to any object.
+The code for this class (with annotations removed) is:
 \begin{xten}
-package x10.lang;
-public interface Object {
-  def toString(): String {...}
-  def equals(o: Object): Boolean {...}
-  def hashCode(): Int {...}
+public class Object (location: Place) 
+     implements Equals
+{
+    public native def this();
+    public def equals(x:Object) = this==x;
+    public native def hashCode() : Int;
+    public native def toString() : String;
+    public global native def typeName() : String;
+    public property def loc() = location;
+    public property def at(p:Place) = location==p;
+    public property def at(r:Object) = location==r.location;
 }
 \end{xten}
-
-The method \xcd"equals" and \xcd"hashCode" are useful in hash tables,
-and are defined as in \java. The default implementation of \xcd"equals"
-is stable equality, \Sref{StableEquality}. This method may be overridden
-in a (value or reference) subclass.
-
-\subsection{The class \Xcd{Ref}}
-\label{Ref}\index{\Xcd{Ref}}\index{\Xcd{x10.lang.Ref}}
-
-The class \xcd"x10.lang.Ref" is the superclass of all reference
-classes.  A variable of this type can hold a reference to an
-instance of any reference type, including boxed value types.
-
-\subsection{The class \Xcd{Value}}
-\label{Value}\index{\Xcd{Value}}\index{\Xcd{x10.lang.Value}}
-
-The value class \xcd"x10.lang.Value" is the superclass of by all value
-classes.
-A variable of this type can hold an instance of a value type.
 
 \subsection{The class \Xcd{String}}
 \label{String}\index{\Xcd{String}}\index{\Xcd{x10.lang.String}}
@@ -1360,47 +1061,6 @@ All strings in \Xten{} are instances of the value class
 A string object is immutable,
 and has a concatenation operator (\xcd"+") available on it.
 
-\subsection{Primitive value classes}
-
-Several value types are provided that encapsulate
-abstractions (such as fixed point and floating point arithmetic)
-commonly implemented in hardware by modern computers.
-
-\begin{xten}
-package x10.lang;
-
-public value Boolean { }
-
-public abstract value Number { }
-public abstract value Integer extends Number { }
-
-public value Byte extends Integer  { }
-public value Short extends Integer { }
-public value Int extends Integer   { }
-public value Char extends Integer  { }
-public value Long extends Integer  { }
-
-public value Float extends Number  { }
-public value Double extends Number { }
-\end{xten}
-
-A program may contain literals
-that stand for specific instances of these classes. The syntax
-for literals is the same as for \java{} (\Sref{Literals}).
-
-Binary and unary operations produce new instances of these
-classes.
-
-Values of one numeric class may be coerced into values of
-another value class via the \xcd"to" operation.
-
-\futureext{
-\Xten{} may provide mechanisms in the future to permit the programmer
-to specify how a specific value class is to be mapped to special
-hardware operations (e.g., along the lines of
-\cite{kava}). Similarly, mechanisms may be provided to permit the user
-to specify new syntax for literals.
-}
 
 \input{ArrayTypes}
 \input{FutureTypes}
