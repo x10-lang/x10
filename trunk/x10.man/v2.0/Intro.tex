@@ -53,11 +53,7 @@ programming for high-end computers---for traditional numerical
 computation workloads (such as weather simulation, molecular dynamics,
 particle transport problems etc) as well as commercial server
 workloads.
-%%(By transformational programming we mean computation
-%%focused on accepting some input, transforming it in some way and
-%%delivering some output. as opposed to computation focused on
-%%maintaining an ongoing interaction with the environment, e.g., {\em
-%%reactive computing}.) 
+
 \Xten{} is based on state-of-the-art object-oriented
 programming ideas primarily to take advantage of their proven
 flexibility and ease-of-use for a wide spectrum of programming
@@ -69,15 +65,12 @@ for user-defined {\em struct types} (such as \xcd"Int", \xcd"Float",
 \xcd"Complex" etc), supports a very
 flexible form of multi-dimensional arrays (based on ideas in ZPL
 \cite{zpl}) and supports IEEE-standard floating point arithmetic.
-Some limited operator overloading is provided for a few ``built in''
-classes in the \xcd"x10.lang" package.  Future versions of the
-language will support user-definable operator overloading.
+Some capabilities for supporting operator overloading are also provided.
 
 {}\Xten{} introduces a flexible treatment of concurrency, distribution
 and locality, within an integrated type system. \Xten{} extends the
-PGAS model to the {\em globally asynchronous, locally synchronous}
-(GALS) model originally developed in hardware and embedded software
-research.  {}\Xten{} introduces {\em places} as an abstraction for a
+PGAS model with {\em asynchrony} (yielding the {\em APGAS} programming
+model). {}\Xten{} introduces {\em places} as an abstraction for a
 computational context with a locally synchronous view of shared
 memory. An \Xten{} computation runs over a large collection of places.
 Each place hosts some data and runs one or more {\em
@@ -100,26 +93,17 @@ system tracks which memory accesses are local. The programmer may
 introduce place casts which verify the access is local at run time.
 Linking with native code is supported.
 
-\XtenCurrVer revisits the language design from the ground up, introducing the following features:
-The syntax of the language is more concise.
-The object model has been extended to support unboxed objects.
-The type system is extended to support genericity and constraints on types.
-Type definitions and local type inference are
-supported.  Arrays and futures are defined in the language library, rather than
-as builtin type constructors.  Closures and function types are supported.
+\XtenCurrVer builds on v1.7 to support the following features: {\em
+  structs} (i.e., ``header-less'', inlinable objects), type rules for
+preventing escape of \xcd{this} from a constructor, 
+the introduction of a global object model, permitting user-specified
+(immutable) fields to be replicated with the object reference.
+\xcd{value} classes are no longer supported; their functionality is
+accomplished by using structs or global fields and methods.
 
 
-\Xten{} is an experimental language.  Several representative
-concurrent idioms have already found pleasant expression in \Xten. We
-intend to develop several full-scale applications to get better
-experience with the language, and revisit the design in the light of
-this experience.
+Several representative idioms for concurrency and communication have
+already found pleasant expression in \Xten. We intend to develop
+several full-scale applications to get better experience with the
+language, and revisit the design in the light of this experience.
 
-
-\eat{
-XXX There are more papers.
-Two papers have been published on \Xten{}. \cite{X10-concur05}
-presents a formal semantics for the concurrency and distributed
-aspects of \Xten{}. \cite{xten} presents some case studies, and
-discusses some \Xten{} programming idioms.
-}

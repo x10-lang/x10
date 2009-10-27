@@ -2,30 +2,83 @@
 
 \Xten{} is a statically typed object-oriented language, extending a
 sequential core language with 
-\emph{places},
-\emph{activities}, \emph{clocks},
-(distributed, multi-dimensional) \emph{arrays} and \emph{value}
+\emph{places}, \emph{activities}, \emph{clocks},
+(distributed, multi-dimensional) \emph{arrays} and \emph{struct}
 types. All these changes are motivated by the desire to use the new
 language for high-end, high-performance, high-productivity computing.
 
 \section{Object-oriented features}
 
-The sequential core of \Xten{} is a class-based object-oriented language
+The sequential core of \Xten{} is a {\em container-based} object-oriented language
 similar to \java{} or Scala.
-Programmers write \Xten{} code by defining
+Programmers write \Xten{} code by defining containers for behavior called
 \emph{interfaces}
-(\Sref{XtenInterfaces}) and
+(\Sref{XtenInterfaces}),
 \emph{classes}
-(\Sref{XtenClasses}).
+(\Sref{XtenClasses}) and
+\emph{structs}
+(\Sref{XtenStructs}).
 
-An \Xten{} class has fields, methods and
-inner types (interfaces, classes), subclasses another class, and
-implements one or more interfaces. Thus \Xten{} classes live in a
-single-inheritance code hierarchy.  An interface specifies a set
-of methods, constant fields, and inner types.  Interfaces are
-multiply inherited.
 
-\iftypeparams
+\paragraph{Interfaces}
+
+An \Xten{} interface specifies a collection of abstract methods (a
+{\em signature}). Interfaces may extend one or more interfaces, can be
+extended by other interfaces and implemented by classes and structs.
+To implement an interface a class or struct must declare that it
+implements that interface, and provide definitions for all the methods
+defined in that interface.
+
+\paragraph{Classes and Structs}
+
+There are two kinds of concrete containers: \emph{classes}
+(\Sref{ReferenceClasses}) and \emph{structs}
+(\Sref{Structs}). Containers may have type parameters, have fields,
+methods and inner containing types and can implement one or more
+interfaces. A method or an immutable field of a
+container may be marked \Xcd{global}.  For a given entity (instance of
+a container), global fields and methods may be accessed from any
+place. Otherwise they may be accessed only in the place in which they
+were created.
+
+Classes are organized in a single-inheritance tree. Classes may have
+mutable fields.  Instances of classes with mutable fields may not be
+freely copied from place to place. Non-global methods may be invoked
+on such an object only by an activity in the same place as the object.
+The \xcd"null" reference is a value of any reference type.
+
+In contrast, structs are ``headerless'' objects that can be onlined in
+the containing object.  Structs cannot inherit code -- hence a
+variable of a struct type contains an instance of precisely that
+struct. Structs may not be recursive, i.e.{} there can be no cycles in
+the graph whose nodes are structs and edges $s \rightarrow t$ reflect
+that struct $s$ has a field of (struct) type $t$. Thus a struct
+instance may be represented with exactly as much space as necessary to
+store the fields of that struct (modulo alignment considerations). Structs
+can be copied freely. 
+
+\Xten{} has no primitive classes. However, the standard library
+\xcd"x10.lang" supplies structs \xcd"Boolean", \xcd"Byte",
+\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
+\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
+additional arithmetic structs using the facilities of the
+language.
+
+\paragraph{Functions.}
+\Xten{} provides functions (\Sref{Closures}) to allow code to be used
+as values.  The body of a function may capture variables in the
+function's environment (technically, then, functions are {\em
+  closures}).  Functions are used implicitly in asyncs, futures, and
+array initializers.
+%
+For example, the following method uses a function to increment
+elements of an array.
+\begin{xten}
+def incr(A: Array[Int]): Array[Int] {
+    val f = (x: Int) => x+1; // e.g., f(1) == 2
+    return A.lift(f);
+}
+\end{xten}
 
 \paragraph{Dependent types}
 Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
@@ -33,21 +86,11 @@ Types may be defined by constraining a
 class or interface's properties.
 Properties enable the definition of \emph{dependent types}.
 
-\else
-
-\paragraph{Generic and dependent types}
-Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
-Types may be defined by constraining a
-class or interface's properties.
-\emph{Type properties} enable the definition of \emph{generic types};
-\emph{value properties} enable the definition of \emph{dependent types}.
-\fi
-
 For example, the following code declares a class for a two-dimensional 
 \xcd"Point" class with an \xcd"add" method.
 \begin{xten}
-class Point(x: Int, y: Int) {
-    def add(p: Point): Point { return new Point(x+p.x,y+p.y); }
+struct Point(x: Int, y: Int) {
+    def add(p: Point) = Point(x+p.x,y+p.y); 
 }
 \end{xten}
 The class has integer value properties \xcd"x" and \xcd"y".
@@ -56,20 +99,15 @@ element-wise addition.
 The dependent type \xcd"Point{x==0}" is the type of all points 
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
-\iftypeparams
-
 \paragraph{Generic types}
 
 Classes and interfaces may have type parameters, permitting the definition of
-{\em generic types}.
+{\em generic types}.  Type parameters may be instantiated by any type -- a
+container type or a function type. 
+
 For example,
 the following code declares a simple \xcd"List" class with a
 type parameter \xcd"T".
-\else
-As another example,
-the following code declares a simple \xcd"List" class with a
-type property \xcd"T".
-\fi
 
 \begin{xten}
 class List[T] {
@@ -92,31 +130,6 @@ type.  \xcd"List[Int]" is the type of lists of element type
 \xcd"Int", \xcd"List[String]" is the type of lists of element
 type \xcd"String".
 
-\paragraph{Reference and value classes}
-
-There are two kinds of classes: \emph{reference} classes
-(\Sref{ReferenceClasses}) and \emph{value} classes
-(\Sref{ValueClasses}).
-A reference class typically has updatable fields.
-Objects of such a
-class may not be freely copied from place to place. Methods may be
-invoked on such an object only by an activity in the same place.
-The \xcd"null" reference is a value of any reference type.
-
-A value class (\Sref{ValueClasses}) has no updatable fields (defined
-directly or through inheritance), and allows no reference
-subclasses. (Fields may be typed at reference classes, so may contain
-references to objects with mutable state.) Objects of such a class may
-be freely copied from place to place, and may be implemented very
-efficiently. Methods may be invoked on such an object from any place.
-
-\Xten{} has no primitive classes. However, the standard library
-\xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
-\xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
-\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
-additional arithmetic value classes using the facilities of the
-language.
-
 \section{The sequential core}
 
 \paragraph{Control flow.}  \Xten{} supports standard sequential control flow
@@ -126,29 +139,19 @@ raised by \xcd"throw" statements and are handled by \xcd"try"--\xcd"catch"
 statements.
 
 \paragraph{Primitive operations.}  The language provides syntax for performing
-binary and unary operations on values of types defined in the standard library.
+binary and unary operations on values. The programmer may specify code
+by using \Xcd{operator} definitions. 
+%% TODOvj: Add link to operator section.
 
-\paragraph{Closures.}
-\Xten{} provides closures (\Sref{Closures}) to allow code to be used
-as values.  The body of a closure may capture variables in the closure's
-environment.  Closures are used implicitly in asyncs, futures, and array
-initializers.
-%
-For example, the following method uses a closure to increment
-elements of an array.
-\begin{xten}
-def incr(A: Array[Int]): Array[Int] = {
-    val f = (x: Int) => x+1; // e.g., f(1) == 2
-    return A.lift(f);
-}
-\end{xten}
 
 \paragraph{Allocation.}
 Objects are allocated with the \xcd"new" operator
-(\Sref{ClassCreation}), which takes
-a class name and type and value arguments to pass to the class's
-constructor.  The constructor must ensure that all properties of
-the class and its superclasses are bound.
+(\Sref{ClassCreation}), which takes a class name and type and value
+arguments to pass to the class's constructor.  The constructor must
+ensure that all properties of the class and its superclasses are
+bound. Structs are created through the invocation of a constructor
+without using the \Xcd{new} operator and live on the heap only in 
+the fields of objects.
 
 \paragraph{Coercions and conversions}
 \Xten{} supports implicit and explicit coercions and
@@ -369,8 +372,7 @@ barrier-based or lock-based synchronization in many cases.
 
 \paragraph{Safety and correctness.} 
 Programs written in \Xten{} are guaranteed to be statically
-\emph{type
-safe}, \emph{memory safe} and \emph{pointer safe}. Static type safety
+\emph{type safe}, \emph{memory safe} and \emph{pointer safe}. Static type safety
 guarantees that at run time a location contains only those values who's
 dynamic type satisfies the constraints imposed by the location's
 static type and every run-time operation performed on the value in a
@@ -448,7 +450,6 @@ expect it to have constructs to support continuous program
 optimization, and allow the programmer to provide guidance on
 clustering places to (hardware) nodes. For instance, we may introduce
 a notion of hierarchical clustering of places.
-
 
 
 

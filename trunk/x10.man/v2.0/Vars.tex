@@ -1,13 +1,20 @@
 
 \chapter{Variables}\label{XtenVariables}\index{variables}
 
-A variable is a storage location. All
+A variable is a storage location. 
+\Xten{} supports seven kinds of variables: constant {\em class
+variables} (static variables), {\em instance variables} (the instance
+fields of a class), {\em array components}, {\em method parameters},
+{\em constructor parameters}, {\em exception-handler parameters} and
+{\em local variables}.
+
+All
 variables are initialized with a value and cannot be observed
 without
 a value.
 
 Variables whose value may not be changed after initialization
-are called {\em final variables} (or sometimes {\em constants}).
+are said to be {\em final} or {\em immutable}. (Sometimes we call them {\em constants}).
 The programmer indicates that a variable is final by declaring
 it with the \xcd"val" keyword rather than the \xcd"var" keyword.
 Variables that are annotated neither \xcd"val" nor \xcd"var"
@@ -18,8 +25,11 @@ of a reference class (possibly with type arguments) always holds a
 reference to an instance of the class \xcd"T" or a class that is a
 subclass of \xcd"T", or a \xcd"null" reference.
 
-A variable of a reference rail type \xcd"Rail[T]" has
+A variable of a rail type \xcd"Rail[T]" has
 as many variables as the size of the rail.
+A variable of a rail type \xcd"ValRail[T]" has
+as many variables as the size of the rail.
+Each of these variables is immutable and has the type \xcd"T".
 
 %XXX
 %A variable of a nullable (reference or value) data type \xcd"nullable[T]"
@@ -31,24 +41,14 @@ reference to a reference class implementing \xcd"I" (including possibly
 a boxed value class that implements \xcd"I"), or a \xcd"null"
 reference.
 
-A variable of a value data type \xcd"T" where \xcd"T" is the name of a
-value class always holds a reference to an instance of \xcd"T" (or a
-class that is a subclass of \xcd"T") or to an instance of \xcd"T" (or a
-class that is a subclass of \xcd"T"). No program can distinguish
-between the two cases.
+A variable of a struct data type \xcd"T"  always takes as much
+space as necessary to represent an instance of \xcd"T". That is
+structs are implemented ``inline'' or in an unboxed fashion.
 
-A variable of an function type always holds an instance
-of a value class with implementing the function type.
+A variable of an function type always holds a reference to 
+enough memory to represent the constants accessed within the body of the function.
 
-A variable of a reference rail type \xcd"ValRail[T]" has
-as many variables as the size of the rail.
-Each of these variables is immutable and has the type \xcd"T".
 
-\Xten{} supports seven kinds of variables: constant {\em class
-variables} (static variables), {\em instance variables} (the instance
-fields of a class), {\em array components}, {\em method parameters},
-{\em constructor parameters}, {\em exception-handler parameters} and
-{\em local variables}.
 
 \section{Final variables}\label{FinalVariable}\index{variable!final}\index{final variable}
 A final variable satisfies two conditions: 

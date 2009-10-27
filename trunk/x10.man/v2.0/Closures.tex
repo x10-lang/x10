@@ -1,4 +1,4 @@
-\section{Closures}
+\section{Functions}
 \label{Closures}
 \index{Closures}
 
@@ -24,27 +24,27 @@ ClosureBody \:
         \| \xcd"{" Statement\star Expression \xcd"}" \\
 \end{grammar}
 
-Closure expressions have zero or more type parameters, zero or more
+Functions have zero or more type parameters, zero or more
 formal parameters, an optional return type and optional set of
-exceptions throws by the closure body.  The closure body has the same
+exceptions throws by the body.  The body has the same
 syntax as a method body; it may be either an expression, a block of
 statements, or a block terminated by an expression to return. In
-particular, a value may be returned from the body of the closure using
-a return statement (\Sref{ReturnStatement}). The type of a closure is a
+particular, a value may be returned from the body of the function using
+a return statement (\Sref{ReturnStatement}). The type of a function is a
 function type (\Sref{FunctionType}).
 
 \label{ClosureGuard}
 
-As with methods, a closure may declare a guard to
+As with methods, a function may declare a guard to
 constrain the actual parameters with which it may be invoked.
 The guard may refer to the type parameters, formal parameters,
-and any final variables in scope at the closure expression.
+and any final variables in scope at the function expression.
 
-The body of the closure is evaluated when the closure is
-invoked by a call expression (\Sref{Call}), not at the closure's
+The body of the function is evaluated when the function is
+invoked by a call expression (\Sref{Call}), not at the function's
 place in the program text.
 
-As with methods, a closure with return type \xcd"Void" cannot
+As with methods, a function with return type \xcd"Void" cannot
 have a terminating expression. 
 If the return type is omitted, it is inferred, as described in
 \Sref{TypeInference}.
@@ -70,38 +70,14 @@ x: Int = find((x: Int) => x>0, xs);
 \end{xten}
 \end{example}
 
-As with a normal method, the closure may have a \xcd"throws"
-clause. It is a static error if the body of the closure throws a
-checked exception that is not declared in the closure's \xcd"throws"
+As with a normal method, the function may have a \xcd"throws"
+clause. It is a static error if the body of the function throws a
+checked exception that is not declared in the function's \xcd"throws"
 clause.
-
-\subsection{Closures are objects}
-
-Closures, like all first-class functions in \Xten{} are
-objects (\Sref{FunctionsAreObjects}).
-As objects, the closure body may refer to
-\xcd"this", which is a reference to the current function,
-and use it to invoke the closure recursively.
-
-\begin{example}
-The following method uses a closure to compute the $n$th
-Fibonacci number.
-\begin{xten}
-def fib(n: Int): Int = {
-    val f = (n: Int) : Point => {
-        if (n < 1) return [1,0];
-        val (r,r1): Point = this(n-1);
-        [r+r1,r]
-    };
-    val (r,r1): Point = f(n);
-    r
-}
-\end{xten}
-\end{example}
 
 \subsection{Outer variable access}
 
-In a closure
+In a function
 \xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => { s }"
 the types \xcdmath"T$_i$", the guard \xcd"c" and the body \xcd"s"
 may access fields of enclosing classes and local variables and type
@@ -110,7 +86,7 @@ parameters declared in an outer scope.
 Recall that languages such as \java{} require that methods may
 access only those local variables declared in an enclosing scope
 (``outer variables'') which are final. This is valuable in
-preventing accidental races between multiple closures reading
+preventing accidental races between multiple functions reading
 and writing the same outer variable. At the same time, it is
 desirable to support the following common idiom of expression:
 
@@ -132,21 +108,21 @@ must be declared
 as \xcd"shared" (\Sref{Shared}).
 \end{staticrule*}
 
-The closure body may refer to instances of enclosing classes using
+The function body may refer to instances of enclosing classes using
 the syntax \xcd"C.this", where \xcd"C" is the name of the
 enclosing class.
 
 \begin{note}
 The main activity may run in parallel with any
-closures it creates. Hence even the read of an outer variable by the
-body of a closure may result in a race condition. Since closures are
-first-class, the analysis of whether a closure may execute in parallel
+functions it creates. Hence even the read of an outer variable by the
+body of a function may result in a race condition. Since functions are
+first-class, the analysis of whether a function may execute in parallel
 with the activity that created it may be difficult.
 \end{note}
 
 %% vj: This should be verified.
 %\begin{note}
-%The rule for accessing outer variables from closure bodies
+%The rule for accessing outer variables from function bodies
 %should be the same as the rule for accessing outer variables from local
 %or anonymous classes.
 %\end{note}
@@ -163,7 +139,7 @@ We can think of a method definition:
 def m[X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U = e
 \end{xtenmath}
 
-as binding the closure
+as binding the function
 
 \begin{xtenmath}
 [X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U => e
@@ -207,7 +183,7 @@ Thus, the method selector
 e.m.[X$_1$, $\dots$, X$_m$](T$_1$, $\dots$, T$_n$)
 \end{xtenmath}
 
-behaves as if it were the closure
+behaves as if it were the function
 
 \begin{xtenmath}
 (X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e.m[X$_1$, $\dots$, X$_m$](x$_1$, $\dots$, x$_n$)
@@ -232,7 +208,7 @@ function bound to the static method named \xcd"m", with argument types
 of the function is specified by the declaration of \xcd"T.m".
 
 Users of a function type do not care whether a function was defined
-directly (using the closure syntax), or obtained via (static or
+directly (using the function syntax), or obtained via (static or
 instance) function selectors.
 
 \begin{note}

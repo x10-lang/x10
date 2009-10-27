@@ -117,14 +117,6 @@ into the array.
 Future versions of \Xten{} may provide user-defined distributions, in
 a way that supports static reasoning.
 
-\oldtodo{TBD. Make distribution a value type. What is the API? Return a
-set of indices. For each index point, return the place. A method to
-return a subdistribution given a subregion. A method to check if a
-given distribution is a subdistribution. But may need to provide
-methods that the compiler can use to reason about the
-distribution. \\
-Postpone to 0.7.}
-
 \subsection{Operations on distributions}
 
 A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is
@@ -144,7 +136,7 @@ and \xcdmath"D$_2$", is the largest common sub-distribution of
 \xcdmath"D$_1$" and \xcdmath"D$_2$".
 
 \paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
-\xcdmath"D$_1$.overlay(D$_2$", the asymmetric union of
+\xcdmath"D$_1$.overlay(D$_2$)", the asymmetric union of
 \xcdmath"D$_1$" and \xcdmath"D$_2$", is the distribution whose
 region is the union of the regions of \xcdmath"D$_1$" and
 \xcdmath"D$_2$", and whose value at each point \xcd"p" in its

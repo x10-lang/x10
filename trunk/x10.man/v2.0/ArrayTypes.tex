@@ -23,8 +23,7 @@ The array type \xcd"ValArray[T]" specifies the type of all
 values arrays of base type \xcd"T".
 The array elements of a \xcd"ValArray" are
 all final.\footnote{Note that the base type of a
-\xcd"ValArray" can be a value class or a reference class, just as the 
-type of a final variable can be a value class or a reference class.}
+\xcd"ValArray" can be a struct, class or function.}
 }
 
 Both array classes implement the function type
@@ -63,7 +62,7 @@ by the following class definitions:
 
 \begin{xten}
 package x10.lang;
-public value class ValRail[T](length: Int) extends (Int)=>T { }
+public class ValRail[T](length: Int) extends (Int)=>T { }
 public class Rail[T](length: Int) extends (Int)=>T, Settable[Int,T] { }
 \end{xten}
 
