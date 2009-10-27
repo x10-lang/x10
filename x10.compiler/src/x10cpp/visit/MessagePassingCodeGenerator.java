@@ -1532,8 +1532,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.writeln("}"); sw.forceNewline();
         }
         
+        // define typeName
+        sh.writeln("x10aux::ref<x10::lang::String> typeName();"); sh.forceNewline();
+        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+        sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::typeName() {");
+        sw.newline(4); sw.begin(0);
+        sw.writeln("return x10aux::type_name(*this);");
         sw.end();
         sw.newline();
+        sw.writeln("}"); sw.forceNewline();
     }
 
 	private void generateITablesForClass(X10ClassType currentClass,

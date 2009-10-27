@@ -17,7 +17,7 @@ namespace x10aux {
 
         public:
         static serialization_id_t addRoutine(Deserializer init);
-        static ref<x10::lang::Object> dispatch(deserialization_buffer& buf);
+        static ref<x10::lang::Ref> dispatch(deserialization_buffer& buf);
         template<class C> static void broadcastStaticField(C f, serialization_id_t id);
         static void await();
         static void notify();

@@ -20,7 +20,7 @@ serialization_id_t StaticInitBroadcastDispatcher::addRoutine(Deserializer init) 
     return it->addDeserializer_(init, false);
 }
 
-ref<Object> StaticInitBroadcastDispatcher::dispatch(deserialization_buffer &buf) {
+ref<Ref> StaticInitBroadcastDispatcher::dispatch(deserialization_buffer &buf) {
     assert (NULL != it);
     serialization_id_t init_id = buf.read<serialization_id_t>();
     return it->create_(buf, init_id);

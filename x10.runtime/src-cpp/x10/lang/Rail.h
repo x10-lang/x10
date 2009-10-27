@@ -552,7 +552,7 @@ namespace x10 {
 
         template<class T> const x10aux::serialization_id_t Rail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(Rail<T>::template _deserializer<Object>);
+                ::addDeserializer(Rail<T>::template _deserializer<Ref>);
 
         // Specialized serialization
         template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,

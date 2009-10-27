@@ -86,6 +86,8 @@ namespace x10 {
                 return location == o->location;
             }
 
+            virtual x10aux::ref<x10::lang::String> typeName();
+
             // Needed for linking - do not override
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
                 if (other == x10aux::ref<Ref>(this)) return true;

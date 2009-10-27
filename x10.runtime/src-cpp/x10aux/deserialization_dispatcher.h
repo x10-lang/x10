@@ -5,13 +5,13 @@
 
 #include <x10aux/ref.h>
 
-namespace x10 { namespace lang { class Object; } }
+namespace x10 { namespace lang { class Ref; } }
 
 namespace x10aux {
 
     class deserialization_buffer;
 
-    typedef ref<x10::lang::Object> (*Deserializer)(deserialization_buffer &buf);
+    typedef ref<x10::lang::Ref> (*Deserializer)(deserialization_buffer &buf);
     template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
     typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
@@ -57,8 +57,8 @@ namespace x10aux {
         template<class T> static ref<T> create(deserialization_buffer &buf,
                                                serialization_id_t id);
 
-        ref<x10::lang::Object> create_(deserialization_buffer &buf);
-        ref<x10::lang::Object> create_(deserialization_buffer &buf, serialization_id_t id);
+        ref<x10::lang::Ref> create_(deserialization_buffer &buf);
+        ref<x10::lang::Ref> create_(deserialization_buffer &buf, serialization_id_t id);
 
         static serialization_id_t addDeserializer(Deserializer deser, bool is_async=false);
         serialization_id_t addDeserializer_(Deserializer deser, bool is_async);

@@ -29,7 +29,7 @@ void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer<Ref>);
 
 RTT_CC_DECLS1(File__NativeFile, "x10.io.File.NativeFile", Ref)
 
