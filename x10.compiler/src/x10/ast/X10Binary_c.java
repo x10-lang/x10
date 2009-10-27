@@ -310,12 +310,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type rbase = X10TypeMixin.baseType(right.type());
 
         if (op == EQ || op == NE) {
-        	if (xts.isFunctionType(lbase)) {
+        	if (xts.isExactlyFunctionType(lbase)) {
         		 throw new SemanticException("The " + op +
                          " operator cannot be applied to the function " + left,
                          position());
         	}
-        	if (xts.isFunctionType(rbase)) {
+        	if (xts.isExactlyFunctionType(rbase)) {
        		 throw new SemanticException("The " + op +
                         " operator cannot be applied to the function " + right,
                         position());
