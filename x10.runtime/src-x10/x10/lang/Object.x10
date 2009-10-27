@@ -14,10 +14,10 @@ import x10.compiler.NativeRep;
 /**
  * The base class for all reference classes.
  */
-@NativeRep("java", "x10.core.Ref", null, null)
+@NativeRep("java", "java.lang.Object", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Object (
-        @Native("java", "x10.lang.Place.place(#0.location())")
+        @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
         @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
         location: Place) 
 //        implements Equals
@@ -47,7 +47,7 @@ public class Object (
     @Native("c++", "x10aux::type_name(#0)")
     public global native def typeName() : String;
 
-    @Native("java", "#0.location()")
+    @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     public property def loc() = location;
 
@@ -55,7 +55,7 @@ public class Object (
     @Native("c++", "((#0)->location == (#1)->FMGL(id))")
     public property def at(p:Place) = location==p;
 
-    @Native("java", "#0.at(#1)")
+    @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "((#0)->location == (#1)->location)")
     public property def at(r:Object) = location==r.location;
 

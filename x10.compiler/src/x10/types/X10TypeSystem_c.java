@@ -652,13 +652,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
       
         return cd;
     }
-    X10ClassDef ANY_DEF = null;
-    public X10ClassDef AnyDef() {
-    	if (ANY_DEF == null) {
-    		ANY_DEF = makeAnyDef();
-    	}
-    	return ANY_DEF;
-    }
+//    X10ClassDef ANY_DEF = null;
+//    public X10ClassDef AnyDef() {
+//    	if (ANY_DEF == null) {
+//    		ANY_DEF = makeAnyDef();
+//    	}
+//    	return ANY_DEF;
+//    }
 
 
     public X10ClassDef makeAnyDef() {
@@ -1751,9 +1751,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return CLASS_ = load("x10.lang.Class");
     }
     
-   
+    Type ANY_ = null;
     public Type Any() {
-    	return AnyDef().asType();
+        if (ANY_ != null)
+            return ANY_;
+        return ANY_ = load("x10.lang.Any");
+//    	return AnyDef().asType();
     }
 
     Type STRUCT_ = null;
