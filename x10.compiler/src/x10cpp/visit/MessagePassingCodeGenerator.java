@@ -1413,7 +1413,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // HACK for struct toString.  See comment below.
                 if (member instanceof MethodDecl_c) {
                     MethodDecl_c mdecl = (MethodDecl_c)member;
-                    if (mdecl.name().id().toString().equals("toString") &&
+                    if (!mdecl.flags().flags().isAbstract() && 
+                            mdecl.name().id().toString().equals("toString") &&
                             mdecl.formals().isEmpty() && 
                             !mdecl.flags().flags().isStatic() && 
                             xts.typeBaseEquals(xts.String(), mdecl.returnType().type(), context)) {
@@ -3864,12 +3865,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         inc.newline(); inc.forceNewline();
 
+        inc.write("static const x10aux::RuntimeType* getRTT() {"+
+                  " return x10aux::getRTT<"+superType+" >(); }");
+        inc.newline();
         inc.write("const x10aux::RuntimeType *_type() const {"+
                   " return x10aux::getRTT<"+superType+" >(); }");
-        /*
-        inc.newline();
-        inc.write("static x10aux::RuntimeType * rtt;");
-        */
         inc.newline(); inc.forceNewline();
 
         inc.write(Emitter.translateType(xts.String(), true)+" toString() {");
