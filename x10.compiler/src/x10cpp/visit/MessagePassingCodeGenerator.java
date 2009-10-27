@@ -1181,6 +1181,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->equals(that);");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
+
+        /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
+        h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->hashCode();");
+        h.end(); h.newline();
+        h.write("}"); h.newline(); h.forceNewline();
+ 
         
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
