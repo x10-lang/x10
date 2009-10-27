@@ -92,19 +92,31 @@ final class DistArray[T] extends BaseArray[T] {
         return v;
     }
 
-    def this(dist: Dist, init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist, init: (Point)=>T): DistArray[T]{self.dist==dist} {
         super(dist);
 
         val plsInit:()=>LocalState[T]! = () => {
             val region = dist.get(here);
             val localLayout = layout(region);
             val localRaw = Rail.makeVar[T](localLayout.size());
-            if (init != null) {
-                val f = at (init.location) { init as (Point) => T };
+            
                 for (pt:Point in region) {
-                    localRaw(localLayout.offset(pt)) = f(pt);
+                    localRaw(localLayout.offset(pt)) = init(pt);
                 }
-            }
+           
+	    return new LocalState[T](localLayout, localRaw);
+        };
+
+        localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](dist, plsInit);
+    }
+    def this(dist: Dist): DistArray[T]{self.dist==dist} {
+        super(dist);
+
+        val plsInit:()=>LocalState[T]! = () => {
+            val region = dist.get(here);
+            val localLayout = layout(region);
+            val localRaw = Rail.makeVar[T](localLayout.size());
+          
 	    return new LocalState[T](localLayout, localRaw);
         };
 

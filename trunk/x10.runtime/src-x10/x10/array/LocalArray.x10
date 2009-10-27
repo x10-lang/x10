@@ -98,10 +98,10 @@ final class LocalArray[T] extends BaseArray[T] {
 
     public global global def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
-        return Array.make[T](dist, new Box[(Point)=>T]((p:Point):T => {
+        return Array.make[T](dist, (p:Point):T => {
             a.result = op(a.result, apply(p as Point(rank)));
             return a.result;
-        }));
+        });
 
     }
 
@@ -111,17 +111,26 @@ final class LocalArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: Box[(Point)=>T]){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}):LocalArray[T]{self.dist==dist} {
         super(dist);
 
         layout = layout(region);
         val n = layout.size();
         val r = Rail.makeVar[T](n);
-        if (init!=null) {
-            val f = init as (Point) => T;
-            for (p:Point in region)
-                r(layout.offset(p)) = f(p);
-        }
+        raw = r;
+    }
+
+    def this(dist: Dist{constant}, init: (Point)=>T){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
+        super(dist);
+
+        layout = layout(region);
+        val n = layout.size();
+        val r = Rail.makeVar[T](n);
+
+        val f = init as (Point) => T;
+        for (p:Point in region)
+        	r(layout.offset(p)) = f(p);
+
         raw = r;
     }
 

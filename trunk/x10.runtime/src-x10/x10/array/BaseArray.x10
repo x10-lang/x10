@@ -25,21 +25,33 @@ public abstract class BaseArray[T] extends Array[T] {
     // factories
     //
 
-    public static def makeVal1[T](region: Region, init: Box[(Point)=>T]): Array[T] {
-        val dist = Dist.makeConstant(region);
-        return makeVal[T](dist, init);
-    }
+   
 
-    public static def makeVar1[T](region: Region, init: Box[(Point)=>T]): Array[T](region) {
+    public static def makeVar1[T](region: Region, init:(Point)=>T): Array[T](region) {
         val dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
-        return makeVar[T](dist, init) as Array[T](region); // would eliminate cast here
+        return makeVar1[T](dist, init) as Array[T](region); // would eliminate cast here
+    }
+    public static def makeVar1[T](region: Region): Array[T](region) {
+        val dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
+        return makeVar1[T](dist) as Array[T](region); // would eliminate cast here
     }
 
-    public static def makeVal1[T](dist: Dist, init: Box[(Point)=>T]): Array[T] {
+    public static def makeVal1[T](region: Region, init: (Point)=>T): Array[T] {
+        val dist = Dist.makeConstant(region);
+        return makeVal1[T](dist, init);
+    }
+    public static def makeVal1[T](region: Region): Array[T] {
+        val dist = Dist.makeConstant(region);
+        return makeVal1[T](dist);
+    }
+    public static def makeVal1[T](dist: Dist, init: (Point)=>T): Array[T] {
         return makeVar1[T](dist, init); // XXX for now
     }
+    public static def makeVal1[T](dist: Dist): Array[T] {
+        return makeVar1[T](dist); // XXX for now
+    }
 
-    public static def makeVar1[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist) {
+    public static def makeVar1[T](dist: Dist, init: (Point)=>T): Array[T](dist) {
         if (dist.constant) {
            if (checkBounds || checkPlace)
                return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}, init) as Array[T](dist) }; // XXXXX ???
@@ -50,16 +62,27 @@ public abstract class BaseArray[T] extends Array[T] {
             return new DistArray[T](dist, init);
         }
     }
+    public static def makeVar1[T](dist: Dist): Array[T](dist) {
+        if (dist.constant) {
+           if (checkBounds || checkPlace)
+               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}) as Array[T](dist) }; // XXXXX ???
+           else
+               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here}) as Array[T](dist) }; // XXXXX ???
+        }
+        else {
+            return new DistArray[T](dist);
+        }
+    }
 
     public static def makeVar1[T](rail: Rail[T]!): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
-        return makeVar[T](r, new Box[(Point)=>T]((p:Point)=>rail(p(0))))
+        return makeVar[T](r, (p:Point)=>rail(p(0)))
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
     public static def makeVar1[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
-        return makeVar[T](r, new Box[(Point)=>T]((p:Point)=>rail(p(0))))
+        return makeVar[T](r, (p:Point)=>rail(p(0)))
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
@@ -178,7 +201,7 @@ public abstract class BaseArray[T] extends Array[T] {
     //
 
     public global def lift(op:(T)=>T): Array[T](dist)
-        = Array.make[T](dist, new Box[(Point)=>T]((p:Point)=>op(this(p as Point(rank)))));
+        = Array.make[T](dist, ((p:Point)=>op(this(p as Point(rank)))));
 
     //    incomplete public global def reduce(op:(T,T)=>T, unit:T):T;
 
