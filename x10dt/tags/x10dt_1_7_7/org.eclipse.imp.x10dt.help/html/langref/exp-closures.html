@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Closures</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Closures</h2>
+<a name="Closures">
+</a>
+
+
+<div class="p"><!----></div>
+ X10 provides first-class, typed functions, including
+<em>closures</em>,
+<em>operator functions</em>,
+and <em>method selectors</em>.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">ClosureExpression &nbsp;::=&nbsp;
+        TypeParameters<sup>?</sup>&nbsp;
+(
+        Formals<sup>?</sup>&nbsp;
+)
+</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>Guard<sup>?</sup>&nbsp;
+ReturnType<sup>?</sup>&nbsp;
+Throws<sup>?</sup>&nbsp;
+=&#62; ClosureBody </td></tr>
+<tr><td align="right">ClosureBody &nbsp;::=&nbsp;
+        Expression </td></tr>
+<tr><td align="right"> |  { Statement<sup>*</sup>&nbsp;} </td></tr>
+<tr><td align="right"> |  { Statement<sup>*</sup>&nbsp;Expression } </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+<div class="p"><!----></div>
+Closure expressions have zero or more type parameters, zero or more
+formal parameters, an optional return type and optional set of
+exceptions throws by the closure body.  The closure body has the same
+syntax as a method body; it may be either an expression, a block of
+statements, or a block terminated by an expression to return. In
+particular, a value may be returned from the body of the closure using
+a return statement (). The type of a closure is a
+function type ().
+
+<div class="p"><!----></div>
+<a name="ClosureGuard">
+</a>As with methods, a closure may declare a guard to
+constrain the actual parameters with which it may be invoked.
+The guard may refer to the type parameters, formal parameters,
+and any final variables in scope at the closure expression.
+
+<div class="p"><!----></div>
+The body of the closure is evaluated when the closure is
+invoked by a call expression (), not at the closure's
+place in the program text.
+
+<div class="p"><!----></div>
+As with methods, a closure with return type "Void" cannot
+have a terminating expression. 
+If the return type is omitted, it is inferred, as described in
+.
+It is a static error if the return type cannot be inferred. 
+
+<div class="p"><!----></div>
+The following method takes a function parameter and uses it to
+test each element of the list, returning the first matching
+element.
+<pre>
+def find[T](f: (T) =&#62; Boolean, xs: List[T]): T = {
+  for (x: T in xs)
+    if (f(x)) return x;
+  null
+}
+</pre>
+
+<div class="p"><!----></div>
+The method may be invoked thus:
+<pre>
+xs: List[Int] = ...;
+x: Int = find((x: Int) =&#62; x&#62;0, xs);
+</pre>
+
+
+<div class="p"><!----></div>
+As with a normal method, the closure may have a "throws"
+clause. It is a static error if the body of the closure throws a
+checked exception that is not declared in the closure's "throws"
+clause.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;Closures are objects</h3>
+
+<div class="p"><!----></div>
+Closures, like all first-class functions in  X10 are
+objects ().
+As objects, the closure body may refer to
+"this", which is a reference to the current function,
+and use it to invoke the closure recursively.
+
+<div class="p"><!----></div>
+The following method uses a closure to compute the nth
+Fibonacci number.
+<pre>
+def fib(n: Int): Int = {
+    val f = (n: Int) : Point =&#62; {
+        if (n &lt; 1) return [1,0];
+        val (r,r1): Point = this(n-1);
+        [r+r1,r]
+    };
+    val (r,r1): Point = f(n);
+    r
+}
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Outer variable access</h3>
+
+<div class="p"><!----></div>
+In a closure
+"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>)c =&#62;  s "
+the types "T<sub>i</sub>", the guard "c" and the body &#223;"
+may access fields of enclosing classes and local variables and type
+parameters declared in an outer scope.
+
+<div class="p"><!----></div>
+Recall that languages such as  Java require that methods may
+access only those local variables declared in an enclosing scope
+("outer variables") which are final. This is valuable in
+preventing accidental races between multiple closures reading
+and writing the same outer variable. At the same time, it is
+desirable to support the following common idiom of expression:
+
+<div class="p"><!----></div>
+<pre>
+def allPositive(c: Collection): Boolean {
+  shared var result: Boolean = true;
+  c.applyToAll((x: Int) =&#62; { if (x &lt; 0) atomic {result=false;}});
+  return result;
+}
+</pre>
+
+<div class="p"><!----></div>
+This motivates the following rule:
+
+<div class="p"><!----></div>
+In an expression
+"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; e",
+any outer local variable accessed by &#235;" must be final or
+must be declared
+as &#223;hared" ().
+
+
+<div class="p"><!----></div>
+The closure body may refer to instances of enclosing classes using
+the syntax "C.this", where "C" is the name of the
+enclosing class.
+
+<div class="p"><!----></div>
+The main activity may run in parallel with any
+closures it creates. Hence even the read of an outer variable by the
+body of a closure may result in a race condition. Since closures are
+first-class, the analysis of whether a closure may execute in parallel
+with the activity that created it may be difficult.
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+</body>
+</html>

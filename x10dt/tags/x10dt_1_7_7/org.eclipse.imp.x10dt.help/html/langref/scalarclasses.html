@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Scalar Classes</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Scalar classes</h2>
+An  X10 scalar class (&#167;&nbsp;10) has fields, methods and
+inner types (interfaces, classes), subclasses another class, and
+implements one or more interfaces. Thus  X10 classes live in a
+single-inheritance code hierarchy.  
+
+<div class="p"><!----></div>
+There are two kinds of scalar classes: <em>reference</em> classes
+(&#167;&nbsp;10.1) and <em>value</em> classes
+(&#167;&nbsp;10.2).
+
+<div class="p"><!----></div>
+A reference class typically has updatable fields. Objects of such a
+class may not be freely copied from place to place. Methods may be
+invoked on such an object only by an activity in the same place.
+
+<div class="p"><!----></div>
+A value class (&#167;&nbsp;10.2) has no updatable fields (defined
+directly or through inheritance), and allows no reference
+subclasses. (Fields may be typed at reference classes, so may contain
+references to objects with mutable state.) Objects of such a class may
+be freely copied from place to place, and may be implemented very
+efficiently. Methods may be invoked on such an object from any place.
+
+<div class="p"><!----></div>
+ X10 has no primitive classes. However, the standard library <tt>
+x10.lang</tt> supplies (final) value classes <tt>boolean</tt>, <tt>byte</tt>,
+<tt>short</tt>, <tt>char</tt>, <tt>int</tt>, <tt>long</tt>, <tt>float</tt>, <tt>
+double</tt>, <tt>complex</tt> and <tt>String</tt>. The user may defined
+additional arithmetic value classes using the facilities of the
+language.
+</body>
+</html>

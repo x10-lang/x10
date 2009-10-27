@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.imp.runtime.refactoringContributions">
+         <refactoringContributor
+         	language="X10"
+         	class="org.eclipse.imp.x10dt.refactoring.actions.X10DTRefactoringContributor"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            markerSeverity="0"
+            name="org.eclipse.imp.x10dt.refactoring.contextAnnotation"
+            super="org.eclipse.ui.workbench.texteditor.info">
+      </type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            annotationType="org.eclipse.imp.x10dt.refactoring.contextAnnotation"
+            colorPreferenceKey="contextColorPreference"
+            colorPreferenceValue="0,255,128"
+            contributesToHeader="false"
+            highlightPreferenceKey="contextHighlightPreference"
+            highlightPreferenceValue="false"
+            includeOnPreferencePage="true"
+            isGoToNextNavigationTarget="false"
+            isGoToPreviousNavigationTarget="false"
+            label="Finish context"
+            overviewRulerPreferenceKey="contextOverviewRulerPreference"
+            overviewRulerPreferenceValue="false"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarAction="false"
+            symbolicIcon="info"
+            textPreferenceKey="contextTextPreference"
+            textPreferenceValue="true"
+            textStylePreferenceKey="contextTextStylePreference"
+            textStylePreferenceValue="DASHED_BOX"
+            verticalRulerPreferenceKey="contextVerticalRulerPreference"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            nameFilter="*"
+            id="org.eclipse.imp.x10dt.refactoring.projectContextMenu">
+         <menu
+               label="X10"
+               path="additions"
+               id="org.eclipse.imp.x10dt.core.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Analyze Effects"
+               icon="icons/builderEnable.gif"
+               tooltip="Analyze the memory effects of all the X10 classes in this project"
+               class="org.eclipse.imp.x10dt.refactoring.actions.AnalyzeEffects"
+               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
+               enablesFor="1"
+               id="org.eclipse.imp.x10dt.refactoring.analyzeEffectsAction">
+         </action>
+      </objectContribution>
+   </extension>
+</plugin>
