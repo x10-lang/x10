@@ -3758,7 +3758,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         Type retType = n.returnType().type();
-        //String className = Emitter.translateType(c.currentClass());
         X10ClassType sup = (X10ClassType) xts.closureBaseInterfaceDef(0, n.formals().size(), retType.isVoid()).asType();
         List<Type> supArgs = new ArrayList<Type>();
         for (Formal formal : n.formals())
@@ -3771,7 +3770,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("class "+cname); inc.begin(0);
+        inc.write("class "+cname+" : public x10::lang::Value"); inc.begin(0);
         inc.write("{") ; inc.end() ; inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
