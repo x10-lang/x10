@@ -51,7 +51,9 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
   @Native("java", "#0.toString()")
   public native def toString():String;
 
-  public def typeName()="x10.runtime.PlaceLocalHandle";
+  @Native("c++", "(#0)->typeName()")
+  @Native("java", "#0.typeName()")
+  public native def typeName():String;
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "(#0)->set(#1)")

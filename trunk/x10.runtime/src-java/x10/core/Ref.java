@@ -14,7 +14,7 @@ import x10.types.Type;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
-public class Ref {
+public class Ref implements Any {
     public final int location;
     
     public Ref() {
@@ -82,6 +82,14 @@ public class Ref {
             } else {
                 return true;
             }
+        }
+    }
+
+    public static int location(Object obj) {
+        if (obj instanceof Ref) {
+            return ((Ref)obj).location();
+        } else {
+            return Thread.currentThread().location();
         }
     }
 }

@@ -549,13 +549,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		List<TypeNode> interfaces = new ArrayList<TypeNode>();
 
 		for (TypeNode tn: n.interfaces()) {
-			Type sup = tn.type();
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-			if (! ts.typeBaseEquals(sup, ts.Object(), tr.context()))
-				interfaces.add(tn);
+		    if (!xts.isAny(tn.type())) {
+		        interfaces.add(tn);
+		    }
+		}
+		if (n.flags().flags().isInterface() && interfaces.isEmpty()) {
+		    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		    interfaces.add(tr.nodeFactory().CanonicalTypeNode(n.position(), ts.Any()));
 		}
 
-		if (! interfaces.isEmpty()) {
+		if (!interfaces.isEmpty()) {
 			w.allowBreak(2);
 			if (flags.isInterface()) {
 				w.write("extends ");

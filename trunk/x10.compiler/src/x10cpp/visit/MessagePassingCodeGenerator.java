@@ -632,6 +632,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// emit no c++ code as this is a native rep class
 			return;
 		}
+		
+		if (xts.isAny(def.asType())) {
+		    // HACK: We don't need Any in the C++ backend, but we do in the Java backend.
+		    //       So, here we want to ignore the class decl for x10.lang.Any
+		    return;
+		}
 
         assert (!def.isNested()) : ("Nested class alert!");
 
