@@ -206,7 +206,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/File__NativeFile.o \
 	x10/io/InputStreamReader__InputStream.o \
 	x10/io/OutputStreamWriter__OutputStream.o \
-	x10/lang/Box.o \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \

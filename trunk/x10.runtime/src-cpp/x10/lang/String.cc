@@ -9,6 +9,7 @@
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/lang/Box.h>
 
 #include <cstdarg>
 #include <sstream>

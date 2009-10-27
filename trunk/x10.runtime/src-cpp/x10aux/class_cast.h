@@ -9,7 +9,6 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/Object.h>
-#include <x10/lang/Box.h>
 
 namespace x10aux {
 
