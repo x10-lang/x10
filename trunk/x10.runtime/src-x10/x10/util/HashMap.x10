@@ -80,7 +80,8 @@ public class HashMap[-K,V] implements Map[K,V] {
     public safe def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null || e.removed) return null;
-        return e.value as Box[V];
+	val ev = e.value;
+        return new Box[V](ev);
     }
     
     public safe def getOrElse(k: K, orelse: V): V {
@@ -161,7 +162,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                     size++;
                     return null;
                 }
-                return (old as V) as Box[V];
+                return new Box[V](old as V);
             }
         }
     }
@@ -195,7 +196,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         if (e != null && ! e.removed) {
             size--;
             e.removed = true;
-            return e.value as Box[V];
+            return new Box[V](e.value);
         }
         return null;
     }
