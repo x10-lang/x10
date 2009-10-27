@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description>
+      This update site hosts the distribution for the X10 Development Toolkit (X10DT) for X10 1.7.
+   </description>
+   <feature url="features/org.eclipse.imp.x10dt_1.7.4.0.jar" id="org.eclipse.imp.x10dt" version="1.7.4.0">
+      <category name="x10dt"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_1.7.5.0.jar" id="org.eclipse.imp.x10dt" version="1.7.5.0">
+      <category name="x10dt"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_1.7.6.0.jar" id="org.eclipse.imp.x10dt" version="1.7.6.0">
+      <category name="x10dt"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_1.7.6.1.jar" id="org.eclipse.imp.x10dt" version="1.7.6.1">
+      <category name="x10dt"/>
+   </feature>
+   <feature url="features/lpg.runtime_2.0.17.jar" id="lpg.runtime" version="2.0.17">
+      <category name="preReqs"/>
+   </feature>
+   <feature url="features/polyglot3_3.1.0.jar" id="polyglot3" version="3.1.0">
+      <category name="preReqs"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.runtime_0.1.99.jar" id="org.eclipse.imp.runtime" version="0.1.99">
+      <category name="preReqs"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.runtime_0.1.101.jar" id="org.eclipse.imp.runtime" version="0.1.101">
+      <category name="preReqs"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.java.hosted_0.1.1.jar" id="org.eclipse.imp.java.hosted" version="0.1.1">
+      <category name="preReqs"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_1.7.7.0.jar" id="org.eclipse.imp.x10dt" version="1.7.7.0">
+      <category name="x10dt"/>
+   </feature>
+   <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
+   <category-def name="preReqs" label="X10DT pre-requisites"/>
+</site>

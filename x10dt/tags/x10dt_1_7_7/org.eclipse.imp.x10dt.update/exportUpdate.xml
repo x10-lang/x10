@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.imp.x10dt.update" default="build.update.zip" basedir=".">
+    <import file="../org.eclipse.imp.x10dt.feature/buildCommon.xml"/>
+
+    <property name="update.name"        value="org.eclipse.imp.x10dt.update"/>
+    <property name="update.version"     value="${x10dt.version}"/>
+    <property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
+    <property name="update.destination" value="${basedir}"/>
+    <property name="update.server"      value="orquesta.watson.ibm.com"/>
+    <property name="update.server.dir"  value="/usr/src/imp"/>
+    <property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.zip"/>
+
+	<!-- feature name(s) comma-separated, w/o trailing ".feature" -->
+	<!-- note: don't include IMP stuff here, we cache that and copy it -->
+    <property name="feature.list"       value="org.eclipse.imp.x10dt"/>
+
+    <target name="publish.zip" description="Copies the update archive to the update server.">
+        <echo message="Copying update zip file to update server ${update.server}"/>
+        <scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${user.name}@${update.server}:${update.server.dir}"></scp>
+    </target>
+
+    <target name="build.update.zip">
+        <delete dir="${update.temp.folder}"/>
+        <mkdir dir="${update.temp.folder}"/>
+        <antcall target="export.features"/>
+        <for param="feature" values="${feature.list}">
+            <antcall target="copy.feature">
+                <param name="feature.name"    value="${feature}"/>
+                <param name="feature.version" value="${update.version}"/>
+                <param name="feature.dir"     value="../${feature}.feature"/>
+            </antcall>
+        </for>
+    	
+        <antcall target="get.lpg.artifacts"/>
+        <antcall target="get.polyglot.artifacts"/>
+    	<antcall target="get.imp.artifacts"/>
+
+
+        <zip destfile="${zip.file}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+      <!--  <delete dir="${update.temp.folder}"/>   -->
+    </target>
+
+    <target name="copy.feature">
+        <echo message="Feature directory is ${feature.dir}"/>
+
+        <mkdir dir="${update.temp.folder}/features"/>
+        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+            <fileset dir="${feature.dir}" includes="${feature.name}_${feature.version}.jar"/>
+        </copy>
+
+        <mkdir dir="${update.temp.folder}/plugins"/>
+        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+            <fileset dir="${feature.dir}/plugins" includes="*.jar"/>
+        </copy>
+
+        <copy file="site.xml" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+        <copy file="index.html" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+
+        <mkdir dir="${update.temp.folder}/web"/>
+        <copy todir="${update.temp.folder}/web" failonerror="true" overwrite="false">
+            <fileset dir="${basedir}/web" includes="site.css"/>
+            <fileset dir="${basedir}/web" includes="site.xsl"/>
+        </copy>
+    </target>
+	
+	 <target name="get.lpg.artifacts">
+	        <delete dir="../lpg.update/plugins" includes="*.jar"/>
+	        <delete dir="../lpg.update/features" includes="*.jar"/>
+
+	        <ant antfile="../lpg.update/exportUpdate.xml" target="build.plugins"/>
+	        <ant antfile="../lpg.update/exportUpdate.xml" target="build.features"/>
+
+	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+	           <fileset dir="../lpg.update/plugins" includes="lpg.runtime_*.jar"/>
+	        </copy>
+	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+	            <fileset dir="../lpg.update/features" includes="lpg.runtime_*.jar"/>
+	        </copy>
+	    </target>
+
+	    <target name="get.polyglot.artifacts">
+	    	<property name="polyglotPluginId"        value="polyglot3"/>
+	    	<property name="polyglotFeatureId"        value="polyglot3"/>
+	    	<!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
+	    	<property name="polyglotProjectName"   value="polyglot3"/>
+	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
+	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="*.jar"/>
+
+	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
+	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
+	    
+	        <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
+	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
+	        </copy>
+	        <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
+	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
+	        </copy>
+	    </target>
+	
+	 <target name="get.imp.artifacts">
+	 	<!-- imp.cache.location is the local cache of the (unzipped) IMP update site   -->
+	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp104"/>
+	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+	           <fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	<fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        </copy>
+	 	<!-- fixme really should dynamically copy plugin jars based on list in feature manifest -->
+	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+	            <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.doc_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapi_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapifier_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.xform_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="com.ibm.wala.shrike_*.jar"/>	        
+	        </copy>
+	    </target>
+
+    <target name="export.features">
+        <echo message="Building feature jars..."/>
+        <for param="feature" values="${feature.list}">
+            <ant antfile="../${feature}.feature/exportFeature.xml" target="build.feature.jar" dir="../${feature}.feature"/>
+        </for>
+        <echo message="Done building feature jars."/>
+    </target>
+</project>
