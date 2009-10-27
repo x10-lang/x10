@@ -14,7 +14,7 @@ class GCSpheres {
     static type Real = Float;
 
 
-    static value Vector3 {
+    static class Vector3 {
 
         public def this (x:Real, y:Real, z:Real) {
             this.x = x;
@@ -22,22 +22,22 @@ class GCSpheres {
             this.z = z;
         }
 
-        public def getX () = x; 
-        public def getY () = y;
-        public def getZ () = z;
+        public global def getX () = x; 
+        public global def getY () = y;
+        public global def getZ () = z;
 
-        public def add (other:Vector3)
+        public global def add (other:Vector3)
             = new Vector3(this.x+other.x, this.y+other.y, this.z+other.z);
 
-        public def neg () = new Vector3(-this.x, -this.y, -this.z);
+        public global def neg () = new Vector3(-this.x, -this.y, -this.z);
 
-        public def sub (other:Vector3) = add(other.neg());
+        public global def sub (other:Vector3) = add(other.neg());
 
-        public def length () = Math.sqrt(length2());
+        public global def length () = Math.sqrt(length2());
 
-        public def length2 () = x*x + y*y + z*z;
+        public global def length2 () = x*x + y*y + z*z;
 
-        protected val x:Real, y:Real, z:Real;
+        protected global val x:Real, y:Real, z:Real;
     }
 
 
