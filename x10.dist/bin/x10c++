@@ -20,6 +20,7 @@ if [[ -z "$X10_FROM_SRC" ]]; then
     [ -z "$X10LANG" ] && export X10LANG="$TOP"
     [ -z "$X10DIST" ] && export X10DIST="$TOP"
     [ -z "$X10GC" ] && export X10GC="$TOP"
+    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/lib/x10.jar"
     X10="$TOP"
 else
     # Default to developer setup
@@ -28,6 +29,7 @@ else
     [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime/src-cpp"
     [ -z "$X10DIST" ] && export X10DIST="$TOP/../x10.dist"
     [ -z "$X10GC" ] && export X10GC="$TOP/../x10.runtime/src-cpp/bdwgc/install"
+    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/../x10.runtime/src-x10"
     X10="$(cd "$TOP/$X10REL" && pwd)"
 fi
 

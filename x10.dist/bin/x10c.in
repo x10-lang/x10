@@ -92,11 +92,12 @@ extargs="$extargs -noserial"
 # HACK!!! HACK!!! HACK!!! ^^^
 
 classpath="${CP_OVERRIDE}"
-[ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime.x10${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot3-dev${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
+[ -n "$dev" ] && classpath="${classpath}${TOP}${FILE_SEP}..${FILE_SEP}x10.compiler${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}polyglot3-dev${FILE_SEP}bin${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${POLYGLOT_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${ext_cp}${extra_cp}"
 
 # include x10.jar in sourcepath
-[ -z "$rtdev" ] && extargs="$extargs -sourcepath \"${LIB_DIR}${FILE_SEP}x10.jar\""
+[ -z "$X10SOURCES" ] && export X10SOURCES="${LIB_DIR}${FILE_SEP}x10.jar"
+[ -z "$rtdev" ] && extargs="$extargs -sourcepath \"${X10SOURCES}\""
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
