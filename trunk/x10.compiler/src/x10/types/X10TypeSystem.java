@@ -434,4 +434,5 @@ public interface X10TypeSystem extends TypeSystem {
     
     Context emptyContext();
     Type Struct();
+    boolean isExactlyFunctionType(Type t);
 }

@@ -1259,6 +1259,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	}
     	return false;
     }
+    public boolean isExactlyFunctionType(Type t) {
+    	t = X10TypeMixin.baseType(t);
+    	if (! (t instanceof X10ClassType)) {
+    		return false;
+    	}
+    	X10ClassType xt = (X10ClassType) t;
+    	return (xt instanceof FunctionType) || ((X10ClassDef) xt.def()).isFunction();
+    }
 
     public boolean isBox(Type t) {
         return hasSameClassDef(t, this.Box());
