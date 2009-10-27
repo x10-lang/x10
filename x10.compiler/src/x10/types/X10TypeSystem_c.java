@@ -1245,11 +1245,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public boolean isFunctionType(Type t) {
+    	t = X10TypeMixin.baseType(t);
     	if (! (t instanceof X10ClassType)) {
     		return false;
     	}
     	X10ClassType xt = (X10ClassType) t;
-    	return ((X10ClassDef) xt.def()).isFunction();
+    	return declaredFunctionType(xt) || ((X10ClassDef) xt.def()).isFunction();
+    }
+    public boolean declaredFunctionType(X10ClassType t) {
+    	for (Type i : t.interfaces()) {
+    		if (i instanceof FunctionType)
+    			return true;
+    	}
+    	return false;
     }
 
     public boolean isBox(Type t) {
