@@ -123,10 +123,10 @@ public final class FastArray[T] extends BaseArray[T] {
 
     public global def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
         val a = new Accumulator[T](unit);
-        return Array.make[T](dist, new Box[(Point)=>T]((p:Point):T => {
+        return Array.make[T](dist, (p:Point):T => {
             a.result = op(a.result, apply(p as Point(rank)));
             return a.result;
-        }));
+        });
 
     }
 
@@ -136,7 +136,7 @@ public final class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: Box[(Point)=>T]){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: (Point)=>T){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -161,11 +161,32 @@ public final class FastArray[T] extends BaseArray[T] {
         layout = layout(region);
         val n = layout.size();
         val r = Rail.makeVar[T](n);
-        if (init!=null) {
+        
             val f = init as (Point) => T;
             for (p:Point in region)
                 r(layout.offset(p)) = f(p);
-        }
+        
+        raw = r;
+
+        delta0 = layout.delta0;
+        delta1 = layout.delta1;
+        delta2 = layout.delta2;
+        delta3 = layout.delta3;
+        offset0 = (layout.min0);
+        offset1 = (offset0)*layout.delta1 + layout.min1;
+        offset2 = offset1*layout.delta2 + layout.min2;
+        offset3 = offset2*layout.delta3 + layout.min3;
+    }
+    
+    def this(dist: Dist{constant}): FastArray[T]{self.dist==dist} {
+
+        super(dist);
+
+
+        layout = layout(region);
+        val n = layout.size();
+        val r = Rail.makeVar[T](n);
+       
         raw = r;
 
         delta0 = layout.delta0;

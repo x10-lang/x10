@@ -45,64 +45,55 @@ public abstract class Array[T](dist:Dist)
     // factories
     //
 
-    public static def make[T](region:Region): Array[T](region)
-        = make[T](region, null as Box[(Point)=>T]) as Array[T](region);
+    public static def make[T](region:Region)=makeVar[T](region);
+    public static def make[T](dist: Dist)= makeVar[T](dist);
+    public static def make[T](region:Region, init: (Point)=>T)= makeVar[T](region, init);
+    public static def make[T](dist: Dist, init: (Point)=>T)= makeVar[T](dist, init);
 
-    public static def make[T](dist: Dist): Array[T](dist)
-        = make[T](dist, null as Box[(Point)=>T]) as Array[T](dist);
-
-    public static def make[T](region:Region, init: Box[(Point)=>T]): Array[T](region)
-        = makeVar[T](region, init) as Array[T](region);
-
-    public static def make[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist)
-        = makeVar[T](dist, init) as Array[T](dist);
-
-    public static def makeVar[T](region: Region): Array[T](region)
-        = makeVar[T](region, null as Box[(Point)=>T]) as Array[T](region);
-
-    public static def makeVar[T](dist: Dist): Array[T](dist)
-        = makeVar[T](dist, null as Box[(Point)=>T]) as Array[T](dist);
-
-    public static def makeVar[T](region: Region, init: Box[(Point)=>T]): Array[T](region)
+    public static def makeVar[T](region: Region)= BaseArray.makeVar1[T](region);
+    public static def makeVar[T](region: Region, init: (Point)=>T): Array[T](region)
         = BaseArray.makeVar1[T](region, init) as Array[T](region);
+    
 
-    public static def makeVar[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist)
+    public static def makeVar[T](dist: Dist, init:(Point)=>T): Array[T](dist)
         = BaseArray.makeVar1[T](dist, init);
+    public static def makeVar[T](dist: Dist): Array[T](dist)
+    = BaseArray.makeVar1[T](dist);
 
     public static def makeVal[T](region: Region): Array[T](region)
-        = makeVal[T](region, null as Box[(Point)=>T]) as Array[T](region);
+        = BaseArray.makeVal1[T](region) as Array[T](region);
 
     public static def makeVal[T](dist: Dist): Array[T](dist)
-        = makeVal[T](dist, null as Box[(Point)=>T]) as Array[T](dist);
+        = BaseArray.makeVal1[T](dist) as Array[T](dist);
 
-    public static def makeVal[T](region: Region, init: Box[(Point)=>T]): Array[T](region)
+    public static def makeVal[T](region: Region, init: (Point)=>T): Array[T](region)
         = BaseArray.makeVal1[T](region, init) as Array[T](region);
 
-    public static def makeVal[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist)
+    public static def makeVal[T](dist: Dist, init: (Point)=>T): Array[T](dist)
         = BaseArray.makeVal1[T](dist, init) as Array[T](dist);
-
+ 
     public static def make[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
     public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
 
-    public static def make[T](size: nat, init: Box[(Point)=>T]): Array[T](1)
+    public static def make[T](size: nat, init: (Point)=>T): Array[T](1)
         = makeVar[T](0..size-1, init) as Array[T](1);
 
     public static def makeFast[T](region: Region)
-        = makeVar[T](region, null as Box[(Point)=>T])
+        = makeVar[T](region)
             as FastArray[T]{region==region};
 
     public static def makeFast[T](dist: Dist)
-        = makeVar[T](dist, null as Box[(Point)=>T])
+        = makeVar[T](dist)
             as FastArray[T]{dist==dist};
 
     public static def makeFast[T](region: Region, init: (Point)=>T)
-        = BaseArray.makeVar1[T](region, (init as (Point)=>T) as Box[(Point)=>T])
+        = BaseArray.makeVar1[T](region, init)
             as FastArray[T]{region==region};
 
     public static def makeFast[T](dist: Dist, init: (Point)=>T)
-        = BaseArray.makeVar1[T](dist, (init as (Point)=>T) as Box[(Point)=>T])
+        = BaseArray.makeVar1[T](dist, init)
             as FastArray[T]{dist==dist};
 
 
