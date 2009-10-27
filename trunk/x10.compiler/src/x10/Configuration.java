@@ -43,7 +43,7 @@ public final class Configuration extends x10.config.Configuration {
 	public static boolean DEBUG = true;
 	private static final String DEBUG_desc = "Generate debug information";
 
-	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
+	public static boolean BAD_PLACE_RUNTIME_CHECK = false;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
 
 	public static boolean LOOP_OPTIMIZATIONS = true;
