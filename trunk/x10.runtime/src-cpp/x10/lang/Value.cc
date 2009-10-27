@@ -10,7 +10,7 @@ using namespace x10::lang;
 using namespace x10aux;
 
 const serialization_id_t Value::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Value::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(Value::_deserializer<Ref>);
 
 void Value::_serialize(x10aux::ref<Value> this_,
                        x10aux::serialization_buffer &buf,

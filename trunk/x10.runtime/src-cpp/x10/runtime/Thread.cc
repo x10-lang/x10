@@ -83,7 +83,7 @@ Thread::_make(ref<x10::lang::VoidFun_0_0> task, ref<x10::lang::String> name) {
 }
 
 const serialization_id_t Thread::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Ref>);
 
 
 // Helper method to initialize a Thread object.

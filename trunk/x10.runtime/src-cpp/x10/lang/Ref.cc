@@ -29,8 +29,12 @@ x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
     return String::Lit(alloc_printf("%s@%p",this->_type()->name(),(void*)this));
 }
 
+x10aux::ref<x10::lang::String> x10::lang::Ref::typeName() {
+    return x10::lang::String::Lit(_type()->name());
+}
+
 const serialization_id_t Ref::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Ref::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(Ref::_deserializer<Ref>);
 
 void Ref::_serialize(ref<Ref> this_, serialization_buffer &buf, addr_map &m)
 {

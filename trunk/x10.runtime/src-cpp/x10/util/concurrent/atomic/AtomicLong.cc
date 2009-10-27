@@ -32,7 +32,7 @@ void AtomicLong::_deserialize_body(x10aux::deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t AtomicLong::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Ref>);
 
 RTT_CC_DECLS1(AtomicLong, "x10.util.concurrent.atomic.AtomicLong", Ref)
 

@@ -165,7 +165,7 @@ ref<ValRail<x10_byte> > String::bytes() {
 }
 
 // TODO: DG: itables: refactor to share the code.
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Ref> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -223,7 +223,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
     return String::Lit(ss.str().c_str());
 }
 
-ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
+ref<String> String::format(ref<String> format, ref<Rail<ref<Ref> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -290,7 +290,7 @@ x10_boolean String::equals(ref<Object> p0) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(String::_deserializer<Ref>);
 
 // Specialized serialization
 void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {

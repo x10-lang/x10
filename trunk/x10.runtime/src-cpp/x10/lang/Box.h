@@ -59,7 +59,7 @@ namespace x10 {
         };
 
         template<class T> const x10aux::serialization_id_t Box<T>::_serialization_id =
-            x10aux::DeserializationDispatcher::addDeserializer(Box<T>::template _deserializer<Object>);
+            x10aux::DeserializationDispatcher::addDeserializer(Box<T>::template _deserializer<Ref>);
 
         template<class T> void Box<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
             this->x10::lang::Ref::_serialize_body(buf, m);

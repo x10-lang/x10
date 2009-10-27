@@ -32,7 +32,7 @@ void AtomicBoolean::_deserialize_body(x10aux::deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t AtomicBoolean::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicBoolean::_deserializer<Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicBoolean::_deserializer<Ref>);
 
 RTT_CC_DECLS1(AtomicBoolean, "x10.util.concurrent.atomic.AtomicBoolean", Ref)
 

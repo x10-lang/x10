@@ -98,7 +98,7 @@ namespace x10 {
 
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::template _deserializer<Object>);
+                ::addDeserializer(ValRail<T>::template _deserializer<Ref>);
 
         template<class T> void ValRail<T>::_initRTT() {
             rtt.canonical = &rtt;

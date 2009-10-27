@@ -32,7 +32,7 @@ using namespace x10::lang;
 using namespace x10aux;
 
 const serialization_id_t Throwable::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Ref>);
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {

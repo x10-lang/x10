@@ -197,7 +197,7 @@ namespace x10 {
         }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
-            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Object>);
+            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Ref>);
 
         template<> class GrowableRail<void> {
         public:
