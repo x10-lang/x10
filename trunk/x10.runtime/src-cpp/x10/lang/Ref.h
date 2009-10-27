@@ -8,6 +8,10 @@
 
 #include <x10/lang/Object.h>
 
+#define X10_LANG_PLASE_H_NODEPS
+#include <x10/lang/Place.struct_h>
+#undef X10_LANG_PLACE_H_NODEPS
+
 namespace x10 {
     
     namespace lang {
@@ -73,6 +77,14 @@ namespace x10 {
             virtual x10_int hashCode();
 
             virtual x10aux::ref<String> toString();
+
+            virtual x10_boolean at(x10::lang::Place p) {
+                return location == p->FMGL(id);
+            }
+            
+            virtual x10_boolean at(x10aux::ref<x10::lang::Ref> o) {
+                return location == o->location;
+            }
 
             // Needed for linking - do not override
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
