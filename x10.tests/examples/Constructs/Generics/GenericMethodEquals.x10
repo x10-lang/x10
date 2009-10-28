@@ -15,7 +15,7 @@ import harness.x10Test;
 public class GenericMethodEquals extends x10Test {
 
     static class A {
-        public def equals(Ref) {
+        public def equals(Object) {
             return true;
         }
     }
