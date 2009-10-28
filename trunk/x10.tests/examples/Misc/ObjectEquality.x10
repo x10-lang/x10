@@ -18,7 +18,7 @@ public class ObjectEquality extends x10Test {
 	var objField: Object;
 
 	public def run(): boolean = {
-		val obj: Object = new Ref();
+		val obj: Object = new Object();
 		if (obj == objField)
 			return false;
 		return true;
