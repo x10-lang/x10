@@ -12,7 +12,7 @@ class XTENLANG_244 extends x10Test {
     static def check(a:Object, b:Object) = a==b;
     
     public def run():boolean {
-        return check(1,1)==false;
+        return check(1 as Box[Int],1 as Box[Int])==false;
     }
 
     public static def main(Rail[String]) {

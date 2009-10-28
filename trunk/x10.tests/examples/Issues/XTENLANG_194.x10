@@ -11,7 +11,7 @@ import x10.util.HashMap;
     
 class XTENLANG_194 extends x10Test {
 
-    val h = new HashMap[Value,Value]();
+    val h = new HashMap[Int,Complex]();
 
     public def run(): boolean {
         return true;
