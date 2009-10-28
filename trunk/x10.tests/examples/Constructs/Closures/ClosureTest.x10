@@ -36,17 +36,7 @@ abstract class ClosureTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def check(test:String, actual:Value, expected:Value) = {
-        var result:boolean = actual == expected;
-
-        if (!result) {
-            pr(test + " fails: expected " + expected + ", got " + actual);
-            this.result = false;
-        } else
-            pr(test + " succeeds: got " + actual);
-    }
-
-    def check(test:String, actual:Object, expected:Object) = {
+    def check(test:String, actual:Object!, expected:Object!) = {
         var result:boolean = actual.equals(expected);
 
         if (!result) {
