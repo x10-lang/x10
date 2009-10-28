@@ -14,8 +14,6 @@ bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     // Checks to try to catch partially initialized RTT objects before we use them.
     assert(canonical != NULL);
     assert(other->canonical != NULL);
-    assert(parentsc != 0 || this == x10::lang::Object::getRTT());
-    assert(other->parentsc != 0 || other == x10::lang::Object::getRTT());
 
     if (equals(other)) return true; // trivial case
     if (paramsc > 0 && canonical->equals(other->canonical)) {
