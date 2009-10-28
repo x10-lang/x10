@@ -14,7 +14,6 @@ abstract class TypedefTest extends x10Test {
 
     var result:boolean = true;
 
-    // XTENLANG-335: dup for Int and String because cannot assign to Value
     def check(test:String, actual:Int, expected:Int) = {
 
         var result:boolean = actual == expected;
@@ -26,10 +25,9 @@ abstract class TypedefTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    // XTENLANG-335: dup for Int and String because cannot assign to Value
     def check(test:String, actual:String, expected:String) = {
 
-        var result:boolean = actual == expected;
+        var result:boolean = actual.equals(expected);
 
         if (!result) {
             pr(test + " fails: expected " + expected + ", got " + actual);
