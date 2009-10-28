@@ -43,6 +43,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static boolean DEBUG = true;
 	private static final String DEBUG_desc = "Generate debug information";
 
+    public static boolean NO_CHECKS = false;
+    private static final String NO_CHECKS_desc = "Disable generation of all null, bounds, and place checks";
+
 	public static boolean BAD_PLACE_RUNTIME_CHECK = false;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
 

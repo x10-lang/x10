@@ -116,6 +116,10 @@ public class CXXCommandBuilder {
                 cxxCmd.add("-qhot");
             }
         }
+        
+        if (x10.Configuration.NO_CHECKS) {
+            cxxCmd.add("-DNO_CHECKS");
+        }
     }
 
     /** Add the arguments that go after the output files */
