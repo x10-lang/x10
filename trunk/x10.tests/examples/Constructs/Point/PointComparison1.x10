@@ -22,10 +22,10 @@ class PointComparison1 extends TestPoint {
 
     public def run() {
 
-        val p: Point = Point.make([1, 2, 3, 4, 5]);
-        val q: Point = Point.make([2, 3, 4, 5, 6]);
-        val r: Point = Point.make([6, 5, 4, 3, 2]);
-        val s: Point = Point.make([1, 2, 3, 4, 5]);
+        val p = Point.make([1, 2, 3, 4, 5]);
+        val q = Point.make([2, 3, 4, 5, 6]);
+        val r = Point.make([6, 5, 4, 3, 2]);
+        val s = Point.make([1, 2, 3, 4, 5]);
 
         comp(p,q);
         comp(p,r);

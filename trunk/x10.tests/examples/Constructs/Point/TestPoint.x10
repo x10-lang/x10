@@ -12,8 +12,9 @@ abstract public class TestPoint extends x10Test {
     def this() {
         System.setProperty("line.separator", "\n");
         try {
-            os = new StringWriter();
-            out = new Printer(os);
+            val o = new StringWriter();
+            os = o;
+            out = new Printer(o);
         } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
