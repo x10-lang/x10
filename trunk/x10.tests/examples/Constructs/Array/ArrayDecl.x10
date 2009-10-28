@@ -61,23 +61,14 @@ public class ArrayDecl extends x10Test {
         chk(result1.dist.equals(E));
         finish ateach (val (i,j): Point in E) chk(result1(i, j) == (i+j as Short));
 
-        val result2 = Array.make[complex](Dist.makeConstant(0..N-1, here), ((i) : Point) =>  new complex(i*N,-i));
+        val result2 = Array.make[Complex](Dist.makeConstant(0..N-1, here), ((i) : Point) =>  Complex(i*N,-i));
         chk(result2.dist.equals(Dist.makeConstant(0..N-1, here)));
-        // work around XTENLANG-46
-        finish ateach (val (i): Point in result2.dist) chk(result2(i)/*==*/.equals(new complex(i*N,-i)));
+        finish ateach (val (i): Point in result2.dist) chk(result2(i)==(Complex(i*N,-i)));
 
         return true;
-    }
-
-    final static value complex  {
-        val re:Int;
-        val im:Int;
-        def equals(that:complex) = this.re==that.re && this.im==that.im;
-        public def this(re:Int, im:Int) { this.re = re; this.im = im; }
     }
 
     public static def main(Rail[String]):Void = {
         new ArrayDecl().execute();
     }
-
 }
