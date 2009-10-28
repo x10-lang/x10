@@ -225,7 +225,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      }
 
      public String signature() {
-         return "(" + CollectionUtil.listToString(formalTypes) + ")" + guard().get();
+         return "(" + CollectionUtil.listToString(formalTypes) + ")" + Types.get(guard());
      }
 
      public String designator() {
