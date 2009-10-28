@@ -15,8 +15,8 @@ import harness.x10Test;
  public class CastNullToReference_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		var obj: x10.lang.Object = null as Object; // fails in 1.5, ok in 1.7
-		var v: x10.lang.Value = null as Value; // fails in 1.7
+		var obj:x10.lang.Object = null as Object; // ok in 1.7
+		var v:x10.lang.Complex = null as Complex; // not allowed in 2.0 
 		return false;
 	}
 
