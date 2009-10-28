@@ -21,4 +21,7 @@ public final class RemoteOperation {
             (r as Rail[Long]!)(i) ^= v;
         }
     }
+
+    @Native("c++", "x10rt_remote_op_fence()")
+    public static def fence() { }
 }

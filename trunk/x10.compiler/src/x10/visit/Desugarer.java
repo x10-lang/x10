@@ -275,6 +275,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private static final Name XOR = Name.make("xor");
+    private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
     private static final QName REMOTE_OPERATION = QName.make("x10.runtime.RemoteOperation");
 
@@ -442,11 +443,24 @@ public class Desugarer extends ContextVisitor {
     private Expr call(Position pos, Name name, Type returnType) throws SemanticException {
     	return synth.makeStaticCall(pos, xts.Runtime(), name,  returnType, xContext());
     }
+    
+    private Stmt specializeFinish(Finish f) throws SemanticException {
+        if (!hasAnnotation(f, QName.make("x10.compiler.Immediate")))
+            return null;
+        Position pos = f.position();
+        ClassType target = (ClassType) xts.typeForName(REMOTE_OPERATION);
+        List<Expr> args = new ArrayList<Expr>();
+        return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), xContext())));
+    }
 
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = getTmp();
-
+        
+        Stmt specializedFinish = specializeFinish(f);
+        if (specializedFinish != null)
+            return specializedFinish;
+        
         // TODO: merge with the call() function
         MethodInstance mi = xts.findMethod(xts.Runtime(),
                 xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context));
