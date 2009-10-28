@@ -80,7 +80,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	        		for (ClassDoc c: X10RootDoc.getRootDoc().specifiedClasses()) {
 	        			X10ClassDoc cd = (X10ClassDoc) c;
 	        			cd.addDeclTag(cd.declString());
-	        			cd.addDeclsToMethodComments();
+	        			cd.addDeclsToMemberComments();
 	        		}
 
 	            	Standard.start(((X10DocScheduler) scheduler).extensionInfo().root);

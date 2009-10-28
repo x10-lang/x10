@@ -149,20 +149,39 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 
 	public String declString() {
+		// a declaration is needed if the class has associated constraints, or extends classes, implements interfaces that 
+		// are X10 specific (contain closures, constraints) 
 		Ref<XConstraint> refC = classDef.classInvariant(); 
 		Ref<TypeConstraint> refG = classDef.typeGuard();
-		if ((refC == null) && (refG == null)) {
+		boolean needsDeclForSuperOrInt = false; // signifies that the declaration is needed because either the super class 
+		                                        // or an implemented interface is X10-specific, as opposed to it being needed
+		                                        // because of associated class constraints
+		if (!(X10Type.isX10Specific(this.superclassType))) {
+			needsDeclForSuperOrInt = false;
+			for (Type t: this.interfaceTypes) {
+				if (X10Type.isX10Specific(t)) {
+					needsDeclForSuperOrInt = true;
+					break;
+				}
+			}
+		}
+		else {
+			needsDeclForSuperOrInt = true;
+		}
+		
+		if ((refC == null) && (refG == null) && !needsDeclForSuperOrInt) {
 			return null;
 		}
+
 		String temp = classDef.asType().toString();
-		String result = "<PRE>\n</PRE><B>Declaration</B>: " + name();
+		String result = "<B>Declaration</B>: <TT>" + name();
 		TypeVariable[] params = typeParameters();
 		if (refG != null && (params.length > 0)) {
 			result += Arrays.toString(params);
 		}
 		String constraint = "{";
 		if (refC != null) {
-			refC.get(); refC = classDef.classInvariant();
+			refC.get(); refC = classDef.classInvariant(); // attempt to force lazy initialization
 			String inv = refC.get().toString();
 			int len = inv.length();
 			if (len > 2) {
@@ -192,10 +211,38 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 				constraint += st.toString();
 			}
 		}
-		if (constraint.equals("{")) {
+		if (!constraint.equals("{")) {
+			result += constraint + "}";
+		}
+		else if (!needsDeclForSuperOrInt) {
+			// the declaration string is not needed for super classes or implemented interfaces, and there are 
+			// no class constraints to display 
 			return null;
 		}
-		result += constraint + "}";
+
+		if (this.superclass != null) {
+			result += " extends " + this.superclass.classDef;
+		}
+
+		if (this.interfaceTypes.size() > 0) {
+			result += (this.isInterface() ? " extends " : " implements ");
+			boolean first = true;
+			for (Type t: this.interfaceTypes) {
+				if (first) {
+					first = false;
+					result += X10Type.toString(t);
+				}
+				else {
+					result += ", " + X10Type.toString(t);
+				}
+			}
+		}
+
+		result += ".</TT><PRE>\n</PRE>"; // the period before <TT> is required because the declaration string is 
+                                         // added as a prefix to the first sentence, and is displayed in the 
+                                         // "Class Summary" table, where newlines are replaced with single spaces;
+                                         // the period separates the declaration from the first sentence in the 
+		                                 // "Class Summary" section
 		return result;
 	}
 
@@ -240,7 +287,15 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
 	}
 	
-	public void addDeclsToMethodComments() {
+	public void addDeclsToMemberComments() {
+		for (FieldDoc fd: fields.values()) {
+			X10Doc d = (X10Doc) fd;
+			d.addDeclTag(d.declString());
+		}
+		for (ConstructorDoc doc: constructors.values()) {
+			X10Doc d = (X10Doc) doc;
+			d.addDeclTag(d.declString());
+		}
 		for (MethodDoc md: methods.values()) {
 			X10Doc d = (X10Doc) md;
 			d.addDeclTag(d.declString());

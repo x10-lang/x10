@@ -121,9 +121,22 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 		return false;
 	}
 
+	public void addDeclTag(String declString) {
+		if (declString == null) {
+			return;
+		}
+		X10Tag[] declTags = createInlineTags(declString);
+
+		// place declaration before the first sentence of the existing comment so that
+		// the declaration is displayed in the "Methods Summary" table before the first sentence
+		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
+		inlineTags = concat(declTags, inlineTags);
+	}
+
 	public String declString() {
 		// display that this is a type definition in associated comments
-		String result = "<PRE>\n</PRE><B>Type definition</B>: type " + typeDef.signature() + " = " + typeDef.returnType();
+		String result = "<B>Type definition</B>: <TT>type " + typeDef.signature() + " = " + 
+		                typeDef.returnType() + ".</TT><PRE>\n</PRE>";
 		// String result = "<PRE>\n</PRE><B>Type definition</B>: " + descriptor; // if typeDef is used, param names not shown
 		return result; 
 	}

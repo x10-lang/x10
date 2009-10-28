@@ -99,10 +99,21 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		return p.name().toString();
 	}
 	
+	public void addDeclTag(String declString) {
+		if (declString == null) {
+			return;
+		}
+		X10Tag[] declTags = createInlineTags(declString);
+
+		// place declaration before the first sentence of the existing comment so that
+		// the declaration is displayed in the "Methods Summary" table before the first sentence
+		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
+		inlineTags = concat(declTags, inlineTags);
+	}
+
 	public String declString() {
 		// the X10 method declaration needs to be displayed in the method's comments only if a param type 
-		// or the return type contains constraints; at a later point, closures will also be displayed
-		// through comments
+		// or the return type is X10-specific (has associated closures, constraints)
 		if (!(X10Type.isX10Specific(returnType))) {
 			boolean hasConstraints = false;
 			for (X10Parameter p: parameters) {
@@ -115,8 +126,8 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 				return "";
 			}
 		}
-		String result = "<PRE>\n</PRE><B>Declaration</B>: " + methodDef.signature() +
-		                ": " + methodDef.returnType().toString();
+		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() + ": " + 
+		                methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 			// earlier: ... + X10Doc.toString(this.returnType)
 		return result; 
 	}
