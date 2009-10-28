@@ -24,4 +24,6 @@ public class Box[+T](value: T) {
         }
         return false;
     }
+
+    public static operator[T](x:T):Box[T] = new Box[T](x);
 }
