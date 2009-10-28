@@ -7,7 +7,7 @@ import java.util.List;
 import polyglot.types.ClassType;
 import polyglot.types.Ref;
 
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
 import x10.types.X10ClassDef;
@@ -76,7 +76,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	}
 
 	public boolean isX10Specific() {
-		if (pType instanceof ClosureType) { // earlier test: "(classDoc.classDef.asType() instanceof ClosureType)"
+		if (pType instanceof FunctionType) { // earlier test: "(classDoc.classDef.asType() instanceof FunctionType)"
 			return true;
 		}
 		if (depType) {
