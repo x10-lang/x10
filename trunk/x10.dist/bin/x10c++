@@ -15,7 +15,7 @@ prog=$(readlink $0 2>&1)
 TOP="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 if [[ -z "$X10_FROM_SRC" ]]; then
-    # Default to pre-built distribution; do not set X10LANG
+    # Default to pre-built distribution; do not set X10REL
     [ -z "$X10LIB" ] && export X10LIB="$TOP"
     [ -z "$X10LANG" ] && export X10LANG="$TOP"
     [ -z "$X10DIST" ] && export X10DIST="$TOP"
