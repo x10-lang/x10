@@ -54,7 +54,7 @@ abstract public class TestRegion extends x10Test {
         var os: Rail[Object]{self.at(this)} = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue as Object; // XTENLANG-210
+            os(i0) = vue as Box[double]; 
         }
 
         def set(i0: int, i1: int, vue: double): void = {
@@ -99,7 +99,7 @@ abstract public class TestRegion extends x10Test {
                     (o as Grid!).pr(rank-1);
                 } else {
                     // XTENLANG-34, XTENLANG-211
-                    val d = (o as Box[double]) as double;
+                    val d = (o as Box[double]).value;
                     out.print((d as int)+"");
                 }
 
