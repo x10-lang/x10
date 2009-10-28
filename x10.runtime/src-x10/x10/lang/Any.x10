@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
 public interface Any {
     @Native("java", "#0.getClass().toString()")
     //@Native("c++", "x10aux::to_string(#0)")
-    public global def typeName(): String;
+    property global def typeName(): String;
 
     @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
     //@Native("c++", "ERROR: loc!")
