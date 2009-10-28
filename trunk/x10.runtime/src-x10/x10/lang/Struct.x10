@@ -1,6 +1,6 @@
 package x10.lang;
 
-public abstract struct Struct implements Any {
+public abstract struct Struct {
 	
 	public def this() {}
 	//public native def toString():String;
