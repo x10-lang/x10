@@ -50,7 +50,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
         if (next == null) {
             try {
                 val x: T = r.read[T](m);
-                next = new Box[T](x);
+                next = x as Box[T];
             }
             catch (IOException) {
                 return false;
