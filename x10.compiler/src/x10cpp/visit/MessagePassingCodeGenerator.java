@@ -3880,7 +3880,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("static const x10aux::RuntimeType* getRTT() {"+
                   " return x10aux::getRTT<"+superType+" >(); }");
         inc.newline();
-        inc.write("const x10aux::RuntimeType *_type() const {"+
+        inc.write("virtual const x10aux::RuntimeType *_type() const {"+
                   " return x10aux::getRTT<"+superType+" >(); }");
         inc.newline(); inc.forceNewline();
 
