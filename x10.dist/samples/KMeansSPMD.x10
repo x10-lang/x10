@@ -52,19 +52,11 @@ public class KMeansSPMD {
             val central_cluster_counts = Rail.makeVar[Int](CLUSTERS, (i:Int) => 0);
 
             class Cell[T] {
-                private var value : T;
+                private var value:T;
                 def this(v:T) { this.value = v; }
-                def get() = value;
-                def set(v:T) { value = v; }
+                global def get() = at (this) value;
+                global def set(v:T) { at (this) { value = v; }; }
             }
-
-            value ProxyCell[T] {
-                private val cell : Cell[T]{self.at(this.loc)};
-                def this(v:Cell[T]) { this.cell = v; }
-                def get() = at (cell.location) cell.get();
-                def set(v:T) { at (cell.location) cell.set(v); };
-            }
-                
 
             val finished = new Cell[Boolean](false);
             // SPMD style for algorithm
@@ -81,9 +73,7 @@ public class KMeansSPMD {
                     val new_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
                     val cluster_counts = Rail.makeVar[Int](CLUSTERS, (i:Int) => 0);
 
-                    val finished2 = new ProxyCell[Boolean](finished);
-
-                    for (var iter:Int=0 ; iter<ITERATIONS && !finished2.get() ; iter++) {
+                    for (var iter:Int=0 ; iter<ITERATIONS && !finished.get() ; iter++) {
 
                         Console.OUT.println("Iteration: "+iter);
 
