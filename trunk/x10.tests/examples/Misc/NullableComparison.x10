@@ -19,7 +19,7 @@ public class NullableComparison extends x10Test {
 	public const objList: Rail[Object] = Rail.makeVar[Object](N);
 
 	public def run(): boolean = {
-		val obj: Object = new Ref();
+		val obj: Object = new Object();
 		var i: int = N - 1;
 		while (i > 0 && (obj != objList(i))) {
 			i--;
