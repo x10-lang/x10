@@ -135,11 +135,14 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
+import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.util.TypedList;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
 import x10.ast.AssignPropertyBody_c;
@@ -149,6 +152,7 @@ import x10.ast.AtExpr_c;
 import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
 import x10.ast.Await_c;
+import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.ConstantDistMaker_c;
@@ -238,7 +242,7 @@ import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
  * arguments.
  *
  * [TODO]
- * The code that is common to multiple files will goto the ".inc" file
+ * The code that is common to multiple files will go to the ".inc" file
  * [Krishna]
  */
 public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
@@ -981,15 +985,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class, Closure_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = new HashSet<ClassType>();
 		dupes.add(def.asType());
 		if (xTypes.found()) {
-		    ArrayList typeNodesAndClosures = xTypes.getMatches();
-		    for (int i = 0; i < typeNodesAndClosures.size(); i++) {
-		        Node tn = (Node) typeNodesAndClosures.get(i);
+		    ArrayList<Node> typeNodesAndClosures = xTypes.getMatches();
+		    for (Node tn : typeNodesAndClosures) {
 		        if (tn instanceof X10CanonicalTypeNode_c) {
 		            X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) tn;
 		            extractAllClassTypes(t.type(), types, dupes);
@@ -2065,6 +2068,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
 	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
 
+	private static final String UNUSED = "X10_PRAGMA_UNUSED";
+
 	/**
 	 * Generate an initializer method for a given field declaration.
 	 */
@@ -2156,7 +2161,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.newline();
-	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
+	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
 	    sw.newline(); sw.forceNewline(0);
 	}
 
@@ -2358,35 +2363,39 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Branch_c br) {
 		if (br.labelNode() != null) {
 			if (br.kind() == Branch_c.CONTINUE)
-				sw.write("goto " + br.labelNode().id().toString() + "_next_");
+				sw.write("goto " + br.labelNode().id() + "_next_");
 			else
-				sw.write("goto " + br.labelNode().id().toString() + "_end_");
+				sw.write("goto " + br.labelNode().id() + "_end_");
 		} else
 			sw.write(br.kind().toString());
 		sw.write(";");
-		sw.newline();
 	}
 
 
+	private void printLabel(String label, CodeWriter w) {
+	    w.write("goto " + label + "; ");
+	    w.write(label + ":");
+	}
+
 	public void visit(Labeled_c label) {
-		// For every labeled statement, generate one/three labels->
-		// L: S --> L :
-		//          S
-		// If S is a for / while / do-while loop then after the
-		// generated C++ for-loop, have a label L_end_ and before
-		// end-parenthesis of the loop, have one more label L_next_:
-		// L : for (...) { ... } -->
-		// L :
-		// for (...) {... L_next_: ; }
-		// L_end_: ;
+	    // For every labeled statement, generate one/three labels->
+	    // L: S --> L :
+	    //          S
+	    // If S is a for / while / do-while loop then after the
+	    // generated C++ for-loop, have a label L_end_ and before
+	    // end-parenthesis of the loop, have one more label L_next_:
+	    // L : for (...) { ... } -->
+	    // L :
+	    // for (...) {... L_next_: ; }
+	    // L_end_: ;
 
-        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-		sw.write(label.labelNode() + " : ");
-		sw.newline();
-		context.setLabel(label.labelNode().id().toString(), label.statement());
-		label.print(label.statement(), sw, tr);
-		sw.newline();
+	    printLabel(label.labelNode().id().toString(), sw);
+	    sw.write(" ");
+	    context.setLabel(label.labelNode().id().toString(), label.statement());
+	    label.print(label.statement(), sw, tr);
+	    sw.newline();
 	}
 
 
@@ -2501,57 +2510,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(StmtSeq_c s) {
-		assert (false); // FIXME. It is not clear if when StmtSeq_c nodes are generated.  If they indeed are, remove this assert and continue with the method below.
-
-		sw.newline();
-		if (s.statements().size() > 0) {
-			sw.newline(4);
-			sw.begin(0);
-			for (Iterator<Stmt> i = s.statements().iterator(); i.hasNext(); ) {
-				Stmt n = i.next();
-				s.printBlock(n, sw, tr);
-				if (i.hasNext())
-					sw.newline();
-			}
-			sw.end();
-			sw.newline(0);
-		}
-		else
-			sw.write(" ");
-		sw.newline();
+	public void visit(StmtSeq_c n) {
+	    List<Stmt> stmts = n.statements();
+	    if (stmts.size() == 0) {
+	        sw.write(" ");
+	        return;
+	    }
+	    for (Stmt s : stmts) {
+	        n.printBlock(s, sw, tr);
+	        sw.newline();
+	    }
 	}
 
-
-	private void handleLabeledLoop(Loop_c n) {
-		String label = null;
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (context.getLabeledStatement() == n) {
-			label = context.getLabel();
-			context.setLabel(null, null);
-		}
-		sw.allowBreak(0, " ");
-		if (label != null) {
-			sw.write("{");
-			sw.newline(0); sw.begin(0);
-			sw.newline();
-		}
-		sw.newline(4); sw.begin(0);
-		n.print(n.body(), sw, tr);
-		sw.end(); sw.newline();
-		if (label != null) {
-			sw.newline(0);
-			sw.write(label + "_next_ : ;");
-			sw.end(); sw.newline();
-			sw.write("}");
-			sw.newline(0);
-			sw.write(label + "_end_ : ; ");
-		}
-	}
 
 	public void visit(For_c n) {
 		// FIXME: Generate normal for-loop code, without
 		// separating out the inits. [Krishna]
+
+		String label = null;
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		if (context.getLabeledStatement() == n) {
+		    label = context.getLabel();
+		    context.setLabel(null, null);
+		}
 
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
@@ -2612,33 +2593,123 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		sw.end();
 		sw.write(")");
-		sw.write("{");
-    	sw.newline(4);
-        sw.begin(0);
-        
-		handleLabeledLoop(n);
+		sw.allowBreak(0, " ");
 
-		sw.end(); sw.newline(0);
-		sw.write("}");
-		sw.end(); sw.newline(0);
+		if (label != null) {
+		    sw.write("{");
+		    sw.newline(0); sw.begin(0);
+		}
 
+		Stmt body = n.body();
+		if (!(body instanceof Block_c))
+		    body = tr.nodeFactory().Block(body.position(), body);
+
+		n.print(body, sw, tr);
+
+		if (label != null) {
+		    sw.newline(0);
+		    printLabel(label + "_next_", sw);
+		    sw.write(" ;");
+		    sw.end(); sw.newline();
+		    sw.write("}");
+		}
+
+		if (label != null) {
+		    sw.newline(0);
+		    printLabel(label + "_end_", sw);
+		    sw.write(" ;");
+		}
+
+		sw.end(); sw.newline();
 		sw.write("}");
 		sw.newline(0);
 	}
 
 	public void visit(Do_c n) {
-	    sw.write("do {");
-	    handleLabeledLoop(n);
-	    sw.write("} while (");
+	    String label = null;
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    if (context.getLabeledStatement() == n) {
+	        label = context.getLabel();
+	        context.setLabel(null, null);
+	    }
+
+	    sw.write("do");
+	    sw.allowBreak(0, " ");
+
+	    if (label != null) {
+	        sw.write("{");
+	        sw.newline(0); sw.begin(0);
+	    }
+
+	    Stmt body = n.body();
+	    if (!(body instanceof Block_c))
+	        body = tr.nodeFactory().Block(body.position(), body);
+
+	    n.print(body, sw, tr);
+
+	    if (label != null) {
+	        sw.newline(0);
+	        printLabel(label + "_next_", sw);
+	        sw.write(" ;");
+	        sw.end(); sw.newline();
+	        sw.write("}");
+	    }
+
+	    sw.allowBreak(0, " ");
+	    sw.write("while (");
+	    sw.begin(0);
 	    n.printBlock(n.cond(), sw, tr);
+	    sw.end();
 	    sw.write(");");
+
+	    if (label != null) {
+	        sw.newline(0);
+	        printLabel(label + "_end_", sw);
+	        sw.write(" ;");
+	    }
+	    sw.newline(0);
 	}
 
 	public void visit(While_c n) {
+	    String label = null;
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    if (context.getLabeledStatement() == n) {
+	        label = context.getLabel();
+	        context.setLabel(null, null);
+	    }
+
 	    sw.write("while (");
+	    sw.begin(0);
 	    n.printBlock(n.cond(), sw, tr);
+	    sw.end();
 	    sw.write(")");
-	    handleLabeledLoop(n);
+	    sw.allowBreak(0, " ");
+
+	    if (label != null) {
+	        sw.write("{");
+	        sw.newline(4); sw.begin(0);
+	    }
+
+	    Stmt body = n.body();
+	    if (!(body instanceof Block_c))
+	        body = tr.nodeFactory().Block(body.position(), body);
+
+	    n.print(body, sw, tr);
+
+	    if (label != null) {
+	        sw.newline(0);
+	        printLabel(label + "_next_", sw);
+	        sw.write(" ;");
+	        sw.end(); sw.newline();
+	        sw.write("}");
+	    }
+
+	    if (label != null) {
+	        sw.newline(0);
+	        printLabel(label + "_end_", sw);
+	        sw.write(" ;");
+	    }
+	    sw.newline(0);
 	}
 
 
@@ -3526,23 +3597,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    return;
 		}
 
-        Type itType = null;
-        X10MethodInstance mi = null;
-        assert (dType.isClass());
-        X10ClassType domainType = (X10ClassType)dType.toClass();
-        try {
-             mi = xts.findMethod(domainType,
-                                 xts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST, context));
-            assert (mi != null);
-            assert (mi.returnType().isClass());
-            List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
-            assert (typeArgs.size() == 1);
-            itType = typeArgs.get(0);
-        } catch (SemanticException e) {
-            assert (false) : e.getMessage();
-        }
+		String label = null;
+		if (context.getLabeledStatement() == n) {
+		    label = context.getLabel();
+		    context.setLabel(null, null);
+		}
 
-        sw.write("{");
+		Type itType = null;
+		X10MethodInstance mi = null;
+		assert (dType.isClass());
+		X10ClassType domainType = (X10ClassType)dType.toClass();
+		try {
+		    mi = xts.findMethod(domainType,
+		                        xts.MethodMatcher(domainType, Name.make("iterator"),
+		                                          Collections.EMPTY_LIST, context));
+		    assert (mi != null);
+		    assert (mi.returnType().isClass());
+		    List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
+		    assert (typeArgs.size() == 1);
+		    itType = typeArgs.get(0);
+		} catch (SemanticException e) {
+		    assert (false) : e.getMessage();
+		}
+
+		sw.write("{");
 		sw.newline(4); sw.begin(0);
 		
 		String name = "__i" + form.name();
@@ -3594,21 +3672,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write(" = (((x10::lang::Object*)("+name+".operator->()))->*("+itableName+"->next))();");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
-			Stmt l = (Stmt) li.next();
-			n.print(l, sw, tr);
+		    Stmt l = (Stmt) li.next();
+		    n.print(l, sw, tr);
 		}
 
-		handleLabeledLoop(n);
+		n.print(n.body(), sw, tr);
 
-		sw.end(); sw.newline(0);
+		if (label != null) {
+		    sw.newline(0);
+		    printLabel(label + "_next_", sw);
+		    sw.write(" ;");
+		}
+
+		sw.end(); sw.newline();
 		sw.write("}");
-		sw.newline(0);
+
+		if (label != null) {
+		    sw.newline(0);
+		    printLabel(label + "_end_", sw);
+		    sw.write(" ;");
+		}
 
 		// [IP] It's always safe to free the iterator because it can't escape
 		// [DC] It's not safe to free the iterator because it has been cast to an interface
 		// FIXME: change the type of 'name' to be some kind of non-interface type
-		//sw.write("x10aux::dealloc(" + name + ");");
-		sw.newline();
+		//sw.writeln("x10aux::dealloc(" + name + ");");
 
 		sw.end(); sw.newline(0);
 		sw.write("}");
@@ -3784,15 +3872,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("class "+cname+" : public x10::lang::Value"); inc.begin(0);
-        inc.write("{") ; inc.end() ; inc.newline(4); inc.begin(0);
+        inc.write("{"); inc.end(); inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
-		/* ITables declarations */
+        /* ITables declarations */
         inc.write("static "+(in_template_closure ? "typename " : "")+superType+(in_template_closure ? "::template itable " : "::itable")+chevrons(cnamet)+" _itable;"); inc.newline();
-		inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
-		inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
+        inc.write("static x10aux::itable_entry _itables[2];"); inc.newline(); inc.forceNewline();
+        inc.write("virtual x10aux::itable_entry* _getITables() { return _itables; }"); inc.newline(); inc.forceNewline();
 
-		inc.write("// closure body"); inc.newline();
+        inc.write("// closure body"); inc.newline();
         inc.write(Emitter.translateType(retType, true)+" apply(");
         prefix = "";
         for (Formal formal : n.formals()) {
@@ -3965,45 +4053,110 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-	private void printInlinedClosureStmt(Stmt s, StreamWrapper w, String retLabel, String retVar, Closure_c closure) {
-	    if (s instanceof Block_c) {
-	        w.write("{");
-	        w.newline(4); w.begin(0);
-	        for (Stmt b : ((Block_c)s).statements())
-	            printInlinedClosureStmt(b, w, retLabel, retVar, closure);
-	        w.end(); w.newline();
-	        w.write("}");
-	        return;
+	/**
+	 * Rewrites a given closure so that it has exactly one return statement at the end.
+	 * @author igor
+	 * TODO: factor out into its own class
+	 */
+	public class ClosureRewriter extends ContextVisitor {
+	    private final ClosureDef closure;
+	    private final LocalDef ret;
+	    private final Name label;
+	    public ClosureRewriter(Closure_c closure) {
+	        super(tr.job(), tr.typeSystem(), tr.nodeFactory());
+	        this.context = tr.context();
+	        List<Stmt> body = closure.body().statements();
+	        if (body.size() == 1 && body.get(0) instanceof Return_c) {
+	            // Closure already has the right properties; make this visitor a no-op
+	            this.closure = null;
+	            this.ret = null;
+	            this.label = null;
+	        } else {
+	            this.closure = closure.closureDef();
+	            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	            final ClosureDef cd = closure.closureDef();
+	            Name rn = Name.make(getId());
+	            Type rt = cd.asInstance().returnType();
+	            this.ret = rt.isVoid() ? null : xts.localDef(closure.position(), xts.NoFlags(), Types.ref(rt), rn);
+	            this.label = Name.make("__ret"+getUniqueId_());
+	        }
 	    }
-	    if (s instanceof Return_c) { // TODO
-	        w.write("/"+"*"+" return from closure should go here "+"*"+"/");
-
-	        Return_c r = (Return_c) s;
-	        Expr e = r.expr();
-	        e = cast(e, closure.returnType().type());
-	        tr.print(null, e, w);
-	        return;
+	    // TODO: use override to short-circuit the traversal
+	    public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+	        if (n instanceof Closure_c)
+	            return visitClosure((Closure_c)n);
+	        if (n instanceof Return_c)
+	            return visitReturn((Return_c)n);
+	        return n;
 	    }
-	    tr.print(null, s, w);
+	    // (`x:`T):R=>S -> (`x:`T)=>{r:R; L:do{ S[return v/r=v; break L;]; }while(false); return r;}
+	    private Closure visitClosure(Closure_c n) throws SemanticException {
+	        // First check that we are within the right closure
+	        if (n.closureDef() != closure)
+	            return n;
+	        X10NodeFactory xnf = (X10NodeFactory) nf;
+	        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	        Position pos = n.position();
+	        List<Stmt> newBody = new ArrayList<Stmt>();
+	        if (ret != null) {
+	            newBody.add(xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()),
+	                        xnf.CanonicalTypeNode(pos, ret.type()),
+	                        xnf.Id(pos, ret.name())).localDef(ret));
+	        }
+	        newBody.add(xnf.Labeled(pos, xnf.Id(pos, label),
+	                    xnf.Do(pos, (Stmt) n.body().visit(this),
+	                           (Expr) xnf.BooleanLit(pos, false).typeCheck(this))));
+	        if (ret != null) {
+	            Expr rval = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
+	            newBody.add(xnf.Return(pos, rval));
+	        } else {
+	            newBody.add(xnf.Return(pos));
+	        }
+	        return (Closure) n.body(xnf.Block(n.body().position(), newBody));
+	    }
+	    // return v; -> r=v; break L;
+	    private Stmt visitReturn(Return_c n) throws SemanticException {
+	        // First check that we are within the right closure
+	        if (!context.currentCode().equals(closure))
+	            return n;
+	        assert ((ret == null) == (n.expr() == null));
+	        X10NodeFactory xnf = (X10NodeFactory) nf;
+	        Position pos = n.position();
+	        List<Stmt> retSeq = new ArrayList<Stmt>();
+	        if (ret != null) {
+	            Type rt = ret.type().get();
+	            Expr xl = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(rt);
+	            retSeq.add(xnf.Eval(pos, xnf.Assign(pos, xl, Assign_c.ASSIGN, n.expr()).type(rt)));
+	        }
+	        retSeq.add(xnf.Break(pos, xnf.Id(pos, label)));
+	        return xnf.StmtSeq(pos, retSeq);
+	    }
 	}
 
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
-	    Type retType = closure.returnType().type();
-	    List<Stmt> body = closure.body().statements();
-	    // Special case: a single return statement
-	    if (body.size() != 1 || !(body.get(0) instanceof Return_c)) // TODO
-	        return false;
+	    if (!Configuration.CLOSURE_INLINING)
+	        return false;   // Closure inlining disabled
+	    // TODO: optimize anyway to stack-allocated closure and non-virtual
+        // dispatch (see XTENLANG-572)
 
+	    // Ensure that the last statement of the body is the only return in the closure
+	    closure = (Closure_c) closure.visit(new ClosureRewriter(closure));
+
+	    Type retType = closure.returnType().type();
 	    List<Formal> formals = closure.formals();
 	    boolean clashes = false;
+	    List<Expr> newArgs = new ArrayList<Expr>();
+	    int i = 0;
 	    for (Expr a : c.arguments()) {
-	        X10SearchVisitor xLocals = new X10SearchVisitor(X10Local_c.class);
+	        Type fType = formals.get(i).type().type();
+	        newArgs.add(cast(a, fType));
+	        i++;
+	        X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
 	        a.visit(xLocals);
 	        if (!xLocals.found())
 	            continue;
-	        ArrayList locals = xLocals.getMatches();
-	        for (int i = 0; i < locals.size(); i++) {
-	            X10Local_c t = (X10Local_c) locals.get(i);
+	        ArrayList<X10Local_c> locals = xLocals.getMatches();
+	        for (X10Local_c t : locals) {
 	            Name name = t.localInstance().name();
 	            for (Formal f : formals) {
 	                if (f.name().id().equals(name))
@@ -4011,24 +4164,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            }
 	        }
 	    }
+	    args = newArgs;
 
-	    {
-	    	List<Expr> newArgs = new ArrayList<Expr>();
-	    	int i =0;
-	    	for (Expr a : args) {
-	    		Type fType = formals.get(i).type().type();
-	    		newArgs.add(cast(a, fType));
-	    		i++;
-	    	}
-	    	args = newArgs;
-	    }
-
-	    sw.write("__extension__ ({");
+	    sw.write("(__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    String[] alt = null;
 	    if (clashes) {
 	        alt = new String[args.size()];
-	        int i = 0;
+	        i = 0;
 	        for (Expr a : args) {
 	            alt[i] = getId();
 	            Type fType = formals.get(i).type().type();
@@ -4044,7 +4187,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10CPPContext_c ctx = (X10CPPContext_c) closure.del().enterScope(context);
 	    ((X10CPPTranslator)tr).setContext(ctx); // FIXME
-	    int i = 0;
+	    i = 0;
 	    for (Expr a : args) {
 	        Formal f = closure.formals().get(i);
 	        c.print(f, sw, tr);
@@ -4062,43 +4205,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        i++;
 	    }
-	    String ret = null;
-	    if (!retType.isVoid()) {
-	        ret = getId();
-	        sw.begin(0);
-	        emitter.printType(retType, sw);
-	        sw.write(" ");
-	        sw.write(ret);
-	        sw.end();
-	        sw.write(";");
-	        sw.newline();
+	    List<Stmt> body = closure.body().statements();
+	    assert (body.get(body.size()-1) instanceof Return_c) : "Last statement is not a return";
+	    // We know that the last statement has to be a return
+	    Return_c ret = (Return_c) body.get(body.size()-1);
+	    for (Stmt stmt : body) {
+	        if (stmt != ret)
+	            c.print(stmt, sw, tr);
 	    }
-	    // Special case: a single return statement
-	    if (body.size() == 1 && body.get(0) instanceof Return_c) {
-	    	Return_c r = (Return_c) body.get(0);
-	    	Expr e = r.expr();
-	    	if (e != null) {
-	    	    e = cast(e, retType);
-	    	    sw.write(ret + " = ");
-	    	    c.print(e, sw, tr);
-	    	    sw.write(";");
-	    	}
-	    } else { // TODO
-	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Inlining a multi-statement closure", c.position());
-	        for (Stmt s : body) {
-	            sw.newline();
-	            printInlinedClosureStmt(s, sw, null, ret, closure);
-	        }
-	    }
-	    if (!retType.isVoid()) {
-	        sw.newline();
-	        sw.write(ret);
+	    sw.newline();
+	    Expr e = ret.expr();
+	    if (e != null) {
+	        e = cast(e, retType);
+	        c.print(e, sw, tr);
 	        sw.write(";");
 	    }
 	    ctx.finalizeClosureInstance();
 	    ((X10CPPTranslator)tr).setContext(context); // FIXME
 	    sw.end(); sw.newline();
-	    sw.write("})"); sw.newline();
+	    sw.write("}))"); sw.newline();
 	    return true;
 	}
 
