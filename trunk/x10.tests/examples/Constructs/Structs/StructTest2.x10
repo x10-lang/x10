@@ -71,6 +71,7 @@ public class StructTest2 extends x10Test {
         this.cval = cval;
         this.refval = refval;
       }
+      public def typeName() = "myval";
    }
 
    static class foo {

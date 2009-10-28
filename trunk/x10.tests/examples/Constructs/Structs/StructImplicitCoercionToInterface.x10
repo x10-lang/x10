@@ -7,6 +7,7 @@ class StructImplicitCoercionToInterface extends x10Test {
     static struct S implements I {
         val i:Int;
     def this(i:Int) { this.i=i;}
+    public def typeName() = "S";
     public def i() = i;
     public static operator (x:S):I = new I() {
         public def i() = x.i;
