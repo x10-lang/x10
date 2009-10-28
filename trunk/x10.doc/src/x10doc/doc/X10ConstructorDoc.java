@@ -24,7 +24,8 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	private X10ConstructorDef constrDef;
 	private X10ClassDoc containingClass;
 	private X10RootDoc rootDoc;
-	private ArrayList<Parameter> parameters;
+	private ArrayList<X10Parameter> parameters;
+	private Type returnType;
 	private X10TypeVariable[] typeParams;
 	// private LinkedHashMap<String, X10TypeVariable> typeParams;
 	
@@ -48,11 +49,14 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 		// type parameters should be initialized before parameter types because the latter may use the former
 		initTypeParameters();
 		// containingClass.addConstructor(this);
+		
+		// initialize returnType
+		returnType = rootDoc.getType(constrDef.returnType().get(), typeParams);
 
 		// initialize parameters
 		List<LocalDef> formals = constrDef.formalNames();
 		int n = ((formals == null) ? 0 : formals.size());
-		parameters = new ArrayList<Parameter>(n);
+		parameters = new ArrayList<X10Parameter>(n);
 		for (LocalDef ld: formals) {
 			String paramName = ld.name().toString();
 			polyglot.types.Type paramType = ld.type().get();
@@ -77,6 +81,38 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 		return constrDef;
 	}
 	
+	public void addDeclTag(String declString) {
+		if (declString == null) {
+			return;
+		}
+		X10Tag[] declTags = createInlineTags(declString);
+
+		// place declaration before the first sentence of the existing comment so that
+		// the declaration is displayed in the "Methods Summary" table before the first sentence
+		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
+		inlineTags = concat(declTags, inlineTags);
+	}
+
+	public String declString() {
+		// the X10 constructor declaration needs to be displayed in the constructors's comments only if a param type 
+		// or the return type is X10-specific
+		if (!(X10Type.isX10Specific(returnType))) {
+			boolean hasConstraints = false;
+			for (X10Parameter p: parameters) {
+				if (p.isX10Specific()) {
+					hasConstraints = true;
+					break;
+				}
+			}
+			if (!hasConstraints) {
+				return "";
+			}
+		}
+		String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + ": " + 
+		                constrDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
+		return result; 
+	}
+
 	@Override
 	public boolean isConstructor() {
 		return true;

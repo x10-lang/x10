@@ -41,6 +41,8 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 		for (int i = 0; i < typeArgs.length; i++) {
 			typeArgs[i] = rootDoc.getType(args.get(i), methodTypeVars);
 		}
+		// System.out.println("X10ParameterizedType{" + t + "}.typeArgs = " + Arrays.toString(typeArgs));
+		// System.out.println("X10ParameterizedType{" + t + "}: t.getClass() = " + t.getClass());
 
 		ClassType c = t.toClass();
 		superclassType = ((c.def().flags().isInterface()) ? null : 
@@ -74,10 +76,18 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	}
 
 	public boolean isX10Specific() {
-		if (classDoc.classDef.asType() instanceof ClosureType) {
+		if (pType instanceof ClosureType) { // earlier test: "(classDoc.classDef.asType() instanceof ClosureType)"
 			return true;
 		}
-		return depType;
+		if (depType) {
+			return true;
+		}
+		for (Type t: this.typeArgs) {
+			if (X10Type.isX10Specific(t)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public Type containingType() {

@@ -14,6 +14,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
+import x10.types.ClosureType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
@@ -177,8 +178,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	 * @return ClassDoc or TypeVariable or ParameterizedType or X10Type (for void) object
 	 */
 	public Type getType(polyglot.types.Type t, X10TypeVariable[] methodTypeVars) {
-		// System.out.println("getType(" + t +"): t.getClass() = " + t.getClass());
 		if (t == null) return null;
+		// System.out.println("X10RootDoc.getType(" + t +"): t.getClass() = " + t.getClass());
 		if (t.isPrimitive()) {
 			// System.out.println("Primitive X10Type returned.");
 			return getPrimitiveType(t);
@@ -242,7 +243,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //		}
 		X10ClassDef classDef = (X10ClassDef) t.toClass().def();
 		if (t instanceof X10ParsedClassType) {
-			if (((X10ParsedClassType)t).typeArguments().size() > 0) {
+			// a ClosureType is an X10ParsedClassType where the type arguments (params) are 
+			// the types of the closure's parameters and the return type of the closure
+			// earlier test: "if (((X10ParsedClassType)t).typeArguments().size() > 0)"; this earlier test 
+			// includes all closures except closures with 0 arguments, hence the instanceof test
+			if ((t instanceof ClosureType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
 				return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, false);
 			}
 			return getUnspecClass(classDef);
@@ -251,9 +256,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 			polyglot.types.Type base = X10TypeMixin.baseType(t);
 			if (base instanceof X10ParsedClassType) {
 				if (((X10ParsedClassType)base).typeArguments().size() > 0) {
+					// parameterized type with constraints
 					return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, true); 
 				}
 			}
+			// non-parameterized type with constraints
 			return new X10ParameterizedType((x10.types.X10Type)t);
 		}
 		return getUnspecClass(classDef);

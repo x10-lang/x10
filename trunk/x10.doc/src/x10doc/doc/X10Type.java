@@ -19,7 +19,7 @@ public class X10Type implements Type {
 	}
 
 	public static boolean isX10Specific(Type t) {
-		if (!(t instanceof X10Type)) {
+		if ((t == null) || !(t instanceof X10Type)) {
 			// meant to handle the case when t is of type X10ClassDoc
 			return false;
 		}

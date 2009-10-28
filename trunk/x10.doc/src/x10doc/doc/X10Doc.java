@@ -19,7 +19,7 @@ import com.sun.javadoc.Tag;
 public class X10Doc implements Doc {
 	private String rawComment;
 	private String comment;
-	private X10Tag[] firstSentenceTags, inlineTags;
+	X10Tag[] firstSentenceTags, inlineTags;
 	
 	public X10Doc(String rawComment) {
 		this.rawComment = rawComment;
@@ -92,8 +92,12 @@ public class X10Doc implements Doc {
 		}
 		X10Tag[] declTags = createInlineTags(declString);
 
-		firstSentenceTags = concat(firstSentenceTags, declTags);
-		inlineTags = concat(inlineTags, declTags);
+		// firstSentenceTags = concat(declTags, firstSentenceTags);
+
+		// place declaration before the first sentence of the existing comment but do not add
+		// it to firstSentenceTags; this ensures that the declaration string is not displayed 
+		// in tables such as the "Class Summary" table
+		inlineTags = concat(declTags, inlineTags);
 		
 //		int len = inlineTags.length + declTags.length;
 //		X10Tag[] newTags = new X10Tag[len];
@@ -107,7 +111,7 @@ public class X10Doc implements Doc {
 //		inlineTags = newTags;
 	}
 
-    public X10Tag[] concat(X10Tag[] orig, X10Tag[] newTags) {
+    public static X10Tag[] concat(X10Tag[] orig, X10Tag[] newTags) {
     	int len = orig.length + newTags.length;
     	X10Tag[] result = new X10Tag[len];
     	int i;

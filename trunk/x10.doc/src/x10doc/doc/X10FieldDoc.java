@@ -11,6 +11,7 @@ import com.sun.javadoc.Type;
 
 public class X10FieldDoc extends X10Doc implements FieldDoc {
 	X10FieldDef fieldDef;
+	Type type;
 	X10ClassDoc containingClass;
 	X10RootDoc rootDoc;
 	
@@ -19,8 +20,33 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 		this.fieldDef = fd;
 		this.containingClass = containingClass;
 		this.rootDoc = X10RootDoc.getRootDoc();
+		this.type = rootDoc.getType(fieldDef.type().get());
 	}
 	
+	public void addDeclTag(String declString) {
+		if (declString == null) {
+			return;
+		}
+		X10Tag[] declTags = createInlineTags(declString);
+
+		// place declaration before the first sentence of the existing comment so that
+		// the declaration is displayed in the "Fields Summary" table before the first sentence
+		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
+		inlineTags = concat(declTags, inlineTags);
+	}
+
+	public String declString() {
+		// the X10 field declaration needs to be displayed in the field's comments only if the field type
+		// is X10-specific, or if the field has associated constraints
+		// TODO: look for constraints, include constraints in declaration string
+		if (X10Type.isX10Specific(type)) {
+			String result = "<B>Field Type</B>: <TT>" + fieldDef.type().get().toString() + 
+			                "</TT><PRE>\n</PRE>";
+			return result;
+		}
+		return "";
+	}
+
 	@Override
 	public String name() {
 		return fieldDef.name().toString();
@@ -57,9 +83,9 @@ public class X10FieldDoc extends X10Doc implements FieldDoc {
 	}
 
 	public Type type() {
-		System.out.println("FieldDoc(" + name() + ").type() called.");
+		// System.out.println("FieldDoc(" + name() + ").type() called.");
 		// return new X10Type(fieldDef.type().get());
-		return rootDoc.getType(fieldDef.type().get());
+		return type;
 	}
 
 	public boolean isSynthetic() {
