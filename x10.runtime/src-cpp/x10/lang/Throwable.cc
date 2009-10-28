@@ -82,7 +82,10 @@ x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
 
 
 ref<String> Throwable::toString() {
-    return String::Steal(alloc_printf("%s: %s",_type()->name(),getMessage()->c_str()));
+    ref<String> message = getMessage();
+    if (message.isNull())
+        return String::Lit(_type()->name());
+    return String::Steal(alloc_printf("%s: %s",_type()->name(),message->c_str()));
 }
 
 
