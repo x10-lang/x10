@@ -9,6 +9,7 @@ struct Pair[X,Y] {
   public def this(a:X, b:Y) { x = a; y = b; }
 
   public def toString() = "<"+x+", "+y+">";
+  public def typeName() = "Pair";
 
   public def first() = x;
   public def second() = y;

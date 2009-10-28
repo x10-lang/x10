@@ -9,6 +9,7 @@ struct S1 implements Sum {
   val y:int;
   const FF:int = S1(100,200).sum();
 
+  public def typeName() = "S1";
   public def this(a:int, b:int) { x = a; y = b; }
 
   public final def sum() = x + y;

@@ -8,6 +8,7 @@ struct S implements Sum {
   val x:int;
   val y:int;
 
+  public def typeName() = "S";
   public def this(a:int, b:int) { x = a; y = b; }
 
   public final def sum() = x + y;
