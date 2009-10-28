@@ -492,9 +492,9 @@ public class Closure_c extends Expr_c implements Closure {
 	    sb.append(formal.toString());
 	    if (iter.hasNext()) sb.append(", ");
 	}
-	sb.append("):");
+	sb.append(")");
 	sb.append(guard);
-	sb.append(" ");
+	sb.append(": ");
 	sb.append(returnType.toString());
 	if (throwTypes.size() > 0) {
 	    sb.append("throws ");
