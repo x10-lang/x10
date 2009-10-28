@@ -8,10 +8,9 @@
 import harness.x10Test;
 
 /**
- * Value class test:
+ * Struct test:
  *
- * == for value class instances should be implemented by deep
- * recursive, field by field, comparison.
+ * == for structs is structural equality
  *
  * @author kemal, 12/2004
  */
