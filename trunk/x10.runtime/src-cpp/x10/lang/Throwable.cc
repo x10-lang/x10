@@ -174,9 +174,9 @@ ref<Throwable> Throwable::fillInStackTrace() {
 // and the value of the program counter (addr).
 void extract_frame (const char *start, char * &filename, char * &symbol, size_t &addr) {
     // arbitrary_text + "(" + symbol + "+0x" + hex_offset + ") [0x" + address +"]"
-    char *lparen = strrchr(start,'(');
-    char *plus = strrchr(start,'+');
-    char *x = strrchr(start,'x');
+    const char *lparen = strrchr(start,'(');
+    const char *plus = strrchr(start,'+');
+    const char *x = strrchr(start,'x');
 
     if (lparen==NULL || plus==NULL || x==NULL) {
         filename = NULL;
