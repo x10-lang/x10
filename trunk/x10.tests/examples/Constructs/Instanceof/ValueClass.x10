@@ -11,13 +11,12 @@ import harness.x10Test;
  * Purpose: Checks variable name shadowing works correctly.
  * @author vcave
  **/
-public value ValueClass(p:int) implements X10InterfaceOne {
-
+public struct ValueClass(p:int) implements X10InterfaceOne {
 	
 	public def this(p:int):ValueClass{self.p==p} = {
 	    property(p);
 	}
+	public def typeName()="ValueClass";
 
 	public  def interfaceMethod():void  = {}
-
 }
