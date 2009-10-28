@@ -15,15 +15,17 @@ import harness.x10Test;
  */
 public class ConditionalAtomicQueue extends x10Test {
 
-	private val siz: int = 3;
-	private val Q: Rail[T]; // The circular buffer
+	private val siz: int;
+	private val Q: Rail[T]!; // The circular buffer
 	private var nelems: int; // number of items in buffer Q
 	private var tail: int; // next free slot to insert incoming items
 	// at tail of queue
 	private var head: int; // pointer to item to remove from the front
 
 	public def this(): ConditionalAtomicQueue = {
-		Q = Rail.makeVar[T](siz);
+                val sz = 3;
+		Q = Rail.makeVar[T](sz);
+                siz = sz;
 		nelems = 0;
 		tail = 0;
 		head = 0;
@@ -72,17 +74,17 @@ public class ConditionalAtomicQueue extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val N: int = T.N;
-		val NP: int = Place.MAX_PLACES;
-		val D2: Dist = MyDist.val(N*NP);
-		val received: Array[int] = Array.make[int](D2);
+		val N = T.N;
+		val NP = Place.MAX_PLACES;
+		val D2  = MyDist.val(N*NP);
+		val received = Array.make[int](D2);
 
 		finish {
 			// spawn producer activities on each place
 			async( this.location )
 				ateach (val (i): Point in MyDist.unique()) {
 					for (val (j): Point in [0..N-1]) {
-						val t: T = new T(i, j); // produce a T
+						val t = new T(i, j); // produce a T
 						async(this.location) {
 							when (!full()) { insert(t); }
 						}
@@ -93,9 +95,9 @@ public class ConditionalAtomicQueue extends x10Test {
 				for (val p in D2.region) {
 					var t: Box[T];
 					when (!empty()) { t = remove(); }
-					val t1: T = t as T;
+					val t1 = t.value;
 					async(t1.location) { t1.consume(); } // consume the T
-					val m: int = (future(t1.location) t1.getval()).force();
+					val m = at (t1.location) t1.getval();
 					received(m) += 1;
 					// remember how many times
 					// we received this item
@@ -104,7 +106,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		}
 
 		// Ensure all messages were received exactly once
-		for (val p: Point in D2) chk(received(p) == 1);
+		for (val p in D2.region) chk(received(p) == 1);
 
 		// Ensure the FIFO queue is empty now
 		chk(empty());
@@ -125,7 +127,7 @@ public class ConditionalAtomicQueue extends x10Test {
 
 		var val: int; // the id of the item
 
-		def this(var i: int, var j: int): T = { // produce a T
+		def this(var i: int, var j: int) = { // produce a T
 			val = N*i+j;
 		}
 
@@ -142,20 +144,20 @@ public class ConditionalAtomicQueue extends x10Test {
 		/**
 		 * create a simple 1D blocked dist
 		 */
-		static def block(var arraySize: int): Dist = {
+		static def block(var arraySize: int) = {
 			return Dist.makeBlock(0..(arraySize-1), 0);
 		}
 		/**
 		 * create a unique dist (mapping each i to place i)
 		 */
-		static def unique(): Dist = {
+		static def unique() =  {
 			return Dist.makeUnique(Place.places);
 		}
 
 		/**
 		 * create a constant-Here dist
 		 */
-		static def val(var arraySize: int): Dist = {
+		static def val(var arraySize: int) = {
 			return [0..(arraySize-1)]->here;
 		}
 	}
