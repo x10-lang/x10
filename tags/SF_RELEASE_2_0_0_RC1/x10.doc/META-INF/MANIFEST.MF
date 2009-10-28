@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: x10.doc
+Bundle-SymbolicName: x10.doc
+Bundle-Version: 0.1.0
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: x10.common;bundle-version="1.7.5",
+ x10.compiler;bundle-version="1.7.5",
+ x10.constraints;bundle-version="1.7.5",
+ x10.runtime;bundle-version="1.7.5",
+ polyglot3;bundle-version="3.1.0",
+ lpg.runtime;bundle-version="2.0.17"

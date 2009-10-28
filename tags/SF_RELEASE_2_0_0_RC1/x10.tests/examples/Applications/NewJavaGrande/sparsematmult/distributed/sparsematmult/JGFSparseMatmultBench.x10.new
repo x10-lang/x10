@@ -1,0 +1,166 @@
+/**************************************************************************
+*                                                                         *
+*         Java Grande Forum Benchmark Suite - Thread Version 1.0          *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         *
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*      adapted from SciMark 2.0, author Roldan Pozo (pozo@cam.nist.gov)   *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 2001.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+package sparsematmult;
+
+import jgfutil.*;
+import java.util.Random;;
+
+public class JGFSparseMatmultBench extends SparseMatmult implements JGFSection2 {
+
+	public var nthreads: int;
+
+	private var size: int;
+	private const RANDOM_SEED: long = 10101010;
+
+	// reduced data sizes for test suite
+	//private static final int[] datasizes_M = { 50000, 100000, 500000 };
+	private const datasizes_M: Array[int] = { 100, 100000, 500000 };
+	//private static final int[] datasizes_N = { 50000, 100000, 500000 };
+	private const datasizes_N: Array[int] = { 100, 100000, 500000 };
+	//private static final int[] datasizes_nz = { 250000, 500000, 2500000 };
+	private const datasizes_nz: Array[int] = { 500, 500000, 2500000 };
+	private const SPARSE_NUM_ITER: int = 200;
+
+	val R: Random = new Random(RANDOM_SEED);
+
+	var x: Array[double];
+	var val: Array[double];
+	var col: Array[int];
+	var row: Array[int];
+	var lowsum: Array[int];
+	var highsum: Array[int];
+
+	var y: Array[double];
+
+	public def this(): JGFSparseMatmultBench = {
+		this.nthreads = place.MAX_PLACES;
+	}
+
+	public def JGFsetsize(var size: int): void = {
+		this.size = size;
+	}
+
+	public def JGFinitialise(): void = {
+		final val ds_N: int = datasizes_N(size);
+		final val ds_M: int = datasizes_M(size);
+		final val ds_nz: int = datasizes_nz(size);
+		final val r_nz: region = [0..ds_nz-1];
+		final val r_nthreads: region = [0..nthreads-1];
+		final val d_M: dist = distmakeBlock([0..ds_M-1], place.places);
+
+		final val xin: Array[double] = init(new Array[double](ds_N), R);
+		x = new Array[double](Dist.makeConstant([0..xin.length-1], here), (var point [i]: point): double => { return xin(i); });
+		//x = doubleArray.factory.doubleValueArray(xin); // value array.
+		y = new Array[double](d_M);      // distributed -- cvp
+
+		var ilow: Array[int] = new Array[int](nthreads);
+		var iup: Array[int] = new Array[int](nthreads);
+		var sum: Array[int] = new Array[int](nthreads+1);
+		final val rowt: Array[int] = new Array[int](ds_nz);
+		final val colt: Array[int] = new Array[int](ds_nz);
+		final val valt: Array[double] = new Array[double](ds_nz);
+		var sect: int = (ds_M + nthreads-1)/nthreads;
+
+		var rowin: Array[int] = new Array[int](ds_nz);
+		var colin: Array[int] = new Array[int](ds_nz);
+		var valin: Array[double] = new Array[double](ds_nz);
+		final val lowsumin: Array[int] = new Array[int](nthreads);
+		final val highsumin: Array[int] = new Array[int](nthreads);
+
+		for (val (i): point in [0..ds_nz-1]) {
+			rowin(i) = Math.abs(R.nextInt()) % ds_M;
+			colin(i) = Math.abs(R.nextInt()) % ds_N;
+			valin(i) = R.nextDouble();
+		}
+
+		// reorder arrays for parallel decomposition
+
+		for (val (i): point in r_nthreads) {
+			ilow(i) = i*sect;
+			iup(i) = ((i+1)*sect)-1;
+			if (iup(i) > ds_M) iup(i) = ds_M;
+		}
+
+		for (val (i]: point in r_nz) for (val point [j): point in r_nthreads) if ((rowin(i) >= ilow(j)) && (rowin(i) <= iup(j)))
+					sum(j+1)++;
+
+		for (val (j]: point in r_nthreads) for (val point [i): point in [0..j]) {
+				lowsumin(j) +=  sum(j-i);
+				highsumin(j) +=  sum(j-i);
+			}
+
+		for (val (i]: point in r_nz) for (val point [j): point in r_nthreads) if ((rowin(i) >= ilow(j)) && (rowin(i) <= iup(j))) {
+					rowt(highsumin(j)) = rowin(i);
+					colt(highsumin(j)) = colin(i);
+					valt(highsumin(j)) = valin(i);
+					highsumin(j)++;
+				}
+
+		row = new Array[int](Dist.makeConstant([0..rowt.length-1], here), (var point [i]: point): int => { return rowt(i); });
+		col = new Array[int](Dist.makeConstant([0..colt.length-1], here), (var point [i]: point): int => { return colt(i); });
+		val = new Array[double]([0..valt.length-1]->here), (var point [i]: point): double => { return valt(i); });
+		lowsum = new Array[int](Dist.makeConstant([0..lowsumin.length-1], here), (var point [i]: point): int => { return lowsumin(i); });
+		highsum = new Array[int](Dist.makeConstant([0..highsumin.length-1], here), (var point [i]: point): int => { return highsumin(i); });
+		//row = intArray.factory.intValueArray(rowt);
+		//col = intArray.factory.intValueArray(colt);
+		//val = doubleArray.factory.doubleValueArray(valt);
+		//lowsum = intArray.factory.intValueArray(lowsumin);
+		//highsum = intArray.factory.intValueArray(highsumin);
+	}
+
+	public def JGFkernel(): void = {
+		SparseMatmult.test(y, val, row, col, x, SPARSE_NUM_ITER, lowsum, highsum);
+	}
+
+	public def JGFvalidate(): void = {
+		//double refval[] = { 75.02484945753453, 150.0130719633895, 749.5245870753752 };
+		double var refval: Array[double] = { 0.1436496372119012, 150.0130719633895, 749.5245870753752 };
+		var dev: double = Math.abs(ytotal.val - refval(size));
+		if (dev > 1.0e-10) {
+			System.out.println("Validation failed");
+			System.out.println("ytotal = " + ytotal.val + "  " + dev + "  " + size);
+			throw new Error("Validation failed");
+		}
+	}
+
+	public def JGFtidyup(): void = {
+		System.gc();
+	}
+
+	public def JGFrun(var size: int): void = {
+		JGFInstrumentor.addTimer("Section2:SparseMatmult:Kernel", "Iterations", size);
+
+		JGFsetsize(size);
+		JGFinitialise();
+		JGFkernel();
+		JGFvalidate();
+		JGFtidyup();
+
+		JGFInstrumentor.addOpsToTimer("Section2:SparseMatmult:Kernel", (double) (SPARSE_NUM_ITER));
+
+		JGFInstrumentor.printTimer("Section2:SparseMatmult:Kernel");
+	}
+
+	private static def init(var a: Array[double], var R: java.util.Random): Array[double] = {
+		for (val (i): point in [0..a.length-1]) a(i) = R.nextDouble() * 1e-6;
+		return a;
+	}
+}
