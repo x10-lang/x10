@@ -18,7 +18,7 @@ import harness.x10Test;
 public class BoxArrayAssign extends x10Test {
 
     public def run(): boolean = {
-        val table = Array.make[Box[Value]](1..5->here, (Point)=>(null as Box[Value]));
+        val table = Array.make[Box[Complex]](1..5->here, (Point)=>(null as Box[Complex]));
         foreach (val p: Point(1) in table) table(p) = null;
         return true;
     }
