@@ -14,7 +14,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
-import x10.types.ClosureType;
+import x10.types.FunctionType;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType;
@@ -243,11 +243,11 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //		}
 		X10ClassDef classDef = (X10ClassDef) t.toClass().def();
 		if (t instanceof X10ParsedClassType) {
-			// a ClosureType is an X10ParsedClassType where the type arguments (params) are 
+			// a FunctionType is an X10ParsedClassType where the type arguments (params) are 
 			// the types of the closure's parameters and the return type of the closure
 			// earlier test: "if (((X10ParsedClassType)t).typeArguments().size() > 0)"; this earlier test 
 			// includes all closures except closures with 0 arguments, hence the instanceof test
-			if ((t instanceof ClosureType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
+			if ((t instanceof FunctionType) || (((X10ParsedClassType)t).typeArguments().size() > 0)) {
 				return new X10ParameterizedType((x10.types.X10Type)t, methodTypeVars, false);
 			}
 			return getUnspecClass(classDef);
