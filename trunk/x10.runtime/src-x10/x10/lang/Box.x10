@@ -3,7 +3,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public class Box[+T](value: T) {
+public final class Box[+T](value: T) {
     public def this(x: T) { property(x); }
 
     public def hashCode(): int = value.hashCode();
