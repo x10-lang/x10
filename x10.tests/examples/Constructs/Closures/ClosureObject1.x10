@@ -5,8 +5,6 @@ import harness.x10Test;
 
 
 /**
- * Closures, like all first-class functions in X10 are objects
- * (§4.6.1).
  *
  * @author bdlucas 8/2008
  */
@@ -15,7 +13,7 @@ public class ClosureObject1 extends ClosureTest {
 
     public def run(): boolean = {
         
-        f:Object = ()=>1;
+        val f = ()=>1;
         check("(f as ()=>int)()", (f as ()=>int)(), 1);
 
         return result;
