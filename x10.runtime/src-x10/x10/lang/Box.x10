@@ -19,7 +19,7 @@ public class Box[+T](value: T) {
             return value.equals(y);
         }
         if (x instanceof Box[T]) {
-            val y = (x as Box[T]) as T;
+            val y = (x as Box[T]).value;
             return value.equals(y);
         }
         return false;
