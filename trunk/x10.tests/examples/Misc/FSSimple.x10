@@ -7,20 +7,9 @@
  * @author bdlucas
  */
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 import x10.util.Timer;
 
 public class FSSimple {
-
-    @Native("java", "x10.io.Console.OUT.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
-    public static native def println(x:String):void;
-
-    @Native("java", "x10.io.Console.OUT.printf(#1,#2)")
-    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
-    public static native def printf(x:String, o:Object):void;
 
     const MEG = 1024*1024;
     const alpha = 3.0D;
@@ -36,7 +25,7 @@ public class FSSimple {
 
     public def run():Boolean {
 
-        val verified: Rail[boolean] = [true];
+        val verified: Rail[boolean]! = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
         val N0 = DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
@@ -79,6 +68,8 @@ public class FSSimple {
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;
+
+    static def println(s:String) = Console.OUT.println(s);
 
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
