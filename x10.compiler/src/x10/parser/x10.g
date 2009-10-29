@@ -310,7 +310,6 @@
     type
     unsafe
     val
-    value
     var
     volatile
     when
@@ -1433,7 +1432,7 @@ public static class MessageHandler implements IMessageHandler {
 
 
     ------------------------------------- Section ::: Classes
-    ClassDeclaration ::= ValueClassDeclaration
+    ClassDeclaration ::= StructDeclaration
                        | NormalClassDeclaration
         
     NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
@@ -1451,21 +1450,8 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
-        /.$BeginJava
-        checkTypeName(Identifier);
-                    List TypeParametersopt = TypeParamsWithVarianceopt;
-        List props = Propertiesopt;
-        DepParameterExpr ci = WhereClauseopt;
-        ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-        extractFlags(ClassModifiersopt, X10Flags.VALUE), Identifier,  TypeParametersopt,
-        props, ci, Superopt, Interfacesopt, ClassBody));
-        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
-        setResult(cd);
-          $EndJava
-        ./
 
-    ValueClassDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
+    StructDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(Identifier);
                     List TypeParametersopt = TypeParamsWithVarianceopt;
@@ -2514,11 +2500,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
           $EndJava
         ./
-                    | value
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.VALUE)));
-          $EndJava
-        ./
         
     TypeDefModifiers ::= TypeDefModifier
         /.$BeginJava
@@ -3090,22 +3071,22 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.Block(pos(), LastExpression));
           $EndJava
         ./
-                  | = { BlockStatementsopt LastExpression }
+                  | = Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
                     List l = new ArrayList();
                     l.addAll(BlockStatementsopt);
                     l.add(LastExpression);
-                    setResult(nf.Block(pos(), l));
+                    setResult((Block) ((X10Ext) nf.Block(pos(),l).ext()).annotations(Annotationsopt));
           $EndJava
         ./
-                  | = Block
+                  | = Annotationsopt Block
         /.$BeginJava
-                    setResult(Block);
+                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
           $EndJava
         ./
-                  | Block
+                  | Annotationsopt Block
         /.$BeginJava
-                    setResult(Block);
+                     setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
           $EndJava
         ./
                       | ;
@@ -4893,7 +4874,7 @@ public static class MessageHandler implements IMessageHandler {
     Expr ::= PlaceExpression
     DepParameterExpr ::= WhereClauseopt
     DepParameterExpr ::= WhereClause
-    ClassDecl ::= ValueClassDeclaration
+    ClassDecl ::= StructDeclaration
     Object ::= Unsafeopt
     Now ::= NowStatement
     Async ::= AsyncStatement

@@ -144,7 +144,6 @@
     type  
     unsafe
     val
-    value
     var
     volatile
     when
@@ -307,11 +306,6 @@
               | u n s a f e
         /.$BeginAction
                     $setResult($_unsafe);
-          $EndAction
-        ./
-              | v a l u e
-        /.$BeginAction
-                    $setResult($_value);
           $EndAction
         ./
               | w h e n
