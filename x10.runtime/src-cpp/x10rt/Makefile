@@ -1,7 +1,7 @@
 
 CXX             ?= g++
 MPICXX          ?= mpicxx
-CXXFLAGS        ?= -g -O3 -ansi -pedantic -Wall -Wextra -Wno-long-long
+CXXFLAGS        ?= -g -O3 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused
 
 CXXFLAGS        += -I..
 LDFLAGS         += -Llib -lpthread
