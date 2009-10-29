@@ -159,6 +159,7 @@ class x10rt_req_queue {
                 exit(EXIT_FAILURE);
             }
         }
+        int length() { return len; }
         x10rt_req * start() {
             x10rt_req * r;
             if(pthread_mutex_lock(&lock)) {
@@ -900,6 +901,9 @@ void x10rt_finalize (void)
 {
     assert(global_state.init);
     assert(!global_state.finalized);
+    while(global_state.pending_list.length() > 0) {
+        x10rt_probe();
+    }
     if(MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         exit(EXIT_FAILURE);
