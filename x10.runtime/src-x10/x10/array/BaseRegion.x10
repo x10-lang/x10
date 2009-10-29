@@ -188,8 +188,10 @@ abstract public class BaseRegion extends Region {
 
     public global def equals(that:Object):boolean {
 	if (!(that instanceof Region)) return false;
-        val t = that as Region(rank);
-        return this.contains(t) && t.contains(this);
+	val t1 = that as Region;
+	if (rank != t1.rank) return false;
+        val t2 = t1 as Region(rank);
+        return this.contains(t2) && t2.contains(this);
     }
 
 
