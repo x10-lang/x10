@@ -1,6 +1,12 @@
-value LocalTable {
-    
-    val a: Array[long];
+/*
+ * Random Access, using Array[Array[long]] as the backing data
+ * structure for the data. This is much less efficient than
+ * the approach taken in FRASimpleDist, which uses 
+ * PlaceLocalHandle[Rail[long]] to access the data.
+ */
+
+class LocalTable {
+    val a:Array[long](1)!;
     val mask: int;
     
     def this(size:int) {
@@ -49,7 +55,7 @@ public class FRA {
     static def randomAccessUpdate(
         NUM_UPDATES: long,
         logLocalTableSize: long,
-        tables: Array[LocalTable]
+        tables: Array[LocalTable](1)
     ) {
         finish ateach((p):Point in Dist.makeUnique()) {
             var ran:long = HPCC_starts(p*(NUM_UPDATES/NUM_PLACES));
@@ -86,7 +92,7 @@ public class FRA {
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
 	val result = Array.make[Int](Dist.makeUnique(), (Point)=>0);
         for (p:Place in Place.places) async(p) {
-            val l = tables(p.id);
+            val l = tables(p.id) as LocalTable!;
             for ((q):Point in l.a) if (l.a(q) != q) result(p.id)++;
         }
 	return result.reduce(Int.+,0)==0;

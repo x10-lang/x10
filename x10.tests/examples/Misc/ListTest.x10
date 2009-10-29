@@ -14,19 +14,19 @@ public class ListTest extends x10Test {
 	public static class List {
 		public val n: int;
 		protected var value: Int;
-		protected var tail: List;
+		protected var tail: List!;
   
-		public def this(o: Int, t: List): List = {
+		public def this(o: Int, t: List!) {
 			n=t.n+1;
 			tail = t;
 			value = o;
 		}
-		public def this(): List = {
+		public def this() {
 			n=0;
 			value=0;
 			tail=null;
 		}
-		public def append(l: List): List = {
+		public def append(l: List!) = {
 			return (n==0)? l : new List(value, tail.append(l)); // this cast should not be needed.
 		}
 		public def nth(k: int): Int = {
@@ -34,7 +34,7 @@ public class ListTest extends x10Test {
      
 		}
  
-		public def gen(k: int): List = {
+		public def gen(k: int) = {
 			return k==0 ? new List() : new List(k, gen(k-1));
 		}
 	}
