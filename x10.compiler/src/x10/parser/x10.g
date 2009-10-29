@@ -3086,7 +3086,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
                   | Annotationsopt Block
         /.$BeginJava
-                     setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
+                    setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt));
           $EndJava
         ./
                       | ;
