@@ -1,0 +1,268 @@
+\section{Structs}
+\label{XtenStructs}
+\label{StructClasses}
+\label{Structs}
+\index{structs}
+
+An instance of a class \Xcd{C} (an \emph{object} ) is represented in \Xten{} as
+a contiguously allocated chunk of words in the heap, containing the
+fields of the object as well as one or more words used in method
+lookup (itable/vtable). Variables with base type \Xcd{C} (or a supertype of
+\Xcd{C}) are implemented as cells with enough memory to hold a
+\emph{reference} to the object. The size of a reference (32 bits or 64
+bits) depends on the underlying operating system.
+
+
+For many high-performance programming idioms, the overhead of one
+extra level of indirection represented by an object is not
+acceptable. For instance, a programmer may wish to define a type
+\Xcd{Complex} (consisting of two double fields) and require that instances
+of this type be represented precisely as these two fields. A variable
+or field of type complex should, therefore, contain enough space to
+store two doubles. An array of complex of size \Xcd{N} should store \Xcd{2*N}
+doubles. Method invocations should be resolved statically so that
+there is no need to store vtable/itable words with each
+instance. Parameters of type complex should be passed inline to a
+method as two doubles. If a method's return type is complex the method
+should return two doubles on the stack. Two values of this type should
+be equal precisely when the two doubles are equal (structural
+equality).
+
+
+\Xten{} supports the notion of \emph{structs} which are precisely
+objects that can be implemented inline with a contiguous chunk of
+memory representing their fields, without any vtable/itable. Structs
+are introduced by struct definitions. struct definitions look very
+similar to class definitions, but have additional restrictions.
+
+\subsection{Structs}
+ \Xten{} supports user-defined primitives (called
+ \emph{structs}). Like classes, structs define zero or more fields and
+ zero or more methods, and may implement zero or more interfaces. A
+ struct has the same modifiers as a class. However, structs are
+ implicitly final and do \emph{not} participate in any code
+ inheritance relation. (This makes structs very easy to implement,
+ without vtables.)
+
+ \begin{x10}
+Modifiers struct C[X1,..., Xn](p1:T1,..., pn:Tn){c} 
+   implements I1, ..., Ik { 
+  Body
+}
+\end{x10}
+
+Each field and method in a struct is implicitly marked \Xcd{global}.  
+
+The size of a variable of struct type \Xcd{C} is the size of the fields
+defined at \Xcd{C} (up to alignment considerations). No extra space is
+allocated for a vtable or an itable. This means that unlike classes,
+structs cannot be defined recursively. That is, a struct \Xcd{S} cannot
+contain a field of type \Xcd{S}, or a field of struct type \Xcd{T} which,
+recursively, contains a field of type \Xcd{S}.
+
+ \begin{itemize}
+\item More precisely, we require that the set of \emph{size equations}
+  for all structs and classes must have a unique solution. A size
+  equation for a struct \Xcd{S} is defined as follows. Assume \Xcd{S} has $m$ fields
+  of type \Xcd{Si} (for $i$ in $0,\ldots, m-1$), and $n$ fields of type (class) \Xcd{Cj}
+  (for $j$ in $0,..., n-1$). Then the size equation for \Xcd{S} is 
+\begin{x10}
+size(S) =  size(S0) + ... + size(Sm-1)+ size(C0) + ... + size(Cn-1) 
+\end{x10}
+The size
+  equation for a class \Xcd{C} is just \Xcd{size(C) = AddressSize}, where
+  \Xcd{AddressSize} is a compile-time parameter.
+\end{itemize}
+
+Values of a struct \Xcd{C} type can be created by invoking a constructor
+defined in \Xcd{C}, but without prefixing it with \Xcd{new}.
+
+Constrained types can be built on top of the base \Xcd{C} in the same way as
+they can be built on top of a class \Xcd{D}. In struct \Xcd{C[T1,..., Tn]\{c\}},
+the type of \Xcd{self} in \Xcd{c} is \Xcd{C[T1,..., Tn]}.
+
+
+Even if struct \Xcd{C} implements an interface \Xcd{I}, a value of
+type \Xcd{C} cannot be assigned to a variable of type
+\Xcd{I}.\footnote{ The size of a \Xcd{C} is the size of the fields
+  defined at \Xcd{C} (as discussed above), whereas the size of a
+  variable of type \Xcd{I} is always \Xcd{AddressSize} (i.e.{}
+  variables of interface types can only contain objects, not structs).
+} The programmer may wish to define coercions
+(\Sref{User-definedCoercions}) to coerce a struct to an interface,
+typically by boxing.
+
+However,
+if \Xcd{C} implements an interface \Xcd{I}, all the methods and properties defined
+on \Xcd{I} must be implemented by \Xcd{C} and can hence be invoked/accessed on a
+value of type \Xcd{C}. 
+
+\subsubsection{Struct equality}
+
+Unlike objects, structs do not have global identity. Instead, two
+structs are equal (\Xcd{==}) if and only if their corresponding fields are
+equal (\Xcd{==}). This is the central property of structs.
+
+\subsubsection{Interfaces implemented by structs}
+Structs are not required to implement any interface. Structs intended
+to be used in collections such as hashtables should implement
+\Xcd{Equality}:
+\begin{x10}
+package x10.lang;  
+
+public interface Equality {
+    def equals(Top):boolean;
+    def hashCode():int;
+}
+\end{x10}
+Structs are required to implement the following methods: 
+\begin{x10}
+  global def typeName():String;
+  global def toString():String;  
+\end{x10}
+These methods are defined automatically if they are not supplied by the programmer.
+
+Structs have the following methods implicitly defined on them:
+\begin{x10}
+  global def loc()=here;
+  global def loc(p:Place)=true;
+  global def loc(O:Object)=true;
+\end{x10}
+
+The operations \Xcd{==} and \Xcd{!=} are available on structs, and
+correspond to performing these operations componentwise.
+
+Expressions  of a struct type may be used in \Xcd{instanceof} and \Xcd{class-cast} tests.
+
+\subsection{``Primitives''}
+
+The package x10.lang provides the following structs. Most of the functionality of these structs is implemented natively. 
+\begin{x10}
+boolean, char, 
+byte, short, int, long
+float, double
+ubyte, ushort, uint, ulong
+\end{x10}
+ 
+  
+\subsection{Generic programming with structs}
+
+An unconstrained type variable \Xcd{X} can be instantiated with \Xcd{Object} or
+its subclasses or structs.
+
+Within a generic class, all pre-defined operations
+are available on a variable of type
+\Xcd{X}. For instance, variables of \Xcd{X} may be used with \Xcd{==, !=},
+\Xcd{instanceof}, casts etc
+
+The programmer must be aware of the different interpretations of
+equality for structs and classes and ensure that the code is correctly
+written for both cases. If necessary the programmer can write code
+that distinguishes between the two cases (a type parameter \Xcd{X} is
+instantiated to a struct or not) as follows:
+
+
+\begin{x10}
+val x:X = ...;
+if (x instanceof Object) { // x is a real object
+   val x2 = x as Object; // this cast will always succeed.
+   ...
+} else { // x is a struct
+   ...
+}
+\end{x10}
+ 
+  
+\subsubsection{The class Box[T]}
+
+  This class is defined as follows: 
+
+\begin{x10}
+package x10.lang;
+class Box[T](value:T) implements () => T {
+   public def this(v:T) { property(v);}
+   public def apply() = v;
+   public static def get[T](x:Box[T], default:T) = x==null? default: x();
+   public static operator (v:T)=new Box(v);
+}
+\end{x10}
+
+
+Thus if \Xcd{x:Box[T]}, then \Xcd{x():T}. Note the evaluation of \Xcd{x()} may
+throw a \Xcd{NullPointerException}. The programmer may wish to use
+\Xcd{Box.get(x, t)}, providing a default value to use if \Xcd{x == null}.
+
+ Notice that \Xcd{Box[T]} does not implement any interfaces, even
+ though \Xcd{T} might.
+  
+\section{Programming Methodology}
+
+ A programmer should by default organize his/her code in a class
+ hierarchy, providing structs only in those well-thought situations
+ where concrete types are appropriate.
+
+ \subsection{Examples}
+
+Here is an abbreviated program for \Xcd{Complex}:
+\begin{x10}
+struct complex implements Equality {
+  val r: int;
+  val i: int;
+  def this(x: int, y: int) {
+    this.r=x;
+    this.i=y;
+  }
+  def toString()= x + " i*" + y;
+  def r()=r;
+  def i()=i;  
+  final def hashCode() = r+i;
+  final def equals(o:complex) = this==o;
+  final operator this + (o:complex) = complex(r+o.r,i+o.i);
+  final operator this * (o:complex) = complex(r*o.r-i*o.i,r*o.i+i*o.r);
+  final operator - this = complex(-r,-i);
+}
+\end{x10}
+ 
+
+An example illustrating pairing:
+
+\begin{x10}
+struct pair[S,T] implements Equality {
+  val x: S;
+  val y: T;
+  def this(x: S, y: T) {
+    this.x=x;
+    this.y=y;
+  }
+  def x()=x;
+  def y()=y;  
+  final def hashCode() = x.hashCode() + y.hashCode();
+  final def equalsX[U](o:pair[S,U]) = x==o.x;
+  final def equalsY[U](o:pair[U,Y]) = y==o.y;
+  final def equals(o:pair[S,T]) = this==o;
+}
+\end{x10}
+
+The following types all make sense: 
+\begin{itemize}
+\item \Xcd{Pair[Complex, String]}: A struct with two fields, one inlined field of type \Xcd{complex} and another of type \Xcd{String}. 
+\item \Xcd{Pair[complex, int]}: A class whose objects have size
+  \Xcd{sizeof(complex)+sizeofRef()} (the state of complex is
+  ``inlined'').
+\end{itemize}
+\emph{EndOfExample.}
+
+
+\section{Compatibility Note}
+
+A value class in \Xten{} v1.7 can often be translated into a struct in \Xten{} 2.0. The crucial conditions to be checked manually are: \begin{itemize}
+\item  A struct is of bounded size. 
+\item  Each method is global. 
+\item  The class is final.
+\end{itemize}
+ 
+
+If these conditions are not met, the value class should be converted
+into a class with \Xcd{global} fields and methods.
+
+  
