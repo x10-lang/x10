@@ -1,6 +1,3 @@
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 import x10.io.Console;
 
 import x10.util.Timer;
