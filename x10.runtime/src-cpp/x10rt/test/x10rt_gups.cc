@@ -87,7 +87,7 @@ static void recv_dist (const x10rt_msg_params &p) {
 static void do_update (unsigned long long index, unsigned long long update) {
     localTable[index] ^= update;
 
-    #if defined(NO_REMOTE_XOR) && !defined(NO_FINISH)
+    #if defined(NO_REMOTE_XOR)
     decrement(0);
     #endif
 }
@@ -206,11 +206,9 @@ void runBenchmark (unsigned long long logLocalTableSize,
         x10rt_send_msg(params);
     }
     do_main(logLocalTableSize, numUpdates);
-    #if !defined(NO_FINISH) || !defined(NO_REMOTE_XOR)
     while (pongs_outstanding) {
          x10rt_probe();
     }
-    #endif
 } // }}}
 
 
