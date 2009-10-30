@@ -15,7 +15,7 @@ class XTENLANG_29 extends x10Test {
     
     class R {}
     
-    value class BD implements M[P,R] {
+    class BD implements M[P,R] {
         public def m(): M[P,R] = this;
         incomplete public def apply(P): R;
     }
