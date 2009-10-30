@@ -8,19 +8,20 @@
 import harness.x10Test;
 
 /**
- * The test checks that property syntax is accepted for value classes.
+ * The test checks that property syntax is accepted for structs
  *
  * @author vj
  */
 public class PropsMustBeVisibleToOtherPropsInValue extends x10Test {
 
-    static value Value2(i:int, j:int{self==i})  {
+    static struct Value2(i:int, j:int{self==i})  {
         public def this(k:int):Value2{self.i==k} = {
             property(k,k);
         }
+	public def typeName() = "Value2";
     }
     public def run():boolean = {
-        new Value2(4);
+        Value2(4);
         return true;
     }
     public static def main(var args: Rail[String]): void = {
