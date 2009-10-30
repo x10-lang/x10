@@ -843,7 +843,7 @@ void x10rt_remote_op_fence (void)
 
 void x10rt_probe (void)
 {
-    int arrived = 0;
+    int arrived;
     MPI_Status msg_status;
 
     assert(global_state.init);
@@ -854,42 +854,45 @@ void x10rt_probe (void)
         exit(EXIT_FAILURE);
     }
 
-    if(MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE, 
-                MPI_ANY_TAG, global_state.mpi_comm, 
-                &arrived, &msg_status)) {
-        fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-
-    /* Post recv for incoming message */
-    if(arrived && 
-            global_state._reserved_tag_put_data != msg_status.MPI_TAG) {
-        /* Don't need to post recv for incoming puts, they
-         * will be matched by X10RT_PUT_INCOMING_REQ handler */
-        void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
-        int tag = msg_status.MPI_TAG;
-        x10rt_req * req = global_state.free_list.popNoFail();
-        req->setBuf(recv_buf);
-        if(MPI_SUCCESS != MPI_Irecv(recv_buf, get_recvd_bytes(&msg_status), 
-                    MPI_BYTE, 
-                    msg_status.MPI_SOURCE, 
-                    msg_status.MPI_TAG,
-                    global_state.mpi_comm, 
-                    req->toMPI())) {
-            fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
+    do {
+        arrived = 0;
+        if(MPI_SUCCESS != MPI_Iprobe(MPI_ANY_SOURCE, 
+                    MPI_ANY_TAG, global_state.mpi_comm, 
+                    &arrived, &msg_status)) {
+            fprintf(stderr, "[%s:%d] Error probing MPI\n", __FILE__, __LINE__);
             exit(EXIT_FAILURE);
         }
-        if(tag == global_state._reserved_tag_get_req) {
-            req->setType(X10RT_GET_INCOMING_REQ);
-        } else if (tag == global_state._reserved_tag_put_req) {
-            req->setType(X10RT_PUT_INCOMING_REQ);
+
+        /* Post recv for incoming message */
+        if(arrived && 
+                global_state._reserved_tag_put_data != msg_status.MPI_TAG) {
+            /* Don't need to post recv for incoming puts, they
+             * will be matched by X10RT_PUT_INCOMING_REQ handler */
+            void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
+            int tag = msg_status.MPI_TAG;
+            x10rt_req * req = global_state.free_list.popNoFail();
+            req->setBuf(recv_buf);
+            if(MPI_SUCCESS != MPI_Irecv(recv_buf, get_recvd_bytes(&msg_status), 
+                        MPI_BYTE, 
+                        msg_status.MPI_SOURCE, 
+                        msg_status.MPI_TAG,
+                        global_state.mpi_comm, 
+                        req->toMPI())) {
+                fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
+                exit(EXIT_FAILURE);
+            }
+            if(tag == global_state._reserved_tag_get_req) {
+                req->setType(X10RT_GET_INCOMING_REQ);
+            } else if (tag == global_state._reserved_tag_put_req) {
+                req->setType(X10RT_PUT_INCOMING_REQ);
+            } else {
+                req->setType(X10RT_RECV);
+            }
+            global_state.pending_list.enqueue(req);
         } else {
-            req->setType(X10RT_RECV);
+            check_pending(&global_state.pending_list);
         }
-        global_state.pending_list.enqueue(req);
-    } else {
-        check_pending(&global_state.pending_list);
-    }
+    } while(arrived);
 
     if(pthread_mutex_unlock(&global_state.lock)) {
         perror("pthread_mutex_unlock");
