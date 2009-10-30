@@ -1,0 +1,57 @@
+\section{Functions}
+\label{Functions}
+\label{functions}
+\index{functions}
+
+The runtime entities in \Xten{} are of three kinds: \emph{structs},
+\emph{objects}, and \emph{functions}. This section is concerned with
+functions and their types -- how they are created, and what operations
+can be performed on them.
+
+Intuitively, a function is a piece of code which can be applied to a
+set of arguments to produce a value. (As in most programming
+languages, functions in \Xten{} are partial.)
+
+A \emph{closure literal expression} 
+\xcd"(x1:T1,..,xn:Tn)\{c\}:T=$>$e"
+creates a function of type \xcd"(x1:T1,...,xn:Tn)\{c\}:T" (\Sref{FunctionType}). The constraint
+clause \xcd"{c}" is optional and defaults to \xcd"{true}". In some cases the
+return type \Xcd{T} is also optional and defaults to the type of \Xcd{e}. If a
+formal \Xcd{xi} does not occur in \Xcd{Ti},\Xcd{c},\Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may be
+replaced by just \Xcd{Ti}. The body \Xcd{e} of such an expression is type-checked
+in an environment in which \Xcd{c} is true. At runtime, function execution
+results in the evaluation of \Xcd{e} in an environment in which each formal
+is bound to the given actual parameter.
+
+The \emph{method selector expression} \Xcd{e.m(T1,...,Tn)} is type
+correct only if it is the case that the static type of \Xcd{e} is a
+class or struct or interface with a method
+\Xcd{m(x1:T1,...xn:Tn)\{c\}:T} defined on it (for some
+\Xcd{x1,...,xn,c,T)}. At runtime the evaluation of this expression
+evaluates \Xcd{e} to a value \Xcd{v} and creates a function \Xcd{f}
+which, when applied to an argument list \Xcd{(a1,...,an)} (of the right
+type) yields the value obtained by evaluating \Xcd{v.m(a1,...,an)}.
+
+
+An object \Xcd{o} that is an instance of a class implementing a function
+type \Xcd{(x1:T1,...,xn:Tn)\{c\}:T} also behaves like a function. Indeed, an
+object may behave like any (fixed) number of functions, since the
+class it is an instance of may implement any (fixed) number of
+function types. Note again that while structs and objects have a
+notion of equality (\Xcd{==}), functions do not. Hence if one desires to use
+a function \Xcd{f} in an \Xcd{==} operation, it is necessary to first cast it to a
+class or struct type.
+
+
+  
+%\section{Implementation Notes}
+%\begin{itemize}
+%
+%\item Note that e.m.(T1,...,Tn) will evaluate e to create a
+%  function. This function will be applied later to given
+%  arguments. Thus this syntax can be used to evaluate the receiver of
+%  a method call ahead of the actual invocation. The resulting function
+%  can be used multiple times, of course.
+%\end{itemize}
+
+

@@ -411,6 +411,83 @@ constructor, and the conjunction of static types of the argument must
 entail the \grammarrule{Guard} in the parameter list of the constructor.
 \end{staticrule}
 
+\subsection{\Xcd{ proto} qualifier on types}
+\label{Prototypes}
+\index{proto}
+  Java and \Xten{} v1.7 permit \Xcd{this} to escape from a constructor before an
+  object is fully initialized. This means that fields can be read
+  before they are written into. This is a problem for the \Xten{} language
+  design since fields may have constrained types, and the default
+  value \Xcd{null} may not be a legal value for the type.
+  
+\subsubsection{Design goals}
+
+ \begin{itemize}
+\item  The design should guarantee that fields are read only after they are initialized. 
+\item  It should be possible to create immutable cyclic object graphs. 
+\begin{itemize}
+\item These typically require a constructor to be invoked with an
+  object under construction as an argument. Mutable cyclic graphs are
+  not a problem because the backpointer can always be initialized to
+  null and then changed later.
+\end{itemize}
+ 
+\item  It should be possible to call user-defined methods during object creation (so that the transformation between the values supplied as parameters to a constructor and the values actually placed in fields is arbitrary). 
+\item  The design should be minimally invasive. Most programmers should not have to be concerned about this problem. 
+\item  The design should not entail any runtime overhead.
+\end{itemize}
+ 
+\subsection{Qualifier definition}
+
+For every type \Xcd{T} (where \Xcd{T} is not a type variable), we introduce the
+  type \Xcd{proto T}. This is the set of all values \Xcd{v} of type \Xcd{T} that are
+  still being formed in that the constructor for the value has not yet
+  exited or the value points through its fields (transitively) to an
+  object that is still being formed. We say that \Xcd{v} is
+  \emph{incomplete} . Below, a `` proto type'' is a type \Xcd{proto T} for
+  some\Xcd{T}, and a `` proto value'' is a value \Xcd{v} whose static type is a
+  \Xcd{proto} type. \Xcd{proto} types are permitted to occur only as types of
+  method parameters or local variables or as return types for methods
+  and constructors; they may not occur in cast statements, extends or
+  implements clauses, or catch clauses.
+
+  Within a constructor for class \Xcd{C} the type of this is \Xcd{proto C}. 
+
+
+  We also permit instance methods of a class \Xcd{C} to be qualified with
+  \Xcd{proto}; the type of \Xcd{this} in such methods is \Xcd{proto C}.
+
+
+Below we say that an expression has a \Xcd{proto} type if its type is \Xcd{proto T} for some type \Xcd{T}. 
+
+
+  We list the rules for using a value \Xcd{v} of type \Xcd{proto T} (for some \Xcd{T}). 
+
+\begin{enumerate}
+\item \Xcd{proto} is covariant, i.e. \Xcd{S <: T} implies \Xcd{proto S <: proto T}. However, there is no connection between the types \Xcd{proto T} and \Xcd{T}; neither is a subtype of the other. 
+\item  The fields of \Xcd{v} cannot be read (that is \Xcd{v.f} is not a permissible r-value, even if the type of \Xcd{v} has a field named f). \begin{itemize}
+\item  This is the defining property of proto types.
+\end{itemize}
+ 
+\item \Xcd{v}'s (accessible) instance fields can be assigned. 
+\item \Xcd{v} can be assigned to instance fields of type \Xcd{S} (for \Xcd{T <: S}) provided that the receiver of the field assignment has a \Xcd{proto} type. 
+\item  If \Xcd{v} is the receiver of a method invocation, the method must be an instance method marked \Xcd{proto}. 
+\item \Xcd{v} can be passed as argument into a constructor or method call, or returned from a method. \begin{itemize}
+\item  The return type of a method taking an argument at a \Xcd{proto} type must be \Xcd{void} or a \Xcd{proto} type. The return type of a constructor taking an argument at a \Xcd{proto} type must be a \Xcd{proto} type.
+\end{itemize}
+ 
+\item A generic class (method) type parameter \Xcd{T} can be
+  instantiated with the type \Xcd{proto S} (where \Xcd{S} is not a type
+  parameter itself), provided that the class (method) body satisfies
+  the conditions above for \Xcd{proto S}.
+\end{enumerate}
+
+These conditions are checked statically by the compiler. 
+
+During code generation, the type \Xcd{proto T} is treated as if it were
+\Xcd{T}. That is, there is no run-time cost to proto types.
+
+
 \section{Field definitions}
 
 Not every instance of a class needs to have every field defined on the
@@ -529,6 +606,7 @@ and \xcd"D". This bears further investigation.
 
 \subsubsection{\Xcd{global} qualifier}
 \index{global!\xcd"global"}
+\label{global}
 
 A field may be declared \xcd"global".
 
