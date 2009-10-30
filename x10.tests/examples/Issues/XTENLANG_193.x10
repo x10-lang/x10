@@ -9,7 +9,7 @@ import harness.x10Test;
 
 class XTENLANG_193 extends x10Test {
 
-    public static final value class Bug[T]  {
+    public static final class Bug[T]  {
         private const x = Rail.makeVal[int](0, (nat)=>0);
     }
 
