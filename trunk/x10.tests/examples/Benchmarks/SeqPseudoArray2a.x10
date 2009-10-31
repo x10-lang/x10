@@ -27,7 +27,7 @@ public class SeqPseudoArray2a extends Benchmark {
     // the benchmark
     //
 
-    final static value Arr implements (int,int)=>double {
+    final static class Arr implements (int,int)=>double {
 
         val m0: int;
         val m1: int;

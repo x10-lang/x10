@@ -24,7 +24,7 @@ class SeqRandomAccess1 extends Benchmark {
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
 
-    final value LocalTable {
+    final class LocalTable {
     
         val a: Rail[long]!this.location;
         val mask: int;
