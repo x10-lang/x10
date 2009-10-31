@@ -8,13 +8,13 @@
 import harness.x10Test;
 
 /**
- * Check that a local method can be overridden only by a local method.
+ * Check that a global method can be overridden only by a global method.
  * @author vj  9/2006
  */
-public class LocalOverride_MustFailCompile extends x10Test {
+public class GlobalOverride_MustFailCompile extends x10Test {
 
     class T1 {
-      public local def m(): void = {
+      public global def m(): void = {
       }
     }
 
@@ -28,7 +28,7 @@ public class LocalOverride_MustFailCompile extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new LocalOverride_MustFailCompile().execute();
+		new GlobalOverride_MustFailCompile().execute();
 	}
 
 	
