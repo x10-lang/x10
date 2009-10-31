@@ -27,7 +27,7 @@ public class SeqPseudoArray2b extends Benchmark {
     // the benchmark
     //
 
-    final static value Arr[T] implements (int,int)=>T {
+    final static class Arr[T] implements (int,int)=>T {
 
         val m0: int;
         val m1: int;

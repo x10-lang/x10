@@ -20,11 +20,11 @@ public class SeqPseudoArray1 extends Benchmark {
     // the benchmark
     //
 
-    final static value Arr {
+    final static class Arr {
 
         val m0: int;
         val m1: int;
-        val raw: Rail[double]i!this.location;
+        val raw: Rail[double]!;
         
         def this(m0:int, m1:int) {
             this.m0 = m0;
