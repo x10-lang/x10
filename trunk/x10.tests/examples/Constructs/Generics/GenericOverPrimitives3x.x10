@@ -19,7 +19,7 @@ public class GenericOverPrimitives3x extends GenericTest {
             def get(i:nat) = t(i);
         }
 
-        a:A[String] = new A[String]("012");
+        a:A[String]! = new A[String]("012");
         check("a.get(1)", a.get(1), '1');
 
         return result;
