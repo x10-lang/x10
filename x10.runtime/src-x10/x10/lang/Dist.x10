@@ -71,6 +71,9 @@ public abstract class Dist(
     public static def makeCyclic(r: Region, axis: int): Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, 1);
 
+    public static def makeCyclic(r: Region): Dist(r)
+        = BaseDist.makeBlockCyclic1(r, 0, 1);
+
     /**
      * Returns a distribution over the specified region that varies in
      * place only along the specified axis. It divides the coordinates
@@ -318,11 +321,12 @@ public abstract class Dist(
     // ops
     //
 
-    public operator this | (r: Region(this.rank)): Dist(this.rank) = restriction(r);
-    public operator this | (p: Place): Dist(rank) = restriction(p);
-    public operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
-    public operator this || (d: Dist(rank)): Dist(rank) = union(d);
-    public operator this - (d: Dist(rank)): Dist(rank) = difference(d);
+    public global operator this | (r: Region(this.rank)): Dist(this.rank) 
+	= restriction(r);
+    public global operator this | (p: Place): Dist(rank) = restriction(p);
+    public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
+    public global operator this || (d: Dist(rank)): Dist(rank) = union(d);
+    public global operator this - (d: Dist(rank)): Dist(rank) = difference(d);
 
 
     //
