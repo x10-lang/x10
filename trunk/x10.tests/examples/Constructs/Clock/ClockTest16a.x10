@@ -39,11 +39,11 @@ public class ClockTest16a extends x10Test {
 
 	public def run(): boolean = {
 		try {
-		val x: X = new X();
+		val x: X! = new X();
 		finish async {
 			val c0 = Clock.make();
 			val c1 = Clock.make();
-			val ca: Rail[Clock] = [c0,c1];
+			val ca: Rail[Clock]! = [c0,c1];
 			(ca(0)).drop();
 
 			// Question:
@@ -86,7 +86,7 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			val fooArray: Rail[foo] = [f0,f1];
+			val fooArray: Rail[foo]! = [f0,f1];
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error
@@ -160,7 +160,7 @@ public class ClockTest16a extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public var z: Rail[int] = [1,0];
+		public var z: Rail[int]! = [1,0];
 		def zero(): int = { return z(z(z(1))); }
 		def one(): int = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }
