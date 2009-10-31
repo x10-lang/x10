@@ -8,12 +8,12 @@
 import harness.x10Test;
 
 /**
- * Check that the local annotation is recognized.
+ * Check that the global annotation is recognized.
  * @author vj  9/2006
  */
-public class Local extends x10Test {
+public class Global extends x10Test {
 
-    public local def m(): void = { }
+    public global def m(): void = { }
 
 	public def run(): boolean = {
 		m();
@@ -21,7 +21,7 @@ public class Local extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new Local().execute();
+		new Global().execute();
 	}
 
 	
