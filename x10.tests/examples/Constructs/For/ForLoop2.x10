@@ -45,10 +45,10 @@ public class ForLoop2 extends x10Test {
 	 */
 	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
-		val p = prev to Point;
-		var i: int = prev(0);
-		var j: int = prev(1);
-		var k: int = prev(2);
+		val pt = prev as Point;
+		var i: int = pt(0);
+		var j: int = pt(1);
+		var k: int = pt(2);
 		//x10.io.Console.OUT.println("Prev:"+i+" "+j+" "+k);
 		//x10.io.Console.OUT.println("Actual:"+ p[0]+" "+p[1]+" "+p[2]);
 		k++;
