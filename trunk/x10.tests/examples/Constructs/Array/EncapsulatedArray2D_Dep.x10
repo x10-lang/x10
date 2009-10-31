@@ -16,11 +16,12 @@ import harness.x10Test;
 
 public class EncapsulatedArray2D_Dep extends x10Test {
     
-    static value Wrapper{
+    static struct Wrapper{
         val m_array: Array[double](2);
         def this(var a_array: Array[double](2)): Wrapper = {
             m_array=a_array;
         }
+	public def typeName() = "Wrapper";
     }
     
     public def run(): boolean = {
