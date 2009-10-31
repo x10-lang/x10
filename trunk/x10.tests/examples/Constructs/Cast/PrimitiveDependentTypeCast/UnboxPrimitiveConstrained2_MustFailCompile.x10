@@ -21,7 +21,7 @@ import harness.x10Test;
 		
 		try {
 			// (nullable<int(:self==3)>) <-- int(:c)
-			var case4b: Box[int{self==3}] = ni as Box[int{self==3}]; //deptype check
+			var case4b: Box[int{self==3}] = new Box[int{self==3}](ni); //deptype check
 		} catch (e: ClassCastException) {
 			res4 = true;
 		}

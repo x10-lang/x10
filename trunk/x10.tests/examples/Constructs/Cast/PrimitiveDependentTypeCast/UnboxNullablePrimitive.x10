@@ -15,8 +15,8 @@ import harness.x10Test;
 
 	public def run(): boolean = {
 		var res1: boolean = false;
-                var res2: boolean = false;
-                var res4: boolean = false;
+        var res2: boolean = false;
+        var res4: boolean = false;
 		
 		var ni: Box[int] = 4;
 		var nn: Box[int] = null;
@@ -27,8 +27,10 @@ import harness.x10Test;
 
 		try {
 			// (int) <-- nullable<int>
-			var case1b: int = nn as int; // not null check
+			val case1b = nn as int; // not null check
 		} catch (e: ClassCastException) {
+			res1 = true;
+		} catch (e: NullPointerException) {
 			res1 = true;
 		}
 
@@ -37,7 +39,7 @@ import harness.x10Test;
 		try {
 			// (int(:self==3)) <-- nullable<int>
 			// not null check when unboxing and deptype check
-			var case2a: int{self==3} = ni as int{self==3};
+			val case2a = ni.value as int{self==3};
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}
@@ -46,35 +48,15 @@ import harness.x10Test;
 		try {
 			// (int(:self==3)) <-- nullable<int>
 			// not null check when unboxing and deptype check
-			var case2b: int{self==3} = nn as int{self==3};
-		} catch (var e: ClassCastException) {
+			val case2b = nn.value as int{self==3};
+		} catch (e: ClassCastException) {
 			res2 &= true;
+		} catch (e: NullPointerException ) {
+			res2 &=true;
 		}
 		
-		// test 3 to nullable primitive		
-		// (nullable<int>) <-- nullable<int>
-		var case3a: Box[int] = ni as Box[int]; // no check
 
-		// (nullable<int>) <-- nullable<int> (null)
-		var case3b: Box[int] = nn as Box[int]; // no check
-
-
-		// test 4 to nullable primitive constrained
-		try {
-			// (nullable<int(:self==3)>) <-- nullable<int>
-			var case4b: Box[int{self==3}] = ni as Box[int{self==3}]; //deptype check
-		} catch (var e: ClassCastException) {
-			res4 = true;
-		}
-		
-		try {
-			// (nullable<int(:self==3)>) <-- nullable<int> (null)
-			var case4b: Box[int{self==3}] = nn as Box[int{self==3}]; //deptype check
-		} catch (var e: ClassCastException) {
-			res4 &= true;
-		}
-
-		return res1 && res2 && res4;
+		return res1 && res2;
 	}
 	
 
