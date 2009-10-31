@@ -28,6 +28,8 @@ import harness.x10Test;
 			var case1b: int = nn as int; // not null check
 		} catch (var e: ClassCastException) {
 			res1 = true;
+		} catch (e: NullPointerException) {
+			res1 = true;
 		}
 
 		// should fail compile
