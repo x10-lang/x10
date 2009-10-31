@@ -27,9 +27,9 @@ public class Variance1 extends x10Test {
                 val a = ga.get();
                 val b = gb.get();
 
-                val gx : Get[A] = ga;
+                val gx : Get[A]! = ga;
                 val x = gx.get();
-                val gy : Get[B] = gb;
+                val gy : Get[B]! = gb;
                 val y = gy.get();
 
                 return gx == ga && gy == gb && x == a && y == b;

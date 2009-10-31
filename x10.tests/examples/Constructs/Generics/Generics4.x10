@@ -28,11 +28,11 @@ public class Generics4 extends x10Test {
         public def run(): boolean = {
                 var result: boolean = true;
 
-                s: Gen[String] = new Gen[String]("hi");
-                x: String = s.get();
+                val s = new Gen[String]("hi");
+                val x = s.get();
 
                 s.set("hello");
-                y: String = s.get();
+                val y = s.get();
 
                 result &= x.equals("hi");
                 result &= y.equals("hello");

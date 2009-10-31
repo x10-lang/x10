@@ -19,7 +19,7 @@ public class GenericOverPrimitives4 extends GenericTest {
             def get() = t;
         }
 
-        a:A[boolean] = new A[boolean](true);
+        a:A[boolean]! = new A[boolean](true);
         check("a.get()", a.get(), true);
 
         return result;

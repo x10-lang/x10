@@ -19,7 +19,7 @@ public class GenericOverPrimitives2 extends GenericTest {
             def get() = t;
         }
 
-        a:A[double] = new A[double](1);
+        a:A[double]! = new A[double](1);
         check("a.get()", a.get(), 1.0);
 
         return result;
