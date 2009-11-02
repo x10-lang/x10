@@ -36,6 +36,7 @@
 #define X10RT_REQ_BUMP                  (32)
 #define X10RT_CB_TBL_SIZE               (128)
 #define X10RT_MAX_PEEK_DEPTH            (16)
+#define X10RT_MAX_OUTSTANDING_SENDS     (256)
 
 /* Generic utility funcs */
 template <class T> T* ChkAlloc(size_t len) {
@@ -541,9 +542,9 @@ void x10rt_send_msg(x10rt_msg_params & p) {
     assert(!global_state.finalized);
     assert(p.type > 0);
 
-
     x10rt_req * req;
     req = global_state.free_list.popNoFail();
+    static bool in_recursion = false;
 
     if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Isend(p.msg,
@@ -557,9 +558,29 @@ void x10rt_send_msg(x10rt_msg_params & p) {
     }
     if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
 
-    req->setBuf(p.msg);
-    req->setType(X10RT_REQ_TYPE_SEND);
-    global_state.pending_send_list.enqueue(req);
+    if ((global_state.pending_send_list.length() > 
+            X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion) {
+        /* Block this send until all pending sends
+         * and receives have been completed. It is
+         * OK as per X10RT semantics to block a send,
+         * as long as we don't block x10rt_probe() */
+        in_recursion = true;
+        int complete = 0;
+        MPI_Status msg_status;
+        do {
+            if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+                        &complete,
+                        &msg_status)) {
+            }
+            x10rt_probe();
+        } while (!complete);
+        global_state.free_list.enqueue(req);
+        in_recursion = false;
+    } else {
+        req->setBuf(p.msg);
+        req->setType(X10RT_REQ_TYPE_SEND);
+        global_state.pending_send_list.enqueue(req);
+    }
 }
 
 void x10rt_send_get(x10rt_msg_params &p,
