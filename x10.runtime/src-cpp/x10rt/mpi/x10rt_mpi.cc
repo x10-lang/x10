@@ -342,7 +342,8 @@ class x10rt_internal_state {
         int                 _reserved_tag_put_data;
         int                 _reserved_tag_put_req;
         x10rt_req_queue     free_list;
-        x10rt_req_queue     pending_list;
+        x10rt_req_queue     pending_send_list;
+        x10rt_req_queue     pending_recv_list;
 
         x10rt_internal_state() {
             init                = false;
@@ -558,7 +559,7 @@ void x10rt_send_msg(x10rt_msg_params & p) {
 
     req->setBuf(p.msg);
     req->setType(X10RT_REQ_TYPE_SEND);
-    global_state.pending_list.enqueue(req);
+    global_state.pending_send_list.enqueue(req);
 }
 
 void x10rt_send_get(x10rt_msg_params &p,
@@ -602,7 +603,7 @@ void x10rt_send_get(x10rt_msg_params &p,
     req->setBuf(NULL);
     req->setUserGetReq(&get_req);
     req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
-    global_state.pending_list.enqueue(req);
+    global_state.pending_recv_list.enqueue(req);
 
     /* send the GET request */
     req = global_state.free_list.popNoFail();
@@ -623,7 +624,7 @@ void x10rt_send_get(x10rt_msg_params &p,
     req->setBuf(get_msg);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_REQ);
 
-    global_state.pending_list.enqueue(req);
+    global_state.pending_send_list.enqueue(req);
 }
 
 
@@ -664,7 +665,7 @@ void x10rt_send_put(x10rt_msg_params &p,
     if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(put_msg);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
-    global_state.pending_list.enqueue(req);
+    global_state.pending_send_list.enqueue(req);
 
     req = global_state.free_list.popNoFail();
 
@@ -682,7 +683,7 @@ void x10rt_send_put(x10rt_msg_params &p,
     if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(NULL);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
-    global_state.pending_list.enqueue(req);
+    global_state.pending_send_list.enqueue(req);
 }
 
 static void send_completion(x10rt_req_queue * q,
@@ -774,7 +775,7 @@ static void get_incoming_req_completion(int dest_place,
     req->setBuf(local);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_DATA);
 
-    global_state.pending_list.enqueue(req);
+    global_state.pending_send_list.enqueue(req);
 }
 
 static void get_outgoing_data_completion(x10rt_req_queue * q,
@@ -835,7 +836,7 @@ static void put_incoming_req_completion(int src_place,
     }
     if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setType(X10RT_REQ_TYPE_PUT_INCOMING_DATA);
-    global_state.pending_list.enqueue(req);
+    global_state.pending_recv_list.enqueue(req);
 }
 
 static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
@@ -853,18 +854,16 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
 }
 
 /**
- * Given a list of request, goes over the list
- * and processes completed requests
+ * Checks pending sends to see if any completed.
  *
- * This must be called while holding global_state.lock
+ * NOTE: This must be called with global_state.lock held
  */
-void check_pending(x10rt_req_queue * q) {
+static void check_pending_sends() {
     int num_checked = 0;
     MPI_Status msg_status;
+    x10rt_req_queue * q = &global_state.pending_send_list;
 
     if (NULL == q->start()) return;
-
-    /* Only one thread looks at the pending queues at a time */
 
     x10rt_req * req = q->start();
     while ((NULL != req) &&
@@ -883,19 +882,8 @@ void check_pending(x10rt_req_queue * q) {
                 case X10RT_REQ_TYPE_SEND:
                     send_completion(q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_RECV:
-                    recv_completion(msg_status.MPI_TAG,
-                            get_recvd_bytes(&msg_status), q, req_copy);
-                    break;
-                case X10RT_REQ_TYPE_GET_INCOMING_DATA:
-                    get_incoming_data_completion(q, req_copy);
-                    break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_REQ:
                     get_outgoing_req_completion(q, req_copy);
-                    break;
-                case X10RT_REQ_TYPE_GET_INCOMING_REQ:
-                    get_incoming_req_completion(msg_status.MPI_SOURCE,
-                            q, req_copy);
                     break;
                 case X10RT_REQ_TYPE_GET_OUTGOING_DATA:
                     get_outgoing_data_completion(q, req_copy);
@@ -903,25 +891,71 @@ void check_pending(x10rt_req_queue * q) {
                 case X10RT_REQ_TYPE_PUT_OUTGOING_REQ:
                     put_outgoing_req_completion(q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
-                    put_incoming_req_completion(msg_status.MPI_SOURCE,
-                            q, req_copy);
-                    break;
                 case X10RT_REQ_TYPE_PUT_OUTGOING_DATA:
                     put_outgoing_data_completion(q, req_copy);
                     break;
-                case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
-                    put_incoming_data_completion(q, req_copy);
-                    break;
                 default:
-                    fprintf(stderr, "Unknown completion of type %d, exiting\n",
-                            req_copy->getType());
+                    fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
+                            __FILE__, __LINE__, req_copy->getType());
                     abort();
                     break;
             };
             req = q->start();
         } else {
             num_checked++;
+        }
+    }
+}
+
+/**
+ * Checks pending receives to see if any completed.
+ *
+ * NOTE: This must be called with global_state.lock held
+ */
+static void check_pending_receives() {
+    MPI_Status msg_status;
+    x10rt_req_queue * q = &global_state.pending_recv_list;
+
+    if (NULL == q->start()) return;
+
+    x10rt_req * req = q->start();
+    while (NULL != req) {
+        int complete = 0;
+        x10rt_req * req_copy = req;
+        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
+                    &complete,
+                    &msg_status)) {
+            fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
+            abort();
+        }
+        req = q->next(req);
+        if (complete) {
+            switch (req_copy->getType()) {
+                case X10RT_REQ_TYPE_RECV:
+                    recv_completion(msg_status.MPI_TAG,
+                            get_recvd_bytes(&msg_status), q, req_copy);
+                    break;
+                case X10RT_REQ_TYPE_GET_INCOMING_DATA:
+                    get_incoming_data_completion(q, req_copy);
+                    break;
+                case X10RT_REQ_TYPE_GET_INCOMING_REQ:
+                    get_incoming_req_completion(msg_status.MPI_SOURCE,
+                            q, req_copy);
+                    break;
+                case X10RT_REQ_TYPE_PUT_INCOMING_REQ:
+                    put_incoming_req_completion(msg_status.MPI_SOURCE,
+                            q, req_copy);
+                    break;
+                case X10RT_REQ_TYPE_PUT_INCOMING_DATA:
+                    put_incoming_data_completion(q, req_copy);
+                    break;
+                default:
+                    fprintf(stderr, "[%s:%d] Unknown completion of type %d, exiting\n",
+                            __FILE__, __LINE__, req_copy->getType());
+                    abort();
+                    break;
+            };
+            req = q->start();
         }
     }
 }
@@ -982,9 +1016,10 @@ void x10rt_probe(void) {
             } else {
                 req->setType(X10RT_REQ_TYPE_RECV);
             }
-            global_state.pending_list.enqueue(req);
+            global_state.pending_recv_list.enqueue(req);
         } else {
-            check_pending(&global_state.pending_list);
+            check_pending_sends();
+            check_pending_receives();
         }
     } while (arrived);
 
@@ -995,7 +1030,8 @@ void x10rt_finalize(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
 
-    while (global_state.pending_list.length() > 0) {
+    while (global_state.pending_send_list.length() > 0 ||
+            global_state.pending_recv_list.length() > 0) {
         x10rt_probe();
     }
     if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
