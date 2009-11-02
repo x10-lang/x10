@@ -124,6 +124,8 @@ public interface X10TypeSystem extends TypeSystem {
     Type Object();
     
     Type Any();
+    Type NativeType();
+    Type NativeRep();
 
     XLit FALSE();
 

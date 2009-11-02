@@ -43,10 +43,6 @@ public class Object (
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString() : String;
 
-    @Native("java", "#0.getClass().getName()")
-    @Native("c++", "x10aux::type_name(#0)")
-    public global native def typeName() : String;
-
     @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     public property def loc() = location;

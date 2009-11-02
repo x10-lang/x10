@@ -143,10 +143,6 @@ public final struct UShort {
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
     public native def toString(radix: Int): String;
     
-    @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::type_name(#0)")
-    public native def typeName(): String;
-
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
     public native def toHexString(): String;    

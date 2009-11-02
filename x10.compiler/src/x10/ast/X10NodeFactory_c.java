@@ -360,11 +360,18 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, typeParameters, properties, superClass, interfaces, body, ci);
 	}
 
-	private ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties, TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
+	private ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties,
+			TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
 	    boolean isInterface = flags.flags().isInterface();
-	    body = flags.flags().isInterface() 
-	            ? PropertyDecl_c.addAbstractGetters(properties, body, this)
-	            : PropertyDecl_c.addPropertyGetters(properties, body, this);
+	    if (flags.flags().isInterface()) {
+	    	body = PropertyDecl_c.addAbstractGetters(properties, body, this);
+	    } else {
+	    	  body = PropertyDecl_c.addPropertyGetters(properties, body, this);
+	    	  if (! name.toString().equals("Struct")) {
+	    		  body = body.addMember(X10ClassDecl_c.makeTypeNameMethod(name, this));
+	    	  }
+	    }
+	  
 	    
 	    ClassDecl n = new X10ClassDecl_c(pos, flags, name, typeParameters, properties, tci, superClass, interfaces, body);
 		n = (ClassDecl)n.ext(extFactory().extClassDecl());

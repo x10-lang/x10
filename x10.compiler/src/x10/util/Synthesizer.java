@@ -103,7 +103,17 @@ public class Synthesizer {
 	 public  X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
 			 Name name, List<LocalDef> fmls, 
 			 Type returnType, List<Type> trow, Block block) {
-	    	assert ct.classDef() != null;
+		 assert ct.classDef() != null;
+	     MethodDecl result = makeSyntheticMethod(ct, flags, name,fmls, returnType, trow, block);
+	     ClassBody b = ct.body();
+	    	b = b.addMember(result);
+	    	ct.classDef().addMethod(result.methodDef());
+	    	return (X10ClassDecl_c) ct.body(b);
+	 }
+	 public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
+			 Name name, List<LocalDef> fmls, 
+			 Type returnType, List<Type> trow, Block block) {
+	    	
 	    	
 	    	Position CG = Position.COMPILER_GENERATED;
 	    	List<Expr> args = new ArrayList<Expr>();
@@ -142,12 +152,9 @@ public class Synthesizer {
 
 	    	MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
 	    			newFlags.flags(), rt.typeRef(), name, argTypes, throwTypes);
-	    	ct.classDef().addMethod(rmi);
+	    	
 	    	result = result.methodDef(rmi);
-	    
-	    	ClassBody b = ct.body();
-	    	b = b.addMember(result);
-	    	return (X10ClassDecl_c) ct.body(b);
+	    return result;
 	    }
 	 
 	 public static XTerm makeProperty(Type type, XVar receiver, String name) {

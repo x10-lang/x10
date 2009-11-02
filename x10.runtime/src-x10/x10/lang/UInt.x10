@@ -144,10 +144,6 @@ public final struct UInt {
     @Native("c++", "0xffffffffU")
     public const MAX_VALUE = 0xffffffff;
 
-    @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::type_name(#0)")
-    public native def typeName(): String;
-
     @Native("java", "java.lang.Long.toString(#0 & 0xffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;

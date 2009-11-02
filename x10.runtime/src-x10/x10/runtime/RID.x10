@@ -5,5 +5,5 @@ public final struct RID(place:Place, id:Int) {
 
     public def hashCode():Int = id;
     public incomplete def toString():String;
-    public def typeName()="x10.lang.RID";
+
 }
