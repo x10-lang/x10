@@ -63,15 +63,36 @@ template <class T> T* ChkRealloc(T * ptr, size_t len) {
     return ptr2;
 }
 
-static inline int get_recvd_bytes(MPI_Status * status) {
-    int recvd_bytes = 0;
-    MPI_Get_count(status,
+/**
+ * Get count of bytes received from MPI_Status
+ */
+static inline int get_recvd_bytes(MPI_Status * msg_status) {
+    int received_bytes;
+    MPI_Get_count(msg_status,
             MPI_BYTE,
-            &recvd_bytes);
-    return recvd_bytes;
+            &received_bytes);
+    return received_bytes;
 }
 
-/* Internal data structs */
+static inline void get_lock(pthread_mutex_t * lock) {
+    if(pthread_mutex_lock(lock)) {
+        perror("pthead_mutex_lock");
+        abort();
+    }
+}
+
+static inline void release_lock(pthread_mutex_t * lock) {
+    if(pthread_mutex_unlock(lock)) {
+        perror("pthread_mutex_unlock");
+        abort();
+    }
+}
+
+/**
+ * Each X10RT API call is broken down into
+ * a X10RT request. Each request of either 
+ * one of the following types
+ */
 
 typedef enum {
     X10RT_REQ_TYPE_SEND                 = 1,
@@ -125,36 +146,36 @@ class x10rt_req {
         x10rt_req()  {
             next = prev = NULL;
             buf = NULL;
-            type = -1;
+            type = X10RT_REQ_TYPE_UNDEFINED;
         }
         ~x10rt_req() {
             next = prev = NULL;
             buf = NULL;
-            type = -1;
+            type = X10RT_REQ_TYPE_UNDEFINED;
         }
-        void setType(int t) { type = t; }
-        int  getType() { return type; }
-        MPI_Request * toMPI() { return &mpi_req; }
+        void setType(int t) { this->type = t; }
+        int  getType() { return this->type; }
+        MPI_Request * getMPIRequest() { return &this->mpi_req; }
         void setBuf(void * buf) { this->buf = buf; }
-        void * getBuf() { return buf; }
-        void setGetReq(x10rt_get_req * r) {
+        void * getBuf() { return this->buf; }
+        void setUserGetReq(x10rt_get_req * r) {
             u.get_req.type       = r->type;
             u.get_req.dest_place = r->dest_place;
             u.get_req.msg        = r->msg;
             u.get_req.msg_len    = r->msg_len;
             u.get_req.len        = r->len;
         }
-        void setPutReq(x10rt_put_req * r) {
+        void setUserPutReq(x10rt_put_req * r) {
             u.put_req.type    = r->type;
             u.put_req.msg     = r->msg;
             u.put_req.msg_len = r->msg_len;
             u.put_req.len     = r->len;
         }
-        x10rt_get_req * getGetReq() {
+        x10rt_get_req * getUserGetReq() {
             assert(X10RT_REQ_TYPE_GET_INCOMING_DATA == type);
             return &u.get_req;
         }
-        x10rt_put_req * getPutReq() {
+        x10rt_put_req * getUserPutReq() {
             assert(X10RT_REQ_TYPE_PUT_INCOMING_DATA == type);
             return &u.put_req;
         }
@@ -189,30 +210,25 @@ class x10rt_req_queue {
         int length() { return len; }
         x10rt_req * start() {
             x10rt_req * r;
-            if (pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                abort();
+            get_lock(&this->lock);
+            {
+                r = head;
             }
-            r = head;
-            if (pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                abort();
-            }
+            release_lock(&this->lock);
             return r;
         }
         x10rt_req * next(x10rt_req * r) {
             x10rt_req * n;
-            if (pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                abort();
+            get_lock(&this->lock);
+            {
+                n = r->next;
             }
-            n = r->next;
-            if (pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                abort();
-            }
+            release_lock(&this->lock);
             return n;
         }
+        /**
+         * Append a few empty requests to queue
+         */
         void addRequests(int num) {
             /* wrap around enqueue (which is thread safe) */
             for (int i = 0; i < num; ++i) {
@@ -221,13 +237,13 @@ class x10rt_req_queue {
                 enqueue(r);
             }
         }
+        /**
+         * Appends to end of queue
+         */
         void enqueue(x10rt_req * r) {
             /* thread safe */
 
-            if (pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                abort();
-            }
+            get_lock(&this->lock);
 
             r->next     = NULL;
             if (head) {
@@ -242,17 +258,14 @@ class x10rt_req_queue {
             }
             len++;
 
-            if (pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                abort();
-            }
+            release_lock(&this->lock);
         }
+        /**
+         * Removes first element from queue
+         */
         x10rt_req * pop() {
             /* thread safe */
-            if (pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                abort();
-            }
+            get_lock(&this->lock);
 
             x10rt_req * r = head;
             if (NULL != head) {
@@ -264,18 +277,16 @@ class x10rt_req_queue {
                 }
             }
 
-            if (pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                abort();
-            }
+            release_lock(&this->lock);
             return r;
         }
+        /**
+         * Removes a request from any location
+         * in the queue
+         */
         void remove(x10rt_req * r) {
             /* thread safe */
-            if (pthread_mutex_lock(&lock)) {
-                perror("pthread_mutex_lock");
-                abort();
-            }
+            get_lock(&this->lock);
 
             assert((NULL != head) && (NULL != tail) && (len > 0));
             if (r->prev) r->prev->next = r->next;
@@ -285,11 +296,13 @@ class x10rt_req_queue {
             r->next = r->prev = NULL;
             len--;
 
-            if (pthread_mutex_unlock(&lock)) {
-                perror("pthread_mutex_unlock");
-                abort();
-            }
+            release_lock(&this->lock);
         }
+        /**
+         * Always returns a request from queue.
+         * If queue is empty, adds more requests
+         * to queue an returns first request
+         */
         x10rt_req * popNoFail() {
             /* wrap around pop (which is thread safe) */
             x10rt_req * r = pop();
@@ -312,6 +325,7 @@ class x10rt_internal_state {
         bool                init;
         bool                finalized;
         pthread_mutex_t     lock;
+        bool                is_mpi_multithread;
         int                 rank;
         int                 nprocs;
         MPI_Comm            mpi_comm;
@@ -333,6 +347,7 @@ class x10rt_internal_state {
         x10rt_internal_state() {
             init                = false;
             finalized           = false;
+            is_mpi_multithread  = false;
         }
         void Init() {
             init          = true;
@@ -377,20 +392,47 @@ void x10rt_init(int &argc, char ** &argv) {
 
     global_state.Init();
 
-    int provided = MPI_THREAD_SINGLE;
-    int required = MPI_THREAD_MULTIPLE;
-    if (MPI_SUCCESS != MPI_Init_thread(&argc, &argv, required, &provided)) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
-        abort();
-    }
-    if (MPI_THREAD_MULTIPLE != provided) {
-        fprintf(stderr, "[%s:%d] Underlying MPI implementation"
-                    " needs to provide MPI_THREAD_MULTIPLE threading level\n",
+    int provided, required;
+    if(NULL != getenv("X10RT_MPI_THREAD_MULTIPLE")) {
+        global_state.is_mpi_multithread = true;
+        if (MPI_SUCCESS != MPI_Init_thread(&argc, &argv, 
+                    MPI_THREAD_MULTIPLE, &provided)) {
+            fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
+            abort();
+        }
+        MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
+        if (0 == global_state.rank) {
+            if (MPI_THREAD_MULTIPLE != provided) {
+                fprintf(stderr, "[%s:%d] Underlying MPI implementation"
+                        " needs to provide MPI_THREAD_MULTIPLE threading level\n",
                         __FILE__, __LINE__);
+                fprintf(stderr, "[%s:%d] Alternatively, you could unset env var"
+                        " X10RT_MPI_THREAD_MULTIPLE from you environment\n",
+                        __FILE__, __LINE__);
+            }
+        }
+        if (MPI_SUCCESS != MPI_Finalize()) {
+            fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n",
+                    __FILE__, __LINE__);
+            abort();
+        }
+    } else {
+        global_state.is_mpi_multithread = false;
+        if (MPI_SUCCESS != MPI_Init(&argc, &argv)) {
+            fprintf(stderr, "[%s:%d] Error in MPI_Init\n", __FILE__, __LINE__);
+            abort();
+        }
+    }
+    if (MPI_SUCCESS != MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Comm_size\n",
+                __FILE__, __LINE__);
         abort();
     }
-    MPI_Comm_size(MPI_COMM_WORLD, &global_state.nprocs);
-    MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
+    if (MPI_SUCCESS != MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank)) {
+        fprintf(stderr, "[%s:%d] Error in MPI_Comm_rank\n",
+                __FILE__, __LINE__);
+        abort();
+    }
 }
 
 void x10rt_register_msg_receiver(unsigned msg_type,
@@ -494,22 +536,26 @@ void *x10rt_put_realloc(void *old, size_t old_sz, size_t new_sz) {
 }
 
 void x10rt_send_msg(x10rt_msg_params & p) {
-    x10rt_req * req;
-    req = global_state.free_list.popNoFail();
-
     assert(global_state.init);
     assert(!global_state.finalized);
     assert(p.type > 0);
 
+
+    x10rt_req * req;
+    req = global_state.free_list.popNoFail();
+
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Isend(p.msg,
                 p.len, MPI_BYTE,
                 p.dest_place,
                 p.type,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+
     req->setBuf(p.msg);
     req->setType(X10RT_REQ_TYPE_SEND);
     global_state.pending_list.enqueue(req);
@@ -536,7 +582,7 @@ void x10rt_send_get(x10rt_msg_params &p,
      * +-------------------------------------+
      *  <--- x10rt_nw_req --->
      */
-    get_msg_len         = sizeof(x10rt_nw_req) + p.len;
+    get_msg_len         = sizeof(*get_msg) + p.len;
     get_msg             = ChkAlloc<x10rt_nw_req>(get_msg_len);
     get_msg->type       = p.type;
     get_msg->msg_len    = p.len;
@@ -544,15 +590,17 @@ void x10rt_send_get(x10rt_msg_params &p,
 
     /* pre-post a recv that matches the GET request */
     req = global_state.free_list.popNoFail();
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_Irecv(buf, len,
                 MPI_BYTE,
                 p.dest_place,
                 global_state._reserved_tag_get_data,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(NULL);
-    req->setGetReq(&get_req);
+    req->setUserGetReq(&get_req);
     req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
     global_state.pending_list.enqueue(req);
 
@@ -560,16 +608,18 @@ void x10rt_send_get(x10rt_msg_params &p,
     req = global_state.free_list.popNoFail();
     memcpy(static_cast <void *> (&get_msg[1]), p.msg, p.len);
 
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Isend(get_msg,
                 get_msg_len,
                 MPI_BYTE,
                 p.dest_place,
                 global_state._reserved_tag_get_req,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(get_msg);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_REQ);
 
@@ -592,7 +642,7 @@ void x10rt_send_put(x10rt_msg_params &p,
      * +-------------------------------------------+
      *  <------ x10rt_put_req ----->
      */
-    put_msg_len         = sizeof(x10rt_put_req) + p.len;
+    put_msg_len         = sizeof(*put_msg) + p.len;
     put_msg             = ChkAlloc<x10rt_put_req>(put_msg_len);
     put_msg->type       = p.type;
     put_msg->msg        = p.msg;
@@ -600,32 +650,36 @@ void x10rt_send_put(x10rt_msg_params &p,
     put_msg->len        = len;
     memcpy(static_cast <void *> (&put_msg[1]), p.msg, p.len);
 
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Isend(put_msg,
                 put_msg_len,
                 MPI_BYTE,
                 p.dest_place,
                 global_state._reserved_tag_put_req,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(put_msg);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
     global_state.pending_list.enqueue(req);
 
     req = global_state.free_list.popNoFail();
 
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Isend(buf,
                 len,
                 MPI_BYTE,
                 p.dest_place,
                 global_state._reserved_tag_put_data,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(NULL);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
     global_state.pending_list.enqueue(req);
@@ -653,22 +707,19 @@ static void recv_completion(int ix, int bytes,
 
     assert(ix > 0);
 
-    if (pthread_mutex_unlock(&global_state.lock)) {
-        perror("pthread_mutex_unlock");
-        abort();
+    release_lock(&global_state.lock);
+    {
+        cb(p);
     }
-    cb(p);
-    if (pthread_mutex_lock(&global_state.lock)) {
-        perror("pthread_mutex_lock");
-        abort();
-    }
+    get_lock(&global_state.lock);
+
     free(req->getBuf());
     global_state.free_list.enqueue(req);
 }
 
 static void get_incoming_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
-    x10rt_get_req * get_req = req->getGetReq();
+    x10rt_get_req * get_req = req->getUserGetReq();
     getCb2 cb = global_state.getCb2Tbl[get_req->type];
     x10rt_msg_params p = { get_req->dest_place,
                            get_req->type,
@@ -707,6 +758,7 @@ static void get_incoming_req_completion(int dest_place,
     q->remove(req);
     free(req->getBuf());
 
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     /* reuse request for sending reply */
     if (MPI_SUCCESS != MPI_Isend(local,
                 len,
@@ -714,10 +766,11 @@ static void get_incoming_req_completion(int dest_place,
                 dest_place,
                 global_state._reserved_tag_get_data,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(local);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_DATA);
 
@@ -763,11 +816,12 @@ static void put_incoming_req_completion(int src_place,
     void * local = cb(p, len);
     q->remove(req);
 
-    req->setPutReq(put_req);
+    req->setUserPutReq(put_req);
 
     /* free the recv'd buf, now that we've copied info */
     free(req->getBuf());
 
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     /* reuse request for posting recv */
     if (MPI_SUCCESS != MPI_Irecv(local,
                 len,
@@ -775,16 +829,17 @@ static void put_incoming_req_completion(int src_place,
                 src_place,
                 global_state._reserved_tag_put_data,
                 global_state.mpi_comm,
-                req->toMPI())) {
+                req->getMPIRequest())) {
         fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setType(X10RT_REQ_TYPE_PUT_INCOMING_DATA);
     global_state.pending_list.enqueue(req);
 }
 
 static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
-    x10rt_put_req   * put_req = req->getPutReq();
+    x10rt_put_req   * put_req = req->getUserPutReq();
     putCb2 cb = global_state.putCb2Tbl[put_req->type];
     x10rt_msg_params p = { x10rt_here(),
                            put_req->type,
@@ -797,6 +852,12 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
     global_state.free_list.enqueue(req);
 }
 
+/**
+ * Given a list of request, goes over the list
+ * and processes completed requests
+ *
+ * This must be called while holding global_state.lock
+ */
 void check_pending(x10rt_req_queue * q) {
     int num_checked = 0;
     MPI_Status msg_status;
@@ -810,7 +871,7 @@ void check_pending(x10rt_req_queue * q) {
             num_checked < X10RT_MAX_PEEK_DEPTH) {
         int complete = 0;
         x10rt_req * req_copy = req;
-        if (MPI_SUCCESS != MPI_Test(req->toMPI(),
+        if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
                     &complete,
                     &msg_status)) {
             fprintf(stderr, "[%s:%d] Error in MPI_Test\n", __FILE__, __LINE__);
@@ -883,10 +944,7 @@ void x10rt_probe(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
 
-    if (pthread_mutex_lock(&global_state.lock)) {
-        perror("pthread_mutex_lock");
-        abort();
-    }
+    get_lock(&global_state.lock);
 
     do {
         arrived = 0;
@@ -912,7 +970,7 @@ void x10rt_probe(void) {
                         msg_status.MPI_SOURCE,
                         msg_status.MPI_TAG,
                         global_state.mpi_comm,
-                        req->toMPI())) {
+                        req->getMPIRequest())) {
                 fprintf(stderr, "[%s:%d] Error in posting Irecv\n",
                         __FILE__, __LINE__);
                 abort();
@@ -930,10 +988,7 @@ void x10rt_probe(void) {
         }
     } while (arrived);
 
-    if (pthread_mutex_unlock(&global_state.lock)) {
-        perror("pthread_mutex_unlock");
-        abort();
-    }
+    release_lock(&global_state.lock);
 }
 
 void x10rt_finalize(void) {
@@ -943,6 +998,7 @@ void x10rt_finalize(void) {
     while (global_state.pending_list.length() > 0) {
         x10rt_probe();
     }
+    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     if (MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         abort();
@@ -951,5 +1007,6 @@ void x10rt_finalize(void) {
         fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
         abort();
     }
+    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     global_state.finalized = true;
 }
