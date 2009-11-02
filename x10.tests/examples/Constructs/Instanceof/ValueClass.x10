@@ -16,7 +16,5 @@ public struct ValueClass(p:int) implements X10InterfaceOne {
 	public def this(p:int):ValueClass{self.p==p} = {
 	    property(p);
 	}
-	public def typeName()="ValueClass";
-
 	public  def interfaceMethod():void  = {}
 }

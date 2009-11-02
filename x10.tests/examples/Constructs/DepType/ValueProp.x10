@@ -17,7 +17,6 @@ public class ValueProp extends x10Test {
 	  public def this(i:int, j:int): Value1{self.i==i,self.j==j}=  {
 	    property(i,j);
 	  }
-          public def typeName() = "Value1";
 	}
 	public def run():boolean= {
 	Value1(2,3);

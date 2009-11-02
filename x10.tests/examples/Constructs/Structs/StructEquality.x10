@@ -23,7 +23,6 @@ public class StructEquality extends x10Test {
 
     static struct V {
         val v: int;
-        public def typeName() = "V";
         def this(i: int) {
             this.v = i;
         }

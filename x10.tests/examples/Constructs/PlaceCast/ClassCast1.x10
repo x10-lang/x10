@@ -15,7 +15,6 @@ import harness.x10Test;
 public class ClassCast1 extends x10Test {
         static struct CC1 {
 	    def this() {} 
-            public def typeName() = "CC1";
         }
 
 	public def run(): boolean = {
