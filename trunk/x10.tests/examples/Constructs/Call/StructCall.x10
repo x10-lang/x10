@@ -15,8 +15,6 @@ struct S1 {
   val y:int;
 
   public def this(a:int, b:int) { x = a; y = b; }
-  public def typeName() = "S1";
-
   public final def sum() = x + y;
 }
 

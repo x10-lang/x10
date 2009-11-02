@@ -21,7 +21,6 @@ public class EncapsulatedArray2D_Dep extends x10Test {
         def this(var a_array: Array[double](2)): Wrapper = {
             m_array=a_array;
         }
-	public def typeName() = "Wrapper";
     }
     
     public def run(): boolean = {

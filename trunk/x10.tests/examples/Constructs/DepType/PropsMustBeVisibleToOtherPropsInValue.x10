@@ -18,7 +18,6 @@ public class PropsMustBeVisibleToOtherPropsInValue extends x10Test {
         public def this(k:int):Value2{self.i==k} = {
             property(k,k);
         }
-	public def typeName() = "Value2";
     }
     public def run():boolean = {
         Value2(4);
