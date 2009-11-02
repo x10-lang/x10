@@ -34,6 +34,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.SourceFile;
+import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
@@ -63,10 +64,12 @@ import polyglot.types.Ref;
 import polyglot.types.Ref_c;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
@@ -209,6 +212,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
         } else  if (thisType.fullName().equals(QName.make("x10.lang.Struct"))) {
+        	assert false;
         	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
@@ -607,6 +611,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return n;
     }
     
+    
+    public static MethodDecl makeTypeNameMethod(Id name, X10NodeFactory nf) {
+    	// Cannot use the type system. This code is called during parsing.
+    	// e.g. cannot say nf.CanonicalTypeNode(pos, ts.String())
+    	// since that will cause String to get loaded, and we get a stack overflow.
+    	Position pos = Position.COMPILER_GENERATED;
+    
+		Stmt s = nf.Return(pos, nf.StringLit(pos, name.toString()));
+		Block b = nf.Block(pos, s);
+	
+    	MethodDecl tnMethod = nf.MethodDecl(pos,
+    			nf.FlagsNode(pos, X10Flags.toX10Flags(Flags.PUBLIC).Global()), 
+    			nf.AmbTypeNode(pos, nf.PrefixFromQualifiedName(pos, QName.make("x10.lang")), nf.Id(pos, "String")), 
+    			nf.Id(pos, Name.make("typeName")), 
+    			Collections.EMPTY_LIST,
+    			Collections.EMPTY_LIST, 
+    			b
+    			);
+    	return tnMethod;
+
+    }
+    
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
     	X10ClassDecl_c n = this;
     	
@@ -684,12 +710,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             if (t != null) {
                 if (!t.typeEquals(ct, tc.context())) {
                     String kind = ct.flags().isInterface() ? "interface" : "class";
-                    throw new SemanticException("Cannot extend different instantiations of the same " + kind + "; " + type + " extends both " + t + " and "
+                    throw new SemanticException("Cannot extend different instantiations of the same " + kind + ";\n" 
+                    		+ type + " extends both " + t + " and "
                                                 + ct + ".", position());
                 }
             }
             map.put(ct.x10Def(), ct);
         }
+        
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
@@ -697,7 +725,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     		
     	}
-      
+    	
     	return n;
     }
     
@@ -905,7 +933,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    if (job != null) {
     	        Source s = job.source();
     	        if (! s.name().startsWith(type.name() + ".")) {
-    	            throw new SemanticException("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", result.position());
+    	            throw new SemanticException("Public type " + type.fullName() 
+    	            		+ " must be declared in " + type.name() + ".x10.", result.position());
     	        }
     	    }
     	}
@@ -929,7 +958,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())
-    	                    ex = new SemanticException("Class " + type + " cannot override property " + fi.name() + " of superclass " + Types.get(fi.def().container()) + ".");
+    	                    ex = new SemanticException("Class " + type + " cannot override property " 
+    	                    		+ fi.name() + " of superclass " + Types.get(fi.def().container()) + ".");
     	            }
     	        }
     	        catch (SemanticException e) {

@@ -109,9 +109,6 @@ public final struct Float {
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
-    @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::type_name(#0)")
-    public native def typeName(): String;
 
     @Native("java", "java.lang.Float.parseFloat(#1)")
     @Native("c++", "x10aux::float_utils::parseFloat(#1)")

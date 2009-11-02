@@ -79,6 +79,7 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10StringLit_c;
 import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
@@ -503,14 +504,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return cd;
     }
     
-    X10ClassDef STRUCT_DEF = null;
-    public X10ClassDef StructDef() {
-    	if (STRUCT_DEF == null) {
-    		STRUCT_DEF = makeStructDef();
-    	}
-    	return STRUCT_DEF;
-    }
-    public X10ClassDef makeStructDef() {
+  
+    private X10ClassDef StructDef() {
         final X10TypeSystem xts = this;
         final Position pos = Position.COMPILER_GENERATED;
 
@@ -541,26 +536,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         cd.superType(null); // base class has no superclass
         // Functions implement the Any interface.
         //cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(Any())));
-        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract()));
+        cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Struct());
 
 
         // NOTE: don't call cd.asType() until after the type parameters are
         // added.
         X10ParsedClassType ct = (X10ParsedClassType) cd.asType();
-      //  xts.systemResolver().install(fullName, ct);
+        xts.systemResolver().install(fullName, ct);
 
         String fullNameWithThis = fullName + "#this";
         //String fullNameWithThis = "this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 
-        /*public strct Struct  {
-          public native def toString():String;
-          public native def typeName():String;
-	      property def loc()=here;
-	      property def at(p:Place)=true;
-	      property def at(r:Object)=true;
-          }*/    
         final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
 		PLACE.setResolver(new Runnable() {
 			public void run() {
@@ -579,34 +567,25 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				BOOLEAN.update((X10ParsedClassType) xts.Boolean());
 			}
 		});
+		 final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
+			OBJECT.setResolver(new Runnable() {
+				public void run() {
+					OBJECT.update((X10ParsedClassType) xts.Object());
+				}
+			});
+		X10ConstructorDef ci = (X10ConstructorDef) constructorDef(pos, Types.ref(ct), Flags.PUBLIC.Native(), 
+				Collections.EMPTY_LIST, 
+				Collections.EMPTY_LIST);
+		cd.addConstructor(ci);
+		
+		X10MethodDef mi;
+		List<Expr> list;
+		X10ClassType ann;
 	
-        X10MethodDef mi = methodDef(pos, Types.ref(ct), 
-        		Flags.PUBLIC.Native(), STRING,
-        		Name.make("toString"), 
-        		Collections.EMPTY_LIST, 
-        		Collections.EMPTY_LIST, 
-        		thisVar,
-        		Collections.EMPTY_LIST, 
-        		null, 
-        		null, 
-        		Collections.EMPTY_LIST, 
-        		null);
-        cd.addMethod(mi);
+		// @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
+		// property def loc():Place
         mi = methodDef(pos, Types.ref(ct), 
-        		Flags.PUBLIC.Native(), STRING,
-        		Name.make("typeName"), 
-        		Collections.EMPTY_LIST, 
-        		Collections.EMPTY_LIST, 
-        		thisVar,
-        		Collections.EMPTY_LIST, 
-        		null, 
-        		null, 
-        		Collections.EMPTY_LIST, 
-        		null);
-        cd.addMethod(mi);
-    
-        mi = methodDef(pos, Types.ref(ct), 
-        		Flags.PUBLIC.Abstract(), PLACE,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global(), PLACE,
         		Name.make("loc"), 
         		Collections.EMPTY_LIST, 
         		Collections.EMPTY_LIST, 
@@ -616,13 +595,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
-        cd.addMethod(mi);
-        final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
-		OBJECT.setResolver(new Runnable() {
+        final LazyRef<X10ParsedClassType> NATIVE_LOC = Types.lazyRef(null);
+		NATIVE_LOC.setResolver(new Runnable() {
 			public void run() {
-				OBJECT.update((X10ParsedClassType) xts.Object());
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.lang.Place.place(x10.core.Ref.location(#0))"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_LOC.update(ann);
 			}
 		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_LOC));
+        cd.addMethod(mi);
+        
+        //  @Native("java", "x10.core.Ref.at(#0, #1)")
+        // property def at(p:Object):boolean;
 	    List<LocalDef> parameters = dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
         mi = methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property(), BOOLEAN,
@@ -635,7 +622,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
+        final LazyRef<X10ParsedClassType> NATIVE_AT_1 = Types.lazyRef(null);
+		NATIVE_AT_1.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1.id)"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_AT_1.update(ann);
+			}
+		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_1));
         cd.addMethod(mi);
+        
+       // @Native("java", "x10.core.Ref.at(#0, #1.id)")
+       // property def at(p:Place):boolean;
         parameters = dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
         mi = methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property(), BOOLEAN,
@@ -648,23 +649,43 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
+        final LazyRef<X10ParsedClassType> NATIVE_AT_2 = Types.lazyRef(null);
+		NATIVE_AT_2.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1)"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_AT_2.update(ann);
+			}
+		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_2));
         cd.addMethod(mi);
-      
+        
+        //@NativeRep("java", "x10.core.Struct", null, null)
+    	final LazyRef<X10ParsedClassType> NATIVE_REP = Types.lazyRef(null);
+		NATIVE_REP.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(4);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos, "x10.core.Struct"));
+		        list.add(null);
+		        list.add(null);
+				X10ParsedClassType ann = (X10ParsedClassType) ((X10ParsedClassType) xts.NativeRep()).propertyInitializers(list);
+				
+				NATIVE_REP.update(ann);
+			}
+		});
+        
+        cd.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_REP));
         return cd;
     }
-//    X10ClassDef ANY_DEF = null;
-//    public X10ClassDef AnyDef() {
-//    	if (ANY_DEF == null) {
-//    		ANY_DEF = makeAnyDef();
-//    	}
-//    	return ANY_DEF;
-//    }
-
-
-    public X10ClassDef makeAnyDef() {
+   
+    private X10ClassDef AnyDef() {
         final X10TypeSystem xts = this;
         final Position pos = Position.COMPILER_GENERATED;
 
+     
         String name = "Any";
         X10ClassDef cd = (X10ClassDef) new X10ClassDef_c(this, null) {
         	
@@ -679,21 +700,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         };
 
         cd.position(pos);
+        // interface Any ....
         cd.name(Name.make(name));
+        // package x10.lang;
         try {
             cd.setPackage(Types.ref(xts.packageForName(QName.make("x10.lang"))));
         }
         catch (SemanticException e) {
             assert false;
         }
-
         QName fullName = QName.make("x10.lang", name);
+        
         cd.kind(ClassDef.TOP_LEVEL);
         cd.superType(null); // interfaces have no superclass
         // Functions implement the Any interface.
         //cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(Any())));
         cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
-
 
         // NOTE: don't call cd.asType() until after the type parameters are
         // added.
@@ -705,14 +727,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 
-        /*public interface Any  {
-	
-    def toString():String;
-    def typeName():String;
-	property def loc():Place;
-	property def at(p:Place):boolean;
-	property def at(r:Object):boolean;
-}*/    
         final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
 		PLACE.setResolver(new Runnable() {
 			public void run() {
@@ -731,32 +745,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 				BOOLEAN.update((X10ParsedClassType) xts.Boolean());
 			}
 		});
+		final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
+		OBJECT.setResolver(new Runnable() {
+			public void run() {
+				OBJECT.update((X10ParsedClassType) xts.Object());
+			}
+		});
+		
 	
-        X10MethodDef mi = methodDef(pos, Types.ref(ct), 
-        		Flags.PUBLIC.Abstract(), STRING,
-        		Name.make("toString"), 
-        		Collections.EMPTY_LIST, 
-        		Collections.EMPTY_LIST, 
-        		thisVar,
-        		Collections.EMPTY_LIST, 
-        		null, 
-        		null, 
-        		Collections.EMPTY_LIST, 
-        		null);
-        cd.addMethod(mi);
-        mi = methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Global(), STRING,
-        		Name.make("typeName"), 
-        		Collections.EMPTY_LIST, 
-        		Collections.EMPTY_LIST, 
-        		thisVar,
-        		Collections.EMPTY_LIST, 
-        		null, 
-        		null, 
-        		Collections.EMPTY_LIST, 
-        		null);
-        cd.addMethod(mi);
-    
+		X10MethodDef mi;
+		List<Expr> list;
+		X10ClassType ann;
+	
+		// @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
+		// property def loc():Place
         mi = methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Global(), PLACE,
         		Name.make("loc"), 
@@ -768,13 +770,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
-        cd.addMethod(mi);
-        final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
-		OBJECT.setResolver(new Runnable() {
+        final LazyRef<X10ParsedClassType> NATIVE_LOC = Types.lazyRef(null);
+		NATIVE_LOC.setResolver(new Runnable() {
 			public void run() {
-				OBJECT.update((X10ParsedClassType) xts.Object());
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.lang.Place.place(x10.core.Ref.location(#0))"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_LOC.update(ann);
 			}
 		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_LOC));
+        cd.addMethod(mi);
+        
+        //  @Native("java", "x10.core.Ref.at(#0, #1)")
+        // property def at(p:Object):boolean;
 	    List<LocalDef> parameters = dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
         mi = methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
@@ -787,8 +797,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
+
+        final LazyRef<X10ParsedClassType> NATIVE_AT_1 = Types.lazyRef(null);
+		NATIVE_AT_1.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1.id)"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_AT_1.update(ann);
+			}
+		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_1));
         cd.addMethod(mi);
-      
+        
+       // @Native("java", "x10.core.Ref.at(#0, #1.id)")
+       // property def at(p:Place):boolean;
         parameters = dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
         mi = methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
@@ -801,10 +825,38 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         		null, 
         		Collections.EMPTY_LIST, 
         		null);
+        final LazyRef<X10ParsedClassType> NATIVE_AT_2 = Types.lazyRef(null);
+		NATIVE_AT_2.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1)"));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) NativeType()).propertyInitializers(list);
+				NATIVE_AT_2.update(ann);
+			}
+		});
+        mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_2));
         cd.addMethod(mi);
-    
+        
+        //@NativeRep("java", "x10.core.Any", null, null)
+    	final LazyRef<X10ParsedClassType> NATIVE_REP = Types.lazyRef(null);
+		NATIVE_REP.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(4);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos, "x10.core.Any"));
+		        list.add(null);
+		        list.add(null);
+				X10ParsedClassType ann = (X10ParsedClassType) ((X10ParsedClassType) xts.NativeRep()).propertyInitializers(list);
+				
+				NATIVE_REP.update(ann);
+			}
+		});
+        
+        cd.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_REP));
         return cd;
     }
+    
     public List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types) {
         List<LocalDef> list = new ArrayList<LocalDef>();
         for (int i = 0; i < types.size(); i++) {
@@ -1755,16 +1807,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Type Any() {
         if (ANY_ != null)
             return ANY_;
-        return ANY_ = load("x10.lang.Any");
-//    	return AnyDef().asType();
+    	return ANY_ = AnyDef().asType();
     }
 
     Type STRUCT_ = null;
     public Type Struct() {
-    	if (STRUCT_ == null) {
-    		STRUCT_ = load("x10.lang.Struct");
-    	}
-    	return STRUCT_;
+    	if (STRUCT_ != null) 
+    		return STRUCT_;
+    	return STRUCT_ = StructDef().asType();
     }
     public Type String() {
         if (STRING_ != null)
@@ -1834,6 +1884,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return iterableType_;
     }
 
+    protected ClassType nativeRepType_;
+    public Type NativeRep() {
+    	if (nativeRepType_ == null)
+    		nativeRepType_ = load("x10.compiler.NativeRep");
+    	return nativeRepType_;
+    }
+    protected ClassType nativeType_;
+    public Type NativeType() {
+    	if (nativeType_ == null)
+    		nativeType_ = load("x10.compiler.Native");
+    	return nativeType_;
+    }
     public Type Iterable(Type index) {
         return X10TypeMixin.instantiate(Iterable(), index);
     }
@@ -2565,6 +2627,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
         o.setDefAnnotations(newATs);
     }
+    
 
     public boolean clausesConsistent(x10.constraint.XConstraint c1, x10.constraint.XConstraint c2, Context context) {
         X10TypeEnv env = env(context);

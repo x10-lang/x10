@@ -23,5 +23,5 @@ public struct Pair[T,U] {
     public def toString():String {
         return "(" + first + ", " + second + ")";
     }
-    public def typeName():String = "x10.util.Pair";
+
 }
