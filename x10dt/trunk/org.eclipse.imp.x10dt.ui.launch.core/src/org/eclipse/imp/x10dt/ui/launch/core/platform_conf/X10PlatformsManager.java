@@ -51,6 +51,11 @@ public final class X10PlatformsManager {
                                      configuration.isCplusPlus(), configuration.isLocal());
   }
   
+  private static String safeGetString(final IMemento platformMemento, String tag) {
+    String res = platformMemento.getString(tag);
+	return res == null ? "" : res;
+  }
+  
   /**
    * Loads the X10 platform configurations from the workspace metadata.
    * 
@@ -64,19 +69,19 @@ public final class X10PlatformsManager {
     if (file.exists()) {
       final XMLMemento rootMemento = XMLMemento.createReadRoot(new BufferedReader(new FileReader(file)));
       for (final IMemento platformMemento : rootMemento.getChildren(PLATFORM_TAG)) {
-        final String name = platformMemento.getString(NAME_TAG);
-        final String x10DistLoc = platformMemento.getString(X10_DIST_LOC_TAG);
-        final String pgasLoc = platformMemento.getString(PGAS_LOC_TAG);
-        final String[] x10HeadersLocs = platformMemento.getString(X10_DIST_HEADERS_LOC_TAG).split(PATH_SEP);
-        final String[] x10LibsLocs = platformMemento.getString(X10_DIST_LIBS_LOC_TAG).split(PATH_SEP);
-        final String compiler = platformMemento.getString(COMPILER_TAG);
-        final String compilerOpts = platformMemento.getString(COMPILER_OPTS_TAG);
-        final String archiver = platformMemento.getString(ARCHIVER_TAG);
-        final String archivingOpts = platformMemento.getString(ARCHIVING_OPTS_TAG);
-        final String linker = platformMemento.getString(LINKER_TAG);
-        final String linkingOpts = platformMemento.getString(LINKING_OPTS_TAG);
-        final String linkingLibs = platformMemento.getString(LINKING_LIBS_TAG);
-        final String resManagerId = platformMemento.getString(RES_MANAGER_ID_TAG);
+        final String name = safeGetString(platformMemento, NAME_TAG);
+        final String x10DistLoc = safeGetString(platformMemento, X10_DIST_LOC_TAG);
+        final String pgasLoc = safeGetString(platformMemento, PGAS_LOC_TAG);
+        final String[] x10HeadersLocs = safeGetString(platformMemento, X10_DIST_HEADERS_LOC_TAG).split(PATH_SEP);
+        final String[] x10LibsLocs = safeGetString(platformMemento, X10_DIST_LIBS_LOC_TAG).split(PATH_SEP);
+        final String compiler = safeGetString(platformMemento, COMPILER_TAG);
+        final String compilerOpts = safeGetString(platformMemento, COMPILER_OPTS_TAG);
+        final String archiver = safeGetString(platformMemento, ARCHIVER_TAG);
+        final String archivingOpts = safeGetString(platformMemento, ARCHIVING_OPTS_TAG);
+        final String linker = safeGetString(platformMemento, LINKER_TAG);
+        final String linkingOpts = safeGetString(platformMemento, LINKING_OPTS_TAG);
+        final String linkingLibs = safeGetString(platformMemento, LINKING_LIBS_TAG);
+        final String resManagerId = safeGetString(platformMemento, RES_MANAGER_ID_TAG);
         final String osName = platformMemento.getString(TARGET_OS_TAG);
         final ETargetOS targetOS = (osName == null) ? null : X10BuilderUtils.getTargetOS(osName);
         final boolean isCplusPlus = platformMemento.getBoolean(IS_CPLUS_PLUS_TAG);

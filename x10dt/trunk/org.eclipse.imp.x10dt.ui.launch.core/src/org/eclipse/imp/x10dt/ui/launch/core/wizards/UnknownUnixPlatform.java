@@ -8,7 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
 
-final class MacPlatform implements IDefaultX10Platform {
+final class UnknownUnixPlatform implements IDefaultX10Platform {
   
   // --- Interface methods implementation
   
@@ -25,7 +25,7 @@ final class MacPlatform implements IDefaultX10Platform {
   }
 
   public String getCompilerOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread"; //$NON-NLS-1$
   }
 
   public String getLinker() {
@@ -33,11 +33,11 @@ final class MacPlatform implements IDefaultX10Platform {
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lgc -lxlpgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
+    return "-lx10 -lxlpgas_sockets -lm -lpthread"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter"; //$NON-NLS-1$
   }
 
 }

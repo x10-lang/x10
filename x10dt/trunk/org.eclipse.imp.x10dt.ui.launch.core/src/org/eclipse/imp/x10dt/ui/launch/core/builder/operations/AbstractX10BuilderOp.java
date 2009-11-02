@@ -63,12 +63,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     archiveCmd.add(platform.getArchiver());
     archiveCmd.addAll(X10BuilderUtils.getAllTokens(platform.getArchivingOpts()));
     final StringBuilder libName = new StringBuilder();
-    libName.append(this.fWorkspaceDir).append("/lib").append(this.fProject.getName()); //$NON-NLS-1$
-    if (platform.getTargetOS() == ETargetOS.WINDOWS) {
-      libName.append(".lib"); //$NON-NLS-1$
-    } else {
-      libName.append(".a"); //$NON-NLS-1$
-    }
+    libName.append(this.fWorkspaceDir).append("/lib").append(this.fProject.getName()).append(".a"); //$NON-NLS-1$//$NON-NLS-2$
     archiveCmd.add(libName.toString());
     for (final String objectFile : this.fObjectFiles) {
       archiveCmd.add(objectFile);

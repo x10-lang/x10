@@ -161,6 +161,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       return super.verifyExecutablePath(configuration);
     } catch (CoreException except) {
       try {
+        // Executable not found -- try with an extension
         return verifyResource(getExecutablePath(configuration) + EXE_EXT, configuration);
       } catch (CoreException except2) {
         throw except;
@@ -182,9 +183,15 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
         
-      final IFileStore appProgFileStore = fileManager.getResource(new Path(appProgName), new NullProgressMonitor());
+      final IFileStore appProgFileStore = fileManager.getResource(appProgName);
       if (appProgFileStore.fetchInfo().exists() && ! shouldLinkApp) {
         return;
+      }
+      if (! shouldLinkApp) { // file not found -- try with an extension
+        final IFileStore appProgFileExeStore = fileManager.getResource(appProgName + EXE_EXT);
+        if (appProgFileExeStore.fetchInfo().exists()) {
+          return;
+        }
       }
       
       createMainFile(fileManager, appProgName, workspaceDir);
@@ -261,7 +268,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         writer.close();
       }
       // Secondly, transfers the file in the remote directory.
-      final IFileStore destFile = fileManager.getResource(new Path(workspaceDir), new NullProgressMonitor()).getChild(MAIN_FILE_NAME);
+      final IFileStore destFile = fileManager.getResource(workspaceDir).getChild(MAIN_FILE_NAME);
       final IFileStore tmpMainFileStore = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
       tmpMainFileStore.copy(destFile, EFS.OVERWRITE, null);
       // Thirdly and finally, deletes the local temporary file.

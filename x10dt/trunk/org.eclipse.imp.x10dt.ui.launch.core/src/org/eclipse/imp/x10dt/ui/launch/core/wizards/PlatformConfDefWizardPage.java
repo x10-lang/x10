@@ -353,10 +353,10 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
           defaultX10Platform = new MacPlatform();
           break;
         case UNIX:
-          defaultX10Platform = null;
+          defaultX10Platform = new UnknownUnixPlatform();
           break;
         case WINDOWS:
-          defaultX10Platform = null;
+          defaultX10Platform = new CygwinPlatform();
           break;
         default:
           defaultX10Platform = null;

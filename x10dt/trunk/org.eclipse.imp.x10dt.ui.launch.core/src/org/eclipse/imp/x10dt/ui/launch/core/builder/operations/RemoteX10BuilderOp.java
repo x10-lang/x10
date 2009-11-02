@@ -53,21 +53,15 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
   // --- Interface methods implementation
 
   public void transfer(final IContainer binaryContainer, final IProgressMonitor monitor) throws CoreException {
-    try {
-      final IRemoteFileManager fileManager = getRemoteFileManager();
-      final IFileStore fileStore = fileManager.getResource(new Path(getWorkspaceDir()), new NullProgressMonitor());
-      if (fileStore.fetchInfo().exists()) {
-        monitor.subTask(Messages.CPPB_DeletionTaskName);
-        fileStore.delete(EFS.NONE, null);
-      }
-
-      monitor.subTask(Messages.CPPB_TransferTaskName);
-      copyGeneratedFiles(fileStore, binaryContainer.getLocation(), monitor);
-    } catch (IOException except) {
-      IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_RemoteOpError, getResourceManagerName()), 
-                                 IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-      LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_RemoteOpError, getResourceManagerName()), except);
+    final IRemoteFileManager fileManager = getRemoteFileManager();
+    final IFileStore fileStore = fileManager.getResource(getWorkspaceDir());
+    if (fileStore.fetchInfo().exists()) {
+      monitor.subTask(Messages.CPPB_DeletionTaskName);
+      fileStore.delete(EFS.NONE, null);
     }
+
+    monitor.subTask(Messages.CPPB_TransferTaskName);
+    copyGeneratedFiles(fileStore, binaryContainer.getLocation(), monitor);
   }
   
   // --- Private code

@@ -25,7 +25,7 @@ final class LinuxPlatform implements IDefaultX10Platform {
   }
 
   public String getCompilerOptions() {
-    return "-g -DTRANSPORT=sockets -DX10_USE_BDWGC -Wno-long-long -Wno-unused-parameter -pthread  -msse2 -mfpmath=sse"; //$NON-NLS-1$
+    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
   }
 
   public String getLinker() {
@@ -33,11 +33,11 @@ final class LinuxPlatform implements IDefaultX10Platform {
   }
 
   public String getLinkingLibraries() {
-    return "-lgc -lx10 -lxlpgas_sockets -ldl -lm -lpthread -Wl,-export-dynamic -lrt"; //$NON-NLS-1$
+    return "-lx10 -lgc -lxlpgas_sockets -ldl -lm -lpthread -Wl,-export-dynamic -lrt"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {
-    return "-g -DTRANSPORT=sockets -DX10_USE_BDWGC"; //$NON-NLS-1$
+    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
   }
 
 }
