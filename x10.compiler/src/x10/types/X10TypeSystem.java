@@ -222,6 +222,8 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isSettable(Type me);
 
     boolean isAny(Type me);
+
+    boolean isStruct(Type me);
     
     boolean isClock(Type me);
 

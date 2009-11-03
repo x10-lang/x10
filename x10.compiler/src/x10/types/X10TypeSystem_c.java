@@ -677,7 +677,26 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			}
 		});
         
-        cd.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_REP));
+		//@NativeRep("c++", "x10::lang::Struct", "x10::lang::Struct", null)
+		final LazyRef<X10ParsedClassType> NATIVE_REP_CPP = Types.lazyRef(null);
+		NATIVE_REP_CPP.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(4);
+				list.add(new X10StringLit_c(pos, "c++"));
+				list.add(new X10StringLit_c(pos, "x10::lang::Struct"));
+				list.add(new X10StringLit_c(pos, "x10::lang::Struct"));
+				list.add(null);
+				X10ParsedClassType ann = (X10ParsedClassType) ((X10ParsedClassType) xts.NativeRep()).propertyInitializers(list);
+
+				NATIVE_REP_CPP.update(ann);
+			}
+		});
+        
+        List<Ref<? extends Type>> cd_ann = new ArrayList<Ref<? extends Type>>();
+        cd_ann.add(NATIVE_REP);
+        cd_ann.add(NATIVE_REP_CPP);
+        cd.setDefAnnotations(cd_ann);
+//        cd.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_REP));
         return cd;
     }
    
@@ -2184,6 +2203,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public boolean isAny(Type me) {
         return typeEquals(me, Any(), emptyContext());
+    }
+    
+    public boolean isStruct(Type me) {
+        return typeEquals(me, Struct(), emptyContext());
     }
     
     public boolean isClock(Type me) {
