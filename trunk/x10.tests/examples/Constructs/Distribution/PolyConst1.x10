@@ -14,10 +14,10 @@ class PolyConst1 extends TestDist {
 	var d: Dist = Dist.makeConstant(r, here);
         pr("d " + d);
 
-        var a: Array[double](r) = Array.make[double](Dist.makeConstant(r, here), null);
+        var a: Array[double](r) = Array.make[double](Dist.makeConstant(r, here));
         pr("a " + a);
 
-        var b: Array[double](r) = Array.make[double](Dist.makeConstant(r, here), null);
+        var b: Array[double](r) = Array.make[double](Dist.makeConstant(r, here));
         pr("b " + b);
 		
 
