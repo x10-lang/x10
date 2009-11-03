@@ -4,7 +4,7 @@ class DistRandomAccess1 extends Benchmark {
     // parameters
     //
 
-    const PARALLELISM = 2;
+    const PARALLELISM = Math.min(2, Place.MAX_PLACES);
     const logLocalTableSize = 12; // XXX much smaller than others - Dist very inefficient...
     
     def expected() = 0.0;
@@ -26,7 +26,7 @@ class DistRandomAccess1 extends Benchmark {
 
     final class LocalTable {
     
-        val a: Rail[long];
+        val a:Rail[long]!;
         val mask: int;
         
         def this(size:int) {
@@ -79,7 +79,7 @@ class DistRandomAccess1 extends Benchmark {
                     val valran = ran;
                     val table = tables(placeId);
                     async (Place.places(placeId)) 
-                        table.update(valran);
+                        (table as LocalTable!).update(valran);
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
@@ -101,8 +101,9 @@ class DistRandomAccess1 extends Benchmark {
             for (var p:int=0; p<PARALLELISM; p++) {
                 val table = tables(p);
                 finish async(Place.places(p)) {
-                    for (var j:int=0; j<table.a.length; j++)
-                        if (table.a(j) != j)
+                    val lt = table as LocalTable!;
+                    for (var j:int=0; j<lt.a.length; j++)
+                        if (lt.a(j) != j)
                             finish async (errors.location)
                                 errors(0)++;
                 }
