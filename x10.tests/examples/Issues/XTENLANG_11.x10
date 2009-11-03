@@ -16,8 +16,8 @@ class XTENLANG_11 extends x10Test {
         incomplete public def iterator(): Iterator[T];
     }
     
-    public def foo(hl: A[H]) {
-        var it: Iterator[H] = hl.iterator();
+    public def foo(hl: A[H]!) {
+        var it: Iterator[H]! = hl.iterator();
         hl.add(it.next());
     }
 
