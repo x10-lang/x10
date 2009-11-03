@@ -3,7 +3,6 @@
  * @author vj 08/15/08
  * //done
  */
-
 public class Stencil1D {
     const epsilon  = 1E-4D;
     val N: int, P: int;
@@ -12,7 +11,7 @@ public class Stencil1D {
 
     def this(n: int, p: int) { this.N=n; this.P=p;}
 
-    def step(A: Rail[Double], R: Region(1)) {
+    def step(A:Rail[Double]!, R: Region(1)) {
 	   var diff: Double = 0;
 	   for ((q) in R) {
 	       val newVal = (A(q-1)+ A(q+1))/2.0 ; 
@@ -21,6 +20,7 @@ public class Stencil1D {
 	   }
 	   return diff;
     }
+
     public def run() {
 	   val A = Rail.makeVar[Double](N+2, (nat)=>0.0D); 
 	   A(N+1) = N+1.0D;
@@ -33,8 +33,9 @@ public class Stencil1D {
 	      }
 	   }	
     }
-    public static def main(args: Rail[String]) {
-	   var n: int = args.length > 0 ? Int.parseInt(args(0)) : 1000;
+
+    public static def main(args: Rail[String]!) {
+	   var n: int = args.length > 0 ? Int.parseInt(args(0)) : 100;
 	   var p: int = args.length > 1 ? Int.parseInt(args(1)) : 2;
 	   x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
 	   var time: Long = -System.nanoTime();
