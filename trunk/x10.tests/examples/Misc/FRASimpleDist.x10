@@ -120,7 +120,7 @@ class FRASimpleDist {
                 }
             }
         }
-	return result.reduce(Int.+,0)==0;
+	return result.reduce(Int.+,0) < (localTableSize/100);
     }
 
     static def now() = Timer.nanoTime() * 1e-9D;

@@ -95,7 +95,7 @@ public class FRA {
             val l = tables(p.id) as LocalTable!;
             for ((q):Point in l.a) if (l.a(q) != q) result(p.id)++;
         }
-	return result.reduce(Int.+,0)==0;
+	return result.reduce(Int.+,0) < (localTableSize/100);
     }
 
     static def now() = System.nanoTime() * 1e-9D;
