@@ -24,7 +24,7 @@ class ParRandomAccess1 extends Benchmark {
 
     final class LocalTable {
     
-        val a: Rail[long]!this.location;
+        val a: Rail[long]!;
         val mask: int;
         
         def this(size:int) {

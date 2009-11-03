@@ -31,7 +31,7 @@ public class SeqPseudoArray2b extends Benchmark {
 
         val m0: int;
         val m1: int;
-        val raw: Rail[T]!this.location;
+        val raw: Rail[T]!;
         
         def this(m0:int, m1:int) {
             this.m0 = m0;
