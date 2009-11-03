@@ -803,7 +803,6 @@ public class X10CPPTranslator extends Translator {
         };
         /** These go after the files */
         public static final String[] postArgsMacOSX = new String[] {
-            "-lrt",
         };
 
         public MacOSX_CXXCommandBuilder(Options options) {
