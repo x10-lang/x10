@@ -542,7 +542,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (n.superClass() != null) {
 			w.allowBreak(0);
 			w.write("extends ");
-			er.printType(n.superClass().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+			Type superType = n.superClass().type();
+			// FIXME: HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
+			if (!xts.typeEquals(superType, xts.Object(), context))
+			    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+			else
+			    w.write("x10.core.Ref");
 		}
 
 		// Filter out x10.lang.Object from the interfaces.
