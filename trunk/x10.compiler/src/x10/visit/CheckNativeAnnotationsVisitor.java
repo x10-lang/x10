@@ -207,8 +207,11 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                 // HACK: ignore unary property methods -- there could be a native annotation on the property
                 if (X10Flags.toX10Flags(def.flags()).isProperty() && def.formalTypes().size() == 0)
                     ;
+                else if (md.name().toString().equals("typeName"))  // special case this synthetic method
+                	;
                 else
-                    throw new SemanticException("Methods of a class with NativeRep annotation must be annotated Native.", n.position());
+                    throw new SemanticException("Method  " + md + "\n of class " + def.container()
+                    		+ " with NativeRep annotation must be annotated Native.", n.position());
             }
             if (! nativeImps.containsKey(theLanguage) && n instanceof X10FieldDecl) {
                 throw new SemanticException("Fields of a class with NativeRep annotation must be annotated Native.", n.position());
