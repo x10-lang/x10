@@ -213,6 +213,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/RailIterator.o \
 	x10/lang/Ref.o \
 	x10/lang/String.o \
+	x10/lang/Struct.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
 	x10/lang/ValRail.o \
