@@ -26,7 +26,7 @@ public class Initialization extends x10Test {
 
 		start = System.currentTimeMillis();
 		x10.io.Console.OUT.println("creating java array size "+OneDSize);
-		x_javaArray = Array.make[double](OneDSize);
+		x_javaArray = Rail.makeVar[double](OneDSize);
 		stop = System.currentTimeMillis();
 		x10.io.Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
