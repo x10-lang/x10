@@ -80,12 +80,20 @@ public abstract class Dist(
      * along that axis into Place.MAX_PLACES blocks, and assigns
      * successive blocks to successive places.
      */
-
     public static def makeBlock(r: Region, axis: int): Dist(r) {
         val n = r.max()(axis) - r.min()(axis) + 1;
         val bs = (n + Place.MAX_PLACES - 1) / Place.MAX_PLACES;
         return BaseDist.makeBlockCyclic1(r, axis, bs);
     }
+
+    /**
+     * Returns a distribution over the specified region that varies in
+     * place only the zeroth axis. It divides the coordinates
+     * along that axis into Place.MAX_PLACES blocks, and assigns
+     * successive blocks to successive places.
+     */
+
+    public static def makeBlock(r:Region) = makeBlock(r, 0);
 
     /**
      * Returns a distribution over the specified region that varies in
