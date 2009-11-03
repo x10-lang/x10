@@ -22,7 +22,7 @@ public class FutureFieldAccessStruct extends x10Test {
         }
     }
 
-    val c = C("1");
+    val c = C[String]("1");
 
     public def run02(): boolean = {
     		val p = Place.places(1);
