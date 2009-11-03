@@ -15,8 +15,8 @@ public class RegionTest1 extends x10Test {
 
     public def run(): boolean = {
 
-        var r: Region = 0..100;
-        var reg: Region = [r,r];
+        var r: Region(1) = 0..100;
+        var reg: Region(2) = [r,r];
 
         var sum: int = 0;
         for (p(i,j) in reg) sum += i-j;
