@@ -15,7 +15,7 @@ public class ArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        val r:Region = [1..10,1..10];
+        val r:Region(2) = [1..10,1..10];
 
         val d  = Dist.makeConstant(r, here);
         val ia = Array.make[double](d, (val (i,j): Point)=> i+j as Double);

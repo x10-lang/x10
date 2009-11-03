@@ -20,7 +20,7 @@ public class ArrayInitializer1a extends x10Test {
         val d = r->here;
         val ia = Array.make[Int](d, ((i,j,k): Point)=> i);
 
-        for (val p in ia.region) chk(ia(p) == i); // should infer p:Point(3)
+        for (val p(i,j,k) in ia.region) chk(ia(p) == i); // should infer p:Point(3)
 
         return true;
     }
