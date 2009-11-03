@@ -51,7 +51,6 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
 
 else
-  MPICXX ?= mpicxx
 
   ifeq ($(shell uname -s),AIX)
 
@@ -60,8 +59,10 @@ else
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
+      MPICXX ?= mpicxx
     else	
       CXX = mpCC_r
+      MPICXX ?= mpCC_r
       override CXXFLAGS -= -g
       ifndef USE_32BIT
         override CXXFLAGS += -q64
@@ -87,6 +88,8 @@ else
     endif
 
   else
+
+    MPICXX ?= mpicxx
 
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
