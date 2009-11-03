@@ -18,9 +18,9 @@ public class FS {
     //const DEFAULT_SIZE = 2*MEG;
     const DEFAULT_SIZE = MEG / 8;
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Rail[String]!) {
 
-        val verified: Rail[boolean] = [true];
+        val verified: Rail[boolean]! = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = N0 * Place.MAX_PLACES;
