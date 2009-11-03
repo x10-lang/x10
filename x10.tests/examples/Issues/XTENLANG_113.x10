@@ -14,8 +14,8 @@ class XTENLANG_113 extends x10Test {
     }
     
     public def run():boolean {
-        val a:R = new R();
-        val b:R = new R();
+        val a = new R();
+        val b = new R();
         return a.size()==b.size();
     }
 
