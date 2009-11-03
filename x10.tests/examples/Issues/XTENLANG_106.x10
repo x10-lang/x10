@@ -13,7 +13,7 @@ class XTENLANG_106 extends x10Test {
         public def set(v:T, i0:int) {}
     }
     
-    def foo(a:A[double]) {
+    def foo(a:A[double]!) {
         a(0) = 0;
     }
 
