@@ -31,7 +31,7 @@ public class Array1 extends x10Test {
         }
 
         for (val p(i,j): Point(2) in d) {
-            val q1 = [i,j];
+            val q1:Point(2) = [i,j];
             chk(i == q1(0));
             chk(j == q1(1));
             chk(ia(i, j) == i+j);
