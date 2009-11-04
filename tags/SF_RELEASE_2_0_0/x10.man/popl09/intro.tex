@@ -1,0 +1,219 @@
+% Problem statement
+% X10 ... new language design
+% OO, imperative, concurrent
+% catch errors -> types
+% dependent types, generics
+% practical, pluggable
+
+% @@@ Cut this.  Plagiarizes from OOPSLA now.
+% Jump to motivation for dep types.
+% Then motivation for generic types
+% This work...
+
+Modern architectural advances are leading to the development of
+complex computational systems, such as heterogeneous multi-core,
+hardware accelerators, and large CPU-count hybrid clusters.
+The \Xten{} programming language \cite{X10-concur,x10-oopsla05,X10} was
+designed to address the challenge of developing
+high-performance applications for such machines, building on the
+productivity gains of modern object-oriented languages.
+
+\Xten{} requires a rich type system
+to enable code reuse, rule out a large variety of errors at
+compile-time, and to generate efficient code.
+A central
+data structure in \Xten{} is the dense, distributed, multi-dimensional
+array.  Arrays are defined over a set of indices known as \emph{regions},
+and support arbitrary base types and accesses through {\em
+points} that must lie in the underlying region. For performance it is
+necessary that array accesses are
+bounds-checked statically as far as possible.
+Further, certain regions (such as
+polyhedral regions) may be represented particularly
+efficiently.  Hence, if a variable is to range only over
+polyhedral regions, it is important that this information be conveyed
+statically (through the type system) to the code 
+generator. To support $P$-way data parallelism it is often necessary
+to logically partition an array into $P$ pieces. A type system that
+can establish that a given division is a partition can ensure that no
+race conditions arise due to simultaneous accesses by
+multiple activities to different pieces.
+
+\subsection{Constrained Types}
+
+These requirements motivated us to develop a framework for dependent
+types in object-oriented languages \cite{constrained-types}.
+\emph{Dependent type
+systems}~\cite{dependent-types,xi99dependent,calc-constructions} have
+been extensively developed over the past few decades in the context of
+logic and functional programming---they permit types to be
+parametrized by \emph{values}.
+
+The key idea behind our approach is to focus on the notion of a
+\emph{constraint system}~\cite{cccc}. Constraint systems were originally developed
+to provide a simple framework for a large variety of
+inference systems used in programming languages, in particular as a
+foundation for constraint programming languages.  Patterned after
+Scott's information systems, a constraint system is
+organized around the notion of \emph{constraints} or tokens of partial
+information (e.g., \Xcd{x+y>z*3}), together with an entailment
+relation $\vdash$.  Tokens may have first-order structure; existential
+quantification is supported. The entailment relation is required to
+support a certain set of inference rules arising from a Gentzen-style
+formulation of intuitionistic logic.
+
+In applying constraint systems to object-oriented
+languages\footnote{The use of constraints for types has a
+distinguished history going back to Mitchell~\cite{mitchell84}.
+Our work is closely related to the \hmx{} approach
+\cite{sulzmann97type}---see Section~\ref{sec:related} for
+details.}, the principal insight
+is that objects typically have some immutable state, and constraints on
+this state are of interest to the application.  For instance, in \Java{}
+the length of an array might not be statically known, but is fixed once
+the array is created. Hence, we can enrich the notion of a type: for a
+class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c}
+is a
+constraint on the immutable fields, or \emph{properties}, of the
+class as well as any immutable variables and constants in
+scope~\cite{constrained-types}.
+Constraints are drawn from a constraint language that,
+syntactically, is a subset of the boolean expressions of \Xten{}.  For
+brevity, the constraint may be omitted and interpreted as \xcd"true".
+Thus, 
+\Xcd{Point\{self.rank==N\}} is a type satisfied by any
+\Xcd{N}-dimensional point, that is, any
+instance of \xcd"Point" whose \xcd"rank" property
+is \Xcd{N}.  \Xcd{N}, here, is a (final) variable whose value may be unknown
+statically. In a constraint, \Xcd{self} refers to 
+a value of the base type being constrained, in this case \Xcd{Array}.
+Subtyping is easily defined: a type \Xcd{C\{c\}} is a
+subtype of \Xcd{D\{d\}} 
+provided that \Xcd{C} is a subclass of \Xcd{D} and \Xcd{c}
+entails \Xcd{d} in the underlying constraint system.
+
+Constrained types maintain a phase distinction between compile time
+(entailment checking in the underlying constraint system) and run time
+(computation).  Dynamic type casting is permitted---code is generated
+to check at run time that the properties of the given object satisfy
+the given constraint. We note that while constraints may reference
+only immutable state, a constrained type can classify mutable
+variables. For instance the mutable field \Xcd{tail} of the class
+\Xcd{List} may be typed with \Xcd{List\{self.length==N\}} and will be statically checked to ensure that at runtime it can only contain lists that satisfy the given property.
+
+
+The constrained types approach enjoys many nice properties in contrast
+to similar approaches such as DML~\cite{xi99dependent}.  Constrained
+types are a natural extension to OO languages, and quite easy to
+use. Constraints may also be used to specify class invariants, and
+conditions on the accessibility of fields and methods (conditional
+fields and methods).  Final variables in the computation can be used
+directly in types; there is no need to define a separate
+parallel language of index expressions to be used in the type system.
+Constrained types always
+permit field selection and equality at object types; hence the
+programmer may specify constraints at any user-specified object type,
+not just over the built-in constraint system.  
+
+\subsection{Constrained Kinds}
+The notion of \emph{generic types}---types such as \Xcd{List<T>} in
+Java that are parametrized by other types---is now widely
+established~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}.
+Generic types are vital for implementing type-safe, reusable
+libraries, especially collections classes.  For instance, the data
+type \Xcd{Array} discussed above is generic on its element type.
+
+This paper lays out a framework to extend constrained types to handle
+(type-)genericity. The general outlines of the approach seem clear
+enough. First, some mechanism must be found to introduce {\em type
+variables}, for instance as {\em type parameters} (cf.
+Java~\cite{Java3}) or as
+{\em type members} (cf. BETA~\cite{beta}). 
+
+Second, a suitable vocabulary of constraints over types must be
+chosen. This raises the fundamental question: What is the structure of
+types in (nominal) OO languages?  The answer to this is fairly
+clear. A type is a {\em name} (e.g., class name or interface name),
+there is a partial order (the {\em inheritance} relation) on such
+names, and an association of (typed) members (fields, methods) to
+these names. This structure raises some natural candidates for
+constraints: e.g., \xcd"X <= T" (realized by any type \xcd"S" that
+inherits from \xcd"T"), \xcd"X" \xcdmath"$\uhas$"
+\xcdmath"m(T$_1$,$\ldots$,T$_n$):T", (realized by
+any type \xcd"S" that has a method named \xcd"m" with the given
+signature), \xcd"x" \xcd"instanceof" \xcd"X" (realized by any type
+\xcd"S" to which the final variable 
+\xcd"x" can be cast), etc. 
+
+Third, these constraints can be used to specify {\em constrained
+kinds} in the same way that constraints over values can be used to
+specify {\em constrained types}. Thus \xcd"X:*{self <= Printable}"
+would declare a type variable \xcd"X" which could only be bound to
+those types \xcd"S" which satisfy \xcd"S <= Printable".
+
+Fourth, a type variable could then be declared as a (kinded) class
+property, field, or method parameter. Within the scope of its
+declaration, the type variable can be used wherever a type can (e.g.,
+to specify the type of method parameters and return values, local
+variables, fields, as targets of cast etc).
+
+While the outline is clear, a number of important issues remain untouched:
+\begin{itemize}
+\item What is the difference in expressiveness between type parameters and type properties? 
+
+\item How do constraints on types interact with constraints on values?
+
+\item Should constrained kinds be used to differentiate overloaded methods? During dynamic method lookup?
+
+\item Can constrained kinds be used to express variance declarations (e.g., contravariance, covariance, invariance)? Java ``wildcards''?
+
+\item How are constrained kinds implemented? What kind of runtime representation of types is needed, and how does it interact with the constraint solver?
+\end{itemize}
+
+\subsection{Contributions}
+
+This paper develops the framework of constrained kinds. In the next
+section we address answers to the questions above, and illustrate with
+programming examples. We then motivate the choices made in the design
+of the \Xten{} language, and outline the implementation strategy. An
+implementation of \Xten{} (realizing these features) can be downloaded
+from \xcd"x10-lang.org". 
+
+We present a formalization of these ideas through an extension of the
+development in \cite{constrained-types}. We present a core calculus,
+\FXG{}, parametrized on an underlying data constraint system. The
+calculus can express \Xcd{X <= T} constraints on type variables. We
+present subject reduction and type soundness properties for the
+calculus. This calculus embeds the calculus presented in
+\cite{constrained-types}. 
+\todo{What can we say about relationship with FJG.}
+
+We show how the framework can be extended in a simple fashion to
+handle structural typing constraints.
+
+We summarize our contributions:
+\begin{itemize}
+
+\item We extend the notion of constrained types \cite{constrained-types} with {\em constrained kinds}. These permit type variables to be classified based on constraints over types and values. 
+\item We explore the design space for an OO language with constrained kinds and types.
+\item We formalize a core ``featherweight'' calculus for constrained kinds, permitting subtype constraints, conservatively extending \cite{constrained-types} and establish subject reduction and type soundness.
+\item 
+We show how the framework can be extended in a simple fashion by adding other constraints on types (and associated typing rules).
+\end{itemize}
+\todo{Revisit once the proof is entered, need to highlight something key in the lemma.}
+
+\paragraph{Outline.}
+
+The rest of the paper is organized as follows.
+%
+Design considerations for generics in \Xten{}
+and related work are
+discussed in Section~\ref{sec:lang}.
+%
+Section~\ref{sec:semantics} presents a formal semantics and a
+proof of soundness.
+%\todo{implementation}
+%
+Finally, Section~\ref{sec:conclusions} concludes.
+
+
