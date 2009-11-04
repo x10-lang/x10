@@ -53,6 +53,7 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-449] - Implement Complex value class
     * [XTENLANG-514] - File.NativeFile is not implemented for C++ backend
     * [XTENLANG-515] - X10 2.0 Distributed Object Model
+    * [XTENLANG-532] - Language/typechecking changes to prevent access to uninitialized fields during object construction
 
 ** Improvement
     * [XTENLANG-364] - Remove type parameters on closures
@@ -66,6 +67,7 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-548] - The signature of the main method should constrain the args array to be place-local to place 0
     * [XTENLANG-565] - Better place type inference for async (x) x.bar() in global method
     * [XTENLANG-566] - Promote method isX10Array() on X10TypeSystem_c to X10TypeSystem interface
+    * [XTENLANG-578] - autodefinition of typeName on Structs
 
 ** Bug
     * [XTENLANG-4] - "attempting to use incompatible return type" when overriding methods with constraints involving parameters
@@ -77,6 +79,7 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-324] - Static methods are still subject to inheritance rules
     * [XTENLANG-325] - Static overrides are not allowed covariant return types
     * [XTENLANG-335] - Codegen error assigning primitives to x10.lang.Value
+    * [XTENLANG-337] - a.equals(b) results in StackOverflowError
     * [XTENLANG-338] - Run-time types do not include constraints
     * [XTENLANG-372] -  Static intialization of Distribution throws NPE with x10c++ 
     * [XTENLANG-384] - Generic interface code fails to compile with a bizarre error
@@ -109,8 +112,13 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-561] - Overly aggressize elimination of placechecks in C++ backend
     * [XTENLANG-563] - Static placechecking logic incorrect in gloabl instance methods
     * [XTENLANG-568] - Post-compiler warnings reported as errors.
+    * [XTENLANG-575] - C++ codegen: generation function calls in a constant expression (case statements of a switch)
+    * [XTENLANG-576] - Problem finding the | operator when restricting a Distribution to a Place
+    * [XTENLANG-577] - Modify parser so that value isn't a valid key word
+    * [XTENLANG-580] - x10c: Compiler Generated: Methods of a class with NativeRep annotation must be annotated Native.
+    * [XTENLANG-581] - Points/PointArithmetic1 failure due to faulty resolution of overloaded operator
 
-** Tasks and Sub-task
+** Task
     * [XTENLANG-81] - Update X10 tutorial material for 1.7 version of the language specification
     * [XTENLANG-342] - Consider making c++ and java backend projects have parallel structure
     * [XTENLANG-395] - svn cleanup & reorganization
@@ -119,18 +127,23 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-426] - Reduce number of hand-written C++ files in x10.runtime
     * [XTENLANG-427] - Reduce use of @NativeRep for C++ runtime
     * [XTENLANG-429] - Remove usage of X10 1.7 Value types from XRX
+    * [XTENLANG-430] - Update language manual for 2.0 serialization semantics
     * [XTENLANG-432] - Generate explicit NPE and BPE checks instead of having them be implicit in ref operators
     * [XTENLANG-433] - Carefully inspect handwritten code in C++ runtime and insert explicit NPE and BPE exceptions where necessary
     * [XTENLANG-434] - Remove BPE and NPE checks from ref operators
     * [XTENLANG-435] - Implement X10 interface invocation directly instead of using C++ virtual inheritance
     * [XTENLANG-436] - Implement X10 2.0 Structs
+    * [XTENLANG-440] - Language specification for X10 2.0
     * [XTENLANG-442] - Change tests ending in _MustFailRun to catch the appropriate exception and succeed instead.
     * [XTENLANG-527] - X10 2.0 static initialization semantics
     * [XTENLANG-552] - Document minimal required levels of xlC/g++ on various platforms
     * [XTENLANG-554] - Compiler is assuming that unconstrained generic type is an Object
+
+** Sub-task
     * [XTENLANG-421] - Code space of deserialization code
     * [XTENLANG-422] - Code space of struct equals
     * [XTENLANG-428] - Implement X10 2.0 Object Model for C++ codegen/runtime
+    * [XTENLANG-437] - Update language manual for 2.0 Structs
     * [XTENLANG-516] - Parse rooted annotation on fields/methods
     * [XTENLANG-518] - C++ backend: Only generate place checks on access to rooted field & invocations of rooted methods
     * [XTENLANG-519] - Update existing test cases for X10 2.0 object model 
@@ -139,6 +152,7 @@ Release Notes - X10 - Version X10 2.0.0
     * [XTENLANG-523] - C++ codegen for X10 2.0 Structs
     * [XTENLANG-525] - Update exisiting test cases that use X10 1.7 values to use X10 2.0 structs
     * [XTENLANG-526] - New test cases for X10 2.0 Structs
+    * [XTENLANG-528] - Update Language manual for 2.0 static initialization semantics
     * [XTENLANG-530] - Implement static initialization semantics in C++ codegen/runtime
     * [XTENLANG-539] - Front-end support for struct constructors
     * [XTENLANG-541] - Front-end support for structs implementing interfaces
