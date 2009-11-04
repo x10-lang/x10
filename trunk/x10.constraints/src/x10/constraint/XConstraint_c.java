@@ -537,23 +537,20 @@ public XConstraint_c() {
         	return true;
         }
         
-        List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
-        for (XTerm term : conjuncts) {
-            XTerm t = term.subst(me.self(), self);
-            subst.add(t);            
-        }
-//        Set<XTerm> visited = new HashSet<XTerm>();
-//        for (XTerm term : subst) {
-//            term.saturate(me, visited);
-//        }
-//        visited = null; // free up for gc
-    	for (XTerm term : subst) {
-    		if (! me.entails(term, (XConstraint) null))
+    	for (XTerm term : conjuncts) {
+    		if (! me.entails(term, self, (XConstraint) null))
     			return false;
     	}
     	
        return true;
     }
+
+    private boolean entails(XTerm  term, XRoot self, final XConstraint sigma) throws XFailure {
+    	XTerm subst = term.subst(self(), self);
+    	return entails(subst, (XConstraint) null);
+    }
+ 
+    	
 
     /** Traverse the terms in the constraint, adding in their self constraints. */
 //    public XConstraint_c saturate() throws XFailure {
@@ -1139,6 +1136,24 @@ public XConstraint_c() {
     public static XEQV genEQV(XName name, boolean hidden) {
         XEQV result = new XEQV_c(name, hidden);
         return result;
+    }
+    public XConstraint leastUpperBound(XConstraint other) {
+    	XRoot otherSelf = other.self();
+    	
+    	XConstraint result = new XConstraint_c();
+    	XRoot resultSelf = result.self();
+    	XConstraint sigma = new XConstraint_c();
+    	for (XTerm term : other.constraints()) {
+    		try {
+    			if (entails(term, otherSelf, sigma)) {
+    				term = term.subst(resultSelf, otherSelf);
+    				result.addTerm(term);
+    			}
+    		} catch (XFailure z) {
+
+    		}
+    	}
+    	return result;
     }
 
 }

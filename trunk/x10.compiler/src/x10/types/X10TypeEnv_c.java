@@ -1429,6 +1429,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public Type leastCommonAncestor(Type type1, Type type2)
     throws SemanticException
     {
+    	Type t = leastCommonAncestorBase(X10TypeMixin.baseType(type1), 
+    			X10TypeMixin.baseType(type2));
+    	
+    	XConstraint c1 = X10TypeMixin.realX(type1), c2 = X10TypeMixin.realX(type2);
+    	XConstraint c = c1.leastUpperBound(c2);
+    	if (! c.valid())
+    		t = X10TypeMixin.addConstraint(t, c);
+    	return t;
+    	
+    }
+    
+    public Type leastCommonAncestorBase(Type type1, Type type2)
+    throws SemanticException
+    {
         try { 
             if (typeEquals(type1, type2)) {
                 return type1;
