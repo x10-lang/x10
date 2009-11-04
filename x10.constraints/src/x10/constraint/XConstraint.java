@@ -316,4 +316,12 @@ public interface XConstraint extends java.io.Serializable, ThisVar {
 	 */
 	XConstraint instantiateSelf(XTerm newSelf);
 	
+	/**
+	 * Return the least upper bound of this and other. That is, the resulting constraint has precisely
+	 * the constraints entailed by both this and other.
+	 * @param other
+	 * @return
+	 */
+	XConstraint leastUpperBound(XConstraint other);
+	
 }
