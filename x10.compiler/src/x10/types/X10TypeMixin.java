@@ -626,7 +626,19 @@ public class X10TypeMixin {
 	    		}
 	    	}
 	    }
+	  
+	  public static boolean entails(Type t, XTerm t1, XTerm t2) {
+		  try {
+		 XConstraint c = realX(t);
+		 if (c==null) 
+			 c = new XConstraint_c();
+		 return c.entails(t1, t2);
+		  } catch (XFailure z) {
+			  return false;
+		  }
+	  }
 
+	 
 	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    XConstraint r = realX(t);
@@ -685,7 +697,32 @@ public class X10TypeMixin {
 	public static XTerm region(Type t) {
 	return findProperty(t, Name.make("region"));
 	}
-
+	public static XTerm zeroBased(Type t) {
+		return findProperty(t, Name.make("zeroBased"));
+	}
+	public static XTerm makeZeroBased(Type t) {
+		return makeProperty(t, "zeroBased");
+	}
+	 
+	public static XTerm makeProperty(Type t, String propStr) {
+		Name propName = Name.make(propStr);
+		  XConstraint c = realX(t);
+		    if (c != null) {
+			    // build the synthetic term.
+			    XTerm var = selfVar(c);
+			    if (var !=null) {
+				    X10FieldInstance fi = getProperty(t, propName);
+				    if (fi != null) {
+					    
+						    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+						    XTerm val = xts.xtypeTranslator().trans(c, var, fi);
+					    return val;
+				    }
+			    }
+		    }
+		return null;
+		
+	}
 	public static XTerm find(Type t, Name propName) {
 	    XTerm val = findProperty(t, propName);
 	    
