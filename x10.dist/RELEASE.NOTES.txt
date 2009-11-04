@@ -39,8 +39,10 @@ the subsequent releases:
 
 The generated C++ code requires g++ 4.2 or better to be compiled; 
 we do almost all of our testing against g++ 4.3.2.  On AIX, you
-may either use g++ 4.2 or better or xlC 10.01.0000.0003 or better.
-
+may either use g++ 4.2 or better or xlC 10.01.0000.0004 or better.
+On Cygwin, g++ 4.3.2 will currently produce corrupted executables
+for X10 programs -- x10c++ will use g++-3 as the default
+post-compiler, so you need to install the gcc-g++ package.
 
 Below is a summary of JIRA issues addressed for the X10 2.0 release.
 
