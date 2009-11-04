@@ -15,17 +15,18 @@ public class PlaceCast extends x10Test {
 	public def run(): boolean = {
 		val d: Dist = Dist.makeUnique(Place.places);
 		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
-		val disagree: Array[BoxedBoolean]{distribution==d} = new Array[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
+		val disagree: Array[BoxedBoolean]{dist==d} 
+		= Array.makeVar[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				x10.io.Console.OUT.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
-		finish ateach (val (p): Point in d) {
+		finish ateach ((p) in d) {
 			// remember if here and d[p] disagree
 			// at any activity at any place
 			try {
 				val q: Place = d(p).next();
 				var x: BoxedBoolean = disagree(p) as (BoxedBoolean!q);
-				async(this.location) { atomic { nplaces++; } }
+				at (this) { atomic { nplaces++; } }
 			} catch (var x: BadPlaceException)  {
 				x10.io.Console.OUT.println("Caught bad place exception for " + p);
 			}

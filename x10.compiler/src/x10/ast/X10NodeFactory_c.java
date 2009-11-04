@@ -86,6 +86,7 @@ import x10.ExtensionInfo;
 import x10.ast.X10Cast.ConversionType;
 import x10.types.ParameterType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10Flags;
 
 /**
  * NodeFactory for X10 extension.
@@ -367,9 +368,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    	body = PropertyDecl_c.addAbstractGetters(properties, body, this);
 	    } else {
 	    	  body = PropertyDecl_c.addPropertyGetters(properties, body, this);
-	    	  if (! name.toString().equals("Struct")) {
-	    		  body = body.addMember(X10ClassDecl_c.makeTypeNameMethod(name, this));
-	    	  }
 	    }
 	  
 	    

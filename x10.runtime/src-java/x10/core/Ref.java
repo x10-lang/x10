@@ -92,4 +92,7 @@ public class Ref implements Any {
             return Thread.currentThread().location();
         }
     }
+    public static String typeName(Object obj) {
+    	return obj.getClass().toString();
+    }
 }
