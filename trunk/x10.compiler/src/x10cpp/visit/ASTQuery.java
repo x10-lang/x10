@@ -15,16 +15,19 @@ import polyglot.ast.Conditional;
 import polyglot.ast.Eval;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
+import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -341,6 +344,9 @@ public class ASTQuery {
 	    return null;
 	}
 
+	/**
+	 * Returns true if e is a constant expression.
+	 */
 	boolean isConstantExpression(Expr e) {
 	    if (!e.isConstant())
 	        return false;
@@ -379,8 +385,25 @@ public class ASTQuery {
 	            if (!isConstantExpression(a))
 	                return false;
             }
-	        return  isConstantExpression(cc.target());
+	        return isConstantExpression(cc.target());
 	    }
 	    return false;
+	}
+
+	/**
+	 * Returns true if e can be evaluated more than once with the same result.
+	 */
+	boolean isIdempotent(Expr e) {
+	    if (e instanceof Local)
+	        return true;
+	    if (e instanceof ParExpr)
+	        return isIdempotent(((ParExpr) e).expr());
+	    if (e instanceof Field) {
+	        Receiver target = ((Field) e).target();
+	        if (!(target instanceof Expr))
+	            return (target instanceof TypeNode);
+	        return isIdempotent((Expr) target);
+	    }
+	    return isConstantExpression(e);
 	}
 }

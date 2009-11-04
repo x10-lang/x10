@@ -121,6 +121,12 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
     public boolean isInsideClosure() { return insideClosure; }
     public void setInsideClosure(boolean b) { insideClosure = b; }
 
+    // used internally, shallow
+    public boolean stackAllocateClosure = false;
+    public void setStackAllocateClosure(boolean val) { stackAllocateClosure = val; }
+    // The outer context of the closure (if in closure)
+    public X10CPPContext_c closureOuter = null;
+
     
     public boolean hasInits = false;
     
@@ -220,6 +226,8 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 		X10CPPContext_c res = (X10CPPContext_c) super.copy();
 		res.variables = new ArrayList<VarInstance>();  // or whatever the initial value is
 		res.inClosure = false;
+		res.stackAllocateClosure = false;
+		res.closureOuter = null;
 		res.data = new HashMap<String, Object>(1, 1.0f);
 		return res;
 	}
