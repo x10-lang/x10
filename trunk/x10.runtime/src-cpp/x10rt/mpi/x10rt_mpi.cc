@@ -394,7 +394,7 @@ void x10rt_init(int &argc, char ** &argv) {
 
     global_state.Init();
 
-    int provided, required;
+    int provided;
     if(NULL != getenv("X10RT_MPI_THREAD_MULTIPLE")) {
         global_state.is_mpi_multithread = true;
         if (MPI_SUCCESS != MPI_Init_thread(&argc, &argv, 
@@ -748,7 +748,10 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
                            get_req->msg,
                            get_req->msg_len
                          };
+    release_lock(&global_state.lock);
     cb(p, get_req->len);
+    get_lock(&global_state.lock);
+
     free(get_req->msg);
     q->remove(req);
     global_state.free_list.enqueue(req);
@@ -776,11 +779,13 @@ static void get_incoming_req_completion(int dest_place,
                            static_cast <void *> (&get_nw_req[1]),
                            get_nw_req->msg_len
                          };
+    release_lock(&global_state.lock);
     void * local = cb(p);
+    get_lock(&global_state.lock);
+
     q->remove(req);
     free(req->getBuf());
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     /* reuse request for sending reply */
     if (MPI_SUCCESS != MPI_Isend(local,
                 len,
@@ -792,7 +797,6 @@ static void get_incoming_req_completion(int dest_place,
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setBuf(local);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_DATA);
 
@@ -835,7 +839,10 @@ static void put_incoming_req_completion(int src_place,
                            static_cast <void *> (&put_req[1]),
                            put_req->msg_len
                          };
+    release_lock(&global_state.lock);
     void * local = cb(p, len);
+    get_lock(&global_state.lock);
+
     q->remove(req);
 
     req->setUserPutReq(put_req);
@@ -843,7 +850,6 @@ static void put_incoming_req_completion(int src_place,
     /* free the recv'd buf, now that we've copied info */
     free(req->getBuf());
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
     /* reuse request for posting recv */
     if (MPI_SUCCESS != MPI_Irecv(local,
                 len,
@@ -855,7 +861,6 @@ static void put_incoming_req_completion(int src_place,
         fprintf(stderr, "[%s:%d] Error in posting Irecv\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
     req->setType(X10RT_REQ_TYPE_PUT_INCOMING_DATA);
     global_state.pending_recv_list.enqueue(req);
 }
@@ -868,7 +873,9 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
                            put_req->msg,
                            put_req->msg_len
                          };
+    release_lock(&global_state.lock);
     cb(p, put_req->len);
+    get_lock(&global_state.lock);
     free(put_req->msg);
     q->remove(req);
     global_state.free_list.enqueue(req);
