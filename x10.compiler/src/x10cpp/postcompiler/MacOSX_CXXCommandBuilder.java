@@ -18,6 +18,8 @@ public class MacOSX_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         super.addPreArgs(cxxCmd);
+        // FIXME: for now, only support 32-bit builds
+        cxxCmd.add("-m32");
     }
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
