@@ -89,6 +89,16 @@ static inline void release_lock(pthread_mutex_t * lock) {
     }
 }
 
+#define LOCK_IF_MPI_IS_NOT_MULTITHREADED {  \
+    if(!global_state.is_mpi_multithread)    \
+        get_lock(&global_state.lock);       \
+}
+
+#define UNLOCK_IF_MPI_IS_NOT_MULTITHREADED {    \
+    if(!global_state.is_mpi_multithread)        \
+        release_lock(&global_state.lock);       \
+}
+
 /**
  * Each X10RT API call is broken down into
  * a X10RT request. Each request of either 
@@ -546,7 +556,7 @@ void x10rt_send_msg(x10rt_msg_params & p) {
     req = global_state.free_list.popNoFail();
     static bool in_recursion = false;
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(p.msg,
                 p.len, MPI_BYTE,
                 p.dest_place,
@@ -556,7 +566,7 @@ void x10rt_send_msg(x10rt_msg_params & p) {
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
 
     if ((global_state.pending_send_list.length() > 
             X10RT_MAX_OUTSTANDING_SENDS) && !in_recursion) {
@@ -568,10 +578,12 @@ void x10rt_send_msg(x10rt_msg_params & p) {
         int complete = 0;
         MPI_Status msg_status;
         do {
+            LOCK_IF_MPI_IS_NOT_MULTITHREADED;
             if (MPI_SUCCESS != MPI_Test(req->getMPIRequest(),
                         &complete,
                         &msg_status)) {
             }
+            UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
             x10rt_probe();
         } while (!complete);
         global_state.free_list.enqueue(req);
@@ -612,7 +624,7 @@ void x10rt_send_get(x10rt_msg_params &p,
 
     /* pre-post a recv that matches the GET request */
     req = global_state.free_list.popNoFail();
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_Irecv(buf, len,
                 MPI_BYTE,
                 p.dest_place,
@@ -620,7 +632,7 @@ void x10rt_send_get(x10rt_msg_params &p,
                 global_state.mpi_comm,
                 req->getMPIRequest())) {
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     req->setBuf(NULL);
     req->setUserGetReq(&get_req);
     req->setType(X10RT_REQ_TYPE_GET_INCOMING_DATA);
@@ -630,7 +642,7 @@ void x10rt_send_get(x10rt_msg_params &p,
     req = global_state.free_list.popNoFail();
     memcpy(static_cast <void *> (&get_msg[1]), p.msg, p.len);
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(get_msg,
                 get_msg_len,
                 MPI_BYTE,
@@ -641,7 +653,7 @@ void x10rt_send_get(x10rt_msg_params &p,
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     req->setBuf(get_msg);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_REQ);
 
@@ -672,7 +684,7 @@ void x10rt_send_put(x10rt_msg_params &p,
     put_msg->len        = len;
     memcpy(static_cast <void *> (&put_msg[1]), p.msg, p.len);
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(put_msg,
                 put_msg_len,
                 MPI_BYTE,
@@ -683,14 +695,14 @@ void x10rt_send_put(x10rt_msg_params &p,
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     req->setBuf(put_msg);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_REQ);
     global_state.pending_send_list.enqueue(req);
 
     req = global_state.free_list.popNoFail();
 
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Isend(buf,
                 len,
                 MPI_BYTE,
@@ -701,7 +713,7 @@ void x10rt_send_put(x10rt_msg_params &p,
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     req->setBuf(NULL);
     req->setType(X10RT_REQ_TYPE_PUT_OUTGOING_DATA);
     global_state.pending_send_list.enqueue(req);
@@ -1062,7 +1074,7 @@ void x10rt_finalize(void) {
             global_state.pending_recv_list.length() > 0) {
         x10rt_probe();
     }
-    if (global_state.is_mpi_multithread) get_lock(&global_state.lock);
+    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
     if (MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
         fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
         abort();
@@ -1071,6 +1083,6 @@ void x10rt_finalize(void) {
         fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n", __FILE__, __LINE__);
         abort();
     }
-    if (global_state.is_mpi_multithread) release_lock(&global_state.lock);
+    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
     global_state.finalized = true;
 }
