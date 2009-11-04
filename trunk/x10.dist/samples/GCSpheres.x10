@@ -41,18 +41,18 @@ class GCSpheres {
     }
 
 
-    static value WorldObject {
+    static class WorldObject {
 
         def this (x:Real, y:Real, z:Real, r:Real) {
             pos = new Vector3(x,y,z);
             renderingDistance = r;
         }
 
-        public def intersects (home:Vector3)
+        public global def intersects (home:Vector3)
             = home.sub(pos).length2() < renderingDistance*renderingDistance;
 
-        protected val pos:Vector3;
-        protected val renderingDistance:Real;
+        protected global val pos:Vector3;
+        protected global val renderingDistance:Real;
     }
 
 
