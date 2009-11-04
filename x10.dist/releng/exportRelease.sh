@@ -12,13 +12,8 @@ while [ $# != 0 ]; do
 	shift
     ;;
 
-    -x10-tag)
+    -tag)
 	export X10_TAG=$2
-	shift
-    ;;
-
-    -polyglot-tag)
-	export POLYGLOT_TAG=$2
 	shift
     ;;
 
@@ -36,12 +31,7 @@ if [[ -z "$X10_VERSION" ]]; then
 fi
 
 if [[ -z "$X10_TAG" ]]; then
-    echo "usage: $0 must give X10 tag as -x10-tag <svn tag>"
-    exit 1
-fi
-
-if [[ -z "$POLYGLOT_TAG" ]]; then
-    echo "usage: $0 must give polyglot tag as -polyglot-tag <svn tag>"
+    echo "usage: $0 must give X10 tag as -tag <svn tag>"
     exit 1
 fi
 
@@ -55,15 +45,6 @@ echo cleaning $workdir
 rm -rf $workdir
 mkdir -p $workdir || exit 1
 mkdir -p $workdir/x10-$X10_VERSION
-
-
-
-(
-echo
-echo getting polyglot
-cd $workdir/x10-$X10_VERSION
-svn $svn_command http://polyglot-compiler.googlecode.com/svn/tags/$POLYGLOT_TAG/polyglot
-)
 
 (
 cd $workdir/x10-$X10_VERSION
