@@ -830,6 +830,7 @@ static void put_outgoing_req_completion(x10rt_req_queue * q,
 
 static void put_outgoing_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
+    assert(NULL == req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
@@ -857,11 +858,6 @@ static void put_incoming_req_completion(int src_place,
 
     q->remove(req);
 
-    req->setUserPutReq(put_req);
-
-    /* free the recv'd buf, now that we've copied info */
-    free(req->getBuf());
-
     /* reuse request for posting recv */
     if (MPI_SUCCESS != MPI_Irecv(local,
                 len,
@@ -878,17 +874,17 @@ static void put_incoming_req_completion(int src_place,
 }
 
 static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
-    x10rt_put_req   * put_req = req->getUserPutReq();
+    x10rt_put_req   * put_req = static_cast <x10rt_put_req *> (req->getBuf());
     putCb2 cb = global_state.putCb2Tbl[put_req->type];
     x10rt_msg_params p = { x10rt_here(),
                            put_req->type,
-                           put_req->msg,
+                           static_cast <void *> (&put_req[1]),
                            put_req->msg_len
                          };
     release_lock(&global_state.lock);
     cb(p, put_req->len);
     get_lock(&global_state.lock);
-    free(put_req->msg);
+    free(req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
