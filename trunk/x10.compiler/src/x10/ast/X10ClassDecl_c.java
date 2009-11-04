@@ -87,6 +87,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeConstraint;
@@ -100,6 +101,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
 import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -612,26 +614,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     
-    public static MethodDecl makeTypeNameMethod(Id name, X10NodeFactory nf) {
-    	// Cannot use the type system. This code is called during parsing.
-    	// e.g. cannot say nf.CanonicalTypeNode(pos, ts.String())
-    	// since that will cause String to get loaded, and we get a stack overflow.
-    	Position pos = Position.COMPILER_GENERATED;
-    
-		Stmt s = nf.Return(pos, nf.StringLit(pos, name.toString()));
-		Block b = nf.Block(pos, s);
-	
-    	MethodDecl tnMethod = nf.MethodDecl(pos,
-    			nf.FlagsNode(pos, X10Flags.toX10Flags(Flags.PUBLIC).Global()), 
-    			nf.AmbTypeNode(pos, nf.PrefixFromQualifiedName(pos, QName.make("x10.lang")), nf.Id(pos, "String")), 
-    			nf.Id(pos, Name.make("typeName")), 
-    			Collections.EMPTY_LIST,
-    			Collections.EMPTY_LIST, 
-    			b
-    			);
-    	return tnMethod;
-
-    }
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
     	X10ClassDecl_c n = this;

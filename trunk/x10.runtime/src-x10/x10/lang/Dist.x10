@@ -335,6 +335,7 @@ public abstract class Dist(
     public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
     public global operator this || (d: Dist(rank)): Dist(rank) = union(d);
     public global operator this - (d: Dist(rank)): Dist(rank) = difference(d);
+    public global operator this - (r: Region(rank)): Dist(rank) = difference(r);
 
 
     //

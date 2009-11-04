@@ -54,5 +54,10 @@ public class Object (
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "((#0)->location == (#1)->location)")
     public property def at(r:Object) = location==r.location;
+    
+    @Native("java", "x10.core.Ref.typeName(#0)")
+    public native global final def typeName():String;
+    
+    
 
 }

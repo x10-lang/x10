@@ -9,5 +9,5 @@ import harness.x10Test;
 
 public interface X10InterfaceOne {
 
-	public public def interfaceMethod(): void;
+	def interfaceMethod(): void;
 }

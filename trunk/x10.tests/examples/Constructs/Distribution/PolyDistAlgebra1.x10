@@ -17,7 +17,7 @@ class PolyDistAlgebra1 extends TestDist {
         //Check range restriction to a place
         for (var k: int = 0; k<Place.MAX_PLACES; k++) {
             var p: Place = Place.place(k);
-            var dp: Dist(2) = d.$bar(p);
+            var dp: Dist(2) = d | p;
             prDist(name + "|" + s(p), dp);
         }
     }
@@ -33,16 +33,16 @@ class PolyDistAlgebra1 extends TestDist {
         val r3 = r(0,7,4,5);
         prArray("r3", r3);
 
-        val r12 = r1.$or(r2);
+        val r12 = r1 || (r2);
         pr("r12" + r12);
 
-        val r12a3 = r12.$and(r3);
+        val r12a3 = r12 && (r3);
         pr("r12a3" + r12a3);
 
-        val r123 = r1.$or(r2).$or(r3);
+        val r123 = r1 || (r2) || (r3);
         pr("r123" + r123);
 
-        val r12m3 = r12.$minus(r3);
+        val r12m3 = r12 - (r3);
         pr("r12m3" + r12m3);
 
         val d123x0 = Dist.makeCyclic(r123, 0);
@@ -55,16 +55,16 @@ class PolyDistAlgebra1 extends TestDist {
         // dist op region
         //
 
-        val d123x0r12a3 = d123x0.$bar(r12a3);
+        val d123x0r12a3 = d123x0 - (r12a3);
         prDist("d123x0r12a3", d123x0r12a3);
 
-        val d123x1r12a3 = d123x1.$bar(r12a3);
+        val d123x1r12a3 = d123x1 - (r12a3);
         prDist("d123x1r12a3", d123x1r12a3);
 
-        val d123x0r12m3 = d123x0.$bar(r12m3);
+        val d123x0r12m3 = d123x0 | (r12m3);
         prDist("d123x0r12m3", d123x0r12m3);
 
-        val d123x1r12m3 = d123x1.$bar(r12m3);
+        val d123x1r12m3 = d123x1 | (r12m3);
         prDist("d123x1r12m3", d123x1r12m3);
 
 
@@ -72,15 +72,15 @@ class PolyDistAlgebra1 extends TestDist {
         // dist - dist
         //
 
-        val d1 = d123x0.$minus(d123x0r12m3);
+        val d1 = d123x0 - (d123x0r12m3);
         prDist("d1 = d123x0 - d123x0r12m3", d1);
-        val d3 = d123x0.$bar(r3);
+        val d3 = d123x0 | (r3);
         prDist("d3 = d123x0 | r3", d3);
         pr("d1.equals(d3) checks " + d1.equals(d3));
         pr("d1.isSubdistribution(d123x0) checks " + d1.isSubdistribution(d123x0));
         pr("!d123x0.isSubdistribution(d1) checks " + !d123x0.isSubdistribution(d1));
 
-        val d1x = d123x0.$minus(d123x1r12m3);
+        val d1x = d123x0 - (d123x1r12m3);
         prDist("d1x = d123x0 - d123x1r12m3", d1x);
         pr("d1x.isSubdistribution(d123x0) checks " + d1x.isSubdistribution(d123x0));
         pr("!d123x0.isSubdistribution(d1x) checks " + !d123x0.isSubdistribution(d1x));
@@ -90,11 +90,11 @@ class PolyDistAlgebra1 extends TestDist {
         // dist && dist
         //
 
-        val d2 = d123x0r12m3.$and(d123x0);
+        val d2 = d123x0r12m3 && (d123x0);
         prDist("d2 = d123x0r12m3 && d123x0", d2);
         pr("d2.equals(d123x0r12m3) checks " + d2.equals(d123x0r12m3));
 
-        val d2x = d123x0r12m3.$and(d123x1);
+        val d2x = d123x0r12m3 && (d123x1);
         prDist("d2x = d123x0r12m3 && d123x1", d2x);
 
 
@@ -102,14 +102,14 @@ class PolyDistAlgebra1 extends TestDist {
         // dist overlay dist
         //
 
-        val d5 = d123x0.$bar(r12);
+        val d5 = d123x0 | (r12);
         prDist("d5 = d123x0 | r12", d5);
         val d4 = d5.overlay(d3);
         prDist("d4 = d5.overlay(d3)", d4);
         pr("d4.equals(d123x0) checks " + d4.equals(d123x0));
 
 
-        val d5x = d123x1.$bar(r12);
+        val d5x = d123x1 | (r12);
         prDist("d5x = d123x1 | r12", d5);
         val d4x = d5x.overlay(d3);
         prDist("d4x = d5x.overlay(d3)", d4x);
@@ -119,17 +119,17 @@ class PolyDistAlgebra1 extends TestDist {
         // dist union dist
         //
 
-        val d6 = d123x0r12a3.$or(d123x0r12m3);
+        val d6 = d123x0r12a3 || (d123x0r12m3);
         prDist("d6 = d123x0r12a3 || d123x0r12m3", d6);
         pr("d6.equals(d5) checks " + d6.equals(d5));
 
 
-        new E("d6x = d123x0 || d123x1") {
+       /* new E("d6x = d123x0 || d123x1") {
             def run(): void = {
                 val d6x = d123x0.$or(d123x1);
                 prDist("d6x = d123x0 || d123x1", d6x);
             }
-        };
+        };*/
 
         return status();
     }
