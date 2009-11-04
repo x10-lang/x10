@@ -149,10 +149,7 @@ class x10rt_req {
         x10rt_req           * next;
         x10rt_req           * prev;
         void                * buf;
-        union {
-            x10rt_get_req         get_req;
-            x10rt_put_req         put_req;
-        } u;
+        x10rt_get_req         get_req;
     public:
         x10rt_req()  {
             next = prev = NULL;
@@ -170,25 +167,15 @@ class x10rt_req {
         void setBuf(void * buf) { this->buf = buf; }
         void * getBuf() { return this->buf; }
         void setUserGetReq(x10rt_get_req * r) {
-            u.get_req.type       = r->type;
-            u.get_req.dest_place = r->dest_place;
-            u.get_req.msg        = r->msg;
-            u.get_req.msg_len    = r->msg_len;
-            u.get_req.len        = r->len;
-        }
-        void setUserPutReq(x10rt_put_req * r) {
-            u.put_req.type    = r->type;
-            u.put_req.msg     = r->msg;
-            u.put_req.msg_len = r->msg_len;
-            u.put_req.len     = r->len;
+            this->get_req.type       = r->type;
+            this->get_req.dest_place = r->dest_place;
+            this->get_req.msg        = r->msg;
+            this->get_req.msg_len    = r->msg_len;
+            this->get_req.len        = r->len;
         }
         x10rt_get_req * getUserGetReq() {
             assert(X10RT_REQ_TYPE_GET_INCOMING_DATA == type);
-            return &u.get_req;
-        }
-        x10rt_put_req * getUserPutReq() {
-            assert(X10RT_REQ_TYPE_PUT_INCOMING_DATA == type);
-            return &u.put_req;
+            return &this->get_req;
         }
         friend class x10rt_req_queue;
 };
@@ -809,7 +796,7 @@ static void get_incoming_req_completion(int dest_place,
         fprintf(stderr, "[%s:%d] Error in MPI_Isend\n", __FILE__, __LINE__);
         abort();
     }
-    req->setBuf(local);
+    req->setBuf(NULL);
     req->setType(X10RT_REQ_TYPE_GET_OUTGOING_DATA);
 
     global_state.pending_send_list.enqueue(req);
@@ -817,6 +804,7 @@ static void get_incoming_req_completion(int dest_place,
 
 static void get_outgoing_data_completion(x10rt_req_queue * q,
         x10rt_req * req) {
+    assert(NULL == req->getBuf());
     q->remove(req);
     global_state.free_list.enqueue(req);
 }
