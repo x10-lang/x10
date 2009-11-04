@@ -386,7 +386,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
             }
             else {
-                return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
+            	return c;
+               // return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
             }
         }
         
