@@ -404,6 +404,8 @@ public class ASTQuery {
 	            return (target instanceof TypeNode);
 	        return isIdempotent((Expr) target);
 	    }
+	    if (e instanceof Cast)
+	        return isIdempotent(((Cast) e).expr());
 	    return isConstantExpression(e);
 	}
 }
