@@ -61,6 +61,7 @@ import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
+import polyglot.ast.Block;
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
@@ -214,6 +215,7 @@ import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
+import x10.util.Synthesizer;
 import x10cpp.extension.X10ClassBodyExt_c;
 import x10cpp.types.X10CPPContext_c;
 import x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
@@ -2980,19 +2982,70 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
+	private static boolean isRef(Type rt) {
+	    if (rt.isVoid())
+	        return false;
+	    X10TypeSystem_c xts = (X10TypeSystem_c) rt.typeSystem();
+	    if (xts.isStructType(rt))
+	        return false;
+	    if (xts.isParameterType(rt)) {
+	        if (xts.isSubtype(rt, xts.Object(), xts.emptyContext()))
+	            return true;
+	        return false;
+	    }
+	    return true;
+	}
+
+	private static final boolean GCC_41_HACK = false;
+
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
 	                             X10MethodInstance mi, boolean needsPlaceCheck, boolean needsNullCheck)
 	{
 	    boolean replicate = query.isIdempotent(target);
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    Type rt = mi.returnType();
 	    assert (target != null); // has to be explicit target.
 	    assert (contType instanceof X10ClassType); // have to dispatch to an interface type.
 	    X10ClassType clsType = (X10ClassType) contType;
 	    assert (clsType.flags().isInterface()); // have to dispatch to an interface type.
+	    if (!Configuration.CLOSURE_INLINING && !replicate) {
+	        // If not inlining closures, want to get rid of statement expressions here too.
+	        X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+	        List<Expr> newArgs = new ArrayList<Expr>();
+	        newArgs.add(target);
+	        newArgs.addAll(args);
+	        Position pos = n.position();
+	        List<Type> argTypes = new ArrayList<Type>();
+	        List<Formal> formals = new ArrayList<Formal>();
+	        int p = 0;
+	        for (Expr a : newArgs) {
+	            Type t = a.type();
+	            argTypes.add(t);
+	            Name fn = Name.make("p"+(p++));
+	            LocalDef fd = xts.localDef(pos, xts.Final(), Types.ref(t), fn);
+	            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+	                    xnf.CanonicalTypeNode(pos, t), xnf.Id(pos, fn)).localDef(fd));
+	        }
+	        List<Expr> innerArgs = new ArrayList<Expr>();
+	        for (Formal f : formals) {
+	            LocalDef fd = f.localDef();
+	            innerArgs.add(xnf.Local(pos, xnf.Id(pos, fd.name())).localInstance(fd.asInstance()).type(fd.type().get()));
+	        }
+	        Expr innerTarget = innerArgs.remove(0);
+	        Expr call = xnf.Call(pos, innerTarget, xnf.Id(pos, mi.name()), innerArgs).methodInstance(mi).type(rt);
+	        Block body = xnf.Block(pos, xnf.Return(pos, call));
+	        Synthesizer synth = new Synthesizer(xnf, xts);
+	        Closure c = synth.makeClosure(pos, rt, formals, body, context);
+	        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+	        Expr wrap = xnf.ClosureCall(pos, c, newArgs).closureInstance(ci).type(rt);
+	        n.print(wrap, sw, tr);
+	        return;
+	    }
 	    ITable itable= ITable.getITable(clsType);
 	    String targetMethodName = itable.mangledName(mi);
 	    if (!replicate) {
+	        if (GCC_41_HACK && isRef(rt)) sw.write(Emitter.translateType(rt, true)); // FIXME: HACK for gcc 4.1
 	        sw.write("(__extension__ ({ "+dispType+" _ = ");
 	        if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 	        if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -3040,6 +3093,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    printCallActuals(n, context, xts, mi, args);
 	    sw.write(")");
 	    if (!replicate) {
+	        if (GCC_41_HACK && isRef(rt)) sw.write(".operator->()"); // FIXME: HACK for gcc 4.1
 	        sw.write("; }))");
 	    }
 	}
@@ -3902,6 +3956,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String superType = Emitter.translateType(sup.typeArguments(supArgs));
         String superTypeRef = Emitter.translateType(sup.typeArguments(supArgs), true);
 
+        inc.write("#include <x10/lang/Value.h>"); inc.newline();
+        String header = getHeader(sup);
+        inc.write("#include <"+header+">"); inc.newline();
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
@@ -4176,8 +4233,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
 	    if (!Configuration.CLOSURE_INLINING)
 	        return false;   // Closure inlining disabled
-	    // TODO: optimize anyway to stack-allocated closure and non-virtual
-        // dispatch (see XTENLANG-572)
 
 	    // Ensure that the last statement of the body is the only return in the closure
 	    closure = (Closure_c) closure.visit(new ClosureRewriter(closure));
@@ -4303,6 +4358,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean needsPlaceCheck = !xf.isGlobal() && needsPlaceCheck(target, context);
 		boolean needsNullCheck = needsNullCheck(target);
 		if (lit != null) {
+		    // Optimize to stack-allocated closure and non-virtual dispatch
 		    context.setStackAllocateClosure(true);
 		    c.printSubExpr(target, sw, tr);
 		    context.setStackAllocateClosure(false);
