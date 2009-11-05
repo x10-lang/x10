@@ -25,7 +25,7 @@ final class MacPlatform implements IDefaultX10Platform {
   }
 
   public String getCompilerOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC -m32"; //$NON-NLS-1$
   }
 
   public String getLinker() {
