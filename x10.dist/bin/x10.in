@@ -28,7 +28,7 @@ while [ -n "$1" ]; do
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
         -*) java_args="${java_args} -Dx10.${1##-}=true";;
-        *.x10) args="$args '${1%%.x10}\$Main'";;
+        *.x10) args="$args '${1%%.x10}\$Main'"; shift; args="$args $*"; break;;
         *) args="$args '$1\$Main'"; shift; args="$args $*"; break;;
     esac
     shift
