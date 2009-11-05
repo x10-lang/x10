@@ -994,6 +994,8 @@ void x10rt_remote_op_fence(void) {
     abort();
 }
 
+void x10rt_register_thread (void) { }
+
 void x10rt_probe(void) {
     int arrived;
     MPI_Status msg_status;
