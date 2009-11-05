@@ -25,6 +25,8 @@ void x10rt_send_get (x10rt_msg_params &, void *buf, unsigned long len);
 void *x10rt_put_realloc (void *old, size_t old_sz, size_t new_sz);
 void x10rt_send_put (x10rt_msg_params &, void *buf, unsigned long len);
 
+void x10rt_register_thread (void);
+
 void x10rt_remote_xor (unsigned long place, unsigned long long addr, long long update);
 
 void x10rt_remote_op_fence (void);
