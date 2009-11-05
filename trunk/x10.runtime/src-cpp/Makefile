@@ -47,8 +47,10 @@ CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
 ifdef ENABLE_CROSS_COMPILE_BGP
   override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
-  override CXX = /bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-g++
-  override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
+  #override CXX = /bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-g++
+  #override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
+  override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+  override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
 
 else
 
