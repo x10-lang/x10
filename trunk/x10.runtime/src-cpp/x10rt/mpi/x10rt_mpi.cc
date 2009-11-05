@@ -747,12 +747,12 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
                            get_req->msg,
                            get_req->msg_len
                          };
+    q->remove(req);
     release_lock(&global_state.lock);
     cb(p, get_req->len);
     get_lock(&global_state.lock);
 
     free(get_req->msg);
-    q->remove(req);
     global_state.free_list.enqueue(req);
 }
 
@@ -778,11 +778,11 @@ static void get_incoming_req_completion(int dest_place,
                            static_cast <void *> (&get_nw_req[1]),
                            get_nw_req->msg_len
                          };
+    q->remove(req);
     release_lock(&global_state.lock);
     void * local = cb(p);
     get_lock(&global_state.lock);
 
-    q->remove(req);
     free(req->getBuf());
 
     /* reuse request for sending reply */
@@ -840,11 +840,10 @@ static void put_incoming_req_completion(int src_place,
                            static_cast <void *> (&put_req[1]),
                            put_req->msg_len
                          };
+    q->remove(req);
     release_lock(&global_state.lock);
     void * local = cb(p, len);
     get_lock(&global_state.lock);
-
-    q->remove(req);
 
     /* reuse request for posting recv */
     if (MPI_SUCCESS != MPI_Irecv(local,
@@ -869,11 +868,11 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
                            static_cast <void *> (&put_req[1]),
                            put_req->msg_len
                          };
+    q->remove(req);
     release_lock(&global_state.lock);
     cb(p, put_req->len);
     get_lock(&global_state.lock);
     free(req->getBuf());
-    q->remove(req);
     global_state.free_list.enqueue(req);
 }
 
