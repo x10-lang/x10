@@ -400,8 +400,8 @@ void x10rt_init(int &argc, char ** &argv) {
             abort();
         }
         MPI_Comm_rank(MPI_COMM_WORLD, &global_state.rank);
-        if (0 == global_state.rank) {
-            if (MPI_THREAD_MULTIPLE != provided) {
+        if (MPI_THREAD_MULTIPLE != provided) {
+            if (0 == global_state.rank) {
                 fprintf(stderr, "[%s:%d] Underlying MPI implementation"
                         " needs to provide MPI_THREAD_MULTIPLE threading level\n",
                         __FILE__, __LINE__);
@@ -409,11 +409,11 @@ void x10rt_init(int &argc, char ** &argv) {
                         " X10RT_MPI_THREAD_MULTIPLE from you environment\n",
                         __FILE__, __LINE__);
             }
-        }
-        if (MPI_SUCCESS != MPI_Finalize()) {
-            fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n",
-                    __FILE__, __LINE__);
-            abort();
+            if (MPI_SUCCESS != MPI_Finalize()) {
+                fprintf(stderr, "[%s:%d] Error in MPI_Finalize\n",
+                        __FILE__, __LINE__);
+                abort();
+            }
         }
     } else {
         global_state.is_mpi_multithread = false;
