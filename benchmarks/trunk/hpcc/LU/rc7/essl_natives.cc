@@ -73,4 +73,11 @@ void blockMulSubRow (double     * me,
     }
 }
 
+#if TRANSPORT == bgp
+void _xliltrm() { }
+void flush_ () { }
+void _xlfStop () { }
+void _xlf_create_threadlocal() {}
+void _fill () { }
+#endif
 }
