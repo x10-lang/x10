@@ -8,6 +8,7 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
@@ -77,6 +78,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     createApplicationProgramEditor(composite);
     createVerticalSpacer(composite, 2);
     createProgramArgs(composite);
+    createVerticalSpacer(composite, 2);
+    createOutputToConsoleButton(composite);
     
     setControl(composite);
   }
@@ -102,6 +105,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
     
     configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, this.fShouldLink.getSelection());
+    configuration.setAttribute(ATTR_CONSOLE, this.fToConsoleBt.getSelection());
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
@@ -110,6 +114,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
+    configuration.setAttribute(ATTR_CONSOLE, false);
   }
   
   // --- Overridden methods
@@ -126,6 +131,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       this.fAppProgText.setText(configuration.getAttribute(ATTR_EXECUTABLE_PATH, EMPTY_STRING));
       this.fPgrmArgsText.setText(configuration.getAttribute(ATTR_ARGUMENTS, EMPTY_STRING));
       this.fShouldLink.setSelection(configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true));
+      this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, false));
     } catch (CoreException except) {
       setErrorMessage(LaunchMessages.CAT_ReadConfigError);
       CppLaunchCore.log(except.getStatus());
@@ -241,6 +247,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         }
       }
     });
+  }
+  
+  private void createOutputToConsoleButton(final Composite parent) {
+    this.fToConsoleBt = new Button(parent, SWT.CHECK);
+    this.fToConsoleBt.setText("Display output from all processes in a console view");
   }
   
   private void createProjectEditor(final Composite parent) {
@@ -374,5 +385,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private Button fSearchAppProgBt;
   
   private Button fShouldLink;
+  
+  private Button fToConsoleBt;
   
 }
