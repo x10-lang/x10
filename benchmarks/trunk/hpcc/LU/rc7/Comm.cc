@@ -71,7 +71,7 @@ x10_boolean rc7::Comm::_struct_equals(x10aux::ref<x10::lang::Object> p0) {
 }
 
 const x10aux::serialization_id_t rc7::Comm::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(rc7::Comm::_deserializer<x10::lang::Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(rc7::Comm::_deserializer<x10::lang::Ref>);
 
 void rc7::Comm::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
     x10::lang::Value::_serialize_body(buf, m);
