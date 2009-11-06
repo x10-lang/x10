@@ -4,15 +4,15 @@
 
 # BGP specific settings
 #
-export POSTCOMPILE_CXX		?= /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
-export POSTCOMPILE_CXXFLAGS 	?=
-export POSTCOMPILE_LDFLAGS	?= -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
-export POSTCOMPILE_LIBS		?= -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
+export POSTCOMPILE_CXX		= /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+export POSTCOMPILE_CXXFLAGS 	=
+export POSTCOMPILE_LDFLAGS	= -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
+export POSTCOMPILE_LIBS		= -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
 
 export POSTCOMPILE_OPTFLAGS	?= -DNO_CHECKS
 export POSTCOMPILE_DBGFLAGS	?= -g
 
-export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -q64 -qarch=pwr5 -qtune=pwr5 -qhot -qinline -qrtti=all -DNDEBUG
+export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -DNDEBUG
 
 export POSTCOMPILE_INCLUDEOPT ?= -qinclude=
 
