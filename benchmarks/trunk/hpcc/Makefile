@@ -21,7 +21,7 @@ endif
 ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
    include arch/cygwin.mk
 endif
-ifneq ($(BGP_CROSS_COMPILE),)
+ifeq ($(BGP_CROSS_COMPILE), 1)
    include arch/bgp.mk
 endif
 

@@ -14,8 +14,13 @@ export POSTCOMPILE_NATIVE_LIB_FLAGS ?= -O3 -DNDEBUG
 
 export POSTCOMPILE_INCLUDEOPT ?= -include 
 
+ifeq ($(USE_ACML), 1)
 export BLAS_LIB		?= /opt/acml4.3.0/gfortran64/lib/libacml.a
 export EXTRA_LIBS	?= /usr/lib/gcc/x86_64-redhat-linux/4.1.1/libgfortran.a
+else
+export BLAS_LIB		?= -lblas
+export EXTRA_LIBS	?=
+endif
 
 export POSTCOMPILE_AR		?= ar
 export POSTCOMPILE_ARFLAGS	?= rv
