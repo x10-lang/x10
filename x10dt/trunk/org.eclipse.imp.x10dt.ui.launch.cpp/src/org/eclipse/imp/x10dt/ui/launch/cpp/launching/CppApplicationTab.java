@@ -114,7 +114,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-    configuration.setAttribute(ATTR_CONSOLE, false);
+    configuration.setAttribute(ATTR_CONSOLE, true);
   }
   
   // --- Overridden methods
@@ -131,7 +131,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       this.fAppProgText.setText(configuration.getAttribute(ATTR_EXECUTABLE_PATH, EMPTY_STRING));
       this.fPgrmArgsText.setText(configuration.getAttribute(ATTR_ARGUMENTS, EMPTY_STRING));
       this.fShouldLink.setSelection(configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true));
-      this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, false));
+      this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
     } catch (CoreException except) {
       setErrorMessage(LaunchMessages.CAT_ReadConfigError);
       CppLaunchCore.log(except.getStatus());
