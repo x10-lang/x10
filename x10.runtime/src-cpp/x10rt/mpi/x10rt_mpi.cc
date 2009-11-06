@@ -1015,33 +1015,42 @@ void x10rt_probe(void) {
         }
 
         /* Post recv for incoming message */
-        if (arrived &&
-                global_state._reserved_tag_put_data != msg_status.MPI_TAG) {
-            /* Don't need to post recv for incoming puts, they
-             * will be matched by X10RT_PUT_INCOMING_REQ handler */
-            void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
-            int tag = msg_status.MPI_TAG;
-            x10rt_req * req = global_state.free_list.popNoFail();
-            req->setBuf(recv_buf);
-            if (MPI_SUCCESS != MPI_Irecv(recv_buf,
-                        get_recvd_bytes(&msg_status),
-                        MPI_BYTE,
-                        msg_status.MPI_SOURCE,
-                        msg_status.MPI_TAG,
-                        global_state.mpi_comm,
-                        req->getMPIRequest())) {
-                fprintf(stderr, "[%s:%d] Error in posting Irecv\n",
-                        __FILE__, __LINE__);
-                abort();
-            }
-            if (tag == global_state._reserved_tag_get_req) {
-                req->setType(X10RT_REQ_TYPE_GET_INCOMING_REQ);
-            } else if (tag == global_state._reserved_tag_put_req) {
-                req->setType(X10RT_REQ_TYPE_PUT_INCOMING_REQ);
+        if (arrived) {
+            if (global_state._reserved_tag_put_data == msg_status.MPI_TAG) {
+                /* Break out of loop, give up lock. At some point we have
+                 * discovered the PUT request, and the thread that has
+                 * processed it, will post the corresponding receive.
+                 */
+                check_pending_sends();
+                check_pending_receives();
+                break;
             } else {
-                req->setType(X10RT_REQ_TYPE_RECV);
+                /* Don't need to post recv for incoming puts, they
+                 * will be matched by X10RT_PUT_INCOMING_REQ handler */
+                void * recv_buf = ChkAlloc<char>(get_recvd_bytes(&msg_status));
+                int tag = msg_status.MPI_TAG;
+                x10rt_req * req = global_state.free_list.popNoFail();
+                req->setBuf(recv_buf);
+                if (MPI_SUCCESS != MPI_Irecv(recv_buf,
+                            get_recvd_bytes(&msg_status),
+                            MPI_BYTE,
+                            msg_status.MPI_SOURCE,
+                            msg_status.MPI_TAG,
+                            global_state.mpi_comm,
+                            req->getMPIRequest())) {
+                    fprintf(stderr, "[%s:%d] Error in posting Irecv\n",
+                            __FILE__, __LINE__);
+                    abort();
+                }
+                if (tag == global_state._reserved_tag_get_req) {
+                    req->setType(X10RT_REQ_TYPE_GET_INCOMING_REQ);
+                } else if (tag == global_state._reserved_tag_put_req) {
+                    req->setType(X10RT_REQ_TYPE_PUT_INCOMING_REQ);
+                } else {
+                    req->setType(X10RT_REQ_TYPE_RECV);
+                }
+                global_state.pending_recv_list.enqueue(req);
             }
-            global_state.pending_recv_list.enqueue(req);
         } else {
             check_pending_sends();
             check_pending_receives();
