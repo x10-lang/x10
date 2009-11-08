@@ -23,6 +23,7 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
+import polyglot.ast.Binary.Operator;
 import polyglot.types.ClassDef;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
@@ -405,7 +406,8 @@ public class XTypeTranslator {
 	    Expr right = t.right();
 	    XTerm v;
 	    
-	    if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+	    if (t.operator() == Binary.COND_AND 
+	    		|| (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        transType(c, left, xc);
 	        transType(c, right, xc);
 	    }
@@ -475,9 +477,10 @@ public class XTypeTranslator {
 	    XTerm v = null;
 	    XTerm lt = trans(c, left, xc);
 	    XTerm rt = trans(c, right, xc);
+	    Operator op = t.operator();
 	    if (lt == null || rt == null)
 	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
-	    if (t.operator() == Binary.EQ) {
+	    if (op == Binary.EQ || op == Binary.NE) {
 	    	if (right instanceof ParExpr) {
 	    		right = ((ParExpr)right).expr();
 	    	}
@@ -488,12 +491,13 @@ public class XTypeTranslator {
 	    		lt = simplify((Binary) left, lt);
 	    	}
 	    	
-	    		v = XTerms.makeEquals(lt, rt);
+	    		v = op == Binary.EQ ? XTerms.makeEquals(lt, rt): XTerms.makeDisEquals(lt, rt);
 	    }
-	    else if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+	    else if (t.operator() == Binary.COND_AND 
+	    		|| (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
 	        v = XTerms.makeAnd(lt, rt);
 	    }
-	    else {
+	    else  {
 			v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
 		}
 		addTypeToEnv(v, t.type());

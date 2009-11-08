@@ -377,6 +377,19 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    
+    public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
+     	assert (! (t instanceof X10UnknownType));
+        try {
+            XConstraint c = xclause(t);
+            c = c == null ? new XConstraint_c() :c.copy();
+            c.addDisBinding(t1, t2);
+            return xclause(X10TypeMixin.baseType(t), c);
+        }
+        catch (XFailure f) {
+            throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
+        }
+    }
     public static Type addConstraint(Type t, XConstraint xc) {
     	assert (! (t instanceof X10UnknownType));
         try {
@@ -637,6 +650,17 @@ public class X10TypeMixin {
 			  return false;
 		  }
 	  }
+	  
+	  public static boolean disEntails(Type t, XTerm t1, XTerm t2) {
+		  try {
+		 XConstraint c = realX(t);
+		 if (c==null) 
+			 c = new XConstraint_c();
+		 return c.disEntails(t1, t2);
+		  } catch (XFailure z) {
+			  return false;
+		  }
+	  }
 
 	 
 	protected static boolean amIProperty(Type t, Name propName, X10Context context) {
@@ -758,6 +782,10 @@ public class X10TypeMixin {
 	public static boolean isRankThree(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    return xts.THREE().equals(X10TypeMixin.rank(t, context));
+	}
+	
+	public static boolean isNonNull(Type t) {
+		return disEntails(t, selfVar(t),XTerms.NULL);
 	}
 
 	static XTerm findProperty(Type t, Name propName) {
