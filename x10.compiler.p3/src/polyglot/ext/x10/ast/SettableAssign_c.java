@@ -332,7 +332,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
         map.put(Assign.MOD_ASSIGN, Binary.MOD);
         map.put(Assign.BIT_AND_ASSIGN, Binary.BIT_AND);
         map.put(Assign.BIT_OR_ASSIGN, Binary.BIT_OR);
-        map.put(Assign.BIT_XOR_ASSIGN, Binary.BIT_AND);
+        map.put(Assign.BIT_XOR_ASSIGN, Binary.BIT_XOR);
         map.put(Assign.SHL_ASSIGN, Binary.SHL);
         map.put(Assign.SHR_ASSIGN, Binary.SHR);
         map.put(Assign.USHR_ASSIGN, Binary.USHR);
