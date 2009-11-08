@@ -51,6 +51,7 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -561,6 +562,9 @@ public class X10New_c extends New_c implements X10New {
         	X10Context xc = (X10Context) tc.context();
         	XTerm locVar = xts.locVar(selfVar, xc);
         	type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
+        	
+        	// Add self != null
+        	type = X10TypeMixin.addDisBinding(type, selfVar, XTerms.NULL);
         }
        
         
