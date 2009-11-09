@@ -24,22 +24,17 @@ public final struct Place(id: int) {
     }
 	
     public static def place(id: int) = places(id);
-
     public def next(): Place = next(1);
-
     public def prev(): Place = next(-1);
-
     public def prev(i: int): Place = next(-i);
-    
     public def next(i: int): Place {
         // -1 % n == -1, not n-1, so need to add n
         val k = (id + i % MAX_PLACES + MAX_PLACES) % MAX_PLACES;
         return place(k);
 	}
 	
-	public def isFirst(): boolean = id == 0;
-
-	public def isLast(): boolean = id == MAX_PLACES - 1;
-
+    public def isFirst(): boolean = id == 0;
+    public def isLast(): boolean = id == MAX_PLACES - 1;
     public def toString() = "(Place " + id + ")";
+    public def equals(p:Place) = this.id==p.id;
 }    
