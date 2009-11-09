@@ -184,7 +184,7 @@ namespace x10aux {
                                  : "=&r" (newValue)
                                  : "0" (newValue), "r" (address), "r" (oldValue)
                                  : "memory");
-            return oldValue;
+            return newValue;
 #else
 #  error "Unknown architecture"
 #endif 
@@ -232,7 +232,7 @@ namespace x10aux {
                                  : "=&r" (newValue)
                                  : "0" (newValue), "r" (address), "r" (oldValue)
                                  : "memory");
-            return oldValue;
+            return newValue;
 #else
 #  error "Unknown architecture"
 #endif
