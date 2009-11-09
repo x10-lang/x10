@@ -14,7 +14,7 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
         assert (CXXCommandBuilder.PLATFORM.startsWith("win32_"));
     }
 
-    protected boolean gcEnabled() { return false; }
+    protected boolean gcEnabled() { return true; }
 
     protected String defaultPostCompiler() {
         return "g++-3";
