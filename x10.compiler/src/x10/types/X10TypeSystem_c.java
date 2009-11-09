@@ -2618,6 +2618,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public boolean isSubtype(Type t1, Type t2, Context context) {
         return env(context).isSubtype(t1, t2);
     }
+    public boolean isSubtype(Type t1, Type t2) {
+        return isSubtype(t1, t2, emptyContext());
+    }
 
     public boolean behavesLike(Type t1, Type t2, Context context) {
     	return env(context).behavesLike(t1, t2);

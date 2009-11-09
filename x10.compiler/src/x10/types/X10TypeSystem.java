@@ -55,6 +55,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isSubtype(Type t1, Type t2, Context context);
 
+    // empty context
+    boolean isSubtype(Type t1, Type t2);
     /**
      * Add an annotation to a type object, optionally replacing existing
      * annotations that are subtypes of annoType.
