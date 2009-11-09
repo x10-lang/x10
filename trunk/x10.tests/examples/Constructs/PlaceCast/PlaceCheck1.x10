@@ -15,7 +15,7 @@ public class PlaceCheck1 extends x10Test {
 		var ret: boolean;
 		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
 		// this test only works with > 1 place
-		if (Place.places.size() <= 1) {
+		if (Place.places.length <= 1) {
 			x10.io.Console.OUT.println("This test requires at least 2 places.");
 			ret = false;
 		} else {
@@ -28,71 +28,73 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def getNotHere(): Place = {
-		var Place: Box[ret] = null; // here.next(); -- does not work
-		for (var it: Iterator[Place] = Place.places.iterator(); it.hasNext(); ) {
-			var p: Place = it.next();
-			if (p != here) {
-				ret = p;
-				break;
-			}
-		}
-		return ret as Place;
-	}
-
+	public static def getNotHere() = here.next();
 	public var foo: int;
-	public def foo_method(): int = {
-		return 42;
-	}
+	public safe def foo_method() = 42;
 
-	public static def checkFieldAccess(): boolean = {
+	public static def checkFieldAccess() {
 		var ret: boolean = false;
 		try {
-			val obj_here: PlaceCheck1 = new PlaceCheck1();
-			obj_here.foo = 123;
+			val obj  = new PlaceCheck1();
+			obj.foo = 123;
 			// x10.io.Console.OUT.println("DEBUG - creating object in place p = " + here);
-			var other_place: Place = getNotHere();
+			val other_place = getNotHere();
 			finish async (other_place) {
-				var xxx: int;
-				atomic { xxx = obj_here.foo; }
+				val o = obj as PlaceCheck1!;
+				val xxx = o.foo;
 				if (xxx != 123)
 					x10.io.Console.OUT.println(xxx);
 			};
-			x10.io.Console.OUT.println("WARN - expected exception/error for remote field read in atomic");
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote field read.");
 		} catch (e: BadPlaceException) {
 			x10.io.Console.OUT.println("OK - got BadPlaceException in field access");
+			ret = true;
+		}  catch (e:ClassCastException) {
+			x10.io.Console.OUT.println("OK - got ClassCastException in field access");
 			ret = true;
 		}
 		return ret;
 	}
 
-	public static def checkFieldAssign(): boolean = {
+	public static def checkFieldAssign() {
 		var ret: boolean = false;
 		try {
-			val obj_here: PlaceCheck1 = new PlaceCheck1();
-			var other_place: Place = getNotHere();
+			val obj_here  = new PlaceCheck1();
+			val other_place  = getNotHere();
 			finish async (other_place) {
-				atomic { obj_here.foo = 123; }
+				atomic { 
+					val o = obj_here as PlaceCheck1!;
+					o.foo = 123; 
+					}
 			};
 			x10.io.Console.OUT.println("WARN - expected exception/error for remote field write in atomic");
 		} catch (e: BadPlaceException) {
 			x10.io.Console.OUT.println("OK - got BadPlaceException for in field assign");
 			ret = true;
+		} catch (e:ClassCastException) {
+			x10.io.Console.OUT.println("OK - got ClassCastException in field access");
+			ret = true;
 		}
+		
 		return ret;
 	}
 
 	public static def checkMethodCall(): boolean = {
 		var ret: boolean = false;
 		try {
-			val obj_here: PlaceCheck1 = new PlaceCheck1();
-			var other_place: Place = getNotHere();
+			val obj  = new PlaceCheck1();
+			val other_place = getNotHere();
 			finish async (other_place) {
-				atomic { obj_here.foo_method(); }
+				atomic { 	
+					val o = obj as PlaceCheck1 !;
+				o.foo_method(); }
 			};
 			x10.io.Console.OUT.println("WARN - expected exception/error for remote method call in atomic");
 		} catch (e: BadPlaceException) {
 			x10.io.Console.OUT.println("OK - got BadPlaceException for method call");
+			ret = true;
+		} catch (e:ClassCastException) {
+			x10.io.Console.OUT.println("OK - got ClassCastException in field access");
 			ret = true;
 		}
 		return ret;
@@ -100,8 +102,8 @@ public class PlaceCheck1 extends x10Test {
 
 	public static def checkArrayAccess(): boolean = {
 		var ret: boolean = false;
-		val d: Dist = dist.factory.unique(Place.places);
-		val arr: Array[int] = new Array[int](d, ((p): Point): int => 123);
+		val d = Dist.makeUnique();
+		val arr:Array[int](1) =  Array.make[int](d, (Point) => 123);
 		try {
 			var other_place: Place = getNotHere();
 			atomic { arr(other_place.id) = 123; }
@@ -109,16 +111,19 @@ public class PlaceCheck1 extends x10Test {
 		} catch (var e: BadPlaceException) {
 			x10.io.Console.OUT.println("OK - got BadPlaceException in array access");
 			ret = true;
+		}  catch (e:ClassCastException) {
+			x10.io.Console.OUT.println("OK - got ClassCastException in field access");
+			ret = true;
 		}
 		return ret;
 	}
 
 	public static def checkArrayAssign(): boolean = {
 		var ret: boolean = false;
-		val d: Dist = dist.factory.unique(Place.places);
-		val arr: Array[int] = new Array[int](d, ((p): Point): int => 123);
+		val d  = Dist.makeUnique();
+		val arr: Array[int](1) = Array.make[int](d, ((p): Point): int => 123);
 		try {
-			var other_place: Place = getNotHere();
+			val other_place: Place = getNotHere();
 			var xxx: int;
 			atomic { xxx = arr(other_place.id);}
 			if (xxx != 123)
@@ -127,11 +132,14 @@ public class PlaceCheck1 extends x10Test {
 		} catch (var e: BadPlaceException) {
 			x10.io.Console.OUT.println("OK - got BadPlaceException in array access");
 			ret = true;
+		}  catch (e:ClassCastException) {
+			x10.io.Console.OUT.println("OK - got ClassCastException in field access");
+			ret = true;
 		}
 		return ret;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]): void = {
 		new PlaceCheck1().execute();
 	}
 }
