@@ -533,24 +533,26 @@ public class XTypeTranslator {
 
 			if (body == null) {
 				// hardwire s.at(t) for an interface
-				// if s is of value type, then return here = t is Place? t : t.location 
-				// if s is of Ref type, then return s.location = t is Place ? t : t.location
+				// return s.location = t is Place ? t : t.location
 
 				if (xmi.name().equals(Name.make("at"))
 						&& ts.typeEquals(xmi.def().container().get(), ts.Any(), xc)
 						&& t.arguments().size()==1) {
 					FieldInstance fi = ts.findField(ts.Object(), ts.FieldMatcher(ts.Object(), 
 							Name.make("location"), xc));
-					XTerm lhs =  /*(ts.isSubtype(t.target().type(), ts.Value(), xc))? 
-							transHere(xc) : */trans(c, r, fi, ts.Place());
+					XTerm lhs =  trans(c, r, fi, ts.Place());
 
-							// replace by r.location == arg0 or r.location == arg0.location
-							XTerm y = trans(c, t.arguments().get(0), xc);
-							y = ts.isSubtype(xmi.formalTypes().get(0), ts.Place(), xc) 
-							?   y 
-									: trans(c, y, fi, ts.Place());
+					// replace by r.location == arg0 or r.location == arg0.location
+					Expr arg = t.arguments().get(0);
+					XTerm y = trans(c, arg, xc);
+					if (y == null)
+						throw new SemanticException("Cannot translate " + arg + " to a constraint term.",
+								arg.position()
+								);
+					y = ts.isSubtype(xmi.formalTypes().get(0), ts.Place(), xc) 
+					?   y : trans(c, y, fi, ts.Place());
 
-							body = XTerms.makeEquals(lhs, y);
+					body = XTerms.makeEquals(lhs, y);
 
 				}
 				//System.err.println("Golden...XTypeTranslator: translated " + t + " to " + body);

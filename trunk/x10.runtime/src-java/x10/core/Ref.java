@@ -59,7 +59,8 @@ public class Ref implements Any {
         }
     }
 
-
+    // Called in those cases in which the X10 class of 
+    // obj2 is either a struct (e.g. Place) or nativeRep'ed.
     public static boolean at(Object obj1, Object obj2) {
         if (obj1 instanceof Ref) {
             if (obj2 instanceof Ref) {

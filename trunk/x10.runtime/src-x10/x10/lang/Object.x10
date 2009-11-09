@@ -47,7 +47,7 @@ public class Object (
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     public property def loc() = location;
 
-    @Native("java", "#0.at(#1.id)")
+    @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "((#0)->location == (#1)->FMGL(id))")
     public property def at(p:Place) = location==p;
 

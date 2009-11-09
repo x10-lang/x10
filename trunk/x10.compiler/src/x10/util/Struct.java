@@ -160,7 +160,7 @@ public class Struct {
 			public void run() {
 				List<Expr> list = new ArrayList<Expr>(2);
 		        list.add(new X10StringLit_c(pos, "java"));
-		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1.id)"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1)"));
 		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
 				NATIVE_AT_1.update(ann);
 			}
@@ -217,7 +217,7 @@ public class Struct {
 			public void run() {
 				List<Expr> list = new ArrayList<Expr>(2);
 		        list.add(new X10StringLit_c(pos, "java"));
-		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1)"));
+		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1.id)"));
 		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
 				NATIVE_AT_2.update(ann);
 			}

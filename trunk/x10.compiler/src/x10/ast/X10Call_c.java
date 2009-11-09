@@ -488,14 +488,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    try {
 		        if (name == Name.make("equals") && argTypes.size() == 1 && typeArgs.size() == 0 
 		        		&& xts.isParameterType(targetType) && xts.isParameterType(argTypes.get(0))) {
-		            // Check that both equals(Ref) and equals(Value) are present
+		           
 		            mi = (X10MethodInstance) xts.findMethod(targetType, 
 		            		xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Object()), c));
-		            //mi = null;
-		            /*
-		            mi = (X10MethodInstance) xts.findMethod(targetType, 
-		            		xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value()), c));
-		            */
 		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(X10TypeMixin.baseType(targetType)));
 		            LocalInstance d = mi.formalNames().get(0);
 		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(X10TypeMixin.baseType(targetType))));

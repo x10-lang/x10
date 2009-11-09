@@ -1284,12 +1284,12 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     PlaceType ::=  PlaceExpression
-        /.$BeginJava
-                    setResult(nf.Binary(pos(),
-                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
-                                        PlaceExpression));
-          $EndJava
-        ./
+--        /.$BeginJava
+--                    setResult(nf.Binary(pos(),
+--                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
+--                                        PlaceExpression));
+--          $EndJava
+--        ./
 
     NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt 
         /.$BeginJava
@@ -1990,11 +1990,11 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.X10Cast(pos(), Type, CastExpression));
           $EndJava
         ./
-       | ConditionalExpression ! Expression
-        /.$BeginJava
-                    setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
-          $EndJava
-        ./
+--       | ConditionalExpression ! Expression
+--        /.$BeginJava
+--                    setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
+--          $EndJava
+--        ./
         | ConditionalExpression
 
     
