@@ -27,18 +27,9 @@ public class Ref implements Any {
     }
 
     public boolean equals(Object o) {
-        if (o instanceof Ref)
-            return this.equals((Ref) o);
-        return false;
+	return this == o;
     }
 
-    public boolean equals(Value o) {
-        return false;
-    }
-    
-    public boolean equals(Ref o) {
-        return super.equals(o);
-    }
     
     public static class RTT extends RuntimeType<Ref> {
     	public static final RTT it = new RTT();
