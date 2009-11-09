@@ -5,41 +5,36 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//BadPlaceExceptions not being thrown correctly.
 import harness.x10Test;
-
+import x10.io.Console;
 public class PlaceCast extends x10Test {
-	var nplaces: int = 0;
+    var nplaces: int = 0;
 
-	public def run(): boolean = {
-		val d: Dist = Dist.makeUnique(Place.places);
-		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
-		val disagree: Array[BoxedBoolean]{dist==d} 
-		= Array.makeVar[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
-				x10.io.Console.OUT.println("The currentplace is:" + here);
-				return new BoxedBoolean();
-			});
-		finish ateach ((p) in d) {
-			// remember if here and d[p] disagree
-			// at any activity at any place
-			try {
-				val q: Place = d(p).next();
-				var x: BoxedBoolean = disagree(p) as (BoxedBoolean!q);
-				at (this) { atomic { nplaces++; } }
-			} catch (var x: BadPlaceException)  {
-				x10.io.Console.OUT.println("Caught bad place exception for " + p);
-			}
-		}
-		x10.io.Console.OUT.println("nplaces == " + nplaces);
-		return nplaces == 0;
-	}
+    public def run()  {
+	  val d: Dist = Dist.makeUnique();
+	  Console.OUT.println("num places = " + Place.MAX_PLACES);
+	  val disagree = Array.makeVar[BoxedBoolean](d, (Point)=> new BoxedBoolean());
+	  finish ateach (p in d) {
+	      // remember if here and d[p] disagree
+	      // at any activity at any place
+	      try {
+		    val q  = d(p).next();
+		    // Always throws ClassCastException
+		    val x = disagree(p) as (BoxedBoolean!q);
+		    at (this) atomic nplaces++; 
+	      } catch (x: ClassCastException) {
+	    	Console.OUT.println("Caught class cast exception for " + p);
+	      }
+	  }
+	  Console.OUT.println("nplaces == " + nplaces);
+	  return nplaces == 0;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new PlaceCast().execute();
-	}
+    public static def main(Rail[String]) {
+	  new PlaceCast().execute();
+    }
 
 	static class BoxedBoolean {
-		var v: boolean = false;
+	   var v: boolean = false;
 	}
 }
