@@ -135,7 +135,9 @@ class LU {
                 }
                 timer.stop(6);
                 timer.start(7);
+                timer.start(11);
                 col.broadcast_d(rowForBroadcast, J%px); 
+                timer.stop(11);
                 timer.stop(7);
                 if(!A_panel_j.empty()) {
                     timer.start(8);
@@ -149,8 +151,10 @@ class LU {
         }
     }
     
-    def swapRows(J:Int) {
+    def swapRows(J:Int, timer:Timer!) {
+        timer.start(10);
         row.broadcast(pivot, J%py);
+        timer.stop(10);
 
         val row_panel = A_here.blocks(J, J, J + 1, NB);
         if (!row_panel.empty()) {
@@ -178,22 +182,26 @@ class LU {
         }
     }
 
-    def triSolve(J:Int) {
+    def triSolve(J:Int, timer:Timer!) {
         if (A_here.hasRow(J)) {
             val diag = A_here.hasCol(J) ? A_here.block(J, J).raw : colBuffer;
+            timer.start(10);
             row.broadcast_d(diag, J%py);
+            timer.stop(10);
             for (var cj:Int = J + 1; cj <= NB; ++cj) if (A_here.hasCol(cj)) {
                 blockTriSolve(A_here.block(J, cj).raw, diag, B);
             }
         }
     }
 
-    def update(J:Int) {
+    def update(J:Int, timer:Timer!) {
         val A_U = A_here.blocks(0, MB, J + 1, NB);
         if (!A_U.empty()) {
             for (var cj:Int = A_U.min_y; cj <= A_U.max_y; cj += py) {
                 val block = A_here.hasBlock(J, cj) ? A_U.block(J, cj).raw : colBuffers(cj/py);
+                timer.start(11);
                 col.broadcast_d(block,  J%px);
+                timer.stop(11);
             }
         }
 
@@ -203,7 +211,9 @@ class LU {
         if (!A_L.empty()) {
             for (var ci:Int = A_L.min_x; ci <= A_L.max_x; ci += px) {
                 val block = A_here.hasBlock(ci, J) ? A_L.block(ci, J).raw : rowBuffers(ci/px);
+                timer.start(10);
                 row.broadcast_d(block, J%py);
+                timer.stop(10);
             }
         }
         
@@ -232,9 +242,9 @@ class LU {
 
         for (var J:Int = 0; J < NB; J++){
             timer.start(1); panel(J, timer);            world.barrier(); timer.stop(1);
-            timer.start(2); swapRows(J);                world.barrier(); timer.stop(2);
-            timer.start(3); triSolve(J);                world.barrier(); timer.stop(3);
-            timer.start(4); if (J != NB - 1) update(J); world.barrier(); timer.stop(4);
+            timer.start(2); swapRows(J, timer);         world.barrier(); timer.stop(2);
+            timer.start(3); triSolve(J, timer);         world.barrier(); timer.stop(3);
+            timer.start(4); if (J != NB - 1) update(J, timer); world.barrier(); timer.stop(4);
 
             /* Progress meter */
             if(0 == here.id && J > nextJ) {
@@ -347,7 +357,7 @@ class LU {
 
         finish ateach (p in unique) {
             val lu = lus.get();
-            val timer = new Timer(10);
+            val timer = new Timer(15);
 
             timer.start(0);
 
@@ -378,6 +388,10 @@ class LU {
                   " Time=" + (timer.total(7) as Double)/1e9 + " seconds");
                 Console.OUT.println ("Timer(8) PANEL-UPDATE #invocations=" + timer.count(8) +
                   " Time=" + (timer.total(8) as Double)/1e9 + " seconds");
+                Console.OUT.println ("Timer(10) ROW-BROADCAST # invocations=" + timer.count(10) +
+                  " Time=" + (timer.total(10) as Double)/1e9 + " seconds");
+                Console.OUT.println ("Timer(11) COL-BROADCAST # invocations=" + timer.count(11) +
+                  " Time=" + (timer.total(11) as Double)/1e9 + " seconds");
               } 
         }
         t += System.nanoTime();
