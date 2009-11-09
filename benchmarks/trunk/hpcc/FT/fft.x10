@@ -38,13 +38,14 @@ class fft {
 
         def init(localSize:Int, verify:Boolean) {
             val rand = new Random(I);
-            for (var i:Int=0; i<localSize; ++i) {
-                A(i) = rand.nextDouble() - 0.5;
-            }
             if (verify) {
                 for (var i:Int=0; i<localSize; ++i) {
                     D(i) = A(i) = rand.nextDouble() - 0.5;
                 }
+            } else {
+                for (var i:Int=0; i<localSize; ++i) {
+             		A(i) = rand.nextDouble() - 0.5;
+             	}
             }
         }
 
