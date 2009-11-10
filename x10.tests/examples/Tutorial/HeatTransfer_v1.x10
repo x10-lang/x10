@@ -12,7 +12,7 @@
  * the computation is expressed directly in terms of 
  * computation on global arrays.<p>
  */
-public class HeatTransfer {
+public class HeatTransfer_v1 {
     static type Real=Double;
     const n = 3, epsilon = 1.0e-5;
 
@@ -57,7 +57,7 @@ public class HeatTransfer {
     public static def main(Rail[String]) {
 	Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
 	Console.OUT.println("Initializing data structures");
-        val s = new HeatTransfer();
+        val s = new HeatTransfer_v1();
 	Console.OUT.print("Beginning computation...");
 	val start = System.nanoTime();
         s.run();
