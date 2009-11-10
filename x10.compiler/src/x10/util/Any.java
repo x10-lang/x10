@@ -113,7 +113,7 @@ public class Any {
 		// @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
 		// property def loc():Place
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Global().Safe(), PLACE,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Global(), PLACE,
         		Name.make("loc"), 
         		Collections.EMPTY_LIST, 
         		Collections.EMPTY_LIST, 
@@ -140,7 +140,7 @@ public class Any {
         // property def at(p:Object):boolean;
 	    List<LocalDef> parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Safe(), BOOLEAN,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(OBJECT),
@@ -156,7 +156,7 @@ public class Any {
 			public void run() {
 				List<Expr> list = new ArrayList<Expr>(2);
 		        list.add(new X10StringLit_c(pos, "java"));
-		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1)"));
+		        list.add(new X10StringLit_c(pos, "x10.core.Ref.at(#0, #1)"));
 		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
 				NATIVE_AT_1.update(ann);
 			}
@@ -168,7 +168,7 @@ public class Any {
        // property def at(p:Place):boolean;
         parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Safe(), BOOLEAN,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(PLACE),
@@ -183,7 +183,7 @@ public class Any {
 			public void run() {
 				List<Expr> list = new ArrayList<Expr>(2);
 		        list.add(new X10StringLit_c(pos, "java"));
-		        list.add(new X10StringLit_c(pos,  "x10.core.Ref.at(#0, #1.id)"));
+		        list.add(new X10StringLit_c(pos, "x10.core.Ref.at(#0, #1.id)"));
 		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
 				NATIVE_AT_2.update(ann);
 			}
