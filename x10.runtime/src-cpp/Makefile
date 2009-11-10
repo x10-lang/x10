@@ -45,6 +45,8 @@ endif
 
 CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
+ifndef NO_VAR_OVERRIDE
+
 ifdef ENABLE_CROSS_COMPILE_BGP
   override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
   #override CXX = /bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-g++
@@ -102,6 +104,8 @@ else
       override CXXFLAGS += -pthread
     endif
   endif
+endif
+
 endif
 
 INSTDIR = $(call abspath,../../x10.dist)
