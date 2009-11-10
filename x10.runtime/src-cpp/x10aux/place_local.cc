@@ -40,7 +40,7 @@ void* place_local::lookupData(x10_int id) {
         return _fastData[id];
     } else {
         _lock->lock();
-        int bucket = hash_code(id);
+        int bucket = hash_code(id) % NUM_BUCKETS;
         Bucket *cur = _buckets[bucket];
         while (cur != NULL) {
             if (cur->_id == id) {
@@ -60,7 +60,7 @@ void place_local::registerData(x10_int id, void *data) {
         _fastData[id] = data;
     } else {
         _lock->lock();
-        int bucket = hash_code(id);
+        int bucket = hash_code(id) % NUM_BUCKETS;
         Bucket *newBucket = alloc<Bucket>();
         newBucket->_id = id;
         newBucket->_data = data;
@@ -76,7 +76,7 @@ void place_local::unregisterData(x10_int id) {
         _fastData[id] = NULL;
     } else {
         _lock->lock();
-        int bucket = hash_code(id);
+        int bucket = hash_code(id) % NUM_BUCKETS;
         Bucket **trailer = &(_buckets[bucket]);
         Bucket *cur = _buckets[bucket];
         while (cur != NULL) {
