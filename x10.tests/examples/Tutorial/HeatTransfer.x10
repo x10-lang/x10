@@ -36,9 +36,22 @@ public class HeatTransfer {
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
-
+ 
     static def format(x:double, numDecimals:int) {
         return String.format("%1."+numDecimals+"f", [x as Box[Double]]);
+    }
+
+   def prettyPrintResult() {
+       for ((i) in A.region.projection(0)) {
+           for ((j) in A.region.projection(1)) {
+                val pt = Point.make(i,j);
+                at (BigD(pt)) { 
+		    val str = format(A(pt), 4) + " ";
+                    at (Place.FIRST_PLACE) Console.OUT.print(str);
+                }
+            }
+            Console.OUT.println();
+        }
     }
 
     public static def main(Rail[String]) {
@@ -50,10 +63,6 @@ public class HeatTransfer {
         s.run();
 	val stop = System.nanoTime();
 	Console.OUT.println("...completed in "+format(((stop-start as double)/1e9), 3)+" seconds.");
-        for ((i) in s.A.region.projection(0)) {
-            for ((j) in s.A.region.projection(1))
-                Console.OUT.print(format(s.A(i,j), 4)+" ");
-            Console.OUT.println();
-        }
+	s.prettyPrintResult();
     }
 }
