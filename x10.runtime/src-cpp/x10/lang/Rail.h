@@ -579,7 +579,10 @@ namespace x10 {
 
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            x10aux::ref<Rail<T> > this_ = x10aux::alloc_rail_remote<T,Rail<T> >(length);
+            // Don't allocate any storage for the data - it's a remote rail
+            x10aux::ref<Rail<T> > this_ = x10aux::alloc_rail_remote<T,Rail<T> >(0);
+            // But the above set the length to 0, so set it correctly
+            const_cast<x10_int&>(this_->FMGL(length)) = length;
             this_->_deserialize_body(buf);
             return this_;
         }
