@@ -4,9 +4,6 @@
 	<classpathentry excluding="src/" including="data/**" kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.runtime"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

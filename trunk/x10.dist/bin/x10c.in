@@ -25,7 +25,7 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
         -dev) dev="true";;
-	-x10rt) shift; x10rt_impl=$1;;
+	-x10rt) shift; export X10RT_IMPL=$1;;
         -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
@@ -68,17 +68,6 @@ LIB_DIR="${TOP}${FILE_SEP}lib"
 
 if [ -n "$extra_cp" ]; then
     extra_cp="${PATH_SEP}${extra_cp}"
-fi
-
-if [ -n "$x10rt_impl" ]; then
-    case "$x10rt_impl" in
-	bgp) export X10RT_IMPL=PGAS_BGP;;
-	lapi) export X10RT_IMPL=PGAS_LAPI;;
-	sockets) export X10RT_IMPL=PGAS_SOCKETS;;
-	mpi) export X10RT_IMPL=MPI;;
-	standalone) export X10RT_IMPL=STANDALONE;;
-	*)
-    esac
 fi
 
 extargs=""

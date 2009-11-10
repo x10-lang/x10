@@ -6,11 +6,12 @@ package x10cpp.postcompiler;
 import java.util.ArrayList;
 
 import polyglot.main.Options;
+import polyglot.util.ErrorQueue;
 
 public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
 
-    public Cygwin_CXXCommandBuilder(Options options) {
-        super(options);
+    public Cygwin_CXXCommandBuilder(Options options, ErrorQueue eq) {
+        super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("win32_"));
     }
 

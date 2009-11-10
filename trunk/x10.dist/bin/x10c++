@@ -12,30 +12,14 @@ PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 
 prog=$(readlink $0 2>&1)
 [ $? -eq 127 -o "$prog" = "" ] && prog="$0"
-TOP="$(cd "$(dirname "$prog")/.." && pwd)"
-if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
-if [[ -z "$X10_FROM_SRC" ]]; then
-    # Default to pre-built distribution; do not set X10REL
-    [ -z "$X10LIB" ] && export X10LIB="$TOP"
-    [ -z "$X10LANG" ] && export X10LANG="$TOP"
-    [ -z "$X10DIST" ] && export X10DIST="$TOP"
-    [ -z "$X10GC" ] && export X10GC="$TOP"
-    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/lib/x10.jar"
-    X10="$TOP"
-else
-    # Default to developer setup
-    [ -z "$X10REL" ] && export X10REL="../x10.dist"
-    [ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas2/common/work"
-    [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime/src-cpp"
-    [ -z "$X10DIST" ] && export X10DIST="$TOP/../x10.dist"
-    [ -z "$X10GC" ] && export X10GC="$TOP/../x10.runtime/src-cpp/bdwgc/install"
-    [ -z "$X10SOURCES" ] && export X10SOURCES="$X10DIST/../x10.runtime/src-x10"
-    X10="$(cd "$TOP/$X10REL" && pwd)"
-fi
+export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
 
+[ -z "$X10GC" ] && export X10GC="$X10_DIST"
+[ -z "$X10SOURCES" ] && export X10SOURCES="${X10_DIST}/lib/x10.jar"
 
-export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
+export CP_OVERRIDE="${X10_DIST}${FILE_SEP}lib${FILE_SEP}x10c.jar${PATH_SEP}${X10_DIST}${FILE_SEP}classes${PATH_SEP}"
 export DEXT="x10cpp.ExtensionInfo"
 
-exec "${X10}/bin/x10c" "$@"
+exec "${X10_DIST}/bin/x10c" "$@"
 

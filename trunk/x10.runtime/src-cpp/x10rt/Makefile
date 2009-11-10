@@ -21,6 +21,7 @@ include standalone/standalone.mk
 install: $(LIBS) $(PROPERTIES)
 	cp $(LIBS) $(X10_HOME)/x10.dist/lib
 	cp $(PROPERTIES) $(X10_HOME)/x10.dist/etc
+	cp handwritten_properties/$(X10RT_HANDWRITTEN_PROPS)/*.properties $(X10_HOME)/x10.dist/etc
 
 tests: $(TESTS)
 
