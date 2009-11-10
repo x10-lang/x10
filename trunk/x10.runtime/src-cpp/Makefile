@@ -107,7 +107,7 @@ else
       override CXXFLAGS += -pthread
       export X10RT_HANDWRITTEN_PROPS="linux"
     else
-      ifeq ($(shell uname -s),CYGWIN)
+      ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
         export X10RT_HANDWRITTEN_PROPS="cygwin"
       else
         ifeq ($(shell uname -s),Darwin)
