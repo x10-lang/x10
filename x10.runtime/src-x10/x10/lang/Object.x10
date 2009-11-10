@@ -45,15 +45,15 @@ public class Object (
 
     @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-    public property def loc() = location;
+    public property safe def loc() = location;
 
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "((#0)->location == (#1)->FMGL(id))")
-    public property def at(p:Place) = location==p;
+    public property safe def at(p:Place) = location==p;
 
     @Native("java", "x10.core.Ref.at(#0, #1)")
     @Native("c++", "((#0)->location == (#1)->location)")
-    public property def at(r:Object) = location==r.location;
+    public property safe def at(r:Object) = location==r.location;
     
     @Native("java", "x10.core.Ref.typeName(#0)")
     public native global final def typeName():String;

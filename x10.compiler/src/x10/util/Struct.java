@@ -118,7 +118,8 @@ public class Struct {
 		// @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
 		// property def loc():Place
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global(), PLACE,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global().Safe(), 
+        		PLACE,
         		Name.make("loc"), 
         		Collections.EMPTY_LIST, 
         		Collections.EMPTY_LIST, 
@@ -145,7 +146,8 @@ public class Struct {
         // property def at(p:Object):boolean;
 	    List<LocalDef> parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property(), BOOLEAN,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
+        		BOOLEAN,
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(OBJECT),
@@ -170,7 +172,7 @@ public class Struct {
         
         mi = xts.methodDef(pos,
         		Types.ref(ct),
-    			X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global(), 
+    			X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe(), 
     			STRING,
     			Name.make("typeName"),
     			Collections.EMPTY_LIST, 
@@ -202,7 +204,8 @@ public class Struct {
        // property def at(p:Place):boolean;
         parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
         mi = xts.methodDef(pos, Types.ref(ct), 
-        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property(), BOOLEAN,
+        		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
+        		BOOLEAN,
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(PLACE),

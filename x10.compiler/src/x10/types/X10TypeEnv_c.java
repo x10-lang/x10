@@ -179,9 +179,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " is more liberal than " +
                               mj.flags());
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
+            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
+                                        mj.flags() + " " + mj.signature() + " in " + mj.container() + 
                                         "; attempting to assign weaker " + 
                                         "behavioral annotations", 
                                         mi.position());
@@ -1835,9 +1835,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " is more liberal than " +
                               mj.flags());
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
+            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
+                                        mj.flags() + " " + mj.signature() + " in " + mj.container() + 
                                         "; attempting to assign weaker " + 
                                         "behavioral annotations", 
                                         mi.position());
