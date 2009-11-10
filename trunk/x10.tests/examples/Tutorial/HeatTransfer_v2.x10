@@ -8,11 +8,11 @@
  * stencil operation.  See the X10 2.0 tutorial for
  * for more details and some pictures.</p>
  *
- * This program is illustrating a high-level "ZPL style", where
- * the computation is expressed directly in terms of 
- * fine-grained computation on global arrays.<p>
+ * This program is illustrating explicit loop chunking to 
+ * coarsen the parallelism at each place (vs HeatTransfer_v1)
+ * to gain efficiency.<p>
  */
-public class HeatTransfer_v1 {
+public class HeatTransfer_v2 {
     static type Real=Double;
     const n = 3, epsilon = 1.0e-5;
 
@@ -27,10 +27,12 @@ public class HeatTransfer_v1 {
     static def subtract(a:Array[Real],b:Array[Real]) = Array.make[Real](a.dist, (p:Point)=>a(p as Point(a.rank))-b(p as Point(b.rank)));
 
     def run() {
+	val D_Base = Dist.makeUnique(D.places());
         var delta:Real = 1.0;
         do {
-            finish ateach (p in D)
-                Temp(p) = (A | stencil_1(p)).reduce(Double.+, 0.0)/4;
+            finish ateach (z in D_Base)
+                for (p:Point(2) in D | here)
+                    Temp(p) = (A | stencil_1(p)).reduce(Double.+, 0.0)/4;
 
             delta = subtract(A|D.region,Temp|D.region).lift(Math.abs.(Double)).reduce(Math.max.(Double,Double), 0.0);
             finish ateach (p in D) A(p) = Temp(p);
@@ -57,7 +59,7 @@ public class HeatTransfer_v1 {
     public static def main(Rail[String]) {
 	Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
 	Console.OUT.println("Initializing data structures");
-        val s = new HeatTransfer_v1();
+        val s = new HeatTransfer_v2();
 	Console.OUT.print("Beginning computation...");
 	val start = System.nanoTime();
         s.run();
