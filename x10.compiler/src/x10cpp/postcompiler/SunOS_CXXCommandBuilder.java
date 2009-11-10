@@ -25,5 +25,6 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
+        cxxCmd.add("-lrt");
     }
 }
