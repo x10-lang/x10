@@ -25,6 +25,7 @@ class fft {
         val N:Long;
         val fftwPlan:Long;
         val fftwInversePlan:Long;
+        val world:Comm! = Comm.WORLD();
 
         def this(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]) {
             this.I = I; this.nRows = nRows; this.N = N; this.SQRTN = SQRTN; this.Cs = Cs;
