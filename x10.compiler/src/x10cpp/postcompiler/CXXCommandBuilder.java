@@ -5,12 +5,15 @@ package x10cpp.postcompiler;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 
 import polyglot.main.Options;
 import polyglot.util.ErrorInfo;
@@ -20,41 +23,51 @@ import x10cpp.Configuration;
 import x10cpp.X10CPPCompilerOptions;
 
 public class CXXCommandBuilder {
-    protected static enum X10RT_Impl {
-        PGAS_LAPI("xlpgas_lapi"),
-        PGAS_SOCKETS("xlpgas_sockets"),
-        PGAS_BGP("xlpgas_bgp"),
-        MPI("x10rt_mpi"),
-        STANDALONE("x10rt_standalone");
+    
+    protected class X10RTPostCompileOptions {
         
-        private final String libName;
+        public final String cxx;
+        public final Collection<? extends String> cxxFlags;
+        public final Collection<? extends String> libs;
+        public final Collection<? extends String> ldFlags;
         
-        X10RT_Impl(String libName) {
-            this.libName = libName;
+        private Collection<? extends String> split(String s) {
+            ArrayList<String> l = new ArrayList<String>();
+            if (s==null) return l;
+            QuotedStringTokenizer q = new QuotedStringTokenizer(s);
+            while (q.hasMoreTokens()) l.add(q.nextToken());
+            return l;
         }
         
-        String libName() { return libName; }
-    };
+        public X10RTPostCompileOptions (ErrorQueue eq, String filename) {
+            Properties properties = new Properties();
+            try {
+                properties.load(new FileInputStream(filename));
+            } catch(IOException e) {
+                eq.enqueue(ErrorInfo.IO_ERROR, "Error finding X10RT properties file: "+ e.getMessage());
+            }                
+            cxx = properties.getProperty("CXX");
+            String regex = " +";
+            cxxFlags = split(properties.getProperty("CXXFLAGS"));
+            libs     = split(properties.getProperty("LDLIBS"));
+            ldFlags  = split(properties.getProperty("LDFLAGS"));
+        }
+    }
     
-    public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-    public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
-    public static final String X10DIST = System.getenv("X10DIST")==null?"../../../x10.dist":System.getenv("X10DIST").replace(File.separatorChar, '/');
+    protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
+    protected static final String X10_DIST = System.getenv("X10_DIST");
+    protected static final String X10GC = System.getenv("X10GC").replace(File.separatorChar, '/');
+    protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
     public static final String MANIFEST = "libx10.mft";
-    public static final String[] MANIFEST_LOCATIONS = new String[] {
-        X10LANG,
-        X10LANG+"/lib",
-    };
+    public static final String[] MANIFEST_LOCATIONS = new String[] { X10_DIST+"/lib" };
 
-    protected static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas2/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
-    protected static final String X10GC = System.getenv("X10GC")==null?X10DIST:System.getenv("X10GC").replace(File.separatorChar, '/');
-    protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
     private final X10CPPCompilerOptions options;
     
-    protected final X10RT_Impl x10rt;
-
-    public CXXCommandBuilder(Options options) {
+    protected X10RTPostCompileOptions x10rtOpts;
+    
+    public CXXCommandBuilder(Options options, ErrorQueue eq) {
         assert (options != null);
         assert (options.post_compiler != null);
         this.options = (X10CPPCompilerOptions) options;
@@ -62,45 +75,29 @@ public class CXXCommandBuilder {
         if (rtimpl == null) {
             // assume pgas (default to old behavior)
             if (PLATFORM.startsWith("aix_")) {
-                x10rt = X10RT_Impl.PGAS_LAPI;
+                rtimpl = "pgas_lapi";
             } else {
-                x10rt = X10RT_Impl.PGAS_SOCKETS;
+                rtimpl = "pgas_sockets";
             }
-        } else if (rtimpl.equals("PGAS_LAPI")) {
-            x10rt = X10RT_Impl.PGAS_LAPI;
-        } else if (rtimpl.equals("PGAS_SOCKETS")) {
-            x10rt = X10RT_Impl.PGAS_SOCKETS;
-        } else if (rtimpl.equals("PGAS_BGP")) {
-            x10rt = X10RT_Impl.PGAS_BGP;
-        } else if (rtimpl.equals("MPI")) {
-            x10rt = X10RT_Impl.MPI;
-        } else if (rtimpl.equals("STANDALONE")) {
-            x10rt = X10RT_Impl.STANDALONE;
-        } else {
-            assert false : "Unknown X10RT IMPL "+ rtimpl;
-            x10rt = X10RT_Impl.PGAS_SOCKETS;
         }
+        // allow the user to give an explicit path, otherwise look in etc
+        if (!rtimpl.endsWith(".properties")) {
+            rtimpl = X10_DIST + "/etc/x10rt_"+rtimpl+".properties";
+        }
+        x10rtOpts = new X10RTPostCompileOptions(eq, rtimpl);
     }
 
     /** Is GC enabled on this platform? */
     protected boolean gcEnabled() { return false; }
 
     protected String defaultPostCompiler() { 
-        if (x10rt == X10RT_Impl.MPI) {
-            return "mpicxx";
-        } else {
-            return "g++"; 
-        }
+        return x10rtOpts.cxx;
     }
 
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         cxxCmd.add("-g");
-        cxxCmd.add("-I"+X10LIB+"/include");
-        cxxCmd.add("-I"+X10LANG);
-        cxxCmd.add("-I"+X10LANG+"/gen"); // FIXME: development option
-        cxxCmd.add("-I"+X10LANG+"/include"); // dist
-        cxxCmd.add("-I"+X10DIST+"/include");
+        cxxCmd.add("-I"+X10_DIST+"/include"); // dist
         cxxCmd.add("-I.");
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
@@ -120,6 +117,9 @@ public class CXXCommandBuilder {
         if (x10.Configuration.NO_CHECKS) {
             cxxCmd.add("-DNO_CHECKS");
         }
+        
+        cxxCmd.addAll(x10rtOpts.cxxFlags);
+
     }
 
     /** Add the arguments that go after the output files */
@@ -128,12 +128,13 @@ public class CXXCommandBuilder {
             cxxCmd.add(X10GC+"/lib/libgc.a");
         }
         
-        cxxCmd.add("-L"+X10LIB+"/lib");
-        cxxCmd.add("-L"+X10LANG);
-        cxxCmd.add("-L"+X10LANG+"/lib"); // dist
-        cxxCmd.add("-L"+X10DIST+"/lib");
+        cxxCmd.add("-L"+X10_DIST+"/lib"); // dist
         cxxCmd.add("-lx10");
-        cxxCmd.add("-l"+x10rt.libName());
+
+        cxxCmd.add("-L"+X10_DIST+"/../pgas2/common/work/lib"); // temporary
+        cxxCmd.addAll(x10rtOpts.ldFlags);
+        cxxCmd.addAll(x10rtOpts.libs);
+
         cxxCmd.add("-ldl");
         cxxCmd.add("-lm");
         cxxCmd.add("-lpthread");
@@ -229,18 +230,18 @@ public class CXXCommandBuilder {
     
     public static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
         if (PLATFORM.startsWith("win32_"))
-            return new Cygwin_CXXCommandBuilder(options);
+            return new Cygwin_CXXCommandBuilder(options, eq);
         if (PLATFORM.startsWith("linux_"))
-            return new Linux_CXXCommandBuilder(options);
+            return new Linux_CXXCommandBuilder(options, eq);
         if (PLATFORM.startsWith("aix_"))
-            return new AIX_CXXCommandBuilder(options);
+            return new AIX_CXXCommandBuilder(options, eq);
         if (PLATFORM.startsWith("sunos_"))
-            return new SunOS_CXXCommandBuilder(options);
+            return new SunOS_CXXCommandBuilder(options, eq);
         if (PLATFORM.startsWith("macosx_"))
-            return new MacOSX_CXXCommandBuilder(options);
+            return new MacOSX_CXXCommandBuilder(options, eq);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
-        return new CXXCommandBuilder(options);
+        return new CXXCommandBuilder(options, eq);
     }
 
 }

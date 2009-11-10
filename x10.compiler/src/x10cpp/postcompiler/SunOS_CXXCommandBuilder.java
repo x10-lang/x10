@@ -6,11 +6,12 @@ package x10cpp.postcompiler;
 import java.util.ArrayList;
 
 import polyglot.main.Options;
+import polyglot.util.ErrorQueue;
 
 public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
-    public SunOS_CXXCommandBuilder(Options options) {
-        super(options);
+    public SunOS_CXXCommandBuilder(Options options, ErrorQueue eq) {
+        super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("sunos_"));
     }
 
@@ -24,9 +25,5 @@ public class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
 
     protected void addPostArgs(ArrayList<String> cxxCmd) {
         super.addPostArgs(cxxCmd);
-        cxxCmd.add("-lresolv");
-        cxxCmd.add("-lnsl");
-        cxxCmd.add("-lsocket");
-        cxxCmd.add("-lrt");
     }
 }

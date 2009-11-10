@@ -6,13 +6,14 @@ package x10cpp.postcompiler;
 import java.util.ArrayList;
 
 import polyglot.main.Options;
+import polyglot.util.ErrorQueue;
 
 public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
     protected static final boolean USE_X86 = CXXCommandBuilder.PLATFORM.endsWith("_x86");
     protected static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
  
-    public Linux_CXXCommandBuilder(Options options) {
-        super(options);
+    public Linux_CXXCommandBuilder(Options options, ErrorQueue eq) {
+        super(options, eq);
         assert (CXXCommandBuilder.PLATFORM.startsWith("linux_"));
     }
 
@@ -37,11 +38,5 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
             cxxCmd.add("-lbfd");
             cxxCmd.add("-liberty");
         }
-        if (x10rt == X10RT_Impl.PGAS_LAPI) {
-            cxxCmd.add("-llapi");
-            cxxCmd.add("-lmpi_ibm");
-            cxxCmd.add("-lpoe");
-        }
-
     }
 }

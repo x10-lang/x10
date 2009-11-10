@@ -53,18 +53,21 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   #override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
   override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
-
+  export X10RT_HANDWRITTEN_PROPS="bgp"
 else
 
   ifeq ($(shell uname -s),AIX)
 
+
     ifdef USE_GCC
+      export X10RT_HANDWRITTEN_PROPS="aix_gcc"
       ifdef OPTIMIZE
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
       MPICXX ?= mpicxx
     else	
+      export X10RT_HANDWRITTEN_PROPS="aix_xlc"
       CXX = mpCC_r
       MPICXX ?= mpCC_r
       override CXXFLAGS -= -g
@@ -102,6 +105,19 @@ else
     override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
     ifeq ($(shell uname -s),Linux)
       override CXXFLAGS += -pthread
+      export X10RT_HANDWRITTEN_PROPS="linux"
+    else
+      ifeq ($(shell uname -s),CYGWIN)
+        export X10RT_HANDWRITTEN_PROPS="cygwin"
+      else
+        ifeq ($(shell uname -s),Darwin)
+          export X10RT_HANDWRITTEN_PROPS="darwin"
+        else
+          ifeq ($(shell uname -s),SunOS)
+            export X10RT_HANDWRITTEN_PROPS="sunos"
+          endif
+        endif
+      endif
     endif
   endif
 endif
