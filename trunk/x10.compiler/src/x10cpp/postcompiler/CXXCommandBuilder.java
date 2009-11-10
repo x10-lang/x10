@@ -46,7 +46,8 @@ public class CXXCommandBuilder {
             } catch(IOException e) {
                 eq.enqueue(ErrorInfo.IO_ERROR, "Error finding X10RT properties file: "+ e.getMessage());
             }                
-            cxx = properties.getProperty("CXX");
+            String s = properties.getProperty("CXX");
+            cxx = s==null ? "g++" : s; //fallback if above error occured or CXX not given in properties file
             String regex = " +";
             cxxFlags = split(properties.getProperty("CXXFLAGS"));
             libs     = split(properties.getProperty("LDLIBS"));
