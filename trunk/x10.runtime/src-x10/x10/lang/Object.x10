@@ -56,8 +56,6 @@ public class Object (
     public property safe def at(r:Object) = location==r.location;
     
     @Native("java", "x10.core.Ref.typeName(#0)")
+    @Native("c++", "x10aux::type_name(#0)")
     public native global final def typeName():String;
-    
-    
-
 }
