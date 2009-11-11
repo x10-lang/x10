@@ -65,7 +65,9 @@ public final class Rail[T](length: nat)
     public native safe def iterator(): Iterator[T];
 
 
-
+    @Native("java", "x10.lang.System.makeRemoteRail(#3, #4,#5,#6)")
+    @Native("c++", "x10::lang::System::makeRemoteRail(#4,#5,#6)")
+    public native static safe def makeRemote[T] (p:Place, length:Int, init: (nat) => T) : Rail[T]{self.length==length&&self.location==p};
 
     // Transfer functions
 

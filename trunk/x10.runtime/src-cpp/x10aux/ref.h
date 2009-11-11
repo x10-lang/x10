@@ -7,6 +7,7 @@
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
+#include <x10aux/network.h>
 
 namespace x10 { namespace lang { class Object; } }
 
@@ -159,7 +160,7 @@ namespace x10aux {
     }
 #endif
 
-    x10_int location (ref<x10::lang::Object> obj);
+    x10aux::place location (ref<x10::lang::Object> obj);
 
     void throwNPE() X10_PRAGMA_NORETURN;
 

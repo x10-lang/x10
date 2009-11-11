@@ -25,7 +25,7 @@ namespace x10aux {
 
     template<class C>
     void StaticInitBroadcastDispatcher::broadcastStaticField(C f, serialization_id_t id) {
-        if (num_places == 1) return;
+        if (num_hosts == 1) return;
         serialization_buffer buf;
         addr_map m;
         buf.write(id, m);

@@ -17,9 +17,10 @@ using namespace x10::lang;
 using namespace x10aux;
 
 // caches to avoid repeatedly calling into x10rt for trivial things
-x10_int x10aux::num_places = -1;
-x10_int x10aux::num_hosts = -1;
-x10_int x10aux::here = -1;
+x10aux::place x10aux::num_places = 0;
+x10aux::place x10aux::num_hosts = 0;
+x10aux::place x10aux::here = -1;
+bool x10aux::x10rt_initialized = false;
 
 // keep a counter for the session.
 volatile x10_long x10aux::asyncs_sent = 0;
@@ -27,10 +28,10 @@ volatile x10_long x10aux::asyncs_received = 0;
 volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
-void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
+void x10aux::run_at(x10aux::place place, x10aux::ref<Object> body) {
 
-    assert(place!=x10rt_here()); // this case should be handled earlier
-    assert(place<x10rt_nplaces()); // this is ensured by XRX runtime
+    assert(place!=here); // this case should be handled earlier
+    assert(place<num_places); // this is ensured by XRX runtime
 
     serialization_buffer buf;
 
@@ -44,24 +45,27 @@ void x10aux::run_at(x10_uint place, x10aux::ref<Object> body) {
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
     serialized_bytes += sz; asyncs_sent++;
 
-    x10rt_msg_params p = {place, body->_get_serialization_id(), buf.steal(), sz};
+    msg_type id = DeserializationDispatcher::getMsgType(body->_get_serialization_id());
+    x10rt_msg_params p = {place, id, buf.steal(), sz};
     x10rt_send_msg(p);
 }
 
-void x10aux::send_get (x10_int place, unsigned id,
-                       serialization_buffer &buf, void *data, x10_int len)
+void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
+                       serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
     size_t buf_length = buf.length(); // must do this before steal();
+    msg_type id = DeserializationDispatcher::getMsgType(id_);
     x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET
         <<data<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
     x10rt_send_get(p, data, len);
 }
 
-void x10aux::send_put (x10_int place, unsigned id,
-                       serialization_buffer &buf, void *data, x10_int len)
+void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
+                       serialization_buffer &buf, void *data, x10aux::copy_sz len)
 {
     size_t buf_length = buf.length(); // must do this before steal();
+    msg_type id = DeserializationDispatcher::getMsgType(id_);
     x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET
         <<data<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
@@ -84,7 +88,8 @@ static void receive_async (const x10rt_msg_params &p) {
     _X_(ANSI_X10RT<<"Receiving an async, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
-    ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, p.type));
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
     assert(buf.consumed() <= p.len);
     _X_("The deserialised async was: "<<x10aux::safe_to_string(async));
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -93,57 +98,108 @@ static void receive_async (const x10rt_msg_params &p) {
     x10aux::dealloc(async.operator->());
 }
 
-void x10aux::register_async_handler (unsigned id) {
-    x10rt_register_msg_receiver(id, receive_async);
+x10aux::msg_type x10aux::register_async_handler (void) {
+    return x10rt_register_msg_receiver(receive_async, NULL, NULL, NULL, NULL);
 }
 
-static void *receive_put (const x10rt_msg_params &p, unsigned long len) {
-    // TODO: handle general closures like receive_async does
+static void *receive_put (const x10rt_msg_params &p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for buffer finder..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getPutBufferFinder(p.type);
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getPutBufferFinder(sid);
     void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p.len);
     return dropzone;
 }
 
-static void finished_put (const x10rt_msg_params &p, unsigned long len) {
-    // TODO: implement finish
+static void *cuda_receive_put (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda buffer finder..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCudaPutBufferFinder(sid);
+    void *dropzone = bf(buf,len);
+    assert(buf.consumed() <= p.len);
+    return dropzone;
+}
+
+static void finished_put (const x10rt_msg_params &p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
-    x10aux::Notifier n = x10aux::DeserializationDispatcher::getPutNotifier(p.type);
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::Notifier n = x10aux::DeserializationDispatcher::getPutNotifier(sid);
     n(buf,len);
     assert(buf.consumed() <= p.len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
 }
 
-void x10aux::register_put_handler (unsigned id) {
-    x10rt_register_put_receiver(id, receive_put, finished_put);
-}
-
-static void *receive_get (const x10rt_msg_params &p) {
-    // TODO: handle general closures like receive_async does
-    _X_(ANSI_X10RT<<"Receiving a get, deserialising..."<<ANSI_RESET);
+static void cuda_finished_put (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda notifier..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
-    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getGetBufferFinder(p.type);
-    // FIXME: we probably need to change the x10rt spec to allow passing in the
-    // length of the copy here, otherwise there is nowhere where we can do an
-    // ArrayBounds check.
-    void *dropzone = bf(buf,0);
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::Notifier n = x10aux::DeserializationDispatcher::getCudaPutNotifier(sid);
+    n(buf,len);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+}
+
+x10aux::msg_type x10aux::register_put_handler () {
+    return x10rt_register_put_receiver(receive_put, finished_put,
+                                       cuda_receive_put, cuda_finished_put);
+}
+
+static void *receive_get (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a get, deserialising for buffer finder..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getGetBufferFinder(sid);
+    void *dropzone = bf(buf,len);
     assert(buf.consumed() <= p.len);
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
     return dropzone;
 }
 
-static void finished_get (const x10rt_msg_params &p, unsigned long len) {
-    // TODO: implement finish
+static void *cuda_receive_get (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda buffer finder..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCudaGetBufferFinder(sid);
+    void *dropzone = bf(buf,len);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+    return dropzone;
 }
 
-void x10aux::register_get_handler (unsigned id) {
-    x10rt_register_get_receiver(id, receive_get, finished_get);
+static void finished_get (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a get, deserialising for notifier..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::Notifier n = x10aux::DeserializationDispatcher::getGetNotifier(sid);
+    n(buf,len);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+}
+
+static void cuda_finished_get (const x10rt_msg_params &p, x10aux::copy_sz len) {
+    _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda notifier..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::Notifier n = x10aux::DeserializationDispatcher::getCudaGetNotifier(sid);
+    n(buf,len);
+    assert(buf.consumed() <= p.len);
+    deserialized_bytes += buf.consumed()  ; asyncs_received++;
+}
+
+x10aux::msg_type x10aux::register_get_handler (void) {
+    return x10rt_register_get_receiver(receive_get, finished_get,
+                                       cuda_receive_get, cuda_finished_get);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

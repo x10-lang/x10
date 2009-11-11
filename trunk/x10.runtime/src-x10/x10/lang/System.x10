@@ -216,4 +216,17 @@ public class System {
         }
     }
 */
+
+    
+    @Native("c++", "x10::lang::Rail<#1>::makeCuda(#4,#5)")
+    private static def cudaMakeRail[T] (dst:Place, length:Int) : Rail[T]{self.length==length} {
+        return null;
+    }
+
+    public static safe def makeRemoteRail[T] (p:Place, length:Int, init: (nat) => T)
+        : Rail[T]{self.length==length} {
+        if (p.isCUDA()) return cudaMakeRail[T](p,length); // FIXME: no initialisation
+        return at (p) Rail.makeVar[T](length, init);
+    }
+
 }

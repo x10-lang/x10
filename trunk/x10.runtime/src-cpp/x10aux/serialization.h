@@ -185,8 +185,11 @@ namespace x10aux {
         serialization_buffer (void);
 
         ~serialization_buffer (void) {
-            // do not use GC
-            assert(buffer==NULL);
+            #ifndef NDEBUG
+            if (buffer!=NULL) {
+                fprintf(stderr, "Serialization buffer destructed before steal() called\n");
+            }
+            #endif
         }
 
         void grow (void);

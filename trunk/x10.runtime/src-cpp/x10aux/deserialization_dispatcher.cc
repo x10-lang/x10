@@ -28,92 +28,128 @@ serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer dese
     return it->addDeserializer_(deser, is_async);
 }
 
+static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
+                              size_t newsz, size_t &data_c)
+{
+    if (data_c >= newsz) return;
+    // do not use GC
+    data_v = zrealloc(data_v, data_c, newsz);
+    data_c = newsz;
+}
+
 serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer deser, bool is_async) {
-    if (deser_sz<=(size_t)next_id) {
-        // grow slowly as this is init phase and we don't want to take
-        // up RAM unnecessarily
-        size_t newsz = next_id+1;
-        
-        // do not use GC
-        deser_v = zrealloc(deser_v, deser_sz, newsz);
-        deser_sz = newsz;
-    }
-    deser_v[next_id] = deser;
+    // grow slowly as this is init phase and we don't want to take
+    // up RAM unnecessarily
+    ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
-    //_S_("DeserializationDispatcher registered the following handler for id: "
-    //    <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
-    (void) is_async; // TODO: use two numbering schemes
+    _S_("DeserializationDispatcher registered the following handler for id: "
+        <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
+    data_v[r].deser = deser;
+    data_v[r].has_mt = true; //is_async;
     return r;
 }
 
 serialization_id_t DeserializationDispatcher::addPutFunctions (BufferFinder bfinder,
-                                                               Notifier notifier) {
+                                                               Notifier notifier,
+                                                               BufferFinder cuda_bfinder,
+                                                               Notifier cuda_notifier) {
     if (NULL == it) {
         it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addPutFunctions_(bfinder, notifier);
+    return it->addPutFunctions_(bfinder, notifier, cuda_bfinder, cuda_notifier);
 }
 
 serialization_id_t DeserializationDispatcher::addPutFunctions_ (BufferFinder bfinder,
-                                                                Notifier notifier) {
-    if (put_sz<=(size_t)next_id) {
-        // grow slowly as this is init phase and we don't want to take
-        // up RAM unnecessarily
-        size_t newsz = next_id+1;
-        // do not use GC
-        put_bfinder_v = zrealloc(put_bfinder_v, put_sz, newsz);
-        put_notifier_v = zrealloc(put_notifier_v, put_sz, newsz);
-        put_sz = newsz;
-    }
-    put_bfinder_v[next_id] = bfinder;
-    put_notifier_v[next_id] = notifier;
+                                                                Notifier notifier,
+                                                                BufferFinder cuda_bfinder,
+                                                                Notifier cuda_notifier) {
+    ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
-    //_S_("DeserializationDispatcher registered the following put handler for id: "
-    //    <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    _S_("DeserializationDispatcher registered the following put handler for id: "
+        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    data_v[r].put_bfinder = bfinder;
+    data_v[r].put_notifier = notifier;
+    data_v[r].cuda_put_bfinder = cuda_bfinder;
+    data_v[r].cuda_put_notifier = cuda_notifier;
+    data_v[r].has_mt = true;
     return r;
 }
 
 BufferFinder DeserializationDispatcher::getPutBufferFinder_ (serialization_id_t id) {
-    return put_bfinder_v[id];
+    return data_v[id].put_bfinder;
 }
 
 Notifier DeserializationDispatcher::getPutNotifier_ (serialization_id_t id) {
-    return put_notifier_v[id];
+    return data_v[id].put_notifier;
+}
+
+BufferFinder DeserializationDispatcher::getCudaPutBufferFinder_ (serialization_id_t id) {
+    return data_v[id].cuda_put_bfinder;
+}
+
+Notifier DeserializationDispatcher::getCudaPutNotifier_ (serialization_id_t id) {
+    return data_v[id].cuda_put_notifier;
 }
 
 serialization_id_t DeserializationDispatcher::addGetFunctions (BufferFinder bfinder,
-                                                               Notifier notifier) {
+                                                               Notifier notifier,
+                                                               BufferFinder cuda_bfinder,
+                                                               Notifier cuda_notifier) {
     if (NULL == it) {
         it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addGetFunctions_(bfinder, notifier);
+    return it->addGetFunctions_(bfinder, notifier, cuda_bfinder, cuda_notifier);
 }
 
 serialization_id_t DeserializationDispatcher::addGetFunctions_ (BufferFinder bfinder,
-                                                                Notifier notifier) {
-    if (get_sz<=(size_t)next_id) {
-        // grow slowly as this is init phase and we don't want to take
-        // up RAM unnecessarily
-        size_t newsz = next_id+1;
-        // do not use GC
-        get_bfinder_v = zrealloc(get_bfinder_v, get_sz, newsz);
-        get_notifier_v = zrealloc(get_notifier_v, get_sz, newsz);
-        get_sz = newsz;
-    }
-    get_bfinder_v[next_id] = bfinder;
-    get_notifier_v[next_id] = notifier;
+                                                                Notifier notifier,
+                                                                BufferFinder cuda_bfinder,
+                                                                Notifier cuda_notifier) {
+    ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
-    //_S_("DeserializationDispatcher registered the following get handler for id: "
-    //    <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    _S_("DeserializationDispatcher registered the following get handler for id: "
+        <<r<<": "<<std::hex<<(size_t)bfinder<<std::dec);
+    data_v[r].get_bfinder = bfinder;
+    data_v[r].get_notifier = notifier;
+    data_v[r].cuda_get_bfinder = cuda_bfinder;
+    data_v[r].cuda_get_notifier = cuda_notifier;
+    data_v[r].has_mt = true;
     return r;
 }
 
 BufferFinder DeserializationDispatcher::getGetBufferFinder_ (serialization_id_t id) {
-    return get_bfinder_v[id];
+    return data_v[id].get_bfinder;
 }
 
 Notifier DeserializationDispatcher::getGetNotifier_ (serialization_id_t id) {
-    return get_notifier_v[id];
+    return data_v[id].get_notifier;
+}
+
+BufferFinder DeserializationDispatcher::getCudaGetBufferFinder_ (serialization_id_t id) {
+    return data_v[id].cuda_get_bfinder;
+}
+
+Notifier DeserializationDispatcher::getCudaGetNotifier_ (serialization_id_t id) {
+    return data_v[id].cuda_get_notifier;
+}
+
+x10aux::msg_type DeserializationDispatcher::getMsgType_ (serialization_id_t id) {
+    if (!data_v[id].has_mt) {
+        fprintf(stderr, "This serialization id does not have a message id: %llu\n",
+                        (unsigned long long)id);
+        abort();
+    }
+    return data_v[id].mt;
+}
+
+serialization_id_t DeserializationDispatcher::getSerializationId_ (x10aux::msg_type id) {
+    serialization_id_t sid = data_v[id].sid;
+    if (!data_v[sid].has_mt || data_v[sid].mt!=id) {
+        fprintf(stderr, "This async id was unrecognised: %llu\n",
+                        (unsigned long long)id);
+        abort();
+    }
+    return sid;
 }
 
 void DeserializationDispatcher::registerHandlers () {
@@ -123,17 +159,23 @@ void DeserializationDispatcher::registerHandlers () {
 
 void DeserializationDispatcher::registerHandlers_ () {
     for (size_t i=0 ; i<next_id ; ++i) {
-        if (i<deser_sz && deser_v[i]) {
-            //_S_("(DeserializationDispatcher registered id "<<i<<" as an async)");
-            x10aux::register_async_handler(i);
-        }
-        if (i<put_sz && put_bfinder_v[i]) {
-            //_S_("(DeserializationDispatcher registered id "<<i<<" as a put)"); 
-            x10aux::register_put_handler(i);
-        }
-        if (i<get_sz && get_bfinder_v[i]) {
-            //_S_("(DeserializationDispatcher registered id "<<i<<" as a get)"); 
-            x10aux::register_get_handler(i);
+        if (data_v[i].has_mt) {
+            msg_type id;
+            if (data_v[i].deser!=NULL) {
+                id = x10aux::register_async_handler();
+                _X_("DeserializationDispatcher registered sid "<<i<<" as an async id "<<id);
+            } else if (data_v[i].put_bfinder!=NULL && data_v[i].put_notifier!=NULL) {
+                id = x10aux::register_put_handler();
+                _X_("DeserializationDispatcher registered sid "<<i<<" as a put id "<<id); 
+            } else if (data_v[i].get_bfinder!=NULL && data_v[i].get_notifier!=NULL) {
+                id = x10aux::register_get_handler();
+                _X_("DeserializationDispatcher registered sid "<<i<<" as a get id "<<id); 
+            } else {
+                continue;
+            }
+            data_v[i].mt = id;
+            ensure_data_size(data_v, id+1, data_c);
+            data_v[id].sid = i;
         }
     }
     x10aux::registration_complete();
@@ -142,7 +184,7 @@ void DeserializationDispatcher::registerHandlers_ () {
 
 ref<Ref> DeserializationDispatcher::create_(deserialization_buffer &buf, serialization_id_t id) {
     _S_("Dispatching deserialisation using id: "<<id);
-    return deser_v[id](buf);
+    return data_v[id].deser(buf);
 }
 
 ref<Ref> DeserializationDispatcher::create_(deserialization_buffer &buf) {

@@ -138,6 +138,7 @@ namespace x10aux {
     { if (!init_config_bools_done) init_config_bools() ; return trace_ser_; }
 
     extern x10_int here;
+    extern bool x10rt_initialized;
 }
 
 #define ANSI_RESET       (::x10aux::use_ansi_colors()?"\x1b[0m" :"")
@@ -166,7 +167,10 @@ namespace x10aux {
 
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
-    ss << ANSI_BOLD << x10aux::here << ": " << col << type << ": " << ANSI_RESET << msg; \
+    if (x10aux::x10rt_initialized) \
+        ss << ANSI_BOLD << x10aux::here << ": " << col << type << ": " << ANSI_RESET << msg; \
+    else \
+        ss << ANSI_BOLD << col << type << ": " << ANSI_RESET << msg; \
     fprintf(stderr,"%s\n",ss.str().c_str()); \
 } while (0)
 

@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#include <x10rt_api.h>
+#include <x10rt_front.h>
 
 // {{{ nano_time
 #include <sys/time.h>
@@ -44,15 +44,7 @@ static unsigned long long HPCC_starts(long long n) {
     return ran;
 } // }}}
 
-enum id {
-    UNUSED, // pgas currently broken for id==0
-    DIST_ID,
-    MAIN_ID,
-    UPDATE_ID,
-    PONG_ID,
-    VALIDATE_ID,
-    QUIT_ID
-};
+x10rt_msg_type DIST_ID, MAIN_ID, UPDATE_ID, PONG_ID, VALIDATE_ID, QUIT_ID;
 
 unsigned long long *localTable;
 unsigned long long *globalTable;
@@ -104,20 +96,20 @@ static void recv_update (const x10rt_msg_params &p)
     do_update(index, update);
 }
 
-static void recv_pong (const x10rt_msg_params &p)
+static void recv_pong (const x10rt_msg_params &)
 {
     pongs_outstanding--;
 }
 
 static void do_main (unsigned long long logLocalTableSize, unsigned long long numUpdates) {
     unsigned long long mask = (1<<logLocalTableSize)-1;
-    unsigned long long local_updates = numUpdates / x10rt_nplaces();
+    unsigned long long local_updates = numUpdates / x10rt_nhosts();
 
     unsigned long long ran = HPCC_starts(x10rt_here() * local_updates);
 
     // HOT LOOP STARTS
     for (unsigned long long i=0 ; i<local_updates ; ++i) {
-        unsigned long place = ((ran>>logLocalTableSize) & (x10rt_nplaces()-1));
+        unsigned long place = ((ran>>logLocalTableSize) & (x10rt_nhosts()-1));
         unsigned long long index = ran & mask;
         unsigned long long update = ran;
         if (x10rt_here()==place) {
@@ -167,7 +159,7 @@ static void do_validate (void) {
     decrement(0);
 }
 
-static void recv_validate (const x10rt_msg_params &p) {
+static void recv_validate (const x10rt_msg_params &) {
     do_validate();
 }
 
@@ -196,9 +188,9 @@ void runBenchmark (unsigned long long logLocalTableSize,
     #ifdef NO_REMOTE_XOR
     pongs_outstanding=numUpdates;
     #else
-    pongs_outstanding=x10rt_nplaces();
+    pongs_outstanding=x10rt_nhosts();
     #endif
-    for (unsigned long p=1 ; p<x10rt_nplaces() ; ++p) {
+    for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
         unsigned char *buf = (unsigned char*)x10rt_msg_realloc(NULL,0, 16);
         memcpy(buf+0, &logLocalTableSize, 8);
         memcpy(buf+8, &numUpdates, 8);
@@ -215,8 +207,8 @@ void runBenchmark (unsigned long long logLocalTableSize,
 // {{{ validate
 void validate (void)
 {
-    pongs_outstanding=x10rt_nplaces();
-    for (unsigned long p=1 ; p<x10rt_nplaces() ; ++p) {
+    pongs_outstanding=x10rt_nhosts();
+    for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
         x10rt_msg_params params = {p, VALIDATE_ID, NULL, 0};
         x10rt_send_msg(params);
     }
@@ -228,12 +220,12 @@ void validate (void)
 int main(int argc, char **argv)
 {
     x10rt_init(argc, argv);
-    x10rt_register_msg_receiver(DIST_ID, &recv_dist);
-    x10rt_register_msg_receiver(MAIN_ID, &recv_main);
-    x10rt_register_msg_receiver(UPDATE_ID, &recv_update);
-    x10rt_register_msg_receiver(PONG_ID, &recv_pong);
-    x10rt_register_msg_receiver(VALIDATE_ID, &recv_validate);
-    x10rt_register_msg_receiver(QUIT_ID, &recv_quit);
+    DIST_ID = x10rt_register_msg_receiver(&recv_dist,NULL,NULL,NULL,NULL);
+    MAIN_ID = x10rt_register_msg_receiver(&recv_main,NULL,NULL,NULL,NULL);
+    UPDATE_ID = x10rt_register_msg_receiver(&recv_update,NULL,NULL,NULL,NULL);
+    PONG_ID = x10rt_register_msg_receiver(&recv_pong,NULL,NULL,NULL,NULL);
+    VALIDATE_ID = x10rt_register_msg_receiver(&recv_validate,NULL,NULL,NULL,NULL);
+    QUIT_ID = x10rt_register_msg_receiver(&recv_quit,NULL,NULL,NULL,NULL);
 
     unsigned long long logLocalTableSize = 12;
     bool enable_validate = false;
@@ -270,19 +262,19 @@ int main(int argc, char **argv)
     }
 
     localTableSize = 1 << logLocalTableSize;
-    unsigned long long tableSize = localTableSize * x10rt_nplaces();
+    unsigned long long tableSize = localTableSize * x10rt_nhosts();
     unsigned long long numUpdates = updates * tableSize;
 
     localTable = (unsigned long long*) malloc(localTableSize*sizeof(unsigned long long));
     for (unsigned int i=0 ; i<localTableSize ; ++i) localTable[i] = i;
 
-    globalTable = (unsigned long long*) malloc(x10rt_nplaces() * sizeof(*globalTable));
+    globalTable = (unsigned long long*) malloc(x10rt_nhosts() * sizeof(*globalTable));
 
     x10rt_registration_complete();
 
     // make sure everyone knows the address of everyone else's rail
-    pongs_outstanding = x10rt_nplaces();
-    for (unsigned long i=0 ; i<x10rt_nplaces() ; ++i) {
+    pongs_outstanding = x10rt_nhosts();
+    for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
         uint64_t intptr = (uint64_t) (size_t) localTable;
         if (i==x10rt_here()) {
             globalTable[i] = intptr;
@@ -301,9 +293,9 @@ int main(int argc, char **argv)
     }
 
     if (x10rt_here()==0) {
-        std::cout<<"Main table size:   2^"<<logLocalTableSize<<"*"<<x10rt_nplaces()
+        std::cout<<"Main table size:   2^"<<logLocalTableSize<<"*"<<x10rt_nhosts()
                                           <<" == "<<tableSize<<" words"<<std::endl;;
-        std::cout<<"Number of places:  "<<x10rt_nplaces()<<std::endl;
+        std::cout<<"Number of places:  "<<x10rt_nhosts()<<std::endl;
         std::cout<<"Number of updates: "<<numUpdates<<std::endl;
 
         unsigned long long nanos = -nano_time();
@@ -321,7 +313,7 @@ int main(int argc, char **argv)
             validate();
         }
 
-        for (unsigned long i=1 ; i<x10rt_nplaces() ; ++i) {
+        for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
             x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(p);
         }

@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include <x10rt_api.h>
+#include <x10rt_front.h>
 
 // {{{ nano_time
 #include <sys/time.h>
@@ -14,13 +14,7 @@ long long nano_time() {
 } // }}}
 
 
-enum id {
-    UNUSED, // pgas currently broken for id==0
-    PING_ID, PONG_ID,
-    PING_PUT_ID, PONG_PUT_ID,
-    PING_GET_ID, PONG_GET_ID,
-    QUIT_ID
-};
+x10rt_msg_type PING_ID, PONG_ID, PING_PUT_ID, PONG_PUT_ID, PING_GET_ID, PONG_GET_ID, QUIT_ID;
 
 char *buf, *ping_buf, *pong_buf; 
 size_t len = 1024;
@@ -72,7 +66,7 @@ static void *recv_put_pong_hh (const x10rt_msg_params &, unsigned long)
 {
     return pong_buf;
 }
-static void recv_put_pong (const x10rt_msg_params &p, unsigned long len)
+static void recv_put_pong (const x10rt_msg_params &p, unsigned long)
 {
     if (validate && (p.len > 0) && memcmp(buf, pong_buf, p.len)) {
         fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p.len);
@@ -83,7 +77,7 @@ static void recv_put_pong (const x10rt_msg_params &p, unsigned long len)
 
 
 // {{{ get handlers
-static void *recv_get_ping_hh (const x10rt_msg_params &)
+static void *recv_get_ping_hh (const x10rt_msg_params &, unsigned long)
 {
     return buf;
 }
@@ -98,7 +92,7 @@ static void recv_get_ping (const x10rt_msg_params &p, unsigned long len)
     x10rt_send_get(p2, pong_buf, len);
 }
 
-static void *recv_get_pong_hh (const x10rt_msg_params &)
+static void *recv_get_pong_hh (const x10rt_msg_params &, unsigned long)
 {
     return buf;
 }
@@ -139,7 +133,7 @@ void show_help(FILE *out, char* name)
 } // }}}
 
 
-// {{{ run_test(iters,window,len,put,get) -- sends iters*window*(nplaces-1) msgs
+// {{{ run_test(iters,window,len,put,get) -- sends iters*window*(nhosts-1) msgs
 long long run_test(unsigned long iters,
                    unsigned long window,
                    unsigned long len,
@@ -149,7 +143,7 @@ long long run_test(unsigned long iters,
     long long nanos = -nano_time();
     for (unsigned long i=0 ; i<iters ; ++i) {
         for (unsigned long j=0 ; j<window ; ++j) {
-            for (unsigned long k=1 ; k<x10rt_nplaces() ; ++k) {
+            for (unsigned long k=1 ; k<x10rt_nhosts() ; ++k) {
                 if (put) {
                     x10rt_msg_params p = {k, PING_PUT_ID, NULL, 0};
                     x10rt_send_put(p, buf, len);
@@ -177,18 +171,19 @@ long long run_test(unsigned long iters,
 int main(int argc, char **argv)
 {
     x10rt_init(argc, argv);
-    x10rt_register_msg_receiver(PING_ID, &recv_msg_ping);
-    x10rt_register_msg_receiver(PONG_ID, &recv_msg_pong);
-    x10rt_register_put_receiver(PING_PUT_ID, &recv_put_ping_hh, &recv_put_ping);
-    x10rt_register_put_receiver(PONG_PUT_ID, &recv_put_pong_hh, &recv_put_pong);
-    x10rt_register_get_receiver(PING_GET_ID, &recv_get_ping_hh, &recv_get_ping);
-    x10rt_register_get_receiver(PONG_GET_ID, &recv_get_pong_hh, &recv_get_pong);
-    x10rt_register_msg_receiver(QUIT_ID, &recv_quit);
+
+    PING_ID = x10rt_register_msg_receiver(&recv_msg_ping, NULL, NULL, NULL, NULL);
+    PONG_ID = x10rt_register_msg_receiver(&recv_msg_pong, NULL, NULL, NULL, NULL);
+    PING_PUT_ID = x10rt_register_put_receiver(&recv_put_ping_hh, &recv_put_ping, NULL, NULL);
+    PONG_PUT_ID = x10rt_register_put_receiver(&recv_put_pong_hh, &recv_put_pong, NULL, NULL);
+    PING_GET_ID = x10rt_register_get_receiver(&recv_get_ping_hh, &recv_get_ping, NULL, NULL);
+    PONG_GET_ID = x10rt_register_get_receiver(&recv_get_pong_hh, &recv_get_pong, NULL, NULL);
+    QUIT_ID = x10rt_register_msg_receiver(&recv_quit, NULL, NULL, NULL, NULL);
 
     x10rt_registration_complete();
 
-    if (x10rt_nplaces()==1) {
-        fprintf(stderr, "This is a communications test so needs at least 2 places.\n");
+    if (x10rt_nhosts()==1) {
+        fprintf(stderr, "This is a communications test so needs at least 2 hosts.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -291,7 +286,7 @@ int main(int argc, char **argv)
                 float micros = 0;
                 for (int j=1 ; j<=16 ; ++j) {
                     micros = run_test(iterations/j, j, l, put, get)
-                             / 1E3 / (iterations/j*j) / 2 / (x10rt_nplaces() - 1);
+                             / 1E3 / (iterations/j*j) / 2 / (x10rt_nhosts() - 1);
                     printf("%6.1f ",micros);
                 }
                 printf("%0.3f\n", l/micros);
@@ -299,11 +294,11 @@ int main(int argc, char **argv)
             }
         } else {
             float micros = run_test(iterations, window, len, put, get)
-                           / 1E3 / (iterations*window) / 2 / (x10rt_nplaces() - 1);
+                           / 1E3 / (iterations*window) / 2 / (x10rt_nhosts() - 1);
             printf("Half roundtrip time: %f us  Bandwidth: %f MB/s\n",micros,len/micros);
         }
 
-        for (unsigned long i=1 ; i<x10rt_nplaces() ; ++i) {
+        for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
             x10rt_msg_params p = {i, QUIT_ID, NULL, 0};
             x10rt_send_msg(p);
         }
