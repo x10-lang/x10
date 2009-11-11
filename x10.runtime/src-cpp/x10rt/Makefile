@@ -41,7 +41,7 @@ install: $(LIBS) $(PROPERTIES)
 	cp $(LIBS) $(X10_HOME)/x10.dist/lib
 	cp $(PROPERTIES) $(X10_HOME)/x10.dist/etc
 	cp include/*.h $(X10_HOME)/x10.dist/include
-	-cp $(EXECUTABLES) $(X10_HOME)/x10.dist/bin ; fi
+	-cp $(EXECUTABLES) $(X10_HOME)/x10.dist/bin
 
 tests: $(TESTS)
 
