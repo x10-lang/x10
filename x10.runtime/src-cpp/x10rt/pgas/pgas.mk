@@ -62,23 +62,35 @@ ifeq ($(X10RT_PLATFORM), sunos)
   SOCKETS_LDLIBS += -lresolv -lnsl -lsocket -lrt
 endif
 
+ifdef CUSTOM_PGAS
+include/pgasrt.h: $(CUSTOM_PGAS)/common/work/include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/common/work/include/*.h include
+endif
 
 ifeq ($(SOCKETS_USE), yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
 LIBS += lib/libx10rt_pgas_sockets.a
 PROPERTIES += etc/x10rt_pgas_sockets.properties
+EXECUTABLES += bin/launcher bin/manager bin/daemon
 
 %.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.a
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
 
+ifdef CUSTOM_PGAS
+lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_sockets.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
+	$(CP) $(CUSTOM_PGAS)/common/work/bin/* bin
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+else
 $(SOCKETS_TGZ):
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
 
 lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xvf -
-	$(MV) lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
+	$(CP) lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+endif
 
 etc/x10rt_pgas_sockets.properties:
 	echo "CXX=$(CXX)" > $@
@@ -100,13 +112,19 @@ PROPERTIES += etc/x10rt_pgas_lapi.properties
 %.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.a
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
 
+ifdef CUSTOM_PGAS
+lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_lapi.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+else
 $(LAPI_TGZ):
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
 
 lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xvf -
-	$(MV) lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
+	$(CP) lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+endif
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@
@@ -128,13 +146,19 @@ PROPERTIES += etc/x10rt_pgas_bgp.properties
 %.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.a
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS)
 
+ifdef CUSTOM_PGAS
+lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_bgp.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+else
 $(BGP_TGZ):
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
 
 lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
 	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xvf -
-	$(MV) lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
+	$(CP) lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+endif
 
 etc/x10rt_pgas_bgp.properties:
 	echo "CXX=$(CXX)" > $@

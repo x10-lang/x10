@@ -2,7 +2,7 @@ CXX             ?= g++
 MPICXX          ?= mpicxx
 CXXFLAGS        ?= -g -O3 -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused
 AR              ?= ar
-MV              ?= mv
+CP              ?= cp
 WGET            ?= wget
 TAR             ?= tar
 GZIP            ?= gzip
@@ -12,6 +12,8 @@ CXXFLAGS        += -Iinclude -Icommon
 LDFLAGS         += -Llib -lpthread
 
 BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology
+
+EXECUTABLES     =
 
 X10_HOME        = ../../..
 
@@ -39,13 +41,14 @@ install: $(LIBS) $(PROPERTIES)
 	cp $(LIBS) $(X10_HOME)/x10.dist/lib
 	cp $(PROPERTIES) $(X10_HOME)/x10.dist/etc
 	cp include/*.h $(X10_HOME)/x10.dist/include
+	test -n "$(EXECUTABLES)" && cp $(EXECUTABLES) $(X10_HOME)/x10.dist/bin
 
 tests: $(TESTS)
 
 all: $(TESTS) $(PROPERTIES) $(LIBS)
 
 clean:
-	${RM} -f */*.o *.tgz $(LIBS) $(PROPERTIES) $(TESTS) */*~ *~ core*
+	$(RM) */*.o *.tgz lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
 
 # vim: ts=8:sw=8:noet
 # DO NOT DELETE
