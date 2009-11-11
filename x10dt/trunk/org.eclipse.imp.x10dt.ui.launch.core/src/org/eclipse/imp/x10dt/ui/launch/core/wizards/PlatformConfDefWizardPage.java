@@ -7,40 +7,50 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
-import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.imp.x10dt.ui.launch.core.wizards.validation.AbstractPlatformConfChecker;
+import org.eclipse.imp.x10dt.ui.launch.core.wizards.validation.IPlatformConfChecker;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
-import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -67,6 +77,21 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     this.fDefaultPlatformConf = platformConfiguration;
     this.fIsCplusPlus = (platformConfiguration != null) ? platformConfiguration.isCplusPlus() : false;
     this.fIsLocal = (platformConfiguration != null) ? platformConfiguration.isLocal() : false;
+    
+    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
+    if (x10DistBundle == null) {
+      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
+                               NLS.bind(Messages.PCDWP_NoBundleDialogMsg, Constants.X10_DIST_PLUGIN_ID));
+      throw new AssertionError();
+    }
+    try {
+      this.fLocalHeadersFile = getLocalFile(x10DistBundle.getResource(INCLUDE_DIR));
+      this.fLocalLibsFile = getLocalFile(x10DistBundle.getResource(LIB_DIR));
+    } catch (Exception except) {
+      ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_URLErrorDialogTitle, IStatus.ERROR, 
+                               NLS.bind(Messages.PCDWP_URLErrorDialogMsg, Constants.X10_DIST_PLUGIN_ID), except);
+      throw new AssertionError();
+    }
   }
   
   // --- IDialogPage's interface methods implementation
@@ -74,7 +99,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   public void createControl(final Composite parent) {
     initializeDialogUnits(parent);
     
-    final Composite composite = new Composite(parent, SWT.NULL);
+    final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(1, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
@@ -90,10 +115,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       distribLocGroup.setText(Messages.PCDWP_DistribGroup);
       this.fPGASLocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_PGASDistribLoc);
       this.fX10LocText = createX10PathLocation(distribLocGroup, Messages.PCDWP_X10DistribLoc);
-      if (this.fDefaultPlatformConf != null) {
-        this.fPGASLocText.setText(this.fDefaultPlatformConf.getPGASLocation());
-        this.fX10LocText.setText(this.fDefaultPlatformConf.getX10DistribLocation());
-      }
     }
     
     if (! this.fIsLocal || this.fIsCplusPlus) {
@@ -109,7 +130,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
         archivingGroup.setFont(composite.getFont());
         archivingGroup.setLayout(new GridLayout(1, false));
         archivingGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-        archivingGroup.setText(Messages.PCDWP_Archiving);
+        archivingGroup.setText(Messages.PCDWP_ArchivingGroup);
         createArchiving(archivingGroup);
         
         final Group linkingGroup = new Group(composite, SWT.NONE);
@@ -121,6 +142,12 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       }
     }
     
+    createValidationButton(composite);
+    
+    if (this.fDefaultPlatformConf != null) {
+      initDefaultConfValues();
+    }
+    
     setControl(composite);
   }
     
@@ -130,39 +157,11 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     if (this.fDefaultPlatformConf != null) {
       platformConfiguration.setName(this.fDefaultPlatformConf.getName());
     }
-    if (this.fIsLocal) {
-      final Bundle x10DistBundle = Platform.getBundle(X10_DIST_PLUGIN_ID);
-      if (x10DistBundle == null) {
-        ErrorUtils.dialogWithLog(getShell(), Messages.PCDWP_NoBundleDialogTitle, IStatus.ERROR, 
-                                 NLS.bind(Messages.PCDWP_NoBundleDialogMsg, X10_DIST_PLUGIN_ID));
-        return false;
-      }
-      final URL headerURL = x10DistBundle.getResource(INCLUDE_DIR);
-      final URL libsURL = x10DistBundle.getResource(LIB_DIR);
-      try {
-        platformConfiguration.setX10HeadersLoc(new String[] { getLocalFile(headerURL).getAbsolutePath() });
-        final File libDir = getLocalFile(libsURL);
-        platformConfiguration.setX10LibsLoc(new String[] { libDir.getAbsolutePath() });
-        
-        platformConfiguration.setX10DistLoc(libDir.getParentFile().getAbsolutePath());
-        platformConfiguration.setPGASLoc(platformConfiguration.getX10DistribLocation());
-      } catch (Exception except) {
-        except.printStackTrace();
-      }
-    } else {
-      platformConfiguration.setPGASLoc(this.fPGASLocText.getText().trim());
-      platformConfiguration.setX10DistLoc(this.fX10LocText.getText().trim());
-      final String[] headersLoc = new String[] {
-        this.fX10LocText.getText().trim() + '/' + INCLUDE_DIR,
-        this.fPGASLocText.getText().trim() + '/' + INCLUDE_DIR
-      };
-      platformConfiguration.setX10HeadersLoc(headersLoc);
-      final String[] libsLoc = new String[] {
-        this.fX10LocText.getText() + '/' + LIB_DIR,
-        this.fPGASLocText.getText() + '/' + LIB_DIR
-      };
-      platformConfiguration.setX10LibsLoc(libsLoc);
-    }
+    platformConfiguration.setArchitecture(this.fArchitectureBt.getSelection() ? EArchitecture.E64Arch : EArchitecture.E32Arch);
+    platformConfiguration.setX10HeadersLoc(getX10HeadersLocs());
+    platformConfiguration.setX10LibsLoc(getX10LibsLocs());
+    platformConfiguration.setX10DistLoc(getX10DistLoc());
+    platformConfiguration.setPGASLoc(getPGASDistLoc());
     platformConfiguration.setFlags(this.fIsCplusPlus, this.fIsLocal);
     platformConfiguration.setCompiler(this.fCompilerText.getText());
     platformConfiguration.setCompilerOpts(this.fCompilerOptsText.getText());
@@ -198,22 +197,9 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(2, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    final Button button = WizardUtils.createLabelAndPushButton(composite, Messages.PCDWP_Archiving, 
-                                                               Messages.PCDWP_AutoDetectBt, null);
-    button.setEnabled(false);
-    
-    final Composite composite2 = new Composite(parent, SWT.NONE);
-    composite2.setFont(parent.getFont());
-    composite2.setLayout(new GridLayout(2, false));
-    composite2.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     final ModifyListener listener = new UpdateMessageModifyListener();
-    this.fArchiverText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_Archiver, listener);
-    this.fArchivingOptsText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_ArchivingOpts, listener);
-    
-    if (this.fDefaultPlatformConf != null) {
-      this.fArchiverText.setText(this.fDefaultPlatformConf.getArchiver());
-      this.fArchivingOptsText.setText(this.fDefaultPlatformConf.getArchivingOpts());
-    }
+    this.fArchiverText = WizardUtils.createLabelAndText(composite, Messages.PCDWP_Archiver, listener);
+    this.fArchivingOptsText = WizardUtils.createLabelAndText(composite, Messages.PCDWP_ArchivingOpts, listener);
   }
   
   private void createCompilation(final Composite parent) {
@@ -221,33 +207,12 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(2, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    final Button button = WizardUtils.createLabelAndPushButton(composite, Messages.PCDWP_CompilationBt, 
-                                                               Messages.PCDWP_AutoDetectBt, null);
-    button.setEnabled(false);
-    
-    final Composite composite2 = new Composite(parent, SWT.NONE);
-    composite2.setFont(parent.getFont());
-    composite2.setLayout(new GridLayout(2, false));
-    composite2.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     final ModifyListener listener = new UpdateMessageModifyListener();
-    this.fCompilerText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_CompilerText, listener);
-    this.fCompilerOptsText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_CompilerOptText, listener);
-    
-    if (this.fDefaultPlatformConf != null) {
-      this.fCompilerText.setText(this.fDefaultPlatformConf.getCompiler());
-      this.fCompilerOptsText.setText(this.fDefaultPlatformConf.getCompilerOpts());
-    }
+    this.fCompilerText = WizardUtils.createLabelAndText(composite, Messages.PCDWP_CompilerText, listener);
+    this.fCompilerOptsText = WizardUtils.createLabelAndText(composite, Messages.PCDWP_CompilerOptText, listener);
   }
   
   private void createLinking(final Composite parent) {
-    final Composite composite = new Composite(parent, SWT.NONE);
-    composite.setFont(parent.getFont());
-    composite.setLayout(new GridLayout(2, false));
-    composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    final Button button = WizardUtils.createLabelAndPushButton(composite, Messages.PCDWP_LinkingBt, 
-                                                               Messages.PCDWP_AutoDetectBt, null);
-    button.setEnabled(false);
-    
     final Composite composite2 = new Composite(parent, SWT.NONE);
     composite2.setFont(parent.getFont());
     composite2.setLayout(new GridLayout(2, false));
@@ -256,11 +221,39 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     this.fLinkerText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_LinkerText, listener);
     this.fLinkingOptsText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_LinkingOptText, listener);
     this.fLinkingLibsText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_LinkingLibText, listener);
+  }
+  
+  private IPlatformConfChecker createPlatformConfChecker(final ELanguage language, final IResourceManager resourceManager) {
+    final IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(PLATFORM_CONF_EXTENSION_POINT_ID);
+
+    IConfigurationElement targetConfigElement = null;
+    final String langName = language.name();
+    for (final IConfigurationElement configElement : point.getConfigurationElements()) {
+      if (configElement.getAttribute(LANGUAGE_EP_ATTR).equals(langName)) {
+        targetConfigElement = configElement;
+        break;
+      }
+    }
+    if (targetConfigElement == null) {
+      // We failed to find the checker, so let's give up on the validation process.
+      setErrorMessage(NLS.bind(Messages.PCDWP_NoCheckerForLanguage, language));
+      this.fIsValidated = true;
+      updateMessage();
+      return null;
+    }
     
-    if (this.fDefaultPlatformConf != null) {
-      this.fLinkerText.setText(this.fDefaultPlatformConf.getLinker());
-      this.fLinkingOptsText.setText(this.fDefaultPlatformConf.getLinkingOpts());
-      this.fLinkingLibsText.setText(this.fDefaultPlatformConf.getLinkingLibs());
+    final String executableAttr = (this.fIsLocal) ? LOCAL_EP_ATTR : REMOTE_EP_ATTR;
+    try {
+      final Object clazz = targetConfigElement.createExecutableExtension(executableAttr);
+      final AbstractPlatformConfChecker checker = (AbstractPlatformConfChecker) clazz;
+      checker.defineRemoteServices(resourceManager);
+      return checker;
+    } catch (CoreException except) {
+      // We failed to find the checker, so let's give up on the validation process.
+      setErrorMessage(Messages.PCDWP_ExtensionPointAccessError + except.getStatus().getMessage());
+      this.fIsValidated = true;
+      updateMessage();
+      return null;
     }
   }
   
@@ -313,15 +306,15 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   }
   
   private void createTargetOperatingSystem(final Composite parent) {
-    final Composite composite = new Composite(parent, SWT.NONE);
-    composite.setFont(parent.getFont());
-    composite.setLayout(new GridLayout(2, false));
-    composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    final Composite composite1 = new Composite(parent, SWT.NONE);
+    composite1.setFont(parent.getFont());
+    composite1.setLayout(new GridLayout(2, false));
+    composite1.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     
-    new Label(composite, SWT.NONE).setText(Messages.PCDWP_TargetOS);
+    new Label(composite1, SWT.NONE).setText(Messages.PCDWP_TargetOS);
     
-    this.fTargetOSCombo = new Combo(composite, SWT.READ_ONLY);
-    this.fTargetOSCombo.setFont(composite.getFont());
+    this.fTargetOSCombo = new Combo(composite1, SWT.READ_ONLY);
+    this.fTargetOSCombo.setFont(composite1.getFont());
     this.fTargetOSCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     for (final ETargetOS targetOs : ETargetOS.values()) {
       this.fTargetOSCombo.add(targetOs.name());
@@ -335,55 +328,166 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
         }
       }
     }
+    
+    final Composite composite2 = new Composite(parent, SWT.NONE);
+    composite2.setFont(parent.getFont());
+    composite2.setLayout(new GridLayout(4, false));
+    composite2.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    
+    this.fEnvLabel = new Label(composite2, SWT.NONE);
+    this.fEnvLabel.setText(Messages.PCDWP_EnvironmentLabel);
+    this.fEnvLabel.setVisible(false);
+    
+    this.fWinEnvCombo = new Combo(composite2, SWT.READ_ONLY);
+    this.fWinEnvCombo.setFont(composite2.getFont());
+    this.fWinEnvCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fWinEnvCombo.add(Messages.PCDWP_CygwinEnv);
+    this.fWinEnvCombo.setVisible(false);
+    
+    this.fArchLabel = new Label(composite2, SWT.NONE);
+    this.fArchLabel.setText(Messages.PCDWP_64ArchLabel);
+    this.fArchLabel.setEnabled(false);
+    
+    this.fArchitectureBt = new Button(composite2, SWT.CHECK);
+    this.fArchitectureBt.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
+    this.fArchitectureBt.setEnabled(false);
+    this.fArchitectureBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        defineDefaultCommands();
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    
     this.fTargetOSCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        final Combo combo = PlatformConfDefWizardPage.this.fTargetOSCombo;
-        final String osName = combo.getItem(combo.getSelectionIndex());
-        final ETargetOS targetOs = (ETargetOS) combo.getData(osName);
-        final IDefaultX10Platform defaultX10Platform;
-        switch ( targetOs ) {
-        case AIX:
-          defaultX10Platform = null;
-          break;
-        case LINUX:
-          defaultX10Platform = new LinuxPlatform();
-          break;
-        case MAC:
-          defaultX10Platform = new MacPlatform();
-          break;
-        case UNIX:
-          defaultX10Platform = new UnknownUnixPlatform();
-          break;
-        case WINDOWS:
-          defaultX10Platform = new CygwinPlatform();
-          break;
-        default:
-          defaultX10Platform = null;
+        PlatformConfDefWizardPage.this.fArchLabel.setEnabled(true);
+        PlatformConfDefWizardPage.this.fArchitectureBt.setEnabled(true);
+        
+        defineDefaultCommands();
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+    });
+  }
+  
+  private void createValidationButton(final Composite parent) {
+    final Composite composite = new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new GridLayout(1, false));
+    composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    
+    this.fValidationBt = new Button(composite, SWT.PUSH);
+    this.fValidationBt.setFont(composite.getFont());
+    this.fValidationBt.setText(Messages.PCDWP_ValidateBt);
+    this.fValidationBt.setLayoutData(new GridData(SWT.RIGHT, SWT.NONE, false, false));
+    this.fValidationBt.setEnabled(false);
+    this.fValidationBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        final Combo combo = PlatformConfDefWizardPage.this.fResManagerCombo;
+        final String resName = combo.getItem(combo.getSelectionIndex());
+        final String resId = (String) combo.getData(resName);
+        final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
+        final IResourceManager resourceManager = universe.getResourceManager(resId);
+        
+        final ELanguage language = (PlatformConfDefWizardPage.this.fIsCplusPlus) ? ELanguage.CPP : ELanguage.JAVA;
+        final IPlatformConfChecker checker = createPlatformConfChecker(language, resourceManager);
+        if (checker == null) {
+          return;
         }
-        if (defaultX10Platform == null) {
-          setMessage(osName + Messages.PCDWP_OSNotHandledWarning, IMessageProvider.WARNING);
-        } else {
-          if (PlatformConfDefWizardPage.this.fCompilerText != null) {
-            PlatformConfDefWizardPage.this.fCompilerText.setText(defaultX10Platform.getCompiler());
-            PlatformConfDefWizardPage.this.fCompilerOptsText.setText(defaultX10Platform.getCompilerOptions());
-          }
-          if (PlatformConfDefWizardPage.this.fArchiverText != null) {
-            PlatformConfDefWizardPage.this.fArchiverText.setText(defaultX10Platform.getArchiver());
-            PlatformConfDefWizardPage.this.fArchivingOptsText.setText(defaultX10Platform.getArchivingOpts());
-          }
-          if (PlatformConfDefWizardPage.this.fLinkerText != null) {
-            PlatformConfDefWizardPage.this.fLinkerText.setText(defaultX10Platform.getLinker());
-            PlatformConfDefWizardPage.this.fLinkingOptsText.setText(defaultX10Platform.getLinkingOptions());
-            PlatformConfDefWizardPage.this.fLinkingLibsText.setText(defaultX10Platform.getLinkingLibraries());
-          }
+        
+        final String compiler = PlatformConfDefWizardPage.this.fCompilerText.getText().trim();
+        final String compilingOpts = PlatformConfDefWizardPage.this.fCompilerOptsText.getText().trim();
+        final String archiver = PlatformConfDefWizardPage.this.fArchiverText.getText().trim();
+        final String archivingOpts = PlatformConfDefWizardPage.this.fArchivingOptsText.getText().trim();
+        final String linker = PlatformConfDefWizardPage.this.fLinkerText.getText().trim();
+        final String linkingOpts = PlatformConfDefWizardPage.this.fLinkingOptsText.getText().trim();
+        final String linkingLibs = PlatformConfDefWizardPage.this.fLinkingLibsText.getText().trim();
+        final boolean hasLinkingStep = (PlatformConfDefWizardPage.this.fLinkerText != null);
+        final String x10DistLoc = getX10DistLoc();
+        final String pgasDistLoc = getPGASDistLoc();
+        final String[] x10HeadersLocs = getX10HeadersLocs();
+        final String[] x10LibsLocs = getX10LibsLocs();
+        
+        final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+          
+          public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+            final SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
+            
+            String returnCompilMsg = null;
+            try {
+              returnCompilMsg = checker.validateCompilation(language, compiler, compilingOpts, x10DistLoc, pgasDistLoc,
+                                                            x10HeadersLocs, x10LibsLocs, subMonitor.newChild(7));
+            } catch (Exception except) {
+              monitor.done();
+              throw new InvocationTargetException(except);
+            }
+            if (returnCompilMsg == null) {
+              String returnArchivingMsg = null;
+              try {
+                returnArchivingMsg = checker.validateArchiving(archiver, archivingOpts, subMonitor.newChild(3));
+              } catch (Exception except) {
+                monitor.done();
+                throw new InvocationTargetException(except);
+              }
+              if (returnArchivingMsg != null) {
+                monitor.done();
+                throw new InterruptedException(returnArchivingMsg);
+              }
+              if (hasLinkingStep) {
+                String returnLinkMsg = null;
+                try {
+                  returnLinkMsg = checker.validateLinking(linker, linkingOpts, linkingLibs, x10HeadersLocs,
+                                                          x10LibsLocs, subMonitor.newChild(10));
+                } catch (Exception except) {
+                  monitor.done();
+                  throw new InvocationTargetException(except);
+                }
+                if (returnLinkMsg != null) {
+                  monitor.done();
+                  throw new InterruptedException(returnLinkMsg);
+                }
+              }
+            } else {
+              monitor.done();
+              throw new InterruptedException(returnCompilMsg);
+            }
+          }          
+        };
+        try {
+          new ProgressMonitorDialog(getShell()).run(true, true, runnable);
+
+          PlatformConfDefWizardPage.this.fIsValidated = true;
+          PlatformConfDefWizardPage.this.fValidationBt.setEnabled(false);
           updateMessage();
+        } catch (InvocationTargetException except) {
+          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_InternalErrorDialogTitle,
+                                                   Messages.PCDWP_InternalErrorDialogMsg, 
+                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, 
+                                                              except.getCause().getMessage(), 
+                                                              except.getCause()), getTestCode());
+          PlatformConfDefWizardPage.this.fIsValidated = true;
+          updateMessage();
+        } catch (InterruptedException except) {
+          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_ValidationErrorDialogTitle, 
+                                                   Messages.PCDWP_ValidationErrorDialogMsg, 
+                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, except.getMessage()),
+                                                   getTestCode());
         }
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
         widgetSelected(event);
       }
+      
     });
   }
   
@@ -396,13 +500,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     final Label label = new Label(composite, SWT.NONE);
     label.setText(labelText);
     label.setFont(parent.getFont());
-    label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    
-    final Button autoDetectBt = new Button(composite, SWT.PUSH);
-    autoDetectBt.setFont(parent.getFont());
-    autoDetectBt.setText(Messages.PCDWP_AutoDetectBt);
-    autoDetectBt.setLayoutData(new GridData(SWT.RIGHT, SWT.NONE, false, false));
-    autoDetectBt.setEnabled(false);
+    label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
     
     final Text locText = new Text(composite, SWT.BORDER);
     locText.setFont(composite.getFont());
@@ -419,24 +517,11 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     browseBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        final IResourceManagerControl rmControl = (IResourceManagerControl) getResourceManager();
-        final IResourceManagerConfiguration rmConf = rmControl.getConfiguration();
-        final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());
-        final IRemoteUIServices rmUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(rmServices);
-        if (rmServices != null && rmUIServices != null) {
-          final IRemoteConnection rmConnection = rmServices.getConnectionManager().getConnection(rmConf.getConnectionName());
-          if (rmConnection != null) {
-            final IRemoteUIFileManager fileManager = rmUIServices.getUIFileManager();
-            if (fileManager != null) {
-              fileManager.setConnection(rmConnection);
-              fileManager.showConnections(false);
-              final String path = fileManager.browseDirectory(getShell(), Messages.PCDWP_DirectoryLocation, "",IRemoteUIConstants.NONE); //$NON-NLS-1$
-              if (path != null) {
-                locText.setText(path);
-                updateMessage();
-              }
-            }
-          }
+        final String path = PTPUtils.browseDirectory(getShell(), PlatformConfDefWizardPage.this.fResManagerCombo,
+                                                     Messages.PCDWP_DirectoryLocation, ""); //$NON-NLS-1$
+        if (path != null) {
+          locText.setText(path);
+          updateMessage();
         }
       }
       
@@ -448,8 +533,62 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     return locText;
   }
   
+  private void defineDefaultCommands() {
+    final Combo combo = PlatformConfDefWizardPage.this.fTargetOSCombo;
+    final String osName = combo.getItem(combo.getSelectionIndex());
+    final ETargetOS targetOs = (ETargetOS) combo.getData(osName);
+    
+    this.fEnvLabel.setVisible(targetOs == ETargetOS.WINDOWS);
+    this.fWinEnvCombo.setVisible(targetOs == ETargetOS.WINDOWS);
+    if (this.fWinEnvCombo.isVisible()) {
+      this.fWinEnvCombo.select(0);
+    }
+    final boolean is64Arch = this.fArchitectureBt.getSelection();
+    
+    final IDefaultX10Platform defaultX10Platform;
+    switch (targetOs) {
+      case AIX:
+        defaultX10Platform = new AixPlatform(is64Arch);
+        break;
+      case LINUX:
+        defaultX10Platform = new LinuxPlatform(is64Arch);
+        break;
+      case MAC:
+        defaultX10Platform = new MacPlatform(is64Arch);
+        break;
+      case WINDOWS:
+        defaultX10Platform = new CygwinPlatform(is64Arch);
+        break;
+      default:
+        defaultX10Platform = new UnknownUnixPlatform(is64Arch);
+        break;
+    }
+    if (PlatformConfDefWizardPage.this.fCompilerText != null) {
+      this.fCompilerText.setText(defaultX10Platform.getCompiler());
+      this.fCompilerOptsText.setText(defaultX10Platform.getCompilerOptions());
+    }
+    if (this.fArchiverText != null) {
+      this.fArchiverText.setText(defaultX10Platform.getArchiver());
+      this.fArchivingOptsText.setText(defaultX10Platform.getArchivingOpts());
+    }
+    if (this.fLinkerText != null) {
+      this.fLinkerText.setText(defaultX10Platform.getLinker());
+      this.fLinkingOptsText.setText(defaultX10Platform.getLinkingOptions());
+      this.fLinkingLibsText.setText(defaultX10Platform.getLinkingLibraries());
+    }
+    updateMessage();
+  }
+  
   private File getLocalFile(final URL url) throws URISyntaxException, IOException {
     return new File(FileLocator.resolve(url).toURI());
+  }
+  
+  private String getPGASDistLoc() {
+    if (this.fIsLocal) {
+      return this.fLocalLibsFile.getParentFile().getAbsolutePath();
+    } else {
+      return this.fPGASLocText.getText().trim();
+    }
   }
   
   private IResourceManager getResourceManager() {
@@ -462,8 +601,64 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       return modelManager.getUniverse().getResourceManager(resId);
     }
   }
+  
+  private String getTestCode() {
+    final InputStream is = WizardUtils.createSampleContentStream(null /* packageName */, "Hello"); //$NON-NLS-1$
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    final StringBuilder sb = new StringBuilder();
+    try {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        sb.append(line).append('\n');
+      }
+    } catch (IOException except) {
+      LaunchCore.log(IStatus.ERROR, Messages.PCDWP_TestCodeReadingError, except);
+      // Let's forget about it after.
+      return null;
+    } finally {
+      try {
+        is.close();
+      } catch (IOException except) {
+        LaunchCore.log(IStatus.ERROR, Messages.PCDWP_TestCodeReadingError, except);
+      }
+    }
+    return sb.toString();
+  }
+  
+  private String getX10DistLoc() {
+    if (this.fIsLocal) {
+      return this.fLocalLibsFile.getParentFile().getAbsolutePath();
+    } else {
+      return this.fX10LocText.getText().trim();
+    }
+  }
+  
+  private String[] getX10HeadersLocs() {
+    if (this.fIsLocal) {
+      return new String[] { this.fLocalHeadersFile.getAbsolutePath().replace('\\', '/') };
+    } else {
+      return new String[] {
+        this.fX10LocText.getText().trim() + '/' + INCLUDE_DIR,
+        this.fPGASLocText.getText().trim() + '/' + INCLUDE_DIR
+      };
+    }
+  }
+  
+  private String[] getX10LibsLocs() {
+    if (this.fIsLocal) {
+      return new String[] { this.fLocalLibsFile.getAbsolutePath().replace('\\', '/') };
+    } else {
+      return new String[] {
+        this.fX10LocText.getText() + '/' + LIB_DIR,
+        this.fPGASLocText.getText() + '/' + LIB_DIR
+      };
+    }
+  }
     
-  private boolean isComplete() {
+  private boolean hasAllData() {
+    if (this.fResManagerCombo.getSelectionIndex() == -1) {
+      return false;
+    }
     if (this.fTargetOSCombo.getSelectionIndex() == -1) {
       return false;
     }
@@ -505,13 +700,66 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     return true;
   }
   
+  private void initDefaultConfValues() {
+    final String defaultRMId = this.fDefaultPlatformConf.getResourceManagerId();
+    int index = -1;
+    for (final String item : this.fResManagerCombo.getItems()) {
+      ++index;
+      final String rmID = (String) this.fResManagerCombo.getData(item);
+      if (defaultRMId.equals(rmID)) {
+        this.fResManagerCombo.select(index);
+        break;
+      }
+    }
+    
+    final String defaultOSName = this.fDefaultPlatformConf.getTargetOS().name();
+    index = -1;
+    for (final String item : this.fTargetOSCombo.getItems()) {
+      ++index;
+      if (defaultOSName.equals(item)) {
+        this.fTargetOSCombo.select(index);
+        break;
+      }
+    }
+    
+    if (this.fDefaultPlatformConf.getTargetOS() == ETargetOS.WINDOWS) {
+      this.fEnvLabel.setVisible(true);
+      this.fWinEnvCombo.setVisible(true);
+      this.fWinEnvCombo.select(0);
+    }
+    
+    this.fArchLabel.setEnabled(true);
+    this.fArchitectureBt.setEnabled(true);
+    this.fArchitectureBt.setSelection(this.fDefaultPlatformConf.getArchitecture() == EArchitecture.E64Arch);
+    
+    if (! this.fIsLocal) {
+      this.fX10LocText.setText(this.fDefaultPlatformConf.getX10DistribLocation());
+      this.fPGASLocText.setText(this.fDefaultPlatformConf.getPGASLocation());
+    }
+    
+    this.fCompilerText.setText(this.fDefaultPlatformConf.getCompiler());
+    this.fCompilerOptsText.setText(this.fDefaultPlatformConf.getCompilerOpts());
+    
+    if (this.fArchiverText != null) {
+      this.fArchiverText.setText(this.fDefaultPlatformConf.getArchiver());
+      this.fArchivingOptsText.setText(this.fDefaultPlatformConf.getArchivingOpts());
+    }
+    
+    if (this.fLinkerText != null) {
+      this.fLinkerText.setText(this.fDefaultPlatformConf.getLinker());
+      this.fLinkingOptsText.setText(this.fDefaultPlatformConf.getLinkingOpts());
+      this.fLinkingLibsText.setText(this.fDefaultPlatformConf.getLinkingLibs());
+    }
+  }
+  
   private void updateMessage() {
     if (this.fResManagerCombo.getSelectionIndex() == -1) {
       setMessage(Messages.PCDWP_DefaultPageMsg);
     } else {
       setMessage(null);
     }
-    setPageComplete(isComplete());
+    this.fValidationBt.setEnabled(hasAllData());
+    setPageComplete(this.fIsValidated);
   }
   
   // --- Private classes
@@ -523,6 +771,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     // --- Interface methods implementation
 
     public void modifyText(final ModifyEvent event) {
+      PlatformConfDefWizardPage.this.fIsValidated = false;
       updateMessage();
     }
     
@@ -534,6 +783,10 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   
   private final Collection<Button> fResMgrDepBts = new ArrayList<Button>();
   
+  private final File fLocalHeadersFile;
+  
+  private final File fLocalLibsFile;
+  
   private boolean fIsLocal;
   
   private boolean fIsCplusPlus;
@@ -541,6 +794,14 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Combo fResManagerCombo;
   
   private Combo fTargetOSCombo;
+  
+  private Label fEnvLabel;
+  
+  private Combo fWinEnvCombo;
+  
+  private Label fArchLabel;
+  
+  private Button fArchitectureBt;
   
   private Text fPGASLocText;
   
@@ -560,11 +821,22 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   
   private Text fLinkingLibsText;
   
+  private Button fValidationBt;
   
-  private static final String X10_DIST_PLUGIN_ID = "x10.dist.host"; //$NON-NLS-1$
+  private boolean fIsValidated;
+    
+  
   
   private static final String INCLUDE_DIR = "include"; //$NON-NLS-1$
   
   private static final String LIB_DIR = "lib"; //$NON-NLS-1$
-
+  
+  private static final String PLATFORM_CONF_EXTENSION_POINT_ID = "org.eclipse.imp.x10dt.ui.launch.core.platform_conf_checker"; //$NON-NLS-1$
+  
+  private static final String LANGUAGE_EP_ATTR = "language"; //$NON-NLS-1$
+  
+  private static final String LOCAL_EP_ATTR = "local"; //$NON-NLS-1$
+  
+  private static final String REMOTE_EP_ATTR = "remote"; //$NON-NLS-1$
+  
 }
