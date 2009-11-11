@@ -63,8 +63,8 @@ ifeq ($(X10RT_PLATFORM), sunos)
 endif
 
 ifdef CUSTOM_PGAS
-include/pgasrt.h: $(CUSTOM_PGAS)/common/work/include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/common/work/include/*.h include
+include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/include/*.h include
 endif
 
 ifeq ($(SOCKETS_USE), yes)
@@ -78,9 +78,9 @@ EXECUTABLES += bin/launcher bin/manager bin/daemon
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_sockets.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
-	$(CP) $(CUSTOM_PGAS)/common/work/bin/* bin
+lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
+	$(CP) $(CUSTOM_PGAS)/bin/* bin
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(SOCKETS_TGZ):
@@ -113,8 +113,8 @@ PROPERTIES += etc/x10rt_pgas_lapi.properties
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_lapi.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
+lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LAPI_TGZ):
@@ -147,8 +147,8 @@ PROPERTIES += etc/x10rt_pgas_bgp.properties
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_bgp.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/common/work/lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
+lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(BGP_TGZ):
