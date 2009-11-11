@@ -13,7 +13,7 @@ else
 endif
 
 CXXFLAGS += -g
-INCLUDE_DIRS += -I.
+INCLUDE_DIRS += -I. -Ix10rt/include
 
 ifdef ENABLE_GC
   CXXFLAGS += -DX10_USE_BDWGC
@@ -33,12 +33,6 @@ ifdef NO_CHECKS
 endif
 CXXFLAGS += $(USE_NDEBUG)
 
-ifdef ENABLE_CUDA
-  CXXFLAGS += -DX10_USE_CUDA_HOST
-  INCLUDE_DIRS += -I/usr/local/cuda/include
-  ALL_CUDA_OBJECTS += x10aux/cuda/cuda_utils.o
-endif
-
 ifdef USE_BFD
   CXXFLAGS += -DUSE_BFD
 endif
@@ -53,21 +47,21 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   #override CC =/bgsys/ibm_compilers/gcc-4.3.2/gnu-linux/bin/powerpc-bgp-linux-gcc
   override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
   override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
-  export X10RT_HANDWRITTEN_PROPS="bgp"
+  export X10RT_PLATFORM="bgp"
 else
 
   ifeq ($(shell uname -s),AIX)
 
 
     ifdef USE_GCC
-      export X10RT_HANDWRITTEN_PROPS="aix_gcc"
+      export X10RT_PLATFORM="aix_gcc"
       ifdef OPTIMIZE
         override CXXFLAGS += -O2 -finline-functions
       endif
       override CXXFLAGS += -maix64
       MPICXX ?= mpicxx
     else	
-      export X10RT_HANDWRITTEN_PROPS="aix_xlc"
+      export X10RT_PLATFORM="aix_xlc"
       CXX = mpCC_r
       MPICXX ?= mpCC_r
       override CXXFLAGS -= -g
@@ -105,16 +99,20 @@ else
     override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
     ifeq ($(shell uname -s),Linux)
       override CXXFLAGS += -pthread
-      export X10RT_HANDWRITTEN_PROPS="linux"
+      ifeq ($(shell uname -m),x86_64)
+        export X10RT_PLATFORM="linux64"
+      else
+        export X10RT_PLATFORM="linux32"
+      endif
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
-        export X10RT_HANDWRITTEN_PROPS="cygwin"
+        export X10RT_PLATFORM="cygwin"
       else
         ifeq ($(shell uname -s),Darwin)
-          export X10RT_HANDWRITTEN_PROPS="darwin"
+          export X10RT_PLATFORM="darwin"
         else
           ifeq ($(shell uname -s),SunOS)
-            export X10RT_HANDWRITTEN_PROPS="sunos"
+            export X10RT_PLATFORM="sunos"
           endif
         endif
       endif
@@ -148,8 +146,9 @@ export AR
 export CXXFLAGS
 export ARFLAGS
 
+# why must X10RT_PLATFORM be specified explicitly?
 x10rt:
-	cd x10rt && $(MAKE)
+	cd x10rt && $(MAKE) X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 ###################
 # Generated Files #
@@ -252,7 +251,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/concurrent/atomic/AtomicLong.o \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
-ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
+ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
 
 
 
@@ -292,11 +291,10 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
-	cp -p x10rt_api.h $(INSTDIR)/include
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	cd x10rt && $(MAKE) all install
+	cd x10rt && $(MAKE) all install X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 .PHONY: install
 

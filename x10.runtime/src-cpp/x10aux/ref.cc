@@ -17,7 +17,7 @@ void x10aux::throwNPE() { throwException<NullPointerException>(); }
 
 void x10aux::throwBPE() { throwException<BadPlaceException>(); }
 
-x10_int x10aux::location(x10aux::ref<x10::lang::Object> obj) {
+x10aux::place x10aux::location(x10aux::ref<x10::lang::Object> obj) {
     return obj->location;
 }
 

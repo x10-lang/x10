@@ -25,7 +25,7 @@ namespace x10 {
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
-            x10_int location;
+            x10aux::place location;
             
             Object(){ }
 

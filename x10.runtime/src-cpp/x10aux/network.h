@@ -2,105 +2,79 @@
 #define X10AUX_NETWORK_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+#include <x10aux/network.h>
 
-#include <x10rt_api.h>
+#include <x10rt_front.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 
 namespace x10aux {
 
+    typedef x10_short serialization_id_t;
+
     class serialization_buffer;
 
-    void run_at (x10_uint place, x10aux::ref<x10::lang::Object> body);
+    typedef x10rt_msg_type msg_type;
+    typedef x10rt_copy_sz copy_sz;
+    typedef x10_int place; // should be x10rt_place
 
-    void send_get (x10_int place, unsigned id,
-                   serialization_buffer &buf, void *data, x10_int len);
-   
-    void send_put (x10_int place, unsigned id,
-                   serialization_buffer &buf, void *data, x10_int len);
-   
     // caches to avoid repeatedly calling into x10rt for trivial things
-    extern x10_int num_places;
-    extern x10_int num_hosts;
-    extern x10_int here;
 
-    inline x10_int num_children(x10_int place) {
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
-        return x10rt_nchildren(place);
-        #else
-        return 0;
-        #endif
+    extern place num_places;
+    extern place num_hosts;
+    extern place here;
+    extern bool x10rt_initialized;
+
+    inline place num_children(place p) {
+        return x10rt_nchildren(p);
     }
 
-    inline x10_boolean is_host(x10_int place) {
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
-        return x10rt_is_host(place);
-        #else
-        return true;
-        #endif
+    inline x10_boolean is_host(place p) {
+        return x10rt_is_host(p);
     }
 
-    inline x10_int parent(x10_int place) {
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
-        return x10rt_parent(place);
-        #else
-        return place;
-        #endif
+    inline place parent(place p) {
+        return x10rt_parent(p);
     }
 
-    inline x10_int child(x10_int place, x10_int index) {
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
-        return x10rt_child(place, index);
-        #else
-        abort();
-        return 0;
-        #endif
+    inline place child(place p, place index) {
+        return x10rt_child(p, index);
     }
 
-    inline x10_boolean is_spe(x10_int place) {
-        #ifdef X10RT_SUPPORTS_CELL
-        return x10rt_is_spe(place);
-        #else
-        return false;
-        #endif
+    inline place child_index(place p) {
+        return x10rt_child_index(p);
     }
 
-    inline x10_boolean is_cuda(x10_int place) {
-        #ifdef X10RT_SUPPORTS_CUDA
-        return x10rt_is_spe(place);
-        #else
-        return false;
-        #endif
+    inline x10_boolean is_spe(place p) {
+        return x10rt_is_spe(p);
     }
 
-    inline x10_ulong remote_alloc (x10_int place, size_t sz) {
-        #ifdef X10RT_SUPPORTS_CUDA
-        return x10rt_remote_alloc(place, sz);
-        #else
-        return 0;
-        #endif
+    inline x10_boolean is_cuda(place p) {
+        return x10rt_is_cuda(p);
     }
 
-    inline void remote_free (x10_int place, x10_ulong ptr) {
-        #ifdef X10RT_SUPPORTS_CUDA
-        x10rt_remote_free(place, ptr);
-        #endif
+    inline x10_ulong remote_alloc (place p, size_t sz) {
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote alloc: "<<ANSI_RESET
+            <<"size "<<sz<<" to place: "<<p);
+        return x10rt_remote_alloc(p, sz);
     }
 
-    void register_async_handler (unsigned id);
-    void register_put_handler (unsigned id);
-    void register_get_handler (unsigned id);
+    inline void remote_free (place p, x10_ulong ptr) {
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote free: "<<ANSI_RESET
+            <<"ptr "<<std::hex<<ptr<<std::dec<<" to place: "<<p);
+        x10rt_remote_free(p, ptr);
+    }
+
+    msg_type register_async_handler (void);
+    msg_type register_put_handler (void);
+    msg_type register_get_handler (void);
 
     inline void registration_complete (void) {
         x10rt_registration_complete();
         here = x10rt_here();
         num_places = x10rt_nplaces();
-        #ifdef X10RT_SUPPORTS_ACCELERATORS
         num_hosts = x10rt_nhosts();
-        #else
-        num_hosts = num_places;
-        #endif
+        x10rt_initialized = true;
     }
 
     inline void event_probe() {
@@ -138,5 +112,18 @@ namespace x10aux {
 
 }
 
+#include <x10aux/ref.h>
+
+namespace x10aux {
+
+    void run_at (place p, x10aux::ref<x10::lang::Object> body);
+
+    void send_get (place p, serialization_id_t id,
+                   serialization_buffer &buf, void *data, x10aux::copy_sz len);
+   
+    void send_put (place p, serialization_id_t id,
+                   serialization_buffer &buf, void *data, x10aux::copy_sz len);
+   
+}
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

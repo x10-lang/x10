@@ -27,7 +27,8 @@ namespace x10 {
     }
 }
 
-void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
+void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
+{
     x10::runtime::RID rid = buf.read<x10::runtime::RID>();
     ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
     ref<Object> fs = rt->FMGL(finishStates)->get(rid);
@@ -35,21 +36,28 @@ void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf) {
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
 }
 
-void x10::lang::Rail_serializeAndSend(Place dst_place_, ref<Object> df, serialization_id_t _id, void* data, size_t size) {
-    x10_int dst_place = dst_place_.FMGL(id);
+void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &buf, addr_map &m)
+{
+    // dst is the place where the finish update will occur, i.e. where the notifier runs
+    dst = x10aux::parent(dst);
+    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
+    ref<Object> fs = rt->currentState();
+    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
+    rt->FMGL(finishStates)->put(fs);
+    x10::runtime::RID rid = (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->rid))();
+    buf.write(rid, m);
+}
+
+void x10::lang::Rail_serializeAndSend(Place dst_place_, ref<Object> df, x10_ubyte code,
+                                      serialization_id_t _id, void* data, size_t size)
+{
     serialization_buffer buf;
     addr_map m;
     buf.realloc_func = x10aux::put_realloc;
-    x10_byte code = 1;
     buf.write(code, m);
     buf.write(df, m);
-    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
-    ref<Object> fs = rt->currentState();
-    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(dst_place_);
-    x10::runtime::Runtime::runtime()->FMGL(finishStates)->put(fs);
-    x10::runtime::RID rid = (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->rid))();
-    buf.write(rid, m);
-    x10aux::send_put(dst_place, _id, buf, data, size);
+    Rail_serialize_finish_state (dst_place_.FMGL(id), buf, m);
+    x10aux::send_put(dst_place_.FMGL(id), _id, buf, data, size);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

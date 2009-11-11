@@ -1,0 +1,151 @@
+VERSION=20091110
+SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
+LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
+BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
+
+# defaults
+SOCKETS_USE := no
+LAPI_USE := no
+BGP_USE := no
+
+LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
+BGP_LDFLAGS     = $(CUDA_LDFLAGS)
+SOCKETS_LDFLAGS = $(CUDA_LDFLAGS)
+
+LAPI_LDLIBS     = -lx10rt_pgas_lapi $(CUDA_LDLIBS)
+BGP_LDLIBS      = -lx10rt_pgas_bgp $(CUDA_LDLIBS)
+SOCKETS_LDLIBS  = -lx10rt_pgas_sockets -lpthread $(CUDA_LDLIBS)
+
+ifeq ($(X10RT_PLATFORM), bgp)
+  WPLATFORM      := bgp_g++4
+  BGP_USE        := yes
+  BGP_LDFLAGS    += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
+  BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
+endif
+ifeq ($(X10RT_PLATFORM), aix_xlc)
+  WPLATFORM      := aix_xlc
+  LAPI_USE       := yes
+  #SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), aix_gcc)
+  WPLATFORM      := aix_g++4
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
+  LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
+  #SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), linux64)
+  WPLATFORM      := linux_x86_64_g++4
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), linux32)
+  WPLATFORM      := linux_x86_g++4
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), cygwin)
+  WPLATFORM      := cygwin_x86_g++3
+  SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), darwin)
+  WPLATFORM      := macos_x86_g++4
+  SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), sunos)
+  WPLATFORM      := sunos_sparc_g++4
+  SOCKETS_USE    := yes
+  SOCKETS_LDLIBS += -lresolv -lnsl -lsocket -lrt
+endif
+
+
+ifeq ($(SOCKETS_USE), yes)
+
+TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
+LIBS += lib/libx10rt_pgas_sockets.a
+PROPERTIES += etc/x10rt_pgas_sockets.properties
+
+%.pgas_sockets: %.cc lib/libx10rt_pgas_sockets.a
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
+
+$(SOCKETS_TGZ):
+	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
+
+lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
+	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xvf -
+	$(MV) lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+
+etc/x10rt_pgas_sockets.properties:
+	echo "CXX=$(CXX)" > $@
+	echo "LDFLAGS=$(SOCKETS_LDFLAGS)" >> $@
+	echo "LDLIBS=$(SOCKETS_LDLIBS)" >> $@
+
+.PRECIOUS: etc/x10rt_pgas_sockets.properties
+.PHONY: $(SOCKETS_TGZ)
+
+endif
+
+
+ifeq ($(LAPI_USE),yes)
+
+TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
+LIBS += lib/libx10rt_pgas_lapi.a
+PROPERTIES += etc/x10rt_pgas_lapi.properties
+
+%.pgas_lapi: %.cc lib/libx10rt_pgas_lapi.a
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
+
+$(LAPI_TGZ):
+	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
+
+lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
+	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xvf -
+	$(MV) lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+
+etc/x10rt_pgas_lapi.properties:
+	echo "CXX=$(CXX)" > $@
+	echo "LDFLAGS=$(LAPI_LDFLAGS)" >> $@
+	echo "LDLIBS=$(LAPI_LDLIBS)" >> $@
+
+.PRECIOUS: etc/x10rt_pgas_lapi.properties
+.PHONY: $(LAPI_TGZ)
+
+endif
+
+
+ifeq ($(BGP_USE),yes)
+
+TESTS += $(patsubst test/%,test/%.pgas_bgp,$(BASE_TESTS))
+LIBS += lib/libx10rt_pgas_bgp.a
+PROPERTIES += etc/x10rt_pgas_bgp.properties
+
+%.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.a
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS)
+
+$(BGP_TGZ):
+	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
+
+lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
+	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xvf -
+	$(MV) lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
+	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+
+etc/x10rt_pgas_bgp.properties:
+	echo "CXX=$(CXX)" > $@
+	echo "LDFLAGS=$(BGP_LDFLAGS)" >> $@
+	echo "LDLIBS=$(BGP_LDLIBS)" >> $@
+
+.PRECIOUS: etc/x10rt_pgas_bgp.properties
+.PHONY: $(BGP_TGZ)
+
+endif
+
+
+
+# vim: ts=8:sw=8:noet
