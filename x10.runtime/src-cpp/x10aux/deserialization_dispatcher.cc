@@ -6,6 +6,8 @@
 
 #include <assert.h>
 
+#include <stdio.h>
+
 using namespace x10aux;
 using namespace x10::lang;
 
