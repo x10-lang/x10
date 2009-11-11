@@ -21,12 +21,15 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler,
  org.eclipse.ptp.remotetools.core,
  org.eclipse.core.filesystem,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.ptp.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.imp.x10dt.ui.launch.core,
  org.eclipse.imp.x10dt.ui.launch.core.builder,
+ org.eclipse.imp.x10dt.ui.launch.core.dialogs,
  org.eclipse.imp.x10dt.ui.launch.core.platform_conf,
  org.eclipse.imp.x10dt.ui.launch.core.preferences,
  org.eclipse.imp.x10dt.ui.launch.core.utils,
- org.eclipse.imp.x10dt.ui.launch.core.wizards
+ org.eclipse.imp.x10dt.ui.launch.core.wizards,
+ org.eclipse.imp.x10dt.ui.launch.core.wizards.validation
