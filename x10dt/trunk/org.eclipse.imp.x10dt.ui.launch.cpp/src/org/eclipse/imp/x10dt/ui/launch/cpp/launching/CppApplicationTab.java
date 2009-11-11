@@ -21,12 +21,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
@@ -34,16 +38,14 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
-import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -59,6 +61,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
@@ -75,7 +78,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     createProjectEditor(composite);
     createVerticalSpacer(composite, 2);
-    createApplicationProgramEditor(composite);
+    createMainClassEditor(composite);
     createVerticalSpacer(composite, 2);
     createProgramArgs(composite);
     createVerticalSpacer(composite, 2);
@@ -89,23 +92,35 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   }
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
-    final String projectName = this.fProjectText.getText().trim();    
-    configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
+    final String projectName = this.fProjectText.getText().trim();
+    if (projectName.length() > 0) {
+      configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
     
-    final String appProgName = this.fAppProgText.getText().trim();
-    if ((appProgName.length() > 0) && (projectName.length() > 0)) {
+      final String mainClassPath = this.fMainClassText.getText().trim().replace('\\', '/');
       final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
       if (project.exists()) {
-        configuration.setAttribute(ATTR_EXECUTABLE_PATH, appProgName);
-        configuration.setAttribute(ATTR_WORK_DIRECTORY, appProgName.substring(0, appProgName.lastIndexOf('/')));
+        configuration.setAttribute(Constants.ATTR_MAIN_CLASS_PATH, mainClassPath);
+        String workspaceDir = null;
+        try {
+          workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+        } catch (CoreException except) {
+          final int slashIndex = mainClassPath.lastIndexOf('/');
+          if (slashIndex == -1) {
+            workspaceDir = mainClassPath.substring(0, slashIndex);
+          }
+        }
+        if (workspaceDir != null) {
+          configuration.setAttribute(ATTR_WORK_DIRECTORY, workspaceDir);
+          configuration.setAttribute(ATTR_EXECUTABLE_PATH, getExecutablePath(mainClassPath, workspaceDir, configuration));
+        }
       }
+    
+      final String content = this.fPgrmArgsText.getText().trim();    
+      configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
+    
+      configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, this.fShouldLink.getSelection());
+      configuration.setAttribute(ATTR_CONSOLE, this.fToConsoleBt.getSelection());
     }
-    
-    final String content = this.fPgrmArgsText.getText().trim();    
-    configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
-    
-    configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, this.fShouldLink.getSelection());
-    configuration.setAttribute(ATTR_CONSOLE, this.fToConsoleBt.getSelection());
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
@@ -113,6 +128,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_EXECUTABLE_PATH, (String) null);
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
+    configuration.setAttribute(Constants.ATTR_MAIN_CLASS_PATH, (String) null);
     configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
@@ -128,7 +144,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     try {
       this.fProjectText.setText(configuration.getAttribute(ATTR_PROJECT_NAME, EMPTY_STRING));
-      this.fAppProgText.setText(configuration.getAttribute(ATTR_EXECUTABLE_PATH, EMPTY_STRING));
+      this.fMainClassText.setText(configuration.getAttribute(Constants.ATTR_MAIN_CLASS_PATH, EMPTY_STRING));
       this.fPgrmArgsText.setText(configuration.getAttribute(ATTR_ARGUMENTS, EMPTY_STRING));
       this.fShouldLink.setSelection(configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true));
       this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
@@ -160,10 +176,23 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           return false;
         }
         // Project exists and is not closed. Checks now if we have a main class.
-        final String className = this.fAppProgText.getText().trim();
-        if (className == null) {
+        final String mainClassPath = this.fMainClassText.getText().trim();
+        if (mainClassPath.length() == 0) {
           setErrorMessage(LaunchMessages.CAT_RequiredMainClassName);
           return false;
+        }
+        final IResourceManager resourceManager = getResourceManager(configuration);
+        if (resourceManager != null) {
+          final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resourceManager);
+          try {
+            pair.second.setWorkingDirectory(project.getPersistentProperty(Constants.WORKSPACE_DIR));
+          } catch (CoreException except) {
+            // Simply forgets.
+          }
+          if (! pair.second.getResource(mainClassPath).fetchInfo().exists()) {
+            setErrorMessage(LaunchMessages.CAT_NotExistingPathError);
+            return false;
+          }
         }
       } else {
         setErrorMessage(NLS.bind(LaunchMessages.CAT_IllegalPrjName, projectName));
@@ -175,25 +204,31 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   // --- Private code
   
-  private void createApplicationProgramEditor(final Composite parent) {
+  private void createMainClassEditor(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(2, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    group.setText(LaunchMessages.CAT_AppProgGroupName);
+    group.setText(LaunchMessages.CAT_MainClassGroupName);
     
-    this.fAppProgText = new Text(group, SWT.SINGLE | SWT.BORDER);
-    this.fAppProgText.setFont(group.getFont());
-    this.fAppProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    this.fAppProgText.addModifyListener(new TextModificationListener());
+    final Label label = new Label(group, SWT.NONE);
+    label.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false, 2, 1));
+    label.setFont(group.getFont());
+    label.setText(LaunchMessages.CAT_AbsoluteAndRelativePathMsg);
     
-    this.fSearchAppProgBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
-    this.fSearchAppProgBt.addSelectionListener(new SearchMainClassBtSelectionListener());
+    this.fMainClassText = new Text(group, SWT.SINGLE | SWT.BORDER);
+    this.fMainClassText.setFont(group.getFont());
+    this.fMainClassText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+    this.fMainClassText.addModifyListener(new TextModificationListener());
+    
+    this.fSearchMainClassBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
+    this.fSearchMainClassBt.addSelectionListener(new SearchMainClassBtSelectionListener());
     
     this.fShouldLink = createCheckButton(group, LaunchMessages.CAT_LinkApp);
     this.fShouldLink.setData(new GridData(SWT.FILL, SWT.NONE, true, false));
     this.fShouldLink.setSelection(false);
     this.fShouldLink.setToolTipText(LaunchMessages.CAT_LinkAppToolTip);
+    this.fShouldLink.addSelectionListener(new ButtonSelectionListener());
   }
   
   private void createProgramArgs(final Composite parent) {
@@ -229,11 +264,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     gd.widthHint = 100;
     this.fPgrmArgsText.setLayoutData(gd);
     this.fPgrmArgsText.setFont(parent.getFont());
-    this.fPgrmArgsText.addModifyListener(new ModifyListener() {
-      public void modifyText(final ModifyEvent event) {
-        updateLaunchConfigurationDialog();
-      }
-    });
+    this.fPgrmArgsText.addModifyListener(new TextModificationListener());
 
     final Button pgrmArgVarBt = createPushButton(group, LaunchMessages.AT_VariablesBtName, null /* image */);
     pgrmArgVarBt.setLayoutData(new GridData(SWT.END, SWT.NONE, false, false));
@@ -251,7 +282,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   private void createOutputToConsoleButton(final Composite parent) {
     this.fToConsoleBt = new Button(parent, SWT.CHECK);
-    this.fToConsoleBt.setText("Display output from all processes in a console view");
+    this.fToConsoleBt.setText(LaunchMessages.CAT_OutputToConsoleMsg);
+    this.fToConsoleBt.addSelectionListener(new ButtonSelectionListener());
   }
   
   private void createProjectEditor(final Composite parent) {
@@ -268,6 +300,34 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     this.fProjectBt = createPushButton(group, LaunchMessages.CAT_BrowseButton, null /* image */);
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
+  }
+  
+  private String getExecutablePath(final String mainClassPath, final String workspaceDir, 
+                                   final ILaunchConfiguration configuration) {
+    final IPath path = new Path(mainClassPath);
+    final StringBuilder execPathBuilder = new StringBuilder();
+    if (! path.isAbsolute()) {
+      execPathBuilder.append(workspaceDir).append('/');
+    }
+    
+    final int dotIndex = mainClassPath.lastIndexOf('.');
+    final int lastIndex = (dotIndex == -1) ? mainClassPath.length() : dotIndex;
+    final String className = mainClassPath.substring(0, lastIndex);
+    
+    execPathBuilder.append(className);
+    
+    final IResourceManagerControl rmControl = (IResourceManagerControl) getResourceManager(configuration);
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    final IRemoteConnection rmConnection = remoteServices.getConnectionManager().getConnection(rmc.getConnectionName());
+    if (isWindowsSystem(rmConnection)) {
+      execPathBuilder.append(EXE_EXT);
+    }
+    return execPathBuilder.toString();
+  }
+  
+  private boolean isWindowsSystem(final IRemoteConnection connection) {
+    return connection.getEnv(COMSPEC_ENV_VAR) != null;
   }
   
   // --- Private classes
@@ -325,10 +385,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
         if (project.exists()) {
           try {
-            final String workingDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
-            if (workingDir != null) {
-              initialPath = workingDir + '/' + projectName;
-            }
+            initialPath = project.getPersistentProperty(Constants.WORKSPACE_DIR);
           } catch (CoreException except) {
             // Simply forgets.
           }
@@ -341,23 +398,26 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         return;
       }
       final IResourceManagerConfiguration rmc = rm.getConfiguration();
-      final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-      final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
-      if (remServices != null && remUIServices != null) {
-        final IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
-        if (rmConn != null) {
-          final IRemoteUIFileManager fileMgr = remUIServices.getUIFileManager();
-          if (fileMgr != null) {
-            fileMgr.setConnection(rmConn);
-            fileMgr.showConnections(false);
-            String path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath,
-                                             IRemoteUIConstants.NONE);
-            if (path != null) {
-            	CppApplicationTab.this.fAppProgText.setText(path);
-            }
-          }
-        }
+      final String path = PTPUtils.browseFile(getShell(), rmc, LaunchMessages.CAT_SelectMainDialogDescription, initialPath);
+      if (path != null) {
+        CppApplicationTab.this.fMainClassText.setText(path);
+        updateLaunchConfigurationDialog();
       }
+    }
+    
+  }
+  
+  private final class ButtonSelectionListener implements SelectionListener {
+    
+    // --- Interface methods implementation
+
+    public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
+    }
+
+    public void widgetSelected(final SelectionEvent event) {
+      setDirty(true);
+      updateLaunchConfigurationDialog();
     }
     
   }
@@ -367,6 +427,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     // --- Interface methods implementation
     
     public void modifyText(final ModifyEvent event) {
+      setDirty(true);
       updateLaunchConfigurationDialog();
     }
     
@@ -376,16 +437,21 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   private Text fProjectText;
   
-  private Text fAppProgText;
+  private Text fMainClassText;
   
   private Text fPgrmArgsText;
   
   private Button fProjectBt;
   
-  private Button fSearchAppProgBt;
+  private Button fSearchMainClassBt;
   
   private Button fShouldLink;
   
   private Button fToConsoleBt;
+  
+  
+  private static final String EXE_EXT = ".exe"; //$NON-NLS-1$
+  
+  private static final String COMSPEC_ENV_VAR = "COMSPEC"; //$NON-NLS-1$
   
 }

@@ -22,7 +22,7 @@ import org.osgi.framework.Bundle;
  * @author egeay
  */
 @SuppressWarnings("all")
-public class LaunchImages {
+public class CppLaunchImages {
   
   private static final IPath ICONS_PATH = new Path("$nl$/icons"); //$NON-NLS-1$
   

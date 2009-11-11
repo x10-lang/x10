@@ -135,5 +135,20 @@
          </filter>
       </page>
    </extension>
+   <extension
+         point="org.eclipse.imp.x10dt.ui.launch.core.platform_conf_checker">
+      <checker
+            language="CPP"
+            local="org.eclipse.imp.x10dt.ui.launch.cpp.validation.LocalPlatformConfChecker"
+            remote="org.eclipse.imp.x10dt.ui.launch.cpp.validation.RemotePlatformConfChecker">
+      </checker>
+   </extension>
+   <extension
+         point="org.eclipse.imp.x10dt.ui.launch.core.x10_compiler_extinfo">
+      <ext_info
+            class="org.eclipse.imp.x10dt.ui.launch.cpp.builder.CppCompilerX10ExtInfo"
+            language="CPP">
+      </ext_info>
+   </extension>
 
 </plugin>

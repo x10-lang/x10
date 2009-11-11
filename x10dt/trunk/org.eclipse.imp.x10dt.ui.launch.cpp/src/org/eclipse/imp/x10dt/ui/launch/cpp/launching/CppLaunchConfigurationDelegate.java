@@ -9,12 +9,10 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +25,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -40,7 +37,9 @@ import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IInputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -144,57 +143,42 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         // Performs linking first.
         monitor.beginTask(null, 10);
         monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-        createExecutable(connection, remoteServices, configuration, verifyProject(configuration), 
-                         new SubProgressMonitor(monitor, 8));
-        
-        // Then, performs the launch.
-        monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-        super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
+        if (createExecutable(connection, remoteServices, configuration, verifyProject(configuration), 
+                             new SubProgressMonitor(monitor, 8)) == 0) {
+          // Then, performs the launch.
+          monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+          super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 2));
+        }
       }
     } finally {
       monitor.done();
     }
   }
-  
-  protected IPath verifyExecutablePath(final ILaunchConfiguration configuration) throws CoreException {
-    try {
-      return super.verifyExecutablePath(configuration);
-    } catch (CoreException except) {
-      try {
-        // Executable not found -- try with an extension
-        return verifyResource(getExecutablePath(configuration) + EXE_EXT, configuration);
-      } catch (CoreException except2) {
-        throw except;
-      }
-    }
-  }
 
   // --- Private code
   
-  private void createExecutable(final IRemoteConnection connection, final IRemoteServices remoteServices,
-                                final ILaunchConfiguration configuration, final IProject project, 
-                                final IProgressMonitor monitor) throws CoreException {
+  private int createExecutable(final IRemoteConnection connection, final IRemoteServices remoteServices,
+                               final ILaunchConfiguration configuration, final IProject project, 
+                               final IProgressMonitor monitor) throws CoreException {
+    final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
       final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
       final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final IX10PlatformConfiguration platform = platforms.get(platformConfName);
-      final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+      final String execPath = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
       final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
-        
-      final IFileStore appProgFileStore = fileManager.getResource(appProgName);
-      if (appProgFileStore.fetchInfo().exists() && ! shouldLinkApp) {
-        return;
-      }
-      if (! shouldLinkApp) { // file not found -- try with an extension
-        final IFileStore appProgFileExeStore = fileManager.getResource(appProgName + EXE_EXT);
-        if (appProgFileExeStore.fetchInfo().exists()) {
-          return;
-        }
+      
+      final IFileStore mainClassFileStore = fileManager.getResource(execPath);
+      if (mainClassFileStore.fetchInfo().exists() && ! shouldLinkApp) {
+        return 0;
       }
       
-      createMainFile(fileManager, appProgName, workspaceDir);
+      final int dotIndex = execPath.lastIndexOf('.');
+      final int lastIndex = (dotIndex == -1) ? execPath.length() : dotIndex;
+      final String className = execPath.substring(execPath.lastIndexOf('/') + 1, lastIndex);
+      final String mainFilePath = createMainFile(fileManager, className, workspaceDir, subMonitor.newChild(1)); 
       
       final List<String> command = new ArrayList<String>();
       command.add(platform.getLinker());
@@ -203,9 +187,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       for (final String headerLoc : platform.getX10HeadersLocations()) {
         command.add(INCLUDE_OPT + headerLoc);
       }
-      command.add(workspaceDir + '/' + MAIN_FILE_NAME);
+      command.add(mainFilePath);
       command.add("-o"); //$NON-NLS-1$
-      command.add(appProgName);
+      command.add(execPath);
       command.add(LIB_OPT + workspaceDir);
       for (final String libLoc : platform.getX10LibsLocations()) {
         command.add(LIB_OPT + libLoc);
@@ -216,29 +200,44 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final IRemoteProcessBuilder processBuilder = remoteServices.getProcessBuilder(connection, command);
       final IRemoteProcess process = processBuilder.start();
       
+      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      final StringBuilder cmdBuilder = new StringBuilder();
+      for (final String str : command) {
+        cmdBuilder.append(str).append(' ');
+      }
+      UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+        
+        public void after() {
+        }
+
+        public void before() {
+          this.fCounter = 0;
+        }
+        
+        public void read(final String line) {
+          if (this.fCounter == 0) {
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmdBuilder.toString()));
+            this.fCounter = 1;
+          }
+          mcStream.println(line);
+        }
+        
+        // --- Fields
+        
+        int fCounter;
+        
+      });
+      
       process.waitFor();
         
       final int returnCode = process.exitValue();
       if (returnCode != 0) {
         IResourceUtils.addMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR, 
                                    project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
-        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
-        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-        final StringBuilder cmdBuilder = new StringBuilder();
-        for (final String str : command) {
-          cmdBuilder.append(str).append(' ');
-        }
-        mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmdBuilder.toString()));
-        final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        try {
-          String line;
-          while ((line = errReader.readLine()) != null) {
-            mcStream.println(line);
-          }
-        } catch (IOException except) {
-          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
-        }
       }
+      
+      return returnCode;
     } catch (WorkbenchException except) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.XPCPP_LoadingErrorMsg, except));
     } catch (IOException except) {
@@ -247,43 +246,42 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkingInterrupted, 
                                          except));
     } finally {
-      monitor.done();
+      subMonitor.done();
     }
   }
   
-  private void createMainFile(final IRemoteFileManager fileManager, final String appProgName, 
-                              final String workspaceDir) throws CoreException {
+  private String createMainFile(final IRemoteFileManager fileManager, final String mainClassName, 
+                                final String workspaceDir, final IProgressMonitor monitor) throws CoreException {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("#include \"").append(mainClassName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
+    sb.append(MessagePassingCodeGenerator.createMainStub(mainClassName));
+    final InputStream is = new ByteArrayInputStream(sb.toString().getBytes());
+      
+    final String mainFileName = workspaceDir + MAIN_FILE_NAME;
+    final IFileStore fileStore = fileManager.getResource(mainFileName);
     try {
-      final String progName = appProgName.substring(appProgName.lastIndexOf('/') + 1);
-      // Firstly, generates the main stub,
-      final String mainStub = MessagePassingCodeGenerator.createMainStub(progName);
-      final File tmpMainFile = new File(System.getProperty("java.io.tmpdir"), MAIN_FILE_NAME); //$NON-NLS-1$
-      final BufferedWriter writer = new BufferedWriter(new FileWriter(tmpMainFile));          
+      final OutputStream os = fileStore.openOutputStream(EFS.NONE, monitor);
       try {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("#include \"").append(appProgName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
-        writer.write(sb.toString());
-        writer.write(mainStub);
+        final byte[] b = new byte[4 * 1024];  
+        int read;  
+        while ((read = is.read(b)) != -1) {  
+          os.write(b, 0, read);
+        }        
+        return mainFileName;
       } finally {
-        writer.close();
+        is.close();
+        os.close();
+        monitor.done();
       }
-      // Secondly, transfers the file in the remote directory.
-      final IFileStore destFile = fileManager.getResource(workspaceDir).getChild(MAIN_FILE_NAME);
-      final IFileStore tmpMainFileStore = EFS.getLocalFileSystem().getStore(new Path(tmpMainFile.getAbsolutePath()));
-      tmpMainFileStore.copy(destFile, EFS.OVERWRITE, null);
-      // Thirdly and finally, deletes the local temporary file.
-      tmpMainFile.delete();
     } catch (IOException except) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError, 
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError,
                                          except));
-    }
+    } 
   }
   
   // --- Fields
   
-  private static final String MAIN_FILE_NAME = "xxx_main_xxx.cc"; //$NON-NLS-1$
-  
-  private static final String EXE_EXT = ".exe"; //$NON-NLS-1$
+  private static final String MAIN_FILE_NAME = "/xxx_main_xxx.cc"; //$NON-NLS-1$
   
   private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$
   

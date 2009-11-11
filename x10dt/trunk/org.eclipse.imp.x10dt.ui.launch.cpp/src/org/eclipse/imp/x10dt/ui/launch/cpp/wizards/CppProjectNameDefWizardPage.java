@@ -34,9 +34,9 @@ import org.eclipse.swt.widgets.Control;
 import org.osgi.framework.Bundle;
 
 
-final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
+final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
 
-  CppProjectWizardFirstPage() {
+  CppProjectNameDefWizardPage() {
     setPageComplete(false);
     setTitle(LaunchMessages.PWFP_PageTitle);
     setDescription(LaunchMessages.PWFP_PageDescription);
@@ -99,7 +99,7 @@ final class CppProjectWizardFirstPage extends NewJavaProjectWizardPageOne {
 
   private IClasspathEntry[] createX10RuntimeEntries() throws Error, IOException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    if (!addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
+    if (! addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
       addClassPathEntries(cpEntries, X10_RUNTIME_BUNDLE, SRC_X10_DIR);
     }
     addClassPathEntries(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);

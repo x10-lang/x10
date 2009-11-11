@@ -7,26 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
-import java.io.File;
-import java.util.Set;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.AbstractX10Builder;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.CpEntryAsStringFunc;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.IPathToFileFunc;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.RuntimeFilter;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.ListUtils;
-import org.eclipse.jdt.core.IJavaProject;
-
-import polyglot.main.Report;
-import x10.ExtensionInfo;
-import x10cpp.Configuration;
-import x10cpp.X10CPPCompilerOptions;
+import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;
 
 /**
  * X10 builder for C++ back-end.
@@ -36,46 +18,8 @@ import x10cpp.X10CPPCompilerOptions;
 public final class X10CppBuilder extends AbstractX10Builder {
   
   // --- Abstract methods implementation
-  
-  protected ExtensionInfo createExtensionInfo(final IJavaProject javaProject, final String workspaceDir,
-                                              final IProgressMonitor monitor) throws CoreException {
-    final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor);
-    buildOptions(javaProject, workspaceDir, (X10CPPCompilerOptions) extInfo.getOptions());
-    return extInfo;
-  }
-  
-  // --- Private code
-  
-  private void buildOptions(final IJavaProject javaProject, final String workspaceDir,
-                            final X10CPPCompilerOptions options) throws CoreException {
-    // Sets the class path
-    final Set<String> cps = JavaProjectUtils.getFilteredCpEntries(javaProject, new CpEntryAsStringFunc(), 
-                                                                  new AlwaysTrueFilter<IPath>());
-    final StringBuilder cpBuilder = new StringBuilder();
-    int i = -1;
-    for (final String cpEntry : cps) {
-      if (++i > 0) {
-        cpBuilder.append(File.pathSeparatorChar);
-      }
-      cpBuilder.append(cpEntry);
-    }
-    // Sets the source path.
-    final Set<IPath> srcPaths = JavaProjectUtils.getFilteredCpEntries(javaProject, new IdentityFunctor<IPath>(),
-                                                                      new RuntimeFilter());   
-    // Some useful Polyglot reports.
-    //Report.addTopic("verbose", 1); //$NON-NLS-1$
-    Report.addTopic("postcompile", 1); //$NON-NLS-1$
-    
-    // We can now set all the Polyglot options for our extension.
-    options.assertions = true;
-    options.classpath = cpBuilder.toString();
-    options.output_classpath = options.classpath;
-    options.serialize_type_info = false;
-    options.output_directory = new File(workspaceDir);
-    options.source_path = ListUtils.transform(srcPaths, new IPathToFileFunc());
-    options.compile_command_line_only = true;
-    options.post_compiler = null;
-    Configuration.MAIN_CLASS = ""; //$NON-NLS-1$ We do generate main class stub during partial compilation.
-  }
 
+  protected ELanguage getLanguage() {
+    return ELanguage.CPP;
+  }
 }

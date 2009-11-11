@@ -29,13 +29,15 @@ public class LaunchMessages extends NLS {
 
   public static String AWTA_DialogTitle;
   
+  public static String CAT_AbsoluteAndRelativePathMsg;
+
   public static String CAT_BrowseButton;
 
   public static String CAT_ClosedProject;
 
   public static String CAT_IllegalPrjName;
 
-  public static String CAT_AppProgGroupName;
+  public static String CAT_MainClassGroupName;
 
   public static String CAT_LinkApp;
   
@@ -44,6 +46,10 @@ public class LaunchMessages extends NLS {
   public static String CAT_NoExistingProject;
 
   public static String CAT_NoRunningResManager;
+
+  public static String CAT_NotExistingPathError;
+
+  public static String CAT_OutputToConsoleMsg;
 
   public static String CAT_PrjSelectionDialogMsg;
 
@@ -72,12 +78,16 @@ public class LaunchMessages extends NLS {
   public static String CLCD_LinkCmdError;
 
   public static String CLCD_LinkingInterrupted;
-
+  
   public static String CLCD_NoMainFileAccessIOError;
 
   public static String CLCD_NoMainFileAccessOpError;
 
   public static String CLCD_NoResManagerError;
+
+  public static String CPWSP_AddOrStartMsg;
+
+  public static String CPWSP_AddPlatformMsg;
 
   public static String CPWSP_LocationLabel;
 
@@ -85,13 +95,23 @@ public class LaunchMessages extends NLS {
 
   public static String CPWSP_BrowseDescription;
 
+  public static String CPWSP_DefinePlatformFirstMsg;
+
+  public static String CPWSP_MustDefineOrStartMsg;
+
+  public static String CPWSP_MustDefineRMMsg;
+
   public static String CPWSP_ResManagerGroupName;
 
   public static String CPWSP_ResManagerLabel;
 
+  public static String CPWSP_ResourceManager;
+
   public static String CPWSP_SelectResMsg;
 
   public static String CPWSP_SelectWorkspaceMsg;
+
+  public static String CPWSP_StartExistingRMMsg;
 
   public static String CPWSP_TargetWorkspaceGroupName;
 
@@ -100,6 +120,8 @@ public class LaunchMessages extends NLS {
   public static String CPWSP_WizardName;
 
   public static String CPWSP_WizardTitle;
+
+  public static String CPWSP_X10PlatformConf;
 
   public static String CPWSP_X10PlatformGroup;
 
@@ -149,11 +171,17 @@ public class LaunchMessages extends NLS {
 
   public static String DBG_Attributes_1;
   
-  public static String OXPCWTA_ErrorDialogMsg;
+  public static String LPCC_CompilErrorWithoutPos;
 
-  public static String OXPCWTA_ErrorDialogStatusMsg;
+  public static String LPCC_CompilErrorWithPos;
 
-  public static String OXPCWTA_ErrorDialogTitle;
+  public static String LPCC_GeneratingFilesMsg;
+
+  public static String LPCC_NoGeneratedFilesError;
+
+  public static String XPCPP_NoResManagerStartedError;
+
+  public static String XPCPP_NoTempDirWarning;
 
   public static String XTEPP_DataStoringError;
 

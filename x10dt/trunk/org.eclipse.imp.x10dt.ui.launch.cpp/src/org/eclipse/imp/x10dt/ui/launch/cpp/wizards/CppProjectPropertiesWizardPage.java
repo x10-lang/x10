@@ -49,9 +49,9 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 
 
-final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
+final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPage {
 
-  CppProjectWizardThirdPage(final CppProjectWizardFirstPage firstPage) {
+  CppProjectPropertiesWizardPage(final CppProjectNameDefWizardPage firstPage) {
     this.fFirstPage = firstPage;
 
     setTitle(LaunchMessages.PWSP_PageTitle);
@@ -186,10 +186,8 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
     final IPackageFragmentRoot pkgFragRoot = javaProject.getPackageFragmentRoot(srcFolder);
     final IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment(""); //$NON-NLS-1$
 
-    this.fCreatedFile.create(WizardUtils.createSampleContentStream(this.fCreatedFile, "Hello", //$NON-NLS-1$ 
-                                                                   pkgFrag, "" /* superClass */, //$NON-NLS-1$
-                                                                   new ArrayList<String>(), true /* createMain */, 
-                                                                   true /* createConstructors */), true /* force */, monitor);
+    this.fCreatedFile.create(WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"), true /* force */, //$NON-NLS-1$
+                             monitor);
   }
 
   private void deleteProjectFile(final URI projectLocation) throws CoreException {
@@ -282,7 +280,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
 
   // --- Fields
 
-  private final CppProjectWizardFirstPage fFirstPage;
+  private final CppProjectNameDefWizardPage fFirstPage;
 
   private IFile fCreatedFile;
 

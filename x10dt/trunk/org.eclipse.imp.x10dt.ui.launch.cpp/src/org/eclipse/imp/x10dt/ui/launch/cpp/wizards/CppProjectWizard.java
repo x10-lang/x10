@@ -7,7 +7,7 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.wizards;
 
-import static org.eclipse.imp.x10dt.ui.launch.cpp.LaunchImages.NEW_X10_PRJ_WIZBAN;
+import static org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages.NEW_X10_PRJ_WIZBAN;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
-import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchImages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.ui.IPackagesViewPart;
@@ -47,9 +47,9 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
    * Creates the pages of this wizard and defines the title, dialog settings and default page image descriptor.
    */
   public CppProjectWizard() {
-    this.fFirstPage = new CppProjectWizardFirstPage();
-    this.fSecondPage = new CppProjectWizardSecondPage();
-    this.fThirdPage = new CppProjectWizardThirdPage(this.fFirstPage);
+    this.fFirstPage = new CppProjectNameDefWizardPage();
+    this.fSecondPage = new CppProjectX10PlatformWizardPage(this.fFirstPage);
+    this.fThirdPage = new CppProjectPropertiesWizardPage(this.fFirstPage);
 
     addPage(this.fFirstPage);
     addPage(this.fSecondPage);
@@ -57,7 +57,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
     setWindowTitle(LaunchMessages.PW_WindowTitle);
     setDialogSettings(CppLaunchCore.getInstance().getDialogSettings());
-    setDefaultPageImageDescriptor(LaunchImages.createUnmanaged(NEW_X10_PRJ_WIZBAN));
+    setDefaultPageImageDescriptor(CppLaunchImages.createUnmanaged(NEW_X10_PRJ_WIZBAN));
   }
 
   // --- IWorbenchWizard's interface methods implementation
@@ -167,11 +167,11 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
   // --- Fields
 
-  private final CppProjectWizardFirstPage fFirstPage;
+  private final CppProjectNameDefWizardPage fFirstPage;
   
-  private final CppProjectWizardSecondPage fSecondPage;
+  private final CppProjectX10PlatformWizardPage fSecondPage;
 
-  private final CppProjectWizardThirdPage fThirdPage;
+  private final CppProjectPropertiesWizardPage fThirdPage;
 
   private IWorkbench fWorkbench;
 

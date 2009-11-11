@@ -8,32 +8,31 @@
 package org.eclipse.imp.x10dt.ui.launch.cpp.properties;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
-import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -63,17 +62,29 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
   protected Control createContents(final Composite parent) {
     noDefaultAndApplyButton();
     
-    boolean noResourceManager = true;
+    boolean noStartedResourceManager = true;
     final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
     final IPUniverse universe = modelManager.getUniverse();
+    final Collection<IResourceManager> stoppedRMs = new ArrayList<IResourceManager>();
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-        noResourceManager = false;
+        noStartedResourceManager = false;
+      } else {
+        stoppedRMs.add(resourceManager);
       }
     }
-    if (noResourceManager) {
-      setErrorMessage(LaunchMessages.OXPCWTA_ErrorDialogMsg);
-      return null;
+    if (noStartedResourceManager) {
+      if (DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedRMs) != Window.OK) {
+        for (final IResourceManager resourceManager : universe.getResourceManagers()) {
+          if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
+            noStartedResourceManager = false;
+          }
+        }
+        if (noStartedResourceManager) {
+          setErrorMessage(LaunchMessages.XPCPP_NoResManagerStartedError);
+          return null;
+        }
+      }
     }
     
     final IProject project = (IProject) getElement().getAdapter(IProject.class);
@@ -107,11 +118,8 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     
     createTargetWorkspace(workspaceGroup);
 
-    int index = -1;
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-        noResourceManager = false;
-        ++index;
         this.fResManagerCombo.add(resourceManager.getName());
         this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
       }
@@ -178,6 +186,7 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     this.fResManagerCombo = new Combo(composite, SWT.READ_ONLY);
     this.fResManagerCombo.setFont(composite.getFont());
     this.fResManagerCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fResManagerCombo.addSelectionListener(new ResourceManagerSelectionListener());
   }
   
   private Text createLabelAndText(final Composite parent, final String labelText, 
@@ -285,31 +294,40 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
     // --- Interface methods implementation
     
     public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
     }
 
     public void widgetSelected(final SelectionEvent event) {
-      final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-      final IResourceManager[] resourceManagers = modelManager.getUniverse().getResourceManagers();
-      final IResourceManager resMgr = resourceManagers[X10TargetEnvironmentPropertyPage.this.fResManagerCombo.getSelectionIndex()];
-      final IResourceManagerControl rm = (IResourceManagerControl) resMgr;
+      final String path = PTPUtils.browseDirectory(getShell(), X10TargetEnvironmentPropertyPage.this.fResManagerCombo, 
+                                                   LaunchMessages.CPWSP_BrowseDescription, "/"); //$NON-NLS-1$
+      if (path != null) {
+        X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(path);
+        updateApplyButton();
+      }
+    }
+    
+  }
+  
+  private final class ResourceManagerSelectionListener implements SelectionListener {
+
+    // --- Interface methods implementation
+    
+    public void widgetDefaultSelected(final SelectionEvent event) {
+      widgetSelected(event);
+    }
+
+    public void widgetSelected(final SelectionEvent event) {
+      final Combo combo = X10TargetEnvironmentPropertyPage.this.fResManagerCombo;
+      final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(combo);
       
-      final IResourceManagerConfiguration rmc = rm.getConfiguration();
-      final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-      final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
-      if (remServices != null && remUIServices != null) {
-        final IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
-        if (rmConn != null) {
-          final IRemoteUIFileManager fileMgr = remUIServices.getUIFileManager();
-          if (fileMgr != null) {
-            fileMgr.setConnection(rmConn);
-            fileMgr.showConnections(false);
-            final String path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_BrowseDescription, "/", //$NON-NLS-1$
-                                                        IRemoteUIConstants.NONE);
-            if (path != null) {
-              X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(path);
-            }
-          }
-        }
+      final String tempDir = PTPUtils.getTempDirectory(pair.first, pair.second);
+      final IProject project = (IProject) getElement().getAdapter(IProject.class);
+      if (tempDir == null) {
+        setMessage(NLS.bind(LaunchMessages.XPCPP_NoTempDirWarning, project.getName()), WARNING);
+      } else {
+        final StringBuilder wDirPath = new StringBuilder();
+        wDirPath.append(tempDir).append('/').append(project.getName());
+        X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(wDirPath.toString());
       }
     }
     
