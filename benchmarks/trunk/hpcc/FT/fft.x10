@@ -110,6 +110,7 @@ class fft {
                 }
                 B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
             }                   
+	    world.barrier();
         }
 
         def scatter() {
