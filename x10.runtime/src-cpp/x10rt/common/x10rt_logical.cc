@@ -278,6 +278,8 @@ namespace {
         }
         while (finish_counter!=0) x10rt_net_probe();
 
+        x10rt_net_internal_barrier();
+
         // Now we can calculate the total number of places
         g.nplaces = x10rt_lgl_nhosts();
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
@@ -332,10 +334,6 @@ namespace {
         }
 
         while (finish_counter!=0) x10rt_net_probe();
-
-        sleep(1);
-
-        for (int i=0 ; i<10000 ; ++i) x10rt_net_probe();
 
         x10rt_net_internal_barrier();
 
