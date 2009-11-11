@@ -8,7 +8,11 @@
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
 
-final class MacPlatform implements IDefaultX10Platform {
+final class MacPlatform extends AbstractDefaultX10Platform implements IDefaultX10Platform {
+  
+  MacPlatform(final boolean is64Arch) {
+    super(is64Arch);
+  }
   
   // --- Interface methods implementation
   
@@ -25,7 +29,12 @@ final class MacPlatform implements IDefaultX10Platform {
   }
 
   public String getCompilerOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC -m32"; //$NON-NLS-1$
+    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    if (is64Arch()) {
+      return cmpOpts + " -m32"; //$NON-NLS-1$ // We compile for 32-bit on Mac 64-bit for now.
+    } else {
+      return cmpOpts;
+    }
   }
 
   public String getLinker() {
@@ -37,7 +46,12 @@ final class MacPlatform implements IDefaultX10Platform {
   }
 
   public String getLinkingOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC -m32"; //$NON-NLS-1$
+    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    if (is64Arch()) {
+      return linkOpts + " -m32"; //$NON-NLS-1$ // We compile for 32-bit on Mac 64-bit for now.
+    } else {
+      return linkOpts;
+    }
   }
 
 }
