@@ -33,7 +33,9 @@ ifdef ENABLE_X10RT_MPI
   include mpi/mpi.mk
 endif
 
-include pgas/pgas.mk
+ifdef ENABLE_X10RT_PGAS
+  include pgas/pgas.mk
+endif
 
 include standalone/standalone.mk
 
