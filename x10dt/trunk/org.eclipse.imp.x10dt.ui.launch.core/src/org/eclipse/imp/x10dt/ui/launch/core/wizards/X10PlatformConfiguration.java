@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 
@@ -14,6 +15,10 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfigurat
 final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   
   // --- Interface methods implementation
+  
+  public EArchitecture getArchitecture() {
+    return this.fArchitecture;
+  }
   
   public String getArchiver() {
     return this.fArchiver;
@@ -89,6 +94,10 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   
   // --- Internal services
   
+  void setArchitecture(final EArchitecture architecture) {
+    this.fArchitecture = architecture;
+  }
+  
   void setArchiver(final String archiver) {
     this.fArchiver = archiver;
   }
@@ -151,6 +160,8 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   }
   
   // --- Fields
+  
+  private EArchitecture fArchitecture;
   
   private String fArchiver;
   

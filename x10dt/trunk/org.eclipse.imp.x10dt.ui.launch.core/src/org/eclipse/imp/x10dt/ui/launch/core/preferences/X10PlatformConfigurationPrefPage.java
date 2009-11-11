@@ -8,13 +8,19 @@
 package org.eclipse.imp.x10dt.ui.launch.core.preferences;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
 import org.eclipse.imp.x10dt.ui.launch.core.wizards.X10NewPlatformConfWizard;
@@ -22,10 +28,17 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IModelManager;
+import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elements.IPUniverse;
+import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
+import org.eclipse.ptp.ui.wizards.RMServicesConfigurationWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -53,6 +66,12 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  */
 public final class X10PlatformConfigurationPrefPage extends PreferencePage 
                                                     implements IWorkbenchPreferencePage, SelectionListener {
+  /**
+   * Creates the platform configuration preference page.
+   */
+  public X10PlatformConfigurationPrefPage() {
+    super(Messages.XPCPP_PlatformConfigTitle);
+  }
   
   // --- Interface methods implementation
 
@@ -165,13 +184,15 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
       // --- Interface methods implementation
       
       public void widgetSelected(final SelectionEvent event) {
-        final Map<String,IX10PlatformConfiguration> platforms = X10PlatformConfigurationPrefPage.this.fX10Platforms;
-        final X10NewPlatformConfWizard wizard = new X10NewPlatformConfWizard(platforms.keySet());
-        final WizardDialog dialog = new WizardDialog(getShell(), wizard);
-        if (dialog.open() == Window.OK) {
-          final IX10PlatformConfiguration platformConfiguration = wizard.getPlatformConfiguration();
-          platformConfList.add(platformConfiguration.getName());
-          platforms.put(platformConfiguration.getName(), platformConfiguration);
+        if (checkForStartedResourceManagers(null /* resourceManagerId */)) {
+          final Map<String,IX10PlatformConfiguration> platforms = X10PlatformConfigurationPrefPage.this.fX10Platforms;
+          final X10NewPlatformConfWizard wizard = new X10NewPlatformConfWizard(platforms.keySet());
+          final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+          if (dialog.open() == Window.OK) {
+            final IX10PlatformConfiguration platformConfiguration = wizard.getPlatformConfiguration();
+            platformConfList.add(platformConfiguration.getName());
+            platforms.put(platformConfiguration.getName(), platformConfiguration);
+          }
         }
       }
       
@@ -190,11 +211,13 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
       public void widgetSelected(final SelectionEvent event) {
         final String name = platformConfList.getSelection()[0];
         final IX10PlatformConfiguration platformConfiguration = X10PlatformConfigurationPrefPage.this.fX10Platforms.get(name);
-        final X10NewPlatformConfWizard wizard = new X10NewPlatformConfWizard(platformConfiguration);
-        final WizardDialog dialog = new WizardDialog(getShell(), wizard);
-        if (dialog.open() == Window.OK) {
-          X10PlatformConfigurationPrefPage.this.fX10Platforms.put(name, wizard.getPlatformConfiguration());
-          updateSummaryText(platformConfList.getSelection()[0]);
+        if (checkForStartedResourceManagers(platformConfiguration.getResourceManagerId())) {
+          final X10NewPlatformConfWizard wizard = new X10NewPlatformConfWizard(platformConfiguration);
+          final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+          if (dialog.open() == Window.OK) {
+            X10PlatformConfigurationPrefPage.this.fX10Platforms.put(name, wizard.getPlatformConfiguration());
+            updateSummaryText(platformConfList.getSelection()[0]);
+          }
         }
       }
       
@@ -249,6 +272,62 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     this.fUpdatableButtons = new Button[] { editButton, removeButton, renameBt };
   }
   
+  private boolean checkForStartedResourceManagers(final String resourceManagerId) {
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IPUniverse universe = modelManager.getUniverse();
+    final Collection<IResourceManager> stoppedResManagerList = new ArrayList<IResourceManager>();
+    for (final IResourceManager resourceManager : universe.getResourceManagers()) {
+      if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
+        if ((resourceManagerId == null) || (resourceManager.getID().equals(resourceManagerId))) {
+          return true;
+        }
+      } else if ((resourceManagerId == null) || (resourceManager.getID().equals(resourceManagerId))) {
+        stoppedResManagerList.add(resourceManager);
+      }
+    }
+    if ((resourceManagerId != null) && stoppedResManagerList.isEmpty()) {
+      MessageDialog.open(MessageDialog.ERROR, getShell(), Messages.XPCPP_NoResIdDgTitle, Messages.XPCPP_NoResIdDgMsg, SWT.NONE);
+      return true;
+    }
+    
+    int dialogResult = -1;
+    if (stoppedResManagerList.isEmpty()) {
+      final boolean proceed = MessageDialog.open(MessageDialog.CONFIRM, getShell(), Messages.XPCPP_DialogTitle, 
+                                                 Messages.XPCPP_RMCreationMsg, SWT.NONE);
+      if (proceed) {
+        final RMServicesConfigurationWizard wizard = new RMServicesConfigurationWizard();
+        final WizardDialog dialog = new WizardDialog(getShell(), wizard);
+        dialogResult = dialog.open();
+        
+        if ((dialogResult == Window.OK) && (universe.getResourceManagers().length > 0)) {
+          // We take the first one. There shouldn't more than one, a priori.
+          final IResourceManager rmManager = universe.getResourceManagers()[0];
+          try {
+            rmManager.startUp(new NullProgressMonitor());
+          } catch (CoreException except) {
+            ErrorDialog.openError(getShell(), Messages.XPCPP_RMStartErrorDialogTitle, 
+                                  NLS.bind(Messages.XPCPP_RMStartErrorDialogMsg, rmManager.getName()), except.getStatus());
+          }
+        }
+      }
+    } else {
+      final boolean proceed = MessageDialog.open(MessageDialog.CONFIRM, getShell(), Messages.XPCPP_DialogTitle, 
+                                                 Messages.XPCPP_RMStartMsg, SWT.NONE);
+      if (proceed) {
+        dialogResult = DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedResManagerList);
+      }
+    }
+    
+    if (dialogResult == Window.OK) {
+      for (final IResourceManager resourceManager : universe.getResourceManagers()) {
+        if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
   private void updateSummaryText(final String selection) {
     final IX10PlatformConfiguration platformConfiguration = this.fX10Platforms.get(selection);
     final StringBuilder sb = new StringBuilder();
@@ -267,9 +346,13 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
       sb.append(NLS.bind(Messages.XPCPP_LinkingLibs, platformConfiguration.getLinkingLibs()));
     }
     if (platformConfiguration.getResourceManagerId() != null) {
-      sb.append(NLS.bind(Messages.XPCPP_ResourceManagerId, platformConfiguration.getResourceManagerId()));
+      final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
+      final IResourceManager resourceManager = universe.getResourceManager(platformConfiguration.getResourceManagerId());
+      sb.append(NLS.bind(Messages.XPCPP_ResourceManagerName, resourceManager.getName()));
     }
     sb.append(NLS.bind(Messages.XPCPP_TargetOS, platformConfiguration.getTargetOS()));
+    final String architectureName = (platformConfiguration.getArchitecture() == EArchitecture.E32Arch) ? "32" : "64"; //$NON-NLS-1$ //$NON-NLS-2$
+    sb.append(NLS.bind(Messages.XPCPP_Architecture, architectureName));
     this.fPlatformConfSummaryText.setText(sb.toString());
   }
   

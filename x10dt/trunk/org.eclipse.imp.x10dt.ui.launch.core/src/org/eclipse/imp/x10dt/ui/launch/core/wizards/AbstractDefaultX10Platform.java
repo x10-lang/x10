@@ -5,38 +5,23 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
+package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
-/**
- * Represents the different OS managed by X10 for compilation and running.
- * 
- * @author egeay
- */
-public enum ETargetOS {
+
+abstract class AbstractDefaultX10Platform implements IDefaultX10Platform {
   
-  /**
-   * Windows OS.
-   */
-  WINDOWS,
+  protected AbstractDefaultX10Platform(final boolean is64Arch) {
+    this.fIs64Arch = is64Arch;
+  }
   
-  /**
-   * Linux OS.
-   */
-  LINUX,
+  // --- Code for descendants
   
-  /**
-   * AIX OS.
-   */
-  AIX,
+  protected final boolean is64Arch() {
+    return this.fIs64Arch;
+  }
   
-  /**
-   * Diverse UNIX systems.
-   */
-  UNIX,
+  // --- Fields
   
-  /**
-   * MAC OS.
-   */
-  MAC;
-  
+  private final boolean fIs64Arch;
+
 }

@@ -5,38 +5,23 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
+package org.eclipse.imp.x10dt.ui.launch.core.builder;
 
 /**
- * Represents the different OS managed by X10 for compilation and running.
+ * Defines the list of supported X10 back-ends.
  * 
  * @author egeay
  */
-public enum ETargetOS {
+public enum ELanguage {
   
   /**
-   * Windows OS.
+   * C++ generation.
    */
-  WINDOWS,
+  CPP,
   
   /**
-   * Linux OS.
+   * Java generation.
    */
-  LINUX,
-  
-  /**
-   * AIX OS.
-   */
-  AIX,
-  
-  /**
-   * Diverse UNIX systems.
-   */
-  UNIX,
-  
-  /**
-   * MAC OS.
-   */
-  MAC;
-  
+  JAVA;
+
 }

@@ -5,38 +5,30 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
+package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 /**
- * Represents the different OS managed by X10 for compilation and running.
+ * 
  * 
  * @author egeay
  */
-public enum ETargetOS {
+public interface IInputListener {
   
   /**
-   * Windows OS.
+   * Gets notified once we finished reading the input stream.
    */
-  WINDOWS,
+  public void after();
   
   /**
-   * Linux OS.
+   * Gets notified before we start reading the input stream.
    */
-  LINUX,
+  public void before();
   
   /**
-   * AIX OS.
+   * Reads a line on the input stream.
+   * 
+   * @param line The line read.
    */
-  AIX,
-  
-  /**
-   * Diverse UNIX systems.
-   */
-  UNIX,
-  
-  /**
-   * MAC OS.
-   */
-  MAC;
-  
+  public void read(final String line);
+
 }

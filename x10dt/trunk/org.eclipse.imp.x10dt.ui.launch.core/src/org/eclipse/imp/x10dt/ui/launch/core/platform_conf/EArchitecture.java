@@ -8,35 +8,19 @@
 package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 /**
- * Represents the different OS managed by X10 for compilation and running.
  * 
  * @author egeay
  */
-public enum ETargetOS {
+public enum EArchitecture {
   
   /**
-   * Windows OS.
+   * 32-Bit Architecture.
    */
-  WINDOWS,
+  E32Arch,
   
   /**
-   * Linux OS.
+   * 64-Bit Architecture.
    */
-  LINUX,
-  
-  /**
-   * AIX OS.
-   */
-  AIX,
-  
-  /**
-   * Diverse UNIX systems.
-   */
-  UNIX,
-  
-  /**
-   * MAC OS.
-   */
-  MAC;
-  
+  E64Arch;
+
 }

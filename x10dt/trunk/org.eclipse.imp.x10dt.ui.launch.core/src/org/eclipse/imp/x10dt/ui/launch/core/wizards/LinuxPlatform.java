@@ -8,7 +8,11 @@
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
 
-final class LinuxPlatform implements IDefaultX10Platform {
+final class LinuxPlatform extends AbstractDefaultX10Platform implements IDefaultX10Platform {
+  
+  LinuxPlatform(final boolean is64Arch) {
+    super(is64Arch);
+  }
   
   // --- Interface methods implementation
   
@@ -25,7 +29,12 @@ final class LinuxPlatform implements IDefaultX10Platform {
   }
 
   public String getCompilerOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    if (is64Arch()) {
+      return cmpOpts + " -m64"; //$NON-NLS-1$
+    } else {
+      return cmpOpts;
+    }
   }
 
   public String getLinker() {
@@ -37,7 +46,12 @@ final class LinuxPlatform implements IDefaultX10Platform {
   }
 
   public String getLinkingOptions() {
-    return "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    if (is64Arch()) {
+      return linkOpts + " -m64"; //$NON-NLS-1$
+    } else {
+      return linkOpts;
+    }
   }
 
 }

@@ -10,11 +10,13 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   
-  ImmutablePlatformConf(final String name, final String resManagerId, final ETargetOS targetOS, final String x10DistLoc,
-                        final String pgasLoc, final String[] x10HeadersLocs, final String[] x10LibsLocs, final String compiler,
-                        final String compilerOpts, final String archiver, final String archivingOpts, final String linker,
-                        final String linkingOpts, final String linkingLibs, final boolean isCplusPlus, final boolean isLocal) {
+  ImmutablePlatformConf(final String name, final EArchitecture architecture, final String resManagerId, 
+                        final ETargetOS targetOS, final String x10DistLoc, final String pgasLoc, final String[] x10HeadersLocs,
+                        final String[] x10LibsLocs, final String compiler, final String compilerOpts, final String archiver,
+                        final String archivingOpts, final String linker, final String linkingOpts, final String linkingLibs,
+                        final boolean isCplusPlus, final boolean isLocal) {
     this.fName = name;
+    this.fArchitecture = architecture;
     this.fResManagerId = resManagerId;
     this.fTargetOS = targetOS;
     this.fX10DistLoc = x10DistLoc;
@@ -33,6 +35,10 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   }
   
   // --- Interface methods implementation
+  
+  public EArchitecture getArchitecture() {
+    return this.fArchitecture;
+  }
   
   public String getArchiver() {
     return this.fArchiver;
@@ -108,9 +114,11 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   
   // --- Fields
   
-  private String fArchiver;
+  private final EArchitecture fArchitecture;
   
-  private String fArchivingOpts;
+  private final String fArchiver;
+  
+  private final String fArchivingOpts;
   
   private final String fCompiler;
   

@@ -7,10 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.operations;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,9 +23,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IInputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -72,6 +71,22 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     try {
       final IRemoteProcessBuilder archiveProcessBuilder = getProcessBuilder(archiveCmd);
       final IRemoteProcess process = archiveProcessBuilder.start();
+      
+      final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+        
+        public void after() {
+        }
+
+        public void before() {
+        }
+        
+        public void read(final String line) {
+          mcStream.println(line);
+        }
+        
+      });
 
       process.waitFor();
     
@@ -81,17 +96,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
       if (returnCode != 0) {
         IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), IMarker.SEVERITY_ERROR,
                                    getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
-        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
-        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-        final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-        try {
-          String line;
-          while ((line = errReader.readLine()) != null) {
-            mcStream.println(line);
-          }
-        } catch (IOException except) {
-          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
-        }
       }
     } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_RemoteOpError, getResourceManagerName()), 
@@ -129,6 +133,22 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         final IRemoteProcessBuilder processBuilder = getProcessBuilder(command);
         final IRemoteProcess process = processBuilder.start();
         
+        final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+        UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+          
+          public void after() {
+          }
+
+          public void before() {
+          }
+          
+          public void read(final String line) {
+            mcStream.println(line);
+          }
+          
+        });
+        
         process.waitFor();
         
         final int returnCode = process.exitValue();
@@ -137,17 +157,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         if (returnCode != 0) {
           IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, entry.getKey().getName()), 
                                      IMarker.SEVERITY_ERROR, entry.getKey().getAbsolutePath(), IMarker.PRIORITY_HIGH);
-          final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
-          final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-          final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-          try {
-            String line;
-            while ((line = errReader.readLine()) != null) {
-              mcStream.println(line);
-            }
-          } catch (IOException except) {
-            LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
-          }
         }
         
         monitor.worked(1);

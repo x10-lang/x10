@@ -10,12 +10,8 @@ package org.eclipse.imp.x10dt.ui.launch.core.builder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
 
-/**
- * Functor that converts a {@link IPath} into a string.
- * 
- * @author egeay
- */
-public final class CpEntryAsStringFunc implements IFunctor<IPath, String> {
+
+final class CpEntryAsStringFunc implements IFunctor<IPath, String> {
   
   // --- Interface methods implementation
 

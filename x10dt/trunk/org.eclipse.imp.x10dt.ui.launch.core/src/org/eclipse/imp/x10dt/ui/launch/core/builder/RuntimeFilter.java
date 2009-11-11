@@ -10,12 +10,8 @@ package org.eclipse.imp.x10dt.ui.launch.core.builder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 
-/**
- * Filters that accepts paths that contains "x10.runtime" in their content.
- * 
- * @author egeay
- */
-public final class RuntimeFilter implements IFilter<IPath> {
+
+final class RuntimeFilter implements IFilter<IPath> {
   
   // --- Interface methods implementation
 

@@ -15,6 +15,13 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 public interface IX10PlatformConfiguration {
   
   /**
+   * Returns the computer architecture of the X10 platform installation.
+   * 
+   * @return A non-null value.
+   */
+  public EArchitecture getArchitecture();
+  
+  /**
    * Returns the archiver to use in order to archive compiled generated files.
    * 
    * @return A null value if the linking step is not required, otherwise a non-empty string.

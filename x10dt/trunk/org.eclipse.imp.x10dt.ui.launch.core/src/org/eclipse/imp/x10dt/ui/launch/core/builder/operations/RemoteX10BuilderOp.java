@@ -7,25 +7,16 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.builder.operations;
 
-import java.io.IOException;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 
@@ -55,11 +46,6 @@ public final class RemoteX10BuilderOp extends AbstractX10BuilderOp implements IX
   public void transfer(final IContainer binaryContainer, final IProgressMonitor monitor) throws CoreException {
     final IRemoteFileManager fileManager = getRemoteFileManager();
     final IFileStore fileStore = fileManager.getResource(getWorkspaceDir());
-    if (fileStore.fetchInfo().exists()) {
-      monitor.subTask(Messages.CPPB_DeletionTaskName);
-      fileStore.delete(EFS.NONE, null);
-    }
-
     monitor.subTask(Messages.CPPB_TransferTaskName);
     copyGeneratedFiles(fileStore, binaryContainer.getLocation(), monitor);
   }

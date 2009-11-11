@@ -53,7 +53,7 @@ final class PlatformConfNameWizardPage extends WizardSelectionPage implements IW
   public void createControl(final Composite parent) {
     initializeDialogUnits(parent);
     
-    final Composite composite = new Composite(parent, SWT.NULL);
+    final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(1, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));

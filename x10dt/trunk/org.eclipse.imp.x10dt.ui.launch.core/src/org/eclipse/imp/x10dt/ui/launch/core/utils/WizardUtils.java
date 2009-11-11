@@ -9,11 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -72,7 +68,7 @@ public final class WizardUtils {
     label.setFont(parent.getFont());
     label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
     
-    final Text text = new Text(parent, SWT.SINGLE | SWT.BORDER);
+    final Text text = new Text(parent, SWT.MULTI | SWT.BORDER | SWT.WRAP);
     text.setFont(parent.getFont());
     text.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     if (modifyListener != null) {
@@ -84,59 +80,28 @@ public final class WizardUtils {
   /**
    * Initializes the given file's contents with "Hello World" source code in X10.
    * 
-   * @param sourceFile
-   *          The file to fill with the "Hello World" source code.
-   * @param typeName
-   *          The type that will contain the code.
-   * @param pkgFrag
-   *          The package fragment for the type.
-   * @param superClass
-   *          The super class of the type to define, if any. May be <b>nul</b>.
-   * @param superIntfs
-   *          The interfaces that this type may implement. The list can be empty or <b>null</b>.
-   * @param createMain
-   *          Indicates if we want to create the main method for the sample or not.
-   * @param createConstructors
-   *          Indicates if we want to create a constructor for the sample or not.
+   * @param packageName The package name to use.
+   * @param typeName The type name that will contain the code.
    * @return A non-null input stream encapsulating the sample code.
    */
-  public static InputStream createSampleContentStream(final IFile sourceFile, final String typeName,
-                                                      final IPackageFragment pkgFrag, final String superClass,
-                                                      final List<String> superIntfs, final boolean createMain,
-                                                      final boolean createConstructors) {
+  public static InputStream createSampleContentStream(final String packageName, final String typeName) {
     final StringBuilder sb = new StringBuilder();
 
-    if (!pkgFrag.isDefaultPackage()) {
-      sb.append("package " + pkgFrag.getElementName() + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
+    if ((packageName != null) && (packageName.trim().length() > 0)) {
+      sb.append("package " + packageName + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
     }
     sb.append("public class " + typeName); //$NON-NLS-1$
-    if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object")) { //$NON-NLS-1$
-      sb.append(" extends " + superClass); //$NON-NLS-1$
-    }
-    if ((superIntfs != null) && superIntfs.size() > 0) {
-      sb.append(" implements "); //$NON-NLS-1$
-      for (final Iterator<String> iter = superIntfs.iterator(); iter.hasNext();) {
-        sb.append(iter.next());
-        if (iter.hasNext()) {
-          sb.append(", "); //$NON-NLS-1$
-        }
-      }
-    }
     sb.append(" {\n"); //$NON-NLS-1$
-    if (createMain) {
-      sb.append("    public static def main(var args: Rail[String]!) {\n"); //$NON-NLS-1$
-      sb.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
-      sb.append("         var h :Hello! = new Hello();\n"); //$NON-NLS-1$
-      sb.append("         var myBool:boolean = h.myMethod();\n"); //$NON-NLS-1$
-      sb.append("         Console.OUT.println(\"The answer is: \"+myBool);\n"); //$NON-NLS-1$
-      sb.append("    }\n"); //$NON-NLS-1$
-    }
-    if (createConstructors) {
-      sb.append("    /** x10doc comment for myMethod */;\n"); //$NON-NLS-1$
-      sb.append("    public def myMethod(): boolean = {\n"); //$NON-NLS-1$
-      sb.append("       return true;\n"); //$NON-NLS-1$
-      sb.append("    }\n"); //$NON-NLS-1$
-    }
+    sb.append("    public static def main(var args: Rail[String]!) {\n"); //$NON-NLS-1$
+    sb.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
+    sb.append("         var h :Hello! = new Hello();\n"); //$NON-NLS-1$
+    sb.append("         var myBool:boolean = h.myMethod();\n"); //$NON-NLS-1$
+    sb.append("         Console.OUT.println(\"The answer is: \"+myBool);\n"); //$NON-NLS-1$
+    sb.append("    }\n"); //$NON-NLS-1$
+    sb.append("    /** x10doc comment for myMethod */;\n"); //$NON-NLS-1$
+    sb.append("    public def myMethod(): boolean = {\n"); //$NON-NLS-1$
+    sb.append("       return true;\n"); //$NON-NLS-1$
+    sb.append("    }\n"); //$NON-NLS-1$
     sb.append("}"); //$NON-NLS-1$
 
     return new ByteArrayInputStream(sb.toString().getBytes());
