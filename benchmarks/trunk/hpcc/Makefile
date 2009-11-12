@@ -4,7 +4,8 @@
 
 export X10CXX 		?= x10c++
 export X10CXXFLAGS 	?= -commandlineonly -report postcompile=5 -DISABLE_GC
-export X10TRANSPORT	?= lapi
+export X10RTTRANSPORT	?= pgas_lapi
+export PGASTRANSPORT	?= lapi	   ### TEMPORARY! Added due to mismatch X10RT transport naming scheme and PGAS
 
 
 # <END> user settings #
