@@ -25,6 +25,10 @@
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
 			<fileset dir="icons/"/>
 		</copy>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/schema"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/schema" failonerror="true" overwrite="false">
+			<fileset dir="schema/"/>
+		</copy>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<copy file="plugin.properties" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
