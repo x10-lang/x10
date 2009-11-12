@@ -152,9 +152,9 @@ buildX10Module $X10_DIST x10j
 buildX10Module $X10_COMPILER x10
 buildX10Module $X10_TESTS x10
 
-X10LIB=$X10LIB
-if [[ -z "$X10LIB" ]]; then
-	export X10LIB=$(X10_HOME)/pgas/common/work
+CUSTOM_PGAS=$CUSTOM_PGAS
+if [[ -z "$CUSTOM_PGAS" ]]; then
+	export CUSTOM_PGAS=$(X10_HOME)/pgas/common/work
 fi
 #(cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake -j8 all; gmake -j8 xrx)
 (cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake all; gmake xrx)

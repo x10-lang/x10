@@ -10,10 +10,10 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-X10LIB=$X10LIB
+CUSTOM_PGAS=$CUSTOM_PGAS
 ## relative to x10 root
-if [[ -z "$X10LIB" ]]; then
-	export X10LIB=$X10_HOME/pgas
+if [[ -z "$CUSTOM_PGAS" ]]; then
+	export CUSTOM_PGAS=$X10_HOME/pgas
 fi
 
 CWD=$(pwd)
