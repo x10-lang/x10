@@ -152,7 +152,7 @@ export ARFLAGS
 
 # why must X10RT_PLATFORM be specified explicitly?
 x10rt:
-	cd x10rt && $(MAKE) X10RT_PLATFORM=$(X10RT_PLATFORM)
+	cd x10rt && $(MAKE) X10RT_PLATFORM=$(X10RT_PLATFORM) debug debug_pgas default
 
 ###################
 # Generated Files #
@@ -298,7 +298,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	cd x10rt && $(MAKE) all install X10RT_PLATFORM=$(X10RT_PLATFORM)
+	cd x10rt && $(MAKE) debug debug_pgas all install X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 .PHONY: install
 
@@ -333,7 +333,7 @@ cleangen:
 	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
-	cd x10rt && $(MAKE) clean
+	cd x10rt && $(MAKE) clean debug debug_pgas
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
