@@ -605,19 +605,6 @@ function main {
 		cleanUpExitHarness 2
 	fi
 
-	CUSTOM_PGAS=$CUSTOM_PGAS
-	if [[ -z "$CUSTOM_PGAS" ]]; then
-		CUSTOM_PGAS=$X10_HOME/pgas/common/work
-	fi
-	if [[ ! -f $CUSTOM_PGAS/include/x10/x10rt_api.h ]]; then
-		printf "\n[$prog: err]: unable to locate pgas header files!\n"
-		cleanUpExitHarness 2
-	fi
-	if [[ ! (-f $CUSTOM_PGAS/lib/libxlpgas_lapi.a || -f $CUSTOM_PGAS/lib/libxlpgas_sockets.a || -f $CUSTOM_PGAS/lib/libxlpgas_smp.a) ]]; then
-		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
-		cleanUpExitHarness 2
-	fi
-
 	X10LANG=$X10LANG
 	if [[ -z "$X10LANG" ]]; then
 		X10LANG=$X10_HOME/x10.runtime/src-cpp

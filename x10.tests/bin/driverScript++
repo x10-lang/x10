@@ -10,12 +10,6 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-CUSTOM_PGAS=$CUSTOM_PGAS
-## relative to x10 root
-if [[ -z "$CUSTOM_PGAS" ]]; then
-	export CUSTOM_PGAS=$X10_HOME/pgas
-fi
-
 CWD=$(pwd)
 LOGD=$CWD/log
 if [[ ! -d "$LOGD" ]]; then

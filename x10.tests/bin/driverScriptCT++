@@ -70,7 +70,6 @@ cleanUpExit() {
 	if [[ "${__cat_feed_stage}" == TEST ]]; then
 		sed -e 's;@x10_home@;"'"${__cat_x10_home}"'";' \
 			-e 's;@java_home@;"'"${__cat_java_home}"'";' \
-			-e 's;@x10lib_path@;"'"${__cat_x10lib_path}"'";' \
 			-e 's;@x10lang_path@;"'"${__cat_x10lang_path}"'";' \
 			-e 's;@extra_classpath@;"'"${__cat_extra_classpath}"'";' \
 			-e 's;@x10c_version@;"'"${__cat_x10c_version}"'";' \
@@ -148,11 +147,6 @@ DATADIR=$(cd $MYDIR/../data; pwd)
 X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
-fi
-
-CUSTOM_PGAS=$CUSTOM_PGAS
-if [[ -z "$CUSTOM_PGAS" ]]; then
-	export CUSTOM_PGAS=${X10_HOME}/pgas/common/work
 fi
 
 X10LANG=$X10LANG
@@ -273,10 +267,8 @@ REPORTF=${__cat_hostname}_${__cat_backend_arch}_${__cat_start_date_time2}_r${__c
 __cat_x10_home=$X10_HOME
 if [[ "${__cat_x10_home}" == x10c ]]; then
 	__cat_x10lang_path=NA
-	__cat_pgas_path=NA
 else
 	__cat_x10lang_path="$X10LANG"
-	__cat_pgas_path="$CUSTOM_PGAS"
 fi
 declare -i ecode
 
@@ -324,10 +316,8 @@ __cat_test_configuration="default"
 __cat_x10_home="$X10_HOME"
 __cat_java_home="$(java -classpath $DATADIR GetProp java.home)"
 if [[ "${__cat_backend}" == x10c ]]; then
-	__cat_x10lib_path=NA
 	__cat_x10lang_path=NA
 else
-	__cat_x10lib_path=$CUSTOM_PGAS
 	__cat_x10lang_path=$X10LANG
 fi
 __cat_x10c_version=$($X10_HOME/x10.dist/bin/x10c -version | \
