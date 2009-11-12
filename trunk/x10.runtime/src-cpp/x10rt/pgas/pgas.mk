@@ -3,6 +3,9 @@ SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
 
+bollocks:
+	echo $(X10RT_PLATFORM)
+
 # defaults
 SOCKETS_USE := no
 LAPI_USE := no
@@ -36,16 +39,16 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
 endif
 ifeq ($(X10RT_PLATFORM), linux64)
   WPLATFORM      := linux_x86_64_g++4
-  LAPI_USE       := yes
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  #LAPI_USE       := yes
+  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux32)
   WPLATFORM      := linux_x86_g++4
-  LAPI_USE       := yes
-  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  #LAPI_USE       := yes
+  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
