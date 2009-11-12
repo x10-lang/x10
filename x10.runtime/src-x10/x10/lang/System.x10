@@ -18,7 +18,7 @@ import x10.runtime.PlaceLocalHandle;
 public class System {
 
     private def this() {}
-    
+
     public static def currentTimeMillis() = Timer.milliTime();
     public static def nanoTime() = Timer.nanoTime();
 
@@ -121,7 +121,17 @@ public class System {
         val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size);
         x10.runtime.NativeRuntime.dealloc(finder);
-    }   
+    }
+
+    // This function exists because we do not want to call dealloc in user code (finder)
+    public static def copyTo[T] (srcRail:Rail[T]!, srcIndex:Int,
+                                 dst:Place, dstHandle:PlaceLocalHandle[Rail[T]]!, dstIndex:Int,
+                                 size:Int, notifier:()=>Void) {
+        val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
+        srcRail.copyTo[T](srcIndex, dst, finder, size, notifier);
+        x10.runtime.NativeRuntime.dealloc(finder);
+        x10.runtime.NativeRuntime.dealloc(notifier);
+    }
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
     // Also it is arguably a simpler interface because it has one less param
@@ -141,10 +151,6 @@ public class System {
         x10.runtime.NativeRuntime.dealloc(finder);
         x10.runtime.NativeRuntime.dealloc(notifier);
     }
-
-
-
-
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
     static public def copyFrom[T] (dst:Rail[T], dst_off:Int, src:Rail[T], src_off:Int, len:Int) {
@@ -217,7 +223,7 @@ public class System {
     }
 */
 
-    
+
     @Native("c++", "x10::lang::Rail<#1>::makeCuda(#4,#5)")
     private static def cudaMakeRail[T] (dst:Place, length:Int) : Rail[T]{self.length==length} {
         return null;

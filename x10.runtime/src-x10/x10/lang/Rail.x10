@@ -107,16 +107,16 @@ public final class Rail[T](length: nat)
                              dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
                              len:Int) : Void;
 
+    @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5,#6)")
+    @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5,#6)")
+    public native def copyTo(src_off:Int,
+                             dst_place:Place, dst_handle:PlaceLocalHandle[Rail[T]], dst_off:Int,
+                             len:Int, notifier:()=>Void) : Void;
+
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")
     public native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int,
                               len:Int, notifier:()=>Void) : Void;
-
-
-
-
-
-
 
     @Native("java", "x10.lang.System.copyFrom(#0,#1,#2,#3,#4)")
     //@Native("c++", "x10::lang::System::copyFrom(#0,#1,#2,#3,#4)")
