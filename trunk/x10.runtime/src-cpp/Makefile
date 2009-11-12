@@ -100,9 +100,13 @@ else
     ifeq ($(shell uname -s),Linux)
       override CXXFLAGS += -pthread
       ifeq ($(shell uname -m),x86_64)
-        export X10RT_PLATFORM="linux64"
+        export X10RT_PLATFORM="linux_x86_64"
       else
-        export X10RT_PLATFORM="linux32"
+        ifeq ($(shell uname -m),ppc_64)
+          export X10RT_PLATFORM="linux_ppc_64"
+        else
+          export X10RT_PLATFORM="linux_x86_32"
+        endif
       endif
     else
       ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
