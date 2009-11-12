@@ -49,7 +49,7 @@ namespace x10aux {
         size_t next_id;
 
         public:
-        DeserializationDispatcher () : data_v(NULL), data_c(0), next_id(0) { }
+        DeserializationDispatcher () : data_v(NULL), data_c(0), next_id(1) { }
         ~DeserializationDispatcher () {
             ::free(data_v); // do not use GC
         }
