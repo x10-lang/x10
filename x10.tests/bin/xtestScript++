@@ -493,15 +493,15 @@ function main {
 		cleanUpExit 2
 	fi
 
-	X10LIB=$X10LIB
-	if [[ -z "$X10LIB" ]]; then
-		X10LIB=$X10_HOME/pgas/common/work
+	CUSTOM_PGAS=$CUSTOM_PGAS
+	if [[ -z "$CUSTOM_PGAS" ]]; then
+		CUSTOM_PGAS=$X10_HOME/pgas/common/work
 	fi
-	if [[ ! -f $X10LIB/include/x10/x10.h ]]; then
+	if [[ ! -f $CUSTOM_PGAS/include/x10/x10.h ]]; then
 		printf "\n[$prog: err]: unable to locate pgas header files!\n"
 		cleanUpExit 2
 	fi
-	if [[ ! (-f $X10LIB/lib/libupcrts_lapi.a || -f $X10LIB/lib/libupcrts_sockets.a || -f $X10LIB/lib/libupcrts_smp.a) ]]; then
+	if [[ ! (-f $CUSTOM_PGAS/lib/libupcrts_lapi.a || -f $CUSTOM_PGAS/lib/libupcrts_sockets.a || -f $CUSTOM_PGAS/lib/libupcrts_smp.a) ]]; then
 		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
 		cleanUpExit 2
 	fi

@@ -150,9 +150,9 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-X10LIB=$X10LIB
-if [[ -z "$X10LIB" ]]; then
-	export X10LIB=${X10_HOME}/pgas/common/work
+CUSTOM_PGAS=$CUSTOM_PGAS
+if [[ -z "$CUSTOM_PGAS" ]]; then
+	export CUSTOM_PGAS=${X10_HOME}/pgas/common/work
 fi
 
 X10LANG=$X10LANG
@@ -276,7 +276,7 @@ if [[ "${__cat_x10_home}" == x10c ]]; then
 	__cat_pgas_path=NA
 else
 	__cat_x10lang_path="$X10LANG"
-	__cat_pgas_path="$X10LIB"
+	__cat_pgas_path="$CUSTOM_PGAS"
 fi
 declare -i ecode
 
@@ -327,7 +327,7 @@ if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_x10lib_path=NA
 	__cat_x10lang_path=NA
 else
-	__cat_x10lib_path=$X10LIB
+	__cat_x10lib_path=$CUSTOM_PGAS
 	__cat_x10lang_path=$X10LANG
 fi
 __cat_x10c_version=$($X10_HOME/x10.dist/bin/x10c -version | \

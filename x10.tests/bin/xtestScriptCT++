@@ -605,15 +605,15 @@ function main {
 		cleanUpExitHarness 2
 	fi
 
-	X10LIB=$X10LIB
-	if [[ -z "$X10LIB" ]]; then
-		X10LIB=$X10_HOME/pgas/common/work
+	CUSTOM_PGAS=$CUSTOM_PGAS
+	if [[ -z "$CUSTOM_PGAS" ]]; then
+		CUSTOM_PGAS=$X10_HOME/pgas/common/work
 	fi
-	if [[ ! -f $X10LIB/include/x10/x10rt_api.h ]]; then
+	if [[ ! -f $CUSTOM_PGAS/include/x10/x10rt_api.h ]]; then
 		printf "\n[$prog: err]: unable to locate pgas header files!\n"
 		cleanUpExitHarness 2
 	fi
-	if [[ ! (-f $X10LIB/lib/libxlpgas_lapi.a || -f $X10LIB/lib/libxlpgas_sockets.a || -f $X10LIB/lib/libxlpgas_smp.a) ]]; then
+	if [[ ! (-f $CUSTOM_PGAS/lib/libxlpgas_lapi.a || -f $CUSTOM_PGAS/lib/libxlpgas_sockets.a || -f $CUSTOM_PGAS/lib/libxlpgas_smp.a) ]]; then
 		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
 		cleanUpExitHarness 2
 	fi

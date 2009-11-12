@@ -287,8 +287,8 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-if [[ -z "$X10LIB" ]]; then
-	export X10LIB=${X10_HOME}/pgas/common/work
+if [[ -z "$CUSTOM_PGAS" ]]; then
+	export CUSTOM_PGAS=${X10_HOME}/pgas/common/work
 fi
 
 if [[ -z "$CVS_RSH" ]]; then
