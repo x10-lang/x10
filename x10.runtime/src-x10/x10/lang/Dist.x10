@@ -46,7 +46,7 @@ public abstract class Dist(
      * point in the region to every place.
      */
 
-    public static def makeUnique(): Dist(1) = BaseDist.makeUnique1();
+    public static def makeUnique(): Dist(1){rect} = BaseDist.makeUnique1();
 
     /**
      * Returns a distribution over the specified region that maps
