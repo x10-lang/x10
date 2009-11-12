@@ -120,7 +120,7 @@ ifeq ($(LAPI_USE),yes)
 ifeq ($(POE_EXISTS),yes)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
 else
-echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests"
+HACK=$(shell echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests">2)
 endif
 
 LIBS += lib/libx10rt_pgas_lapi.a
