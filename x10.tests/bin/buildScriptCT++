@@ -102,55 +102,6 @@ cvsUpdate() {
 	fi
 }
 
-buildX10Module() {
-	printf "\n## [$prog]: building module $(basename $1)...\n"
-	case "$2" in
-		"polyglot")
-			( \
-				cd $1; \
-				ant clean jar; \
-				exit $?; \
-			)
-			;;
-		"x10c")
-			( \
-				cd $1; \
-				ant clean grammar dist; \
-				exit $?; \
-			)
-			;;
-		"x10j")
-			( \
-				cd $1; \
-				ant clean dist-java; \
-				exit $?; \
-			)
-			;;
-		"x10")
-			( \
-				cd $1; \
-				ant clean dist; \
-				exit $?; \
-			)
-			;;
-		"x10rt")
-			( \
-				cd $1; \
-				gmake squeakyclean; \
-				gmake; \
-				exit $?; \
-			)
-			;;
-	esac
-	if (( $? != 0 )); then
-		printf "\n[$prog: err]: x10 component build failed for $(basename $1)\n"
-		return 1
-	else
-		printf "\n## done.\n"
-		return 0
-	fi
-}
-
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
@@ -232,51 +183,11 @@ main() {
 		return $status
 	fi
 
-    # build modules in the listed order -- some builds may be redundant
-	buildX10Module $POLYGLOT_HOME polyglot
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-	export LOCAL_POLYGLOT_JAR=$POLYGLOT_HOME/lib/polyglot.jar
-	if [[ "${__cat_system}" == CYGWIN ]]; then
-		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
-	fi
+    # build X10 in the listed order -- some builds may be redundant
+        printf "\n## [$prog]: building X10\n"
 
-	buildX10Module $X10_CONSTRAINTS x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
+	(cd $x10_DIST/bin; ant dist);
 
-	buildX10Module $X10_COMMON x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_DIST x10j
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_COMPILER x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-    if [[ -n "$X10GC" ]]; then
-	    export INCLUDE_DIRS=-I${X10GC}/include
-    fi
-	buildX10Module $X10_RUNTIME/src-cpp x10rt
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_TESTS x10
 	return $?
 }
 
