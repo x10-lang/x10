@@ -37,14 +37,21 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   #SOCKETS_USE    := yes
 endif
-ifeq ($(X10RT_PLATFORM), linux64)
+ifeq ($(X10RT_PLATFORM), linux_ppc_64)
+  WPLATFORM      := linux_ppc_64_g++4
+  #LAPI_USE       := yes
+  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  SOCKETS_USE    := yes
+endif
+ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
   #LAPI_USE       := yes
   #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
-ifeq ($(X10RT_PLATFORM), linux32)
+ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
   #LAPI_USE       := yes
   #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
