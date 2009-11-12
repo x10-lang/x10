@@ -186,7 +186,7 @@ main() {
     # build X10 in the listed order -- some builds may be redundant
         printf "\n## [$prog]: building X10\n"
 
-	(cd $x10_DIST/bin; ant dist);
+	(cd $X10_DIST; ant dist);
 
 	return $?
 }
