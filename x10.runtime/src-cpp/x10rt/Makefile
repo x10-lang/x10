@@ -26,14 +26,13 @@ ifdef ENABLE_X10RT_CUDA
 	LDFLAGS += $(CUDA_LDFLAGS) $(CUDA_LDLIBS)
 endif
 
-
 default: all
 
 ifdef ENABLE_X10RT_MPI
   include mpi/mpi.mk
 endif
 
-ifdef ENABLE_X10RT_PGAS
+ifndef DISABLE_X10RT_PGAS
   include pgas/pgas.mk
 endif
 
@@ -48,6 +47,18 @@ install: $(LIBS) $(PROPERTIES)
 tests: $(TESTS)
 
 all: $(TESTS) $(PROPERTIES) $(LIBS)
+
+debug:
+	echo X10RT_PLATFORM = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_CUDA = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_CUDA = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_MPI = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_MPI = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_PGAS = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_PGAS = $(X10RT_PLATFORM)
+	echo LIBS = $(LIBS)
+	echo PROPERTIES = $(PROPERTIES)
+	echo TESTS = $(TESTS)
 
 clean:
 	$(RM) -rv */*.o *.tgz lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h

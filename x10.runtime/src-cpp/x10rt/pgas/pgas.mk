@@ -188,5 +188,16 @@ etc/x10rt_pgas_bgp.properties:
 endif
 
 
+debug_pgas:
+	echo X10RT_PLATFORM = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_CUDA = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_CUDA = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_MPI = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_MPI = $(X10RT_PLATFORM)
+	echo ENABLE_X10RT_PGAS = $(X10RT_PLATFORM)
+	echo DISABLE_X10RT_PGAS = $(X10RT_PLATFORM)
+	echo LIBS = $(LIBS)
+	echo PROPERTIES = $(PROPERTIES)
+	echo TESTS = $(TESTS)
 
 # vim: ts=8:sw=8:noet
