@@ -50,7 +50,7 @@ tests: $(TESTS)
 all: $(TESTS) $(PROPERTIES) $(LIBS)
 
 clean:
-	$(RM) */*.o *.tgz lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
+	$(RM) -rv */*.o *.tgz lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
 
 # vim: ts=8:sw=8:noet
 # DO NOT DELETE
