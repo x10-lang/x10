@@ -53,7 +53,7 @@ class fft {
         static def make(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]):Block! {
             val block = new Block(I, nRows, localSize, N, SQRTN, verify, Cs);
             block.init(localSize, verify);
-            finish ateach (p in unique) {} // initialize transport
+            finish ateach ((p) in unique) {} // initialize transport
             return block;
         }
 
@@ -139,16 +139,16 @@ class fft {
     }
 
     static def transpose_A(FFT:PlaceLocalHandle[Block]) {
-        finish ateach (p in unique) FFT.get().transpose();
-        finish ateach (p in unique) FFT.get().scatter();
+        finish ateach ((p) in unique) FFT.get().transpose();
+        finish ateach ((p) in unique) FFT.get().scatter();
     }
 
     static def bytwiddle_A(FFT:PlaceLocalHandle[Block], sign:Int) {
-        finish ateach (p in unique) FFT.get().bytwiddle(sign);
+        finish ateach ((p) in unique) FFT.get().bytwiddle(sign);
     }
 
     static def rowFFTS_A(FFT:PlaceLocalHandle[Block], fwd:Boolean) { 
-        finish ateach (p in unique) FFT.get().rowFFTS(fwd);
+        finish ateach ((p) in unique) FFT.get().rowFFTS(fwd);
     }
 
     static def format(t:Long) = (t as Double) * 1.0e-9;
@@ -176,7 +176,7 @@ class fft {
     }
         
     static def check(FFT:PlaceLocalHandle[Block]) { 
-        finish ateach (p in unique) FFT.get().check();
+        finish ateach ((p) in unique) FFT.get().check();
     }
     
     public static def main(args:Rail[String]!) {

@@ -2,7 +2,7 @@
 #
 # Cygwin with G++
 #
-export POSTCOMPILE_CXX		?= g++
+export POSTCOMPILE_CXX		?= g++-3
 export POSTCOMPILE_CXXFLAGS 	?= -w -DTRANSPORT=${X10TRANSPORT}
 export POSTCOMPILE_LDFLAGS	?= 
 export POSTCOMPILE_LIBS		?= 
