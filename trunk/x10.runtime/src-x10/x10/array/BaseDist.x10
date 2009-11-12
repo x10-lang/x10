@@ -30,8 +30,10 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // factories - place is all applicable places
     //
 
-    public static def makeUnique1(): Dist(1) {
-        return makeUnique1(Place.places);
+    // There's only one unique distribution
+    private static val UNIQUE = makeUnique1(Place.places) as Dist(1){rect};
+    public static def makeUnique1(): Dist(1){rect} {
+        return UNIQUE;
     }
 
     public static def makeUnique1(ps: Rail[Place]): Dist(1) { // XTENLANG-4

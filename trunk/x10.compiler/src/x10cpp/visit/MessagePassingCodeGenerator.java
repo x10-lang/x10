@@ -1973,6 +1973,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         sw.end(); sw.newline();
         sw.write("}");
+        sw.newline();
 
         if (!container.flags().isAbstract()) {
             // emit _make method

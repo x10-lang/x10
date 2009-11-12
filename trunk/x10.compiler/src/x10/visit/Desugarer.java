@@ -510,27 +510,38 @@ public class Desugarer extends ContextVisitor {
         assert (((X10TypeSystem_c) xts).isDistribution(dType));
         MethodInstance mi = xts.findMethod(dType,
                 xts.MethodMatcher(dType, APPLY, Collections.singletonList(fType), context));
-        Expr index = xnf.Local(bpos,
-                xnf.Id(bpos, formal.name().id()))
-                .localInstance(formal.localDef().asInstance())
-                .type(fType);
+        List<Expr> index = new ArrayList<Expr>();
         if (formal.isUnnamed()) {
             ArrayList<Expr> vars = new ArrayList<Expr>();
+            ArrayList<Type> varTypes = new ArrayList<Type>();
             for (LocalDef ld : formal.localInstances()) {
+                Type t = ld.type().get();
                 vars.add(xnf.Local(bpos,
                         nf.Id(bpos, ld.name()))
                         .localInstance(ld.asInstance())
-                        .type(ld.type().get()));
+                        .type(t));
+                varTypes.add(t);
             }
-            Type intRail = xts.ValRail(xts.Int());
-            MethodInstance cnv = xts.findMethod(fType,
-                    xts.MethodMatcher(fType, CONVERT_IMPLICITLY,
-                    		Collections.singletonList(intRail), context));
-            assert (cnv.flags().isStatic());
-            index =
-                xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), 
-                		xnf.Id(bpos, CONVERT_IMPLICITLY),
-                        xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType);
+            MethodInstance mi1 = xts.findMethod(dType,
+                    xts.MethodMatcher(dType, APPLY, varTypes, context));
+            if (mi1 != null) {
+                mi = mi1;
+                index = vars;
+            } else {
+                Type intRail = xts.ValRail(xts.Int());
+                MethodInstance cnv = xts.findMethod(fType,
+                        xts.MethodMatcher(fType, CONVERT_IMPLICITLY,
+                                Collections.singletonList(intRail), context));
+                assert (cnv.flags().isStatic());
+                index.add(xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), 
+                        xnf.Id(bpos, CONVERT_IMPLICITLY),
+                        xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType));
+            }
+        } else {
+            index.add(xnf.Local(bpos,
+                    xnf.Id(bpos, formal.name().id()))
+                    .localInstance(formal.localDef().asInstance())
+                    .type(fType));
         }
         Expr place = xnf.Call(bpos,
                 xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),

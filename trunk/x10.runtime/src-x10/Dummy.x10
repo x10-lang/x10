@@ -97,7 +97,7 @@ class Dummy {
     var f105 : x10.lang.Unsigned;
     var f106 : x10.lang.UnsupportedOperationException;
     var f107 : x10.lang.ValRail[Dummy];
-  // var f108 : x10.lang.Value;
+    //var f108 : x10.lang.Value;
     var f109 : x10.lang._;
     var f113 : x10.runtime.Clock_c;
     var f115 : x10.runtime.Future_c[Dummy];
