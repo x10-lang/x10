@@ -39,23 +39,23 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64)
   WPLATFORM      := linux_ppc_64_g++4
-  #LAPI_USE       := yes
-  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
-  #LAPI_USE       := yes
-  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
-  #LAPI_USE       := yes
-  #LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
-  #LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  LAPI_USE       := yes
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   SOCKETS_USE    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
@@ -75,6 +75,12 @@ endif
 ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
+endif
+
+ifneq ($(shell test -x `which poe` && echo -n hi), hi)
+  POE_EXISTS := yes
+else
+  POE_EXISTS := no
 endif
 
 ifeq ($(SOCKETS_USE), yes)
@@ -114,8 +120,12 @@ endif
 
 
 ifeq ($(LAPI_USE),yes)
-
+ifeq ($(POE_EXISTS),yes)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
+else
+echo "Your platform supports LAPI but we could not find the poe executable so not building LAPI tests"
+endif
+
 LIBS += lib/libx10rt_pgas_lapi.a
 PROPERTIES += etc/x10rt_pgas_lapi.properties
 
