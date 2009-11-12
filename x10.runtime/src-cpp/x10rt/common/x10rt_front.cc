@@ -108,7 +108,7 @@ void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long updat
 { x10rt_lgl_remote_xor(place, addr, update); }
 
 void x10rt_remote_op_fence (void)
-{ x10rt_remote_op_fence(); }
+{ x10rt_lgl_remote_op_fence(); }
 
 
 void x10rt_probe (void)
