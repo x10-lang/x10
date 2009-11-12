@@ -3,9 +3,6 @@ SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
 
-bollocks:
-	echo $(X10RT_PLATFORM)
-
 # defaults
 SOCKETS_USE := no
 LAPI_USE := no
