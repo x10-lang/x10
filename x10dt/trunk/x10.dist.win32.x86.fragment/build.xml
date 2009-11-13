@@ -107,8 +107,8 @@
             <fileset dir="${x10.dist.location}/include" includes="**"/>
         </copy>
         <copy todir="${lib}">
-            <fileset dir="${x10.dist.location}/lib" includes="**"/>
-            <fileset dir="${pgas.location}/lib" includes="**"/>
+            <fileset dir="${x10.dist.location}/lib" includes="libx10.a,libx10.mft,libgc.a"/>
+            <fileset dir="${pgas.location}/lib" includes="libxlpgas_${x10.transport}.a"/>
         </copy>
     </target>
     <target name="dist" depends="init,update"/>
