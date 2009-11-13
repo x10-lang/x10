@@ -74,15 +74,18 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
       
       final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-      UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+      UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
         
         public void after() {
         }
-
+        
         public void before() {
         }
-        
+
         public void read(final String line) {
+        }
+        
+        public void readError(final String line) {
           mcStream.println(line);
         }
         
@@ -135,17 +138,29 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         
         final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
         final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-        UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+        UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
           
           public void after() {
           }
-
+          
           public void before() {
+            this.fCounter = 0;
+          }
+
+          public void read(final String line) {
           }
           
-          public void read(final String line) {
+          public void readError(final String line) {
+            if (this.fCounter == 0) {
+              
+              this.fCounter = 1;
+            }
             mcStream.println(line);
           }
+          
+          // --- Fields
+          
+          int fCounter;
           
         });
         

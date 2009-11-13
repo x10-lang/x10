@@ -25,10 +25,17 @@ public interface IInputListener {
   public void before();
   
   /**
-   * Reads a line on the input stream.
+   * Reads a line from the standard output.
    * 
    * @param line The line read.
    */
   public void read(final String line);
+  
+  /**
+   * Reads a line from the error output.
+   * 
+   * @param line The line read.
+   */
+  public void readError(final String line);
 
 }
