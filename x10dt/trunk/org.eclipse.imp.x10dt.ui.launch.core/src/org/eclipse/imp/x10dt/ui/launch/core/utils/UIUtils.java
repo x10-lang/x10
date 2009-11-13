@@ -51,20 +51,38 @@ public final class UIUtils {
   }
   
   /**
-   * Reads an input stream within another thread for leaving the hand on the UI thread.
+   * Reads the output and error streams within another thread to leave the hand on the process continuation.
    * 
-   * @param inputStream The input stream to read.
+   * @param outputStream The stream coming from the process standard output.
+   * @param errorStream The stream coming from the process error output.
    * @param listener The input listener to consider.
    */
-  public static void printStream(final InputStream inputStream, final IInputListener listener) {
-    final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+  public static void printStream(final InputStream outputStream, final InputStream errorStream, 
+                                 final IInputListener listener) {
+    final BufferedReader outReader = new BufferedReader(new InputStreamReader(outputStream));
     new Thread(new Runnable() {
       
       public void run() {
         try {
           String line;
-          while ((line = reader.readLine()) != null) {
+          while ((line = outReader.readLine()) != null) {
             listener.read(line);
+          }
+        } catch (IOException except) {
+          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
+        }
+      }
+      
+    }).start();
+
+    final BufferedReader errReader = new BufferedReader(new InputStreamReader(errorStream));
+    new Thread(new Runnable() {
+      
+      public void run() {
+        try {
+          String line;
+          while ((line = errReader.readLine()) != null) {
+            listener.readError(line);
           }
         } catch (IOException except) {
           LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
