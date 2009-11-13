@@ -580,7 +580,9 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   }
   
   private File getLocalFile(final URL url) throws URISyntaxException, IOException {
-    return new File(FileLocator.resolve(url).toURI());
+    URL resolved = FileLocator.resolve(url);
+    resolved = new URL(resolved.getProtocol(), resolved.getHost(), resolved.getPort(), resolved.getFile().replace(" ", "%20")); //$NON-NLS-1$//$NON-NLS-2$
+	return new File(resolved.toURI());
   }
   
   private String getPGASDistLoc() {
