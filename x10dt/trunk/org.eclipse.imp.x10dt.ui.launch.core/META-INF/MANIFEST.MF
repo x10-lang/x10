@@ -31,5 +31,4 @@ Export-Package: org.eclipse.imp.x10dt.ui.launch.core,
  org.eclipse.imp.x10dt.ui.launch.core.platform_conf,
  org.eclipse.imp.x10dt.ui.launch.core.preferences,
  org.eclipse.imp.x10dt.ui.launch.core.utils,
- org.eclipse.imp.x10dt.ui.launch.core.wizards,
- org.eclipse.imp.x10dt.ui.launch.core.wizards.validation
+ org.eclipse.imp.x10dt.ui.launch.core.wizards

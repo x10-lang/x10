@@ -171,14 +171,6 @@ public class LaunchMessages extends NLS {
 
   public static String DBG_Attributes_1;
   
-  public static String LPCC_CompilErrorWithoutPos;
-
-  public static String LPCC_CompilErrorWithPos;
-
-  public static String LPCC_GeneratingFilesMsg;
-
-  public static String LPCC_NoGeneratedFilesError;
-
   public static String XPCPP_NoResManagerStartedError;
 
   public static String XPCPP_NoTempDirWarning;

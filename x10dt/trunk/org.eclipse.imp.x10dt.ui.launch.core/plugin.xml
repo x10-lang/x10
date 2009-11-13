@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="platform_conf_checker" name="platform_conf_checker" schema="schema/platform_conf_checker.exsd"/>
    <extension-point id="x10_compiler_extinfo" name="x10_compiler_extinfo" schema="schema/x10_compiler_extinfo.exsd"/>
    <extension
          point="org.eclipse.ui.preferencePages">
