@@ -201,31 +201,21 @@ throw a \Xcd{NullPointerException}. The programmer may wish to use
  hierarchy, providing structs only in those well-thought situations
  where concrete types are appropriate.
 
- \subsection{Examples}
+\section{Compatibility Note}
 
-Here is an abbreviated program for \Xcd{Complex}:
-\begin{x10}
-struct complex implements Equality {
-  val r: int;
-  val i: int;
-  def this(x: int, y: int) {
-    this.r=x;
-    this.i=y;
-  }
-  def toString()= x + " i*" + y;
-  def r()=r;
-  def i()=i;  
-  final def hashCode() = r+i;
-  final def equals(o:complex) = this==o;
-  final operator this + (o:complex) = complex(r+o.r,i+o.i);
-  final operator this * (o:complex) = complex(r*o.r-i*o.i,r*o.i+i*o.r);
-  final operator - this = complex(-r,-i);
-}
-\end{x10}
+A value class in \Xten{} v1.7 can often be translated into a struct in \Xten{} 2.0. The crucial conditions to be checked manually are: \begin{itemize}
+\item  A struct is of bounded size. 
+\item  Each method is global. 
+\item  The class is final.
+\end{itemize}
  
 
-An example illustrating pairing:
+If these conditions are not met, the value class should be converted
+into a class with \Xcd{global} fields and methods.
 
+\subsection{Examples}
+
+An example illustrating pairing:
 \begin{x10}
 struct pair[S,T] implements Equality {
   val x: S;
@@ -252,17 +242,86 @@ The following types all make sense:
 \end{itemize}
 \emph{EndOfExample.}
 
+The definition of \Xcd{x10.lang.Complex}:
+\begin{x10}
+public struct Complex {
+    public val re:Double;
+    public val im:Double;
+    public const ZERO = Complex(0.0, 0.0);
+    public const ONE = Complex(1.0, 0.0);
+    public const I = Complex(0.0, 1.0);
+    public const INF = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+    public const NaN = Complex(Double.NaN, Double.NaN);
+    public def this(real:Double, imaginary:Double) {
+        this.re = real;
+        this.im = imaginary;
+    }
+    public operator this + (that:Complex) = Complex(re + that.re, im + that.im);
+    public operator this + (that:Double)  = Complex(re + that, im);
+    public operator this - (that:Complex) = Complex(re - that.re, im - that.im);
+    public operator this - (that:Double) = Complex(re - that, im);
+    public operator this * (that:Complex):Complex =
+               Complex(re * that.re - im * that.im, re * that.im + im * that.re);
+    public operator this * (that:Double) = Complex(re * that, im * that);
 
-\section{Compatibility Note}
+    /**
+     * Gets the quotient of this complex number and the given complex number.
+     * Uses Smith's algorithm <a href="http://doi.acm.org/10.1145/368637.368661"/>
+     * TODO: consider using Priest's algorithm <a href="http://doi.acm.org/10.1145/1039813.1039814"/>
+     * @return the quotient of this complex number and the given complex number
+     */
+    public operator this / (that:Complex):Complex {
+        if (isNaN() || that.isNaN()) {
+            return Complex.NaN;
+        }
+        val c:Double = that.re;
+        val d:Double = that.im;
+        if (c == 0.0 && d == 0.0) {
+            return Complex.NaN;
+        }
+        if (that.isInfinite() && !isInfinite()) {
+            return Complex.ZERO;
+        }
+        if (Math.abs(d) <= Math.abs(c)) {
+            if (c == 0.0) {
+                return Complex(im/d, -re/c);
+            }
+            val r:Double =  d / c;
+            val denominator:Double = c + d * r;
+            return Complex((re + im * r) / denominator,
+                           (im - re * r) / denominator);
+        } else {
+            if (d == 0.0) {
+                return Complex(re/c, im/c);
+            }
+            val r:Double = c / d;
+            val denominator:Double = c * r + d;
+            return Complex((re * r + im) / denominator,
+                           (im * r - re) / denominator);
+        }
+    }
+    public operator this / (that:Double) = Complex(re / that, im / that);
+    public def conjugate() = isNane() ? Complex.NaN : Complex(re, -im);
+    public operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
+    public def abs():Double {
+        if (isNaN()) {
+            return Double.NaN;
+        }
+        if (isInfinite()) {
+            return Double.POSITIVE_INFINITY;
+        }
+        if (im == 0.0) {
+            return Math.abs(re);
+        } else if (re == 0.0) {
+            return Math.abs(im);
+        } else {
+            // use hypot to avoid unnecessary under/overflow
+            return Math.hypot(re, im);
+        }
+    }
+    public def isNaN()= re.isNaN() || im.isNaN();        
+    public def isInfinite() = !isNaN() && (re.isInfinite() || im.isInfinite();
+    public def toString() = (re + " + " + im + "i");
 
-A value class in \Xten{} v1.7 can often be translated into a struct in \Xten{} 2.0. The crucial conditions to be checked manually are: \begin{itemize}
-\item  A struct is of bounded size. 
-\item  Each method is global. 
-\item  The class is final.
-\end{itemize}
- 
-
-If these conditions are not met, the value class should be converted
-into a class with \Xcd{global} fields and methods.
-
-  
+}
+\end{x10}
