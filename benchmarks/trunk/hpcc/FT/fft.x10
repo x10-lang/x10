@@ -17,7 +17,6 @@ class fft {
         val A:Rail[Double]!;
         val B:Rail[Double]!;
         val C:Rail[Double]!;
-        val Cs:PlaceLocalHandle[Rail[Double]];
         val D:Rail[Double]!;
         val I:Int;
         val nRows:Int;
@@ -27,11 +26,11 @@ class fft {
         val fftwInversePlan:Long;
         val world:Comm! = Comm.WORLD();
 
-        def this(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]) {
-            this.I = I; this.nRows = nRows; this.N = N; this.SQRTN = SQRTN; this.Cs = Cs;
+        def this(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean) {
+            this.I = I; this.nRows = nRows; this.N = N; this.SQRTN = SQRTN;
             A = Rail.makeVar[Double](localSize);
             B = Rail.makeVar[Double](localSize);
-            C = Cs.get();
+            C = Rail.makeVar[Double](localSize);
             D = verify ? Rail.makeVar[Double](localSize) : null;
             fftwPlan = create_plan(SQRTN, -1, 0);
             fftwInversePlan = create_plan(SQRTN, 1, 0);
@@ -50,8 +49,8 @@ class fft {
             }
         }
 
-        static def make(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean, Cs:PlaceLocalHandle[Rail[Double]]):Block! {
-            val block = new Block(I, nRows, localSize, N, SQRTN, verify, Cs);
+        static def make(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean):Block! {
+            val block = new Block(I, nRows, localSize, N, SQRTN, verify);
             block.init(localSize, verify);
             finish ateach ((p) in unique) {} // initialize transport
             return block;
@@ -81,7 +80,9 @@ class fft {
             val epsilon = 1.0e-15;
             val threshold = epsilon*Math.log(N)/Math.log(2)*16;
             for (var q:Int=0; q<A.length; ++q) {
-                if (Math.abs(A(q)-D(q)) > threshold) Console.ERR.println("Error at "+q+" "+A(q).toString()+" "+D(q).toString());
+                if (Math.abs(A(q)-D(q)) > threshold) {
+                    Console.ERR.println("Error at "+q+" "+A(q).toString()+" "+D(q).toString());
+                }
             }
         }
 
@@ -108,9 +109,8 @@ class fft {
                         }
                     }
                 }
-                B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize);
             }                   
-	    world.barrier();
+            world.alltoall(B, C, chunkSize);
         }
 
         def scatter() {
@@ -138,40 +138,31 @@ class fft {
         }
     }
 
-    static def transpose_A(FFT:PlaceLocalHandle[Block]) {
-        finish ateach ((p) in unique) FFT.get().transpose();
-        finish ateach ((p) in unique) FFT.get().scatter();
-    }
-
-    static def bytwiddle_A(FFT:PlaceLocalHandle[Block], sign:Int) {
-        finish ateach ((p) in unique) FFT.get().bytwiddle(sign);
-    }
-
-    static def rowFFTS_A(FFT:PlaceLocalHandle[Block], fwd:Boolean) { 
-        finish ateach ((p) in unique) FFT.get().rowFFTS(fwd);
-    }
-
     static def format(t:Long) = (t as Double) * 1.0e-9;
 
     static def compute(FFT:PlaceLocalHandle[Block], fwd:Boolean, N:Long) {
+
         val timers = Rail.makeVar[Long](7);
-        timers(0)=System.nanoTime(); transpose_A(FFT);
-        timers(1)=System.nanoTime(); rowFFTS_A(FFT, fwd);
-        timers(2)=System.nanoTime(); transpose_A(FFT);
-        timers(3)=System.nanoTime(); bytwiddle_A(FFT, fwd ? 1 : -1);
-        timers(4)=System.nanoTime(); rowFFTS_A(FFT, fwd);
-        timers(5)=System.nanoTime(); transpose_A(FFT);
-        timers(6)=System.nanoTime(); 
+
+        timers(0) = System.nanoTime();
+        finish ateach ((p) in unique) {
+            FFT.get().transpose();
+            FFT.get().scatter();
+            FFT.get().rowFFTS(fwd);
+            FFT.get().transpose();
+            FFT.get().scatter();
+            FFT.get().bytwiddle(fwd ? 1 : -1);
+            FFT.get().rowFFTS(fwd);
+            FFT.get().transpose();
+            FFT.get().scatter();
+        }
+        timers(1) = System.nanoTime();
 
         // Output
-        val secs = format(timers(6) - timers(0));
+        val secs = format(timers(1) - timers(0));
         val Gigaflops = 1.0e-9*N*5*Math.log(N)/Math.log(2)/secs;
         Console.OUT.println("execution time=" + secs + " secs" + " Gigaflops=" + Gigaflops);
-        val steps = ["transpose1", "row_ffts1", "transpose2", "twiddle", "row_ffts2", "transpose3"];
-        for (var i:Int = 0; i < steps.length; ++i) {
-            Console.OUT.println("Step " + steps(i) + " took " + format(timers(i+1) - timers(i)) + " s");
-        }
-        
+
         return secs;        
     }
         
@@ -198,8 +189,8 @@ class fft {
         }
 
         // Initialization
-        val Cs = PlaceLocalStorage.createDistributedObject[Rail[Double]](unique, ()=>Rail.makeVar[Double](localSize));
-        val FFT = PlaceLocalStorage.createDistributedObject[Block](unique, ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify, Cs));
+        val FFT = PlaceLocalStorage.createDistributedObject[Block](unique, 
+                ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify));
 
         // FFT
         Console.OUT.println("Start FFT");

@@ -74,6 +74,17 @@ class Comm : public x10::lang::Value  {
      x10::runtime::Runtime::decreaseParallelism(1);
     }
 
+    template<typename T>
+    void alltoall (T* sbuf, T* rbuf, signed int len)
+    {
+    
+     void *r = __pgasrt_tspcoll_ialltoall((unsigned)FMGL(my_id),  (void*)sbuf, (void*)rbuf, 
+             len*sizeof(T));
+     x10::runtime::Runtime::increaseParallelism();
+     while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
+     x10::runtime::Runtime::decreaseParallelism(1);
+    }
+
    template<typename T>
     T reduce(T val, __pgasrt_ops_t OP,  __pgasrt_dtypes_t TYPE) {
     T val2;
