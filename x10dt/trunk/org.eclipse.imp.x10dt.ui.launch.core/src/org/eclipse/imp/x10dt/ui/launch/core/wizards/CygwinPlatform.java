@@ -29,7 +29,7 @@ final class CygwinPlatform extends AbstractDefaultX10Platform implements IDefaul
   }
 
   public String getCompilerOptions() {
-    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse"; //$NON-NLS-1$
     if (is64Arch()) {
       return cmpOpts + " -m64"; //$NON-NLS-1$
     } else {
@@ -42,11 +42,11 @@ final class CygwinPlatform extends AbstractDefaultX10Platform implements IDefaul
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lgc -lxlpgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
+    return "-lx10 -lxlpgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -msse2 -mfpmath=sse"; //$NON-NLS-1$
     if (is64Arch()) {
       return linkOpts + " -m64"; //$NON-NLS-1$
     } else {
