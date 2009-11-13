@@ -13,15 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
@@ -39,8 +35,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.wizards.validation.AbstractPlatformConfChecker;
-import org.eclipse.imp.x10dt.ui.launch.core.wizards.validation.IPlatformConfChecker;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -223,40 +217,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     this.fLinkingLibsText = WizardUtils.createLabelAndText(composite2, Messages.PCDWP_LinkingLibText, listener);
   }
   
-  private IPlatformConfChecker createPlatformConfChecker(final ELanguage language, final IResourceManager resourceManager) {
-    final IExtensionPoint point = Platform.getExtensionRegistry().getExtensionPoint(PLATFORM_CONF_EXTENSION_POINT_ID);
-
-    IConfigurationElement targetConfigElement = null;
-    final String langName = language.name();
-    for (final IConfigurationElement configElement : point.getConfigurationElements()) {
-      if (configElement.getAttribute(LANGUAGE_EP_ATTR).equals(langName)) {
-        targetConfigElement = configElement;
-        break;
-      }
-    }
-    if (targetConfigElement == null) {
-      // We failed to find the checker, so let's give up on the validation process.
-      setErrorMessage(NLS.bind(Messages.PCDWP_NoCheckerForLanguage, language));
-      this.fIsValidated = true;
-      updateMessage();
-      return null;
-    }
-    
-    final String executableAttr = (this.fIsLocal) ? LOCAL_EP_ATTR : REMOTE_EP_ATTR;
-    try {
-      final Object clazz = targetConfigElement.createExecutableExtension(executableAttr);
-      final AbstractPlatformConfChecker checker = (AbstractPlatformConfChecker) clazz;
-      checker.defineRemoteServices(resourceManager);
-      return checker;
-    } catch (CoreException except) {
-      // We failed to find the checker, so let's give up on the validation process.
-      setErrorMessage(Messages.PCDWP_ExtensionPointAccessError + except.getStatus().getMessage());
-      this.fIsValidated = true;
-      updateMessage();
-      return null;
-    }
-  }
-  
   private void createResourceManager(final Composite parent) {
     final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
@@ -271,10 +231,12 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     this.fResManagerCombo = new Combo(composite, SWT.READ_ONLY);
     this.fResManagerCombo.setFont(composite.getFont());
     this.fResManagerCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    int nbStarted = 0;
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
         this.fResManagerCombo.add(resourceManager.getName());
         this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
+        ++nbStarted;
       }
     }
     this.fResManagerCombo.addSelectionListener(new SelectionListener() {
@@ -291,7 +253,9 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       }
       
     });
-    if ((this.fDefaultPlatformConf != null) && (this.fDefaultPlatformConf.getResourceManagerId() != null)) {
+    if (nbStarted == 1) {
+      this.fResManagerCombo.select(0);
+    } else if ((this.fDefaultPlatformConf != null) && (this.fDefaultPlatformConf.getResourceManagerId() != null)) {
       int index = -1;
       for (final IResourceManager resourceManager : universe.getResourceManagers()) {
         if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
@@ -399,10 +363,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
         final IResourceManager resourceManager = universe.getResourceManager(resId);
         
         final ELanguage language = (PlatformConfDefWizardPage.this.fIsCplusPlus) ? ELanguage.CPP : ELanguage.JAVA;
-        final IPlatformConfChecker checker = createPlatformConfChecker(language, resourceManager);
-        if (checker == null) {
-          return;
-        }
+        final IPlatformConfChecker checker = new PlatformConfChecker(resourceManager);
         
         final String compiler = PlatformConfDefWizardPage.this.fCompilerText.getText().trim();
         final String compilingOpts = PlatformConfDefWizardPage.this.fCompilerOptsText.getText().trim();
@@ -440,7 +401,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
               }
               if (returnArchivingMsg != null) {
                 monitor.done();
-                throw new InterruptedException(returnArchivingMsg);
+                throw new ValidationException(Messages.PCDWP_ArchivingFailureMsg, returnArchivingMsg);
               }
               if (hasLinkingStep) {
                 String returnLinkMsg = null;
@@ -453,12 +414,12 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
                 }
                 if (returnLinkMsg != null) {
                   monitor.done();
-                  throw new InterruptedException(returnLinkMsg);
+                  throw new ValidationException(Messages.PCDWP_LinkingFailureMsg, returnLinkMsg);
                 }
               }
             } else {
               monitor.done();
-              throw new InterruptedException(returnCompilMsg);
+              throw new ValidationException(Messages.PCDWP_CompilationFailureMsg, returnCompilMsg);
             }
           }          
         };
@@ -468,20 +429,18 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
           PlatformConfDefWizardPage.this.fIsValidated = true;
           PlatformConfDefWizardPage.this.fValidationBt.setEnabled(false);
           updateMessage();
-        } catch (InvocationTargetException except) {
+        } catch (ValidationException except) {
+          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_ValidationErrorDialogTitle, 
+                                                   except.getValidationStepMessage(), 
+                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, except.getMessage()),
+                                                   getTestCode());
+        } catch (Exception except) {
           DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_InternalErrorDialogTitle,
                                                    Messages.PCDWP_InternalErrorDialogMsg, 
                                                    new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, 
                                                               except.getCause().getMessage(), 
                                                               except.getCause()), getTestCode());
-          PlatformConfDefWizardPage.this.fIsValidated = true;
-          updateMessage();
-        } catch (InterruptedException except) {
-          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_ValidationErrorDialogTitle, 
-                                                   Messages.PCDWP_ValidationErrorDialogMsg, 
-                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, except.getMessage()),
-                                                   getTestCode());
-        }
+        } 
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -579,10 +538,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     updateMessage();
   }
   
-  private File getLocalFile(final URL url) throws URISyntaxException, IOException {
-    URL resolved = FileLocator.resolve(url);
-    resolved = new URL(resolved.getProtocol(), resolved.getHost(), resolved.getPort(), resolved.getFile().replace(" ", "%20")); //$NON-NLS-1$//$NON-NLS-2$
-	return new File(resolved.toURI());
+  private File getLocalFile(final URL url) throws IOException {
+    return new File(FileLocator.resolve(url).getFile());
   }
   
   private String getPGASDistLoc() {
@@ -779,6 +736,28 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     
   }
   
+  private static final class ValidationException extends InterruptedException {
+    
+    ValidationException(final String validationStepMessage, final String errorMessage) {
+      super(errorMessage);
+      this.fValidationStepMessage = validationStepMessage;
+    }
+    
+    // --- Internal services
+    
+    String getValidationStepMessage() {
+      return this.fValidationStepMessage;
+    }
+    
+    // --- Fields
+    
+    private final String fValidationStepMessage;
+    
+    private static final long serialVersionUID = -7660712314030364087L;
+
+    
+  }
+  
   // --- Fields
   
   private final IX10PlatformConfiguration fDefaultPlatformConf;
@@ -832,13 +811,5 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private static final String INCLUDE_DIR = "include"; //$NON-NLS-1$
   
   private static final String LIB_DIR = "lib"; //$NON-NLS-1$
-  
-  private static final String PLATFORM_CONF_EXTENSION_POINT_ID = "org.eclipse.imp.x10dt.ui.launch.core.platform_conf_checker"; //$NON-NLS-1$
-  
-  private static final String LANGUAGE_EP_ATTR = "language"; //$NON-NLS-1$
-  
-  private static final String LOCAL_EP_ATTR = "local"; //$NON-NLS-1$
-  
-  private static final String REMOTE_EP_ATTR = "remote"; //$NON-NLS-1$
   
 }
