@@ -206,7 +206,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       for (final String str : command) {
         cmdBuilder.append(str).append(' ');
       }
-      UIUtils.printStream(process.getErrorStream(), new IInputListener() {
+      UIUtils.printStream(process.getInputStream(), process.getErrorStream(), new IInputListener() {
         
         public void after() {
         }
@@ -216,6 +216,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         }
         
         public void read(final String line) {
+        }
+        
+        public void readError(final String line) {
           if (this.fCounter == 0) {
             mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmdBuilder.toString()));
             this.fCounter = 1;
