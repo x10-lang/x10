@@ -9,6 +9,7 @@
     <property name="x10.timestamp" value="${x10.version}"/> <!-- override if version is, e.g., "svn head" -->
     <property name="x10.platform" value="cygwin_x86"/>
     <property name="x10.dist.location" location="${tmp}"/>
+    <property name="pgas.location" location="${tmp}"/>
     <property name="pgas.tarball" value="pgas-${x10.timestamp}_${x10.platform}.tgz"/>
     <property name="pgas.tarball.url" value="http://dist.codehaus.org/x10/binaryReleases/${x10.version}/${pgas.tarball}"/>
     <property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/>
@@ -21,11 +22,27 @@
         <mkdir dir="${tmp}"/>
         <mkdir dir="${incdir}"/>
         <mkdir dir="${lib}"/>
+        <condition property="pgas.already.expanded" value="true">
+            <not>
+                <equals arg1="${pgas.location}" arg2="${tmp}"/>
+            </not>
+        </condition>
         <condition property="local.pgas.tarball" value="${env.LOCAL_PGAS_TARBALL}">
-            <isset property="env.LOCAL_PGAS_TARBALL"/>
+            <or>
+                <isset property="env.LOCAL_PGAS_TARBALL"/>
+                <isset property="pgas.already.expanded"/>
+            </or>
+        </condition>
+        <condition property="x10.already.expanded" value="true">
+            <not>
+                <equals arg1="${x10.dist.location}" arg2="${tmp}"/>
+            </not>
         </condition>
         <condition property="local.x10.tarball" value="${env.LOCAL_X10_TARBALL}">
-            <isset property="env.LOCAL_X10_TARBALL"/>
+            <or>
+                <isset property="env.LOCAL_X10_TARBALL"/>
+                <isset property="x10.already.expanded"/>
+            </or>
         </condition>
     </target>
     <target name="clean">
@@ -41,9 +58,9 @@
         <delete>
             <fileset dir="${incdir}">
                 <include name="*.h"/>
-		<include name="**/*.h"/>
+                <include name="**/*.h"/>
                 <include name="*.inc"/>
-		<include name="**/*.inc"/>
+                <include name="**/*.inc"/>
                 <exclude name="dummy.file"/>
             </fileset>
         </delete>
@@ -55,19 +72,25 @@
     <target name="distclean" depends="clean">
         <delete dir="${tmp}"/>
     </target>
-    <target name="pgas-tar" depends="init" unless="local.pgas.tarball">
+    <target name="pgas-tarball-download" depends="init" unless="local.pgas.tarball">
         <mkdir dir="${tmp}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${pgas.tarball.url}" dest="${tmp}/${pgas.tarball}"/>
-        <untar src="${tmp}/${pgas.tarball}" dest="${tmp}" compression="gzip">
+        <property name="local.pgas.tarball" location="${tmp}/${pgas.tarball}"/>
+    </target>
+    <target name="expand-pgas-tarball" depends="init,pgas-tarball-download" unless="pgas.already.expanded">
+        <untar src="${local.pgas.tarball}" dest="${tmp}" compression="gzip">
             <patternset>
                 <include name="lib/libxlpgas_${x10.transport}.a"/>
             </patternset>
         </untar>
     </target>
-    <target name="x10-tar" depends="init" unless="local.x10.tarball">
+    <target name="x10-tarball-download" depends="init" unless="local.x10.tarball">
         <mkdir dir="${tmp}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${x10.tarball.url}" dest="${tmp}/${x10.tarball}"/>
-        <untar src="${tmp}/${x10.tarball}" dest="${tmp}" compression="gzip">
+        <property name="local.x10.tarball" location="${tmp}/${x10.tarball}"/>
+    </target>
+    <target name="expand-x10-tarball" depends="init,x10-tarball-download" unless="x10.already.expanded">
+        <untar src="${local.x10.tarball}" dest="${tmp}" compression="gzip">
             <patternset>
                 <include name="include/**"/>
                 <include name="lib/libx10.a"/>
@@ -76,15 +99,19 @@
             </patternset>
         </untar>
     </target>
-    <target name="download" depends="init,pgas-tar,x10-tar"/>
-    <target name="update" depends="init,download">
+    <target name="download" depends="init,pgas-tarball-download,x10-tarball-download"/>
+    <target name="expand" depends="init,expand-pgas-tarball,expand-x10-tarball"/>
+    <target name="update" depends="init,expand">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <copy todir="${incdir}">
-            <fileset dir="${tmp}/include" includes="**"/>
+            <fileset dir="${x10.dist.location}/include" includes="**"/>
         </copy>
         <copy todir="${lib}">
-            <fileset dir="${tmp}/lib" includes="**"/>
+            <fileset dir="${x10.dist.location}/lib" includes="**"/>
+            <fileset dir="${pgas.location}/lib" includes="**"/>
         </copy>
     </target>
     <target name="dist" depends="init,update"/>
 </project>
+<!-- vim:tabstop=4:shiftwidth=4:expandtab
+-->
