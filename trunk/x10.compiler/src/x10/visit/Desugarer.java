@@ -386,6 +386,9 @@ public class Desugarer extends ContextVisitor {
                 synth.toBlock(body), xContext());
         exprs.add(closure);
         types.add(closure.closureDef().asType());
+        Expr free = (Expr) xnf.BooleanLit(pos, true).typeCheck(this);
+        exprs.add(free);
+        types.add(free.type());
         Stmt result = xnf.Eval(pos,
                 synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs, 
                         xts.Void(), types, xContext()));
