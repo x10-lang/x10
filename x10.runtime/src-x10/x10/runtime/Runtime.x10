@@ -137,23 +137,40 @@ public final class Runtime {
 	}
 
 	public static def runAsync(place:Place, body:()=>Void):Void {
+		runAsync(place, body, false);
+	}
+
+	public static def runAsync(place:Place, body:()=>Void, free:Boolean):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(place);
 		val ok = safe();
 		if (place.id == Thread.currentThread().locInt()) {
-			execute(new Activity(body, state, ok));
+			execute(new Activity(body, state, ok, free));
 		} else {
 		    runtime().finishStates.put(state);
 	        val rid = state.rid();
+            var closure:()=>Void;
+//            val closure =
+//                ok ? (free ? ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, true))
+//                           : ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, false)))
+//                   : (free ? ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, true))
+//                           : ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, false)));
+            // Workaround for XTENLANG_614
             if (ok) {
-                val closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true));
-                NativeRuntime.runAt(place.id, closure);
-                NativeRuntime.dealloc(closure);
+                if (free) {
+                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, true));
+                } else {
+                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, false));
+                }
             } else {
-                val closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false));
-                NativeRuntime.runAt(place.id, closure);
-                NativeRuntime.dealloc(closure);
+                if (free) {
+                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, true));
+                } else {
+                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, false));
+                }
             }
+            NativeRuntime.runAt(place.id, closure);
+            NativeRuntime.dealloc(closure);
 		}
 	}
 
@@ -165,9 +182,13 @@ public final class Runtime {
 	}
 
 	public static def runAsync(body:()=>Void):Void {
+		runAsync(body, false);
+	}
+
+	public static def runAsync(body:()=>Void, free:Boolean):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(here);
-		execute(new Activity(body, state, safe()));
+		execute(new Activity(body, state, safe(), free));
 	}
 	
 	/**
