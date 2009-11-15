@@ -96,8 +96,10 @@ lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets
 	$(CP) $(CUSTOM_PGAS)/bin/* bin
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(SOCKETS_TGZ):
+$(SOCKETS_TGZ).phony:
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
+
+$(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 
 lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xvf -
@@ -111,7 +113,8 @@ etc/x10rt_pgas_sockets.properties:
 	echo "LDLIBS=$(SOCKETS_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_sockets.properties
-.PHONY: $(SOCKETS_TGZ)
+.PHONY: $(SOCKETS_TGZ).phony
+TGZ += $(SOCKETS_TGZ).phony
 
 endif
 
@@ -134,8 +137,10 @@ lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a inc
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(LAPI_TGZ):
+$(LAPI_TGZ).phony:
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
+
+$(LAPI_TGZ): $(LAPI_TGZ).phony
 
 lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xvf -
@@ -149,7 +154,8 @@ etc/x10rt_pgas_lapi.properties:
 	echo "LDLIBS=$(LAPI_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_lapi.properties
-.PHONY: $(LAPI_TGZ)
+.PHONY: $(LAPI_TGZ).phony
+TGZ += $(LAPI_TGZ).phony
 
 endif
 
@@ -168,8 +174,10 @@ lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a inclu
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-$(BGP_TGZ):
+$(BGP_TGZ).phony:
 	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
+
+$(BGP_TGZ): $(BGP_TGZ).phony
 
 lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
 	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xvf -
@@ -183,7 +191,8 @@ etc/x10rt_pgas_bgp.properties:
 	echo "LDLIBS=$(BGP_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_bgp.properties
-.PHONY: $(BGP_TGZ)
+.PHONY: $(BGP_TGZ).phony
+TGZ += $(BGP_TGZ).phony
 
 endif
 

@@ -46,7 +46,7 @@ install: $(LIBS) $(PROPERTIES)
 
 tests: $(TESTS)
 
-all: $(TESTS) $(PROPERTIES) $(LIBS)
+all: $(TESTS) $(PROPERTIES) $(LIBS) $(TGZ)
 
 debug:
 	echo X10RT_PLATFORM = $(X10RT_PLATFORM)
