@@ -15,6 +15,10 @@ namespace x10aux {
     typedef ref<x10::lang::Ref> (*Deserializer)(deserialization_buffer &buf);
     template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
+    typedef x10_ulong (*CudaPre)(deserialization_buffer &buf, place p,
+                                           size_t &blocks, size_t &threads, size_t &shm);
+    template<> inline const char *typeName<CudaPre>() { return "CudaPre"; }
+
     typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
     template<> inline const char *typeName<BufferFinder>() { return "BufferFinder"; }
 
@@ -37,7 +41,12 @@ namespace x10aux {
             Notifier cuda_put_notifier;
             BufferFinder cuda_get_bfinder;
             Notifier cuda_get_notifier;
+
             Deserializer deser;
+            CudaPre cuda_pre;
+            const char *cubin;
+            const char *kernel;
+
             bool has_mt;
             x10aux::msg_type mt;
             x10aux::serialization_id_t sid;
@@ -62,8 +71,16 @@ namespace x10aux {
         ref<x10::lang::Ref> create_(deserialization_buffer &buf);
         ref<x10::lang::Ref> create_(deserialization_buffer &buf, serialization_id_t id);
 
-        static serialization_id_t addDeserializer(Deserializer deser, bool is_async=false);
-        serialization_id_t addDeserializer_(Deserializer deser, bool is_async);
+        static serialization_id_t addDeserializer (Deserializer deser, bool is_async=false,
+                                                   CudaPre cuda_pre = NULL,
+                                                   const char *cubin = NULL,
+                                                   const char *kernel = NULL);
+        serialization_id_t addDeserializer_ (Deserializer deser, bool is_async,
+                                             CudaPre cuda_pre,
+                                             const char *cubin, const char *kernel);
+
+        static CudaPre getCudaPre(serialization_id_t id);
+        CudaPre getCudaPre_(serialization_id_t id);
 
         static serialization_id_t addPutFunctions(BufferFinder bfinder, Notifier notifier,
                                                  BufferFinder cuda_bfinder, Notifier cuda_notifier);
@@ -101,54 +118,48 @@ namespace x10aux {
         void registerHandlers_(void);
     };
 
-    inline BufferFinder DeserializationDispatcher::getPutBufferFinder (serialization_id_t id) {
-        return it->getPutBufferFinder_(id); 
-    }
+    inline CudaPre DeserializationDispatcher::getCudaPre (serialization_id_t id)
+    { return it->getCudaPre_(id); }
 
-    inline BufferFinder DeserializationDispatcher::getGetBufferFinder (serialization_id_t id) {
-        return it->getGetBufferFinder_(id); 
-    }
 
-    inline Notifier DeserializationDispatcher::getPutNotifier (serialization_id_t id) {
-        return it->getPutNotifier_(id); 
-    }
+    inline BufferFinder DeserializationDispatcher::getPutBufferFinder (serialization_id_t id)
+    { return it->getPutBufferFinder_(id); }
 
-    inline Notifier DeserializationDispatcher::getGetNotifier (serialization_id_t id) {
-        return it->getGetNotifier_(id); 
-    }
+    inline BufferFinder DeserializationDispatcher::getGetBufferFinder (serialization_id_t id)
+    { return it->getGetBufferFinder_(id); }
 
-    inline BufferFinder DeserializationDispatcher::getCudaPutBufferFinder (serialization_id_t id) {
-        return it->getCudaPutBufferFinder_(id); 
-    }
+    inline Notifier DeserializationDispatcher::getPutNotifier (serialization_id_t id)
+    { return it->getPutNotifier_(id); }
 
-    inline BufferFinder DeserializationDispatcher::getCudaGetBufferFinder (serialization_id_t id) {
-        return it->getCudaGetBufferFinder_(id); 
-    }
+    inline Notifier DeserializationDispatcher::getGetNotifier (serialization_id_t id)
+    { return it->getGetNotifier_(id); }
 
-    inline Notifier DeserializationDispatcher::getCudaPutNotifier (serialization_id_t id) {
-        return it->getCudaPutNotifier_(id); 
-    }
+    inline BufferFinder DeserializationDispatcher::getCudaPutBufferFinder (serialization_id_t id)
+    { return it->getCudaPutBufferFinder_(id); }
 
-    inline Notifier DeserializationDispatcher::getCudaGetNotifier (serialization_id_t id) {
-        return it->getCudaGetNotifier_(id); 
-    }
+    inline BufferFinder DeserializationDispatcher::getCudaGetBufferFinder (serialization_id_t id)
+    { return it->getCudaGetBufferFinder_(id); }
 
-    inline x10aux::msg_type DeserializationDispatcher::getMsgType (serialization_id_t id) {
-        return it->getMsgType_(id); 
-    }
+    inline Notifier DeserializationDispatcher::getCudaPutNotifier (serialization_id_t id)
+    { return it->getCudaPutNotifier_(id); }
 
-    inline serialization_id_t DeserializationDispatcher::getSerializationId (x10aux::msg_type id) {
-        return it->getSerializationId_(id); 
-    }
+    inline Notifier DeserializationDispatcher::getCudaGetNotifier (serialization_id_t id)
+    { return it->getCudaGetNotifier_(id); }
+
+
+    inline x10aux::msg_type DeserializationDispatcher::getMsgType (serialization_id_t id)
+    { return it->getMsgType_(id); }
+
+    inline serialization_id_t DeserializationDispatcher::getSerializationId (x10aux::msg_type id)
+    { return it->getSerializationId_(id); }
+
 
     template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf,
-                                                               serialization_id_t id) {
-        return static_cast<ref<T> >(it->create_(buf,id)); 
-    }
+                                                               serialization_id_t id)
+    { return static_cast<ref<T> >(it->create_(buf,id)); }
 
-    template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf) {
-        return static_cast<ref<T> >(it->create_(buf)); 
-    }
+    template<class T> ref<T> DeserializationDispatcher::create(deserialization_buffer &buf)
+    { return static_cast<ref<T> >(it->create_(buf)); }
     
     template<> inline const char *typeName<DeserializationDispatcher>()
     { return "DeserializationDispatcher"; }

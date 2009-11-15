@@ -15,7 +15,7 @@
 
 #include <cuda.h> // Proprietory nvidia header
 
-#define TRACE 1
+//#define TRACE 1
 
 namespace {
 
@@ -143,7 +143,7 @@ namespace {
         int blocks;
         int threads;
         int shm;
-        void *arg; // dev ptr
+        void *arg;
         x10rt_cuda_kernel (x10rt_msg_params &p_)
           : x10rt_cuda_base_op(p_), blocks(0), threads(0), shm(0), arg(0)
         { }
@@ -224,21 +224,16 @@ namespace {
 
     };
 
-    typedef void *kernel_pre(const x10rt_msg_params &p, size_t &blocks, size_t &threads, size_t &shm);
-    typedef void kernel_post(const x10rt_msg_params &);
-    typedef void *copy_hh(const x10rt_msg_params &, x10rt_copy_sz len);
-    typedef void copy_ch(const x10rt_msg_params &, x10rt_copy_sz len);
-
     struct x10rt_functions {
         union {
             struct {
-                kernel_pre *pre;
+                x10rt_cuda_pre *pre;
                 CUfunction kernel;
-                kernel_post *post;
+                x10rt_cuda_post *post;
             } kernel_cbs;
             struct {
-                copy_hh *hh;
-                copy_ch *ch;
+                x10rt_finder *hh;
+                x10rt_notifier *ch;
             } copy_cbs;
         };
     };
@@ -335,10 +330,7 @@ void x10rt_cuda_finalize (x10rt_cuda_ctx *ctx)
 
 
 void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*pre_cb) (const x10rt_msg_params &p, 
-                                                        size_t &blocks, size_t &threads,
-                                                        size_t &shm),
-                                       void (*post_cb)(const x10rt_msg_params &),
+                                       x10rt_cuda_pre *pre, x10rt_cuda_post *post,
                                        const char *cubin, const char *kernel_name)
 {
 #ifdef ENABLE_CUDA
@@ -366,9 +358,9 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
     CU_SAFE(cuCtxPopCurrent(NULL));
 
     x10rt_functions fs;
-    fs.kernel_cbs.pre = pre_cb;
+    fs.kernel_cbs.pre = pre;
     fs.kernel_cbs.kernel = kernel;
-    fs.kernel_cbs.post = post_cb;
+    fs.kernel_cbs.post = post;
     ctx->cbs.reg(msg_type,fs);
 #else
     (void) ctx; (void) msg_type; (void) pre_cb; (void) post_cb; (void) cubin; (void) kernel_name;
@@ -376,8 +368,7 @@ void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
 }
 
 void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                       void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                       x10rt_finder *cb1, x10rt_notifier *cb2)
 {
 #ifdef ENABLE_CUDA
     x10rt_functions fs;
@@ -390,8 +381,7 @@ void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_t
 }
 
 void x10rt_cuda_register_put_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                       void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                       x10rt_finder *cb1, x10rt_notifier *cb2)
 
 {
 #ifdef ENABLE_CUDA
@@ -572,37 +562,35 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
         assert(op==NULL || op->is_kernel());
         x10rt_cuda_kernel *kop = static_cast<x10rt_cuda_kernel*>(op);
         if (kop != NULL && kop->begun) {
-            DEBUG("pump: kernel complete\n");
+            DEBUG("probe: kernel complete\n");
             x10rt_msg_type type = kop->p.type;
-            kernel_post *fptr = ctx->cbs[type].kernel_cbs.post;
+            x10rt_cuda_post *fptr = ctx->cbs[type].kernel_cbs.post;
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
-            fptr(kop->p); /****CALLBACK****/
+            fptr(kop->p, kop->arg); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             op->~x10rt_cuda_base_op();
             free(op);
-        } else {
-            ctx->kernel_q.push_op(op);
+            op = ctx->kernel_q.pop_op(); // get another one
+            assert(op==NULL || op->is_kernel());
+            kop = static_cast<x10rt_cuda_kernel*>(op);
         }
-        op = ctx->kernel_q.pop_op(); // might get the same one, might get the next one
-        assert(op==NULL || op->is_kernel());
-        kop = static_cast<x10rt_cuda_kernel*>(op);
         if (kop != NULL) {
-            DEBUG("pump: kernel invoke\n");
+            DEBUG("probe: kernel invoke\n");
             x10rt_msg_type type = kop->p.type;
-            kernel_pre *pre = ctx->cbs[type].kernel_cbs.pre;
+            x10rt_cuda_pre *pre = ctx->cbs[type].kernel_cbs.pre;
             size_t blocks=1, threads=1, shm = 0;
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
-            void *arg = pre(kop->p, blocks, threads, shm); /****CALLBACK****/
+            kop->arg = pre(kop->p, blocks, threads, shm); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
             // y and z params we leave as 1, as threads can vary from 1 to 512
             CU_SAFE(cuFuncSetBlockShape(k, threads, 1, 1));
-            CU_SAFE(cuParamSetv(k, 0, (void*)arg, sizeof(void*)));
-            CU_SAFE(cuParamSetSize(k, sizeof(void*)));
+            CU_SAFE(cuParamSetv(k, 0, &kop->arg, sizeof(kop->arg)));
+            CU_SAFE(cuParamSetSize(k, sizeof(kop->arg)));
             CU_SAFE(cuFuncSetSharedSize(k, shm));
             CU_SAFE(cuLaunchGridAsync(k, blocks, 1, ctx->kernel_q.stream));
             op->begun = true;
@@ -637,7 +625,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             finished += dma_sz;
             if (finished == len) {
                 x10rt_msg_type type = op->p.type;
-                copy_ch *ch = ctx->cbs[type].copy_cbs.ch;
+                x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
                 CU_SAFE(cuCtxPopCurrent(NULL));
                 pthread_mutex_unlock(&big_lock_of_doom);
                 ch(cop->p, len); /****CALLBACK****/
@@ -681,7 +669,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             assert(op->is_get() || op->is_put());
 
             x10rt_msg_type type = op->p.type;
-            copy_hh *hh = ctx->cbs[type].copy_cbs.hh;
+            x10rt_finder *hh = ctx->cbs[type].copy_cbs.hh;
 
             void *remote = NULL; // initialise only to avoid compiler warning
             if (first_time) {
@@ -692,7 +680,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 CU_SAFE(cuCtxPushCurrent(ctx->ctx));
                 if (remote==NULL) {
                     x10rt_msg_type type = op->p.type;
-                    copy_ch *ch = ctx->cbs[type].copy_cbs.ch;
+                    x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
                     CU_SAFE(cuCtxPopCurrent(NULL));
                     pthread_mutex_unlock(&big_lock_of_doom);
                     ch(cop->p, len); /****CALLBACK****/

@@ -4,22 +4,15 @@
 
 void x10rt_init (int &argc, char **&argv);
 
-x10rt_msg_type x10rt_register_msg_receiver (void (*cb)(const x10rt_msg_params &),
-                                            void *(*pre_cb)(const x10rt_msg_params &,
-                                                            size_t &blocks, size_t &threads,
-                                                            size_t &shm),
-                                            void (*post_cb)(const x10rt_msg_params &),
+x10rt_msg_type x10rt_register_msg_receiver (x10rt_handler *cb,
+                                            x10rt_cuda_pre *pre, x10rt_cuda_post *post,
                                             const char *cubin, const char *kernel_name);
 
-x10rt_msg_type x10rt_register_get_receiver (void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz),
-                                            void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz),
-                                       void *(*cuda_cb1)(const x10rt_msg_params &, x10rt_copy_sz),
-                                       void (*cuda_cb2)(const x10rt_msg_params &, x10rt_copy_sz));
+x10rt_msg_type x10rt_register_get_receiver (x10rt_finder *cb1, x10rt_notifier *cb2,
+                                            x10rt_finder *cuda_cb1, x10rt_notifier *cuda_cb2);
 
-x10rt_msg_type x10rt_register_put_receiver (void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz),
-                                            void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz),
-                                       void *(*cuda_cb1)(const x10rt_msg_params &, x10rt_copy_sz),
-                                       void (*cuda_cb2)(const x10rt_msg_params &, x10rt_copy_sz));
+x10rt_msg_type x10rt_register_put_receiver (x10rt_finder *cb1, x10rt_notifier *cb2,
+                                            x10rt_finder *cuda_cb1, x10rt_notifier *cuda_cb2);
 
 void x10rt_registration_complete (void);
 

@@ -469,64 +469,70 @@ public class X10CPPTranslator extends Translator {
             CXXCommandBuilder ccb = CXXCommandBuilder.getCXXCommandBuilder(options, eq);
             String[] cxxCmd = ccb.buildCXXCommandLine(outputFiles);
 
-			if (Report.should_report(postcompile, 1)) {
-				StringBuffer cmdStr = new StringBuffer();
-				for (int i = 0; i < cxxCmd.length; i++)
-					cmdStr.append(cxxCmd[i]+" ");
-				Report.report(1, "Executing post-compiler " + cmdStr);
-			}
-
-			try {
-                Runtime runtime = Runtime.getRuntime();
-				Process proc = runtime.exec(cxxCmd, null, options.output_directory);
-
-				InputStreamReader err = new InputStreamReader(proc.getErrorStream());
-
-				String output = null;
-				try {
-					char[] c = new char[72];
-					int len;
-					StringBuffer sb = new StringBuffer();
-					while((len = err.read(c)) > 0) {
-						sb.append(String.valueOf(c, 0, len));
-					}
-
-					if (sb.length() != 0) {
-						output = sb.toString();
-					}
-				}
-				finally {
-					err.close();
-				}
-
-				proc.waitFor();
-
-				if (!options.keep_output_files) {
-					String[] rmCmd = new String[1+outputFiles.size()];
-					rmCmd[0] = "rm";
-					Iterator<String> iter = outputFiles.iterator();
-					for (int i = 1; iter.hasNext(); i++)
-						rmCmd[i] = iter.next();
-					runtime.exec(rmCmd);
-				}
-
-				if (output != null)
-					eq.enqueue(proc.exitValue() > 0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
-				if (proc.exitValue() > 0) {
-					eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
-							"Non-zero return code: " + proc.exitValue());
-					return false;
-				}
-			}
-			catch(Exception e) {
-				eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
-				return false;
-			}
+			if (!doPostCompile(options, eq, outputFiles, cxxCmd)) return false;
+            
 			// FIXME: [IP] HACK: Prevent the java post-compiler from running
 			options.post_compiler = null;
 		}
 		return true;
 	}
+
+    public static boolean doPostCompile(Options options, ErrorQueue eq, Collection<String> outputFiles, String[] cxxCmd) {
+        if (Report.should_report(postcompile, 1)) {
+        	StringBuffer cmdStr = new StringBuffer();
+        	for (int i = 0; i < cxxCmd.length; i++)
+        		cmdStr.append(cxxCmd[i]+" ");
+        	Report.report(1, "Executing post-compiler " + cmdStr);
+        }
+
+        try {
+            Runtime runtime = Runtime.getRuntime();
+        	Process proc = runtime.exec(cxxCmd, null, options.output_directory);
+
+        	InputStreamReader err = new InputStreamReader(proc.getErrorStream());
+
+        	String output = null;
+        	try {
+        		char[] c = new char[72];
+        		int len;
+        		StringBuffer sb = new StringBuffer();
+        		while((len = err.read(c)) > 0) {
+        			sb.append(String.valueOf(c, 0, len));
+        		}
+
+        		if (sb.length() != 0) {
+        			output = sb.toString();
+        		}
+        	}
+        	finally {
+        		err.close();
+        	}
+
+        	proc.waitFor();
+
+        	if (!options.keep_output_files) {
+        		String[] rmCmd = new String[1+outputFiles.size()];
+        		rmCmd[0] = "rm";
+        		Iterator<String> iter = outputFiles.iterator();
+        		for (int i = 1; iter.hasNext(); i++)
+        			rmCmd[i] = iter.next();
+        		runtime.exec(rmCmd);
+        	}
+
+        	if (output != null)
+        		eq.enqueue(proc.exitValue() > 0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
+        	if (proc.exitValue() > 0) {
+        		eq.enqueue(ErrorInfo.POST_COMPILER_ERROR,
+        				"Non-zero return code: " + proc.exitValue());
+        		return false;
+        	}
+        }
+        catch(Exception e) {
+        	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
+        	return false;
+        }
+        return true;
+    }
 
 	private boolean translateSourceCollection(SourceCollection sc) {
 		boolean okay = true;

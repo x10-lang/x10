@@ -13,6 +13,9 @@
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h> // for debug output
 
+#include <x10/lang/Value.h> // for x10_runtime_Runtime__closure__6
+#include <x10/runtime/RID.h>
+
 using namespace x10::lang;
 using namespace x10aux;
 
@@ -28,26 +31,101 @@ volatile x10_long x10aux::asyncs_received = 0;
 volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
-void x10aux::run_at(x10aux::place place, x10aux::ref<Object> body) {
+void *kernel_put_finder (const x10rt_msg_params &p, x10rt_copy_sz)
+{
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    buf.read<x10_ulong>();
+    x10_ulong remote_addr = buf.read<x10_ulong>();
+    assert(buf.consumed() <= p.len);
+    _X_(ANSI_X10RT<<"Cuda kernel populating: "<<remote_addr<<ANSI_RESET);
+    return (void*)(size_t)remote_addr;
+}
 
-    assert(place!=here); // this case should be handled earlier
-    assert(place<num_places); // this is ensured by XRX runtime
+void kernel_put_notifier (const x10rt_msg_params &p, x10rt_copy_sz)
+{
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    bool *finished = (bool*)(size_t)buf.read<x10_ulong>();
+    *finished = true;
+}
+
+x10aux::msg_type x10aux::kernel_put;
+
+void x10aux::registration_complete (void)
+{
+    x10rt_registration_complete();
+    x10aux::here = x10rt_here();
+    x10aux::num_places = x10rt_nplaces();
+    x10aux::num_hosts = x10rt_nhosts();
+    x10aux::kernel_put =
+        x10rt_register_put_receiver(NULL, NULL, kernel_put_finder, kernel_put_notifier);
+    x10aux::x10rt_initialized = true;
+}
+
+// FIXME: this is perhaps the worst hack i've ever done
+struct x10_runtime_Runtime__closure__6 : x10::lang::Value {
+    static const x10aux::serialization_id_t _serialization_id;
+    x10aux::ref<x10::lang::VoidFun_0_0> body;
+    x10::runtime::RID rid;
+};
+
+void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
+
+    assert(p!=here); // this case should be handled earlier
+    assert(p<num_places); // this is ensured by XRX runtime
 
     serialization_buffer buf;
-
     addr_map m;
+
+    serialization_id_t sid = body->_get_serialization_id();
+    msg_type id = DeserializationDispatcher::getMsgType(sid);
+
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
-        <<ref<Object>(body)->toString()->c_str()<<" to place: "<<place);
+        <<ref<Object>(body)->toString()->c_str()<<" id "<<id
+        <<" sid "<<sid<<" to place: "<<p);
 
-    body->_serialize_body(buf, m);
+    if (!is_cuda(p)) {
 
-    unsigned long sz = buf.length();
-    _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
-    serialized_bytes += sz; asyncs_sent++;
+        body->_serialize_body(buf, m);
 
-    msg_type id = DeserializationDispatcher::getMsgType(body->_get_serialization_id());
-    x10rt_msg_params p = {place, id, buf.steal(), sz};
-    x10rt_send_msg(p);
+        unsigned long sz = buf.length();
+        serialized_bytes += sz; asyncs_sent++;
+
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
+
+        x10rt_msg_params params = {p, id, buf.steal(), sz};
+        x10rt_send_msg(params);
+
+    } else {
+
+        // FIXME: this is a hack -- we should be doing this for all asyncs
+
+        assert (sid == x10_runtime_Runtime__closure__6::_serialization_id);
+
+        x10aux::ref<x10_runtime_Runtime__closure__6> body_ = body;
+
+        
+        x10aux::ref<x10::lang::Object> real_body = body_->body;
+        x10::runtime::RID rid = body_->rid;
+
+        serialization_id_t real_sid = real_body->_get_serialization_id();
+        msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
+
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
+            <<ref<Object>(real_body)->toString()->c_str()<<" id "<<real_id
+            <<" sid "<<real_sid<<" at GPU: "<<p);
+
+        x10::runtime::RID::_serialize(rid, buf, m);
+        real_body->_serialize_body(buf, m);
+
+        unsigned long sz = buf.length();
+        serialized_bytes += sz; asyncs_sent++;
+
+        _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
+
+        x10rt_msg_params params = {p, real_id, buf.steal(), sz};
+        x10rt_send_msg(params);
+
+    }
 }
 
 void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
@@ -98,8 +176,38 @@ static void receive_async (const x10rt_msg_params &p) {
     x10aux::dealloc(async.operator->());
 }
 
-x10aux::msg_type x10aux::register_async_handler (void) {
-    return x10rt_register_msg_receiver(receive_async, NULL, NULL, NULL, NULL);
+static void *cuda_pre (const x10rt_msg_params &p, size_t &blocks, size_t &threads, size_t &shm)
+{
+    _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    buf.read<x10::runtime::RID>();
+    // note: high bytes thrown away in implicit conversion
+    serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
+    x10aux::CudaPre pre = x10aux::DeserializationDispatcher::getCudaPre(sid);
+    x10_ulong env = pre(buf, p.dest_place, blocks, threads, shm);
+    assert(buf.consumed() <= p.len);
+    return (void*)(size_t)env;
+}
+
+static void cuda_post (const x10rt_msg_params &p, void *env)
+{
+    _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
+    remote_free(p.dest_place, (x10_ulong)(size_t)env);
+    x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
+    x10::runtime::RID rid = buf.read<x10::runtime::RID>();
+    x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
+    x10aux::ref<x10::lang::Object> fs = rt->FMGL(finishStates)->get(rid);
+    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
+    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
+}
+
+x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *kernel)
+{
+    if (cubin==NULL && kernel==NULL) {
+        return x10rt_register_msg_receiver(receive_async, NULL, NULL, NULL, NULL);
+    } else {
+        return x10rt_register_msg_receiver(receive_async, cuda_pre, cuda_post, cubin, kernel);
+    }
 }
 
 static void *receive_put (const x10rt_msg_params &p, x10aux::copy_sz len) {
@@ -201,5 +309,21 @@ x10aux::msg_type x10aux::register_get_handler (void) {
     return x10rt_register_get_receiver(receive_get, finished_get,
                                        cuda_receive_get, cuda_finished_get);
 }
+
+void x10aux::cuda_put (place gpu, x10_ulong addr, size_t &off, void *var, size_t sz)
+{
+    bool finished = false;
+    x10aux::serialization_buffer buf;
+    addr_map m;
+    buf.realloc_func = x10aux::put_realloc;
+    buf.write((x10_ulong)(size_t)&finished, m);
+    buf.write(addr+off, m);
+    size_t len = buf.length();
+    x10rt_msg_params p = {gpu, kernel_put, buf.steal(), len};
+    x10rt_send_put(p, var, sz);
+    while (!finished) x10rt_probe();
+    off += sz;
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab

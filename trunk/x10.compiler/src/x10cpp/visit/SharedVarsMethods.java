@@ -68,16 +68,17 @@ public class SharedVarsMethods {
 	static final String INSTANCE_INIT = "_instance_init"; // instance field initialisers
 	static final String CONSTRUCTOR = "_constructor";
 	static final String MAKE = "_make";
-	static final String SERIALIZATION_ID_FIELD = "_serialization_id";
-	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
-    static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
+	public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
+	public static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
+    public static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
 	static final String SERIALIZE_METHOD = "_serialize";
 	static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
-	static final String SERIALIZE_BODY_METHOD = "_serialize_body";
-    static final String DESERIALIZATION_BUFFER = "x10aux::deserialization_buffer";
-	static final String DESERIALIZE_METHOD = "_deserialize";
+	public static final String SERIALIZE_BODY_METHOD = "_serialize_body";
+    public static final String DESERIALIZATION_BUFFER = "x10aux::deserialization_buffer";
+	public static final String DESERIALIZE_METHOD = "_deserialize";
 	static final String DESERIALIZER_METHOD = "_deserializer";
-	static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
+    static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
+    public static final String DESERIALIZE_CUDA_METHOD = "_deserialize_cuda";
     static final String STRUCT_EQUALS = "x10aux::struct_equals";
     static final String STRUCT_EQUALS_METHOD = "_struct_equals";
 
@@ -90,7 +91,7 @@ public class SharedVarsMethods {
         return "<" + type + (type.endsWith(">")?" ":"")+">";
     }
 
-	static String make_ref(String type) {
+	public static String make_ref(String type) {
 		if (refsAsPointers)
 			return type+"*";
 		return "x10aux::ref"+chevrons(type);

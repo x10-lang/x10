@@ -21,4 +21,13 @@ struct x10rt_msg_params {
     unsigned long len;
 };
 
+typedef void x10rt_handler(const x10rt_msg_params &);
+
+typedef void *x10rt_cuda_pre(const x10rt_msg_params &, size_t &blocks, size_t &threads, size_t &shm);
+typedef void x10rt_cuda_post(const x10rt_msg_params &, void *);
+
+typedef void *x10rt_finder(const x10rt_msg_params &, x10rt_copy_sz);
+typedef void x10rt_notifier(const x10rt_msg_params &, x10rt_copy_sz);
+
+
 #endif
