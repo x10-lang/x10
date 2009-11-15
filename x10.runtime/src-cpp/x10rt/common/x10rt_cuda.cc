@@ -431,7 +431,7 @@ void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx,
 #ifdef ENABLE_CUDA
     pthread_mutex_lock(&big_lock_of_doom);
     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-    CU_SAFE(cuMemFree((CUdeviceptr)ptr));
+    CU_SAFE(cuMemFree((CUdeviceptr)(size_t)ptr));
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
 #else
@@ -695,13 +695,13 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             if (op->is_get()) {
                 src = first_time ? remote : src;
                 CU_SAFE(cuMemcpyDtoHAsync(ctx->pinned_mem,
-                                          (CUdeviceptr)(((char*)src)+started),
+                                          (CUdeviceptr)(size_t)(((char*)src)+started),
                                           dma_sz,
                                           ctx->dma_q.stream));
             } else if (op->is_put()) {
                 dst = first_time ? remote : dst;
                 memcpy(ctx->pinned_mem, ((char*)src)+started, dma_sz);
-                CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(((char*)dst)+started),
+                CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(size_t)(((char*)dst)+started),
                                           ctx->pinned_mem,
                                           dma_sz,
                                           ctx->dma_q.stream));
