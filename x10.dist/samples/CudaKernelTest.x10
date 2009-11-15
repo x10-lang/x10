@@ -30,7 +30,7 @@ public class CudaKernelTest {
     }
 
     public static def main (args : Rail[String]!) {
-        val len = args.length==2 ? Int.parseInt(args(1)) : 1000000;
+        val len = args.length==1 ? Int.parseInt(args(0)) : 1000000;
 
         for (host in Place.places) at (host) {
 
