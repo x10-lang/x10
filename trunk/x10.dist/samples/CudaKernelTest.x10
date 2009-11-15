@@ -25,7 +25,7 @@ public class CudaKernelTest {
         // validate
         var success:Boolean = true;
         for ((i) in 0..remote.length-1)
-            if (1-Math.abs((recv(i)*recv(i)) / (i as Float)) > 1E-6f) success = false;
+            if ((1-Math.abs((recv(i)*recv(i)) / (i as Float))) > 1E-6f) success = false;
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at place "+p);
     }
 
