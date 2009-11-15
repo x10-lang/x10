@@ -122,7 +122,11 @@ public final class Runtime {
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void) {
+        runAsync(place, clocks, body, false);
+    }
+
+	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
 		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(place);
@@ -195,7 +199,11 @@ public final class Runtime {
 	 * Run at statement
 	 */
 	public static def runAt(place:Place, body:()=>Void):Void {
-		finish async (place) body();
+        //avoid creating another closure
+		//finish async (place) body();
+        startFinish();
+        runAsync(place, body);
+        stopFinish();
 	}
 
 	/**
