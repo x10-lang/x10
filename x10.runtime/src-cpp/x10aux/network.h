@@ -102,10 +102,7 @@ namespace x10aux {
     void send_put (place p, serialization_id_t id,
                    serialization_buffer &buf, void *data, x10aux::copy_sz len);
 
-    void cuda_put (place gpu, x10_ulong addr, size_t &off, void *var, size_t sz);
-
-    template<class T> void cuda_put (place gpu, x10_ulong addr, size_t &off, T var)
-    { cuda_put(gpu, addr, off, &var, sizeof(var)); }
+    void cuda_put (place gpu, x10_ulong addr, void *var, size_t sz);
 }
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

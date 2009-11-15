@@ -28,6 +28,7 @@ import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
 
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -141,6 +142,7 @@ import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.SimpleCodeWriter;
 import polyglot.visit.Translator;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
@@ -239,36 +241,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         
         return type + rest;
     }
-
-    void generateSizeOf(StreamWrapper inc, VarInstance var) {
-        Type t = var.type();
-        inc.write("sizeof(");
-        if (isIntRail(t)) {
-            inc.write("void *");
-        } else if (isFloatRail(t)) {
-            inc.write("void *");
-        } else {
-            inc.write(Emitter.translateType(t, true));
-        }
-        inc.write(")");
-    }
-
-    void generateCudaPut(StreamWrapper inc, VarInstance var) {
-        inc.write("x10aux::cuda_put(gpu, env, off, ");
-
-        Type t = var.type();
-        String name = var.name().toString();
-        
-        if (isIntRail(t)) {
-            inc.write("(void*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
-        } else if (isFloatRail(t)) {
-            inc.write("(void*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
-        } else {
-            inc.write("this_->"+name);
-        }
-        inc.write(");");
-        inc.newline();
-    }
     
     void handleKernel(Block_c b) {
         String kernel_name = context().wrappingClosure();
@@ -278,25 +250,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         ClassifiedStream out = cudaStream();
 
         // environment (passed into kernel via pointer)
-        out.write("struct " + kernel_name + "_env {");
-        out.newline(4);
-        out.begin(0);
-        // emitter.printDeclarationList(out, context(),
-        // context().kernelParams());
-        for (VarInstance var : context().kernelParams()) {
-            String name = var.name().toString();
-            if (name.equals(THIS)) {
-                name = SAVED_THIS;
-            } else {
-                name = Emitter.mangled_non_method_name(name);
-            }
-            out.write(prependCudaType(var.type(),name) + ";");
-            out.newline();
-        }
-        out.end();
-        out.newline();
-        out.write("};");
-        out.newline();
+        generateStruct(kernel_name, out, context().kernelParams());
 
         out.forceNewline();
 
@@ -345,6 +299,28 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.write("} // " + kernel_name); out.newline();
         
         out.forceNewline();
+    }
+
+    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance> vars) {
+        out.write("struct " + kernel_name + "_env {");
+        out.newline(4);
+        out.begin(0);
+        // emitter.printDeclarationList(out, context(),
+        // context().kernelParams());
+        for (VarInstance var : vars) {
+            String name = var.name().toString();
+            if (name.equals(THIS)) {
+                name = SAVED_THIS;
+            } else {
+                name = Emitter.mangled_non_method_name(name);
+            }
+            out.write(prependCudaType(var.type(),name) + ";");
+            out.newline();
+        }
+        out.end();
+        out.newline();
+        out.write("};");
+        out.newline();
     }
 
     // Java cannot return multiple values from a function
@@ -568,27 +544,27 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             inc.write("threads = 64;"); inc.newline();
             inc.write("shm = 0;"); inc.newline();
     
-            inc.write("size_t sz = 0"); //sizeof(this_->len) + sizeof(void*);");
-            // FIXME: factor out this loop
-            for (int i = 0; i < c.variables.size(); i++) {
-                inc.write(" + ");
-                VarInstance var = (VarInstance) c.variables.get(i);
-                generateSizeOf(inc, var);
-            }
-            inc.write(";"); inc.newline();
-    
-            
-            inc.write("x10_ulong env = x10aux::remote_alloc(gpu, sz);"); inc.newline();
-            inc.write("size_t off = 0;"); inc.newline();
-            
-            // FIXME: factor out this loop
+            generateStruct("", inc, c.variables);
+            inc.write("_env env;"); inc.newline();
+                        
             for (int i = 0; i < c.variables.size(); i++) {
                 VarInstance var = (VarInstance) c.variables.get(i);
-                generateCudaPut(inc, var);
+                Type t = var.type();
+                String name = var.name().toString();
+                inc.write("env."+name+" = ");
+                if (isIntRail(t)) {
+                    inc.write("(x10_int*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                } else if (isFloatRail(t)) {
+                    inc.write("(x10_float*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                } else {
+                    inc.write("this_->"+name);
+                }
+                inc.write(";");
+                inc.newline();
             }
-    
-            inc.write("assert(off==sz);"); inc.newline();
-            inc.write("return env;"); inc.end(); inc.newline();
+            inc.write("x10_ulong remote_env = x10aux::remote_alloc(gpu, sizeof(env));"); inc.newline();
+            inc.write("x10aux::cuda_put(gpu, remote_env, &env, sizeof(env));"); inc.newline();
+            inc.write("return remote_env;"); inc.end(); inc.newline();
             inc.write("}"); inc.newline(); inc.forceNewline();
         }
     }    

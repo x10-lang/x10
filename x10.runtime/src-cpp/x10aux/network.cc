@@ -310,19 +310,18 @@ x10aux::msg_type x10aux::register_get_handler (void) {
                                        cuda_receive_get, cuda_finished_get);
 }
 
-void x10aux::cuda_put (place gpu, x10_ulong addr, size_t &off, void *var, size_t sz)
+void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 {
     bool finished = false;
     x10aux::serialization_buffer buf;
     addr_map m;
     buf.realloc_func = x10aux::put_realloc;
     buf.write((x10_ulong)(size_t)&finished, m);
-    buf.write(addr+off, m);
+    buf.write(addr, m);
     size_t len = buf.length();
     x10rt_msg_params p = {gpu, kernel_put, buf.steal(), len};
     x10rt_send_put(p, var, sz);
     while (!finished) x10rt_probe();
-    off += sz;
 }
 
 
