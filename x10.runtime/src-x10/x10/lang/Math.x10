@@ -87,6 +87,12 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::sqrt(#1)")
    public static native def sqrt(a:Double):Double;
 
+   // GPUs don't like doubles
+   @Native("java", "(float)java.lang.Math.sqrt(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::sqrt(#1)")
+   @Native("cuda", "sqrtf(#1)")
+   public static native def sqrt(a:Float):Float;
+
    @Native("java", "java.lang.Math.cbrt(#1)")
    @Native("c++", "x10aux::math_utils::cbrt(#1)")
    public static native def cbrt(a:Double):Double;
