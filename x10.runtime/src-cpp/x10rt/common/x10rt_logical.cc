@@ -12,6 +12,7 @@
 #include <x10rt_internal.h>
 
 namespace {
+
     struct x10rt_lgl_ctx {
       // Local stuff
       x10rt_place nhosts;
@@ -24,7 +25,6 @@ namespace {
       x10rt_place *index; // child[parent[n]][index[n]] == n
       x10rt_place *naccels;
       x10rt_place **child; // maps node/accel index to global place id
-
     };
 
     x10rt_lgl_ctx g;
@@ -437,33 +437,26 @@ void x10rt_lgl_init (int &argc, char **&argv, x10rt_msg_type &counter)
     }
 }
 
-void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type,
-                                      void (*cb)(const x10rt_msg_params &))
+void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb)
 { x10rt_net_register_msg_receiver(msg_type, cb); }
 
 void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type,
-                                      void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                      void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                      x10rt_finder *cb1, x10rt_notifier *cb2)
 { x10rt_net_register_get_receiver(msg_type, cb1, cb2); }
 
 void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type,
-                                      void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                      void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                      x10rt_finder *cb1, x10rt_notifier *cb2)
 { x10rt_net_register_put_receiver(msg_type, cb1, cb2); }
 
 void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*pre_cb)(const x10rt_msg_params &,
-                                                          size_t &blocks, size_t &threads,
-                                                          size_t &shm),
-                                          void (*post_cb)(const x10rt_msg_params &),
-                                          const char *cubin, const char *kernel_name)
+                                           x10rt_cuda_pre *pre, x10rt_cuda_post *post,
+                                           const char *cubin, const char *kernel_name)
 {
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[i]);
-                x10rt_cuda_register_msg_receiver(cctx,
-                                                 msg_type, pre_cb, post_cb, cubin, kernel_name);
+                x10rt_cuda_register_msg_receiver(cctx, msg_type, pre, post, cubin, kernel_name);
             } break;
             case X10RT_LGL_SPE: break;
             default:
@@ -473,8 +466,7 @@ void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
 }
 
 void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                          void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                           x10rt_finder *cb1, x10rt_notifier *cb2)
 {
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
@@ -490,8 +482,7 @@ void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
 }
 
 void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                          void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len))
+                                           x10rt_finder *cb1, x10rt_notifier *cb2)
 {
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {

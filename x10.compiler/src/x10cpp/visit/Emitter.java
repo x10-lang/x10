@@ -362,7 +362,7 @@ public class Emitter {
 	}
 
 
-	void printTemplateSignature(List<Type> list, CodeWriter h) {
+	public void printTemplateSignature(List<Type> list, CodeWriter h) {
 		int size = list.size();
 		if (size != 0) {
 			h.write("template<class ");

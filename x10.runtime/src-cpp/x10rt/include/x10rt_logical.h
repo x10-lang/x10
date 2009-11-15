@@ -17,28 +17,19 @@ void x10rt_lgl_init (int &argc, char **&argv,
                      x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type &counter);
 void x10rt_lgl_init (int &argc, char **&argv, x10rt_msg_type &counter);
 
-void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type,
-                                     void (*cb)(const x10rt_msg_params &));
+void x10rt_lgl_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb);
 void x10rt_lgl_register_get_receiver (x10rt_msg_type msg_type,
-                                     void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                     void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
+                                      x10rt_finder *cb1, x10rt_notifier *cb2);
 void x10rt_lgl_register_put_receiver (x10rt_msg_type msg_type,
-                                     void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                     void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
+                                      x10rt_finder *cb1, x10rt_notifier *cb2);
 
 void x10rt_lgl_register_msg_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*pre_cb)(const x10rt_msg_params &,
-                                                      size_t &blocks, size_t &threads, size_t &shm),
-                                          void (*post_cb)(const x10rt_msg_params &),
-                                          const char *cubin, const char *kernel_name);
-
+                                           x10rt_cuda_pre *pre, x10rt_cuda_post *post,
+                                           const char *cubin, const char *kernel_name);
 void x10rt_lgl_register_get_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                          void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
-
+                                           x10rt_finder *cb1, x10rt_notifier *cb2);
 void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
-                                          void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                          void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
+                                           x10rt_finder *cb1, x10rt_notifier *cb2);
 
 void x10rt_lgl_internal_barrier (void);
 

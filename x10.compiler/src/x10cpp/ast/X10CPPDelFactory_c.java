@@ -50,7 +50,6 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 					w.write(ext.comment());
 			}
 			makeCodeGenerator(w, tr).visitAppropriate(jl());
-
 		}
 	};
 

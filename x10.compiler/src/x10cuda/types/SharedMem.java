@@ -1,12 +1,14 @@
 package x10cuda.types;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import polyglot.ast.Expr;
 import polyglot.ast.LocalDecl;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import x10.types.X10TypeSystem;
+import x10.util.ClassifiedStream;
 
 public class SharedMem {
     
@@ -22,6 +24,8 @@ public class SharedMem {
             return bytes.longValue();
         }
         public Decl (LocalDecl ast) { this.ast = ast; }
+        abstract public void generateDef(ClassifiedStream out, String offset);
+        abstract public void generateInit(ClassifiedStream out, String offset);
     }
     
     private static class Rail extends Decl {
@@ -35,9 +39,23 @@ public class SharedMem {
             this.numElements = numElements;
             this.init = init;
         }
+        public void generateDef(ClassifiedStream out, String offset) {
+            String name = ast.name().id().toString();
+            out.write("float *"+name+" = (float*) &__shm["+offset+"];"); out.newline();
+        }
+        public void generateInit(ClassifiedStream out, String offset) {
+            out.write("for (int i=0 ; i<CLUSTERS*4 ; ++i) {"); out.newline(4); out.begin(0);
+            out.write("clustercache[i] = /**/local_clusters[i]/**/;"); out.newline();
+            out.end(); out.newline();
+            out.write("}");
+        }
     }
     private static class Var extends Decl {
         public Var (LocalDecl ast) { super(ast); }
+        public void generateDef(ClassifiedStream out, String offset) {
+        }
+        public void generateInit(ClassifiedStream out, String offset) {
+        }
     }
     
     public void addRail(LocalDecl ast, Expr numElements, Expr init) {
@@ -56,6 +74,30 @@ public class SharedMem {
         }
         return false;
     }
-    
-    
+
+    public void generateCode(ClassifiedStream out) {
+        if (decls.size()==0) return;
+
+        out.write("// shm");
+        out.newline();
+        
+        for (SharedMem.Decl d : decls) {
+                String offset = "0";
+                d.generateDef(out, offset);
+                out.write("if  (threadIdx.x == 0) {"); out.newline(4); out.begin(0);
+                d.generateInit(out, offset);
+                out.end(); out.newline();
+                out.write("}"); out.newline();
+        }
+        
+        out.write("__syncthreads();"); out.newline();        
+        out.forceNewline();
+
+
+        /*
+         * float *new_clusterv = (float*) dyn_shm; // [DIM*clusterc_odd] int
+         * *new_counterv = (int*)&new_clusterv[DIM*clusterc_odd]; // [clusterc]
+         */
+                
+    }
 }

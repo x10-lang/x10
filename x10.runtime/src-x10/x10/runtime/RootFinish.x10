@@ -66,7 +66,7 @@ class RootFinish extends Latch implements FinishState {
 
     public def notifySubActivitySpawn(place:Place):Void {
         lock();
-        counts(place.id)++;
+        counts(place.parent().id)++;
         unlock();
     }
     

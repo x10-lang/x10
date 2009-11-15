@@ -56,7 +56,7 @@ public class CXXCommandBuilder {
     }
     
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-    protected static final String X10_DIST = System.getenv("X10_DIST");
+    public static final String X10_DIST = System.getenv("X10_DIST");
     protected static final String X10GC = System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
@@ -98,7 +98,11 @@ public class CXXCommandBuilder {
     /** Add the arguments that go before the output files */
     protected void addPreArgs(ArrayList<String> cxxCmd) {
         cxxCmd.add("-g");
-        cxxCmd.add("-I"+X10_DIST+"/include"); // dist
+        
+        // prebuilt XRX
+        cxxCmd.add("-I"+X10_DIST+"/include");
+        
+        // headers generated from user input
         cxxCmd.add("-I.");
 
         if (!Configuration.DISABLE_GC && gcEnabled()) {
@@ -129,10 +133,10 @@ public class CXXCommandBuilder {
             cxxCmd.add(X10GC+"/lib/libgc.a");
         }
         
-        cxxCmd.add("-L"+X10_DIST+"/lib"); // dist
+        // prebuilt XRX
+        cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
 
-        cxxCmd.add("-L"+X10_DIST+"/../pgas2/common/work/lib"); // temporary
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
 
@@ -205,6 +209,7 @@ public class CXXCommandBuilder {
             file = file.replace(File.separatorChar,'/');
             if (exclude.contains(file))
                 continue;
+            if (file.endsWith(".cu")) continue;
             cxxCmd.add(file);
         }
 

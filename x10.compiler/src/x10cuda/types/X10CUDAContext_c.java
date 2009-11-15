@@ -17,6 +17,7 @@ package x10cuda.types;
 import java.util.ArrayList;
 
 import polyglot.ast.Formal;
+import polyglot.frontend.Job;
 import x10.ast.Closure_c;
 import x10cpp.types.X10CPPContext_c;
 import polyglot.types.Name;
@@ -31,10 +32,14 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         super(ts);
     }
         
-    private Closure_c wrappingClosure;
-    public Closure_c wrappingClosure() { return wrappingClosure; }
-    public void wrappingClosure(Closure_c v) { wrappingClosure = v; }
+    private String wrappingClosure;
+    public String wrappingClosure() { return wrappingClosure; }
+    public void wrappingClosure(String v) { wrappingClosure = v; }
 
+    private String wrappingClass;
+    public String wrappingClass() { return wrappingClass; }
+    public void wrappingClass(String v) { wrappingClass = v; }
+    
     private boolean generatingKernel;
     public boolean generatingKernel() { return generatingKernel; }
     public void generatingKernel(boolean v) { generatingKernel = v; }
@@ -63,9 +68,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
 
     private ClassifiedStream cudaStream = null;
 
-    public ClassifiedStream cudaStream (StreamWrapper sw) {
+    public ClassifiedStream cudaStream (StreamWrapper sw, Job j) {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
+            j.compiler().outputFiles().add(wrappingClass()+".cu");
             cudaStream.write("#include <x10aux/config.h>"); cudaStream.newline();
             cudaStream.write("#include <cfloat>"); cudaStream.newline();
             cudaStream.forceNewline();

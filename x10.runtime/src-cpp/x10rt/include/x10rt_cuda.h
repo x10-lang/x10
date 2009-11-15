@@ -10,19 +10,14 @@ x10rt_cuda_ctx *x10rt_cuda_init (unsigned device);
 
 
 void x10rt_cuda_register_msg_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*pre_cb) (const x10rt_msg_params &p, 
-                                                        size_t &blocks, size_t &threads,
-                                                        size_t &shm),
-                                       void (*post_cb)(const x10rt_msg_params &),
+                                       x10rt_cuda_pre *pre, x10rt_cuda_post *post,
                                        const char *cubin, const char *kernel_name);
 
 void x10rt_cuda_register_get_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                       void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
+                                       x10rt_finder *cb1, x10rt_notifier *cb2);
 
 void x10rt_cuda_register_put_receiver (x10rt_cuda_ctx *ctx, x10rt_msg_type msg_type,
-                                       void *(*cb1)(const x10rt_msg_params &, x10rt_copy_sz len),
-                                       void (*cb2)(const x10rt_msg_params &, x10rt_copy_sz len));
+                                       x10rt_finder *cb1, x10rt_notifier *cb2);
 
 
 void x10rt_cuda_registration_complete (x10rt_cuda_ctx *ctx);

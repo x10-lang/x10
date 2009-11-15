@@ -17,7 +17,7 @@ serialization_id_t StaticInitBroadcastDispatcher::addRoutine(Deserializer init) 
     if (NULL == it) {
         it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
     }
-    return it->addDeserializer_(init, false);
+    return it->addDeserializer_(init, false, NULL, NULL, NULL);
 }
 
 ref<Ref> StaticInitBroadcastDispatcher::dispatch(deserialization_buffer &buf) {
