@@ -74,7 +74,7 @@ include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
 endif
 
-ifneq ($(shell test -x `which poe` && echo -n hi), hi)
+ifneq ($(shell test -x `which poe 2>/dev/null` && echo -n hi), hi)
   POE_EXISTS := yes
 else
   POE_EXISTS := no
