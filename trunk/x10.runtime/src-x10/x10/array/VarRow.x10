@@ -9,12 +9,12 @@ final class VarRow extends Row {
 
     public def this(cols: nat, init: (nat)=>int) {
         super(cols);
-        row = Rail.makeVar[int](cols, init);
+        row = Rail.make[int](cols, init);
     }
     
     public def this(cols: nat) {
         super(cols);
-        row = Rail.makeVar[int](cols);
+        row = Rail.make[int](cols);
     }
     
     global def row() = row as Rail[int]!;

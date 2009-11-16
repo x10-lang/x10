@@ -163,8 +163,8 @@ public class UnionRegion extends BaseRegion {
 
 
     protected global def computeBoundingBox(): Region(rank) {
-        val myMin = Rail.makeVar[int](rank);
-        val myMax = Rail.makeVar[int](rank);
+        val myMin = Rail.make[int](rank);
+        val myMax = Rail.make[int](rank);
         for (var axis: int = 0; axis<rank; axis++)
             myMin(axis) = Int.MAX_VALUE;
         for (var axis: int = 0; axis<rank; axis++)

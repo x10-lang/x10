@@ -145,7 +145,7 @@ public final class FastArray[T] extends BaseArray[T] {
         finish async (dist.onePlace) {
             val layout = layout(region);
             val n = layout.size();
-            val raw = Rail.makeVar[T](n);
+            val raw = Rail.make[T](n);
             if (init!=null) {
                 val f = at (init.location) { init as (Point) => T };
                 for (p:Point in region)
@@ -160,7 +160,7 @@ public final class FastArray[T] extends BaseArray[T] {
 
         layout = layout(region);
         val n = layout.size();
-        val r = Rail.makeVar[T](n);
+        val r = Rail.make[T](n);
         
             val f = init as (Point) => T;
             for (p:Point in region)
@@ -185,7 +185,7 @@ public final class FastArray[T] extends BaseArray[T] {
 
         layout = layout(region);
         val n = layout.size();
-        val r = Rail.makeVar[T](n);
+        val r = Rail.make[T](n);
        
         raw = r;
 

@@ -165,7 +165,7 @@ public class PolyRegion extends BaseRegion {
     private static def copy(tt: PolyMatBuilder!, ff: PolyMat, offset: int): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = Rail.makeVar[int](tt.rank+1);
+            val t = Rail.make[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
@@ -184,7 +184,7 @@ public class PolyRegion extends BaseRegion {
     private static def translate(tt: PolyMatBuilder!, ff: PolyMat, v: Point(ff.rank)): void {
         for (r:PolyRow in ff) {
             val f = r;
-            val t = Rail.makeVar[int](ff.rank+1);
+            val t = Rail.make[int](ff.rank+1);
             var s:Int = 0;
             for (var i: int = 0; i<ff.rank; i++) {
                 t(i) = f(i);
@@ -226,8 +226,8 @@ public class PolyRegion extends BaseRegion {
     }
 
     protected global def computeBoundingBox(): Region(rank) {
-        val min = Rail.makeVar[int](rank);
-        val max = Rail.makeVar[int](rank);
+        val min = Rail.make[int](rank);
+        val max = Rail.make[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var axis: int = 0; axis<rank; axis++) {
             var x: PolyMat = pm;

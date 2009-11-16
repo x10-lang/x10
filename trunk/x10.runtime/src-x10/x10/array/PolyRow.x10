@@ -125,7 +125,7 @@ public class PolyRow(rank:nat) extends ValRow {
 
     global def complement(): PolyRow {
         val init = (i:nat) => i<rank? -this(i) : -this(rank)+1;
-        val as = Rail.makeVal[int](rank+1, init);
+        val as = ValRail.make[int](rank+1, init);
         return new PolyRow(as);
     }
 

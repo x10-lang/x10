@@ -21,7 +21,7 @@ public class Histogram {
 	val N = int.parseInt(args(0));
 	val S=int.parseInt(args(1));
 	val a = Array.make[int](0..N-1, ((i):Point)=> i);
-	val b = Rail.makeVar[int](S);
+	val b = Rail.make[int](S);
 	run(a, b);
 	val v = b(0);
         var ok:boolean = true;

@@ -27,7 +27,7 @@ public class FSSimpleDist {
 
     public static def run():Boolean {
         val verified:Rail[boolean]! = [true];
-        val times = Rail.makeVar[double](NUM_TIMES);
+        val times = Rail.make[double](NUM_TIMES);
         val N0 = DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
@@ -42,9 +42,9 @@ public class FSSimpleDist {
                 
                 async(Place.places(p)) {
                     
-                    val a = Rail.makeVar[double](localSize);
-                    val b = Rail.makeVar[double](localSize);
-                    val c = Rail.makeVar[double](localSize);
+                    val a = Rail.make[double](localSize);
+                    val b = Rail.make[double](localSize);
+                    val c = Rail.make[double](localSize);
                     
                     for (var i:int=0; i<localSize; i++) {
                         b(i) = 1.5 * (p*localSize+i);

@@ -20,16 +20,16 @@ public class DistStream1 extends Benchmark {
     //
     //
 
-    val as = Rail.makeVal[Rail[double]](PARALLELISM, (p:int) =>
-        at (Place.place(p)) Rail.makeVar[double](localSize)
+    val as = ValRail.make[Rail[double]](PARALLELISM, (p:int) =>
+        at (Place.place(p)) Rail.make[double](localSize)
     );
     
-    val bs = Rail.makeVal[ValRail[double]](PARALLELISM, (p:int) => 
-        at (Place.place(p)) Rail.makeVal[double](localSize, (i:int)=>alpha*(p*localSize+i))
+    val bs = ValRail.make[ValRail[double]](PARALLELISM, (p:int) => 
+        at (Place.place(p)) ValRail.make[double](localSize, (i:int)=>alpha*(p*localSize+i))
     );
 
-    val cs = Rail.makeVal[ValRail[double]](PARALLELISM, (p:int)=>
-        at (Place.place(p)) Rail.makeVal[double](localSize, (i:int)=>beta*(p*localSize+i))
+    val cs = ValRail.make[ValRail[double]](PARALLELISM, (p:int)=>
+        at (Place.place(p)) ValRail.make[double](localSize, (i:int)=>beta*(p*localSize+i))
     );
 
     public def once() {

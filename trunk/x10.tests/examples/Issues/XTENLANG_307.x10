@@ -9,7 +9,7 @@ import harness.x10Test;
 
 class XTENLANG_307 extends x10Test {
 
-    val r = Rail.makeVar[char](1);
+    val r = Rail.make[char](1);
 
     public def run(): boolean {
         r(0) = Char.chr('a'.ord()+1);

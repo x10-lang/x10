@@ -29,7 +29,7 @@ public class FRA {
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:long): long {
         var i:int, j:int;
-        val m2 = Rail.makeVar[long](64);
+        val m2 = Rail.make[long](64);
         while (n < 0) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0) return 0x1L;

@@ -116,7 +116,7 @@ final class LocalArray[T] extends BaseArray[T] {
 
         layout = layout(region);
         val n = layout.size();
-        val r = Rail.makeVar[T](n);
+        val r = Rail.make[T](n);
         raw = r;
     }
 
@@ -125,7 +125,7 @@ final class LocalArray[T] extends BaseArray[T] {
 
         layout = layout(region);
         val n = layout.size();
-        val r = Rail.makeVar[T](n);
+        val r = Rail.make[T](n);
 
         val f = init as (Point) => T;
         for (p:Point in region)
@@ -149,7 +149,7 @@ final class LocalArray[T] extends BaseArray[T] {
 	
 	if (d.region.isEmpty()) {
             this.layout = layout(d.region);
-	    this.raw = Rail.makeVar[T](0);
+	    this.raw = Rail.make[T](0);
         } else {
             this.layout = a.layout();
             this.raw =  a.raw();

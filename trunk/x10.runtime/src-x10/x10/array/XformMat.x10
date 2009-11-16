@@ -9,7 +9,7 @@ public final class XformMat extends Mat[ValRow] {
         = super(mat.length, cols, mat);
 
     public def this(rows: nat, cols: nat, init:(nat)=>ValRow)
-        = super(rows, cols, Rail.makeVal[ValRow](rows, init));
+        = super(rows, cols, ValRail.make[ValRow](rows, init));
 
     public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int)
         = this(rows, cols, (i:nat)=>new ValRow(cols, (j:nat)=>init(i,j)));

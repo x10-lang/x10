@@ -25,7 +25,7 @@ class RootFinish extends Latch implements FinishState {
     public def incr():Void {}
     
     def this() {
-		val c = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0);
+		val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
 	    c(here.id) = 1;
 		counts = c;
     }

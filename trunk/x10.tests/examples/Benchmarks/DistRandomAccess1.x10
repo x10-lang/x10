@@ -22,7 +22,7 @@ class DistRandomAccess1 extends Benchmark {
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
 
-    //val places = Rail.makeVal[Place](PARALLELISM, (p:int)=>Place.places(p));
+    //val places = ValRail.make[Place](PARALLELISM, (p:int)=>Place.places(p));
 
     final class LocalTable {
     
@@ -31,7 +31,7 @@ class DistRandomAccess1 extends Benchmark {
         
         def this(size:int) {
             mask = size-1;
-            a = Rail.makeVar[long](size, (i:int) => i as long);
+            a = Rail.make[long](size, (i:int) => i as long);
         }
         
         final def update(ran:long) {
@@ -41,12 +41,12 @@ class DistRandomAccess1 extends Benchmark {
         }
     }
 
-    val tables = Rail.makeVal[LocalTable](PARALLELISM,
+    val tables = ValRail.make[LocalTable](PARALLELISM,
         (p:nat) => at (Place.places(p)) new LocalTable(localTableSize));
 
     final static def HPCCStarts(var n:long): long {
         var i:int, j:int;
-        val m2 = Rail.makeVar[long](64);
+        val m2 = Rail.make[long](64);
         while (n < 0) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0) return 0x1L;
@@ -97,7 +97,7 @@ class DistRandomAccess1 extends Benchmark {
         // runs without synchronization and is allowed .01*tableSize errors
         if (first) {
             randomAccessUpdate(tables);
-            val errors = Rail.makeVar[int](1);
+            val errors = Rail.make[int](1);
             for (var p:int=0; p<PARALLELISM; p++) {
                 val table = tables(p);
                 finish async(Place.places(p)) {

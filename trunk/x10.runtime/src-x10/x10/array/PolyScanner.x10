@@ -107,21 +107,21 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         this.X1 = X1;
         val r = pm.rank;
         this.rank = r;
-        val n = Rail.makeVar[VarMat](r);
+        val n = Rail.make[VarMat](r);
         myMin = n;
-        val x = Rail.makeVar[VarMat](r);
+        val x = Rail.make[VarMat](r);
         myMax = x;
-        val nSum = Rail.makeVar[VarMat](r);
+        val nSum = Rail.make[VarMat](r);
         minSum = nSum;
-        val xSum = Rail.makeVar[VarMat](r);
+        val xSum = Rail.make[VarMat](r);
         maxSum = xSum;
-        val n2 = Rail.makeVar[Rail[PolyRow]!](r);
+        val n2 = Rail.make[Rail[PolyRow]!](r);
         min2 = n2;
-        val x2 = Rail.makeVar[Rail[PolyRow]!](r);
+        val x2 = Rail.make[Rail[PolyRow]!](r);
         max2 = x2;
         //printInfo(Console.OUT);
 
-        parFlags = Rail.makeVar[boolean](r);
+        parFlags = Rail.make[boolean](r);
     }
 
     private def init() {
@@ -158,8 +158,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         myMax(axis) = new VarMat(imax, axis+1);
         minSum(axis) = new VarMat(imin, axis+1);
         maxSum(axis) = new VarMat(imax, axis+1);
-        min2(axis) = Rail.makeVar[PolyRow](imin);
-        max2(axis) = Rail.makeVar[PolyRow](imax);
+        min2(axis) = Rail.make[PolyRow](imin);
+        max2(axis) = Rail.make[PolyRow](imax);
 
         // fill in
         imin=0; imax=0;
@@ -245,9 +245,9 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         private val rank: int = PolyScanner.this.rank;
         private val s = PolyScanner.this;
 
-        private val x = Rail.makeVar[int](rank);
-        private val myMin = Rail.makeVar[int](rank);
-        private val myMax = Rail.makeVar[int](rank);
+        private val x = Rail.make[int](rank);
+        private val myMin = Rail.make[int](rank);
+        private val myMax = Rail.make[int](rank);
 
         private var k: int;
         def this() {}
@@ -343,8 +343,8 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     public def loop(body:(Rail[int])=>void) {
-        val p = Rail.makeVar[int](X1(0).rows);
-        val q = Rail.makeVar[int](X1(0).cols);
+        val p = Rail.make[int](X1(0).rows);
+        val q = Rail.make[int](X1(0).cols);
         loop(body, p, q, 0);
     }
 
@@ -389,7 +389,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
                 finish {
                     for (var i:int=min; i<=max; i++) {
                         q(r) = i;
-                        val qq = Rail.makeVar[int](q.length, (i:nat)=>q(i));
+                        val qq = Rail.make[int](q.length, (i:nat)=>q(i));
                         async {
                             //Console.OUT.println("async{");
                             loop(body, p, qq, r+1);
@@ -429,7 +429,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     // XXX makes simplifying assumptions about conformance of regions
     // - make this more general!!!
     public operator this || (that:PolyScanner!) {
-        val x = Rail.makeVal(this.X1.length + that.X1.length, (i:nat) =>
+        val x = ValRail.make(this.X1.length + that.X1.length, (i:nat) =>
             i<this.X1.length? this.X1(i) : that.X1(i-this.X1.length));
         return new PolyScanner(this.C, x);
     }

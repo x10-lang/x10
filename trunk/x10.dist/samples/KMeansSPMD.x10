@@ -45,11 +45,11 @@ public class KMeansSPMD {
             val points_cache = ValRail.make[Float](POINTS*DIM, init_points);
             val points = Array.make[Float](points_dist, (p:Point)=>points_cache(p(0)*DIM+p(1)));
 
-            val central_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => points_cache(i));
+            val central_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => points_cache(i));
             // used to measure convergence at each iteration:
             val central_clusters_old =
-                Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => central_clusters(i));
-            val central_cluster_counts = Rail.makeVar[Int](CLUSTERS, (i:Int) => 0);
+                Rail.make[Float](CLUSTERS*DIM, (i:Int) => central_clusters(i));
+            val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
             class Cell[T] {
                 private var value:T;
@@ -69,9 +69,9 @@ public class KMeansSPMD {
 
                     val local_points = points.restriction(here) as Array[Float](2);
 
-                    val clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
-                    val new_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
-                    val cluster_counts = Rail.makeVar[Int](CLUSTERS, (i:Int) => 0);
+                    val clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
+                    val new_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
+                    val cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
                     for (var iter:Int=0 ; iter<ITERATIONS && !finished.get() ; iter++) {
 

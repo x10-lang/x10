@@ -39,7 +39,7 @@ final class RectLayout(rank: int) extends Layout {
         this.rank = r;
         this.min = min;
 
-        val d0 = Rail.makeVal[int](r, (i:nat) => max(i) - min(i) + 1);
+        val d0 = ValRail.make[int](r, (i:nat) => max(i) - min(i) + 1);
         delta = d0;
 
         var size: int = 1;

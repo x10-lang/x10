@@ -33,12 +33,12 @@ public class NQueensPar {
         val q: Rail[Int]{self.at(this)};
 
         def this() {
-            q = Rail.makeVar[Int](0, (Nat)=>0);
+            q = Rail.make[Int](0, (Nat)=>0);
         }
 
         def this(old: Rail[Int]!, newItem:Int) {
             val n = old.length;
-            q = Rail.makeVar[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
+            q = Rail.make[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
         }
 
         def safe(j: int) {

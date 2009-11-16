@@ -21,7 +21,7 @@ public class SeqRail1 extends Benchmark {
     // the benchmark
     //
 
-    val a = Rail.makeVar[double](N+M, (nat)=>1.0);
+    val a = Rail.make[double](N+M, (nat)=>1.0);
 
     def once() {
         var sum: double = 0.0;

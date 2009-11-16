@@ -60,7 +60,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
-        table = Rail.makeVar[HashEntry[K,V]!](sz);
+        table = Rail.make[HashEntry[K,V]!](sz);
         mask = sz - 1;
         size = 0;
         occupation = 0;
@@ -169,7 +169,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     public def rehash(): void {
         val t = table;
         val oldSize = size;
-        table = Rail.makeVar[HashEntry[K,V]!](t.length*2);
+        table = Rail.make[HashEntry[K,V]!](t.length*2);
         mask = table.length - 1;
         size = 0;
         occupation = 0;
