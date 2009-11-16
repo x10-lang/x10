@@ -51,13 +51,6 @@ public class KMeansSPMD {
                 Rail.make[Float](CLUSTERS*DIM, (i:Int) => central_clusters(i));
             val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
-            class Cell[T] {
-                private var value:T;
-                def this(v:T) { this.value = v; }
-                global def get() = at (this) value;
-                global def set(v:T) { at (this) { value = v; }; }
-            }
-
             val finished = new Cell[Boolean](false);
             // SPMD style for algorithm
             val clk = Clock.make();
