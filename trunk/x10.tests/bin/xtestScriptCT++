@@ -601,6 +601,8 @@ function main {
 	fi
 	if [[ "$(uname -s)" == "AIX" ]]; then
 		X10CPP="$X10CPP -DISABLE_GC -NO_CHECKS -x10rt pgas_lapi"
+    elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
+        X10CPP="$X10CPP -NO_CHECKS -x10rt pgas_sockets"
 	fi
 
 	if [[ ! -f $X10_HOME/x10.dist/include/x10rt17.h ]]; then
