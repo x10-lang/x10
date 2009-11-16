@@ -34,8 +34,8 @@ public class CudaKernelTest {
 
         for (host in Place.places) at (host) {
 
-            val init = Rail.make(len,(i:Int)=>i as Float);
-            val recv = Rail.make(len,(i:Int)=>0.0 as Float);
+            val init = Rail.make[Float](len,(i:Int)=>i as Float);
+            val recv = Rail.make[Float](len,(i:Int)=>0.0 as Float);
 
             var done_work:Boolean = false;
 
