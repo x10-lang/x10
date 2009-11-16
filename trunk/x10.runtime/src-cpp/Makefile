@@ -333,7 +333,7 @@ cleangen:
 	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
-	cd x10rt && $(MAKE) clean debug debug_pgas
+	cd x10rt && $(MAKE) clean #debug debug_pgas
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
