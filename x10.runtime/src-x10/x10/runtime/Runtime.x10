@@ -122,10 +122,6 @@ public final class Runtime {
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void) {
-        runAsync(place, clocks, body, false);
-    }
-
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
 		val state = currentState();
 		val phases = ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
@@ -138,10 +134,6 @@ public final class Runtime {
             val c = ()=>execute(new Activity(body, runtime().finishStates.get(rid), clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
-	}
-
-	public static def runAsync(place:Place, body:()=>Void):Void {
-		runAsync(place, body, false);
 	}
 
 	public static def runAsync(place:Place, body:()=>Void, free:Boolean):Void {
@@ -178,7 +170,7 @@ public final class Runtime {
 		}
 	}
 
-	public static def runAsync(clocks:ValRail[Clock], body:()=>Void):Void {
+	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
 		val state = currentState();
 		val phases = ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn(here);
@@ -188,7 +180,7 @@ public final class Runtime {
 	public static def runAsync(body:()=>Void):Void {
 		runAsync(body, false);
 	}
-
+	
 	public static def runAsync(body:()=>Void, free:Boolean):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(here);
@@ -202,7 +194,7 @@ public final class Runtime {
         //avoid creating another closure
 		//finish async (place) body();
         startFinish();
-        runAsync(place, body);
+        runAsync(place, body, false);
         stopFinish();
 	}
 
