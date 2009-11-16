@@ -99,19 +99,20 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-        x10aux::place_local::initialize();
+        setlinebuf(stdout);
 
-        x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
-            x10aux::convert_args(ac, av);
+        x10rt_init(ac,av);
+
+        x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args = x10aux::null;
 
 #ifndef NO_EXCEPTIONS
         try {
 #endif
-            setlinebuf(stdout);
-
-            x10rt_init(ac,av);
+            x10aux::place_local::initialize();
 
             x10aux::DeserializationDispatcher::registerHandlers();
+
+            args = x10aux::convert_args(ac, av);
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
