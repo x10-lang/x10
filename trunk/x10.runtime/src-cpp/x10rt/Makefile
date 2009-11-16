@@ -48,17 +48,17 @@ tests: $(TESTS)
 
 all: $(TESTS) $(PROPERTIES) $(LIBS) $(TGZ)
 
-debug:
-	echo X10RT_PLATFORM = $(X10RT_PLATFORM)
-	echo ENABLE_X10RT_CUDA = $(ENABLE_X10RT_CUDA)
-	echo DISABLE_X10RT_CUDA = $(DISABLE_X10RT_CUDA)
-	echo ENABLE_X10RT_MPI = $(ENABLE_X10RT_MPI)
-	echo DISABLE_X10RT_MPI = $(DISABLE_X10RT_MPI)
-	echo ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
-	echo DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
-	echo LIBS = $(LIBS)
-	echo PROPERTIES = $(PROPERTIES)
-	echo TESTS = $(TESTS)
+debug::
+	@echo X10RT_PLATFORM = $(X10RT_PLATFORM)
+	@echo ENABLE_X10RT_CUDA = $(ENABLE_X10RT_CUDA)
+	@echo DISABLE_X10RT_CUDA = $(DISABLE_X10RT_CUDA)
+	@echo ENABLE_X10RT_MPI = $(ENABLE_X10RT_MPI)
+	@echo DISABLE_X10RT_MPI = $(DISABLE_X10RT_MPI)
+	@echo ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
+	@echo DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
+	@echo LIBS = $(LIBS)
+	@echo PROPERTIES = $(PROPERTIES)
+	@echo TESTS = $(TESTS)
 
 clean:
 	$(RM) -r */*.o *.tgz lib/*.a bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
