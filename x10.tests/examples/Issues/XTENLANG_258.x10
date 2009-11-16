@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_258 extends x10Test {
 
     public def run():boolean {
-        val v: Rail[int] = Rail.makeVar[int](1);
+        val v: Rail[int] = Rail.make[int](1);
         v(0) += 1;
         return true;
     }

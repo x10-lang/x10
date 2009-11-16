@@ -51,7 +51,7 @@ abstract public class TestRegion extends x10Test {
 
     class Grid {
 
-        var os: Rail[Object]{self.at(this)} = Rail.makeVar[Object](10);
+        var os: Rail[Object]{self.at(this)} = Rail.make[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = vue as Box[double]; 
@@ -278,7 +278,7 @@ abstract public class TestRegion extends x10Test {
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
-        val as = Rail.makeVar[int](rank);
+        val as = Rail.make[int](rank);
         for (var i: int = 0; i<rank; i++) {
             var a: int = (coeff&3) - 2;
             as(i) = op==LE? a : - a;

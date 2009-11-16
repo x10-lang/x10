@@ -35,8 +35,8 @@ public class Pool implements ()=>Void {
 	def this(latch:Latch!, size:Int) {
 		this.latch = latch;
 	    this.size = size;
-	    val workers = Rail.makeVar[Worker!](MAX);
-	    val threads = Rail.makeVar[Thread!](size);
+	    val workers = Rail.make[Worker!](MAX);
+	    val threads = Rail.make[Thread!](size);
 
 	    // worker for the master thread
 	    val master = new Worker(latch, 0);

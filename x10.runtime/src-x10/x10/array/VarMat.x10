@@ -9,7 +9,7 @@ final class VarMat extends Mat[VarRow] {
         = super(mat.length, cols, mat);
 
     public def this(rows: nat, cols: nat, init:(nat)=>VarRow)
-        = super(rows, cols, Rail.makeVal[VarRow](rows, init));
+        = super(rows, cols, ValRail.make[VarRow](rows, init));
 
     public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int)
         = this(rows, cols, (i:nat)=>new VarRow(cols, (j:nat)=>init(i,j)));

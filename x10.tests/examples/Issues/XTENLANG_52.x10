@@ -20,7 +20,7 @@ class XTENLANG_52 extends x10Test {
         incomplete public def get(): R(rank);
     
         val rs: Rail[R] = [get()];
-        //workaround: val rs:Rail[R] = Rail.makeVal[R](1, (nat)=&gt;get());
+        //workaround: val rs:Rail[R] = ValRail.make[R](1, (nat)=&gt;get());
     
         protected def this(rank:nat) = property(rank);
     }

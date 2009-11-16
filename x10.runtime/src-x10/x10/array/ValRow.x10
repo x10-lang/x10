@@ -22,7 +22,7 @@ public class ValRow extends Row {
 
     public def this(cols: nat, init: (nat)=>int) {
         super(cols);
-        row = Rail.makeVal[int](cols, init);
+        row = ValRail.make[int](cols, init);
     }
     
     public safe global def apply(i:nat) = row(i);

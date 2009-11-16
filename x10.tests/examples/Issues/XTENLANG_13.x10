@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_13 extends x10Test {
 
     class AL[T] {
-        private var a: Rail[T] = Rail.makeVar[T](10);
+        private var a: Rail[T] = Rail.make[T](10);
     }
 
     public def run(): boolean {

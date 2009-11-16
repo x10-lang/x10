@@ -14,7 +14,7 @@ import harness.x10Test;
  */
 public class Assign2 extends x10Test {
 	public def run(): boolean = {
-                val a = Rail.makeVar[String](5, (nat)=>"hi");
+                val a = Rail.make[String](5, (nat)=>"hi");
                 var i:Settable[nat,String] = a;
                 i.set("bye", 1);
 

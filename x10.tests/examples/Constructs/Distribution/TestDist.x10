@@ -65,7 +65,7 @@ abstract public class TestDist extends x10Test {
             
     class Grid {
 
-        var os: Rail[Object]! = Rail.makeVar[Object](10);
+        var os: Rail[Object]! = Rail.make[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = vue as Box[double];

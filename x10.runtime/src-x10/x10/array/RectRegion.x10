@@ -140,7 +140,7 @@ final class RectRegion extends PolyRegion{rect} {
             rank = r.rank;
             min = r.mat.rectMin();
             max = r.mat.rectMax();
-            val xx = Rail.makeVar[int](r.rank, (i:nat)=>r.mat.rectMin()(i));
+            val xx = Rail.make[int](r.rank, (i:nat)=>r.mat.rectMin()(i));
             xx(r.rank-1)--;
 	    x = xx;
         }

@@ -46,8 +46,8 @@ final public class Point(rank: nat) implements (nat) => int {
 
     public static def make(cs: Rail[int]!): Point(cs.length) {
         // (i:nat)=>cs(i) is workaround for XTENLANG-32
-	//        val a: ValRail[int](cs.length) = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
-	val a = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
+	//        val a: ValRail[int](cs.length) = ValRail.make[int](cs.length, (i:nat)=>cs(i));
+	val a = ValRail.make[int](cs.length, (i:nat)=>cs(i));
         return make(a);
     }
 
@@ -57,7 +57,7 @@ final public class Point(rank: nat) implements (nat) => int {
      */
 
     public static def make(rank:nat, init:(i:nat)=>int) {
-        val a = Rail.makeVal[int](rank, init);
+        val a = ValRail.make[int](rank, init);
         return make(a);
     }
 
@@ -86,79 +86,79 @@ final public class Point(rank: nat) implements (nat) => int {
     }
 
     public global operator - this: Point(rank) {
-        val cs = Rail.makeVar[int](rank, (i:nat)=>-this.coords(i));
+        val cs = Rail.make[int](rank, (i:nat)=>-this.coords(i));
         return Point.make(cs);
     }
 
     public global operator this + (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) + that.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this - (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) - that.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this * (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) * that.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this / (that: Point(rank)): Point(rank) {
         val init = (i:nat) => this.coords(i) / that.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this + (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) + c;
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this - (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) - c;
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this * (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) * c;
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator this / (c: int): Point(rank) {
         val init = (i:nat) => this.coords(i) / c;
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator (c: int) + this: Point(rank) {
         val init = (i:nat) => c + this.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator (c: int) - this: Point(rank) {
         val init = (i:nat) => c - this.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator (c: int) * this: Point(rank) {
         val init = (i:nat) => c * this.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 
     public global operator (c: int) / this: Point(rank) {
         val init = (i:nat) => c / this.coords(i);
-        val cs = Rail.makeVar[int](rank, init);
+        val cs = Rail.make[int](rank, init);
         return Point.make(cs);
     }
 

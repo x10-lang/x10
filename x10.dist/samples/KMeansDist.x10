@@ -12,28 +12,28 @@ public class KMeansDist {
     public static def main (args : Rail[String]!) {
         val rnd = PlaceLocalStorage.createDistributedObject[Random](Dist.makeUnique(), () => new Random(0));
         val local_curr_clusters = PlaceLocalStorage.createDistributedObject[Rail[Float]](Dist.makeUnique(), 
-	                                                                                 () => Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
+	                                                                                 () => Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
         val local_new_clusters = PlaceLocalStorage.createDistributedObject[Rail[Float]](Dist.makeUnique(),
-									                () =>  Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
+									                () =>  Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
         val local_cluster_counts = PlaceLocalStorage.createDistributedObject[Rail[Int]](Dist.makeUnique(), 
-                                                                                        ()=> Rail.makeVar[Int](CLUSTERS, (i:Int) => 0));
+                                                                                        ()=> Rail.make[Int](CLUSTERS, (i:Int) => 0));
 
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = Array.makeVal[Float](points_dist, (p:Point)=>rnd.get().nextFloat());
 
-        val central_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => {
+        val central_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => {
             val p = Point.make([i/DIM, i%DIM]);
             return at (points_dist(p)) points(p);
         });
 
-        val central_cluster_counts = Rail.makeVar[Int](CLUSTERS, (i:Int) => 0);
+        val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
         for (i in 1..ITERATIONS) {
 
             Console.OUT.println("Iteration: "+i);
 
             // have to create a valrail so that it will be serialised
-            val central_clusters_copy = Rail.makeVal(CLUSTERS*DIM, (i:Int) => central_clusters(i));
+            val central_clusters_copy = ValRail.make(CLUSTERS*DIM, (i:Int) => central_clusters(i));
 
             for (var j:Int=0 ; j<CLUSTERS ; ++j) {
                 local_cluster_counts.get()(j) = 0;
@@ -90,9 +90,9 @@ public class KMeansDist {
                 for (d in points_dist.places()) async(d) {
                     // have to create valrails for serialisation
                     val local_new_clusters_copy =
-                        Rail.makeVal(CLUSTERS*DIM, (i:Int) => local_new_clusters.get()(i));
+                        ValRail.make(CLUSTERS*DIM, (i:Int) => local_new_clusters.get()(i));
                     val local_cluster_counts_copy =
-                        Rail.makeVal(CLUSTERS, (i:Int) => local_cluster_counts.get()(i));
+                        ValRail.make(CLUSTERS, (i:Int) => local_cluster_counts.get()(i));
                     at (Place.FIRST_PLACE) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                             central_clusters(j) += local_new_clusters.get()(j);

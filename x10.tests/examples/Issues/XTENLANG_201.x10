@@ -11,9 +11,9 @@ class XTENLANG_201 extends x10Test {
 
     public def run(): boolean {
         try {
-            val r = Rail.makeVar[Rail[int]](100);
+            val r = Rail.make[Rail[int]](100);
             for (var i:int=0; i<100; i++)
-                r(i) = Rail.makeVar[int](1000*1000*1000);
+                r(i) = Rail.make[int](1000*1000*1000);
         } catch (Error) {
             return true;
         }

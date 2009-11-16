@@ -232,7 +232,7 @@ public class System {
     public static safe def makeRemoteRail[T] (p:Place, length:Int, init: (nat) => T)
         : Rail[T]{self.length==length} {
         if (p.isCUDA()) return cudaMakeRail[T](p,length); // FIXME: no initialisation
-        return at (p) Rail.makeVar[T](length, init);
+        return at (p) Rail.make[T](length, init);
     }
 
 }

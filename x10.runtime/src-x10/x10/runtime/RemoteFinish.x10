@@ -30,7 +30,7 @@ class RemoteFinish implements FinishState {
 	/**
 	 * Keep track of the number of activities associated with this finish state.
 	 */
-    private val counts = Rail.makeVar[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]!;
+    private val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]!;
     
     private var count:AtomicInteger = new AtomicInteger(0); 
     

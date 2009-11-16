@@ -21,7 +21,7 @@ public class FS {
     public static def main(args:Rail[String]!) {
 
         val verified: Rail[boolean]! = [true];
-        val times = Rail.makeVar[double](NUM_TIMES);
+        val times = Rail.make[double](NUM_TIMES);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = N0 * Place.MAX_PLACES;
         val localSize =  N0;
@@ -35,9 +35,9 @@ public class FS {
             
             ateach ((p):Point in Dist.makeUnique()) clocked (clock) {
 
-                val a = Rail.makeVar[double](localSize);
-                val b = Rail.makeVar[double](localSize);
-                val c = Rail.makeVar[double](localSize);
+                val a = Rail.make[double](localSize);
+                val b = Rail.make[double](localSize);
+                val c = Rail.make[double](localSize);
 
                 for ((i):Point in localRegion) {
                     b(i) = 1.5 * (p*localSize+i);

@@ -31,7 +31,7 @@ public class SeqRail2 extends Benchmark {
     // the benchmark
     //
 
-    val a = Rail.makeVar[double](N*N);
+    val a = Rail.make[double](N*N);
 
     def once() {
         for (var i:int=0; i<N; i++)

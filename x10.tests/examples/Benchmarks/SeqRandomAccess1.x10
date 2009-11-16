@@ -31,7 +31,7 @@ class SeqRandomAccess1 extends Benchmark {
         
         def this(size:int) {
             mask = size-1;
-            a = Rail.makeVar[long](size, (i:int) => i as long);
+            a = Rail.make[long](size, (i:int) => i as long);
         }
         
         final def update(ran:long) {
@@ -41,12 +41,12 @@ class SeqRandomAccess1 extends Benchmark {
         }
     }
 
-    val tables = Rail.makeVal[LocalTable](PARALLELISM,
+    val tables = ValRail.make[LocalTable](PARALLELISM,
         (p:nat) => new LocalTable(localTableSize));
 
     final static def HPCCStarts(var n:long): long {
         var i:int, j:int;
-        val m2 = Rail.makeVar[long](64);
+        val m2 = Rail.make[long](64);
         while (n < 0) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0) return 0x1L;

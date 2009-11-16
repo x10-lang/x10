@@ -35,7 +35,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int, isSimplified:boolean) {
-        super(rows, cols, Rail.makeVal[PolyRow](rows, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j))));
+        super(rows, cols, ValRail.make[PolyRow](rows, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j))));
         property(cols-1);
         this.isSimplified = isSimplified;
     }
@@ -82,7 +82,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
             return this;
 
         val pmb = new PolyMatBuilder(rank);
-        var removed:Rail[boolean]! = Rail.makeVar[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
+        var removed:Rail[boolean]! = Rail.make[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
 
         for (var i: int = 0; i<rows; i++) {
             val r = this(i);
@@ -125,7 +125,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
             } else {
                 for (jr:PolyRow in this) {
                     val ja = jr(k);
-                    val as = Rail.makeVar[int](rank+1);
+                    val as = Rail.make[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
                             as(l) = ia*jr(l) - ja*ir(l);
@@ -193,10 +193,10 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
     global def rectMin(): ValRail[int]
-        = Rail.makeVal[int](rank, (i:nat)=>rectMin(i));
+        = ValRail.make[int](rank, (i:nat)=>rectMin(i));
 
     global def rectMax(): ValRail[int]
-        = Rail.makeVal[int](rank, (i:nat)=>rectMax(i));
+        = ValRail.make[int](rank, (i:nat)=>rectMax(i));
 
     global def isZeroBased(): boolean {
         if (!isRect())

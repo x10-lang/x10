@@ -19,10 +19,10 @@ import x10.runtime.NativeRuntime;
  */
 public final struct Place(id: Int) {
     public const MAX_PLACES = NativeRuntime.MAX_HOSTS;
-    public const places = Rail.makeVal[Place](MAX_PLACES, ((id: Int) => Place(id)));
-    public const children = Rail.makeVal[ValRail[Place]](
+    public const places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
+    public const children = ValRail.make[ValRail[Place]](
                                 NativeRuntime.MAX_PLACES,
-                                (p: Int) => Rail.makeVal[Place](NativeRuntime.numChildren(p),
+                                (p: Int) => ValRail.make[Place](NativeRuntime.numChildren(p),
                                                                 (i:Int) => Place(NativeRuntime.child(p,i))));
     public const FIRST_PLACE: Place(0) = places(0) as Place(0);
 

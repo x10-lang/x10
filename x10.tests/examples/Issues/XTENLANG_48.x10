@@ -20,7 +20,7 @@ class XTENLANG_48 extends x10Test {
     class Bug(foo:nat) {
         def this() { property(0); }
 
-        //var a: Rail[R{rank==foo}] = Rail.makeVar[R{rank==foo}](10);
+        //var a: Rail[R{rank==foo}] = Rail.make[R{rank==foo}](10);
         var a: C[R{rank==foo}] = C.make[R{rank==foo}]();
     }
     

@@ -44,11 +44,11 @@ public class NQueensDist {
     class Board {
         global val q: ValRail[Int];
         def this() {
-            q = Rail.makeVal[Int](0, (Nat)=>0);
+            q = ValRail.make[Int](0, (Nat)=>0);
         }
         def this(old: ValRail[Int], newItem:Int) {
             val n = old.length;
-            q = Rail.makeVal[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
+            q = ValRail.make[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
         }
         global def safe(j: int) {
             val n = q.length;

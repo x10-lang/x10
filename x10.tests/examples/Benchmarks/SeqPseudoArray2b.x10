@@ -36,7 +36,7 @@ public class SeqPseudoArray2b extends Benchmark {
         def this(m0:int, m1:int) {
             this.m0 = m0;
             this.m1 = m1;
-            this.raw = Rail.makeVar[T](m0*m1);
+            this.raw = Rail.make[T](m0*m1);
         }
         
         final def set(v:T, i0: int, i1: int) {

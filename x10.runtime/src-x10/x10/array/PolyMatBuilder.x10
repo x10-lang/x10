@@ -62,7 +62,7 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
 
     public def add(var coeff: int, op: int, k: int): void {
         coeff += ZERO;
-        val as = Rail.makeVar[int](rank+1);
+        val as = Rail.make[int](rank+1);
         for (var i: int = 0; i<rank; i++) {
             val a = (coeff&3) - 2;
             as(i) = op==LE? a : - a;

@@ -129,7 +129,7 @@ public class Random {
     private var MT: Rail[int]!;
 
     public proto def init(seed: long): Void {
-        val mt = Rail.makeVar[int](N);
+        val mt = Rail.make[int](N);
         MT=mt;
         // Ensure the seed is nonzero.
         if (seed == 0L) {
