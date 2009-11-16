@@ -26,7 +26,7 @@ public class CudaKernelTest {
         var success:Boolean = true;
         for ((i) in 0..remote.length-1)
             if (Math.abs(1 - (recv(i)*recv(i))/(i as Float)) > 1E-6f) success = false;
-        Console.OUT.println((success?"SUCCESS":"FAIL")+" at place "+p);
+        Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
     }
 
     public static def main (args : Rail[String]!) {
