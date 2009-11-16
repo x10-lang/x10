@@ -599,23 +599,22 @@ function main {
 		printf "\n[$prog: err]: unable to locate x10c++ compiler!\n"
 		cleanUpExitHarness 2
 	fi
-	RUNX10=$(dirname $X10CPP)/runx10
-	if [[ ! -f $RUNX10 ]]; then
-		printf "\n[$prog: err]: unable to locate runx10 command!\n"
-		cleanUpExitHarness 2
+	if [[ "$(uname -s)" == "AIX" ]]; then
+		X10CPP="$X10CPP -DISABLE_GC -NO_CHECKS -x10rt pgas_lapi"
 	fi
 
-	X10LANG=$X10LANG
-	if [[ -z "$X10LANG" ]]; then
-		X10LANG=$X10_HOME/x10.runtime/src-cpp
-	fi
-	if [[ ! (-f $X10LANG/x10rt17.h || -f $X10LANG/include/x10rt17.h) ]]; then
+	if [[ ! -f $X10_HOME/x10.dist/include/x10rt17.h ]]; then
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExitHarness 2
 	fi
-	if [[ ! (-f $X10LANG/libx10.a || -f $X10LANG/lib/libx10.a) ]]; then
+	if [[ ! -f $X10_HOME/x10.dist/lib/libx10.a ]]; then
 		printf "\n[$prog: err]: unable to locate x10rt libraries!\n"
 		cleanUpExitHarness 2
+	fi
+	if [[ ! (-f $X10_HOME/x10.dist/lib/libx10rt_pgas_lapi.a || \
+						-f $X10_HOME/x10.dist/lib/libx10rt_pgas_sockets.a) ]]; then
+		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
+		celanUpExitHarness 2
 	fi
 
 	# prepare test case list
@@ -688,8 +687,7 @@ function main {
 		__cat_test_x10c_sourcepath="$tcroot"
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
-		#comp_cmd="${X10CPP} -t -v -commandlineonly -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
-		comp_cmd="${X10CPP} -t -v -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		comp_cmd="${X10CPP} -t -v -commandlineonly -report postcompile=1 -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 

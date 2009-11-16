@@ -6,38 +6,6 @@
 # $Id$
 # Script that sources and builds all components required for regression.
 
-svnUpdatePolyglotHack() {
-	if [[ ! -d $1 ]]; then
-		( \
-			cd $(dirname $1); \
-			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
-			svn co -r2571 "${2}/$(basename $1)"; \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
-	else
-		( \
-			cd $1; \
-			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
-			svn update -r2571; \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
-	fi
-}
-
 svnUpdate() {
 	if [[ ! -d $1 ]]; then
 		( \
@@ -70,40 +38,28 @@ svnUpdate() {
 	fi
 }
 
-cvsUpdate() {
-	if [[ ! -d $1 ]]; then
-		( \
-			cd $(dirname $1); \
-			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
-			cvs -d "$2" co $(basename $1); \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
+buildX10Module() {
+	printf "\n## [$prog]: building module $(basename $1)...\n"
+	case "$2" in
+		"polyglot")
+			( \
+				cd $1; \
+				ant clean jar; \
+				exit $?; \
+			)
+			;;
+	esac
+	if (( $? != 0 )); then
+		printf "\n[$prog: err]: x10 component build failed for $(basename $1)\n"
+		return 1
 	else
-		( \
-			cd $1; \
-			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
-			cvs -d "$2" update -d; \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
+		printf "\n## done.\n"
+		return 0
 	fi
 }
 
 main() {
-    # source all the relevant modules -- do fresh checkout each time
+  # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
 
 	POLYGLOT_HOME=$X10_HOME/polyglot
@@ -165,7 +121,7 @@ main() {
 	if (( $status != 0 )); then
 		return $status
 	fi
-    # post-checkout patch -- required on some platforms during batch compilation
+  # post-checkout patch -- required on some platforms during batch compilation
 	(cd $X10_DIST/bin; \
 	mv x10c.in x10c.in.orig; \
 	sed -e 's/-Xmx512m/-Xmx1024m/g' x10c.in.orig > x10c.in; \
@@ -183,10 +139,23 @@ main() {
 		return $status
 	fi
 
-    # build X10 in the listed order -- some builds may be redundant
-        printf "\n## [$prog]: building X10\n"
+  # build X10 in the listed order -- some builds may be redundant
+	buildX10Module $POLYGLOT_HOME polyglot
+	status=$?
+	if (( $status != 0 )); then
+		return $status
+	fi
+	export LOCAL_POLYGLOT_JAR=$POLYGLOT_HOME/lib/polyglot.jar
+	if [[ "$(uname -s)" == CYGWIN* ]]; then
+		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
+	fi
 
-	(cd $X10_DIST; ant dist);
+  printf "\n##### [$prog]: building X10 #####\n"
+	if [[ "$(uname -s)" == "AIX" ]]; then
+		(cd $X10_DIST; ant dist -DDISABLE_GC=true -DNO_CHECKS=true -DX10RT_PGAS=true);
+	else
+		(cd $X10_DIST; ant dist);
+	fi
 
 	return $?
 }
@@ -203,15 +172,11 @@ if [[ -z "$CVS_RSH" ]]; then
 fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
-	export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
+	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
 fi
 
 if [[ -z "$POLYGLOT_SVNROOT" ]]; then
 	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
-fi
-
-if [[ -n "$ENABLE_GC" && -z "$X10GC" ]]; then
-	export X10GC=${X10_HOME}/x10.runtime/src-cpp/bdwgc/install
 fi
 
 main

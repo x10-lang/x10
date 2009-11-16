@@ -110,10 +110,10 @@ cleanUpExit() {
 	cat $DATADIR/build_configurationT.xml.tmpl >> $REPORTF
 	cat $DATADIR/build_targetT.xml.tmpl >> $REPORTF
 	cat $DATADIR/reportT.xml.tmpl >> $REPORTF
-    ## filter the unwanted xml characters
-    #mv $REPORTF ${REPORTF}_tmp
-    #tr -cd '[\t\n\r\40-\176]' < ${REPORTF}_tmp > ${REPORTF}
-    #rm -f ${REPORTF}_tmp
+  ## filter the unwanted xml characters
+  #mv $REPORTF ${REPORTF}_tmp
+  #tr -cd '[\t\n\r\40-\176]' < ${REPORTF}_tmp > ${REPORTF}
+  #rm -f ${REPORTF}_tmp
 	gzip -9 $REPORTF
     # directly log results into legato's cattrack bay
 	if [[ $rc != 128 && -z "$NO_CATTRACK" ]]; then
@@ -149,16 +149,6 @@ if [[ -z "$X10_HOME" ]]; then
 	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
-X10LANG=$X10LANG
-if [[ -z "$X10LANG" ]]; then
-	export X10LANG=${X10_HOME}/x10.runtime/src-cpp
-fi
-
-X10GC=$X10GC
-if [[ -n "$ENABLE_GC" && -z "$X10GC" ]]; then
-	export X10GC=${X10_HOME}/x10.runtime/src-cpp/bdwgc/install
-fi
-
 LOGD=$LOGD
 if [[ -z "$LOGD" ]]; then
 	LOGD=$(pwd)/log
@@ -168,8 +158,8 @@ if [[ ! -d "$LOGD" ]]; then
 fi
 
 export CVS_RSH=ssh
-export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
-export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
+export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
 __cat_feed_stage=INIT
@@ -268,7 +258,7 @@ __cat_x10_home=$X10_HOME
 if [[ "${__cat_x10_home}" == x10c ]]; then
 	__cat_x10lang_path=NA
 else
-	__cat_x10lang_path="$X10LANG"
+	__cat_x10lang_path="$X10_HOME/x10.dist/lib"
 fi
 declare -i ecode
 
@@ -299,8 +289,8 @@ fi
 
 ##### cat feed - test (cases) compilation & execution
 __cat_feed_stage=TEST
-#export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/src-x10/classes
-export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/classes/gen
+#export EXTRA_CLASSPATH=$X10_HOME/x10.runtime/classes/gen
+export EXTRA_CLASSPATH=""
 if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_extra_classpath=$EXTRA_CLASSPATH
 else
@@ -318,7 +308,7 @@ __cat_java_home="$(java -classpath $DATADIR GetProp java.home)"
 if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_x10lang_path=NA
 else
-	__cat_x10lang_path=$X10LANG
+	__cat_x10lang_path=$X10_HOME/x10.dist/lib
 fi
 __cat_x10c_version=$($X10_HOME/x10.dist/bin/x10c -version | \
 				egrep '^x10c' | awk '{print $3}')
@@ -353,7 +343,6 @@ __cat_x10_PRELOAD_CLASSES="false"
 __cat_x10_PRELOAD_STRINGS="false"
 __cat_x10_LOAD=""
 
-export X10LANG=$X10LANG
 if [[ -n "$TMPDIR" && -d "$TMPDIR" ]]; then
     export TMPDIR=$TMPDIR
 fi
