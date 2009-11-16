@@ -15,10 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import polyglot.ast.Binary;
+import polyglot.ast.Empty_c;
 import polyglot.ast.Expr;
 import polyglot.ast.If;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
+import polyglot.ast.While;
+import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
 public class Simplifier extends NodeVisitor {
@@ -60,6 +63,37 @@ public class Simplifier extends NodeVisitor {
                     }
                     fEvalResults.put(b, result);
                 }
+            } else if (op == Binary.ADD || op == Binary.BIT_AND || op == Binary.BIT_OR || op == Binary.BIT_XOR || op == Binary.DIV || op == Binary.MOD || op == Binary.MUL || op == Binary.SHL || op == Binary.SHR || op == Binary.SUB) {
+                if (left.type().isInt() && right.type().isInt() && fEvalResults.containsKey(left) && fEvalResults.containsKey(right)) {
+                    Integer leftVal= (Integer) fEvalResults.get(left);
+                    Integer rightVal= (Integer) fEvalResults.get(right);
+                    int result= 0;
+
+                    if (op == Binary.ADD) {
+                        result= leftVal + rightVal;
+                    } else if (op == Binary.BIT_AND) {
+                        result= leftVal & rightVal;
+                    } else if (op == Binary.BIT_OR) {
+                        result= leftVal | rightVal;
+                    } else if (op == Binary.BIT_XOR) {
+                        result= leftVal ^ rightVal;
+                    } else if (op == Binary.DIV) {
+                        result= leftVal / rightVal;
+                    } else if (op == Binary.MOD) {
+                        result= leftVal % rightVal;
+                    } else if (op == Binary.MUL) {
+                        result= leftVal * rightVal;
+                    } else if (op == Binary.SHL) {
+                        result= leftVal << rightVal;
+                    } else if (op == Binary.SHR) {
+                        result= leftVal >> rightVal;
+                    } else if (op == Binary.SUB) {
+                        result= leftVal - rightVal;
+                    } else if (op == Binary.USHR) {
+                        result= leftVal >>> rightVal;
+                    }
+                    fEvalResults.put(b, result);
+                }                
             }
         } else if (n instanceof If) {
             If ifStmt= (If) n;
@@ -73,6 +107,13 @@ public class Simplifier extends NodeVisitor {
             Expr e= (Expr) n;
             if (e.isConstant()) {
                 fEvalResults.put(e, e.constantValue());
+            }
+        } else if (n instanceof While) {
+            While w= (While) n;
+            Expr cond= w.cond();
+            // while (false) S => <>
+            if (fEvalResults.containsKey(cond) && !((Boolean) fEvalResults.get(cond)).booleanValue()) {
+                return new Empty_c(Position.COMPILER_GENERATED);
             }
         }
         return super.leave(parent, old, n, v);
