@@ -63,6 +63,10 @@ ifeq ($(X10RT_PLATFORM), darwin)
   WPLATFORM      := macos_x86_g++4
   SOCKETS_USE    := yes
 endif
+ifeq ($(X10RT_PLATFORM), darwin64)
+  WPLATFORM      := macos_x86_64_g++4
+  SOCKETS_USE    := yes
+endif
 ifeq ($(X10RT_PLATFORM), sunos)
   WPLATFORM      := sunos_sparc_g++4
   SOCKETS_USE    := yes

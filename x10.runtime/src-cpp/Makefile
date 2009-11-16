@@ -113,7 +113,7 @@ else
         export X10RT_PLATFORM="cygwin"
       else
         ifeq ($(shell uname -s),Darwin)
-          export X10RT_PLATFORM="darwin"
+          export X10RT_PLATFORM=$(shell echo | gcc -E -dM - | grep -q x86_64 && echo darwin64 || echo darwin)
         else
           ifeq ($(shell uname -s),SunOS)
             export X10RT_PLATFORM="sunos"
