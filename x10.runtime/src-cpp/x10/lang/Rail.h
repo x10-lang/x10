@@ -92,6 +92,11 @@ namespace x10 {
             static R make(x10_int length);
             static R make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init);
             static R make(x10aux::ref<ValRail<T> > other);
+            static R make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other);
+            static R make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other);
+
+            void reset(x10aux::ref<Fun_0_1<x10_int,T> > init);
+            void reset(T val);
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -239,6 +244,28 @@ namespace x10 {
             return rail;
         }
 
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length, x10_int offset,
+                                                               x10aux::ref<ValRail<T> > other) {
+            x10aux::nullCheck(other);
+            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = (*other)[i+offset];
+            }
+            return rail;
+        }
+
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length, x10_int offset,
+                                                               x10aux::ref<Rail<T> > other) {
+            x10aux::nullCheck(other);
+            R rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            rail->x10::lang::Ref::_constructor();
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = (*other)[i+offset];
+            }
+            return rail;
+        }
+
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10aux::ref<ValRail<T> > other) {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
@@ -248,6 +275,24 @@ namespace x10 {
                 (*rail)[i] = (*other)[i];
             }
             return rail;
+        }
+
+
+        template <class T> void Rail<T>::reset(T val) {
+            for (x10_int i=0 ; i<FMGL(length) ; ++i) {
+                (*this)[i] = val;
+            }
+        }
+
+
+        template <class T> void Rail<T>::reset(x10aux::ref<Fun_0_1<x10_int,T> > init) {
+            x10aux::ref<x10::lang::Object> initAsObj = init;
+            // FIXME:  This is a complete hack to compensate for some problem in the RTT infrastructure.  Same HACK in ValRail.h
+            initAsObj->_type();
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
+            for (x10_int i=0 ; i<FMGL(length) ; ++i) {
+                (*this)[i] = (initAsObj.operator->()->*(it->apply))(i);
+            }
         }
 
 
