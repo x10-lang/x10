@@ -1,10 +1,10 @@
+package x10.util;
+
 import x10.runtime.PlaceLocalStorage;
 import x10.runtime.PlaceLocalHandle;
 
 import x10.util.Pair;
 
-
-package x10.util;
 
 /**
  * @author Dave Cunningham
