@@ -16,6 +16,7 @@ package x10cuda.types;
 
 import java.util.ArrayList;
 
+import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.frontend.Job;
 import x10.ast.Closure_c;
@@ -44,13 +45,13 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     public boolean generatingKernel() { return generatingKernel; }
     public void generatingKernel(boolean v) { generatingKernel = v; }
     
-    private long blocks; public long blocks() { return blocks; }
-    private long threads; public long threads() { return threads; }
+    private Expr blocks; public Expr blocks() { return blocks; }
+    private Expr threads; public Expr threads() { return threads; }
     private Name blocksVar; public Name blocksVar() { return blocksVar; }
     private Name threadsVar; public Name threadsVar() { return threadsVar; }
     private SharedMem shm; public SharedMem shm() { return shm; }
     private ArrayList<VarInstance> kernelParams; public ArrayList<VarInstance> kernelParams() { return kernelParams; }
-    public void setCudaKernelCFG(long blocks, Name blocksVar, long threads, Name threadsVar, SharedMem shm) {
+    public void setCudaKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm) {
         this.blocks = blocks;
         this.blocksVar = blocksVar;
         this.threads = threads;
