@@ -6,11 +6,13 @@ Bundle-Version: 0.1.1
 Bundle-Activator: org.eclipse.imp.x10dt.analysis.X10AnalysisPlugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Require-Bundle: org.eclipse.core.runtime,
+ com.ibm.wala.shrike,
+ org.eclipse.compare,
  org.eclipse.core.resources,
  org.eclipse.imp.pdb,
- polyglot3,
+ org.eclipse.imp.pdb.values,
  org.eclipse.imp.runtime,
  org.eclipse.imp.x10dt.core,
- com.ibm.wala.shrike,
- org.eclipse.compare
-Eclipse-LazyStart: true
+ polyglot3,
+ org.eclipse.ui;bundle-version="3.4.2"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

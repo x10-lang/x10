@@ -3,7 +3,7 @@ package org.eclipse.imp.x10dt.analysis;
 import org.eclipse.imp.pdb.analysis.IFactGenerator;
 import org.eclipse.imp.pdb.analysis.IFactGeneratorFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 
 public class X10FactGeneratorFactory implements IFactGeneratorFactory {
 
@@ -14,9 +14,10 @@ public class X10FactGeneratorFactory implements IFactGeneratorFactory {
         throw new IllegalArgumentException("X10 Fact Generator Factory: don't know how to produce fact " + type);
     }
 
-    public void declareTypes(TypeFactory factory) {
+    public TypeStore declareTypes() {
         // Force static initializers on X10FactTypes to run
-        Type dummy= X10FactTypes.X10CallGraphType;
+        @SuppressWarnings("unused") Type dummy= X10FactTypes.X10CallGraphType;
+        return X10FactTypes.ts;
     }
 
     public String getName() {

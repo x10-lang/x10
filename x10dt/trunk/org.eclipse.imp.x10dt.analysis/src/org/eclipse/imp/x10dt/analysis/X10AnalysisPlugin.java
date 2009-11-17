@@ -4,12 +4,13 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class X10AnalysisPlugin extends Plugin {
+public class X10AnalysisPlugin extends Plugin implements IStartup {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.analysis";
 
@@ -66,5 +67,9 @@ public class X10AnalysisPlugin extends Plugin {
 
     public static void log(String msg) {
         getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, null));
+    }
+
+    public void earlyStartup() {
+//        X10TypeFactGenerator.initialize();
     }
 }

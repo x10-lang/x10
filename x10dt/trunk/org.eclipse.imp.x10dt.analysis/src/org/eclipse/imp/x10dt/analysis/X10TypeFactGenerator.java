@@ -3,6 +3,8 @@ package org.eclipse.imp.x10dt.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -48,7 +50,6 @@ import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -58,8 +59,7 @@ import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
-import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.NamedType;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.indexing.IndexManager;
 import org.eclipse.imp.utils.StreamUtils;
@@ -165,14 +165,12 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
         }
     }
 
-    static {
-        if (true) {
-            Type[] factTypes= new Type[] { X10FactTypes.X10Types, X10FactTypes.X10TypeHierarchy };
-            IWorkspace workspace= ResourcesPlugin.getWorkspace();
+    public static void initialize() {
+        Type[] factTypes= new Type[] { X10FactTypes.X10Types, X10FactTypes.X10TypeHierarchy };
+        IWorkspace workspace= ResourcesPlugin.getWorkspace();
 
-            arrangeForFactUpdates(factTypes, workspace);
-            workspace.addResourceChangeListener(new ProjectAddDeleteListener(factTypes), IResourceChangeEvent.POST_CHANGE);
-        }
+        arrangeForFactUpdates(factTypes, workspace);
+        workspace.addResourceChangeListener(new ProjectAddDeleteListener(factTypes), IResourceChangeEvent.POST_CHANGE);
     }
 
     private final class TypeVisitor extends NodeVisitor {
@@ -180,7 +178,7 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
         public NodeVisitor enter(Node n) {
             if (n instanceof ClassDecl) {
                 ClassDecl cd= (ClassDecl) n;
-                ParsedClassType cdType= cd.type();
+                ParsedClassType cdType= (ParsedClassType) cd.classDef().asType();
                 TypeNode superTypeNode= cd.superClass();
                 ClassType superClass;
 
@@ -193,12 +191,12 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
                         superClass= null;
                     }
                 } else {
-                    superClass= cdType.typeSystem().Object();
+                    superClass= (ClassType) cdType.typeSystem().Object();
                 }
 
                 Position pos= cdType.position();
 
-                fTypesSW.insert(vf.tuple(typeNameFor(cdType), vf.sourceLocation(pos.path(), positionToSourcePosition(pos))));
+                fTypesSW.insert(vf.tuple(typeNameFor(cdType), positionToSourcePosition(pos)));
                 fDerivesRW.insert(vf.tuple(typeNameFor(cdType), typeNameFor(superClass)));
         
                 List<TypeNode> intfs= cd.interfaces();
@@ -209,15 +207,19 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
             return this;
         }
 
-        private ISourceRange positionToSourcePosition(Position pos) {
-            return vf.sourceRange(pos.offset(), pos.endOffset() - pos.offset(), pos.line(), pos.endLine(), pos.column(), pos.endColumn());
+        private ISourceLocation positionToSourcePosition(Position pos) {
+            try {
+                return vf.sourceLocation(new URI("file", "", pos.path(), null), pos.offset(), pos.endOffset() - pos.offset(), pos.line(), pos.endLine(), pos.column(), pos.endColumn());
+            } catch (URISyntaxException e) {
+                return null;
+            }
         }
 
         private IString typeNameFor(ClassType cdType) {
             if (cdType != null) {
-                return vf.string(X10FactTypes.X10TypeName, cdType.fullName());
+                return (IString) X10FactTypes.X10TypeName.make(vf, cdType.fullName().toString());
             } else {
-                return vf.string(X10FactTypes.X10TypeName, "<unknown>");
+                return (IString) X10FactTypes.X10TypeName.make(vf, "<unknown>");
             }
         }
     }
@@ -227,14 +229,9 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
     private IParseController fParseController;
     private final TypeVisitor fTypeVisitor= new TypeVisitor();
 
-    private final ISourceRange EMPTY_SOURCE_RANGE= vf.sourceRange(0, 0, 0, 0, 0, 0);
-
     public void generate(FactBase factBase, Type type, IFactContext context) throws AnalysisException {
-        IRelation derivesRel= vf.relation(X10FactTypes.X10TypeHierarchy);
-        ISet typesSet= vf.set(X10FactTypes.X10Types);
-
-        fTypesSW= typesSet.getWriter();
-        fDerivesRW= derivesRel.getWriter();
+        fTypesSW= X10FactTypes.X10TypeHierarchy.writer(vf);
+        fDerivesRW= X10FactTypes.X10Types.writer(vf);
 
         ISourceEntityContext sec= (ISourceEntityContext) context;
         ISourceEntity srcEntity= sec.getEntity();
@@ -246,8 +243,8 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
 
         processEntity(srcEntity, srcProject);
 
-        fDerivesRW.done();
-        fTypesSW.done();
+        IRelation derivesRel= fDerivesRW.done();
+        ISet typesSet= fTypesSW.done();
 
         factBase.defineFact(new FactKey(X10FactTypes.X10TypeHierarchy, context), derivesRel);
         factBase.defineFact(new FactKey(X10FactTypes.X10Types, context), typesSet);
@@ -272,7 +269,7 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
                                     } catch (IOException e) {
                                         throw wrapException(e);
                                     }
-                                } else if ("java".equals(file.getFileExtension())) {
+                                } else if ("x10".equals(file.getFileExtension())) {
                                     processSourceFile(file);
                                 } else if ("class".equals(file.getFileExtension())) {
                                     processClassFile(file);
@@ -307,14 +304,13 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
         try {
             FactKey hierKey= new FactKey(X10FactTypes.X10TypeHierarchy, context);
             FactKey typesKey= new FactKey(X10FactTypes.X10Types, context);
+
+            System.out.println("X10 fact generator updating type hierarchy/dictionary for " + res.getLocation());
             Set<String> typesToRemove= new HashSet<String>();
             ITuplePredicate typesPred= createTypesPredicate(res);
-            ISet newTypesSet= getSetForUpdating(factBase, typesKey, typesPred, typesToRemove);
+            fTypesSW= getSetForUpdating(factBase, typesKey, typesPred, typesToRemove);
             ITuplePredicate hierPred= createHierPredicate(typesToRemove);
-            IRelation newDerivesRel= getRelationForUpdating(factBase, hierKey, hierPred);
-
-            fDerivesRW= newDerivesRel.getWriter();
-            fTypesSW= newTypesSet.getWriter();
+            fDerivesRW= getRelationForUpdating(factBase, hierKey, hierPred);
 
             if (res instanceof IProject) {
                 ISourceProject srcProject= ModelFactory.open((IProject) res);
@@ -339,8 +335,8 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
 //
 //                astRoot.visit(fTypeVisitor);
             }
-            factBase.defineFact(hierKey, newDerivesRel);
-            factBase.defineFact(typesKey, newTypesSet);
+            factBase.defineFact(hierKey, fDerivesRW.done());
+            factBase.defineFact(typesKey, fTypesSW.done());
         } catch (ModelException e) {
             throw new AnalysisException("Error while updating fact base from " + res.getFullPath(), e);
         }
@@ -354,7 +350,7 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
             pred= new ITuplePredicate() {
                 public boolean isSatisfiedBy(ITuple t) {
                     ISourceLocation loc= (ISourceLocation) t.get(1);
-                    return loc.getPath().startsWith(pathStr);
+                    return loc.getURI().getPath().startsWith(pathStr);
                 }
             };
         } else if (res instanceof IFile) {
@@ -362,7 +358,7 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
             pred= new ITuplePredicate() {
                 public boolean isSatisfiedBy(ITuple t) {
                     ISourceLocation loc= (ISourceLocation) t.get(1);
-                    return loc.getPath().equals(pathStr);
+                    return loc.getURI().getPath().equals(pathStr);
                 }
             };
         }
@@ -382,8 +378,8 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
         return pred;
     }
 
-    private ISet getSetForUpdating(FactBase factBase, IFactKey key, ITuplePredicate pred, Set<String> typesToRemove) {
-        ISet resultSet;
+    private ISetWriter getSetForUpdating(FactBase factBase, IFactKey key, ITuplePredicate pred, Set<String> typesToRemove) {
+        ISetWriter resultWriter;
 
         if (factBase.getAllKeys().contains(key)) {
             ISet oldSet;
@@ -391,30 +387,29 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
             try {
                 oldSet= factBase.getSet(key);
             } catch (AnalysisException e) { // should never happen -- the fact base the fact exists
-                oldSet= vf.set((NamedType) key.getType()); // just use an empty set in case of error above
+                oldSet= (ISet) key.getType().make(vf); // just use an empty set in case of error above
             }
-                
-            resultSet= vf.set((NamedType) key.getType());
-            ISetWriter sw= resultSet.getWriter();
+
+            resultWriter= key.getType().writer(vf);
 
             // Copy over the old set elements that aren't being updated (that aren't from this resource)
             for(Iterator<IValue> iter= oldSet.iterator(); iter.hasNext(); ) {
                 ITuple t= (ITuple) iter.next();
 
                 if (!pred.isSatisfiedBy(t)) {
-                    sw.insert(t);
+                    resultWriter.insert(t);
                 } else {
                     typesToRemove.add(((IString) t.get(0)).getValue());
                 }
             }
         } else {
-            resultSet= vf.set((NamedType) key.getType());
+            resultWriter= key.getType().writer(vf);
         }
-        return resultSet;
+        return resultWriter;
     }
 
-    private IRelation getRelationForUpdating(FactBase factBase, IFactKey key, ITuplePredicate pred) {
-        IRelation resultRel;
+    private IRelationWriter getRelationForUpdating(FactBase factBase, IFactKey key, ITuplePredicate pred) {
+        IRelationWriter resultWriter;
 
         if (factBase.getAllKeys().contains(key)) {
             IRelation oldRel;
@@ -422,26 +417,23 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
             try {
                 oldRel= factBase.getRelation(key);
             } catch (AnalysisException e) {
-                oldRel= vf.relation((NamedType) key.getType());
+                oldRel= (IRelation) key.getType().make(vf);
             }
 
-            resultRel= vf.relation((NamedType) key.getType());
-            fDerivesRW= resultRel.getWriter();
+            resultWriter= fDerivesRW= key.getType().writer(vf);
 
             // Copy over the old relation tuples that aren't being updated (that aren't from this resource)
-            for(Iterator<ITuple> iter= oldRel.iterator(); iter.hasNext(); ) {
-                ITuple t= iter.next();
+            for(Iterator<IValue> iter= oldRel.iterator(); iter.hasNext(); ) {
+                ITuple t= (ITuple) iter.next();
 
                 if (!pred.isSatisfiedBy(t)) {
                     fDerivesRW.insert(t);
                 }
             }
         } else {
-            resultRel= vf.relation((NamedType) key.getType());
-
-            fDerivesRW= resultRel.getWriter();
+            fDerivesRW= resultWriter= key.getType().writer(vf);
         }
-        return resultRel;
+        return resultWriter;
     }
 
     private void processJarFile(IPath path, ISourceProject project) throws IOException {
@@ -483,21 +475,23 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
 
             String superName= cr.getSuperName();
             String[] intfNames= cr.getInterfaceNames();
-            IString classNameVal= vf.string(X10FactTypes.X10TypeName, className);
+            IString classNameVal= (IString) X10FactTypes.X10TypeName.make(vf, className);
 
             if (superName != null) {
                 superName= superName.replace('/', '.');
             }
-            fTypesSW.insert(vf.tuple(classNameVal, vf.sourceLocation(path.toOSString(), EMPTY_SOURCE_RANGE)));
+            fTypesSW.insert(vf.tuple(classNameVal, vf.sourceLocation(new URI("file", "", path.toOSString(), null), 0, 0, 0, 0, 0, 0)));
             if (superName != null) {
-                fDerivesRW.insert(vf.tuple(classNameVal, vf.string(X10FactTypes.X10TypeName, superName)));
+                fDerivesRW.insert(vf.tuple(classNameVal, X10FactTypes.X10TypeName.make(vf, superName)));
             }
             for(int i= 0; i < intfNames.length; i++) {
                 String intfName= intfNames[i].replace('/', '.');
 
-                fDerivesRW.insert(vf.tuple(classNameVal, vf.string(X10FactTypes.X10TypeName, intfName)));
+                fDerivesRW.insert(vf.tuple(classNameVal, X10FactTypes.X10TypeName.make(vf, intfName)));
             }
         } catch (InvalidClassFileException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
@@ -529,7 +523,12 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
 
     private void processSourceFile(IFile file) throws CoreException {
         try {
-            processSourceFile(file.getLocation(), file.getContents(), ModelFactory.open(file.getProject()));
+            if (!file.isSynchronized(0)) {
+                // TODO Get the working copy and process that?
+                System.out.println("File is not in sync w/ filesystem: " + file.getLocation());
+            } else {
+                processSourceFile(file.getLocation(), file.getContents(), ModelFactory.open(file.getProject()));
+            }
         } catch (ModelException e) {
             throw wrapException(e);
         }
@@ -545,9 +544,11 @@ public class X10TypeFactGenerator implements IFactGenerator, IFactUpdater {
 
         fParseController.initialize(path.removeFirstSegments(srcProject.getRawProject().getLocation().segmentCount()), srcProject, mh);
 
-        SourceFile astRoot= (SourceFile) fParseController.parse(contents, false, new NullProgressMonitor());
+        SourceFile astRoot= (SourceFile) fParseController.parse(contents, new NullProgressMonitor());
 
-        astRoot.visit(fTypeVisitor);
+        if (astRoot != null) {
+            astRoot.visit(fTypeVisitor);
+        }
     }
 
     /**
