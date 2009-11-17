@@ -26,20 +26,20 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Unary;
-import x10.ast.SettableAssign;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
+import x10.ast.SettableAssign;
 import x10.constraint.XArray;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
 
 public class TermCreator {
         private static Map<Unary.Operator,XName> sUnaryOpMap= new HashMap<Unary.Operator,XName>();

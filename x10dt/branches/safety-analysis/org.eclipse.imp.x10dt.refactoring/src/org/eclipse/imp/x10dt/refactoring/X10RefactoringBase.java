@@ -1,3 +1,14 @@
+/*******************************************************************************
+* Copyright (c) 2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*******************************************************************************/
+
 package org.eclipse.imp.x10dt.refactoring;
 
 import java.io.PrintStream;
@@ -5,15 +16,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
+import org.eclipse.imp.x10dt.refactoring.changes.EclipseChangeInterpreter;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
+import org.eclipse.imp.x10dt.ui.parser.CompilerDelegate;
+import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.Region;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.FileStatusContext;
 import org.eclipse.ltk.core.refactoring.Refactoring;
+import org.eclipse.ltk.core.refactoring.RefactoringStatus;
+import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.text.edits.InsertEdit;
@@ -25,7 +51,10 @@ import polyglot.ast.Block;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
+import polyglot.frontend.Compiler;
 import x10.ast.X10MethodDecl;
+import x10.ast.X10NodeFactory;
+import x10.types.X10TypeSystem;
 
 public abstract class X10RefactoringBase extends Refactoring {
     /**
@@ -61,6 +90,12 @@ public abstract class X10RefactoringBase extends Refactoring {
     protected PrintStream fConsoleStream;
 
     private String fLineTerminator;
+
+    protected X10NodeFactory fNodeFactory;
+
+    protected X10TypeSystem fTypeSystem;
+
+    protected Compiler fCompiler;
 
     protected X10RefactoringBase(ITextEditor editor) {
         fEditor= editor;
@@ -199,7 +234,7 @@ public abstract class X10RefactoringBase extends Refactoring {
         // TODO Handle case where the selNodes lie inside one of the contextNodes
         List<Node> result= new LinkedList<Node>();
         int lastSelNodeEnd= selNodes.get(selNodes.size()-1).position().endOffset();
-    
+
         for(Node contextNode: contextNodes) {
             if (!selNodes.contains(contextNode) && isAfter(contextNode, lastSelNodeEnd)) {
                 result.add(contextNode);
@@ -220,16 +255,15 @@ public abstract class X10RefactoringBase extends Refactoring {
     }
 
     protected void wrapNodes(List<Node> nodesToWrap, String op, TextFileChange tfc) {
-        if (nodesToWrap.size() == 1) {
-            int asyncOffset= nodesToWrap.get(0).position().offset();
+        int nodesOffset= nodesToWrap.get(0).position().offset();
 
-            tfc.addEdit(new InsertEdit(asyncOffset, op + " "));
+        if (nodesToWrap.size() == 1) {
+            tfc.addEdit(new InsertEdit(nodesOffset, op + " "));
         } else {
-            int asyncOffset= nodesToWrap.get(0).position().offset();
             int blockClose= nodesToWrap.get(nodesToWrap.size()-1).position().endOffset();
 
-            tfc.addEdit(new InsertEdit(asyncOffset, op + " {" + fLineTerminator));
-            tfc.addEdit(new InsertEdit(blockClose, "}" + fLineTerminator));
+            tfc.addEdit(new InsertEdit(nodesOffset, op + " {" + getLineTerminator()));
+            tfc.addEdit(new InsertEdit(blockClose, "}" + getLineTerminator()));
         }
     }
 
@@ -241,5 +275,60 @@ public abstract class X10RefactoringBase extends Refactoring {
             fLineTerminator= doc.getLegalLineDelimiters()[0];
         }
         return fLineTerminator;
+    }
+
+    private final RefactoringStatus OK_STATUS= RefactoringStatus.create(new Status(IStatus.OK, X10DTRefactoringPlugin.kPluginID, ""));
+
+    protected RefactoringStatus okStatus() {
+        return OK_STATUS;
+    }
+
+    protected RefactoringStatus errorStatus(String msg) {
+        return RefactoringStatus.createErrorStatus(msg);
+    }
+
+    protected RefactoringStatus errorStatus(String mainMsg, polyglot.util.Position pos, String msg) {
+        RefactoringStatus status= RefactoringStatus.createErrorStatus(mainMsg);
+        addErrorAnnotation(pos, msg, status);
+        return status;
+    }
+
+    protected IFile getFileFromPosition(polyglot.util.Position pos) {
+        IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
+        String posFile= pos.file();
+        String wsRootPath= wsRoot.getLocation().toOSString();
+        if (posFile.startsWith(wsRootPath)) {
+            return wsRoot.getFile(new Path(posFile.substring(wsRootPath.length())));
+        }
+        return wsRoot.getFile(new Path(posFile));
+    }
+
+    protected void addErrorAnnotation(polyglot.util.Position pos, String msg, RefactoringStatus status) {
+        IRegion region= new Region(pos.offset(), pos.endOffset() - pos.offset() + 1);
+        FileStatusContext context= new FileStatusContext(getFileFromPosition(pos), region);
+
+        status.addEntry(new RefactoringStatusEntry(RefactoringStatus.ERROR, msg, context));
+    }
+
+    protected RefactoringStatus fatalStatus(String msg) {
+        return RefactoringStatus.createFatalErrorStatus(msg);
+    }
+
+    protected void getNodeFactoryTypeSystem() {
+        IParseController pc= ((IASTFindReplaceTarget) fEditor).getParseController();
+        CompilerDelegate cd= ((ParseController) pc).getCompiler();
+        ExtensionInfo extInfo = cd.getExtInfo();
+
+        fCompiler= cd.getCompiler();
+        fNodeFactory= (X10NodeFactory) extInfo.nodeFactory();
+        fTypeSystem= (X10TypeSystem) extInfo.typeSystem();
+    }
+
+    protected Change interpretChange(org.eclipse.imp.x10dt.refactoring.changes.Change change) {
+        IWorkspace ws= ResourcesPlugin.getWorkspace();
+        EclipseChangeInterpreter interp= new EclipseChangeInterpreter(ws, fCompiler, fNodeFactory, fTypeSystem, getLineTerminator());
+    
+        interp.perform(change, fSourceAST);
+        return interp.getResult();
     }
 }

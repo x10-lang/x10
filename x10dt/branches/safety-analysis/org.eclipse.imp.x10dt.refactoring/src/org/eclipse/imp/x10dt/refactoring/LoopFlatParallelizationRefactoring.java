@@ -1,7 +1,19 @@
+/*******************************************************************************
+* Copyright (c) 2009 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*******************************************************************************/
+
 package org.eclipse.imp.x10dt.refactoring;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -38,6 +50,8 @@ import x10.ast.X10MethodDecl;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
+import x10.effects.constraints.Pair;
 
 public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
     private static final String LOOP_FLAT_REFACTORING_NAME= "Loop Flat Parallelization";
@@ -144,6 +158,7 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
             // If the loop formal has "exploded var syntax" (e.g. "for(p(i): Point in r) { ... }"),
             // then we need to do commutesWithForall() over the set of all the induction variables.
             boolean commutes;
+            Set<Pair<Effect,Effect>> interference= null;
 
             if (explodedVars.size() > 0) {
                 List<XLocal> loopLocals= new ArrayList<XLocal>(explodedVars.size() + 1);
@@ -152,13 +167,31 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
                     loopLocals.add(XTerms.makeLocal(new XVarDefWrapper(explodedVar.localDef())));
                 }
                 commutes= bodyEff.commutesWithForall(loopLocals);
+
+                if (!commutes) {
+                    interference= bodyEff.interferenceWithForall(loopLocals);
+                }
             } else {
                 XLocal loopLocal= XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef()));
 
                 commutes= bodyEff.commutesWithForall(loopLocal);
+
+                if (!commutes) {
+                    interference= bodyEff.interferenceWithForall(loopLocal);
+                }
             }
             if (!commutes) {
-                return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute.");
+                fConsoleStream.println("***");
+                if (bodyEff == Effects.BOTTOM_EFFECT) {
+                    return RefactoringStatus.createErrorStatus("The loop body's effect is BOTTOM, which doesn't commute with anything.");
+                } else {
+                    fConsoleStream.println("The following effects do not commute:");
+                    for(Pair<Effect,Effect> p: interference) {
+                        fConsoleStream.println(p.fst + " and " + p.snd);
+                    }
+                    Pair<Effect,Effect> first= interference.iterator().next();
+                    return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute, e.g. " + first.fst + " and " + first.snd);
+                }
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10DTRefactoringPlugin.kPluginID, ""));
         } catch (Exception e) {
