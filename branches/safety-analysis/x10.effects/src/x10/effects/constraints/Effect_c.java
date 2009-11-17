@@ -4,7 +4,6 @@
 package x10.effects.constraints;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,31 +69,137 @@ public class Effect_c implements Effect {
 		return commutesWith(e, XTerms.makeTrueConstraint());
 	}
 
-	private boolean disjoint(Set<Locs> a, Set<Locs> b, XConstraint c) {
-		for (Locs l : a)
-			for (Locs m: b) {
-				if (! l.disjointFrom(m, c))
-					return false;
+    public Set<Pair<Effect, Effect>> interferenceWith(Effect e) {
+        return interferenceWith(e, XTerms.makeTrueConstraint());
+    }
+
+    private Set<Pair<Locs,Locs>> disjoint(Set<Locs> a, Set<Locs> b, XConstraint c) {
+	    Set<Pair<Locs,Locs>> result= null;
+		for (Locs al : a) {
+			for (Locs bl: b) {
+				if (! al.disjointFrom(bl, c)) {
+				    if (result == null) {
+				        result= new HashSet<Pair<Locs,Locs>>();
+				    }
+                    result.add(new Pair<Locs,Locs>(al,bl));
+				}
 			}
-		return true;
+		}
+		return result;
 	}
-	/* (non-Javadoc)
+
+	private interface EffectPairPopulator {
+	    void populateEffect(Pair<Locs,Locs> locPair, Effect e1, Effect e2);
+	}
+
+	private static EffectPairPopulator RWEffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addRead(p.fst);
+            e2.addWrite(p.snd);
+        }
+	};
+
+    private static EffectPairPopulator RAEffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addRead(p.fst);
+            e2.addAtomicInc(p.snd);
+        }
+    };
+
+    private static EffectPairPopulator WREffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addWrite(p.fst);
+            e2.addRead(p.snd);
+        }
+    };
+
+    private static EffectPairPopulator WWEffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addWrite(p.fst);
+            e2.addWrite(p.snd);
+        }
+    };
+
+    private static EffectPairPopulator WAEffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addWrite(p.fst);
+            e2.addAtomicInc(p.snd);
+        }
+    };
+
+    private static EffectPairPopulator AREffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addAtomicInc(p.fst);
+            e2.addRead(p.snd);
+        }
+    };
+
+    private static EffectPairPopulator AWEffectPairPopulator = new EffectPairPopulator() {
+        public void populateEffect(Pair<Locs, Locs> p, Effect e1, Effect e2) {
+            e1.addAtomicInc(p.fst);
+            e2.addWrite(p.snd);
+        }
+    };
+
+    private Set<Pair<Effect,Effect>> nonDisjointEffects(Set<Pair<Locs,Locs>> pairs, EffectPairPopulator pop) {
+        Set<Pair<Effect,Effect>> result= null;
+
+        if (pairs != null && !pairs.isEmpty()) {
+            result= new HashSet<Pair<Effect,Effect>>();
+            for(Pair<Locs,Locs> p: pairs) {
+                Effect e1= Effects.makeEffect(true);
+                Effect e2= Effects.makeEffect(true);
+
+                pop.populateEffect(p, e1, e2);
+                result.add(new Pair<Effect,Effect>(e1, e2));
+            }
+        }
+        return result;
+    }
+
+    private Set<Pair<Effect,Effect>> combine(Set<Pair<Effect,Effect>> pairs1, Set<Pair<Effect,Effect>> pairs2) {
+        if (pairs1 == null) {
+            return pairs2;
+        }
+        if (pairs2 == null) {
+            return pairs1;
+        }
+        pairs1.addAll(pairs2);
+        return pairs1;
+    }
+
+    public boolean commutesWith(Effect e, XConstraint c) {
+        if (this == Effects.BOTTOM_EFFECT || e == Effects.BOTTOM_EFFECT)
+            return false;
+        final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
+        final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
+        return disjoint(r, ew, c) == null &&
+               disjoint(r, ea, c) == null &&
+               disjoint(w, er, c) == null &&
+               disjoint(w, ew, c) == null &&
+               disjoint(w, ea, c) == null &&
+               disjoint(a, er, c) == null &&
+               disjoint(a, ew, c) == null;
+//          && disjoint(a, ea,c); // RMF 9/11/09 - ok for atomically-updated locs to overlap
+    }
+
+    /* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect, x10.constraint.XConstraint)
 	 */
-	public boolean commutesWith(Effect e, XConstraint c) {
-		if (e == Effects.BOTTOM_EFFECT)
-			return false;
+	public Set<Pair<Effect,Effect>> interferenceWith(Effect e, XConstraint c) {
+		if (this == Effects.BOTTOM_EFFECT || e == Effects.BOTTOM_EFFECT)
+			return null;
 		final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
 		final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
-		return 
-		disjoint(r,ew,c) 
-		&& disjoint(r,ea,c) 
-		&& disjoint(w, er,c)
-		&& disjoint(w, ew,c)
-		&& disjoint(w, ea,c)
-		&& disjoint(a, er,c)
-		&& disjoint(a, ew,c)
-		&& disjoint(a, ea,c);
+
+		return combine(nonDisjointEffects(disjoint(r, ew, c), RWEffectPairPopulator),
+		        combine(nonDisjointEffects(disjoint(r, ea, c), RAEffectPairPopulator),
+		         combine(nonDisjointEffects(disjoint(w, er, c), WREffectPairPopulator),
+		          combine(nonDisjointEffects(disjoint(w, ew, c), WWEffectPairPopulator),
+		           combine(nonDisjointEffects(disjoint(w, ea, c), WAEffectPairPopulator),
+		            combine(nonDisjointEffects(disjoint(a, er, c), AREffectPairPopulator),
+		                    nonDisjointEffects(disjoint(a, ew, c), AWEffectPairPopulator)))))));
+//          && disjoint(a, ea,c); // RMF 9/11/09 - ok for atomically-updated locs to overlap
 	}
 /*
 public boolean commutesWith(Effect e, XConstraint c) {
@@ -150,71 +255,113 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		return commutesWithForall(x, XTerms.makeTrueConstraint());
 	}
 
+	public Pair<XLocal,Effect> freshSubst(XLocal x) {
+	    XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
+	    Effect e1 = substitute(x1, x);
+
+	    return new Pair<XLocal,Effect>(x1, e1);
+	}
+
+	private XConstraint addDisjointness(XConstraint c, XLocal x1, XLocal x2) {
+        XConstraint c2 = c.copy();
+        try {
+            c2.addDisBinding(x1, x2);
+        } catch (XFailure z) {
+            // should never happen
+        }
+	    return c2;
+	}
+
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar, x10.constraint.XConstraint)
 	 */
 	public boolean commutesWithForall(XLocal x, XConstraint c) {
 		if (this == Effects.BOTTOM_EFFECT)
 			return false;
-		XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
-		XLocal x2 = XTerms.makeLocal(XTerms.makeFreshName());
-	
-		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
-		XConstraint c2 = c.copy();
-		try {
-			c2.addDisBinding(x1, x2);
-		} catch (XFailure z) {
-			// should never happen
-		}
 
-		boolean result = e1.commutesWith(e2,  c2);
+		Pair<XLocal,Effect> p1 = freshSubst(x), p2 = freshSubst(x);
+		XConstraint c2 = addDisjointness(c, p1.fst, p2.fst);
+		boolean result = p1.snd.commutesWith(p2.snd,  c2);
+
 		return result;
-
 	}
 
-	private static class Pair<T1,T2> {
-	    public T1 fst;
-	    public T2 snd;
-	    public Pair(T1 t1, T2 t2) {
-	        fst= t1;
-	        snd= t2;
-	    }
+	private static final Set<Pair<Effect,Effect>> EMPTY_INTERFERENCE= new HashSet<Pair<Effect,Effect>>();
+
+	public Set<Pair<Effect,Effect>> interferenceWithForall(XLocal x) {
+	    return interferenceWithForall(x, XTerms.makeTrueConstraint());
+	}
+
+	public Set<Pair<Effect,Effect>> interferenceWithForall(XLocal x, XConstraint c) {
+        if (this == Effects.BOTTOM_EFFECT)
+            return EMPTY_INTERFERENCE;
+
+        Pair<XLocal,Effect> p1 = freshSubst(x), p2 = freshSubst(x);
+        XConstraint c2 = addDisjointness(c, p1.fst, p2.fst);
+
+        return p1.snd.interferenceWith(p2.snd, c2);
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs) {
         return commutesWithForall(xs, XTerms.makeTrueConstraint());
 	}
 
-	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
-        if (this == Effects.BOTTOM_EFFECT)
-            return false;
-        Effect e1 = this;
-        Effect e2 = this;
-        List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
-        for(XLocal x: xs) {
-            XLocal x1= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
-            XLocal x2= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
-
-            freshVars.add(new Pair<XLocal, XLocal>(x1, x2));
-            e1 = e1.substitute(x1, x);
-            e2 = e2.substitute(x2, x);
-        }
+	private XConstraint addDisjointness(XConstraint c, List<Pair<XLocal,XLocal>> pairs) {
         XConstraint c2 = c.copy();
         try {
-            for(Pair<XLocal,XLocal> freshVar: freshVars) {
-                XLocal x1= freshVar.fst;
-                XLocal x2= freshVar.snd;
+            for(Pair<XLocal,XLocal> varPair: pairs) {
+                XLocal x1= varPair.fst;
+                XLocal x2= varPair.snd;
                 c2.addDisBinding(x1, x2);
             }
         } catch (XFailure z) {
             // should never happen
         }
+        return c2;
+	}
 
-        boolean result = e1.commutesWith(e2,  c2);
+	private Pair<Effect,Effect> freshSubst(List<XLocal> vars, List<Pair<XLocal,XLocal>> freshVars) {
+	    Effect e1 = this;
+	    Effect e2 = this;
+
+        for(XLocal v: vars) {
+            Pair<XLocal, Effect> p1 = e1.freshSubst(v);
+            Pair<XLocal, Effect> p2 = e2.freshSubst(v);
+
+            freshVars.add(new Pair<XLocal, XLocal>(p1.fst, p2.fst));
+            e1 = p1.snd;
+            e2 = p2.snd;
+        }
+        return new Pair<Effect,Effect>(e1, e2);
+	}
+
+	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
+        if (this == Effects.BOTTOM_EFFECT)
+            return false;
+
+        List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
+        Pair<Effect,Effect> p = freshSubst(xs, freshVars);
+        XConstraint c2= addDisjointness(c, freshVars);
+
+        boolean result = p.fst.commutesWith(p.snd,  c2);
         return result;
-
     }
-	
+
+	public Set<Pair<Effect,Effect>> interferenceWithForall(List<XLocal> xs) {
+	    return interferenceWithForall(xs, XTerms.makeTrueConstraint());
+	}
+
+	public Set<Pair<Effect,Effect>> interferenceWithForall(List<XLocal> xs, XConstraint c) {
+        if (this == Effects.BOTTOM_EFFECT)
+            return EMPTY_INTERFERENCE;
+
+        List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
+        Pair<Effect,Effect> p = freshSubst(xs, freshVars);
+        XConstraint c2= addDisjointness(c, freshVars);
+
+        return p.fst.interferenceWith(p.snd, c2);
+	}
+
 	public Effect substitute(XTerm t, XRoot r) {
 		if (this==Effects.BOTTOM_EFFECT)
 			return this;
@@ -230,6 +377,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 		}
 		return result;
 	}
+
 	public Effect exists(LocalLocs x) {
 		if (this == Effects.BOTTOM_EFFECT)
 			return this;
@@ -269,8 +417,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 */
 	public Effect followedBy(Effect e, XConstraint c)  {
 		if (! isFun()) {
-			if (! commutesWith(e, c))
-				return null;
+			if (!commutesWith(e, c))
+				return Effects.BOTTOM_EFFECT;
 		}
 		return union(e);
 	}
@@ -359,6 +507,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public Effect union(Effect e) {
 		if (this == Effects.BOTTOM_EFFECT)
 			return this;
+		if (e == Effects.BOTTOM_EFFECT)
+		    return e;
 		Effect_c result = clone();
 		result.readSet.addAll(e.readSet());
 		result.writeSet.addAll(e.writeSet());
