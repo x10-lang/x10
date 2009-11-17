@@ -54,7 +54,7 @@ class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         }
         clock.next();
         if (firstPlace!=here)
-            finish local_.copyFrom(0, firstPlace, ()=>Pair[Rail[T],Int](handle.get(),0), local_.length);
+            finish local_.copyFrom[T](0, firstPlace, ()=>Pair[Rail[T],Int](handle.get(),0), local_.length);
         clock.next();
     }
 

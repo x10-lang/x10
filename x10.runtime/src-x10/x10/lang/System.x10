@@ -231,8 +231,15 @@ public class System {
 
     public static safe def makeRemoteRail[T] (p:Place, length:Int, init: (nat) => T)
         : Rail[T]{self.length==length} {
-        if (p.isCUDA()) return cudaMakeRail[T](p,length); // FIXME: no initialisation
-        return at (p) Rail.make[T](length, init);
+        val tmp = Rail.make(length, init);
+        return makeRemoteRail[T](p,length,tmp);
+    }
+
+    public static safe def makeRemoteRail[T] (p:Place, length:Int, init: Rail[T]!)
+        : Rail[T]{self.length==length} {
+        val r = p.isCUDA() ? cudaMakeRail[T](p,length) : at (p) Rail.make[T](length);
+        finish init.copyTo(0, r, 0, length);
+        return r;
     }
 
 }
