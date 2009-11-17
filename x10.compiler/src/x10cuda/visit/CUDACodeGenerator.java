@@ -286,7 +286,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.forceNewline();
         
 
-        context().shm().generateCode(out);
+        sw.pushCurrentStream(out);
+        context().shm().generateCode(sw, tr);
+        sw.popCurrentStream();
         
         // body
         sw.pushCurrentStream(out);
@@ -325,7 +327,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     // Java cannot return multiple values from a function
     class MultipleValues {
-        public long iterations;
+        public Expr max;
 
         public Name var;
 
@@ -354,11 +356,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         Expr from_ = region.arguments().get(0);
         Expr to_ = region.arguments().get(1);
         assert from_ instanceof IntLit; // FIXME: proper error
-        assert to_ instanceof IntLit; // FIXME: proper error
+        //assert to_ instanceof IntLit; // FIXME: proper error
         IntLit from = (IntLit) from_;
-        IntLit to = (IntLit) to_;
+        //IntLit to = (IntLit) to_;
         assert from.value() == 0; // FIXME: proper error
-        r.iterations = to.value() + 1;
+        //r.iterations = to.value() + 1;
+        r.max = to_;
         r.body = (Block) loop.body();
         return r;
     }
@@ -384,11 +387,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         Expr from_ = i.init();
         Expr to_ = j.init();
         assert from_ instanceof IntLit : from_.getClass(); // FIXME: proper error
-        assert to_ instanceof IntLit : to_.getClass(); // FIXME: proper error
+        //assert to_ instanceof IntLit : to_.getClass(); // FIXME: proper error
         IntLit from = (IntLit) from_;
-        IntLit to = (IntLit) to_;
+        //IntLit to = (IntLit) to_;
         assert from.value() == 0 : from.value(); // FIXME: proper error
-        r.iterations = to.value() + 1;
+        //r.iterations = to.value() + 1;
+        r.max = to_;
         assert loop.body() instanceof Block : loop.body().getClass();
         Block block = (Block) loop.body();
         assert block.statements().size() == 2 : block.statements();
@@ -484,10 +488,10 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             Block async_body = async_closure.body();
 
             b = (Block_c) async_body;
-            context().setCudaKernelCFG(outer.iterations, outer.var,
-                    inner.iterations, inner.var, shm);
-            context().established().setCudaKernelCFG(outer.iterations, outer.var,
-                    inner.iterations, inner.var, shm);
+            context().setCudaKernelCFG(outer.max, outer.var,
+                    inner.max, inner.var, shm);
+            context().established().setCudaKernelCFG(outer.max, outer.var,
+                    inner.max, inner.var, shm);
             generatingKernel(true);
             handleKernel(b);
             generatingKernel(false);
@@ -542,11 +546,24 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     
             inc.write(make_ref(cnamet)+" this_ = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(buf);");
             inc.newline();
-    
-            inc.write("blocks = 8;"); inc.newline();
-            inc.write("threads = 64;"); inc.newline();
+
+            for (int i = 0; i < c.variables.size(); i++) {
+                VarInstance var = (VarInstance) c.variables.get(i);
+                Type t = var.type();
+                String name = var.name().toString();
+                inc.write(Emitter.translateType(t, true)+" "+name+" = this_->"+name+";"); inc.newline();
+            }
+            
+            inc.write("blocks = ("); inc.begin(0);
+            tr.print(null, context().blocks(), inc);
+            inc.write(")+1;"); inc.end(); inc.newline();
+            
+            inc.write("threads = ("); inc.begin(0);
+            tr.print(null, context().threads(), inc);
+            inc.write(")+1;"); inc.end(); inc.newline();
+            
             inc.write("shm = "); inc.begin(0);
-            context().shm().generateSize(inc);
+            context().shm().generateSize(inc, tr);
             inc.write(";"); inc.end(); inc.newline();
     
             generateStruct("", inc, c.variables);
@@ -560,20 +577,20 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 
                 if (isIntRail(t)) {
                     if (xts().isRail(t)) {
-                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
                     } else {
-                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_int)*this_->"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*this_->"+name+")[0], sizeof(x10_int)*this_->"+name+"->FMGL(length))");
+                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
                     }
                 } else if (isFloatRail(t)) {
                     if (xts().isRail(t)) {
-                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
                     } else {
-                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_float)*this_->"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*this_->"+name+")[0], sizeof(x10_float)*this_->"+name+"->FMGL(length))");
+                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");
                     }
                 } else {
-                    inc.write("this_->"+name);
+                    inc.write(name);
                 }
                 inc.write(";");
                 inc.newline();
