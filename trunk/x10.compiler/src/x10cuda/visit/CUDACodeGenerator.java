@@ -441,7 +441,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 assert init_call_target instanceof CanonicalTypeNode; // FIXME: proper error
                 CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
                 assert init_call_target_node.nameString().equals("Rail");
-                assert init_call.name().toString().equals("makeVar") : init_call.name(); // FIXME: proper error
+                assert init_call.name().toString().equals("make") : init_call.name(); // FIXME: proper error
                 assert init_call.typeArguments().size() == 1;
                 TypeNode rail_type_arg_node = init_call.typeArguments().get(0);
                 Type rail_type_arg = rail_type_arg_node.type();
@@ -486,6 +486,8 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             b = (Block_c) async_body;
             context().setCudaKernelCFG(outer.iterations, outer.var,
                     inner.iterations, inner.var, shm);
+            context().established().setCudaKernelCFG(outer.iterations, outer.var,
+                    inner.iterations, inner.var, shm);
             generatingKernel(true);
             handleKernel(b);
             generatingKernel(false);
@@ -493,6 +495,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     public void visit(Closure_c n) {
+        context().establishClosure();
         String last = context().wrappingClosure();
         String lastHostClassName = context().wrappingClass();
         X10ClassType hostClassType = (X10ClassType) n.closureDef().typeContainer().get();
@@ -542,7 +545,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     
             inc.write("blocks = 8;"); inc.newline();
             inc.write("threads = 64;"); inc.newline();
-            inc.write("shm = 0;"); inc.newline();
+            inc.write("shm = "); inc.begin(0);
+            context().shm().generateSize(inc);
+            inc.write(";"); inc.end(); inc.newline();
     
             generateStruct("", inc, c.variables);
             inc.write("_env env;"); inc.newline();
@@ -552,10 +557,21 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write("env."+name+" = ");
+                
                 if (isIntRail(t)) {
-                    inc.write("(x10_int*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                    if (xts().isRail(t)) {
+                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                    } else {
+                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_int)*this_->"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*this_->"+name+")[0], sizeof(x10_int)*this_->"+name+"->FMGL(length))");
+                    }
                 } else if (isFloatRail(t)) {
-                    inc.write("(x10_float*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                    if (xts().isRail(t)) {
+                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref(this_->"+name+".operator->())");
+                    } else {
+                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_float)*this_->"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*this_->"+name+")[0], sizeof(x10_float)*this_->"+name+"->FMGL(length))");
+                    }
                 } else {
                     inc.write("this_->"+name);
                 }
