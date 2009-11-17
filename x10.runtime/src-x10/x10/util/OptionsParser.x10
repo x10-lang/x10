@@ -3,6 +3,9 @@ package x10.util;
 import x10.util.HashMap;
 import x10.util.GrowableRail;
 
+/**
+ * @author Dave Cunningham
+*/
 public final class OptionsParser {
 
     public static final class Err extends Exception {
