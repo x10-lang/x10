@@ -81,6 +81,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         return cudaStream;
     }
     
+    X10CUDAContext_c established;
+    public void establishClosure() { established = this; }
+    public X10CUDAContext_c established() { return established; }
+    
 }
 
 //vim:tabstop=4:shiftwidth=4:expandtab

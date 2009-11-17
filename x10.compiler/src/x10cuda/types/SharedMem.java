@@ -9,6 +9,7 @@ import polyglot.types.Name;
 import polyglot.types.Type;
 import x10.types.X10TypeSystem;
 import x10.util.ClassifiedStream;
+import x10.util.StreamWrapper;
 
 public class SharedMem {
     
@@ -26,6 +27,7 @@ public class SharedMem {
         public Decl (LocalDecl ast) { this.ast = ast; }
         abstract public void generateDef(ClassifiedStream out, String offset);
         abstract public void generateInit(ClassifiedStream out, String offset);
+        abstract public void generateSize(StreamWrapper inc);
     }
     
     private static class Rail extends Decl {
@@ -44,17 +46,33 @@ public class SharedMem {
             out.write("float *"+name+" = (float*) &__shm["+offset+"];"); out.newline();
         }
         public void generateInit(ClassifiedStream out, String offset) {
-            out.write("for (int i=0 ; i<CLUSTERS*4 ; ++i) {"); out.newline(4); out.begin(0);
-            out.write("clustercache[i] = /**/local_clusters[i]/**/;"); out.newline();
+            out.write("{"); out.newline(4); out.begin(0);
+            out.write("for (int i=0 ; i<num_clusters*4 ; ++i) {"); out.newline(4); out.begin(0);
+            out.write("clustercache[i] = /**/clusters_[i]/**/;"); out.newline();
             out.end(); out.newline();
             out.write("}");
+            out.end(); out.newline();
+            out.write("}");
+        }
+        public void generateSize(StreamWrapper inc) {
+            // FIXME: hardcoded kmeans code
+            inc.write("this_->num_clusters*4*sizeof(x10_float)");
+
         }
     }
     private static class Var extends Decl {
         public Var (LocalDecl ast) { super(ast); }
         public void generateDef(ClassifiedStream out, String offset) {
+            // TODO: not implemented
+            assert false: "not implemented";
         }
         public void generateInit(ClassifiedStream out, String offset) {
+            // TODO: not implemented
+            assert false: "not implemented";
+        }
+        public void generateSize(StreamWrapper inc) {
+            // TODO: not implemented
+            assert false: "not implemented";
         }
     }
     
@@ -99,5 +117,16 @@ public class SharedMem {
          * *new_counterv = (int*)&new_clusterv[DIM*clusterc_odd]; // [clusterc]
          */
                 
+    }
+
+    public void generateSize(StreamWrapper inc) {
+        // TODO Auto-generated method stub
+        String prefix = "";
+        for (SharedMem.Decl d : decls) {
+            inc.write(prefix);
+            d.generateSize(inc);
+            prefix = " + ";
+        }
+        if (prefix.equals("")) inc.write("0");
     }
 }

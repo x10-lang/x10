@@ -6,7 +6,8 @@ public class CudaKernelTest {
     static def doWork (init:Rail[Float]!, recv:Rail[Float]!, p:Place, len:Int) {
         val remote = Rail.makeRemote(p,len,(Int)=>0.0 as Float); // allocate 
 
-        finish init.copyTo(0, remote, 0, len); // dma there
+        //finish init.copyTo(0, remote, 0, len); // dma there
+        val init_ = init as ValRail[Float];
 
         at (p) @Cuda {
             for ((block):Point in 0..7) {
@@ -14,7 +15,8 @@ public class CudaKernelTest {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {
-                        remote(i) = Math.sqrt(remote(i));
+                        //remote(i) = Math.sqrt(remote(i));
+                        remote(i) = Math.sqrt(init_(i));
                     }
                 }
             }
@@ -24,8 +26,12 @@ public class CudaKernelTest {
 
         // validate
         var success:Boolean = true;
-        for ((i) in 0..remote.length-1)
-            if (Math.abs(1 - (recv(i)*recv(i))/(i as Float)) > 1E-6f) success = false;
+        for ((i) in 0..remote.length-1) {
+            if (Math.abs(1 - (recv(i)*recv(i))/(i as Float)) > 1E-6f) {
+                Console.ERR.println("recv("+i+"): "+recv(i)+" * "+recv(i)+" = "+(recv(i)*recv(i)));
+                success = false;
+            }
+        }
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
     }
 
