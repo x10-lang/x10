@@ -5,7 +5,7 @@ import x10.util.GrowableRail;
 
 public final class OptionsParser {
 
-    public static final class Exception extends x10.lang.Exception {
+    public static final class Err extends Exception {
         global private val msg:String;
         public def this (m:String) { this.msg = m; }
         global public def toString() = "Commandline error: "+msg;
@@ -15,7 +15,7 @@ public final class OptionsParser {
     private val set : HashMap[String,Boolean]!;
     private val filteredArgs : GrowableRail[String]!;
 
-    public def this (args:Rail[String]!, flags:ValRail[Option]!, specs:ValRail[Option]!) throws Exception {
+    public def this (args:Rail[String]!, flags:ValRail[Option]!, specs:ValRail[Option]!) throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
         val filteredArgs = new GrowableRail[String]();
@@ -28,7 +28,7 @@ public final class OptionsParser {
                 ended = true;
                 continue;
             }
-            if (ended) {
+            if (!ended) {
                 if (flags!=null) for (flag in flags) {
                     if (recognised) break;
                     if (s.equals(flag.short_) || s.equals(flag.long_)) {
@@ -42,7 +42,7 @@ public final class OptionsParser {
                     if (s.equals(spec.short_) || s.equals(spec.long_)) {
                         recognised = true;
                         ++i;
-                        if (i>=args.length) throw new Exception("Expected another arg after: \""+s+"\"");
+                        if (i>=args.length) throw new Err("Expected another arg after: \""+s+"\"");
                         val s2 = args(i);
                         if (spec.short_!=null) map.put(spec.short_, s2);
                         if (spec.long_!=null) map.put(spec.long_, s2);
@@ -61,13 +61,13 @@ public final class OptionsParser {
     public def apply (key:String) = set.containsKey(key) || map.containsKey(key);
 
     public def apply (key:String, d:String) = map.getOrElse(key, d);
-    public def apply (key:String, d:Int) throws Exception {
+    public def apply (key:String, d:Int) throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
             return Int.parseInt(v);
         } catch (e:NumberFormatException) {
-            throw new Exception("Expected Int, got: \""+v+"\"");
+            throw new Err("Expected Int, got: \""+v+"\"");
         }
     }
 }
