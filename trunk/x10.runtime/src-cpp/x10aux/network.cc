@@ -62,7 +62,22 @@ void x10aux::registration_complete (void)
 }
 
 // FIXME: this is perhaps the worst hack i've ever done
+struct x10_runtime_Runtime__closure__8 : x10::lang::Value {
+    static const x10aux::serialization_id_t _serialization_id;
+    x10aux::ref<x10::lang::VoidFun_0_0> body;
+    x10::runtime::RID rid;
+};
+struct x10_runtime_Runtime__closure__7 : x10::lang::Value {
+    static const x10aux::serialization_id_t _serialization_id;
+    x10aux::ref<x10::lang::VoidFun_0_0> body;
+    x10::runtime::RID rid;
+};
 struct x10_runtime_Runtime__closure__6 : x10::lang::Value {
+    static const x10aux::serialization_id_t _serialization_id;
+    x10aux::ref<x10::lang::VoidFun_0_0> body;
+    x10::runtime::RID rid;
+};
+struct x10_runtime_Runtime__closure__5 : x10::lang::Value {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;
@@ -99,7 +114,10 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
 
         // FIXME: this is a hack -- we should be doing this for all asyncs
 
-        assert (sid == x10_runtime_Runtime__closure__6::_serialization_id);
+        assert (sid == x10_runtime_Runtime__closure__8::_serialization_id ||
+                sid == x10_runtime_Runtime__closure__7::_serialization_id ||
+                sid == x10_runtime_Runtime__closure__6::_serialization_id ||
+                sid == x10_runtime_Runtime__closure__5::_serialization_id);
 
         x10aux::ref<x10_runtime_Runtime__closure__6> body_ = body;
 
