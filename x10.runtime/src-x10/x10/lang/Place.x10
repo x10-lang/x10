@@ -24,12 +24,11 @@ public final struct Place(id: Int) {
                                 NativeRuntime.MAX_PLACES,
                                 (p: Int) => ValRail.make[Place](NativeRuntime.numChildren(p),
                                                                 (i:Int) => Place(NativeRuntime.child(p,i))));
+    public const NUM_ACCELS = NativeRuntime.MAX_PLACES - NativeRuntime.MAX_HOSTS;
     public const FIRST_PLACE: Place(0) = places(0) as Place(0);
 
-    public def this(id: Int):Place{self.id==id} {
-        property(id);
-    }
-	
+    public def this(id: Int):Place{self.id==id} { property(id); }
+
     public static def place(id: Int) = places(id);
     public def next(): Place = next(1);
     public def prev(): Place = next(-1);
