@@ -35,19 +35,20 @@ public interface Effect extends Cloneable {
 	 * @return true if this effect is associated with an @fun, false if it is associated with @parfun.
 	 */
 	boolean isFun();
-	
-	
+
 	Set<Locs> readSet();
 	Set<Locs> writeSet();
 	Set<Locs> atomicIncSet();
-	
+
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
 	 * @param e
 	 * @return
 	 */
-	boolean commutesWith(Effect e);
-	
+    boolean commutesWith(Effect e);
+
+    Set<Pair<Effect,Effect>> interferenceWith(Effect e);
+
 	/**
 	 * Does this commute with e, given constraints c? c may provide information useful to establish
 	 * commutativity (or lack thereof). For instance, c may specify that x1 != x2, and this can be used
@@ -57,15 +58,17 @@ public interface Effect extends Cloneable {
 	 * @param c
 	 * @return
 	 */
-	boolean commutesWith(Effect e, XConstraint c);
-	
+    boolean commutesWith(Effect e, XConstraint c);
+
+    Set<Pair<Effect,Effect>> interferenceWith(Effect e, XConstraint c);
+
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint()).
 	 * @param x
 	 * @return
 	 */
 	boolean commutesWithForall(XLocal x);
-	
+
 	/**
 	 * Given constraint c, does this commute with a copy of itself under the assumption that x varies? This is
 	 * implemented by replacing x in this with x1 to get e1, and x in this with x1 to get e2, where x1 and x2
@@ -75,8 +78,12 @@ public interface Effect extends Cloneable {
 	 * @return
 	 */
 	boolean commutesWithForall(XLocal x, XConstraint c);
-	
-    /**
+
+	Set<Pair<Effect,Effect>> interferenceWithForall(XLocal x);
+
+	Set<Pair<Effect,Effect>> interferenceWithForall(XLocal x, XConstraint c);
+
+	/**
      * Like commutesWith(XLocal), but quantifies over a set of variables.
      * @return
      */
@@ -87,6 +94,10 @@ public interface Effect extends Cloneable {
      * @return
      */
     public boolean commutesWithForall(List<XLocal> xs, XConstraint c);
+
+    Set<Pair<Effect,Effect>> interferenceWithForall(List<XLocal> xs);
+
+    Set<Pair<Effect,Effect>> interferenceWithForall(List<XLocal> xs, XConstraint c);
 
 	/**
 	 * Return the Effect obtained by quantifying the current effect for all values of x. Essentially, 
@@ -169,6 +180,5 @@ public interface Effect extends Cloneable {
 	void addAtomicInc(Locs t);
 	
 	Effect substitute(XTerm t, XRoot r);
-	
-
+	Pair<XLocal,Effect> freshSubst(XLocal x);
 }
