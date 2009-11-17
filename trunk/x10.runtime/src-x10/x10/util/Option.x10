@@ -1,5 +1,8 @@
 package x10.util;
 
+/**
+ * @author Dave Cunningham
+*/
 // This class exists as a work-around for XTENLANG-624
 public struct Option {
     short_:String; // underscore is workaround for XTENLANG-623
