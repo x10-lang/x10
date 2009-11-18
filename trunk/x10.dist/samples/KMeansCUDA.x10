@@ -36,7 +36,7 @@ public class KMeansCUDA {
                 num_global_points=opts("-n", 100000), iterations=opts("-i",500);
             val MEM_ALIGN = 32; // FOR CUDA
 
-            Console.OUT.println("points: "+num_global_points+"  dim: "+4);
+            Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
 
             // file is dimension-major
             val fr = (new File(fname)).openRead();
@@ -80,12 +80,13 @@ public class KMeansCUDA {
 
                         val kernel_start_time = System.currentTimeMillis();
                         // classify kernel
+                        val blocks = 8, threads = 64;
                         at (gpu) @CUDA {
-                            for ((block) in 0..15) {
+                            for ((block) in 0..blocks-1) {
                                 val clustercache = Rail.make[Float](num_clusters*4, clusters_copy);
-                                for ((thread) in 0..63) async {
-                                    val tid = block * 64 + thread;
-                                    val tids = 16 * 64;
+                                for ((thread) in 0..threads-1) async {
+                                    val tid = block * threads + thread;
+                                    val tids = blocks * threads;
                                     for (var p:Int=tid ; p<num_local_points ; p+=tids) {
                                         var closest:Int = -1;
                                         var closest_dist:Float = Float.MAX_VALUE;
