@@ -605,8 +605,8 @@ and \xcd"D". This bears further investigation.
 \index{Qualifier!field}
 
 \subsubsection{\Xcd{global} qualifier}
-\index{global!\xcd"global"}
-\label{global}
+\index{global!field}
+\label{GlobalField}
 
 A field may be declared \xcd"global".
 
@@ -920,8 +920,8 @@ implicitly in an \xcd"atomic" statement.
 
 \subsubsection{\Xcd{global} qualifier}
 \label{LocalAnnotation}
-\label{GlobalField}
-\index{global!\xcd"global"}
+\label{GlobalMethod}
+\index{global!method}
 
 A method may be declared \xcd"global".
 
@@ -969,12 +969,12 @@ During this phase, any read of a static field \Xcd{C.f} (declared at type \Xcd{T
 is replaced by a call to the method \Xcd{C.read\_f():T} defined on class \Xcd{C}
 as follows
 
-\begin{x10}
-def read\_f():T {
+\begin{xten}
+def read_f():T {
    await (initialized(C.f));
    return C.f;
 }
-\end{x10}
+\end{xten}
  
 
 If all these activities terminate normally, all static field have a
