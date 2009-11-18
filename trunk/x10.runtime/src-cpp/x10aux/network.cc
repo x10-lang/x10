@@ -32,7 +32,7 @@ volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
 
-const int cuda_kernel_cfgs[] = {
+const int x10aux::cuda_kernel_cfgs[] = {
   /*1024*/ 8, 128,
   /*1024*/ 4, 256,
   /*1024*/ 2, 512,
