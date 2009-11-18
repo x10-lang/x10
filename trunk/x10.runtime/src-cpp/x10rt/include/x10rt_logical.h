@@ -58,6 +58,9 @@ void x10rt_lgl_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long u
 
 void x10rt_lgl_remote_op_fence (void);
 
+void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
+                               int &blocks, int &threads, const int *cfg);
+
 void x10rt_lgl_probe (void);
 
 void x10rt_lgl_finalize (void); 

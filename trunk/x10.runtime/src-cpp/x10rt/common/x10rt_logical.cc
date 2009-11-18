@@ -705,6 +705,36 @@ void x10rt_lgl_remote_op_fence (void)
     x10rt_net_remote_op_fence();
 }
 
+void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
+                               int &blocks, int &threads, const int *cfg)
+{
+    assert(d < x10rt_lgl_nplaces());
+
+    if (d < x10rt_lgl_nhosts()) {
+        blocks = 8; threads = 1;
+    } else if (x10rt_lgl_parent(d) == x10rt_lgl_here()) {
+        // local accelerator
+        switch (x10rt_lgl_type(d)) {
+            case X10RT_LGL_CUDA: {
+                x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
+                x10rt_cuda_blocks_threads(cctx, type, dyn_shm, blocks, threads, cfg);
+            } break;
+            case X10RT_LGL_SPE: {
+                blocks = 8; threads = 1;
+            } break;
+            default: {
+                fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
+                               d, x10rt_lgl_type(d));
+                abort();
+            }
+        }
+    } else {
+        fprintf(stderr,"Routing of remote ops still unsupported.\n");
+        abort();
+    }
+}
+
+
 void x10rt_lgl_probe (void)
 {
     x10rt_net_probe();

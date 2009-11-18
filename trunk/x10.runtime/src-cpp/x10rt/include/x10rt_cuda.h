@@ -28,6 +28,9 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params &, void *buf, x1
 
 void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params &, void *buf, x10rt_copy_sz len);
 
+void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dyn_shm,
+                                int &blocks, int &threads, const int *cfg);
+
 void *x10rt_cuda_device_alloc (x10rt_cuda_ctx *ctx, size_t sz);
 void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx, void *ptr);
 

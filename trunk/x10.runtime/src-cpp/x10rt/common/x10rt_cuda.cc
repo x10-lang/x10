@@ -238,14 +238,25 @@ namespace {
         };
     };
 
-    static void ensure_initialized (void)
+    void ensure_initialized (void)
     {
+        // only do once per process
         static int done = 0;
         if (!done) {
             CU_SAFE(cuInit(0));
             done = 1;
         }
     }
+
+    bool stream_ready (CUstream s)
+    {
+        CUresult r = cuStreamQuery(s);
+        if (r==CUDA_ERROR_NOT_READY) return false;
+        CU_SAFE(r);
+        return true;
+    }
+
+    int round_up (int x, int y) { return (x + (y-1)) / y * y; }
 
 }
 
@@ -509,20 +520,20 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params &p)
     pthread_mutex_lock(&big_lock_of_doom);
 
     if (ctx->cbs.arrc <= p.type) {
-        fprintf(stderr,"X10RT: Kernel %llu is invalid.\n", (unsigned long long)p.type);
-        abort();
-    }
-    if (ctx->cbs[p.type].kernel_cbs.pre == NULL) {
-        fprintf(stderr,"X10RT: Kernel %llu has no 'pre' registered.\n", (unsigned long long)p.type);
+        fprintf(stderr,"X10RT: async %lu is invalid.\n", (unsigned long)p.type);
         abort();
     }
     if (ctx->cbs[p.type].kernel_cbs.kernel == NULL) {
-        fprintf(stderr,"X10RT: Kernel %llu has no kernel registered.\n",(unsigned long long)p.type);
+        fprintf(stderr,"X10RT: async %lu is not a CUDA kernel.\n",(unsigned long)p.type);
 
         abort();
     }
+    if (ctx->cbs[p.type].kernel_cbs.pre == NULL) {
+        fprintf(stderr,"X10RT: CUDA Kernel %lu has no 'pre' registered.\n", (unsigned long)p.type);
+        abort();
+    }
     if (ctx->cbs[p.type].kernel_cbs.post == NULL) {
-        fprintf(stderr,"X10RT: Kernel %llu has no 'post' registered.\n",(unsigned long long)p.type);
+        fprintf(stderr,"X10RT: CUDA Kernel %lu has no 'post' registered.\n",(unsigned long)p.type);
         abort();
     }
 
@@ -539,15 +550,69 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params &p)
 }
 
 
-#ifdef ENABLE_CUDA
-static bool stream_ready (CUstream s)
+
+void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dyn_shm,
+                                int &blocks, int &threads, const int *cfg)
 {
-    CUresult r = cuStreamQuery(s);
-    if (r==CUDA_ERROR_NOT_READY) return false;
-    CU_SAFE(r);
-    return true;
-}
+#ifdef ENABLE_CUDA
+    if (ctx->cbs.arrc <= type) {
+        fprintf(stderr,"X10RT: async %lu is invalid.\n", (unsigned long)type);
+        abort();
+    }
+    if (ctx->cbs[type].kernel_cbs.kernel == NULL) {
+        fprintf(stderr,"X10RT: async %lu is not a CUDA kernel.\n",(unsigned long)type);
+        abort();
+    }
+    CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
+
+    pthread_mutex_lock(&big_lock_of_doom);
+    CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+
+    int mps, max_shm;
+    CU_SAFE(cuDeviceGetAttribute(&mps, CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT, ctx->hw));
+    CU_SAFE(cuDeviceGetAttribute(&max_shm,CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK,ctx->hw));
+
+    CUdevprop prop;
+    CU_SAFE(cuDeviceGetProperties(&prop, ctx->hw));
+    int max_regs = prop.regsPerBlock;
+
+    int major, minor;
+    CU_SAFE(cuDeviceComputeCapability(&major, &minor, ctx->hw));
+
+
+    int static_shm, regs;
+    CU_SAFE(cuFuncGetAttribute(&static_shm, CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, k));
+    CU_SAFE(cuFuncGetAttribute(&regs, CU_FUNC_ATTRIBUTE_NUM_REGS, k));
+
+    CU_SAFE(cuCtxPopCurrent(NULL));
+    pthread_mutex_unlock(&big_lock_of_doom);
+
+    // round up to 512 bytes (the granularity of shm allocation)
+    int shm = round_up(dyn_shm + static_shm, 512);
+
+    int alloc_size = (minor>=2) ? 512 : 256;
+    int max_threads = (minor>=2) ? 1024 : 768;
+
+    while (*cfg) {
+        int b = *(cfg++);
+        int t = *(cfg++);
+        if (b*shm > max_shm) continue;
+        if (t*b > max_threads) continue;
+        int block_regs = round_up(regs*round_up(t,64), alloc_size);
+        if (b*block_regs > max_regs) continue;
+        blocks = b * mps;
+        threads = t;
+        return;
+    }
+
+    blocks = 0;
+    threads = 0;
+
+#else
+    (void)ctx; (void)msg_type; (void)dyn_shm; (void)blocks; (void)threads; (void)cfg;
+    abort();
 #endif
+}
 
 
 void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)

@@ -36,6 +36,9 @@ namespace x10aux {
     inline x10_boolean is_cuda (place p)      { return x10rt_is_cuda(p); }
     inline void event_probe (void)            { x10rt_probe(); }
 
+    extern const int cuda_cfgs[];
+    void blocks_threads (place p, msg_type t, int shm, int &bs, int &ts, const int *cfgs=cuda_cfgs);
+
 
     inline x10_ulong remote_alloc (place p, size_t sz) {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote alloc: "<<ANSI_RESET
