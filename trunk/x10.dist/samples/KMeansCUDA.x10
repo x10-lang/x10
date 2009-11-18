@@ -10,6 +10,7 @@ import x10.util.OptionsParser;
 import x10.util.Option;
 
 import x10.compiler.CUDA;
+import x10.compiler.CUDAUtilities;
 
 public class KMeansCUDA {
 
@@ -78,10 +79,10 @@ public class KMeansCUDA {
         
                         val clusters_copy = clusters as ValRail[Float];
 
-                        val kernel_start_time = System.currentTimeMillis();
                         // classify kernel
-                        val blocks = 4, threads = 256;
                         at (gpu) @CUDA {
+                            val blocks = CUDAUtilities.autoBlocks(),
+                                threads = CUDAUtilities.autoThreads();
                             for ((block) in 0..blocks-1) {
                                 val clustercache = Rail.make[Float](num_clusters*4, clusters_copy);
                                 for ((thread) in 0..threads-1) async {
