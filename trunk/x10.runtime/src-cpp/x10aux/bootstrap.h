@@ -97,7 +97,8 @@ namespace x10aux {
 
     template<class Runtime, class T> int template_main(int ac, char **av) {
 #ifdef X10_USE_BDWGC
-        GC_INIT();
+        if (x10aux::use_bdwgc())
+            GC_INIT();
 #endif
         setlinebuf(stdout);
 
