@@ -67,7 +67,7 @@ void *x10aux::alloc_internal (size_t size) {
         ret = GC_MALLOC(size);
     } else
 #endif        
-    ret = malloc(size);
+    ret = ::malloc(size);
     _M_("\t-> " << (void*)ret);
     if (ret == NULL && size > 0) {
         _M_("Out of memory allocating " << size << " bytes");
@@ -87,7 +87,7 @@ void *x10aux::realloc_internal (void *src, size_t dsz) {
         ret = GC_REALLOC(src, dsz);
     } else
 #endif
-    ret = realloc(src, dsz);
+    ret = ::realloc(src, dsz);
     if (ret==NULL && dsz>0) {
         _M_("Out of memory reallocating " << dsz << " bytes");
         #ifndef NO_EXCEPTIONS
@@ -106,5 +106,5 @@ void x10aux::dealloc_internal (const void *obj_) {
         GC_FREE(obj);
     } else
 #endif        
-    free(obj);
+    ::free(obj);
 }
