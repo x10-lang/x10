@@ -581,9 +581,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write(Emitter.translateType(t, true)+" "+name);
-                if (var == context().autoBlocks().localDef().asInstance()) {
+                if (context().autoBlocks()!=null && var == context().autoBlocks().localDef().asInstance()) {
                     inc.write(";");
-                } else if (var == context().autoThreads().localDef().asInstance()) {
+                } else if (context().autoThreads()!=null && var == context().autoThreads().localDef().asInstance()) {
                     inc.write(";");
                 } else {
                     inc.write(" = __this->"+name+";");
