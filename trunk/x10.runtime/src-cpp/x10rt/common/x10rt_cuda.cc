@@ -609,7 +609,7 @@ void x10rt_cuda_blocks_threads (x10rt_cuda_ctx *ctx, x10rt_msg_type type, int dy
     threads = 0;
 
 #else
-    (void)ctx; (void)msg_type; (void)dyn_shm; (void)blocks; (void)threads; (void)cfg;
+    (void)ctx; (void)type; (void)dyn_shm; (void)blocks; (void)threads; (void)cfg;
     abort();
 #endif
 }
