@@ -51,7 +51,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private Name threadsVar; public Name threadsVar() { return threadsVar; }
     private SharedMem shm; public SharedMem shm() { return shm; }
     private ArrayList<VarInstance> kernelParams; public ArrayList<VarInstance> kernelParams() { return kernelParams; }
-    public void setCudaKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm) {
+    public void setCUDAKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm) {
         this.blocks = blocks;
         this.blocksVar = blocksVar;
         this.threads = threads;

@@ -155,7 +155,7 @@ import x10.util.StreamWrapper;
 
 public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
-    private static final String CUDA_ANNOTATION = "x10.compiler.Cuda";
+    private static final String CUDA_ANNOTATION = "x10.compiler.CUDA";
 
     public CUDACodeGenerator(StreamWrapper sw, Translator tr) {
         super(sw, tr);
@@ -194,7 +194,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     // does the block have the annotation that denotes that it should be
     // split-compiled to cuda?
-    private boolean nodeHasCudaAnnotation(Node n) {
+    private boolean nodeHasCUDAAnnotation(Node n) {
         X10Ext ext = (X10Ext) n.ext();
         try {
             Type cudable = getType(CUDA_ANNOTATION);
@@ -228,7 +228,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         return cargo != null && cargo.isInt();
     }
     
-    String prependCudaType(Type t, String rest) {
+    String prependCUDAType(Type t, String rest) {
         String type = Emitter.translateType(t, true);
 
         if (isIntRail(t)) {
@@ -268,7 +268,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             } else {
                 name = Emitter.mangled_non_method_name(name);
             }
-            out.write("__shared__ "+prependCudaType(var.type(),name) + ";"); out.newline();
+            out.write("__shared__ "+prependCUDAType(var.type(),name) + ";"); out.newline();
         }
         out.write("if (threadIdx.x==0) {"); out.newline(4); out.begin(0);
         for (VarInstance var : context().kernelParams()) {
@@ -316,7 +316,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             } else {
                 name = Emitter.mangled_non_method_name(name);
             }
-            out.write(prependCudaType(var.type(),name) + ";");
+            out.write(prependCUDAType(var.type(),name) + ";");
             out.newline();
         }
         out.end();
@@ -408,7 +408,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     public void visit(Block_c b) {
         super.visit(b);
-        if (nodeHasCudaAnnotation(b)) {
+        if (nodeHasCUDAAnnotation(b)) {
             assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
 
@@ -488,9 +488,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             Block async_body = async_closure.body();
 
             b = (Block_c) async_body;
-            context().setCudaKernelCFG(outer.max, outer.var,
+            context().setCUDAKernelCFG(outer.max, outer.var,
                     inner.max, inner.var, shm);
-            context().established().setCudaKernelCFG(outer.max, outer.var,
+            context().established().setCUDAKernelCFG(outer.max, outer.var,
                     inner.max, inner.var, shm);
             generatingKernel(true);
             handleKernel(b);
@@ -516,7 +516,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     
     protected void generateClosureDeserializationIdDef(StreamWrapper inc, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
-        if (nodeHasCudaAnnotation(block)) {
+        if (nodeHasCUDAAnnotation(block)) {
     
             X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
             boolean in_template_closure = freeTypeParams.size()>0;
@@ -539,7 +539,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
         super.generateClosureSerializationFunctions(c, cnamet, inc, block);
 
-        if (nodeHasCudaAnnotation(block)) {
+        if (nodeHasCUDAAnnotation(block)) {
         
             inc.write("static x10_ulong "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &buf, x10aux::place gpu, size_t &blocks, size_t &threads, size_t &shm) {");
             inc.newline(4); inc.begin(0);
@@ -603,7 +603,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }    
     
     public void visit(New_c n) {
-        assert !generatingKernel() : "New not allowed in @Cudable code.";
+        assert !generatingKernel() : "New not allowed in @CUDA code.";
         super.visit(n);
     }
 

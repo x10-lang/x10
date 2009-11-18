@@ -15,9 +15,9 @@ namespace x10aux {
     typedef ref<x10::lang::Ref> (*Deserializer)(deserialization_buffer &buf);
     template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
-    typedef x10_ulong (*CudaPre)(deserialization_buffer &buf, place p,
+    typedef x10_ulong (*CUDAPre)(deserialization_buffer &buf, place p,
                                            size_t &blocks, size_t &threads, size_t &shm);
-    template<> inline const char *typeName<CudaPre>() { return "CudaPre"; }
+    template<> inline const char *typeName<CUDAPre>() { return "CUDAPre"; }
 
     typedef void *(*BufferFinder)(deserialization_buffer &buf, x10_int len);
     template<> inline const char *typeName<BufferFinder>() { return "BufferFinder"; }
@@ -43,7 +43,7 @@ namespace x10aux {
             Notifier cuda_get_notifier;
 
             Deserializer deser;
-            CudaPre cuda_pre;
+            CUDAPre cuda_pre;
             const char *cubin;
             const char *kernel;
 
@@ -72,15 +72,15 @@ namespace x10aux {
         ref<x10::lang::Ref> create_(deserialization_buffer &buf, serialization_id_t id);
 
         static serialization_id_t addDeserializer (Deserializer deser, bool is_async=false,
-                                                   CudaPre cuda_pre = NULL,
+                                                   CUDAPre cuda_pre = NULL,
                                                    const char *cubin = NULL,
                                                    const char *kernel = NULL);
         serialization_id_t addDeserializer_ (Deserializer deser, bool is_async,
-                                             CudaPre cuda_pre,
+                                             CUDAPre cuda_pre,
                                              const char *cubin, const char *kernel);
 
-        static CudaPre getCudaPre(serialization_id_t id);
-        CudaPre getCudaPre_(serialization_id_t id);
+        static CUDAPre getCUDAPre(serialization_id_t id);
+        CUDAPre getCUDAPre_(serialization_id_t id);
 
         static serialization_id_t addPutFunctions(BufferFinder bfinder, Notifier notifier,
                                                  BufferFinder cuda_bfinder, Notifier cuda_notifier);
@@ -90,10 +90,10 @@ namespace x10aux {
         BufferFinder getPutBufferFinder_(serialization_id_t id);
         static Notifier getPutNotifier(serialization_id_t id);
         Notifier getPutNotifier_(serialization_id_t id);
-        static BufferFinder getCudaPutBufferFinder(serialization_id_t id);
-        BufferFinder getCudaPutBufferFinder_(serialization_id_t id);
-        static Notifier getCudaPutNotifier(serialization_id_t id);
-        Notifier getCudaPutNotifier_(serialization_id_t id);
+        static BufferFinder getCUDAPutBufferFinder(serialization_id_t id);
+        BufferFinder getCUDAPutBufferFinder_(serialization_id_t id);
+        static Notifier getCUDAPutNotifier(serialization_id_t id);
+        Notifier getCUDAPutNotifier_(serialization_id_t id);
 
         static serialization_id_t addGetFunctions(BufferFinder bfinder, Notifier notifier,
                                                  BufferFinder cuda_bfinder, Notifier cuda_notifier);
@@ -103,10 +103,10 @@ namespace x10aux {
         BufferFinder getGetBufferFinder_(serialization_id_t id);
         static Notifier getGetNotifier(serialization_id_t id);
         Notifier getGetNotifier_(serialization_id_t id);
-        static BufferFinder getCudaGetBufferFinder(serialization_id_t id);
-        BufferFinder getCudaGetBufferFinder_(serialization_id_t id);
-        static Notifier getCudaGetNotifier(serialization_id_t id);
-        Notifier getCudaGetNotifier_(serialization_id_t id);
+        static BufferFinder getCUDAGetBufferFinder(serialization_id_t id);
+        BufferFinder getCUDAGetBufferFinder_(serialization_id_t id);
+        static Notifier getCUDAGetNotifier(serialization_id_t id);
+        Notifier getCUDAGetNotifier_(serialization_id_t id);
 
         static x10aux::msg_type getMsgType(serialization_id_t id);
         x10aux::msg_type getMsgType_(serialization_id_t id);
@@ -118,8 +118,8 @@ namespace x10aux {
         void registerHandlers_(void);
     };
 
-    inline CudaPre DeserializationDispatcher::getCudaPre (serialization_id_t id)
-    { return it->getCudaPre_(id); }
+    inline CUDAPre DeserializationDispatcher::getCUDAPre (serialization_id_t id)
+    { return it->getCUDAPre_(id); }
 
 
     inline BufferFinder DeserializationDispatcher::getPutBufferFinder (serialization_id_t id)
@@ -134,17 +134,17 @@ namespace x10aux {
     inline Notifier DeserializationDispatcher::getGetNotifier (serialization_id_t id)
     { return it->getGetNotifier_(id); }
 
-    inline BufferFinder DeserializationDispatcher::getCudaPutBufferFinder (serialization_id_t id)
-    { return it->getCudaPutBufferFinder_(id); }
+    inline BufferFinder DeserializationDispatcher::getCUDAPutBufferFinder (serialization_id_t id)
+    { return it->getCUDAPutBufferFinder_(id); }
 
-    inline BufferFinder DeserializationDispatcher::getCudaGetBufferFinder (serialization_id_t id)
-    { return it->getCudaGetBufferFinder_(id); }
+    inline BufferFinder DeserializationDispatcher::getCUDAGetBufferFinder (serialization_id_t id)
+    { return it->getCUDAGetBufferFinder_(id); }
 
-    inline Notifier DeserializationDispatcher::getCudaPutNotifier (serialization_id_t id)
-    { return it->getCudaPutNotifier_(id); }
+    inline Notifier DeserializationDispatcher::getCUDAPutNotifier (serialization_id_t id)
+    { return it->getCUDAPutNotifier_(id); }
 
-    inline Notifier DeserializationDispatcher::getCudaGetNotifier (serialization_id_t id)
-    { return it->getCudaGetNotifier_(id); }
+    inline Notifier DeserializationDispatcher::getCUDAGetNotifier (serialization_id_t id)
+    { return it->getCUDAGetNotifier_(id); }
 
 
     inline x10aux::msg_type DeserializationDispatcher::getMsgType (serialization_id_t id)
