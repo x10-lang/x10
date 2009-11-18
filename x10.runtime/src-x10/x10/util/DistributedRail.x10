@@ -9,7 +9,7 @@ import x10.util.Pair;
 /**
  * @author Dave Cunningham
 */
-public class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
+public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val handle : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
     global val clock : Clock;
