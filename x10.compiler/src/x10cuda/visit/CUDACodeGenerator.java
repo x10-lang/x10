@@ -541,53 +541,53 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
         if (nodeHasCUDAAnnotation(block)) {
         
-            inc.write("static x10_ulong "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &buf, x10aux::place gpu, size_t &blocks, size_t &threads, size_t &shm) {");
+            inc.write("static x10_ulong "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm) {");
             inc.newline(4); inc.begin(0);
     
-            inc.write(make_ref(cnamet)+" this_ = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(buf);");
+            inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
             inc.newline();
 
             for (int i = 0; i < c.variables.size(); i++) {
                 VarInstance var = (VarInstance) c.variables.get(i);
                 Type t = var.type();
                 String name = var.name().toString();
-                inc.write(Emitter.translateType(t, true)+" "+name+" = this_->"+name+";"); inc.newline();
+                inc.write(Emitter.translateType(t, true)+" "+name+" = __this->"+name+";"); inc.newline();
             }
             
-            inc.write("blocks = ("); inc.begin(0);
+            inc.write("__blocks = ("); inc.begin(0);
             tr.print(null, context().blocks(), inc);
             inc.write(")+1;"); inc.end(); inc.newline();
             
-            inc.write("threads = ("); inc.begin(0);
+            inc.write("__threads = ("); inc.begin(0);
             tr.print(null, context().threads(), inc);
             inc.write(")+1;"); inc.end(); inc.newline();
             
-            inc.write("shm = "); inc.begin(0);
+            inc.write("__shm = "); inc.begin(0);
             context().shm().generateSize(inc, tr);
             inc.write(";"); inc.end(); inc.newline();
     
-            generateStruct("", inc, c.variables);
-            inc.write("_env env;"); inc.newline();
+            generateStruct("__", inc, c.variables);
+            inc.write("___env __env;"); inc.newline();
                         
             for (int i = 0; i < c.variables.size(); i++) {
                 VarInstance var = (VarInstance) c.variables.get(i);
                 Type t = var.type();
                 String name = var.name().toString();
-                inc.write("env."+name+" = ");
+                inc.write("__env."+name+" = ");
                 
                 if (isIntRail(t)) {
                     if (xts().isRail(t)) {
                         inc.write("(x10_int*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
                     } else {
-                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
+                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
                     }
                 } else if (isFloatRail(t)) {
                     if (xts().isRail(t)) {
                         inc.write("(x10_float*)(size_t)x10aux::get_remote_ref("+name+".operator->())");
                     } else {
-                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(gpu, (x10_ulong) env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");
+                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");
                     }
                 } else {
                     inc.write(name);
@@ -595,9 +595,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 inc.write(";");
                 inc.newline();
             }
-            inc.write("x10_ulong remote_env = x10aux::remote_alloc(gpu, sizeof(env));"); inc.newline();
-            inc.write("x10aux::cuda_put(gpu, remote_env, &env, sizeof(env));"); inc.newline();
-            inc.write("return remote_env;"); inc.end(); inc.newline();
+            inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));"); inc.newline();
+            inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));"); inc.newline();
+            inc.write("return __remote_env;"); inc.end(); inc.newline();
             inc.write("}"); inc.newline(); inc.forceNewline();
         }
     }    
