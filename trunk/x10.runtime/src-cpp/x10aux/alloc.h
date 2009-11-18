@@ -39,31 +39,13 @@ namespace x10aux {
 
     void throwOOME() X10_PRAGMA_NORETURN;
 
-#ifdef X10_USE_BDWGC        
-	static bool gc_init_done = false;
-#endif        
+    void *alloc_internal (size_t size);
+    void *realloc_internal (void* src, size_t dsz);
+    void *dealloc_internal (const void *obj_);
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
-#ifdef X10_USE_BDWGC        
-    	if (!gc_init_done) {
-    		gc_init_done = true;
-    		GC_INIT();
-    	}
-        T* ret = (T*)GC_MALLOC(size);
-#else        
-        T* ret = (T*)malloc(size);
-#endif        
-        _M_("\t-> " << (void*)ret);
-        if (ret == NULL && size > 0) {
-            _M_("Out of memory allocating " << size << " bytes");
-            #ifndef NO_EXCEPTIONS
-            throwOOME();
-            #else
-            assert(false && "Out of memory");
-            #endif
-        }
-        return ret;
+        return (T*)alloc_internal(size);
     }
 
     // Allocate an object with an x10_addr_t prepended to it
@@ -73,32 +55,16 @@ namespace x10aux {
         return (T*)(((char*)ret)+sizeof(x10_addr_t));
     }
 
+
     template<class T> T* realloc(T* src, size_t dsz) {
         _M_("Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
-#ifdef X10_USE_BDWGC
-        T *ret = (T*)GC_REALLOC(src, dsz);
-#else
-        T *ret = (T*)realloc(src, dsz);
-#endif
-        if (ret==NULL && dsz>0) {
-            _M_("Out of memory reallocating " << dsz << " bytes");
-            #ifndef NO_EXCEPTIONS
-            throwOOME();
-            #else
-            assert(false && "Out of memory");
-            #endif
-        }
-        return ret;
+        return (T*)realloc_internal(src, dsz);
     }
 
+
     template<class T> void dealloc(const T* obj_) {
-        T *obj = const_cast<T*>(obj_); // free does not take const void *
-        _M_("Freeing chunk " << (void*)obj << " of type " << TYPENAME(T));
-#ifdef X10_USE_BDWGC
-        GC_FREE(obj);
-#else        
-        free(obj);
-#endif        
+        _M_("Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
+        dealloc_internal(obj_);
     }
 
     // Deallocate an object with an x10_addr_t prepended to it

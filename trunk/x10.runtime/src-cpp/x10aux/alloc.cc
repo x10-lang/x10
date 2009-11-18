@@ -52,4 +52,59 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
     return r;
 }
 
+#ifdef X10_USE_BDWGC        
+	static bool gc_init_done = false;
+#endif        
 
+void *alloc_internal (size_t size) {
+    void* ret;
+#ifdef X10_USE_BDWGC        
+    if (x10aux::use_bdwgc()) {
+        if (!gc_init_done) {
+            gc_init_done = true;
+            GC_INIT();
+        }
+        ret = GC_MALLOC(size);
+    } else
+#endif        
+    ret = malloc(size);
+    _M_("\t-> " << (void*)ret);
+    if (ret == NULL && size > 0) {
+        _M_("Out of memory allocating " << size << " bytes");
+        #ifndef NO_EXCEPTIONS
+        throwOOME();
+        #else
+        assert(false && "Out of memory");
+        #endif
+    }
+    return ret;
+}
+
+void *realloc_internal (void *src, size_t dsz) {
+    void *ret;
+#ifdef X10_USE_BDWGC
+    if (x10aux::use_bdwgc()) {
+        ret = GC_REALLOC(src, dsz);
+    } else
+#endif
+    ret = realloc(src, dsz);
+    if (ret==NULL && dsz>0) {
+        _M_("Out of memory reallocating " << dsz << " bytes");
+        #ifndef NO_EXCEPTIONS
+        throwOOME();
+        #else
+        assert(false && "Out of memory");
+        #endif
+    }
+    return ret;
+}
+
+void dealloc_internal (const void *obj_) {
+    void *obj = const_cast<void*>(obj_); // free does not take const void *
+#ifdef X10_USE_BDWGC
+    if (x10aux::use_bdwgc()) {
+        GC_FREE(obj);
+    } else
+#endif        
+    free(obj);
+}

@@ -125,6 +125,7 @@ namespace x10aux {
     extern bool trace_init_;
     extern bool trace_x10rt_;
     extern bool trace_ser_;
+    extern bool use_bdwgc_;
 
     extern inline bool use_ansi_colors()
     { if (!init_config_bools_done) init_config_bools() ; return use_ansi_colors_; }
@@ -136,6 +137,8 @@ namespace x10aux {
     { if (!init_config_bools_done) init_config_bools() ; return trace_x10rt_; }
     extern inline bool trace_ser()
     { if (!init_config_bools_done) init_config_bools() ; return trace_ser_; }
+    extern inline bool use_bdwgc()
+    { if (!init_config_bools_done) init_config_bools() ; return use_bdwgc_; }
 
     extern x10_int here;
     extern bool x10rt_initialized;

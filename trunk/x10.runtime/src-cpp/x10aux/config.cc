@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 
 #include <x10aux/config.h>
 
@@ -17,5 +18,6 @@ void x10aux::init_config_bools (void)
     trace_init_ = getenv("X10_TRACE_INIT") || getenv("X10_TRACE_ALL");
     trace_x10rt_ = getenv("X10_TRACE_X10RT") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
     trace_ser_ = getenv("X10_TRACE_SER") || getenv("X10_TRACE_NET") || getenv("X10_TRACE_ALL");
+    use_bdwgc_ = getenv("X10_USE_BDWGC")==NULL || strcmp(getenv("X10_USE_BDWGC"),"false");
     init_config_bools_done = true;
 }
