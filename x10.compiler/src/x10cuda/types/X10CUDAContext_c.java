@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.LocalDecl;
 import polyglot.frontend.Job;
 import x10.ast.Closure_c;
 import x10cpp.types.X10CPPContext_c;
@@ -58,6 +59,10 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         this.threadsVar = threadsVar;
         this.shm = shm;
         this.kernelParams = variables();
+        if (autoBlocks!=null)
+            this.kernelParams.add(autoBlocks.localDef().asInstance());
+        if (autoThreads!=null)
+            this.kernelParams.add(autoThreads.localDef().asInstance());
     }
     public boolean isKernelParam(Name n) {
         for (VarInstance i : kernelParams) {
@@ -85,7 +90,15 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     X10CUDAContext_c established;
     public void establishClosure() { established = this; }
     public X10CUDAContext_c established() { return established; }
-    
+
+    LocalDecl autoBlocks;
+    public void autoBlocks(LocalDecl v) { this.autoBlocks = v; }
+    public LocalDecl autoBlocks() { return this.autoBlocks; }
+
+    LocalDecl autoThreads;
+    public void autoThreads(LocalDecl v) { this.autoThreads = v; }
+    public LocalDecl autoThreads() { return this.autoThreads; }
+
 }
 
 //vim:tabstop=4:shiftwidth=4:expandtab

@@ -405,6 +405,30 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         r.var = real_var.name().id();
         return r;
     }
+    
+    public void checkAutoVar(Stmt s) {
+        assert s instanceof LocalDecl : s.getClass(); // FIXME: proper error
+        LocalDecl s_ = (LocalDecl)s;
+        Expr init_expr = s_.init();
+        assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
+        X10Call_c init_call = (X10Call_c) init_expr;
+        Receiver init_call_target = init_call.target();
+        assert init_call_target instanceof CanonicalTypeNode : init_call_target.getClass(); // FIXME: proper error
+        CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+        assert init_call_target_node.nameString().equals("CUDAUtilities") : init_call_target_node.nameString();
+        assert init_call.typeArguments().size() == 0 : init_call.typeArguments();
+        if (init_call.name().toString().equals("autoBlocks")) {
+            assert context().autoBlocks()==null : "Already have autoBlocks: "+context().autoBlocks();
+            context().autoBlocks(s_);
+            context().established().autoBlocks(s_);
+        } else if (init_call.name().toString().equals("autoThreads")) {
+            assert context().autoThreads()==null : "Already have autoThreads: "+context().autoThreads();
+            context().autoThreads(s_);
+            context().established().autoThreads(s_);
+        } else {    
+            assert false : init_call.name();
+        }
+    }
 
     public void visit(Block_c b) {
         super.visit(b);
@@ -412,8 +436,12 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
 
-            assert b.statements().size() == 1; // FIXME: proper error
-            Stmt loop_ = b.statements().get(0);
+            assert b.statements().size()==1 || b.statements().size()==3 : b.statements();
+            if (b.statements().size()==3) {
+                checkAutoVar(b.statements().get(0));
+                checkAutoVar(b.statements().get(1));
+            }
+            Stmt loop_ = b.statements().get(b.statements().size()-1);
             // test that it is of the form for (blah in region)
             assert loop_ instanceof For : loop_.getClass(); // FIXME: proper
                                                             // error
@@ -546,31 +574,45 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     
             inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
             inc.newline();
+            
+            ArrayList<VarInstance> env = context().kernelParams();
 
-            for (int i = 0; i < c.variables.size(); i++) {
-                VarInstance var = (VarInstance) c.variables.get(i);
+            for (VarInstance var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
-                inc.write(Emitter.translateType(t, true)+" "+name+" = __this->"+name+";"); inc.newline();
+                inc.write(Emitter.translateType(t, true)+" "+name);
+                if (var == context().autoBlocks().localDef().asInstance()) {
+                    inc.write(";");
+                } else if (var == context().autoThreads().localDef().asInstance()) {
+                    inc.write(";");
+                } else {
+                    inc.write(" = __this->"+name+";");
+                }
+                inc.newline();
             }
-            
-            inc.write("__blocks = ("); inc.begin(0);
-            tr.print(null, context().blocks(), inc);
-            inc.write(")+1;"); inc.end(); inc.newline();
-            
-            inc.write("__threads = ("); inc.begin(0);
-            tr.print(null, context().threads(), inc);
-            inc.write(")+1;"); inc.end(); inc.newline();
             
             inc.write("__shm = "); inc.begin(0);
             context().shm().generateSize(inc, tr);
             inc.write(";"); inc.end(); inc.newline();
-    
-            generateStruct("__", inc, c.variables);
+            
+            if (context().autoBlocks()!=null && context().autoThreads()!=null) {
+                String bname = context().autoBlocks().name().id().toString();
+                String tname = context().autoThreads().name().id().toString();;
+                inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "+bname+", "+tname+");"); inc.newline();
+            }// else {
+                inc.write("__blocks = ("); inc.begin(0);
+                tr.print(null, context().blocks(), inc);
+                inc.write(")+1;"); inc.end(); inc.newline();
+
+                inc.write("__threads = ("); inc.begin(0);
+                tr.print(null, context().threads(), inc);
+                inc.write(")+1;"); inc.end(); inc.newline();
+            //}
+            
+            generateStruct("__", inc, context().kernelParams());
             inc.write("___env __env;"); inc.newline();
                         
-            for (int i = 0; i < c.variables.size(); i++) {
-                VarInstance var = (VarInstance) c.variables.get(i);
+            for (VarInstance var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write("__env."+name+" = ");
@@ -812,7 +854,15 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 super.visit(n);
             }
         } else {
-            super.visit(n);
+            // we end up here in the _deserialize_cuda function because generatingKernel() is false
+            Name ln = n.name().id();
+            if (context().autoBlocks()!=null && ln == context().autoBlocks().name().id()) {
+                sw.write(context().autoBlocks().name().id().toString());
+            } else if (context().autoThreads()!=null && ln == context().autoThreads().name().id()) {
+                    sw.write(context().autoThreads().name().id().toString());
+            } else {
+                super.visit(n);
+            }
         }
     }
 
