@@ -56,7 +56,7 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
 	static bool gc_init_done = false;
 #endif        
 
-void *alloc_internal (size_t size) {
+void *x10aux::alloc_internal (size_t size) {
     void* ret;
 #ifdef X10_USE_BDWGC        
     if (x10aux::use_bdwgc()) {
@@ -80,7 +80,7 @@ void *alloc_internal (size_t size) {
     return ret;
 }
 
-void *realloc_internal (void *src, size_t dsz) {
+void *x10aux::realloc_internal (void *src, size_t dsz) {
     void *ret;
 #ifdef X10_USE_BDWGC
     if (x10aux::use_bdwgc()) {
@@ -99,7 +99,7 @@ void *realloc_internal (void *src, size_t dsz) {
     return ret;
 }
 
-void dealloc_internal (const void *obj_) {
+void x10aux::dealloc_internal (const void *obj_) {
     void *obj = const_cast<void*>(obj_); // free does not take const void *
 #ifdef X10_USE_BDWGC
     if (x10aux::use_bdwgc()) {
