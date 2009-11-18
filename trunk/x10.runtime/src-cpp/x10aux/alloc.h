@@ -41,7 +41,7 @@ namespace x10aux {
 
     void *alloc_internal (size_t size);
     void *realloc_internal (void* src, size_t dsz);
-    void *dealloc_internal (const void *obj_);
+    void dealloc_internal (const void *obj_);
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
