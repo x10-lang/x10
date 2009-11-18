@@ -24,7 +24,7 @@ template<class T> T *zrealloc (T *buf, size_t was, size_t now)
 }
 
 serialization_id_t DeserializationDispatcher::addDeserializer (Deserializer deser, bool is_async,
-                                                               CudaPre cuda_pre,
+                                                               CUDAPre cuda_pre,
                                                                const char *cubin,
                                                                const char *kernel)
 {
@@ -44,7 +44,7 @@ static void ensure_data_size (DeserializationDispatcher::Data *&data_v,
 }
 
 serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer deser, bool is_async,
-                                                                CudaPre cuda_pre,
+                                                                CUDAPre cuda_pre,
                                                                 const char *cubin,
                                                                 const char *kernel)
 {
@@ -63,7 +63,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
     return r;
 }
 
-CudaPre DeserializationDispatcher::getCudaPre_(serialization_id_t id)
+CUDAPre DeserializationDispatcher::getCUDAPre_(serialization_id_t id)
 { return data_v[id].cuda_pre; }
 
 
@@ -103,10 +103,10 @@ BufferFinder DeserializationDispatcher::getPutBufferFinder_ (serialization_id_t 
 Notifier DeserializationDispatcher::getPutNotifier_ (serialization_id_t id)
 { return data_v[id].put_notifier; }
 
-BufferFinder DeserializationDispatcher::getCudaPutBufferFinder_ (serialization_id_t id)
+BufferFinder DeserializationDispatcher::getCUDAPutBufferFinder_ (serialization_id_t id)
 { return data_v[id].cuda_put_bfinder; }
 
-Notifier DeserializationDispatcher::getCudaPutNotifier_ (serialization_id_t id)
+Notifier DeserializationDispatcher::getCUDAPutNotifier_ (serialization_id_t id)
 { return data_v[id].cuda_put_notifier; }
 
 serialization_id_t DeserializationDispatcher::addGetFunctions (BufferFinder bfinder,
@@ -141,10 +141,10 @@ BufferFinder DeserializationDispatcher::getGetBufferFinder_ (serialization_id_t 
 Notifier DeserializationDispatcher::getGetNotifier_ (serialization_id_t id)
 { return data_v[id].get_notifier; }
 
-BufferFinder DeserializationDispatcher::getCudaGetBufferFinder_ (serialization_id_t id)
+BufferFinder DeserializationDispatcher::getCUDAGetBufferFinder_ (serialization_id_t id)
 { return data_v[id].cuda_get_bfinder; }
 
-Notifier DeserializationDispatcher::getCudaGetNotifier_ (serialization_id_t id)
+Notifier DeserializationDispatcher::getCUDAGetNotifier_ (serialization_id_t id)
 { return data_v[id].cuda_get_notifier; }
 
 x10aux::msg_type DeserializationDispatcher::getMsgType_ (serialization_id_t id) {

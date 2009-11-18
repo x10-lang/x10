@@ -44,7 +44,7 @@ namespace x10aux {
         return (T*) mem;
     }
 
-    template<class T> class CudaRail {
+    template<class T> class CUDARail {
 
         protected:
 
@@ -55,7 +55,7 @@ namespace x10aux {
 
         public:
 
-        CudaRail (x10_int length) {
+        CUDARail (x10_int length) {
             cudaChannelFormatDesc desc = cudaCreateChannelDesc<T>();
             cudaArray *mem;
             CU_ASSERT(cudaMallocArray(&mem, &desc, num, 1));

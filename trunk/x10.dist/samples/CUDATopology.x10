@@ -1,6 +1,6 @@
 import x10.io.Console;
 
-public class CudaTopology {
+public class CUDATopology {
     public static def main (args : Rail[String]) {
         for (p in Place.places) {
             at (p) {

@@ -1,7 +1,7 @@
 import x10.io.Console;
-import x10.compiler.Cuda;
+import x10.compiler.CUDA;
 
-public class CudaKernelTest {
+public class CUDAKernelTest {
 
     static def doWork (init:Rail[Float]!, recv:Rail[Float]!, p:Place, len:Int) {
         val remote = Rail.makeRemote(p,len,(Int)=>0.0 as Float); // allocate 
@@ -9,7 +9,7 @@ public class CudaKernelTest {
         //finish init.copyTo(0, remote, 0, len); // dma there
         val init_ = init as ValRail[Float];
 
-        at (p) @Cuda {
+        at (p) @CUDA {
             for ((block):Point in 0..7) {
                 for ((thread):Point in 0..63) async {
                     val tid = block*64 + thread;

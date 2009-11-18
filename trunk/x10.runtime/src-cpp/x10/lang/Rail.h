@@ -114,7 +114,7 @@ namespace x10 {
 
             template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
 
-            static R makeCuda(x10::lang::Place p, x10_int length);
+            static R makeCUDA(x10::lang::Place p, x10_int length);
 
             static const x10aux::serialization_id_t _copy_to_serialization_id;
 
@@ -296,7 +296,7 @@ namespace x10 {
         }
 
 
-        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeCuda(x10::lang::Place p,
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::makeCUDA(x10::lang::Place p,
                                                                    x10_int length) {
 
             // create a local proxy with the right size, but rather than

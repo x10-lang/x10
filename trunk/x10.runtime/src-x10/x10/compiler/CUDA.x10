@@ -8,4 +8,4 @@
 
 package x10.compiler;
 
-public interface Cuda { };
+public interface CUDA { };

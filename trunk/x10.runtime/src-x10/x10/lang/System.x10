@@ -224,7 +224,7 @@ public class System {
 */
 
 
-    @Native("c++", "x10::lang::Rail<#1>::makeCuda(#4,#5)")
+    @Native("c++", "x10::lang::Rail<#1>::makeCUDA(#4,#5)")
     private static def cudaMakeRail[T] (dst:Place, length:Int) : Rail[T]{self.length==length} {
         return null;
     }
