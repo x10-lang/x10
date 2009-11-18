@@ -8,6 +8,7 @@ bool x10aux::trace_alloc_;
 bool x10aux::trace_init_;
 bool x10aux::trace_x10rt_;
 bool x10aux::trace_ser_;
+bool x10aux::use_bdwgc_;
 
 bool x10aux::init_config_bools_done;
 
