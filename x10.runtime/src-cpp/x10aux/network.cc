@@ -31,6 +31,64 @@ volatile x10_long x10aux::asyncs_received = 0;
 volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
+
+const int cuda_kernel_cfgs[] = {
+  /*1024*/ 8, 128,
+  /*1024*/ 4, 256,
+  /*1024*/ 2, 512,
+
+  /*960*/ 5, 192,
+  /*960*/ 3, 320,
+
+  /*896*/ 7, 128,
+  /*896*/ 2, 448,
+
+  /*768*/ 6, 128,
+  /*768*/ 4, 192,
+  /*768*/ 3, 256,
+  /*768*/ 2, 384,
+
+  /*640*/ 5, 128,
+  /*640*/ 2, 320,
+
+  /*576*/ 3, 192,
+
+  /*512*/ 8, 64,
+  /*512*/ 4, 128,
+  /*512*/ 2, 256,
+  /*512*/ 1, 512,
+
+  /*448*/ 7, 64,
+  /*448*/ 1, 448,
+
+  /*384*/ 6, 64,
+  /*384*/ 3, 128,
+  /*384*/ 2, 192,
+  /*384*/ 1, 384,
+
+  /*320*/ 5, 64,
+  /*320*/ 1, 320,
+
+  /*256*/ 4, 64,
+  /*256*/ 2, 128,
+  /*256*/ 1, 256,
+
+  /*192*/ 3, 64,
+  /*192*/ 1, 192,
+
+  /*128*/ 2, 64,
+  /*128*/ 1, 128,
+
+  /*64*/ 1, 64,
+
+  0 /* terminator */
+};
+
+void x10aux::blocks_threads (place p, msg_type t, int shm, int &bs, int &ts, const int *cfgs)
+{ x10rt_blocks_threads(p,t,shm,bs,ts,cfgs); }
+
+
+
 void *kernel_put_finder (const x10rt_msg_params &p, x10rt_copy_sz)
 {
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));

@@ -96,6 +96,11 @@ void x10rt_remote_op_fence (void)
 { x10rt_lgl_remote_op_fence(); }
 
 
+void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
+                           int &blocks, int &threads, const int *cfg)
+{ x10rt_lgl_blocks_threads (d, type, dyn_shm, blocks, threads, cfg); }
+
+
 void x10rt_probe (void)
 { x10rt_lgl_probe(); }
 

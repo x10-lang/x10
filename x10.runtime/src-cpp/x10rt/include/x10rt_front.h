@@ -43,6 +43,9 @@ void x10rt_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long updat
 
 void x10rt_remote_op_fence (void);
 
+void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
+                           int &blocks, int &threads, const int *cfg);
+
 void x10rt_probe (void);
 
 void x10rt_finalize (void); 

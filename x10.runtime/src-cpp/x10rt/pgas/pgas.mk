@@ -101,7 +101,7 @@ lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(SOCKETS_TGZ).phony:
-	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
+	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
 
 $(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 
@@ -142,7 +142,7 @@ lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a inc
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LAPI_TGZ).phony:
-	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
+	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
 
 $(LAPI_TGZ): $(LAPI_TGZ).phony
 
@@ -179,7 +179,7 @@ lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a inclu
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(BGP_TGZ).phony:
-	$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
+	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
 
 $(BGP_TGZ): $(BGP_TGZ).phony
 

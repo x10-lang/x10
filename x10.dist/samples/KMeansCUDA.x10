@@ -80,7 +80,7 @@ public class KMeansCUDA {
 
                         val kernel_start_time = System.currentTimeMillis();
                         // classify kernel
-                        val blocks = 8, threads = 64;
+                        val blocks = 4, threads = 256;
                         at (gpu) @CUDA {
                             for ((block) in 0..blocks-1) {
                                 val clustercache = Rail.make[Float](num_clusters*4, clusters_copy);
