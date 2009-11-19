@@ -17,6 +17,7 @@ import x10.util.Option;
 
 
 
+import x10.compiler.Unroll;
 import x10.compiler.CUDA;
 import x10.compiler.CUDAUtilities;
 
@@ -221,8 +222,7 @@ public class KMeansCUDA {
                                     for (var p:Int=tid ; p<num_local_points ; p+=tids) {
                                         var closest:Int = -1;
                                         var closest_dist:Float = Float.MAX_VALUE;
-                                        //@unroll(20)
-                                        for ((k) in 0..num_clusters-1) { 
+                                        @Unroll(10) for ((k) in 0..num_clusters-1) { 
                                             // Pythagoras (in d dimensions)
                                             var dist : Float = 0;
                                             for ((d) in 0..3) { 
@@ -277,7 +277,7 @@ public class KMeansCUDA {
                             for (var d:Int=0 ; d<4 ; ++d) clusters(k*4+d) /= cluster_counts(k);
                         }
 
-                        printClusters(clusters(),4);
+                        //printClusters(clusters(),4);
 
                         // TEST FOR CONVERGENCE
                         for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
