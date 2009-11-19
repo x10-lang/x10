@@ -271,7 +271,7 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     remote_free(p.dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     x10::runtime::RID rid = buf.read<x10::runtime::RID>();
-    x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
+    x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     x10aux::ref<x10::lang::Object> fs = rt->FMGL(finishStates)->get(rid);
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();

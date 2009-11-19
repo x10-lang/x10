@@ -30,7 +30,7 @@ namespace x10 {
 void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
 {
     x10::runtime::RID rid = buf.read<x10::runtime::RID>();
-    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
+    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     ref<Object> fs = rt->FMGL(finishStates)->get(rid);
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
@@ -40,7 +40,7 @@ void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &bu
 {
     // dst is the place where the finish update will occur, i.e. where the notifier runs
     dst = x10aux::parent(dst);
-    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::runtime();
+    ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     ref<Object> fs = rt->currentState();
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
     rt->FMGL(finishStates)->put(fs);
