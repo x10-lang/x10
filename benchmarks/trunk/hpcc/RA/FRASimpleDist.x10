@@ -9,7 +9,7 @@ class FRASimpleDist {
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:Long): Long {
         var i:Int, j:Int;
-        val m2 = Rail.makeVar[Long](64);
+        val m2 = Rail.make[Long](64);
         while (n < 0) n += PERIOD;
         while (n > PERIOD) n -= PERIOD;
         if (n == 0) return 0x1L;
@@ -111,10 +111,10 @@ class FRASimpleDist {
         val numUpdates = updates_*tableSize;
 
         // create local rails
-        val rails_ = Rail.makeVar[Rail[Long]!](Place.MAX_PLACES, (p:Int) => null);
+        val rails_ = Rail.make[Rail[Long]!](Place.MAX_PLACES, (p:Int) => null);
         finish for ((p) in 0..Place.MAX_PLACES-1) {
             async (Place.places(p)) {
-                val tmp = Rail.makeVar(localTableSize, (i:Int)=>i as Long);
+                val tmp = Rail.make(localTableSize, (i:Int)=>i as Long);
                 at (rails_) rails_(p) = tmp;
             }
         }

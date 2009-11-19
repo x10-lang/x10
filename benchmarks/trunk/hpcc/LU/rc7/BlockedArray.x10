@@ -22,7 +22,7 @@ public final class BlockedArray implements (Int,Int)=>Double {
             max_y = (J+1)*by-1;
             delta = by;
             offset = (I*bx+J)*by;
-            val raw = Rail.makeVar[Double](bx*by);
+            val raw = Rail.make[Double](bx*by);
             for(var i:Int = 0; i < bx*by; i++) raw(i) = rand.nextDouble()*10;
             this.raw = raw;
         }

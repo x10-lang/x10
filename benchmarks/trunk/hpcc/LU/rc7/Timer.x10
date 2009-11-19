@@ -5,8 +5,8 @@ final public class Timer {
     public val count:Rail[Long]!;
 
     public def this(n:Int) {
-        total = Rail.makeVar[Long](n, (Int)=>0L);
-        count = Rail.makeVar[Long](n, (Int)=>0L);
+        total = Rail.make[Long](n, (Int)=>0L);
+        count = Rail.make[Long](n, (Int)=>0L);
     }
 
     public def start(id:Int) { total(id) -= System.nanoTime(); }

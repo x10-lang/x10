@@ -28,10 +28,10 @@ class fft {
 
         def this(I:Int, nRows:Int, localSize:Int, N:Long, SQRTN:Int, verify:Boolean) {
             this.I = I; this.nRows = nRows; this.N = N; this.SQRTN = SQRTN;
-            A = Rail.makeVar[Double](localSize);
-            B = Rail.makeVar[Double](localSize);
-            C = Rail.makeVar[Double](localSize);
-            D = verify ? Rail.makeVar[Double](localSize) : null;
+            A = Rail.make[Double](localSize);
+            B = Rail.make[Double](localSize);
+            C = Rail.make[Double](localSize);
+            D = verify ? Rail.make[Double](localSize) : null;
             fftwPlan = create_plan(SQRTN, -1, 0);
             fftwInversePlan = create_plan(SQRTN, 1, 0);
         }
@@ -142,7 +142,7 @@ class fft {
 
     static def compute(FFT:PlaceLocalHandle[Block], fwd:Boolean, N:Long) {
 
-        val timers = Rail.makeVar[Long](7);
+        val timers = Rail.make[Long](7);
 
         timers(0) = System.nanoTime();
         finish ateach ((p) in unique) {

@@ -48,7 +48,7 @@ class LU {
     val buffers:PlaceLocalHandle[Rail[Double]];
 
     def computeRowSum() {
-        val sum = Rail.makeVar[Double](B);
+        val sum = Rail.make[Double](B);
 
         for (var I:Int = 0; I <= MB; ++I) if (A_here.hasRow(I)) {
             val IB = I * B;
@@ -322,7 +322,7 @@ class LU {
         val px = Int.parseInt(args(2));
         val py = Int.parseInt(args(3));
         val A = BlockedArray.make(M, N, B, B, px, py);
-        val buffers = PlaceLocalStorage.createDistributedObject[Rail[Double]](unique, ()=>Rail.makeVar[Double](N));        
+        val buffers = PlaceLocalStorage.createDistributedObject[Rail[Double]](unique, ()=>Rail.make[Double](N));        
         val lus = PlaceLocalStorage.createDistributedObject[LU](unique, ()=>new LU(M, N, B, px, py, A, buffers));
         Console.OUT.println ("LU Starting: M " + M + " B " + B + " px " + px + " py " + py);
         start(lus);
@@ -340,10 +340,10 @@ class LU {
         val pj = here.id % py;
         col = world.split(pj, pi);
         row = world.split(pi, pj);
-        pivot = Rail.makeVar[Int](B);
-        rowForBroadcast = Rail.makeVar[Double](B);
-        val rowBuffers = Rail.makeVal[Rail[Double]](M / B / px + 1, (Int)=>Rail.makeVar[Double](B * B));
-        val colBuffers = Rail.makeVal[Rail[Double]](N / B / py + 1, (Int)=>Rail.makeVar[Double](B * B));
+        pivot = Rail.make[Int](B);
+        rowForBroadcast = Rail.make[Double](B);
+        val rowBuffers = ValRail.make[Rail[Double]](M / B / px + 1, (Int)=>Rail.make[Double](B * B));
+        val colBuffers = ValRail.make[Rail[Double]](N / B / py + 1, (Int)=>Rail.make[Double](B * B));
         this.rowBuffers = rowBuffers;
         this.colBuffers = colBuffers;
         rowBuffer = rowBuffers(0);
