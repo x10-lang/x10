@@ -35,6 +35,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -140,7 +141,14 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     
     if (this.fDefaultPlatformConf != null) {
       initDefaultConfValues();
+    } else if (this.fIsLocal) {
+      this.fTargetOSCombo.select(getLocalOS().ordinal());
+      
+      this.fArchLabel.setEnabled(true);
+      this.fArchitectureBt.setEnabled(true);
+      defineDefaultCommands();
     }
+    updateMessage();
     
     setControl(composite);
   }
@@ -535,11 +543,30 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       this.fLinkingOptsText.setText(defaultX10Platform.getLinkingOptions());
       this.fLinkingLibsText.setText(defaultX10Platform.getLinkingLibraries());
     }
+    
     updateMessage();
+    if (this.fIsLocal && (targetOs != getLocalOS())) {
+      setMessage(NLS.bind(Messages.PCDWP_OSMismatch, targetOs.name()), IMessageProvider.WARNING);
+    }
   }
   
   private File getLocalFile(final URL url) throws IOException {
     return new File(FileLocator.resolve(url).getFile());
+  }
+  
+  private ETargetOS getLocalOS() {
+    final String osName = System.getProperty(OS_NAME_VAR);
+    if (osName.startsWith("AIX")) { //$NON-NLS-1$
+      return ETargetOS.AIX;
+    } else if (osName.startsWith("Linux")) { //$NON-NLS-1$
+      return ETargetOS.LINUX;
+    } else if (osName.startsWith("Mac")) { //$NON-NLS-1$
+      return ETargetOS.MAC;
+    } else if (osName.startsWith("Windows")) { //$NON-NLS-1$
+      return ETargetOS.WINDOWS;
+    } else {
+      return ETargetOS.UNIX;
+    }
   }
   
   private String getPGASDistLoc() {
@@ -712,12 +739,30 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   }
   
   private void updateMessage() {
-    if (this.fResManagerCombo.getSelectionIndex() == -1) {
-      setMessage(Messages.PCDWP_DefaultPageMsg);
-    } else {
-      setMessage(null);
-    }
     this.fValidationBt.setEnabled(hasAllData());
+    if (this.fValidationBt.isEnabled()) {
+      if (this.fIsValidated) {
+        setMessage(null);
+      } else {
+        setMessage(Messages.PCDWP_ValidateConfMsg);
+      }
+    } else {
+      if (this.fResManagerCombo.getSelectionIndex() == -1) {
+        setMessage(Messages.PCDWP_SelectRMMsg);
+      } else if (this.fTargetOSCombo.getSelectionIndex() == -1) {
+        setMessage(Messages.PCDWP_SelectOSMsg);
+      } else if ((this.fPGASLocText != null) && (this.fPGASLocText.getText().length() == 0)) {
+        setMessage(Messages.PCDWP_DefinePGASLocMsg);
+      } else if ((this.fX10LocText != null) && (this.fX10LocText.getText().length() == 0)) {
+        setMessage(Messages.PCDWP_DefineX10DistLocMsg);
+      } else {
+        if (this.fIsCplusPlus) {
+          setMessage(Messages.PCDWP_DefineCompLinkCmdsMsg);
+        } else {
+          setMessage(Messages.PCDWP_DefineCompCmdsMsg);
+        }
+      }
+    }
     setPageComplete(this.fIsValidated);
   }
   
@@ -811,5 +856,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private static final String INCLUDE_DIR = "include"; //$NON-NLS-1$
   
   private static final String LIB_DIR = "lib"; //$NON-NLS-1$
+  
+  private static final String OS_NAME_VAR = "os.name"; //$NON-NLS-1$
   
 }
