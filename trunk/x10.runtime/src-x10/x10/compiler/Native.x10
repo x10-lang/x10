@@ -13,7 +13,7 @@ import x10.lang.annotations.FieldAnnotation;
 
 /**
  * Annotation to mark methods and fields as having a particular native implementation.
- * lang is the name of the language, typically "java" or "c".
+ * lang is the name of the language, typically "java" or "c++".
  * code is the code to insert for a call to the method or an access to the field.
  *
  * For "java" annotations:

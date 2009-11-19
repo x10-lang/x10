@@ -115,8 +115,11 @@ public class ASTQuery {
     }
 
     boolean hasAnnotation(Node dec, String name) {
+        return hasAnnotation((X10TypeSystem) tr.typeSystem(), dec, name);
+    }
+
+	public static boolean hasAnnotation(X10TypeSystem ts, Node dec, String name) {
 		try {
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 			if (annotationNamed(ts, dec, name) != null)
 				return true;
 		} catch (NoClassException e) {
@@ -127,7 +130,8 @@ public class ASTQuery {
 		}
 		return false;
 	}
-	X10ClassType annotationNamed(TypeSystem ts, Node o, String name) throws SemanticException {
+
+	public static X10ClassType annotationNamed(TypeSystem ts, Node o, String name) throws SemanticException {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
@@ -309,9 +313,9 @@ public class ASTQuery {
 			List<Type> as = def.annotationsMatching(rep);
 			for (Type at : as) {
 				assertNumberOfInitializers(at, 4);
-				String lang = getPropertyInit(at, 0);
+				String lang = getStringPropertyInit(at, 0);
 				if (lang != null && lang.equals(CPP_NATIVE_STRING)) {
-					return getPropertyInit(at, i);
+					return getStringPropertyInit(at, i);
 				}
 			}
 		}
@@ -327,17 +331,23 @@ public class ASTQuery {
 	    }
 	}
 
-	public static String getPropertyInit(Type at, int index) {
+	public static String getStringPropertyInit(Type at, int index) {
+	    Object v = getPropertyInit(at, index);
+	    if (v instanceof String)
+	        return (String) v;
+	    else if (v != null)
+	        return v.toString();
+	    return null;
+	}
+
+	public static Object getPropertyInit(Type at, int index) {
 	    at = X10TypeMixin.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        if (index < act.propertyInitializers().size()) {
 	            Expr e = act.propertyInitializer(index);
 	            if (e.isConstant()) {
-	                Object v = e.constantValue();
-	                if (v instanceof String) {
-	                    return (String) v;
-	                }
+	                return e.constantValue();
 	            }
 	        }
 	    }
