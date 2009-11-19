@@ -16,9 +16,19 @@ import org.eclipse.core.runtime.CoreException;
 
 import polyglot.frontend.Resource;
 
-final class JavaModelFileResource implements Resource {
+/**
+ * Implementation of Polyglot resource to handle a Eclipse {@link IFile} resource.
+ * 
+ * @author egeay
+ */
+public final class JavaModelFileResource implements Resource {
   
-  JavaModelFileResource(final IFile file) {
+  /**
+   * Creates the resource from the Eclipse {@link IFile} provided.
+   * 
+   * @param file The file created by the JDT model.
+   */
+  public JavaModelFileResource(final IFile file) {
     this.fFile = file;
   }
   

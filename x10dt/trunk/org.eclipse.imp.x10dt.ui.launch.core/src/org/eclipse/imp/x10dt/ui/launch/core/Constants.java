@@ -21,7 +21,7 @@ public final class Constants {
   
   public static final String ATTR_SHOULD_LINK_APP = LaunchCore.PLUGIN_ID + ".ShouldLinkApp"; //$NON-NLS-1$
   
-  public static final String ATTR_MAIN_CLASS_PATH = LaunchCore.PLUGIN_ID + ".MainClassPath"; //$NON-NLS-1$
+  public static final String ATTR_MAIN_TYPE_PATH = LaunchCore.PLUGIN_ID + ".MainTypePath"; //$NON-NLS-1$
   
   // --- Constants for connection info for a build
   

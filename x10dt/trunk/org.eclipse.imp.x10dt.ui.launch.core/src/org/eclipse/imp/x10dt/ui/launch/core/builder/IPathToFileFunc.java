@@ -12,8 +12,12 @@ import java.io.File;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
 
-
-final class IPathToFileFunc implements IFunctor<IPath, File> {
+/**
+ * Functor converting a {@link IPath} into a {@link File}.
+ * 
+ * @author egeay
+ */
+public final class IPathToFileFunc implements IFunctor<IPath, File> {
 
   // --- Interface methods implementation
   

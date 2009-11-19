@@ -16,7 +16,6 @@ import org.eclipse.debug.ui.ILaunchConfigurationTabGroup;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.ptp.launch.ui.EnhancedSynchronizeTab;
 import org.eclipse.ptp.launch.ui.EnvironmentTab;
-import org.eclipse.ptp.launch.ui.ResourcesTab;
 
 /**
  * Defines launch configuration for X10 programs using C++ back-end.
@@ -30,7 +29,7 @@ public class CppLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
   
   public final void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
     final List<ILaunchConfigurationTab> tabs = new ArrayList<ILaunchConfigurationTab>();
-    tabs.add(new ResourcesTab());
+    tabs.add(new CppResourcesTab());
     tabs.add(new CppApplicationTab());
     if (ILaunchManager.DEBUG_MODE.equals(mode)) {
       final ILaunchConfigurationTab debugTab = getDebugTab();

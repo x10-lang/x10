@@ -100,12 +100,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         UIUtils.showView(PROBLEMS_VIEW_ID);
         return new IProject[0];
       }
+      
       if (resourceManager.getState() != ResourceManagerAttributes.State.STARTED) {
-        IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_ResManagerNotStarted, resourceManager.getName()), 
-                                   IMarker.SEVERITY_ERROR, 
-                                   getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
-        UIUtils.showView(PROBLEMS_VIEW_ID);
-        return new IProject[0];
+        try {
+          resourceManager.startUp(new SubProgressMonitor(monitor, 3));
+        } catch (CoreException except) {
+          IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.AXB_ResManagerStartFailure, resourceManager.getName()), 
+                                     IMarker.SEVERITY_ERROR, 
+                                     getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+          UIUtils.showView(PROBLEMS_VIEW_ID);
+          return new IProject[0];
+        }
+      } else {
+        monitor.worked(3);
       }
       
       // Let's clean the target workspace directory.
@@ -140,7 +147,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       } else {
         outputDir = new File(this.fBinaryContainer.getLocationURI());
       }
-      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 30));
+      compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 27));
       
       // Finally, let's compile the generated files.
       return compileGeneratedFiles(resourceManager, dependentProjects, workspaceDir, platform, 

@@ -27,9 +27,9 @@ public class Messages extends NLS {
   public static String APCC_ExecuteCommand;
   public static String APCC_GeneratingFilesMsg;
   public static String APCC_NoGeneratedFilesError;
+  public static String AXB_ResManagerStartFailure;
   public static String CPPB_LibCreationError;
   public static String CPPB_NoResManagerError;
-  public static String CPPB_ResManagerNotStarted;
   public static String CPPB_ArchivingCmdLabel;
   public static String CPPB_ArchivingTaskName;
   public static String CPPB_CompilationCmdLabel;

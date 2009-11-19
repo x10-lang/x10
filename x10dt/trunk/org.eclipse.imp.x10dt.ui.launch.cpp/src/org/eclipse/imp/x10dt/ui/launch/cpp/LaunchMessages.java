@@ -37,19 +37,31 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_IllegalPrjName;
 
-  public static String CAT_MainClassGroupName;
+  public static String CAT_IOError;
+
+  public static String CAT_MainTypeGroupName;
+
+  public static String CAT_MainTypeSearchError;
+
+  public static String CAT_MainTypeSearchInternalError;
 
   public static String CAT_LinkApp;
   
   public static String CAT_LinkAppToolTip;
 
+  public static String CAT_NoCPPFileForMainType;
+
   public static String CAT_NoExistingProject;
 
-  public static String CAT_NoRunningResManager;
+  public static String CAT_NoProjectDefinition;
 
   public static String CAT_NotExistingPathError;
+  
+  public static String CAT_NotExistingProject;
 
   public static String CAT_OutputToConsoleMsg;
+
+  public static String CAT_ParsingX10FilesMsg;
 
   public static String CAT_PrjSelectionDialogMsg;
 
@@ -58,16 +70,24 @@ public class LaunchMessages extends NLS {
   public static String CAT_ProjectGroupName;
 
   public static String CAT_ReadConfigError;
-
-  public static String CAT_RequiredMainClassName;
+  
+  public static String CAT_RequiredMainTypeName;
 
   public static String CAT_RequiredPrjName;
 
+  public static String CAT_ResourcesAccessError;
+
   public static String CAT_SearchButton;
 
-  public static String CAT_SelectMainDialogDescription;
+  public static String CAT_SearchingMainMethodsMsg;
+
+  public static String CAT_SetMainTypeError;
 
   public static String CAT_TabName;
+
+  public static String CAT_X10FileSearchOrCPFailure;
+
+  public static String CAT_X10ParsingInternalError;
 
   public static String CLCD_CmdUsedMsg;
 
@@ -171,6 +191,10 @@ public class LaunchMessages extends NLS {
 
   public static String DBG_Attributes_1;
   
+  public static String XCTD_DialogMsg;
+
+  public static String XCTD_DialogTitle;
+
   public static String XPCPP_NoResManagerStartedError;
 
   public static String XPCPP_NoTempDirWarning;
