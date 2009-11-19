@@ -13,7 +13,7 @@ import x10.util.Stack;
 /**
  * @author tardieu
  */
-class Activity {
+public class Activity {
     /**
      * the finish state governing the execution of this activity
      */

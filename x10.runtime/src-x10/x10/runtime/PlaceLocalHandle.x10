@@ -39,9 +39,14 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
   /**
    * @return the object mapped to the handle at the current place
    */
+  // TODO: make everyone use apply() instead
   @Native("c++", "(#0)->get()")
   @Native("java", "#0.get()")
   public native safe def get():T!;
+
+  @Native("c++", "(#0)->get()")
+  @Native("java", "#0.get()")
+  public native safe def apply():T!;
 
   @Native("c++", "(#0)->hashCode()")
   @Native("java", "#0.hashCode()")
