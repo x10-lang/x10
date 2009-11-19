@@ -15,7 +15,7 @@
 
 #include <cuda.h> // Proprietory nvidia header
 
-//#define TRACE 1
+#define TRACE 1
 
 namespace {
 
@@ -630,11 +630,13 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             DEBUG("probe: kernel complete\n");
             x10rt_msg_type type = kop->p.type;
             x10rt_cuda_post *fptr = ctx->cbs[type].kernel_cbs.post;
+            DEBUG("probe: post callback begins\n");
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
             fptr(kop->p, kop->arg); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+            DEBUG("probe: post callback ends\n");
             op->~x10rt_cuda_base_op();
             free(op);
             op = ctx->kernel_q.pop_op(); // get another one
@@ -646,11 +648,13 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             x10rt_msg_type type = kop->p.type;
             x10rt_cuda_pre *pre = ctx->cbs[type].kernel_cbs.pre;
             size_t blocks=1, threads=1, shm = 0;
+            DEBUG("probe: pre callback begins\n");
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
             kop->arg = pre(kop->p, blocks, threads, shm); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+            DEBUG("probe: pre callback ends\n");
             CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
             // y and z params we leave as 1, as threads can vary from 1 to 512
             CU_SAFE(cuFuncSetBlockShape(k, threads, 1, 1));
@@ -738,19 +742,23 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 
             void *remote = NULL; // initialise only to avoid compiler warning
             if (first_time) {
+                DEBUG("probe: finder callback begins\n");
                 CU_SAFE(cuCtxPopCurrent(NULL));
                 pthread_mutex_unlock(&big_lock_of_doom);
                 remote = hh(cop->p, len); /****CALLBACK****/
                 pthread_mutex_lock(&big_lock_of_doom);
                 CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+                DEBUG("probe: finder callback ends\n");
                 if (remote==NULL) {
                     x10rt_msg_type type = op->p.type;
                     x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
+                    DEBUG("probe: notifier callback begins\n");
                     CU_SAFE(cuCtxPopCurrent(NULL));
                     pthread_mutex_unlock(&big_lock_of_doom);
                     ch(cop->p, len); /****CALLBACK****/
                     pthread_mutex_lock(&big_lock_of_doom);
                     CU_SAFE(cuCtxPushCurrent(ctx->ctx));
+                    DEBUG("probe: notifier callback ends\n");
                     op->~x10rt_cuda_base_op();
                     free(op);
                     goto landingzone;
