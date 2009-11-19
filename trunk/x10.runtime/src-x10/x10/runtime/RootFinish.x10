@@ -8,6 +8,7 @@
  
 package x10.runtime;
 
+import x10.util.Pair;
 import x10.util.Stack;
 
 /**
@@ -48,7 +49,7 @@ class RootFinish extends Latch implements FinishState {
         }
     }
 
-    def notify(rail:ValRail[Int]!):Void {
+   def notify(rail:ValRail[Int]!):Void {
         var b:Boolean = true;
         lock();
         for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -59,9 +60,29 @@ class RootFinish extends Latch implements FinishState {
         unlock();
     }
 
+    def notify2(rail:ValRail[Pair[Int,Int]]!):Void {
+        lock();
+        for(var i:Int=0; i<rail.length; i++) {
+            counts(rail(i).first) += rail(i).second;
+        }
+        for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            if (counts(i) != 0) {
+                unlock();
+                return;
+            }
+        }
+        release();
+        unlock();
+    }
+
     def notify(rail:ValRail[Int]!, t:Throwable):Void {
         pushException(t);
         notify(rail);
+    }
+
+    def notify2(rail:ValRail[Pair[Int,Int]]!, t:Throwable):Void {
+        pushException(t);
+        notify2(rail);
     }
 
     public def notifySubActivitySpawn(place:Place):Void {
