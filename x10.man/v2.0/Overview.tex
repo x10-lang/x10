@@ -158,13 +158,13 @@ the fields of objects.
 conversions (\Sref{XtenConversions}).
 
 Values of one type can be converted to another type using the
-\xcd"to" operation:
+\xcd"as" operation:
 \begin{xten}
 val x: Int = 65535;
 val y: Byte = x as Byte; // convert to Byte,
                          // retaining the lower 8 bits
 \end{xten}
-The \xcd"to" operation does not necessarily preserve equality
+The \xcd"as" operation does not necessarily preserve equality
 and for numeric values may 
 result in a loss of precision.
 
