@@ -15,7 +15,7 @@
 
 #include <cuda.h> // Proprietory nvidia header
 
-#define TRACE 1
+#define TRACE 0
 
 namespace {
 
