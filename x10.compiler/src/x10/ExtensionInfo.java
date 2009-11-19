@@ -49,6 +49,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PruningVisitor;
 import x10.ast.X10NodeFactory_c;
+import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10.plugin.CompilerPlugin;
@@ -66,7 +67,6 @@ import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
 import x10.visit.Inliner;
-import x10.visit.Optimizer;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
@@ -284,7 +284,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(InnerClassRemover(job));
            goals.add(Desugarer(job));
            goals.add(Optimizer(job));
-           goals.add(Inlined(job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -440,22 +439,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
        }
        
-       public Goal Inlined(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-               return new VisitorGoal("Inlined", job, new Inliner(job, ts, nf)).intern(this);
-           }
-           else {
-               return new SourceGoal_c("Inlined", job) {
-                   @Override
-                   public boolean runTask() {
-                       return true;
-                   }
-               }.intern(this);
-           }
-       }
-       
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -469,9 +452,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        public Goal Optimizer(Job job) {
-    	   TypeSystem ts = extInfo.typeSystem();
-    	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new VisitorGoal("Optimizer", job, new Optimizer(job, ts, nf)).intern(this);
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new Optimizer(job).intern(this);
        }
        
        public Goal InnerClassRemover(Job job) {

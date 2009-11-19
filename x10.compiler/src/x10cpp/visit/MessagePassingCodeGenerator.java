@@ -13,7 +13,7 @@ package x10cpp.visit;
 import static x10cpp.visit.ASTQuery.assertNumberOfInitializers;
 import static x10cpp.visit.ASTQuery.getConstructorId;
 import static x10cpp.visit.ASTQuery.getCppRep;
-import static x10cpp.visit.ASTQuery.getPropertyInit;
+import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 import static x10cpp.visit.Emitter.mangled_field_name;
 import static x10cpp.visit.Emitter.mangled_method_name;
 import static x10cpp.visit.Emitter.mangled_non_method_name;
@@ -4611,9 +4611,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     	        List<Type> as = o.annotationsMatching(annotation);
     	        for (Type at : as) {
     	            assertNumberOfInitializers(at, 2);
-    	            String lang = getPropertyInit(at, 0);
+    	            String lang = getStringPropertyInit(at, 0);
     	            if (lang != null && lang.equals(our_lang)) {
-    	                String lit = getPropertyInit(at, 1);
+    	                String lit = getStringPropertyInit(at, 1);
     	                return lit;
     	            }
     	        }

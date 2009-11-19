@@ -1,7 +1,7 @@
 /**
  * 
  */
-package x10.visit;
+package x10.optimizations;
 
 
 import java.util.List;
@@ -48,12 +48,12 @@ import x10.util.Synthesizer;
  * @author vj
  *
  */
-public class Optimizer extends ContextVisitor {
+public class ForLoopOptimizer extends ContextVisitor {
 	
 	private final X10TypeSystem xts;
 	private final X10NodeFactory xnf;
 
-	public Optimizer(Job job, TypeSystem ts, NodeFactory nf) {
+	public ForLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
 		super(job, ts, nf);
 		xts = (X10TypeSystem) ts;
 		xnf = (X10NodeFactory) nf;
