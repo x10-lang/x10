@@ -2,7 +2,7 @@ package x10.lang;
 
 public final class Cell[T] {
 
-    private var value:T;
+    public var value:T;
 
     public def this (x:T) { value = x; }
 
