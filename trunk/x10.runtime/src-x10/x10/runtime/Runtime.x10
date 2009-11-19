@@ -48,7 +48,7 @@ public final class Runtime {
 	/**
 	 * Return the current runtime
 	 */
-	private static def runtime() = runtime.get() as Runtime!;
+	//private static def runtime() = runtime.get() as Runtime!;
 
 	/**
 	 * Return the current worker
@@ -58,7 +58,7 @@ public final class Runtime {
 	/**
 	 * Return the current activity
 	 */
-	private static def activity():Activity! 
+	public static def activity():Activity! 
                = worker().activity() as Activity!;
 	
 	/**

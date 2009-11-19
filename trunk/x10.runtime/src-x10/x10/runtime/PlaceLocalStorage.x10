@@ -24,11 +24,15 @@ public final class PlaceLocalStorage {
    * @param init the initialization closure used to create the local object.
    * @return a PlaceLocalHandle that can be used to access the local objects.
    */
-  public static def createDistributedObject[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T] {
+  public static def make[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T] {
     val handle = at(Place.FIRST_PLACE) PlaceLocalHandle.createHandle[T]();
     finish for (p in dist.places()) {
        async (p) handle.set(init());
     }
     return handle;
   }
+
+  // TODO: make everyone use 'make'
+  public static def createDistributedObject[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T]
+   = make[T](dist, init);
 }
