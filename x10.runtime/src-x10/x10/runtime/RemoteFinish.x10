@@ -8,6 +8,7 @@
  
 package x10.runtime;
 
+import x10.util.Pair;
 import x10.util.Stack;
 import x10.util.concurrent.atomic.AtomicInteger;
 import x10.compiler.Native;
@@ -32,6 +33,9 @@ class RemoteFinish implements FinishState {
 	 */
     private val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0) as Rail[Int]!;
     
+    private val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id) as Rail[Int]!;
+    private var length:Int = 1;
+
     private var count:AtomicInteger = new AtomicInteger(0); 
     
     private val rid:RID;
@@ -52,7 +56,9 @@ class RemoteFinish implements FinishState {
 	 */
     public def notifySubActivitySpawn(place:Place):Void {
         lock.lock();
-        counts(place.id)++;
+        if (counts(place.id)++ == 0 && here.id != place.id) {
+        	message(length++) = place.id;
+        }
         lock.unlock();
     }
     
@@ -66,29 +72,54 @@ class RemoteFinish implements FinishState {
             lock.unlock();
             return;
         }
-        val c = counts as ValRail[Int];
-        for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
         val e = exceptions;
         exceptions = null;
-        lock.unlock();
-        val r = rid;
-        if (null != e) {
-            val t:Throwable;
-            if (e.size() == 1) {
-                t = e.peek();
-            } else {
-                t = new MultipleExceptions(e);
-            }
-            val closure = () => { Runtime.findRoot(r).notify(c, t); NativeRuntime.deallocObject(c); };
-            NativeRuntime.runAt(rid.place.id, closure);
-            NativeRuntime.dealloc(closure);
+        if (2*length > Place.MAX_PLACES) {
+	        val m = counts as ValRail[Int];
+	        for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+	        length = 1;
+	        lock.unlock();
+	        val r = rid;
+	        if (null != e) {
+	            val t:Throwable;
+	            if (e.size() == 1) {
+	                t = e.peek();
+	            } else {
+	                t = new MultipleExceptions(e);
+	            }
+	            val closure = () => { Runtime.findRoot(r).notify(m, t); NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(rid.place.id, closure);
+	            NativeRuntime.dealloc(closure);
+	        } else {
+	            val closure = () => { Runtime.findRoot(r).notify(m) ; NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(rid.place.id, closure);
+	            NativeRuntime.dealloc(closure);
+	        }
+	        NativeRuntime.deallocObject(m);
         } else {
-            val closure = () => { Runtime.findRoot(r).notify(c) ; NativeRuntime.deallocObject(c); };
-            NativeRuntime.runAt(rid.place.id, closure);
-            NativeRuntime.dealloc(closure);
-        }
-        NativeRuntime.deallocObject(c);
-    }
+        	val m = ValRail.make[Pair[Int,Int]](length, (i:Nat)=>Pair[Int,Int](message(i), counts(message(i))));
+	        for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+	        length = 1;
+	        lock.unlock();
+	        val r = rid;
+	        if (null != e) {
+	            val t:Throwable;
+	            if (e.size() == 1) {
+	                t = e.peek();
+	            } else {
+	                t = new MultipleExceptions(e);
+	            }
+	            val closure = () => { Runtime.findRoot(r).notify2(m, t); NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(rid.place.id, closure);
+	            NativeRuntime.dealloc(closure);
+	        } else {
+	            val closure = () => { Runtime.findRoot(r).notify2(m) ; NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(rid.place.id, closure);
+	            NativeRuntime.dealloc(closure);
+	        }
+	        NativeRuntime.deallocObject(m);
+	    }
+	}
     
 	/** 
 	 * Push an exception onto the stack.
