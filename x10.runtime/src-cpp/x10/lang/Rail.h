@@ -177,9 +177,13 @@ namespace x10 {
                                          x10aux::serialization_buffer& buf,
                                          x10aux::addr_map &m);
 
-        void Rail_serializeAndSend(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
-                                   x10_ubyte code, x10aux::serialization_id_t _id,
-                                   void* data, size_t size);
+        void Rail_serializeAndSendPut(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
+                                      x10_ubyte code, x10aux::serialization_id_t _id,
+                                      void* data, size_t size);
+
+        void Rail_serializeAndSendGet(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
+                                      x10_ubyte code, x10aux::serialization_id_t _id,
+                                      void* data, size_t size);
 
         template<class T> x10aux::RuntimeType Rail<T>::rtt;
 
@@ -513,8 +517,8 @@ namespace x10 {
                 }
                 return;
             }
-            Rail_serializeAndSend(dst_place_, df, 1, _copy_to_serialization_id,
-                                  &_data[src_off], len * sizeof(T));
+            Rail_serializeAndSendPut(dst_place_, df, 1, _copy_to_serialization_id,
+                                     &_data[src_off], len * sizeof(T));
         } // }}}
 
         // CLOSURE NOTIFIER (2) (this one designed for LU) {{{
@@ -790,8 +794,8 @@ namespace x10 {
                 }
                 return;
             }
-            Rail_serializeAndSend(src_place_, df, 1, _copy_from_serialization_id,
-                                  &_data[dst_off], len * sizeof(T));
+            Rail_serializeAndSendGet(src_place_, df, 1, _copy_from_serialization_id,
+                                     &_data[dst_off], len * sizeof(T));
         } // }}}
 
         // {{{ stupid
