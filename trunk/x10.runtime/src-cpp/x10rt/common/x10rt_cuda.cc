@@ -197,8 +197,7 @@ namespace {
             initialized = false;
         }
 
-        // FIXME: this will race, use lock or CAS or something
-        void push_op (x10rt_cuda_base_op *op)
+        void push_back (x10rt_cuda_base_op *op)
         {
             if (fifo_e == NULL) {
                 fifo_b = op;
@@ -210,7 +209,19 @@ namespace {
             size++;
         }
 
-        // FIXME: this will race, use lock or CAS or something
+        void push_front (x10rt_cuda_base_op *op)
+        {
+            if (fifo_e == NULL) {
+                fifo_b = op;
+                fifo_e = op;
+            } else {
+                op->next = fifo_b;
+                fifo_b = op;
+            }
+            size++;
+        }
+
+        // pop from front
         x10rt_cuda_base_op *pop_op (void)
         {
             x10rt_cuda_base_op *op = fifo_b;
@@ -493,7 +504,7 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x
     if (remote) {
         x10rt_cuda_get *op = new (safe_malloc<x10rt_cuda_get>()) x10rt_cuda_get(p,buf,len);
         op->src = remote;
-        ctx->dma_q.push_op(op);
+        ctx->dma_q.push_back(op);
         pthread_mutex_unlock(&big_lock_of_doom);
 
         x10rt_cuda_probe(ctx);
@@ -528,7 +539,7 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x
     if (remote) {
         x10rt_cuda_put *op = new (safe_malloc<x10rt_cuda_put>()) x10rt_cuda_put(p,buf,len);
         op->dst = remote;
-        ctx->dma_q.push_op(op);
+        ctx->dma_q.push_back(op);
         pthread_mutex_unlock(&big_lock_of_doom);
 
         x10rt_cuda_probe(ctx);
@@ -565,7 +576,7 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params &p)
     }
 
     x10rt_cuda_kernel *op = new (safe_malloc<x10rt_cuda_kernel>()) x10rt_cuda_kernel(p);
-    ctx->kernel_q.push_op(op);
+    ctx->kernel_q.push_back(op);
     pthread_mutex_unlock(&big_lock_of_doom);
 
     x10rt_cuda_probe(ctx);
@@ -690,7 +701,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             CU_SAFE(cuFuncSetSharedSize(k, shm));
             CU_SAFE(cuLaunchGridAsync(k, blocks, 1, ctx->kernel_q.stream));
             op->begun = true;
-            ctx->kernel_q.push_op(op);
+            ctx->kernel_q.push_front(op);
         }
     }
 
@@ -775,7 +786,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 
             started += dma_sz;
 
-            ctx->dma_q.push_op(op);
+            ctx->dma_q.push_front(op);
             
         }
 
