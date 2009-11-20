@@ -3525,7 +3525,7 @@ public static class MessageHandler implements IMessageHandler {
                             TypeNode type = (TypeNode) o[4];
                             if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
-                            LocalDecl ld = nf.LocalDecl(pos, fn,
+                            LocalDecl ld = nf.LocalDecl(i.hasNext() ? pos : new Position(fn.position(), pos), fn,
                                                type, name, init);
                             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
                             int index = 0;
@@ -3558,7 +3558,7 @@ public static class MessageHandler implements IMessageHandler {
                             TypeNode type = (TypeNode) o[4];
                             if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
                             Expr init = (Expr) o[5];
-                            LocalDecl ld = nf.LocalDecl(pos, fn,
+                            LocalDecl ld = nf.LocalDecl(i.hasNext() ? pos : new Position(fn.position(), pos), fn,
                                                type, name, init);
                             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
                             int index = 0;
