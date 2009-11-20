@@ -546,7 +546,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
               
           };
           try {
-            new ProgressMonitorDialog(getShell()).run(true, true, runnable);
+            new ProgressMonitorDialog(getShell()).run(true, false, runnable);
           } catch (Exception except) {
             ErrorUtils.dialogWithLog(getShell(), LaunchMessages.CAT_MainTypeSearchInternalError, IStatus.ERROR, 
                                      LaunchMessages.CAT_X10ParsingInternalError, except);
