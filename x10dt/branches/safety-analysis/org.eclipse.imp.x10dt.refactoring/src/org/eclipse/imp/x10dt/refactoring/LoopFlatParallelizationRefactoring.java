@@ -23,8 +23,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
-import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
-import org.eclipse.imp.x10dt.refactoring.effects.XVarDefWrapper;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.imp.x10dt.ui.parser.CompilerDelegate;
 import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
@@ -49,6 +47,8 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
+import x10.effects.EffectsVisitor;
+import x10.effects.XVarDefWrapper;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.Effects;
 import x10.effects.constraints.Pair;
@@ -139,7 +139,7 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
             ReachingDefsVisitor rdVisitor = new ReachingDefsVisitor(fContainingMethod, null, extInfo.typeSystem(), extInfo.nodeFactory());
             fContainingMethod.visit(rdVisitor);
 
-            EffectsVisitor effVisitor= new EffectsVisitor(rdVisitor.getReachingDefs(), fContainingMethod);
+            EffectsVisitor effVisitor= new EffectsVisitor(fContainingMethod /*, rdVisitor.getReachingDefs()*/);
             effVisitor.setVerbose(X10DTRefactoringPlugin.getInstance().getConsoleStream());
             loopBody.visit(effVisitor);
             if (fVerbose) {

@@ -32,7 +32,6 @@ import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.utils.StreamUtils;
-import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
@@ -48,6 +47,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
 import x10.ast.X10ProcedureDecl;
 import x10.constraint.XFailure;
+import x10.effects.EffectsVisitor;
 import x10.effects.constraints.Effect;
 
 /**
@@ -143,7 +143,7 @@ public class AnalyzeEffects implements IWorkbenchWindowActionDelegate {
                     fConsStream.println("  Analyzing procedure " + procID);
 
                     try {
-                        EffectsVisitor ev= new EffectsVisitor(null, procedureDecl);
+                        EffectsVisitor ev= new EffectsVisitor(procedureDecl /*, null*/);
 
                         procedureDecl.visit(ev);
                         bodyEff= ev.getEffectFor(procedureDecl.body());

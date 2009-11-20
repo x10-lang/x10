@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
-import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
@@ -35,6 +33,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import x10.ast.Finish;
 import x10.ast.X10MethodDecl;
+import x10.effects.EffectsVisitor;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.Pair;
 
@@ -88,7 +87,7 @@ public class ExtractAsyncInFinishRefactoring extends X10RefactoringBase {
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         try {
             List<Node> followingContextNodes= extractFollowingContext(fSelNodes, Collections.singletonList((Node) fEnclFinish));
-            EffectsVisitor effVisitor= new EffectsVisitor(new ReachingDefsVisitor.ValueMap(), fContainingMethod);
+            EffectsVisitor effVisitor= new EffectsVisitor(fContainingMethod /*, new ReachingDefsVisitor.ValueMap() */);
 
             if (fVerbose) {
                 effVisitor.setVerbose(X10DTRefactoringPlugin.getInstance().getConsoleStream());

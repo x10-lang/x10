@@ -67,6 +67,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Type;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.Position;
@@ -100,11 +101,11 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         final Expr fLoopDomain;
         Set<Expr> fLoopDomainValues= new HashSet<Expr>();
         boolean fExtentUnknown;
-        int fMin;
-        Expr fMinSymbolic;
-        int fMax;
-        Expr fMaxSymbolic;
-        int fStride;
+        private int fMin;
+        private Expr fMinSymbolic;
+        private int fMax;
+        private Expr fMaxSymbolic;
+        private int fStride;
 
         public LoopParams(VarDecl vd, Expr domain) {
             fLoopVar= vd;
@@ -522,8 +523,8 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         return fNodeFactory.Id(PCG, name);
     }
 
-    private Local local(Name name) {
-        return fNodeFactory.Local(PCG, id(name));
+    private Local intLocal(Name name) { // TODO should take a LocalInstance
+        return (Local) fNodeFactory.Local(PCG, id(name)).type(fTypeSystem.Int());
     }
 
     private LocalDecl localDecl(Name name, CanonicalTypeNode intTypeNode, Expr init) {
@@ -536,6 +537,109 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
 
     private LocalDecl valueLocalDecl(Name name, CanonicalTypeNode typeNode, Expr init) {
         return fNodeFactory.LocalDecl(PCG, valueFlag(), typeNode, id(name), init);
+    }
+
+    private Type commonTypeForBinaryOp(Expr left, Expr right) {
+        if (left.type() == right.type()) {
+        	return left.type();
+        }
+    	return null;
+    }
+
+    private Expr div(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.DIV, right).type(commonTypeForBinaryOp(left, right));
+    }
+
+    private Expr mod(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.MOD, right).type(fTypeSystem.Int());
+    }
+
+    private Expr mul(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.MUL, right).type(commonTypeForBinaryOp(left, right));
+    }
+
+    private Expr plus(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.ADD, right).type(commonTypeForBinaryOp(left, right));
+    }
+
+    private Expr sub(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.SUB, right).type(commonTypeForBinaryOp(left, right));
+    }
+
+    private Expr lt(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.LT, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr le(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.LE, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr eq(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.EQ, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr neq(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.NE, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr ge(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.GE, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr gt(Expr left, Expr right) {
+        return fNodeFactory.Binary(PCG, left, Binary.GT, right).type(fTypeSystem.Boolean());
+    }
+
+    private Expr addAssign(Expr target, Expr source) {
+        return fNodeFactory.Assign(PCG, target, Assign.ADD_ASSIGN, source).type(target.type());
+    }
+
+    private Expr subAssign(Expr target, Expr source) {
+        return fNodeFactory.Assign(PCG, target, Assign.SUB_ASSIGN, source).type(target.type());
+    }
+
+    private Expr mulAssign(Expr target, Expr source) {
+        return fNodeFactory.Assign(PCG, target, Assign.MUL_ASSIGN, source).type(target.type());
+    }
+
+    private Expr divAssign(Expr target, Expr source) {
+        return fNodeFactory.Assign(PCG, target, Assign.DIV_ASSIGN, source).type(target.type());
+    }
+
+    private Expr modAssign(Expr target, Expr source) {
+        return fNodeFactory.Assign(PCG, target, Assign.MOD_ASSIGN, source).type(fTypeSystem.Int());
+    }
+
+    private Expr postInc(Expr target) {
+        return fNodeFactory.Unary(PCG, target, Unary.POST_INC).type(fTypeSystem.Int());
+    }
+
+    private Expr postDec(Expr target) {
+        return fNodeFactory.Unary(PCG, target, Unary.POST_DEC).type(fTypeSystem.Int());
+    }
+
+    private Expr preInc(Expr target) {
+        return fNodeFactory.Unary(PCG, target, Unary.PRE_INC).type(fTypeSystem.Int());
+    }
+
+    private Expr preDec(Expr target) {
+        return fNodeFactory.Unary(PCG, target, Unary.PRE_DEC).type(fTypeSystem.Int());
+    }
+
+    private Expr not(Expr expr) {
+        return fNodeFactory.Unary(PCG, expr, Unary.NOT).type(fTypeSystem.Boolean());
+    }
+
+    private Expr neg(Expr expr) {
+        return fNodeFactory.Unary(PCG, expr, Unary.NEG).type(expr.type());
+    }
+
+    private Expr bitNot(Expr expr) {
+        return fNodeFactory.Unary(PCG, expr, Unary.BIT_NOT).type(fTypeSystem.Int());
+    }
+
+    private Stmt eval(Expr expr) {
+        return fNodeFactory.Eval(PCG, expr);
     }
 
     /**
@@ -592,102 +696,6 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
         return Name.make(prefix); // Name.makeFresh(prefix);
     }
 
-    private Expr div(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.DIV, right);
-    }
-
-    private Expr mod(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.MOD, right).type(fTypeSystem.Int());
-    }
-
-    private Expr mul(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.MUL, right);
-    }
-
-    private Expr plus(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.ADD, right);
-    }
-
-    private Expr sub(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.SUB, right);
-    }
-
-    private Expr lt(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.LT, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr le(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.LE, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr eq(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.EQ, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr neq(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.NE, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr ge(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.GE, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr gt(Expr left, Expr right) {
-        return fNodeFactory.Binary(PCG, left, Binary.GT, right).type(fTypeSystem.Boolean());
-    }
-
-    private Expr addAssign(Expr target, Expr source) {
-        return fNodeFactory.Assign(PCG, target, Assign.ADD_ASSIGN, source);
-    }
-
-    private Expr subAssign(Expr target, Expr source) {
-        return fNodeFactory.Assign(PCG, target, Assign.SUB_ASSIGN, source);
-    }
-
-    private Expr mulAssign(Expr target, Expr source) {
-        return fNodeFactory.Assign(PCG, target, Assign.MUL_ASSIGN, source);
-    }
-
-    private Expr divAssign(Expr target, Expr source) {
-        return fNodeFactory.Assign(PCG, target, Assign.DIV_ASSIGN, source);
-    }
-
-    private Expr modAssign(Expr target, Expr source) {
-        return fNodeFactory.Assign(PCG, target, Assign.MOD_ASSIGN, source).type(fTypeSystem.Int());
-    }
-
-    private Expr postInc(Expr target) {
-        return fNodeFactory.Unary(PCG, target, Unary.POST_INC).type(fTypeSystem.Int());
-    }
-
-    private Expr postDec(Expr target) {
-        return fNodeFactory.Unary(PCG, target, Unary.POST_DEC).type(fTypeSystem.Int());
-    }
-
-    private Expr preInc(Expr target) {
-        return fNodeFactory.Unary(PCG, target, Unary.PRE_INC).type(fTypeSystem.Int());
-    }
-
-    private Expr preDec(Expr target) {
-        return fNodeFactory.Unary(PCG, target, Unary.PRE_DEC).type(fTypeSystem.Int());
-    }
-
-    private Expr not(Expr expr) {
-        return fNodeFactory.Unary(PCG, expr, Unary.NOT).type(fTypeSystem.Boolean());
-    }
-
-    private Expr neg(Expr expr) {
-        return fNodeFactory.Unary(PCG, expr, Unary.NEG);
-    }
-
-    private Expr bitNot(Expr expr) {
-        return fNodeFactory.Unary(PCG, expr, Unary.BIT_NOT).type(fTypeSystem.Int());
-    }
-
-    private Stmt eval(Expr expr) {
-        return fNodeFactory.Eval(PCG, expr);
-    }
-
     private void createUnrollChange(org.eclipse.imp.x10dt.refactoring.changes.CompositeChange outerChange) {
         Block loopParent= (Block) fPathComputer.getParent(fLoop);
         int stmtIdx= findIndexInParent(fLoop, loopParent);
@@ -721,15 +729,15 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
             Name maxName= makeFreshInContext("max", fLoop.body());
             Stmt minDecl= finalLocalDecl(minName, intTypeNode(), domainMin);
             Stmt maxDecl= finalLocalDecl(maxName, intTypeNode(), domainMax);
-            Expr loopMax= plus(mul(div(plus(sub(local(maxName), local(minName)), intLit(1)), intLit(fUnrollFactor)), intLit(fUnrollFactor)), local(minName));
+            Expr loopMax= plus(mul(div(plus(sub(intLocal(maxName), intLocal(minName)), intLit(1)), intLit(fUnrollFactor)), intLit(fUnrollFactor)), intLocal(minName));
             Name loopMaxName= makeFreshInContext("loopMax", fLoop);
             Stmt loopMaxDecl= finalLocalDecl(loopMaxName, intTypeNode(), loopMax);
 
             Formal firstDimVar= ((X10Formal) fLoopParams.fLoopVar).vars().get(0);
             Name loopVarName= makeFreshInContext(firstDimVar.name().toString(), fLoop);
-            ForInit newLoopVarInit= localDecl(loopVarName, intTypeNode(), local(minName));
-            Expr loopCond= lt(local(loopVarName), local(loopMaxName));
-            ForUpdate loopUpdate= (ForUpdate) eval(addAssign(local(loopVarName), intLit(fUnrollFactor)));
+            ForInit newLoopVarInit= localDecl(loopVarName, intTypeNode(), intLocal(minName));
+            Expr loopCond= lt(intLocal(loopVarName), intLocal(loopMaxName));
+            ForUpdate loopUpdate= (ForUpdate) eval(addAssign(intLocal(loopVarName), intLit(fUnrollFactor)));
             List<ForInit> newLoopInits= Arrays.asList(newLoopVarInit);
             List<ForUpdate> newLoopUpdates= Arrays.asList(loopUpdate);
             List<Stmt> newLoopBodyStmts= new ArrayList<Stmt>(fUnrollFactor);
@@ -739,7 +747,7 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
                 if (loopVar.vars().size() > 0) {
                     Map<VarInstance<VarDef>, Node> subs= new HashMap<VarInstance<VarDef>, Node>(1);
                     Expr varValue= intLit(i);
-                    subs.put((VarInstance) firstDimVar.localDef().asInstance(), plus(local(loopVarName), varValue));
+                    subs.put((VarInstance) firstDimVar.localDef().asInstance(), plus(intLocal(loopVarName), varValue));
                     SubstitutionPerformer subPerformer= new SubstitutionPerformer(subs);
                     Stmt subbedBody = (Stmt) subPerformer.perform(fLoop.body(), fSourceAST);
 
@@ -753,7 +761,7 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
             List<Stmt> unrollBlockStmts;
 
             if (fHandleLoopLeftovers == LoopLeftoverHandling.GENERATE_ASSERT) {
-                Stmt assertStmt= fNodeFactory.Assert(PCG, eq(mod(plus(sub(local(maxName), local(minName)), intLit(1)), intLit(fUnrollFactor)), intLit(0)));
+                Stmt assertStmt= fNodeFactory.Assert(PCG, eq(mod(plus(sub(intLocal(maxName), intLocal(minName)), intLit(1)), intLit(fUnrollFactor)), intLit(0)));
 
                 unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, assertStmt, newForStmt);
             } else {
@@ -761,10 +769,10 @@ public class LoopUnrollRefactoring extends AnnotationRefactoringBase {
                 //   for(int loopVar = (max / `fUnrollFactor`) * `fUnrollFactor`; loopVar < max; loopVar++) {
                 //      loopBody
                 //   }
-                Expr remainderLoopMinIdx= local(loopMaxName);
+                Expr remainderLoopMinIdx= intLocal(loopMaxName);
                 ForInit remainderLoopInit= localDecl(loopVarName, intTypeNode(), remainderLoopMinIdx);
-                Expr remainderCond= le(local(loopVarName), local(maxName));
-                ForUpdate remainderUpdate= (ForUpdate) eval(postInc(local(loopVarName)));
+                Expr remainderCond= le(intLocal(loopVarName), intLocal(maxName));
+                ForUpdate remainderUpdate= (ForUpdate) eval(postInc(intLocal(loopVarName)));
                 Stmt remainderLoop= fNodeFactory.For(PCG, Arrays.asList(remainderLoopInit), remainderCond, Arrays.asList(remainderUpdate), (Stmt) fLoop.body().copy());
 
                 unrollBlockStmts= Arrays.asList(minDecl, maxDecl, loopMaxDecl, newForStmt, remainderLoop);

@@ -22,8 +22,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.x10dt.refactoring.actions.MarkContextAction;
-import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
-import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -43,6 +41,7 @@ import polyglot.ast.Stmt;
 import polyglot.types.LocalDef;
 import polyglot.visit.NodeVisitor;
 import x10.ast.X10MethodDecl;
+import x10.effects.EffectsVisitor;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.Pair;
 
@@ -209,7 +208,7 @@ public class ExtractAsyncRefactoring extends X10RefactoringBase {
 
             // if there's no following context, there are no subsequent memory effects that need to be checked for commutativity
             if (followingContextNodes.size() > 0) {
-                EffectsVisitor effVisitor= new EffectsVisitor(new ReachingDefsVisitor.ValueMap(), fContainingMethod);
+                EffectsVisitor effVisitor= new EffectsVisitor(fContainingMethod /*, new ReachingDefsVisitor.ValueMap()*/);
 
                 if (fVerbose) {
                     effVisitor.setVerbose(X10DTRefactoringPlugin.getInstance().getConsoleStream());
