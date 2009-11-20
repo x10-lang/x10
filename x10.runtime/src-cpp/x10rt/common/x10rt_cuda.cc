@@ -738,10 +738,9 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 ch(cop->p, len); /****CALLBACK****/
                 pthread_mutex_lock(&big_lock_of_doom);
                 CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-                // Do something else in the same probe
                 op->~x10rt_cuda_base_op();
                 free(op);
-                op = ctx->dma_q.pop_op();
+                op = NULL;
             }
         }
 
