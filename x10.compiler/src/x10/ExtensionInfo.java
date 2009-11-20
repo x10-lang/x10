@@ -49,6 +49,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PruningVisitor;
 import x10.ast.X10NodeFactory_c;
+import x10.effects.EffectsVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10.plugin.CompilerPlugin;
@@ -258,6 +259,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLine());
            goals.add(TypeChecked(job));
+
+           if (job.userSpecified() && Configuration.SAFETY) {
+        	   goals.add(EffectsCalculated(job));
+           }
            goals.add(ReassembleAST(job));
            
            goals.add(X10Boxed(job));
@@ -359,7 +364,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            return g2;
        }
-       
+
+       public Goal EffectsCalculated(Job job) {
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new VisitorGoal("CalculateEffects", job, new EffectsVisitor(job));
+       }
+
        public Goal PropagateAnnotations(Job job) {
            // ###
            return new VisitorGoal("PropagateAnnotations", job, new PruningVisitor()).intern(this);
@@ -367,9 +378,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        @Override
        public Goal InitializationsChecked(Job job) {
-	   TypeSystem ts = job.extensionInfo().typeSystem();
-	   NodeFactory nf = job.extensionInfo().nodeFactory();
-	   return new VisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new VisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
        }
 
        @Override
