@@ -173,8 +173,6 @@ public class KMeansCUDA {
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
             val global_points = ValRail.make(num_global_points*4, init_points);
 
-            val start_time = System.currentTimeMillis();
-
             var results : Rail[Float]!;
 
             // clusters are dimension-major
@@ -203,6 +201,8 @@ public class KMeansCUDA {
                     val gpu_points = Rail.makeRemote(gpu, num_local_points_stride*4, host_points);
                     val host_nearest = Rail.make(num_local_points, (Int)=>0 as Int);
                     val gpu_nearest = Rail.makeRemote(gpu, num_local_points, (Int)=>0 as Int);
+
+                    val start_time = System.currentTimeMillis();
 
                     main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
@@ -288,19 +288,21 @@ public class KMeansCUDA {
 
                     } // main_loop
 
+                    if (offset==0) {
+                        val stop_time = System.currentTimeMillis();
+                        Console.OUT.println("Time taken: "+(stop_time-start_time)/1E3);
+                    }
+
                 } // gpus
 
             } // finish
 
-            val stop_time = System.currentTimeMillis();
 
             for (var k:Int=0 ; k<num_clusters ; ++k) { 
                 for (var d:Int=0 ; d<4 ; ++d) clusters.get()(k*4+d) /= cluster_counts.get()(k);
             }
 
             printClusters(clusters.get(),4);
-
-            Console.OUT.println("Time taken: "+(stop_time-start_time)/1E3);
 
         } catch (e : Throwable) {
             e.printStackTrace(Console.ERR);
