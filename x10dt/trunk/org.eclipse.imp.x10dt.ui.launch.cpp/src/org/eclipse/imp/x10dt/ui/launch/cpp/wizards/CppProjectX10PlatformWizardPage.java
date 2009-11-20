@@ -79,6 +79,14 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(1, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
+
+    final Group resManagerGroup = new Group(composite, SWT.NONE);
+    resManagerGroup.setFont(composite.getFont());
+    resManagerGroup.setLayout(new GridLayout(1, false));
+    resManagerGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    resManagerGroup.setText(LaunchMessages.CPWSP_ResManagerGroupName);
+    
+    createResourceManager(resManagerGroup);
     
     final Group x10PlatformGroup = new Group(composite, SWT.NONE);
     x10PlatformGroup.setFont(composite.getFont());
@@ -87,14 +95,6 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
     x10PlatformGroup.setText(LaunchMessages.CPWSP_X10PlatformGroup);
     
     createX10Platform(x10PlatformGroup);
-    
-    final Group resManagerGroup = new Group(composite, SWT.NONE);
-    resManagerGroup.setFont(composite.getFont());
-    resManagerGroup.setLayout(new GridLayout(1, false));
-    resManagerGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    resManagerGroup.setText(LaunchMessages.CPWSP_ResManagerGroupName);
-    
-    createResourceManager(resManagerGroup);
     
     final Group workspaceGroup = new Group(composite, SWT.NONE);
     workspaceGroup.setFont(composite.getFont());
