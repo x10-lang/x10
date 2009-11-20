@@ -76,6 +76,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static String MANIFEST = null;
 	private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
 
+	public static boolean SAFE_PARALLELIZATION_CHECK = false;
+	private static final String SAFE_PARALLELIZATION_CHECK_desc = "Perform an effects analysis and a safe-parallelization check on main methods";
+
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the
