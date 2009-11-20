@@ -452,6 +452,24 @@ void x10rt_cuda_device_free (x10rt_cuda_ctx *ctx,
 }
 
 
+#ifdef ENABLE_CUDA
+void *do_buffer_finder (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
+{
+    x10rt_msg_type type = p.type;
+    x10rt_finder *hh = ctx->cbs[type].copy_cbs.hh;
+    DEBUG("probe: finder callback begins\n");
+    void *remote = hh(p, len); /****CALLBACK****/
+    DEBUG("probe: finder callback ends\n");
+    if (remote==NULL) {
+        x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
+        DEBUG("probe: finder callback returned NULL, running notifier\n");
+        ch(p, len); /****CALLBACK****/
+        DEBUG("probe: notifier callback ends\n");
+    }
+    return remote;
+}
+#endif
+
 void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
 {
 #ifdef ENABLE_CUDA
@@ -470,18 +488,22 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x
         abort();
     }
 
-    x10rt_cuda_get *op = new (safe_malloc<x10rt_cuda_get>()) x10rt_cuda_get(p,buf,len);
-    ctx->dma_q.push_op(op);
-    pthread_mutex_unlock(&big_lock_of_doom);
+    void *remote = do_buffer_finder(ctx, p, buf, len);
 
-    x10rt_cuda_probe(ctx);
+    if (remote) {
+        x10rt_cuda_get *op = new (safe_malloc<x10rt_cuda_get>()) x10rt_cuda_get(p,buf,len);
+        op->src = remote;
+        ctx->dma_q.push_op(op);
+        pthread_mutex_unlock(&big_lock_of_doom);
+
+        x10rt_cuda_probe(ctx);
+    }
 
 #else
     (void) ctx; (void) p; (void) buf; (void) len;
     abort();
 #endif
 }
-
 
 void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x10rt_copy_sz len)
 {
@@ -501,11 +523,16 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x
         abort();
     }
 
-    x10rt_cuda_put *op = new (safe_malloc<x10rt_cuda_put>()) x10rt_cuda_put(p,buf,len);
-    ctx->dma_q.push_op(op);
-    pthread_mutex_unlock(&big_lock_of_doom);
+    void *remote = do_buffer_finder(ctx, p, buf, len);
 
-    x10rt_cuda_probe(ctx);
+    if (remote) {
+        x10rt_cuda_put *op = new (safe_malloc<x10rt_cuda_put>()) x10rt_cuda_put(p,buf,len);
+        op->dst = remote;
+        ctx->dma_q.push_op(op);
+        pthread_mutex_unlock(&big_lock_of_doom);
+
+        x10rt_cuda_probe(ctx);
+    }
 
 #else
     (void) ctx; (void) p; (void) buf; (void) len;
@@ -703,16 +730,12 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
                 // Do something else in the same probe
                 op->~x10rt_cuda_base_op();
                 free(op);
-                op = NULL;
+                op = ctx->dma_q.pop_op();
             }
         }
 
-        if (op==NULL)
-            op = ctx->dma_q.pop_op();
-
         if (op != NULL) {
             DEBUG("probe: dma slice\n");
-            bool first_time = !op->begun;
             op->begun = true;
 
             assert(op->is_copy());
@@ -737,42 +760,12 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 
             assert(op->is_get() || op->is_put());
 
-            x10rt_msg_type type = op->p.type;
-            x10rt_finder *hh = ctx->cbs[type].copy_cbs.hh;
-
-            void *remote = NULL; // initialise only to avoid compiler warning
-            if (first_time) {
-                DEBUG("probe: finder callback begins\n");
-                CU_SAFE(cuCtxPopCurrent(NULL));
-                pthread_mutex_unlock(&big_lock_of_doom);
-                remote = hh(cop->p, len); /****CALLBACK****/
-                pthread_mutex_lock(&big_lock_of_doom);
-                CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-                DEBUG("probe: finder callback ends\n");
-                if (remote==NULL) {
-                    x10rt_msg_type type = op->p.type;
-                    x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
-                    DEBUG("probe: notifier callback begins\n");
-                    CU_SAFE(cuCtxPopCurrent(NULL));
-                    pthread_mutex_unlock(&big_lock_of_doom);
-                    ch(cop->p, len); /****CALLBACK****/
-                    pthread_mutex_lock(&big_lock_of_doom);
-                    CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-                    DEBUG("probe: notifier callback ends\n");
-                    op->~x10rt_cuda_base_op();
-                    free(op);
-                    goto landingzone;
-                }
-            }
-
             if (op->is_get()) {
-                src = first_time ? remote : src;
                 CU_SAFE(cuMemcpyDtoHAsync(ctx->pinned_mem,
                                           (CUdeviceptr)(size_t)(((char*)src)+started),
                                           dma_sz,
                                           ctx->dma_q.stream));
             } else if (op->is_put()) {
-                dst = first_time ? remote : dst;
                 memcpy(ctx->pinned_mem, ((char*)src)+started, dma_sz);
                 CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(size_t)(((char*)dst)+started),
                                           ctx->pinned_mem,
@@ -787,8 +780,6 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
         }
 
     }
-
-    landingzone:
 
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
