@@ -206,7 +206,7 @@ public class KMeansCUDA {
 
                     main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
-                        if (offset==0) Console.OUT.println("Iteration: "+iter);
+                        //if (offset==0) Console.OUT.println("Iteration: "+iter);
         
                         val clusters_copy = clusters as ValRail[Float];
 
@@ -274,14 +274,14 @@ public class KMeansCUDA {
                         cluster_counts.collectiveReduce(Int.+);
 
                         for (var k:Int=0 ; k<num_clusters ; ++k) { 
-                            for (var d:Int=0 ; d<4 ; ++d) clusters(k*4+d) /= cluster_counts(k);
+                            for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
                         }
 
                         //printClusters(clusters(),4);
 
                         // TEST FOR CONVERGENCE
                         for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
-                            if (Math.abs(clusters_copy(j)-clusters(j))>0.0001) continue main_loop;
+                            if (true||Math.abs(clusters_copy(j)-clusters(j))>0.0001) continue main_loop;
                         }
 
                         break;
