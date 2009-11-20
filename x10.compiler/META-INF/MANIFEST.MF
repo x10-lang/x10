@@ -4,12 +4,14 @@ Bundle-Name: X10 compiler
 Bundle-SymbolicName: x10.compiler
 Bundle-Version: 2.0.0
 Bundle-Localization: plugin
-Require-Bundle: x10.common,
- x10.constraints,
+Require-Bundle: lpg.runtime;bundle-version="2.0.17",
  polyglot3,
- lpg.runtime;bundle-version="2.0.17"
+ x10.common,
+ x10.constraints,
+ x10.effects;bundle-version="1.0.0"
 Export-Package: x10,
  x10.ast,
+ x10.effects,
  x10.emitter,
  x10.extension,
  x10.parser,
