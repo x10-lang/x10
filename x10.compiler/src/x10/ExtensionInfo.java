@@ -260,7 +260,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypesInitializedForCommandLine());
            goals.add(TypeChecked(job));
 
-           if (job.userSpecified() && Configuration.SAFETY) {
+           if (job.userSpecified() && Configuration.SAFE_PARALLELIZATION_CHECK) {
         	   goals.add(EffectsCalculated(job));
            }
            goals.add(ReassembleAST(job));
