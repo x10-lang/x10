@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
-<project name="x10.constraints" default="build" basedir=".">
+<project name="x10.effects" default="build" basedir=".">
     &buildfile;
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+	   <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
+	    <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
-    <property name="jar" value="x10constraints.jar"/>
-    <path id="project.classpath">
-        <path refid="mainproject.classpath"/>
-    </path>
+    <property name="jar" value="x10effects.jar"/>
+	  <path id="project.classpath">
+	        <path refid="mainproject.classpath"/>
+	        <path refid="x10.constraints.classpath"/>
+	        <path refid="x10.common.classpath"/>
+	    </path>
+	  <path id="x10.constraints.classpath">
+	        <pathelement location="${x10.constraints.location}/classes"/>
+	    </path>
+	    <path id="x10.common.classpath">
+	        <pathelement location="${x10.common.location}/classes"/>
+	    </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
     </path>
@@ -39,8 +49,8 @@
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>
             <include name="x10/**"/>
-            <exclude name="x10/constraint/test/**"/>
-            <exclude name="x10/constraint/tests/**"/>
+            <exclude name="x10/effects/constraints/test/**"/>
+            <exclude name="x10/effects/constraints/tests/**"/>
             <classpath>
                 <path refid="project.classpath"/>
             </classpath>
@@ -49,7 +59,7 @@
     <target name="tests" depends="init,build">
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>
-            <include name="x10/constraint/test/**"/>
+            <include name="x10/effects/constraints/test/**"/>
             <classpath>
                 <path refid="project.classpath"/>
                 <!--TODO <path refid="junit.classpath"/>-->
