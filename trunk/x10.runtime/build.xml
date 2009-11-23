@@ -117,6 +117,10 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j1" />
             <arg value="clean"/>
+            <arg value="${cppmake.x10rt_mpi}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
+            <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>
     <target name="prepare-clean-bdwgc" if="bdwgc.enabled">

@@ -607,7 +607,7 @@ function main {
     X10CPP="$X10CPP -DISABLE_GC -NO_CHECKS -x10rt pgas_sockets"
 	fi
 
-	if [[ ! -f $X10_HOME/x10.dist/include/x10rt17.h ]]; then
+	if [[ ! -f $X10_HOME/x10.dist/include/x10rt.h ]]; then
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExitHarness 2
 	fi
