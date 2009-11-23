@@ -7,7 +7,7 @@
 #ifndef X10_UTIL_CONCURRENT_ATOMIC_ATOMICLONG_H
 #define X10_UTIL_CONCURRENT_ATOMIC_ATOMICLONG_H
 
-#include <x10rt17.h>
+#include <x10rt.h>
 #include <x10/lang/Ref.h>
 #include <x10aux/serialization.h>
 

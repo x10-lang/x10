@@ -295,7 +295,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
-	cp -p x10rt17.h $(INSTDIR)/include
+	cp -p x10rt.h $(INSTDIR)/include
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
 	cd x10rt && $(MAKE) -j1 debug all install X10RT_PLATFORM=$(X10RT_PLATFORM)

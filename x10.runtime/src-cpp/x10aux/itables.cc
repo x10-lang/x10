@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include<x10rt17.h>
+#include<x10rt.h>
 
 using namespace x10aux;
 using namespace x10::lang;

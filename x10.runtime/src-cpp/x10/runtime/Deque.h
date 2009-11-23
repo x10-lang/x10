@@ -7,7 +7,7 @@
 #ifndef X10_RUNTIME_DEQUE_H
 #define X10_RUNTIME_DEQUE_H
 
-#include <x10rt17.h>
+#include <x10rt.h>
 #include <x10/lang/Ref.h>
 #include <x10aux/serialization.h>
 

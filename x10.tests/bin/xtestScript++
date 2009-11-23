@@ -510,7 +510,7 @@ function main {
 	if [[ -z "$X10LANG" ]]; then
 		X10LANG=$X10_HOME/x10.runtime/src-cpp
 	fi
-	if [[ ! (-f $X10LANG/x10rt17.h || -f $X10LANG/include/x10rt17.h) ]]; then
+	if [[ ! (-f $X10LANG/x10rt.h || -f $X10LANG/include/x10rt.h) ]]; then
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExit 2
 	fi

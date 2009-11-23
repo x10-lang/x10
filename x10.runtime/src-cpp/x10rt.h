@@ -1,5 +1,5 @@
-#ifndef X10RT17_H
-#define X10RT17_H
+#ifndef X10RT_H
+#define X10RT_H
 
 // include everything from this file
 
