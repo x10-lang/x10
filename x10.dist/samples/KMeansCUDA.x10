@@ -45,7 +45,8 @@ public class KMeansCUDA {
             val verbose = opts("-v"), quiet = opts("-q");
             val MEM_ALIGN = 32; // FOR CUDA
 
-            Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
+            if (!quiet)
+                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
 
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
@@ -69,7 +70,8 @@ public class KMeansCUDA {
                     // carve out local portion of points (point-major)
                     val num_local_points = num_global_points / Place.NUM_ACCELS;
                     val offset = (gpu.id - Place.MAX_PLACES) * num_local_points;
-                    Console.OUT.println(gpu+" gets "+offset+" len "+num_local_points);
+                    if (!quiet)
+                        Console.OUT.println(gpu+" gets "+offset+" len "+num_local_points);
                     val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
                     val init = (i:Int) => {
                         val d=i/num_local_points_stride, p=i%num_local_points_stride;
@@ -81,6 +83,8 @@ public class KMeansCUDA {
                     val gpu_points = Rail.makeRemote(gpu, num_local_points_stride*4, host_points);
                     val host_nearest = Rail.make(num_local_points, (Int)=>0 as Int);
                     val gpu_nearest = Rail.makeRemote(gpu, num_local_points, (Int)=>0 as Int);
+
+                    next;
 
                     val start_time = System.currentTimeMillis();
 
@@ -134,17 +138,8 @@ public class KMeansCUDA {
 
                         for (var p:Int=0 ; p<num_local_points ; p++) {
                             val closest = host_nearest(p);
-                            //Console.ERR.println(p+" = "+closest);
-/*
-                            assert closest >= 0 : "closest is "+closest +
-                                                  " at point "+p+" of "+num_local_points;
-                            assert closest < num_clusters : "closest is "+closest +
-                                                        " but num_clusters is "+num_clusters+
-                                                        " at point "+p+" of "+num_local_points;
-*/
-                            for (var d:Int=0 ; d<4 ; ++d) { 
+                            for (var d:Int=0 ; d<4 ; ++d)
                                 host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
-                            }
                             host_cluster_counts(closest)++;
                         }
 
@@ -171,7 +166,8 @@ public class KMeansCUDA {
 
                     if (offset==0) {
                         val stop_time = System.currentTimeMillis();
-                        Console.OUT.println("Time taken: "+(stop_time-start_time)/1E3);
+                        if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" 4 ");
+                        Console.OUT.println((stop_time-start_time)/1E3);
                     }
 
                 } // gpus
