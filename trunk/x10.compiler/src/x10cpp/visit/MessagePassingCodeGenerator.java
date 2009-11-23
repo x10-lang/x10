@@ -1108,8 +1108,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (currentClass.flags().isInterface()) {
             visitInterfaceBody(n, context, currentClass, superClass, xts);
-        } else if (xts.isValueType(currentClass, context)) {
-            visitValueBody(n, context, currentClass, superClass, xts);
         } else if (currentClass.isX10Struct()) {
             visitStructBody(n, context, currentClass, superClass, xts);
         } else {
@@ -1261,118 +1259,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
 
             emitter.generateClassSerializationMethods(currentClass, sw);
-        }
-
-        sw.end();
-        sw.newline();
-
-        emitter.printRTTDefn(currentClass, sw);
-    }
-    
-    private void visitValueBody(ClassBody_c n, X10CPPContext_c context,
-                                X10ClassType currentClass, X10ClassType superClass,
-                                X10TypeSystem xts) {
-        ClassifiedStream h = sw.header();
-        List<ClassMember> members = n.members();
-
-        h.write("public:");
-        h.newline();
-        h.write("RTT_H_DECLS_CLASS");           
-        h.newline(); h.forceNewline();
-        sw.begin(0);
-        for (PropertyDecl p : context.classProperties()) {
-            n.print(p, sw, tr);
-        }
-
-        generateITablesForClass(currentClass, xts, "virtual ", h);
-
-        if (!members.isEmpty()) {
-            String className = Emitter.translateType(currentClass);
-
-            h.write(VOID + " " + INSTANCE_INIT + "();");
-            h.newline();
-            h.forceNewline();
-            if (extractInits(currentClass, INSTANCE_INIT, VOID, members)) {
-                context.hasInits = true;
-            }
-
-            ClassMember prev = null;
-            for (ClassMember member : members) {
-                if ((member instanceof polyglot.ast.CodeDecl)
-                        || (prev instanceof polyglot.ast.CodeDecl)) {
-                    h.newline(0);
-                    sw.newline(0);
-                }
-                prev = member;
-                n.printBlock(member, sw, tr);
-            }
-
-            if (superClass != null) {
-                generateProxiesForOverriddenMethods(context, currentClass,
-                        superClass, xts, "virtual ", h, members);
-            }
-
-            // Generate structEquals for values
-            h.write("public: ");
-            h.write("virtual ");
-            emitter.printType(xts.Boolean(), h);
-            h.write(" " + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
-            emitter.printType(xts.Object(), h);
-            h.write(" p0");
-            h.write(");");
-            h.newline();
-
-            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            emitter.printType(xts.Boolean(), sw);
-            sw.write(" " + Emitter.translateType(currentClass, false)
-                     + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
-                     + "(");
-            emitter.printType(xts.Object(), sw);
-            sw.write(" p0");
-            sw.write(") {");
-            sw.newline(4);
-            sw.begin(0);
-            sw.write("if (p0.operator->() == this) return true; // short-circuit trivial equality");
-            sw.newline();
-            if (superClass != null) { // HACK: treating structs as values.
-                sw.write("if (!this->" + Emitter.translateType(superClass)
-                         + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)
-                         + "(p0))");
-                sw.newline(4);
-                sw.begin(0);
-                sw.write("return false;");
-                sw.end();
-                sw.newline();
-            }
-            emitter.printType(currentClass, sw);
-            sw.write(" that =");
-            sw.allowBreak(4, " ");
-            sw.write("(");
-            sw.begin(0);
-            emitter.printType(currentClass, sw);
-            sw.end();
-            sw.write(") p0;");
-            sw.newline();
-            for (FieldInstance fi : currentClass.fields()) {
-                if (!fi.flags().isStatic()) {
-                    String name = fi.name().toString();
-                    sw.write("if (!" + STRUCT_EQUALS + "(this->"
-                             + mangled_field_name(name) + ", that->"
-                             + mangled_field_name(name) + "))");
-                    sw.newline(4);
-                    sw.begin(0);
-                    sw.write("return false;");
-                    sw.end();
-                    sw.newline();
-                }
-            }
-            sw.write("return true;");
-            sw.end();
-            sw.newline();
-            sw.write("}");
-            sw.newline();
-
-            emitter.generateValueSerializationMethods(currentClass, sw);
         }
 
         sw.end();
