@@ -16,7 +16,10 @@ public final class Math {
 
    public static safe def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
    public static safe def abs(a:Int):Int = a<0 ? -a : a;
+
+   @Native("cuda", "fabsf(#1)")
    public static safe def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
+
    public static safe def abs(a:Long):Long = a<0l ? -a : a;
 
    @Native("java", "java.lang.Math.ceil(#1)")
