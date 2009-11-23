@@ -39,6 +39,12 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::exp(#1)")
    public static native def exp(a:Double):Double;
 
+   // GPUs don't like doubles
+   @Native("java", "(float)java.lang.Math.exp(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::exp(#1)")
+   @Native("cuda", "__expf(#1)")
+   public static native def exp(a:Float):Float;
+
    @Native("java", "java.lang.Math.expm1(#1)")
    @Native("c++", "x10aux::math_utils::expm1(#1)")
    public static native def expm1(a:Double):Double;
@@ -104,6 +110,12 @@ public final class Math {
    @Native("java", "java.lang.Math.log(#1)")
    @Native("c++", "x10aux::math_utils::log(#1)")
    public static native def log(a:Double):Double;
+
+   // GPUs don't like doubles
+   @Native("java", "(float)java.lang.Math.log(#1)")
+   @Native("c++", "(x10_float)x10aux::math_utils::log(#1)")
+   @Native("cuda", "__logf(#1)")
+   public static native def log(a:Float):Float;
 
    @Native("java", "java.lang.Math.log10(#1)")
    @Native("c++", "x10aux::math_utils::log10(#1)")
