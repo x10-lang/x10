@@ -68,7 +68,6 @@ cleanUpExit() {
 	if [[ "${__cat_feed_stage}" == TEST ]]; then
 		sed -e 's;@x10_home@;"'"${__cat_x10_home}"'";' \
 			-e 's;@java_home@;"'"${__cat_java_home}"'";' \
-			-e 's;@x10lib_path@;"'"${__cat_x10lib_path}"'";' \
 			-e 's;@x10lang_path@;"'"${__cat_x10lang_path}"'";' \
 			-e 's;@extra_classpath@;"'"${__cat_extra_classpath}"'";' \
 			-e 's;@x10c_version@;"'"${__cat_x10c_version}"'";' \
