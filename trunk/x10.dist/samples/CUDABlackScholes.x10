@@ -13,18 +13,68 @@ import x10.util.Random;
 
 public class CUDABlackScholes {
 
+    static def doBlackScholes(p:Place, 
+            optionYears:Rail[Float]!,
+            stockPrice:Rail[Float]!,
+            optionStrike:Rail[Float]!,
+            callResult:Rail[Float]!,
+            putResult:Rail[Float]!,
+            opt_N:Int,
+            R:Float,
+            V:Float) {
+        at (p) @CUDA {
+            val blocks = CUDAUtilities.autoBlocks(),
+                threads = CUDAUtilities.autoThreads();
+            for ((block) in 0..blocks-1) {
+                for ((thread) in 0..threads-1) async {
+                    val tid = block * threads + thread;
+                    val tids = blocks * threads;
+                    for (var opt:Int=tid; opt < opt_N; opt+=tids) {
+                        // Constants for Polynomial approximation of cumulative normal distribution
+                        val A1 = 0.31938153f;
+                        val A2 = -0.356563782f;
+                        val A3 = 1.781477937f;
+                        val A4 = -1.821255978f;
+                        val A5 = 1.330274429f;
+                        val RSQRT2PI = 0.39894228040143267793994605993438f;
+
+                        val T = optionYears(opt);
+                        val S = stockPrice(opt);
+                        val X = optionStrike(opt);
+                        val sqrtT = Math.sqrt(T);
+                        val d1 = (Math.log(S/X) + (R + 0.5f * V * V) * T) / (V * sqrtT); 
+                        val d2 = d1 - V * sqrtT;
+
+                        val K1 = 1.0f / (1.0f + 0.2316419f * Math.abs(d1));
+                        val K2 = 1.0f / (1.0f + 0.2316419f * Math.abs(d2));
+                        var CNDD1:Float = RSQRT2PI * Math.exp(- 0.5f * d1 * d1) * 
+                            (K1 * (A1 + K1 * (A2 + K1 * (A3 + K1 * (A4 + K1 * A5)))));
+                        var CNDD2:Float = RSQRT2PI * Math.exp(- 0.5f * d2 * d2) * 
+                            (K2 * (A1 + K2 * (A2 + K2 * (A3 + K2 * (A4 + K2 * A5)))));
+
+                        if(d1 > 0) CNDD1 = 1.0f - CNDD1;
+                        if(d2 > 0) CNDD2 = 1.0f - CNDD2;
+
+                        //Calculate Call and Put simultaneously
+                        val expRT = Math.exp(- R * T); 
+                        callResult(opt) = S * CNDD1 - X * expRT * CNDD2;
+                        putResult(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
+                    }
+                }
+            }
+        }
+    }
+
     public static def main (args: Rail[String]!) {
 
         // Problem parameters
         val OPT_N = 4000000;
-        //val NUM_ITERATIONS = 512;
-        val NUM_ITERATIONS = 1;
+        val NUM_ITERATIONS = 512;
         val RISKFREE = 0.02f;
         val VOLATILITY = 0.30f;
 
         val gpu = here.child(0);
         val cpu = here;
-
         val rand = new Random();
 
         // Host arrays
@@ -45,47 +95,15 @@ public class CUDABlackScholes {
 
         val gpuTimeStart = System.nanoTime();
         for (var i:Int=0; i < NUM_ITERATIONS; i++) {
-            at (gpu) @CUDA {
-                val blocks = CUDAUtilities.autoBlocks(),
-                    threads = CUDAUtilities.autoThreads();
-                for ((block) in 0..blocks-1) {
-                    for ((thread) in 0..threads-1) async {
-                        val tid = block * threads + thread;
-                        val tids = blocks * threads;
-                        for (var opt:Int=tid; opt < OPT_N; opt+=tids) {
-                            // Constants for Polynomial approximation of cumulative normal distribution
-                            val A1 = 0.31938153f;
-                            val A2 = -0.356563782f;
-                            val A3 = 1.781477937f;
-                            val A4 = -1.821255978f;
-                            val A5 = 1.330274429f;
-                            val RSQRT2PI = 0.39894228040143267793994605993438f;
-
-                            val T = d_OptionYears(opt);
-                            val S = d_StockPrice(opt);
-                            val X = d_OptionStrike(opt);
-                            val sqrtT = Math.sqrt(T);
-                            val d1 = (Math.log(S/X) + (RISKFREE + 0.5f * VOLATILITY * VOLATILITY) * T) / (VOLATILITY * sqrtT); 
-                            val d2 = d1 - VOLATILITY * sqrtT;
-
-                            val K1 = 1.0f / (1.0f + 0.2316419f * Math.abs(d1));
-                            val K2 = 1.0f / (1.0f + 0.2316419f * Math.abs(d2));
-                            var CNDD1:Float = RSQRT2PI * Math.exp(- 0.5f * d1 * d1) * 
-                                (K1 * (A1 + K1 * (A2 + K1 * (A3 + K1 * (A4 + K1 * A5)))));
-                            var CNDD2:Float = RSQRT2PI * Math.exp(- 0.5f * d2 * d2) * 
-                                (K2 * (A1 + K2 * (A2 + K2 * (A3 + K2 * (A4 + K2 * A5)))));
-
-                            if(d1 > 0) CNDD1 = 1.0f - CNDD1;
-                            if(d2 > 0) CNDD2 = 1.0f - CNDD2;
-
-                            //Calculate Call and Put simultaneously
-                            val expRT = Math.exp(- RISKFREE * T); 
-                            d_CallResult(opt) = S * CNDD1 - X * expRT * CNDD2;
-                            d_PutResult(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
-                        }
-                    }
-                }
-            }
+            doBlackScholes(gpu, 
+                    d_OptionYears,
+                    d_StockPrice,
+                    d_OptionStrike,
+                    d_CallResult,
+                    d_PutResult,
+                    OPT_N,
+                    RISKFREE,
+                    VOLATILITY);
         }
         var gpuTime:Float = System.nanoTime() - gpuTimeStart;
         gpuTime /= (NUM_ITERATIONS as Float);
@@ -100,47 +118,15 @@ public class CUDABlackScholes {
             h_PutResultGPU.copyFrom(0, d_PutResult, 0, OPT_N);
         }
         // Run BlackScholes on CPU to test results against
-        at (cpu) {
-            val blocks = CUDAUtilities.autoBlocks(),
-                threads = CUDAUtilities.autoThreads();
-            for ((block) in 0..blocks-1) {
-                for ((thread) in 0..threads-1) async {
-                    val tid = block * threads + thread;
-                    val tids = blocks * threads;
-                    for (var opt:Int=tid; opt < OPT_N; opt+=tids) {
-                        // Constants for Polynomial approximation of cumulative normal distribution
-                        val A1 = 0.31938153f;
-                        val A2 = -0.356563782f;
-                        val A3 = 1.781477937f;
-                        val A4 = -1.821255978f;
-                        val A5 = 1.330274429f;
-                        val RSQRT2PI = 0.39894228040143267793994605993438f;
-
-                        val T = h_OptionYears(opt);
-                        val S = h_StockPrice(opt);
-                        val X = h_OptionStrike(opt);
-                        val sqrtT = Math.sqrt(T);
-                        val d1 = (Math.log(S/X) + (RISKFREE + 0.5f * VOLATILITY * VOLATILITY) * T) / (VOLATILITY * sqrtT); 
-                        val d2 = d1 - VOLATILITY * sqrtT;
-
-                        val K1 = 1.0f / (1.0f + 0.2316419f * Math.abs(d1));
-                        val K2 = 1.0f / (1.0f + 0.2316419f * Math.abs(d2));
-                        var CNDD1:Float = RSQRT2PI * Math.exp(- 0.5f * d1 * d1) * 
-                            (K1 * (A1 + K1 * (A2 + K1 * (A3 + K1 * (A4 + K1 * A5)))));
-                        var CNDD2:Float = RSQRT2PI * Math.exp(- 0.5f * d2 * d2) * 
-                            (K2 * (A1 + K2 * (A2 + K2 * (A3 + K2 * (A4 + K2 * A5)))));
-
-                        if(d1 > 0) CNDD1 = 1.0f - CNDD1;
-                        if(d2 > 0) CNDD2 = 1.0f - CNDD2;
-
-                        //Calculate Call and Put simultaneously
-                        val expRT = Math.exp(- RISKFREE * T); 
-                        h_CallResultCPU(opt) = S * CNDD1 - X * expRT * CNDD2;
-                        h_PutResultCPU(opt)  = X * expRT * (1.0f - CNDD2) - S * (1.0f - CNDD1); 
-                    }
-                }
-            }
-        }
+        doBlackScholes(cpu, 
+                h_OptionYears,
+                h_StockPrice,
+                h_OptionStrike,
+                h_CallResultCPU,
+                h_PutResultCPU,
+                OPT_N,
+                RISKFREE,
+                VOLATILITY);
         // Check results
         var sum_delta:Float = 0.0f;
         var sum_ref:Float = 0.0f;
