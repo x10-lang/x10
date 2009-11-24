@@ -8,7 +8,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeEnv;
 import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.effects.constraints.Effect;
 import x10.types.X10TypeSystem_c.Kind;
 
 public interface X10TypeEnv extends TypeEnv {
@@ -70,6 +72,7 @@ public interface X10TypeEnv extends TypeEnv {
     Kind kind(Type t);
     
     boolean numericConversionValid(Type toType, Type fromType, Object value);
+    Effect followedBy(Effect e1, Effect e2) throws XFailure;
     
     
     
