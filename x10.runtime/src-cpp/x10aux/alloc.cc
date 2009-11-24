@@ -26,7 +26,7 @@ char *x10aux::alloc_printf(const char *fmt, ...) {
     va_start(args, fmt);
     std::size_t sz = vsnprintf(try_buf, 0, fmt, args);
     va_end(args);
-    char *r = x10aux::alloc<char>(sz+1);
+    char *r = x10aux::alloc<char>(sz+1, false);
     va_start(args, fmt);
     std::size_t s1 = vsnprintf(r, sz+1, fmt, args);
     (void) s1;
@@ -56,7 +56,7 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
 	static bool gc_init_done = false;
 #endif        
 
-void *x10aux::alloc_internal (size_t size) {
+void *x10aux::alloc_internal (size_t size, bool containsPtrs) {
     void* ret;
 #ifdef X10_USE_BDWGC        
     if (x10aux::use_bdwgc()) {
@@ -64,10 +64,15 @@ void *x10aux::alloc_internal (size_t size) {
             gc_init_done = true;
             GC_INIT();
         }
-        ret = GC_MALLOC(size);
+        if (containsPtrs) {
+            ret = GC_MALLOC(size);
+        } else {
+            ret = GC_MALLOC_ATOMIC(size);
+        }
     } else
 #endif        
     ret = ::malloc(size);
+
     _M_("\t-> " << (void*)ret);
     if (ret == NULL && size > 0) {
         _M_("Out of memory allocating " << size << " bytes");

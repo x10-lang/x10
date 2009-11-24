@@ -65,6 +65,7 @@ namespace x10aux {
 
     
     template<class T, class R> R* alloc_rail_internal(x10_int length, bool remote) {
+        bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
         /*
          * We allocate a single piece of storage that is big enough for both
          * R and its (aligned) backing data array. We then do some pointer arithmetic
@@ -75,7 +76,7 @@ namespace x10aux {
         size_t alignDelta = alignPad-1;
         size_t alignMask = ~alignDelta;
         size_t sz = sizeof(R) + alignPad + length*sizeof(T);
-        R* uninitialized_rail = remote ? x10aux::alloc_remote<R>(sz) : x10aux::alloc<R>(sz);
+        R* uninitialized_rail = remote ? x10aux::alloc_remote<R>(sz,containsPtrs) : x10aux::alloc<R>(sz, containsPtrs);
         size_t raw_rail = (size_t)uninitialized_rail;
         size_t raw_data = (raw_rail + sizeof(R) + alignDelta) & alignMask;
         R *rail = new (uninitialized_rail) R(length, (T*)raw_data);

@@ -62,12 +62,14 @@ namespace x10aux {
         const RuntimeType *canonical;
         int parentsc;
         int paramsc;
+        bool containsPtrs; 
         const RuntimeType **parents;
         const RuntimeType **params;
         Variance *variances;
         const char* typeName;
         
-        void init(const RuntimeType* canonical_, const char* typeName_, int parsentsc_, const RuntimeType** parents_,
+        void init(const RuntimeType* canonical_, const char* typeName_,
+                  int parsentsc_, const RuntimeType** parents_,
                   int paramsc_, const RuntimeType** params_, Variance* variances_);
 
         // TODO: If we constructed the names lazily instead of passing the fully
@@ -86,6 +88,14 @@ namespace x10aux {
             return other == this;
         }
 
+        // Can the X10 type this RTT instance represents contain pointers to other chunks of heap-allocated memory?
+        // Used in conjunction with BDWGC to optimize allocation of non-pointer containing rails.
+        // It is always safe to return true; returning false is used in places like rail allocation to select an
+        // alternate allocation routine for memory that will not contain pointers (and therefore does not have to
+        // be scanned for pointers during the GC). Returning false incorrectly can cause memory corruption by hiding
+        // pointers from the GC's scanning logic. 
+        bool containsPointers() const { return containsPtrs; }
+        
         static void initBooleanType();
         static void initByteType();
         static void initCharType();
