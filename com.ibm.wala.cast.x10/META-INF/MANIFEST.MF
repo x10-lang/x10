@@ -15,7 +15,10 @@ Require-Bundle: com.ibm.wala.cast.java.polyglot;bundle-version="1.0.0",
  com.ibm.wala.cast,
  com.ibm.wala.cast.java,
  com.ibm.wala.eclipse,
- x10.runtime
+ x10.runtime,
+ com.ibm.wala.shrike;bundle-version="1.1.3",
+ com.ibm.wala.ide;bundle-version="1.1.3",
+ org.eclipse.core.resources;bundle-version="3.5.0"
 Eclipse-AutoStart: true
 Export-Package: com.ibm.wala.cast.x10,
  com.ibm.wala.cast.x10.analysis,
