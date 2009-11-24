@@ -22,9 +22,11 @@ public class CUDABlackScholes {
             opt_N:Int,
             R:Float,
             V:Float) {
+        val blocks = 480;
+        val threads = 128;
         at (p) @CUDA {
-            val blocks = CUDAUtilities.autoBlocks(),
-                threads = CUDAUtilities.autoThreads();
+            //val blocks = CUDAUtilities.autoBlocks(),
+            //    threads = CUDAUtilities.autoThreads();
             for ((block) in 0..blocks-1) {
                 for ((thread) in 0..threads-1) async {
                     val tid = block * threads + thread;
