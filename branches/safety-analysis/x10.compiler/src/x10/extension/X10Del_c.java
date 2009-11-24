@@ -21,10 +21,14 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.effects.EffectComputer;
+import x10.effects.constraints.Effect;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
@@ -130,4 +134,17 @@ public class X10Del_c extends JL_c implements X10Del {
 		}
 		return n;
 	}
+	public Node computeEffectsOverride(Node n, EffectComputer ec) throws SemanticException {
+		return ((X10Ext) node().ext()).computeEffectsOverride(n, ec);
+	}
+	public EffectComputer computeEffectsEnter(EffectComputer ec) {
+		return ((X10Ext) node().ext()).computeEffectsEnter(ec);
+	}
+	public Node computeEffects(EffectComputer ec) {
+		return ((X10Ext) node().ext()).computeEffects(ec);
+	}
+	public Effect effect() {
+		return ((X10Ext) node().ext()).effect();
+	}
+	
 }

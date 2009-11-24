@@ -18,6 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
+import polyglot.ast.VarDecl;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -33,6 +34,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
@@ -42,6 +44,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XLit;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.effects.constraints.Effect;
 
 /**
  * Parts of this code are taken from the pao extension in the polyglot
@@ -169,7 +172,9 @@ public interface X10TypeSystem extends TypeSystem {
     				Ref<XConstraint> guard, 
     				List<Ref<? extends Type>> throwTypes);
 
-    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
+    		Flags flags, Ref<? extends Type> returnType, Ref<? extends Effect> effect,
+    		Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
 	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
@@ -439,4 +444,7 @@ public interface X10TypeSystem extends TypeSystem {
     Context emptyContext();
     Type Struct();
     boolean isExactlyFunctionType(Type t);
+    boolean isValVariable(VarInstance<?> vi);
+    boolean isValVariable(VarDecl vd);
+    X10TypeEnv env(Context c);
 }

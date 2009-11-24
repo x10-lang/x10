@@ -39,6 +39,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.effects.constraints.Effect;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -53,11 +54,13 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<Ref<? extends Type>> typeParameters;
     List<LocalDef> formalNames;
     Ref<XTerm> body;
-
+    protected Ref<? extends Effect> effect;
+    
     public X10MethodDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
+            Ref<? extends Effect> effect,
             Name name,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
@@ -67,6 +70,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Ref<TypeConstraint> typeGuard,
             List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
+        this.effect = effect;
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
@@ -211,5 +215,8 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         X10MethodDef_c copy = (X10MethodDef_c) super.copy();
         copy.asInstance = null;
         return copy;
+    }
+    public Ref<? extends Effect> effect() {
+        return effect;
     }
 }

@@ -7,11 +7,12 @@ import x10.io.Console;
  */
 
 public class Hello {
+	 def myMethod()=true;
     public static def main(Rail[String])  {
          Console.OUT.println("Hello, X10 world!");
          val h= new Hello();
          val myBool= h.myMethod();
          Console.OUT.println("The answer is: "+myBool);
     }
-    def myMethod()=true;
+   
 }

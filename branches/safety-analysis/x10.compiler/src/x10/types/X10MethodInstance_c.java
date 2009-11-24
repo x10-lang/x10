@@ -61,6 +61,7 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.effects.constraints.Effect;
 
 /**
  * A representation of a MethodInstance. This implements the requirement that method
@@ -1183,6 +1184,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         X10TypeSystem xts = (X10TypeSystem) ts;
 
         if (rightType == null) {
+        	// This may trigger computation of the return type, and hence evaluation of the body
+        	// of the target method.
             Type t = returnType();
 
             // If a property method, replace T with T{self==this}.
@@ -1283,6 +1286,13 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     	String s = "";
     		for (XVar x : ys) s += x.toString() + " ";
     		return s;
+    }
+    protected Ref<? extends Effect> effect;
+    public x10.effects.constraints.Effect effect() {
+    	if (effect == null) {
+    		return ((X10MethodDef) def()).effect().get();
+    	}
+    	return Types.get(effect);
     }
 
 }

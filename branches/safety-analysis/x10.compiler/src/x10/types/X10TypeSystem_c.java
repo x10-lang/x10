@@ -24,6 +24,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
+import polyglot.ast.VarDecl;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -70,6 +71,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -91,6 +93,8 @@ import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 import x10.parser.X10ParsedName;
 
 /**
@@ -490,6 +494,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
         X10MethodDef mi = methodDef(pos, Types.ref(ct), 
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
+        		Types.ref(Effects.makeUnsafe()),
         		Name.make("apply"), 
         		typeParams, 
         		argTypes, 
@@ -1186,26 +1191,35 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     @Override
     public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, 
-    		Ref<? extends Type> returnType, Name name,
+    		Ref<? extends Type> returnType, 
+    		Name name,
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes) {
 
         String fullNameWithThis = name + "#this";
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XRoot thisVar = XTerms.makeLocal(thisName);
 
-        return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, null, excTypes,
+        return methodDef(pos, container, flags, 
+        		returnType, 
+        		Types.ref(Effects.makeUnsafe()), 
+        		name, Collections.EMPTY_LIST, argTypes,
+        		thisVar, dummyLocalDefs(argTypes), null, null, 
+        		excTypes,
                          null);
     }
 
-    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<XConstraint> guard,
+    public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
+    		Flags flags, Ref<? extends Type> returnType, Ref<? extends Effect> effect,
+    		Name name,
+            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
+            XRoot thisVar, List<LocalDef> formalNames, Ref<XConstraint> guard,
             Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         assert_(container);
         assert_(returnType);
         assert_(typeParams);
         assert_(argTypes);
         assert_(excTypes);
-        return new X10MethodDef_c(this, pos, container, flags, returnType, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
+        return new X10MethodDef_c(this, pos, container, flags, returnType, effect, name, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, body);
     }
 
     /**
@@ -1234,8 +1248,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public CodeDef asyncCodeInstance(boolean isStatic) {
         if (isStatic) {
             if (asyncStaticCodeInstance_ == null)
-                asyncStaticCodeInstance_ = methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), Public().Static(), Types.ref(VOID_),
-                                                     Name.make("$dummyAsync$"), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+                asyncStaticCodeInstance_ = methodDef(Position.COMPILER_GENERATED, 
+                		Types.ref((StructType) Runtime()), Public().Static(), Types.ref(VOID_),
+                		Name.make("$dummyAsync$"), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
             return asyncStaticCodeInstance_;
         }
         else {
@@ -2782,5 +2797,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		   result.remove(Object());
 	   }
 	   return result;
+   }
+   public boolean isValVariable(VarInstance<?> vi) {
+       return X10Flags.toX10Flags(vi.flags()).isValue();
+   }
+
+   public boolean isValVariable(VarDecl vd) {
+       return X10Flags.toX10Flags(vd.flags().flags()).isValue();
    }
 }
