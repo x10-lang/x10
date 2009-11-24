@@ -33,8 +33,7 @@ Require-Bundle: org.eclipse.compare,
  org.eclipse.imp.runtime,
  org.eclipse.imp.analysis,
  org.eclipse.imp.pdb,
- org.eclipse.imp.x10dt.core,
- org.eclipse.imp.x10dt.formatter
+ org.eclipse.imp.x10dt.core
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10UIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui,

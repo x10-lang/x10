@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.builder.ProjectNatureBase;
-import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
+import org.eclipse.imp.java.hosted.wizards.NewProjectWizardSecondPage;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;

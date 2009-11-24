@@ -58,7 +58,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 		}
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
-            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
             Node parent= (Node) locator.findParentNode(parseController.getCurrentAst(), typeNode.position().offset(), typeNode.position().endOffset());
 
             if (parent instanceof New) {
@@ -86,7 +86,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
     }
 
     private Object findParent(Node node, IParseController parseController) {
-        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 
         return locator.findParentNode(parseController.getCurrentAst(), node.position().offset(), node.position().endOffset());
     }

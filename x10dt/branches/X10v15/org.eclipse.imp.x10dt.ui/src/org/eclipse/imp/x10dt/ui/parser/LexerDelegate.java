@@ -19,6 +19,7 @@ package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.IOException;
 
+import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.LexStream;
 import lpg.runtime.Monitor;
@@ -38,7 +39,9 @@ public class LexerDelegate implements ILexer
             this.myLexer = myLexer;
         }
 	public int [] getKeywordKinds() { return myLexer.getKeywordKinds(); }
-	public LexStream getLexStream() { return myLexer.getLexStream(); }
+	public ILexStream getILexStream() { return myLexer.getILexStream(); }
 	public void initialize(char [] content, String filename) { myLexer.initialize(content, filename); }
-	public void lexer(Monitor monitor, IPrsStream prsStream) { myLexer.lexer(monitor, prsStream); }
+	// 
+	public void reset(char [] content, String filename) { myLexer.reset(content, filename); }
+    public void lexer(Monitor monitor, IPrsStream prsStream) { myLexer.lexer(monitor, prsStream); }
 }

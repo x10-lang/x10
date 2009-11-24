@@ -25,7 +25,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.debug.ui
+ org.eclipse.debug.ui,
+ org.eclipse.imp.java.hosted;bundle-version="0.1.2"
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,

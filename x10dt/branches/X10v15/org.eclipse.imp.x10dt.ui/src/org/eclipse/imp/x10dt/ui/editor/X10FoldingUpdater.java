@@ -154,7 +154,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         //
         // Cache the prsStream and the lexStream.
         //
-        prsStream = ((SimpleLPGParseController) parseController).getParser().getParseStream();
+        prsStream = ((SimpleLPGParseController) parseController).getParser().getIPrsStream();
         lexStream = prsStream.getLexStream();
 
         //

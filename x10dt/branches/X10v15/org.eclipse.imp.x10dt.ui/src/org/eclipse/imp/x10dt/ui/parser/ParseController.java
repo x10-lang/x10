@@ -57,7 +57,7 @@ public class ParseController extends SimpleLPGParseController {
 	return new LexerDelegate(fCompiler.getLexer());
     }
 
-    public ISourcePositionLocator getNodeLocator() {
+    public ISourcePositionLocator getSourcePositionLocator() {
 	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
     }
 
@@ -71,7 +71,7 @@ public class ParseController extends SimpleLPGParseController {
         fMonitor= new PMMonitor(null);
     }
 
-    public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor) {
+    public Object parse(String contents, IProgressMonitor monitor) {
         FileSource fileSource= null;
         try {
             fMonitor.setMonitor(monitor);

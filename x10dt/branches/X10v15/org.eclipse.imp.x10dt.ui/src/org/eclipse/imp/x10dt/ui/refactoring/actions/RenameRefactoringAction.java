@@ -88,7 +88,7 @@ public class RenameRefactoringAction extends TextEditorAction {
     private Node findNode(UniversalEditor editor) {
         Point sel= editor.getSelection();
         IParseController parseController= editor.getParseController();
-        ISourcePositionLocator locator= parseController.getNodeLocator();
+        ISourcePositionLocator locator= parseController.getSourcePositionLocator();
 
         return (Node) locator.findNode(fRoot, sel.x);
     }
@@ -107,7 +107,7 @@ public class RenameRefactoringAction extends TextEditorAction {
         if (node instanceof Id) {
             UniversalEditor editor= (UniversalEditor) getTextEditor();
             IParseController parseController= editor.getParseController();
-            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
             Node parent= (Node) locator.getParentNodeOf(node, fRoot);
 
             node= parent;
@@ -177,7 +177,7 @@ public class RenameRefactoringAction extends TextEditorAction {
 
                 parseCtrlr.initialize(declFilePath, srcProject, null);
                 IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
-                Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
+                Node declRoot= (Node) parseCtrlr.parse(document.get(), null);
 
                 System.out.println("Root of AST containing declaration: " + declRoot);
                 findDeclaration(declRoot, decl);

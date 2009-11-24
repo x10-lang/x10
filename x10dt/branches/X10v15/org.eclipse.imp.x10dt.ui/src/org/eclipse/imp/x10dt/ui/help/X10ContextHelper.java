@@ -124,7 +124,7 @@ public class X10ContextHelper implements IHelpService {
 
     public String getHelp(IRegion target, IParseController parseController) {
         ParseController pc= (ParseController) parseController;
-        IToken token= pc.getLexer().getLexStream().getPrsStream().getTokenAtCharacter(target.getOffset());
+        IToken token= pc.getLexer().getILexStream().getIPrsStream().getTokenAtCharacter(target.getOffset());
 
         if (token != null) {
             String tokenStr= token.toString();
@@ -133,7 +133,7 @@ public class X10ContextHelper implements IHelpService {
                 return sKeywordHelp.get(tokenStr);
             }
         }
-        ISourcePositionLocator nodeLocator= parseController.getNodeLocator();
+        ISourcePositionLocator nodeLocator= parseController.getSourcePositionLocator();
         Object node= nodeLocator.findNode(parseController.getCurrentAst(), target.getOffset());
         if (node != null) {
             return getHelp(node, parseController);

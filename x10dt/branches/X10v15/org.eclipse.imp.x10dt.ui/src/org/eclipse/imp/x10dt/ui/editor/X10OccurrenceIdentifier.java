@@ -40,7 +40,7 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
         }
 
         Node astNode= (Node) node;
-        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 
         fOccurrences= new ArrayList();
 

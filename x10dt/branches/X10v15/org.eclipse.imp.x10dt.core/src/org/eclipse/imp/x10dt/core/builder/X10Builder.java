@@ -39,6 +39,8 @@ import java.util.zip.ZipEntry;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.IToken;
+import lpg.runtime.LexStream;
+import lpg.runtime.ParseErrorCodes;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -423,17 +425,17 @@ public class X10Builder extends IncrementalProjectBuilder {
                 // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
                 //
                 final X10Lexer x10_lexer= new X10Lexer(source.path());
-                x10_lexer.setMessageHandler(new IMessageHandler() {
+                x10_lexer.getILexStream().setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
                         Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
                                 msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
                                 msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
                                 msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
-                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + x10_lexer.errorMsgText[errorCode], p);
+                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + ParseErrorCodes.errorMsgText[errorCode], p);
                     }
                 });
-                X10Parser x10_parser= new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-                x10_lexer.lexer(x10_parser);
+                X10Parser x10_parser= new X10Parser((LexStream) x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+                x10_lexer.lexer(x10_parser.getIPrsStream());
                 return x10_parser; // Parse the token stream to produce an AST
             } catch (IOException e) {
                 e.printStackTrace();

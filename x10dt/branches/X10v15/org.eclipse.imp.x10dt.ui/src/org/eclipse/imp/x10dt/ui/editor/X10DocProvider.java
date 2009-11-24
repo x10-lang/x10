@@ -111,7 +111,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 		if (target instanceof Id) {
 			Id id = (Id) target;
-			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getNodeLocator();
+			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 			Node parent = (Node) locator.getParentNodeOf(id, root);
 			target = parent;
 		}
@@ -311,7 +311,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		else if (target instanceof TypeNode) {
 			TypeNode typeNode = (TypeNode) target;
 			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController
-					.getNodeLocator();
+					.getSourcePositionLocator();
 			Node parent = (Node) locator.getParentNodeOf(target, root);
 
 			if (parent instanceof ConstructorDecl) {

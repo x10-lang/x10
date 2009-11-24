@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import lpg.runtime.IMessageHandler;
+import lpg.runtime.LexStream;
 import lpg.runtime.Monitor;
 
 import polyglot.frontend.FileSource;
@@ -84,9 +85,9 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             if (reader instanceof CharBufferReader)
             {
                 x10_lexer.initialize(((CharBufferReader) reader).getBuffer(), source.path());
-                x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-                x10_lexer.lexer(x10_parser);
-                x10_parser.setMessageHandler(handler);
+                x10_parser = new X10Parser((LexStream) x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
+                x10_lexer.lexer(x10_parser.getIPrsStream());
+                x10_parser.getIPrsStream().setMessageHandler(handler);
                 return x10_parser; // Parse the token stream to produce an AST
             }
             //

@@ -17,6 +17,9 @@
  */
 package org.eclipse.imp.x10dt.ui.parser;
 
+import lpg.runtime.ILexStream;
+import lpg.runtime.IPrsStream;
+import lpg.runtime.LexStream;
 import lpg.runtime.Monitor;
 import lpg.runtime.PrsStream;
 
@@ -55,4 +58,12 @@ public class ParserDelegate implements IParser {
     ParserDelegate(X10Parser myParser) {
         this.myParser = myParser;
     }
+
+	public IPrsStream getIPrsStream() {
+		return myParser.getIPrsStream();
+	}
+
+	public void reset(ILexStream lexStream) {
+		myParser.getPrsStream().resetLexStream((LexStream) lexStream);
+	}
 }
