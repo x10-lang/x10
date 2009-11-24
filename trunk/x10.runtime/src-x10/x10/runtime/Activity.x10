@@ -67,9 +67,7 @@ public class Activity {
 	 */
 	def this(body:()=>Void, finishState:FinishState{self.at(here)}, clocks:ValRail[Clock], phases:ValRail[Int]) {
 		this(body, finishState, false);
-		val cp = new ClockPhases();
-		clockPhases = cp;
-	    cp.register(clocks, phases);
+		clockPhases = ClockPhases.make(clocks, phases);
 	}
 
 	/**

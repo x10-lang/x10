@@ -124,7 +124,7 @@ public final class Runtime {
 	 */
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
 		val state = currentState();
-		val phases = ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
+		val phases = clockPhases().register(clocks);
 		state.notifySubActivitySpawn(place);
 		if (place.id == Thread.currentThread().locInt()) {
 			execute(new Activity(body, state, clocks, phases));
@@ -172,7 +172,7 @@ public final class Runtime {
 
 	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
 		val state = currentState();
-		val phases = ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
+		val phases = clockPhases().register(clocks);
 		state.notifySubActivitySpawn(here);
 		execute(new Activity(body, state, clocks, phases));
 	}

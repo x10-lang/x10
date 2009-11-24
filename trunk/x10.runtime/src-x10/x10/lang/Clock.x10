@@ -14,7 +14,7 @@ package x10.lang;
 public abstract class Clock(name: String) {
     public static def make(): Clock = make("");
 
-    public static def make(name: String): Clock = x10.runtime.Clock_c.make(name);
+    public static def make(name: String): Clock = x10.runtime.RuntimeClock.make(name);
 
     protected def this(name: String) = property(name);
 

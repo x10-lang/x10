@@ -99,7 +99,7 @@ class Dummy {
     var f107 : x10.lang.ValRail[Dummy];
     //var f108 : x10.lang.Value;
     var f109 : x10.lang._;
-    var f113 : x10.runtime.Clock_c;
+    var f113 : x10.runtime.RuntimeClock;
     var f115 : x10.runtime.Future_c[Dummy];
     var f118 : x10.runtime.Lock;
     var f121 : x10.runtime.NativeRuntime;
