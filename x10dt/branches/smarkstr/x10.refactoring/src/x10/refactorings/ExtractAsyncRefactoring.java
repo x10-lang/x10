@@ -87,7 +87,6 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayReferenceInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
-import com.ibm.wala.classLoader.BinaryDirectoryTreeModule;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IField;
@@ -265,7 +264,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		IParseController parseController = ed.getParseController();
 		Node_c root = (Node_c) parseController.getCurrentAst();
 //		SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
-		ISourcePositionLocator locator = ((ParseController) parseController).getNodeLocator();
+		ISourcePositionLocator locator = parseController.getSourcePositionLocator();
 
 		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
 		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
@@ -329,38 +328,29 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * will be modified to do the appropriate pre-condition checking for the
 	 * extract async/future refactoring.
 	 */
-	private RefactoringStatus analyzeSource(Collection sources, List libs, IJavaProject javaProject) throws CancelException {
-
+	private RefactoringStatus analyzeSource(Collection<String> sources, List<String> libs, IJavaProject javaProject) throws CancelException {
 		try {
-			NodePathComputer pathSaver = new NodePathComputer(fNodeMethod,
-					fPivot);
+			NodePathComputer pathSaver = new NodePathComputer(fNodeMethod, fPivot);
 			List<Node> path = pathSaver.getPath();
 
 			if (path.size() == 0)
-				return RefactoringStatus
-				.createFatalErrorStatus("Couldn't find path to selected node from containing method???");
+				return RefactoringStatus.createFatalErrorStatus("Couldn't find path to selected node from containing method???");
 
 			System.out.println("Path from method to pivot expr:");
 			for (Node node : path) {
 				System.out.println(node);
 			}
-			CompoundStmt loop = (CompoundStmt) PolyglotUtils
-			.findInnermostNodeOfTypes(path, new Class[] { Loop.class,
-					X10Loop.class });
+			CompoundStmt loop = (CompoundStmt) PolyglotUtils.findInnermostNodeOfTypes(path, new Class[] { Loop.class, X10Loop.class });
 
 			if (loop == null)
-				return RefactoringStatus
-				.createFatalErrorStatus("Couldn't find loop enclosing the selected node???");
+				return RefactoringStatus.createFatalErrorStatus("Couldn't find loop enclosing the selected node???");
 
 			if (inAtomic(loop, fNodeMethod))
-				return RefactoringStatus
-				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
+				return RefactoringStatus.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
 			if (inAtomic(fPivot, fNodeMethod))
-				return RefactoringStatus
-				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
+				return RefactoringStatus.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
 			if (badClockUse(loop))
-				return RefactoringStatus
-				.createFatalErrorStatus("Bad clock use in target loop");
+				return RefactoringStatus.createFatalErrorStatus("Bad clock use in target loop");
 
 			doCreateIR(sources, libs, javaProject);
 
@@ -1057,22 +1047,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	  || (ssai instanceof SSAAtomicInstruction) || (ssai instanceof SSAAbstractThrowInstruction);
 	}
 	
-	private void doCreateIR(Collection sources, List libs, IJavaProject javaProject) throws IOException,
+	private void doCreateIR(Collection<String> sources, List<String> libs, IJavaProject javaProject) throws IOException,
 	ClassHierarchyException, ThrowableStatus, CancelException {
 //		EclipseProjectSourceAnalysisEngine engine = new X10EclipseSourceAnalysisEngine(javaProject);
 //		JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine();
 
-        populateScope(sources, libs);
+		populateScope(sources, libs);
 
 		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor();
 
-		((Node) ed.getParseController().getCurrentAst())
-		.visit(procedureCollection);
+		((Node) ed.getParseController().getCurrentAst()).visit(procedureCollection);
 
 		final ProcedureInstance[] procs = procedureCollection.getProcs();
 		AbstractAnalysisEngine.EntrypointBuilder entrypointBuilder = new AbstractAnalysisEngine.EntrypointBuilder() {
-			public Iterable<Entrypoint> createEntrypoints(AnalysisScope scope,
-					IClassHierarchy cha) {
+			public Iterable<Entrypoint> createEntrypoints(AnalysisScope scope, IClassHierarchy cha) {
 				return new TestEntryPoints(procs, cha);
 			}
 		};
@@ -1091,45 +1079,25 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		checkCallGraphShape();
 	}
 
-	private void populateScope(
-//			EclipseProjectSourceAnalysisEngine engine,
-//			JavaSourceAnalysisEngine engine,
-			Collection/* <String> */sources, List/* <String> */libs)
-	throws IOException {
+	private void populateScope(Collection<String> sources, List<String> libs) throws IOException {
 		boolean foundLib = false;
-		for (Iterator iter = libs.iterator(); iter.hasNext();) {
-			String lib = (String) iter.next();
-
+		for(String lib: libs) {
 			File libFile = new File(lib);
+
 			if (libFile.exists()) {
 				foundLib = true;
-				try {
 				fEngine.addX10SystemModule(new JarFileModule(new JarFile(libFile)));
-				} catch (IOException e) {
-					fEngine.addX10SystemModule(new BinaryDirectoryTreeModule(libFile));
-				}
 			}
 		}
 		Assertions._assert(foundLib);
 
-//		fEngine.addX10SystemModule(new BinaryDirectoryTreeModule(ExtractAsyncStaticTools.cheapHack()));
-//		fEngine.addX10SystemModule(new JarFileModule(ExtractAsyncStaticTools.cheapHack2()));
-		
-		for (Iterator iter = sources.iterator(); iter.hasNext();) {
-			String srcFilePath = (String) iter.next();
-			String srcFileName = srcFilePath.substring(srcFilePath
-					.lastIndexOf(File.separator) + 1);
-			String srcDir = srcFilePath.substring(0, srcFilePath
-					.lastIndexOf(File.separator) + 1);
-            fEngine.addX10SourceModule(new SourceDirectoryTreeModule(new File(srcDir), "x10"));
-//			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath),
-//					srcFileName));
-		}
+		for(String srcFilePath: sources) { // HACK Just add the parent directory of each file in 'sources'
+//			String srcFileName = srcFilePath.substring(srcFilePath.lastIndexOf(File.separator) + 1);
+			String srcDir = srcFilePath.substring(0, srcFilePath.lastIndexOf(File.separator) + 1);
 
-		// another cheap hack
-//		fEngine.addX10SourceModule(new SourceDirectoryTreeModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src"),"x10"));
-//		fEngine.addX10SourceModule(new SourceFileModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src/testx10ForLoop.x10"),"testx10ForLoop.x10"));
-//		fEngine.addX10SourceModule(new SourceFileModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src/IntBox.x10"),"IntBox.x10"));
+			fEngine.addX10SourceModule(new SourceDirectoryTreeModule(new File(srcDir), "x10"));
+//			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
+		}
 	}
 
 	private void methodRefDebugOutput() throws IOException {
@@ -1204,20 +1172,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// Check for preconditions here
 
 		if (fNodeMethod == null)
-			return RefactoringStatus
-			.createFatalErrorStatus("Unable to find method containing selected code");
+			return RefactoringStatus.createFatalErrorStatus("Unable to find method containing selected code");
 
 		String javaHomePath = ExtractAsyncStaticTools.javaHomePath;
 
-		// Only valid if it's equivalent to a statement: async, atomic, assign,
-		// method call, etc.
+		// Only valid if it's equivalent to a statement: async, atomic, assign, method call, etc.
 		List<String> rtJar = new LinkedList<String>();
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
-				+ "rt.jar");
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
-				+ "core.jar");
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
-				+ "vm.jar");
+		rtJar.add(javaHomePath + File.separator + "lib" + File.separator + "rt.jar");
+		rtJar.add(javaHomePath + File.separator + "lib" + File.separator + "core.jar");
+		rtJar.add(javaHomePath + File.separator + "lib" + File.separator + "vm.jar");
 
 		List<String> x10RTJar = new ArrayList<String>();
 		x10RTJar.addAll(rtJar);
@@ -1225,30 +1188,24 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		try{
 			fEngine = new X10EclipseSourceAnalysisEngine(javaProject);
 		} catch (IOException ioe) {
-			return RefactoringStatus
-			.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
+			return RefactoringStatus.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
 		}
-		x10RTJar.add(ExtractAsyncStaticTools
-				.getLanguageRuntimePath(javaProject).toString());
+		x10RTJar.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
 
 		if (!(fNode instanceof Expr))
-			return RefactoringStatus
-			.createFatalErrorStatus("Extract Async is only valid for expressions");
+			return RefactoringStatus.createFatalErrorStatus("Extract Async is only valid for expressions");
 
 		fPivot = (Expr) fNode;
 
-		NodeTypeFindingVisitor typeFinder = new NodeTypeFindingVisitor(
-				ClassDecl.class);
+		NodeTypeFindingVisitor typeFinder = new NodeTypeFindingVisitor(ClassDecl.class);
 		fNodeMethod.visit(typeFinder);
 
 		if (typeFinder.getResult() != null)
-			return RefactoringStatus
-			.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
+			return RefactoringStatus.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
 
 		
 		try {
-		  return this.analyzeSource(ExtractAsyncStaticTools
-				.singleTestSrc(fSourceFile), x10RTJar, javaProject);
+		  return this.analyzeSource(ExtractAsyncStaticTools.singleTestSrc(fSourceFile), x10RTJar, javaProject);
 		} catch (CancelException e) {
 			return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
 		}
@@ -1273,7 +1230,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// rewriter.
 
 		IParseController parseController = ed.getParseController();
-		ISourcePositionLocator locator = ((ParseController) parseController).getNodeLocator();
+		ISourcePositionLocator locator = parseController.getSourcePositionLocator();
 		int startOffset = locator.getStartOffset(fPivot);
 		int endOffset = locator.getEndOffset(fPivot);
 
