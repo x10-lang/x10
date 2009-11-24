@@ -87,11 +87,13 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayReferenceInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.wala.classLoader.BinaryDirectoryTreeModule;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IField;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.JarFileModule;
+import com.ibm.wala.classLoader.SourceDirectoryTreeModule;
 import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.client.AbstractAnalysisEngine;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
@@ -1060,7 +1062,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 //		EclipseProjectSourceAnalysisEngine engine = new X10EclipseSourceAnalysisEngine(javaProject);
 //		JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine();
 
-//		populateScope(engine, sources, libs);
+        populateScope(sources, libs);
 
 		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor();
 
@@ -1089,9 +1091,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		checkCallGraphShape();
 	}
 
-	private static void populateScope(
+	private void populateScope(
 //			EclipseProjectSourceAnalysisEngine engine,
-			JavaSourceAnalysisEngine engine,
+//			JavaSourceAnalysisEngine engine,
 			Collection/* <String> */sources, List/* <String> */libs)
 	throws IOException {
 		boolean foundLib = false;
@@ -1101,19 +1103,33 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			File libFile = new File(lib);
 			if (libFile.exists()) {
 				foundLib = true;
-				engine.addSystemModule(new JarFileModule(new JarFile(libFile)));
+				try {
+				fEngine.addX10SystemModule(new JarFileModule(new JarFile(libFile)));
+				} catch (IOException e) {
+					fEngine.addX10SystemModule(new BinaryDirectoryTreeModule(libFile));
+				}
 			}
 		}
 		Assertions._assert(foundLib);
 
+//		fEngine.addX10SystemModule(new BinaryDirectoryTreeModule(ExtractAsyncStaticTools.cheapHack()));
+//		fEngine.addX10SystemModule(new JarFileModule(ExtractAsyncStaticTools.cheapHack2()));
+		
 		for (Iterator iter = sources.iterator(); iter.hasNext();) {
 			String srcFilePath = (String) iter.next();
 			String srcFileName = srcFilePath.substring(srcFilePath
 					.lastIndexOf(File.separator) + 1);
-
-			engine.addSourceModule(new SourceFileModule(new File(srcFilePath),
-					srcFileName));
+			String srcDir = srcFilePath.substring(0, srcFilePath
+					.lastIndexOf(File.separator) + 1);
+            fEngine.addX10SourceModule(new SourceDirectoryTreeModule(new File(srcDir), "x10"));
+//			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath),
+//					srcFileName));
 		}
+
+		// another cheap hack
+//		fEngine.addX10SourceModule(new SourceDirectoryTreeModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src"),"x10"));
+//		fEngine.addX10SourceModule(new SourceFileModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src/testx10ForLoop.x10"),"testx10ForLoop.x10"));
+//		fEngine.addX10SourceModule(new SourceFileModule(new File("/Users/sm053/Documents/runtime-EclipseApplication/RefactoringTests/src/IntBox.x10"),"IntBox.x10"));
 	}
 
 	private void methodRefDebugOutput() throws IOException {

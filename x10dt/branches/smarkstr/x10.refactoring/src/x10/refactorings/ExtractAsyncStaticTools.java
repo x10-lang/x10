@@ -77,7 +77,7 @@ public class ExtractAsyncStaticTools {
 	    IPath x10RuntimePath = new Path("/plugins/x10.runtime_" + bundleVersion
 	    		+ ".jar");
 
-	    return x10RuntimePath.append(ExtractAsyncStaticTools.eclipseHomePath);
+	    return new Path(ExtractAsyncStaticTools.eclipseHomePath+x10RuntimePath);
 	}
 
 	public static Collection singleTestSrc(IFile grammarFile) {
@@ -278,5 +278,13 @@ public class ExtractAsyncStaticTools {
 	public static String IFilePathtoCAstPath(String path){
 		String retval = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + path;
 		return retval.replace('/', '\\');
+	}
+
+	public static File cheapHack() {
+		return new File("/Users/sm053/Documents/refactoring-workspace/x10.runtime/classes/");
+	}
+
+	public static JarFile cheapHack2() throws IOException {
+		return new JarFile("/Users/sm053/Documents/refactoring-workspace/x10.runtime/classes/x10.jar");
 	}
 }
