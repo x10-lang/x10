@@ -39,19 +39,19 @@ namespace x10aux {
 
     void throwOOME() X10_PRAGMA_NORETURN;
 
-    void *alloc_internal (size_t size);
+    void *alloc_internal (size_t size, bool containsPtrs = true);
     void *realloc_internal (void* src, size_t dsz);
     void dealloc_internal (const void *obj_);
 
-    template<class T> T* alloc(size_t size = sizeof(T)) {
+    template<class T> T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
-        return (T*)alloc_internal(size);
+        return (T*)alloc_internal(size, containsPtrs);
     }
 
     // Allocate an object with an x10_addr_t prepended to it
-    template<class T> T* alloc_remote(size_t size = sizeof(T)) {
+    template<class T> T* alloc_remote(size_t size = sizeof(T), bool containsPtrs = true) {
         _M_("Allocating a remote object of type " << TYPENAME(T));
-        T* ret = alloc<T>(size+sizeof(x10_addr_t));
+        T* ret = alloc<T>(size+sizeof(x10_addr_t), containsPtrs);
         return (T*)(((char*)ret)+sizeof(x10_addr_t));
     }
 
