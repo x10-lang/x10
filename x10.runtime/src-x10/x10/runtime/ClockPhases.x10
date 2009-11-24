@@ -13,18 +13,23 @@ import x10.util.HashMap;
 /**
  * @author tardieu
  */
-class ClockPhases extends HashMap[Clock_c,Int] {
-	def register(clocks:ValRail[Clock], phases:ValRail[Int]):Void {
-		for(var i:Int = 0; i < clocks.length; i++) 
-		    this.put(clocks(i) as Clock_c, phases(i));
+class ClockPhases extends HashMap[RuntimeClock,Int] {
+	static def make(clocks:ValRail[Clock], phases:ValRail[Int]) {
+		val clockPhases = new ClockPhases();
+		for(var i:Int = 0; i < clocks.length; i++) clockPhases.put(clocks(i) as RuntimeClock, phases(i));
+		return clockPhases;
 	}
 
-	def next():Void {
-		for(clock:Clock_c in keySet()) clock.resume_c();
-		for(clock:Clock_c in keySet()) clock.next_c();
+	def register(clocks:ValRail[Clock]) {
+		return ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as RuntimeClock).register());
+	}
+	
+	def next() {
+		for(clock:RuntimeClock in keySet()) clock.resumeUnsafe();
+		for(clock:RuntimeClock in keySet()) clock.nextUnsafe();
 	}
 
-	def drop():Void {
-		for(clock:Clock_c in keySet()) clock.drop_c();
+	def drop() {
+		for(clock:RuntimeClock in keySet()) clock.dropUnsafe();
 	}
 }
