@@ -80,23 +80,23 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public boolean isGlobal() {
-		return flags() == null ? false : ((X10Flags) flags()).isGlobal();
+		return flags() == null ? false : X10Flags.toX10Flags(flags()).isGlobal();
 	}
 	public boolean isProto() {
-		return flags() == null ? false : ((X10Flags) flags()).isProto();
+		return flags() == null ? false : X10Flags.toX10Flags(flags()).isProto();
 	}
 	public boolean isX10Struct() {
 		return ((X10TypeSystem) typeSystem()).isStructType(this);
 	}
 	
 	public X10Type setFlags(Flags f) {
-		X10Flags xf = (X10Flags) f;
+		X10Flags xf = X10Flags.toX10Flags(f);
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
 			c.flags = X10Flags.toX10Flags(Flags.NONE);
 		c.flags = xf.isGlobal() 
-				? (xf.isStruct() ? ((X10Flags) c.flags).Global().Struct() : ((X10Flags) c.flags).Global())
-						: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
+				? (xf.isStruct() ? X10Flags.toX10Flags(c.flags).Global().Struct() : X10Flags.toX10Flags(c.flags).Global())
+						: ((xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags);
 		return c;
 	}
 	public X10Type clearFlags(Flags f) {

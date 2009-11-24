@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_111 extends x10Test {
 
     static class P {
-        incomplete public static def $convert(r: ValRail[int]): P;
+        incomplete public static operator (r: ValRail[int]): P;
     }
     
     static class A {

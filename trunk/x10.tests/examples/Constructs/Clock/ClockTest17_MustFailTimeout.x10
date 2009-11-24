@@ -44,7 +44,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	public def run(): boolean = {
 		/*A0*/
 		val c0: Clock = Clock.make();
-		var x: X = new X();
+		var x: X! = new X();
 		// f0 does not transmit clocks to subactivity
 		var f0: foo = new foo() {
 			public def apply(): void = {
@@ -65,7 +65,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 			}
 		};
 
-		var fooArray: Rail[foo] = [f0,f1];
+		var fooArray: Rail[foo]! = [f0,f1];
 
 		// This is invoking Y.test(f0) but not clear to a compiler
 		Y.test(fooArray(x.zero()));
@@ -122,7 +122,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z:Rail[Int] = [1,0];
+		public val z:Rail[Int]! = [1,0];
 		def zero(): int = { return z(z(z(1))); }
 		def one(): int = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }

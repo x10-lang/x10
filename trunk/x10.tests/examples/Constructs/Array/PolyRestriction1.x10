@@ -14,7 +14,7 @@ class PolyRestriction1 extends TestArray {
         val a2 = a1.restriction(r2);
         prArray("restricted array", a2);
 
-        for (x:Point in a2.region)
+        for (x:Point(2) in a2.region)
             a2(x(0), x(1)) = 7.0;
 
         prArray("whole array modified", a1);

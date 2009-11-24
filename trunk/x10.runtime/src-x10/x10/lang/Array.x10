@@ -113,8 +113,8 @@ public abstract class Array[T](dist:Dist)
     public abstract safe global def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
     public abstract safe global def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
 
-    public abstract safe global def restriction(r: Region(rank)): Array[T];
-    public abstract safe global def restriction(p: Place): Array[T];
+    public abstract safe global def restriction(r: Region(rank)): Array[T](rank);
+    public abstract safe global def restriction(p: Place): Array[T](rank);
 
     public abstract safe global operator + this: Array[T];
     public abstract safe global operator - this: Array[T];

@@ -3,6 +3,7 @@
 
 import harness.x10Test;
 
+import x10.util.List;
 
 /**
  * Example from spec. If changes need to be made to this code to make
@@ -13,7 +14,7 @@ import harness.x10Test;
 
 public class ClosureExample1 extends x10Test {
 
-    def find[T](f:T=>Boolean, xs: List[T]):T {
+    def find[T](f:(T)=>Boolean, xs: List[T]):T {
         for (x in xs)
             if (f(x)) return x;
         return null;

@@ -16,7 +16,7 @@ public class TypedefConstraint1b extends TypedefTest {
     public def run(): boolean = {
         
         type B[T]{T<:Y} = T;
-        b:B[Y] = new Y();
+        b:B[Y]! = new Y();
         check("b.name()", b.name(), "Y");
 
         return result;

@@ -111,7 +111,7 @@ implements X10ParsedClassType
     }
  
 	public X10Type setFlags(Flags f) {
-		X10Flags xf = (X10Flags) f;
+		X10Flags xf = X10Flags.toX10Flags(f);
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
 		c.flags = flags().set(f);
 		/*if  (xf.isRooted() || xf.isStruct()) {
@@ -122,9 +122,9 @@ implements X10ParsedClassType
 				c.flags = X10Flags.toX10Flags(Flags.NONE);
 			f.s
 			c.flags = xf.isRooted() 
-			? (xf.isStruct() ? ((X10Flags) c.flags).Rooted().Struct() 
-					: ((X10Flags) c.flags).Rooted())
-					: ((xf.isStruct()) ? ((X10Flags) c.flags).Struct() : c.flags);
+			? (xf.isStruct() ? X10Flags.toX10Flags(c.flags).Rooted().Struct() 
+					: X10Flags.toX10Flags(c.flags).Rooted())
+					: ((xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags);
 			return c;
 		}*/
 		return c;

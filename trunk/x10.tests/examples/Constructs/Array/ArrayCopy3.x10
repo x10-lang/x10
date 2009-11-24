@@ -76,7 +76,7 @@ public class ArrayCopy3 extends x10Test {
                     val Common: Region(A.rank) = LocalD && RemoteE;
                     val D_common: Dist(A.rank) = D | Common;
                     // the future's can be aggregated
-                    for (val i: Point in D_common) {
+                    for (val i: Point(A.rank) in D_common) {
                         async(py) atomic accessed_b(i) += 1;
                         val temp  = (future(py){B(i)}).force();
                         // the following may need to be bracketed in
@@ -111,10 +111,10 @@ public class ArrayCopy3 extends x10Test {
             }
 
         // ensure each A[i] was accessed exactly once
-        finish ateach (val i: Point in D) chk(accessed_a(i) == 1);
+        finish ateach (val i: Point(A.rank) in D) chk(accessed_a(i) == 1);
 
         // ensure each B[i] was accessed exactly once
-        finish ateach (val i: Point in E) chk(accessed_b(i) == 1);
+        finish ateach (val i: Point(A.rank) in E) chk(accessed_b(i) == 1);
     }
 
     public const N: int = 3;
@@ -126,7 +126,7 @@ public class ArrayCopy3 extends x10Test {
     public def run(): boolean = {
 
         val R: Region{rank==4} = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
-        val TestDists: Region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+        val TestDists: Region(2) = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
         for (val distP(dX,dY): Point(2) in TestDists) {
             val D: Dist{rank==4} = dist2.getDist(dX, R);
@@ -155,9 +155,7 @@ public class ArrayCopy3 extends x10Test {
         const CYCLIC: int = 1;
         const BLOCKCYCLIC: int = 2;
         const CONSTANT: int = 3;
-        const RANDOM: int = 4;
-        const ARBITRARY: int = 5;
-        const N_DIST_TYPES: int = 6;
+        const N_DIST_TYPES: int = 4;
 
         /**
          * Return a dist with region r, of type disttype
@@ -166,10 +164,8 @@ public class ArrayCopy3 extends x10Test {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r);
                 case CYCLIC: return Dist.makeCyclic(r);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 3);
+                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
-                case RANDOM: return Dist.makeRandom(r);
-                case ARBITRARY:return Dist.makeArbitrary(r);
                 default: throw new Error();
             }
         }

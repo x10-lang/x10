@@ -105,9 +105,9 @@ public class ArrayIndexing extends x10Test {
 		x10.io.Console.OUT.println("Generic arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
-	def verify1D(var array: Array[Generic]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var l1: int = array.dist.region.rank(0).low();
+	def verify1D(var array: Array[Generic](1)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var l1: int = array.dist.region.min(0);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i) {
 			array(i) = array(i);
@@ -120,11 +120,11 @@ public class ArrayIndexing extends x10Test {
 		}
 		return true;
 	}
-	def verify2D(var array: Array[Generic]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
+	def verify2D(var array: Array[Generic](2)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j) {
@@ -138,13 +138,13 @@ public class ArrayIndexing extends x10Test {
 			}
 		return true;
 	}
-	def verify3D(var array: Array[Generic]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[Generic](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -159,15 +159,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[Generic]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[Generic](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -184,13 +184,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[double]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high() ;
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[double](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -205,15 +205,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[double]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[double](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -230,13 +230,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[long]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high() ;
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[long](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -251,15 +251,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[long]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[long](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -276,13 +276,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[float]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high() ;
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[float](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2) ;
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -297,15 +297,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[float]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[float](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -322,13 +322,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[char]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high() ;
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[char](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2) ;
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -343,15 +343,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[char]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[char](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -368,13 +368,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[byte]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high() ;
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[byte](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2) ;
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -389,15 +389,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[byte]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[byte](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -414,13 +414,13 @@ public class ArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def verify3D(var array: Array[int]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
+	def verify3D(var array: Array[int](3)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -436,15 +436,15 @@ public class ArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[int]): boolean = {
-		var h1: int = array.dist.region.rank(0).high();
-		var h2: int = array.dist.region.rank(1).high();
-		var h3: int = array.dist.region.rank(2).high();
-		var h4: int = array.dist.region.rank(3).high();
-		var l1: int = array.dist.region.rank(0).low();
-		var l2: int = array.dist.region.rank(1).low();
-		var l3: int = array.dist.region.rank(2).low();
-		var l4: int = array.dist.region.rank(3).low();
+	def verify4D(var array: Array[int](4)): boolean = {
+		var h1: int = array.dist.region.max(0);
+		var h2: int = array.dist.region.max(1);
+		var h3: int = array.dist.region.max(2);
+		var h4: int = array.dist.region.max(3);
+		var l1: int = array.dist.region.min(0);
+		var l2: int = array.dist.region.min(1);
+		var l3: int = array.dist.region.min(2);
+		var l4: int = array.dist.region.min(3);
 		var count: int = 0;
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
@@ -462,66 +462,58 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def initialize(var array: Array[double]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[Generic]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = new Generic();
 			array(p).value = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[int]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[long]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[float]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = count++;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[byte]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = (count++) as byte;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as byte));
 		}
 	}
 	def initialize(var array: Array[char]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = (count++) as char;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(count as char));
 		}
 	}
 	def initialize(var array: Array[boolean]): void = {
-		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: Point in array.dist.region) {
+		for (val p: Point(array.rank) in array.dist.region) {
 			array(p) = 1 == (count++)%2;
 			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+(1 == count%2));
 		}
