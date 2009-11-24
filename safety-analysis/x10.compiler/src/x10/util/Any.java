@@ -22,6 +22,7 @@ import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
+import x10.effects.constraints.Effects;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -114,6 +115,7 @@ public class Any {
 		// property def loc():Place
         mi = xts.methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property().Global(), PLACE,
+        		Types.ref(Effects.makeSafe()), // no effects
         		Name.make("loc"), 
         		Collections.EMPTY_LIST, 
         		Collections.EMPTY_LIST, 
@@ -141,6 +143,7 @@ public class Any {
 	    List<LocalDef> parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
         mi = xts.methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
+        		Types.ref(Effects.makeSafe()), // no effects
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(OBJECT),
@@ -169,6 +172,7 @@ public class Any {
         parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
         mi = xts.methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Property(), BOOLEAN,
+        		Types.ref(Effects.makeSafe()), // no effects
         		Name.make("at"), 
         		Collections.EMPTY_LIST, 
         		Collections.<Ref<? extends Type>> singletonList(PLACE),

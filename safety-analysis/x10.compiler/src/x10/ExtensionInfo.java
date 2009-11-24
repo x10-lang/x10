@@ -49,7 +49,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PruningVisitor;
 import x10.ast.X10NodeFactory_c;
-import x10.effects.EffectsVisitor;
+import x10.effects.EffectComputer;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10.plugin.CompilerPlugin;
@@ -368,7 +368,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal EffectsCalculated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new VisitorGoal("CalculateEffects", job, new EffectsVisitor(job));
+    	   return new VisitorGoal("CalculateEffects", job, new EffectComputer(job, ts, nf));
        }
 
        public Goal PropagateAnnotations(Job job) {

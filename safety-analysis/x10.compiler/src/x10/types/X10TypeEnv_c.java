@@ -52,6 +52,8 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.effects.constraints.Effect;
+import x10.effects.constraints.Effects;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
 import x10.types.X10TypeSystem_c.Kind;
@@ -1904,5 +1906,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return X10MethodInstance_c.callValidImpl((X10ProcedureInstance<?>) prototype, thisType, argTypes, context);
     }
     
+    public Effect followedBy(Effect e1, Effect e2) throws XFailure {
+    	if (e1 == null) return e2;
+    	if (e2 == null) return e1;
+    	X10Context xc = (X10Context) context;
+    	return e1.followedBy(e2, xc.currentConstraint());
+    }
   
 }

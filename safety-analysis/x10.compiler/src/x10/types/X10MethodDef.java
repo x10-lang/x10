@@ -16,6 +16,7 @@ import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.constraint.XTerm;
+import x10.effects.constraints.Effect;
 
 public interface X10MethodDef extends MethodDef, X10ProcedureDef {
 
@@ -45,4 +46,6 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
      * @return
      */
     boolean isProto();
+    
+    Ref<? extends Effect> effect();
 }
