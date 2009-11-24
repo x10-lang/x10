@@ -70,13 +70,13 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
 	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
 	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
 
-	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo));
 	} else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
 	    X10ClosureObject closureObject= (X10ClosureObject) fTypeMap.get(n);
 
-	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo));
 	} else
-	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo);
+	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo);
     }
 
     public String toString() {
