@@ -11,9 +11,8 @@ import x10.constraint.XTerm;
  *
  */
 public class Effects {
-	public static boolean PAR_FUN = false;
-	public static boolean FUN = true;
-	public static Effect BOTTOM_EFFECT = new Effect_c(PAR_FUN);
+
+
 	/**
 	 * The code walker will create effects for sequential leaf statements by calling 
 	 * Factory.makeEffect(Factory.FUN),and will then add the XTerms picked up from the statement
@@ -23,10 +22,18 @@ public class Effects {
 	 * @param isFun
 	 * @return
 	 */
-	public static Effect makeEffect(boolean isFun) {
-		return new Effect_c(isFun);
+	public static Effect makeEffect(Safety s) {
+		return new Effect_c(s);
 	}
-	
+	public static Effect makeSafe() {
+		return makeEffect(Safety.SAFE);
+	}
+	public static Effect makeParSafe() {
+		return makeEffect(Safety.PAR_SAFE);
+	}
+	public static Effect makeUnsafe() {
+		return makeEffect(Safety.UNSAFE);
+	}
 	/**
 	 * Return an Obj designated by x. The caller must ensure
 	 * that x is a rigid term and its type is an object type.
@@ -94,7 +101,5 @@ public class Effects {
 		return new ArrayElementLocs_c(a, t);
 	}
 
-	public static Effect makeBottomEffect() {
-		return BOTTOM_EFFECT;
-	}
+
 }

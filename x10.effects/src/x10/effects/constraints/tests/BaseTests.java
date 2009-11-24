@@ -13,6 +13,7 @@ import x10.effects.constraints.Effect_c;
 import x10.effects.constraints.Effects;
 import x10.effects.constraints.FieldLocs;
 import x10.effects.constraints.LocalLocs;
+import x10.effects.constraints.Safety;
 
 /**
  * @author vj
@@ -38,12 +39,12 @@ public class BaseTests extends TestCase {
 	 */
 
 	public void test1() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);
+		Effect e1 = Effects.makeSafe(); 
 		e1.addRead(l1);
 		e1.addWrite(l2);
 		e1.addAtomicInc(l3);
 		
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe(); 
 		e2.addRead(l4);
 		
 		boolean result = e1.commutesWith(e2);
@@ -57,10 +58,10 @@ public class BaseTests extends TestCase {
 	 */
 
 	public void test2() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe(); 	
 		e1.addRead(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe(); 
 		e2.addRead(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -73,10 +74,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test3() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addWrite(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -88,10 +89,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test4() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addAtomicInc(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -104,10 +105,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test5() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addWrite(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -120,10 +121,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test6() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addWrite(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addWrite(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -136,10 +137,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test7() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addWrite(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addAtomicInc(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -152,10 +153,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test8() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addAtomicInc(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -168,10 +169,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test9() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addAtomicInc(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addWrite(l1);
 		
 		boolean result = e1.commutesWith(e2);
@@ -184,14 +185,14 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test10() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addAtomicInc(l1);
 
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addAtomicInc(l1);
 		
 		boolean result = e1.commutesWith(e2);
-		assertFalse(result);
+		assertTrue(result);
 		
 	}
 	
@@ -200,11 +201,11 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test11() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(l1);
 
 		Effect e = e1.exists(l1);
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 
 		boolean result = e.equals(e2);
 		assertTrue(result);
@@ -215,12 +216,12 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test12() throws Throwable {
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(l1);
 		e1.addRead(l2);
 
 		Effect e = e1.exists(l1);
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(l2);
 		boolean result = e.equals(e2);
 		assertTrue(result);
@@ -235,12 +236,12 @@ public class BaseTests extends TestCase {
 		FieldLocs Lf = Effects.makeFieldLocs(L, XTerms.makeName("f"));
 		XLocal M = XTerms.makeLocal(XTerms.makeName("M"));
 		FieldLocs Mf = Effects.makeFieldLocs(M, XTerms.makeName("f"));
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(Lf);
 
 		
 		Effect e = e1.exists(L, M);
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(Mf);
 
 		boolean result = e.equals(e2);
@@ -257,12 +258,12 @@ public class BaseTests extends TestCase {
 		ArrayElementLocs L1 = Effects.makeArrayElementLocs(L, XTerms.makeLit(1));
 		XLocal M = XTerms.makeLocal(XTerms.makeName("M"));
 		ArrayElementLocs M1 = Effects.makeArrayElementLocs(M, XTerms.makeLit(1));
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(L1);
 
 		
 		Effect e = e1.exists(L, M);
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(M1);
 
 		boolean result = e.equals(e2);
@@ -279,12 +280,12 @@ public class BaseTests extends TestCase {
 		XLocal Two = XTerms.makeLocal(XTerms.makeName("2"));
 		ArrayElementLocs L1 = Effects.makeArrayElementLocs(L, One);
 		ArrayElementLocs L2 = Effects.makeArrayElementLocs(L, Two);
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(L1);
 
 		
 		Effect e = e1.exists(One, Two);
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(L2);
 
 		boolean result = e.equals(e2);
@@ -298,14 +299,14 @@ public class BaseTests extends TestCase {
 		ArrayLocs L1 = Effects.makeArrayLocs(L);
 		LocalLocs Al = Effects.makeLocalLocs(A);
 		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		e1.addRead(L1);
 		e1.addRead(Al);
         e1.addWrite(LA);
 		
 		Effect e = e1.forall(A);
 		
-		Effect e2 = new Effect_c(Effects.FUN);
+		Effect e2 = Effects.makeSafe();
 		e2.addRead(L1);
 		e2.addRead(Al);
 		e2.addWrite(L1);
@@ -321,7 +322,7 @@ public class BaseTests extends TestCase {
 		ArrayLocs L1 = Effects.makeArrayLocs(L);
 		LocalLocs Al = Effects.makeLocalLocs(A);
 		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
-		Effect e1 = new Effect_c(Effects.FUN);	
+		Effect e1 = Effects.makeSafe();	
 		//e1.addRead(L1);
 		e1.addRead(Al);
         e1.addWrite(LA);
