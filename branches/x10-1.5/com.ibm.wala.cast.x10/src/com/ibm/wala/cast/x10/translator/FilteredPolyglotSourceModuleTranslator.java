@@ -17,6 +17,6 @@ public class FilteredPolyglotSourceModuleTranslator extends PolyglotSourceModule
     @Override
     protected boolean skipSourceFile(SourceFileModule entry) {
 	String path= entry.getAbsolutePath();
-	return (new File(path.replace(".java", ".x10")).exists());
+	return path.endsWith(".java") && (new File(path.replace(".java", ".x10")).exists());
     }
 }
