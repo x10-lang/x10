@@ -17,28 +17,33 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 /**
- * (Skeleton as of now)
+ * A representation of an Effect.
+ * An Effect carries two bits of information: a safety field which specifies whether it is SAFE, UNSAFE or PAR_SAFE, and
+ * read, write and atomicInc sets.
+ * 
+ * The design has been changed so that effect sets are carried as precisely as possible.
+ * A bottom effect would correspond to an unsafe that reads everything and writes everything. Commutes with nothing.
+ * Partial order: UNSAFE <= SAFE, PAR_SAFE and reverse inclusion of each set.
+ * 
  * @author vj 05/13/09
  *
  */
 public class Effect_c implements Effect {
 
 	protected Set<Locs> readSet, writeSet, atomicIncSet;
-	protected boolean isFun;
+	protected Safety safety;
 
-	public Effect_c(boolean b) {
-		isFun = b;
+	public Effect_c(Safety s) {
+		safety = s;
 		readSet = new HashSet<Locs>();
 		writeSet = new HashSet<Locs>();
 		atomicIncSet = new HashSet<Locs>();
 	}
 	
 	public Effect_c clone() {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
 		try {
 			Effect_c result = (Effect_c) super.clone();
-			result.isFun=isFun;
+			result.safety = safety;
 			result.readSet = new HashSet<Locs>();
 			result.readSet.addAll(readSet());
 
@@ -147,8 +152,8 @@ public class Effect_c implements Effect {
         if (pairs != null && !pairs.isEmpty()) {
             result= new HashSet<Pair<Effect,Effect>>();
             for(Pair<Locs,Locs> p: pairs) {
-                Effect e1= Effects.makeEffect(true);
-                Effect e2= Effects.makeEffect(true);
+                Effect e1= Effects.makeEffect(Safety.SAFE);
+                Effect e2= Effects.makeEffect(Safety.SAFE);
 
                 pop.populateEffect(p, e1, e2);
                 result.add(new Pair<Effect,Effect>(e1, e2));
@@ -169,7 +174,7 @@ public class Effect_c implements Effect {
     }
 
     public boolean commutesWith(Effect e, XConstraint c) {
-        if (this == Effects.BOTTOM_EFFECT || e == Effects.BOTTOM_EFFECT)
+        if (unsafe() || e.unsafe())
             return false;
         final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
         final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
@@ -187,7 +192,7 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect, x10.constraint.XConstraint)
 	 */
 	public Set<Pair<Effect,Effect>> interferenceWith(Effect e, XConstraint c) {
-		if (this == Effects.BOTTOM_EFFECT || e == Effects.BOTTOM_EFFECT)
+		if (unsafe() || e.unsafe())
 			return null;
 		final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
 		final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
@@ -276,7 +281,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar, x10.constraint.XConstraint)
 	 */
 	public boolean commutesWithForall(XLocal x, XConstraint c) {
-		if (this == Effects.BOTTOM_EFFECT)
+		if (unsafe())
 			return false;
 
 		Pair<XLocal,Effect> p1 = freshSubst(x), p2 = freshSubst(x);
@@ -293,7 +298,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public Set<Pair<Effect,Effect>> interferenceWithForall(XLocal x, XConstraint c) {
-        if (this == Effects.BOTTOM_EFFECT)
+        if (unsafe())
             return EMPTY_INTERFERENCE;
 
         Pair<XLocal,Effect> p1 = freshSubst(x), p2 = freshSubst(x);
@@ -336,7 +341,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
-        if (this == Effects.BOTTOM_EFFECT)
+        if (unsafe())
             return false;
 
         List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
@@ -352,7 +357,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public Set<Pair<Effect,Effect>> interferenceWithForall(List<XLocal> xs, XConstraint c) {
-        if (this == Effects.BOTTOM_EFFECT)
+        if (unsafe())
             return EMPTY_INTERFERENCE;
 
         List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
@@ -363,9 +368,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public Effect substitute(XTerm t, XRoot r) {
-		if (this==Effects.BOTTOM_EFFECT)
-			return this;
-		Effect_c result = new Effect_c(isFun());
+		Effect_c result = new Effect_c(safety);
 		for (Locs l : readSet()) {
 			result.readSet().add(l.substitute(t,r));
 		}
@@ -379,8 +382,6 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public Effect exists(LocalLocs x) {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
 		Effect_c result = clone();
 		result.readSet().remove(x);
 		result.writeSet().remove(x);
@@ -391,9 +392,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#exists(x10.constraint.XVar)
 	 */
 	public Effect exists(XLocal x, XTerm t) {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
-		Effect_c result = new Effect_c(isFun());
+		Effect_c result = new Effect_c(safety);
 		for (Locs l : readSet()) {
 			if (l.equals(x)) 
 				continue;
@@ -416,11 +415,10 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#followedBy(x10.effects.constraints.Effect, x10.constraint.XConstraint)
 	 */
 	public Effect followedBy(Effect e, XConstraint c)  {
-		if (! isFun()) {
-			if (!commutesWith(e, c))
-				return Effects.BOTTOM_EFFECT;
-		}
-		return union(e);
+		Effect_c result = (Effect_c) union(e);
+		if (parSafe() && ! commutesWith(e, c))
+			result.safety = Safety.UNSAFE;
+		return result;
 	}
 
 	static private void generalize(Set<Locs> s, XVar x) {
@@ -440,8 +438,6 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#forall(x10.constraint.XVar)
 	 */
 	public Effect forall(XLocal x) {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
 		Effect_c result = clone();
 		generalize(result.readSet(), x);
 		generalize(result.writeSet(), x);
@@ -450,31 +446,20 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	/* (non-Javadoc)
-	 * @see x10.effects.constraints.Effect#isFun()
-	 */
-	public boolean isFun() {
-		return isFun;
-	}
-
-	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#makeFun()
 	 */
-	public Effect makeFun() {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
+	public Effect makeSafe() {
 		Effect_c result = clone();
-		result.isFun = Effects.FUN;
+		result.safety = unsafe() ? Safety.UNSAFE : Safety.SAFE;
 		return result;
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#makeParFun()
 	 */
-	public Effect makeParFun() {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
+	public Effect makeParSafe() {
 		Effect_c result = clone();
-		result.isFun = Effects.PAR_FUN;
+		result.safety = unsafe() ? Safety.UNSAFE : Safety.PAR_SAFE;
 		return result;
 	}
 
@@ -491,25 +476,19 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public Set<Locs> writeSet() {
 		return writeSet;
 	}
-	 public void addRead(Locs t) {
-		 if (this == Effects.BOTTOM_EFFECT) return;
-			 readSet.add(t);
+	public void addRead(Locs t) {
+		readSet.add(t);
 	}
 	public void addWrite(Locs t) {
-		if (this == Effects.BOTTOM_EFFECT) return;
 		writeSet.add(t);
 	}
 	public void addAtomicInc(Locs t) {
-		if (this == Effects.BOTTOM_EFFECT) return;
 		atomicIncSet.add(t);
 	}
 
 	public Effect union(Effect e) {
-		if (this == Effects.BOTTOM_EFFECT)
-			return this;
-		if (e == Effects.BOTTOM_EFFECT)
-		    return e;
 		Effect_c result = clone();
+		result.safety = safety.lub(e.safety());
 		result.readSet.addAll(e.readSet());
 		result.writeSet.addAll(e.writeSet());
 		result.atomicIncSet.addAll(e.atomicIncSet());
@@ -518,9 +497,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
 
     @Override
     public String toString() {
-    	if (this == Effects.BOTTOM_EFFECT)
-    		return "BOTTOM_EFFECT";
         StringBuilder sb= new StringBuilder();
+        sb.append(safety.toString());
         sb.append("{ r: ");
         sb.append(readSet.toString());
         sb.append(", w: ");
@@ -532,7 +510,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
     }
     @Override
     public int hashCode() {
-    	return (isFun()? 0: 1) + readSet().hashCode() + writeSet().hashCode()
+    	return readSet().hashCode() + writeSet().hashCode()
     	+ atomicIncSet().hashCode();
     }
     @Override
@@ -540,10 +518,13 @@ public boolean commutesWith(Effect e, XConstraint c) {
     	if (this == other) return true;
     	if (! (other instanceof Effect_c)) return false;
     	Effect_c o = (Effect_c) other;
-    	return isFun() == o.isFun()
-    	&& readSet().equals(o.readSet())
+    	return readSet().equals(o.readSet())
     	&& writeSet().equals(o.writeSet())
     	&& atomicIncSet().equals(o.atomicIncSet());
     	
     }
+    public boolean safe() { return safety == Safety.SAFE;}
+    public boolean unsafe() { return safety == Safety.UNSAFE;}
+    public boolean parSafe() { return safety == Safety.PAR_SAFE;}
+    public Safety safety() { return safety;}
 }

@@ -34,7 +34,7 @@ public interface Effect extends Cloneable {
 	 * 
 	 * @return true if this effect is associated with an @fun, false if it is associated with @parfun.
 	 */
-	boolean isFun();
+//	boolean isFun();
 
 	Set<Locs> readSet();
 	Set<Locs> writeSet();
@@ -155,13 +155,13 @@ public interface Effect extends Cloneable {
 	 * If this is @parfun(r,w,a) or @fun(r,w,a), return @parfun(r,w,a)
 	 * @return
 	 */
-	Effect makeParFun();
+	// Effect makeParFun();
 	
 	/**
 	 * If this is @parfun(r,w,a) or @fun(r,w,a), return @fun(r,w,a)
 	 * @return
 	 */
-	Effect makeFun();
+	//Effect makeFun();
 	
 	/**
 	 * Add t to the read set for this. Modified in place.
@@ -181,4 +181,10 @@ public interface Effect extends Cloneable {
 	
 	Effect substitute(XTerm t, XRoot r);
 	Pair<XLocal,Effect> freshSubst(XLocal x);
+	boolean safe();
+	boolean unsafe();
+	boolean parSafe();
+	Safety safety();
+	Effect makeSafe();
+	Effect makeParSafe();
 }
