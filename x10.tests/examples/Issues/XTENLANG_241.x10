@@ -9,9 +9,9 @@ import harness.x10Test;
 
 public class XTENLANG_241 extends x10Test {
 
-    public def $minus(): XTENLANG_241 = this;
+    public operator - this: XTENLANG_241! = this;
     
-    public def bar(p: XTENLANG_241) {
+    public def bar(p: XTENLANG_241!) {
         val q = -p;
     }
     

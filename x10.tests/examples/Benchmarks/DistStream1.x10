@@ -34,17 +34,19 @@ public class DistStream1 extends Benchmark {
 
     public def once() {
         finish for (var p:int=0; p<PARALLELISM; p++) {
-            val a = as(p);
-            val b = bs(p);
-            val c = cs(p);
-            async (Place.place(p)) {
+            val pl = Place.place(p);
+            val a = as(p) as Rail[double]!pl;
+            val b = bs(p) as Rail[double]!pl;
+            val c = cs(p) as Rail[double]!pl;
+            async (pl) {
                 for (var tt:int=0; tt<NUM_TIMES; tt++) // XTENLANG-311
                     for (var i:int=0; i<localSize; i++)
                         a(i) = b(i) + gamma*c(i);
             }
         }
-        val a = as(1);
-        return at (Place.place(1)) a(1);
+        val p1 = Place.place(1);
+        val a = as(1) as Rail[double]!p1;
+        return at (p1) a(1);
     }
 
     //

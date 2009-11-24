@@ -19,8 +19,8 @@ public class TypeElaborationAcrossCompilationUnits extends x10Test {
 
 	
 	public def run(): boolean = {
-		var t: Temp = new Temp();
-		var b: Region{rank==3} = t.m([1..10, 1..10, 1..10]);
+		var t: Temp! = new Temp();
+		var b: Region{rank==3} = t.m([1..10, 1..10, 1..10] as Region{rank==3});
 		return true;
 	}
 	

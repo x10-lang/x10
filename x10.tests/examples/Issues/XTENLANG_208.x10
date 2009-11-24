@@ -9,7 +9,7 @@ import harness.x10Test;
 
 public class XTENLANG_208 extends x10Test {
 
-    public def $plus(that: XTENLANG_208) = this;
+    public operator this + (that: XTENLANG_208) = this;
     
     def foo() {
         val sum = this + this;

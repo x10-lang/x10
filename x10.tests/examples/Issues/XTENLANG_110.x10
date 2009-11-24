@@ -13,11 +13,11 @@ class XTENLANG_110 extends x10Test {
     
     class D extends C {}
     
-    class CS {
+    class CS implements Iterable[C] {
         incomplete public def iterator(): Iterator[C];
     }
     
-    class DS {
+    class DS implements Iterable[D] {
         incomplete public def iterator(): Iterator[D];
     }
     

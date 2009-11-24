@@ -5,9 +5,10 @@
  *  This file is part of X10 Test.
  *
  */
-import x10.util.HashSet;
-import x10.util.Set;
 import harness.x10Test;
+
+import x10.util.Set;
+import x10.util.HashSet;
 
 /**
  * Testing block dist.
@@ -28,32 +29,31 @@ import harness.x10Test;
  */
 public class BlockDistWithPlaceSet extends x10Test {
 
-	public const P: Dist = Dist.makeUnique();
-	public const COUNT: int = 200;
-	public const L: int = 5;
+	public const P = Dist.makeUnique();
+	public const COUNT = 200;
+	public const L = 5;
 
 	public def run(): boolean = {
-		for (val (tries): Point in [1..COUNT]) {
+		for (val (tries): Point in 1..COUNT) {
 			val lb1: int = ranInt(-L, L);
 			val lb2: int = ranInt(-L, L);
 			val ub1: int = ranInt(lb1, L);
 			val ub2: int = ranInt(lb2, L);
-			val R: Region = [lb1..ub1, lb2..ub2];
+			val R = [lb1..ub1, lb2..ub2] as Region;
+			val totalPoints = (ub1-lb1+1)*(ub2-lb2+1);
+			val r = createRandPlaceSet();
+			val np = r.np;
+			val placeNums = r.placeNums;
+			val placeSet  = r.placeSet;
 
-			val r: randPlaceSet = createRandPlaceSet();
-			val np: int = r.np;
-			val placeNums: Array[int] = r.placeNums;
-			val placeSet: Set = r.placeSet;
-
-			val DBlock: Dist = Dist.makeBlock(R, 0, placeSet);
-			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
+			val DBlock = Dist.makeBlock(R, 0, placeSet);
 			val p: int = totalPoints/np;
 			val q: int = totalPoints%np;
 			var offsWithinPlace: int = 0;
 			var pn: int = 0;
 			//x10.io.Console.OUT.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
 
-			for (val (i,j): Point in R) {
+			for (val (i,j): Point(2) in R) {
 				//x10.io.Console.OUT.println("placeNum = "+placeNums[pn]+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock[i,j].id);
 				chk(DBlock(i, j) == P(placeNums(pn)));
 				chk(P(placeNums(pn)).id == placeNums(pn));
@@ -73,9 +73,9 @@ public class BlockDistWithPlaceSet extends x10Test {
 	 */
 	static class randPlaceSet {
 		val np: int;
-		val placeSet: Set;
-		val placeNums: Array[int];
-		def this(var n: int, var a: Array[int], var s: Set): randPlaceSet = {
+		val placeSet: Set[Place]!;
+		val placeNums: Rail[Int]!;
+		def this(n: int, a: Rail[Int]!, s: Set[Place]): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;
@@ -85,15 +85,14 @@ public class BlockDistWithPlaceSet extends x10Test {
 	/**
 	 * Create a random, non-empty subset of the places
 	 */
-	def createRandPlaceSet(): randPlaceSet = {
-		var placeSet: Set;
+	def createRandPlaceSet(): randPlaceSet! = {
+		val placeSet: Set[Place] = new HashSet[Place]();
 		var np: int;
-		var placeNums: Array[int] = Array.make[int](Place.MAX_PLACES);
+		val placeNums = Rail.make[int](Place.MAX_PLACES);
 		do {
 			np = 0;
-			placeSet = new HashSet();
 			val THRESH: int = ranInt(10, 90);
-			for (val (i): Point in P) {
+			for (val (i): Point(1) in P) {
 				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
 					placeSet.add(P(i));

@@ -41,7 +41,7 @@ public class RegionBoundingBox extends x10Test {
         chk(R1orR2BoundingBox.equals([0..5, 0..7]));
         val R1orR2andR3: Region{rank==2} = R1orR2 && R3;
         pr("R1orR2andR3", R1orR2andR3);
-        chk(R1orR2andR3.equals([0..1, 4..5] || [4..5, 4..5]));
+        chk(R1orR2andR3.equals(([0..1, 4..5] as Region{rank==2}) || [4..5, 4..5]));
         chk(R1orR2.contains(R1orR2andR3) && R3.contains(R1orR2andR3));
         chk(!R1orR2andR3.isConvex());
         val R1orR2andR3BoundingBox: Region{rank==2} = R1orR2andR3.boundingBox() as Region{rank==2};
@@ -50,7 +50,7 @@ public class RegionBoundingBox extends x10Test {
         chk(R1orR2andR3BoundingBox.equals([0..5, 4..5]));
         val R1orR2orR3: Region{rank==2} = R1 || R2 || R3;
         pr("R1orR2orR3", R1orR2orR3);
-        chk(R1orR2orR3.equals([0..1, 0..7] || [4..5, 0..7] || [2..3, 4..5] || [6..7, 4..5]));
+        chk(R1orR2orR3.equals(([0..1, 0..7] as Region{rank==2}) || [4..5, 0..7] || [2..3, 4..5] || [6..7, 4..5]));
         chk(R1orR2orR3.contains(R1) && R1orR2orR3.contains(R2) && R1orR2orR3.contains(R3));
         chk(!R1orR2orR3.isConvex());
         val R1orR2orR3BoundingBox: Region = R1orR2orR3.boundingBox();
@@ -60,14 +60,14 @@ public class RegionBoundingBox extends x10Test {
         chk(R1orR2orR3BoundingBox.equals([0..7, 0..7]));
         val R1orR2minusR3: Region{rank==2} = R1orR2 - R3;
         pr("R1orR2minusR3", R1orR2minusR3);
-        chk(R1orR2minusR3.equals([0..1, 0..3] || [0..1, 6..7] || [4..5, 0..3] || [4..5, 6..7]));
+        chk(R1orR2minusR3.equals(([0..1, 0..3] as Region{rank==2}) || [0..1, 6..7] || [4..5, 0..3] || [4..5, 6..7]));
         chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
         chk(!R1orR2minusR3.isConvex());
         val R1orR2minusR3BoundingBox: Region{rank==2} = R1orR2minusR3.boundingBox() as Region{rank==2};
         pr("R1orR2minusR3BoundingBox", R1orR2minusR3BoundingBox);
         chk(R1orR2minusR3BoundingBox.isConvex());
         chk(R1orR2minusR3BoundingBox.equals([0..5, 0..7]));
-        val R4: Region{rank==2} = ([0..0, 4..4] || [1..1, 3..3] || [5..5, 2..2] || [3..3, 6..6]);
+        val R4: Region{rank==2} = (([0..0, 4..4] as Region{rank==2}) || [1..1, 3..3] || [5..5, 2..2] || [3..3, 6..6]);
         pr("R4", R4);
         val R4boundingBox: Region{rank==2} = R4.boundingBox() as Region{rank==2};
         pr("R4boundingBox", R4boundingBox);

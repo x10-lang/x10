@@ -38,7 +38,7 @@ public class PlaceCheckRail extends x10Test {
 
     public def run03(): boolean {
 
-        val r = ValRail.make[int](3);
+        val r = ValRail.make[int](3, (Int)=>0);
 
         try {
             (future (Place.places(1)) r(0)).force();
@@ -51,7 +51,7 @@ public class PlaceCheckRail extends x10Test {
 
     public def run04(): boolean {
 
-        val r = (future (Place.places(1)) ValRail.make[int](3)).force();
+        val r = (future (Place.places(1)) ValRail.make[int](3, (Int)=>0)).force();
 
         try {
             r(0);

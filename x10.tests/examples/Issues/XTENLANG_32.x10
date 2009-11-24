@@ -12,7 +12,7 @@ class XTENLANG_32 extends x10Test {
     def foo(x: (nat)=>int) = x(0);
     
     public def run():boolean {
-        val r = ValRail.make[int](2); // same problem with literal [1.2]
+        val r = [1,2];
         foo(r);
         return true;
     }

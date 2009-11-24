@@ -11,4 +11,5 @@ public abstract class MapSet[T] extends AbstractCollection[T] implements Set[T] 
     public def add(v: T): Boolean = map.put(v, true) == null;
     public def remove(v: T): Boolean = map.remove(v) != null;
     public def clear(): Void = map.clear();    
+    public def iterator(): Iterator[T] = map.keySet().iterator();    
 }

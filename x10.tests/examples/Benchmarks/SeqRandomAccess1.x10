@@ -93,7 +93,7 @@ class SeqRandomAccess1 extends Benchmark {
             randomAccessUpdate(tables);
             var errors:int = 0;
             for (var p:int=0; p<PARALLELISM; p++) {
-                val table = tables(p);
+                val table = tables(p) as LocalTable!;
                 for (var j:int=0; j<table.a.length; j++)
                     if (table.a(j) != j)
                         errors++;

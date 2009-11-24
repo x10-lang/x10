@@ -75,7 +75,7 @@ class ParRandomAccess1 extends Benchmark {
                 for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
                     val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
                     val valran = ran;
-                    val table = tables(placeId);
+                    val table = tables(placeId) as LocalTable!;
                     table.update(valran);
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -96,7 +96,7 @@ class ParRandomAccess1 extends Benchmark {
             randomAccessUpdate(tables);
             var errors:int = 0;
             for (var p:int=0; p<PARALLELISM; p++) {
-                val table = tables(p);
+                val table = tables(p) as LocalTable!;
                 for (var j:int=0; j<table.a.length; j++)
                     if (table.a(j) != j)
                         errors++;

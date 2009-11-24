@@ -15,7 +15,7 @@ class XTENLANG_240 extends x10Test {
         final public def apply(i0:int) = 0;
     }
         
-    def foo(a:A) {
+    def foo(a:A!) {
         for (var i:int=0; i<0; i++)
             a(i) = 0.0;
     }

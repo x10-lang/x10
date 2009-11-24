@@ -11,12 +11,12 @@ class XTENLANG_51 extends x10Test {
 
     // standin for Region
     static public class R {
-        incomplete public static def $convert(rs: ValRail[R]): R;
-        incomplete public def $or(r:R):R;
+        incomplete public static operator (rs: ValRail[R!]): R!;
+        incomplete public operator this || (r:R!):R!;
     }
     
     // standin for val r:Region = [a..b, c..d]
-    val r:R = [new R(), new R()];
+    val r:R! = [new R(), new R()];
     
     // this works as expected
     val w = r || r;

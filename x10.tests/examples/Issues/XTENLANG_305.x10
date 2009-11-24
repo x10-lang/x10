@@ -14,7 +14,7 @@ class XTENLANG_305 extends x10Test {
         public def apply(i:int, j:int, k:int): T = 0 as T;
     }
 
-    def foo(a:A[double]) {
+    def foo(a:A[double]!) {
         a(0,0,0)++;
     }
 

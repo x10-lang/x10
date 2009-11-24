@@ -9,7 +9,7 @@ import harness.x10Test;
 
 public class XTENLANG_209 extends x10Test {
 
-    public def $plus(c: int) = this;
+    public operator this + (c: int) = this;
     
     public def run():boolean {
         val i = 0;

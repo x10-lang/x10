@@ -9,13 +9,13 @@ import harness.x10Test;
 
 class XTENLANG_109 extends x10Test {
 
-    class R(zb:boolean) {
+    static class R(zb:boolean) {
     
         def this(zb:boolean) = property(zb);
     
-        incomplete static def m(min:int, max:int): R{zb==(min==0)};
+        incomplete static def m(min:int, max:int): R{self.zb==(min==0)};
     
-        static def make(min:int, max:int): R{zb==(min==0)} {
+        static def make(min:int, max:int): R{self.zb==(min==0)} {
             return m(min, max);
             //return m(min, max) as R{zb==(min==0)}; // this doesn't work either
         }

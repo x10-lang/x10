@@ -22,7 +22,7 @@ class XTENLANG_118 extends x10Test {
         }
 
         class UR extends R {
-            def this(rs: PRL) { super(rs.rank); val regions: Rail[R(rank)] = rs.toArray(); }
+            def this(rs: PRL!) { super(rs.rank); val regions: Rail[R(rs.rank)] = rs.toArray(); }
         }
     }    
 

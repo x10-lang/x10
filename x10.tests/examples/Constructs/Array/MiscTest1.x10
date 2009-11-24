@@ -75,25 +75,25 @@ public class MiscTest1 extends x10Test {
         }
 
         // test scan
-        val y: Array[int]{dist==D} = x.scan(intArray.add, 0);
+        val y: Array[int]{dist==D} = x.scan(Int.+, 0);
 
         // y[i] == x[i]+y[i-1], for i>0
         finish {
             ateach (pi(i) in D) {
-                val pi1: Point = [i-1];
+                val pi1: Point(1) = [i-1];
                 chk(y(pi) == x(pi) + (i == 0 ? 0 : (future(D(pi1)) y(pi1)).force()));
                 chk(y(i) == x(i) + (i == 0 ? 0 : (future(D(i-1)) y(i-1)).force()));
             }
         }
 
         // y[NP-1] == SUM(x[0..NP-1])
-        val pNP_1: Point = [NP-1];
+        val pNP_1: Point(1) = [NP-1];
 
         chk(sum == (future(D(pNP_1)) y(pNP_1)).force());
         chk(sum == (future(D(NP-1)) y(NP-1)).force());
 
         // test lift
-        val z: Array[int]{dist==D} =  x.lift(intArray.add, y) as Array[int]{dist==D};
+        val z: Array[int]{dist==D} =  x.lift(Int.+, y) as Array[int]{dist==D};
 
         finish ateach (val pi in D) chk(z(pi) == x(pi) + y(pi));
 

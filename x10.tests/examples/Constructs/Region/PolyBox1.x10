@@ -19,16 +19,16 @@ class PolyBox1 extends TestRegion {
         prArray("r3", r3, true);
         pr("r3.boundingBox().equals(r3) checks " + r3.boundingBox().equals(r3));
 
-        val r12 = r1.$or(r2);
+        val r12 = r1 || r2;
         prArray("r12", r12, true);
 
         val r12b = r12.boundingBox();
         prArray("r12b", r12b, true);
         pr("r12b.equals(r(0,5,0,7)) checks " + r12b.equals(r(0,5,0,7)));
 
-        val r12a3 = r12.$and(r3);
+        val r12a3 = r12 && r3;
         prArray("r12a3", r12a3, true);
-        val r12a3x = r(0,1,4,5).$or(r(4,5,4,5));
+        val r12a3x = r(0,1,4,5) || r(4,5,4,5);
         prArray("r12a3x", r12a3x, true);
         pr("r12a3.equals(r12a3x) checks " + r12a3.equals(r12a3x));
         pr("r12.contains(r12a3) checks " + r12.contains(r12a3));
@@ -38,9 +38,9 @@ class PolyBox1 extends TestRegion {
         prArray("r12a3b", r12a3b, true);
         pr("r12a3b.equals(r(0,5,4,5)) checks " + r12a3b.equals(r(0,5,4,5)));
 
-        val r123 = r1.$or(r2).$or(r3);
+        val r123 = r1 || r2 || r3;
         prArray("r123", r123, true);
-        val r123x = r(0,1,0,7).$or(r(4,5,0,7)).$or(r(2,3,4,5)).$or(r(6,7,4,5));
+        val r123x = r(0,1,0,7) || r(4,5,0,7) || r(2,3,4,5) || r(6,7,4,5);
         prArray("r123x", r123x, true);
         pr("r123.equals(r123x) checks " + r123.equals(r123x));
         pr("r123.contains(r1) checks " + r123.contains(r1));
@@ -51,9 +51,9 @@ class PolyBox1 extends TestRegion {
         prArray("r123b", r123b, true);
         pr("r123b.equals(r(0,7,0,7)) checks " + r123b.equals(r(0,7,0,7)));
 
-        val r12m3 = r12.$minus(r3);
+        val r12m3 = r12 - r3;
         prArray("r12m3", r12m3, true);
-        val r12m3x = r(0,1,0,3).$or(r(0,1,6,7)).$or(r(4,5,0,3)).$or(r(4,5,6,7));
+        val r12m3x = r(0,1,0,3) || r(0,1,6,7) || r(4,5,0,3) || r(4,5,6,7);
         pr("r12m3.equals(r12m3x) checks " + r12m3.equals(r12m3x));
         pr("r12.contains(r12m3) checks " + r12.contains(r12m3));
         pr("r12m3.disjoint(r3) checks " + r12m3.disjoint(r3));
@@ -62,14 +62,14 @@ class PolyBox1 extends TestRegion {
         prArray("r12m3b", r12m3b, true);
         pr("r12m3b.equals(r(0,5,0,7)) checks " + r12m3b.equals(r(0,5,0,7)));
 
-        val r4 = r(0,0,4,4).$or(r(1,1,3,3)).$or(r(5,5,2,2)).$or(r(3,3,6,6));
+        val r4 = r(0,0,4,4) || r(1,1,3,3) || r(5,5,2,2) || r(3,3,6,6);
         prArray("r4", r4, true);
 
         val r4b = r4.boundingBox();
         prArray("r4b", r4b, true);
         pr("r4b.equals(r(0,5,2,6)) checks " + r4b.equals(r(0,5,2,6)));
 
-        val r1a2 = r1.$and(r2);
+        val r1a2 = r1 && r2;
         prArray("r1a2", r1a2, true);
         pr("r1a2.isEmpty() checks " + r1a2.isEmpty());
 

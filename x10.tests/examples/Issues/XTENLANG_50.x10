@@ -11,14 +11,14 @@ class XTENLANG_50 extends x10Test {
 
     static class R(rank:nat) {
     
-        public static def make(val rs: ValRail[R]): R{rank==rs.length} {
-            return new R(rs.length) as R{rank==rs.length};
+        public static def make(val rs: ValRail[R]): R{self.rank==rs.length} {
+            return new R(rs.length) as R{self.rank==rs.length};
         }
     
-        public static def $convert(rs: ValRail[R]) = make(rs);
+        public static operator (rs: ValRail[R]) = make(rs);
     
         // workaround: declare return type explicitly
-        //public static def $convert(rs: ValRail[R]): R{rank==rs.length} = make(rs);
+        //public static operator (rs: ValRail[R]): R{self.rank==rs.length} = make(rs);
     
         def this(rank:nat) = property(rank);
     }
@@ -26,6 +26,7 @@ class XTENLANG_50 extends x10Test {
     val x: R{rank==2} = [new R(1), new R(1)];
 
     // this doesn't work either, i.e. problem isn't with automatic conversion
+    // FIXME: this is old syntax
     //val x: R{rank==2} = R.$convert([new R(1), new R(1)]);
 
     public def run(): boolean {
