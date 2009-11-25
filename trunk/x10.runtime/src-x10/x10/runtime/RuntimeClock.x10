@@ -16,7 +16,11 @@ public class RuntimeClock extends Clock {
 
 	public const FIRST_PHASE = 1;
 	
-    public static def make(name:String):Clock = new RuntimeClock(name).init();
+    public static def make(name:String):Clock {
+    	val clock = new RuntimeClock(name);
+		Runtime.clockPhases().put(clock, FIRST_PHASE);
+		return clock;
+	}
 
 	private var count:Int = 1;
 	private var alive:Int = 1;
@@ -25,11 +29,6 @@ public class RuntimeClock extends Clock {
     private def this(name:String) {
         super(name);
     }
-
-	private def init() {
-		put(phase);
-		return this;
-	}
 
     private global def get() = Runtime.clockPhases().get(this) as Int;
 
