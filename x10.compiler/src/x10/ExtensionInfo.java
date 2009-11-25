@@ -283,7 +283,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckNativeAnnotations(job));
            goals.add(InnerClassRemover(job));
            goals.add(Desugarer(job));
-           goals.add(Optimizer(job));
+           goals.addAll(Optimizer.goals(this, job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -449,12 +449,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
-       }
-       
-       public Goal Optimizer(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new Optimizer(job).intern(this);
        }
        
        public Goal InnerClassRemover(Job job) {

@@ -33,6 +33,7 @@ import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
 import x10.ast.X10NodeFactory_c;
+import x10.optimizations.Optimizer;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10InnerClassRemover;
@@ -180,16 +181,19 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		    }
 		}
 		@Override
-        public List<Goal> goals(Job job) {
-            List<Goal> res = super.goals(job);
-            InnerClassesRemoved(job).addPrereq(Serialized(job));
-            InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
-            StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
-            CodeGenerated(job).addPrereq(NewCodeGenBarrier());
-            CodeGenerated(job).addPrereq(Desugarer(job));
-            CodeGenerated(job).addPrereq(Optimizer(job));
-            return res;
-        }
+		public List<Goal> goals(Job job) {
+		    List<Goal> res = super.goals(job);
+		    InnerClassesRemoved(job).addPrereq(Serialized(job));
+		    InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
+		    StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
+		    CodeGenerated(job).addPrereq(NewCodeGenBarrier());
+		    CodeGenerated(job).addPrereq(Desugarer(job));
+		    List<Goal> optimizations = Optimizer.goals(this, job);
+		    for (Goal goal : optimizations) {
+		        CodeGenerated(job).addPrereq(goal);
+		    }
+		    return res;
+		}
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)
