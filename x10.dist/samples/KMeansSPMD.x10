@@ -66,7 +66,7 @@ public class KMeansSPMD {
                     val new_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
                     val cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
-                    for (var iter:Int=0 ; iter<ITERATIONS && !finished.get() ; iter++) {
+                    for (var iter:Int=0 ; iter<ITERATIONS && !finished() ; iter++) {
 
                         Console.OUT.println("Iteration: "+iter);
 
@@ -136,7 +136,6 @@ public class KMeansSPMD {
                         next;
 
                         if (here == central_clusters.location) {
-                            val finished3 = finished as Cell[Boolean]!;
 
                             for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
                                 for (var d:Int=0 ; d<DIM ; ++d) { 
@@ -146,10 +145,10 @@ public class KMeansSPMD {
 
                             // TEST FOR CONVERGENCE
                             var b:Boolean = true;
-                            finished3.set(true);
+                            finished(true);
                             for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) { 
                                 if (Math.abs(central_clusters_old(j)-central_clusters(j))>0.0001) {
-                                    finished3.set(false);
+                                    finished(false);
                                     break;
                                 }
                             }
