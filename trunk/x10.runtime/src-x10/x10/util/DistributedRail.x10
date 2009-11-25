@@ -20,7 +20,8 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     global val done = PlaceLocalStorage.createDistributedObject[Cell[Boolean]](Dist.makeUnique(), ()=>new Cell[Boolean](false));
 
-    public def this (len:Int, vr:ValRail[T]) {
+    public def this (len:Int, init:ValRail[T]) {
+        val vr = ValRail.make(len, init);
         data = PlaceLocalStorage.createDistributedObject[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
         firstPlace = here;
         original = vr;
