@@ -37,7 +37,7 @@ public class System {
     // FIXME: this ought to be in ValRail but @Native system does not allow this
     static public def copyTo[T] (src:ValRail[T], src_off:Int, dst:Rail[T], dst_off:Int, len:Int) {
         // could be further optimised to send only the part of the valrail needed
-        at (dst.location) {
+        at (dst) {
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
             for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = src(src_off+i);
@@ -67,7 +67,7 @@ public class System {
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
-        at (dst.location) {
+        at (dst) {
             //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
             for (var i:Int=0 ; i<len ; ++i) {
                 dst(dst_off+i) = to_serialize(src_off+i);
@@ -147,7 +147,7 @@ public class System {
     public static def copyTo[T] (src:Rail[T]!, src_off:Int, dst:Rail[T], dst_off:Int,
                                  len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](dst,0);
-        src.copyTo[T](0, dst.location, finder, len, notifier);
+        src.copyTo[T](0, dst.home, finder, len, notifier);
         x10.runtime.NativeRuntime.dealloc(finder);
         x10.runtime.NativeRuntime.dealloc(notifier);
     }
@@ -180,7 +180,7 @@ public class System {
             val src = pair.first;
             val src_off = pair.second;
             val to_serialize = src as ValRail[T];
-            at (dst.location) {
+            at (dst) {
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = to_serialize(src_off+i);
@@ -213,7 +213,7 @@ public class System {
             val pair = src_finder();
             val src = pair.first;
             val src_off = pair.second;
-            at (dst.location) {
+            at (dst) {
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = src(src_off+i);

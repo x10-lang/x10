@@ -36,12 +36,12 @@ public class Future_c[T] extends Future[T] {
     }
 
     private global def result()= result as GrowableRail[T]!;
-    public global def forced():boolean = at (latch.location) latch();
+    public global def forced():boolean = at (latch) latch();
     
     public global def apply():T = force();
 
     public global def force():T {
-        return at (latch.location) {
+        return at (latch) {
             latch.await();
             if (exception.length() > 0) {
                 val e = exception(0);

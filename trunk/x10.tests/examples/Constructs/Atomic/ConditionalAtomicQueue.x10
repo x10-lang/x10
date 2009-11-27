@@ -81,23 +81,23 @@ public class ConditionalAtomicQueue extends x10Test {
 
 		finish {
 			// spawn producer activities on each place
-			async( this.location )
+			async( this )
 				ateach (val (i): Point in MyDist.unique()) {
 					for (val (j): Point in [0..N-1]) {
 						val t = new T(i, j); // produce a T
-						async(this.location) {
+						async(this) {
 							when (!full()) { insert(t); }
 						}
 					}
 				}
 			// spawn a single consumer activity in place P0
-			async( this.location ) {
+			async( this ) {
 				for (val p in D2.region) {
 					var t: Box[T];
 					when (!empty()) { t = remove(); }
 					val t1 = t.value;
-					async(t1.location) { t1.consume(); } // consume the T
-					val m = at (t1.location) t1.getval();
+					async(t1) { t1.consume(); } // consume the T
+					val m = at (t1) t1.getval();
 					received(m) += 1;
 					// remember how many times
 					// we received this item

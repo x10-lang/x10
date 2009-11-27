@@ -76,8 +76,7 @@ import x10.types.XTypeTranslator;
 import x10.visit.TryTypeChecker;
 
 /**
- * A method call wrapper to rewrite getLocation() calls on primitives
- * and array operator calls. And perform other dep type processing on some selected method calls.
+ * Representation of an X10 method call.
  * @author Igor
  */
 public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {

@@ -204,7 +204,7 @@ public class Desugarer extends ContextVisitor {
     private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
     	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-        	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
+        	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
         }
     	
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
@@ -226,7 +226,7 @@ public class Desugarer extends ContextVisitor {
 
     private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
       	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-          	place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
+          	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
           }
         Closure closure = 
         	synth.makeClosure(body.position(), xts.Void(),  synth.toBlock(body), xContext());
@@ -346,7 +346,7 @@ public class Desugarer extends ContextVisitor {
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
         if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-            place = synth.makeFieldAccess(pos,place, Name.make("location"), xContext());
+            place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
         }
         if (clocks.size() == 0) 
         	return async(pos, body, place);

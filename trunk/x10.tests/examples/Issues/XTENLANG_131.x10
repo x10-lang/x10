@@ -12,11 +12,10 @@ class XTENLANG_131 extends x10Test {
     static class C {}
     
     public def run():boolean {
-        val x = future(Place.places(1)) {new C()};
-        val y = x.force();
+        val y = at (Place.places(1)) new C();
         x10.io.Console.OUT.println("Place.places(1) " + Place.places(1));
-        x10.io.Console.OUT.println("y.location() " + y.location());
-        return Place.places(1)==y.location();
+        x10.io.Console.OUT.println("y.home() " + y.home());
+        return Place.places(1)==y.home();
     }
 
     public static def main(Rail[String]) {

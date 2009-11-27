@@ -28,14 +28,14 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val a = future(this.location) threadRun();
-		val b = future(this.location) threadRun();
-		val c = future(this.location) threadRun();
-		val d = future(this.location) threadRun();
-		val e = future(this.location) threadRun();
-		val f = future(this.location) threadRun();
-		val g = future(this.location) threadRun();
-		val h = future(this.location) threadRun();
+		val a = future(this) threadRun();
+		val b = future(this) threadRun();
+		val c = future(this) threadRun();
+		val d = future(this) threadRun();
+		val e = future(this) threadRun();
+		val f = future(this) threadRun();
+		val g = future(this) threadRun();
+		val h = future(this) threadRun();
 		val i = a.force();
 		val j = b.force();
 		val k = c.force();

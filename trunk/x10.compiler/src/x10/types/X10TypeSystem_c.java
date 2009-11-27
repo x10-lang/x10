@@ -2677,8 +2677,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  		  // rType = X10TypeMixin.setSelfVar(rType, (XVar) target);
  		   rType = Subst.subst(rType, target, (XRoot) X10TypeMixin.selfVar(rType));
  		   assert xc.currentPlaceTerm() != null;
- 		   assert locVar(target, xc) != null;
- 		  pc.addBinding(locVar(target,xc), placeTerm);
+ 		   assert homeVar(target, xc) != null;
+ 		  pc.addBinding(homeVar(target,xc), placeTerm);
  		   XConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
  		   XConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
 
@@ -2690,9 +2690,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
  		   {
  		       thisVar = outer.thisVar();
  		   }
- 		   sigma.addBinding(locVar(thisVar,xc), xc.currentThisPlace().term());
+ 		   sigma.addBinding(homeVar(thisVar,xc), xc.currentThisPlace().term());
  		   if (targetConstraint.entails(pc,sigma)) {
- 			   // Gamma|- here==e.location
+ 			   // Gamma|- here==e.home
  			   return true;
  		   }
 
@@ -2720,24 +2720,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
    protected XConstraint isHereConstraint(XConstraint pc, XTerm target, X10Context xc) {
 	   try {
 		   XTerm eloc = xtypeTranslator().trans(pc, target, 
-				   ((StructType) Object()).fieldNamed(Name.make("location")));
+				   ((StructType) Object()).fieldNamed(homeName()));
 		   pc.addBinding(eloc, xc.currentPlaceTerm());
 	   } catch (XFailure z) {
 		   pc.setInconsistent();
 	   } 
 	   return pc;
    }
-   public XTerm locVar(XTerm target, X10Context xc)  {
+   public XTerm homeVar(XTerm target, X10Context xc)  {
 	   XConstraint pc = new XConstraint_c();
 	   return xtypeTranslator().trans(pc, target, 
-			   ((StructType) Object()).fieldNamed(Name.make("location")));
+			   ((StructType) Object()).fieldNamed(homeName()));
    }
    public XTerm locVar(Receiver r, X10Context xc)  {
 	   XConstraint pc = new XConstraint_c();
 	   XTerm target = xtypeTranslator().trans(pc, r, xc);
 	   if (target == null) return null;
 	   return xtypeTranslator().trans(pc, target, 
-			   ((StructType) Object()).fieldNamed(Name.make("location")));
+			   ((StructType) Object()).fieldNamed(homeName()));
    }
    public XConstrainedTerm globalPlace() {
 	   return xtypeTranslator().globalPlace();
@@ -2786,4 +2786,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	   }
 	   return result;
    }
+   
+   Name homeName = Name.make("home");
+   public Name homeName() { return homeName;}
 }

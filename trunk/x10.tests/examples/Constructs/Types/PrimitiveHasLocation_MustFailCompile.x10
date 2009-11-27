@@ -5,8 +5,6 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;
 
 /**
@@ -18,10 +16,11 @@ public class PrimitiveHasLocation_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
 		var x: int = 3;
-		return x.location==null;
+		//this must fail compilation
+		return x.home==null;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new PrimitiveHasLocation_MustFailCompile().execute();
 	}
 }

@@ -147,7 +147,7 @@ public class X10Special_c extends Special_c implements X10Special {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
             	cc.setThisVar(var);
-            	 XTerm locVar = xts.locVar(var, c);
+            	 XTerm locVar = xts.homeVar(var, c);
                  XConstrainedTerm thisPlace = c.currentThisPlace();
                  assert locVar != null;
                  assert thisPlace != null;

@@ -17,9 +17,9 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "java.lang.Object", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Object (
-        @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
-        @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-        location: Place) 
+        @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+        @Native("c++", "x10::lang::Place_methods::place((#0)->home)")
+        home: Place) 
 //        implements Equals
     /* @EQ implements Equals[Ref] */
 {
@@ -43,17 +43,17 @@ public class Object (
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString() : String;
 
-    @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
-    @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-    public property safe def loc() = location;
+ //   @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+//   @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
+//   public property safe def loc() = location;
 
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
     @Native("c++", "((#0)->location == (#1)->FMGL(id))")
-    public property safe def at(p:Place) = location==p;
+    public property safe def at(p:Place) = home==p;
 
     @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "((#0)->location == (#1)->location)")
-    public property safe def at(r:Object) = location==r.location;
+    @Native("c++", "((#0)->home == (#1)->home)")
+    public property safe def at(r:Object) = home==r.home;
     
     @Native("java", "x10.core.Ref.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")

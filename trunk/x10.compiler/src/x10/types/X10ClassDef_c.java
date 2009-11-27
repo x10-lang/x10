@@ -233,7 +233,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    // Now verify that the root clause entails the assertions of the properties.
 			    // We need to set the root clause first, to avoid a spurious report of a cyclic dependency.
 			    // This can happen when one of the properties is subtype of this type:
-			    // class Ref(location: Place) { }
+			    // class Ref(home: Place) { }
 			    // class Place extends Ref { ... }
 			    
 			    // Disable this for now since it can cause an infinite loop.

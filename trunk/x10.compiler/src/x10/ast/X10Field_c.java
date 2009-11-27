@@ -57,10 +57,7 @@ import x10.types.X10TypeSystem;
 
 
 /**
- * An immutable representation of an X10 Field access. It is the same as a Java
- * field access except for accesses of the field "location" for value types.
- * In this implementation such field accesses are implemented by the method call
- * x10.lang.Runtime.here().
+ * An immutable representation of an X10 Field access. 
  * 
  * @author vj May 23, 2005
  */

@@ -18,17 +18,18 @@ public class AtEach2 extends x10Test {
 
     public def run(): boolean = {
         val d: Dist = Dist.makeUnique(Place.places);
-        finish ateach (val p: Point in d) {
+        finish ateach (p in d) {
             // remember if here and d[i] disagree
             // at any activity at any place
             chk(here == d(p));
-            async(this.location) { atomic { /*this.*/nplaces++; } } //FIXME this hack
+            async (this) 
+             atomic nplaces++;  
         }
         // ensure that an activity ran in each place
         return nplaces == Place.MAX_PLACES;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String])  {
         new AtEach2().execute();
     }
 }

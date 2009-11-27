@@ -18,25 +18,25 @@ public class AtomicTest extends x10Test {
 	var startCount: long = 0;
 	var endCount: long = N;
 
-	public def run(): boolean = {
-		var b: boolean; // temp
-		async(this.location) {
-			atomic {
-				startCount = val;
-				for (var i: int = 0; i < N; i++) val++;
-				endCount = val;
-			}
-		}
-		for (var i: long = 0; i < N*100; i++) {
-			atomic { val = i; b = (endCount != 0); }
-			if (b) break;
-		}
-		// need a memory fence here
-		atomic { b = (startCount + N == endCount); }
-		return b;
+    public def run(): boolean = {
+	var b: boolean; // temp
+	async(this) {
+	    atomic {
+		startCount = val;
+		for (var i: int = 0; i < N; i++) val++;
+		endCount = val;
+	    }
 	}
+	for (var i: long = 0; i < N*100; i++) {
+	    atomic { val = i; b = (endCount != 0); }
+	    if (b) break;
+	}
+	// need a memory fence here
+	atomic { b = (startCount + N == endCount); }
+	return b;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new AtomicTest().execute();
+	public static def main(Rail[String]) {
+	    new AtomicTest().execute();
 	}
 }

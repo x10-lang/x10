@@ -879,7 +879,7 @@ public XConstraint_c() {
         roots.remove(x);
 
         // Get the node for y.  Since q may contain references to p or nodes reachable from p, interning y
-        // may add back x to the root set.  For example, we might be replacing self with self.location.
+        // may add back x to the root set.  For example, we might be replacing self with self.home.
         XPromise q = intern(y);
 
         // Replace references to p with references to q.

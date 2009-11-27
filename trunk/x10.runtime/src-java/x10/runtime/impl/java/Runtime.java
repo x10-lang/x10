@@ -95,12 +95,12 @@ public abstract class Runtime implements Runnable {
 	 */
 	public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
 		final Thread thread = Thread.currentThread();
-		final int ret = thread.location();
-		thread.location(id); // update thread place
+		final int ret = thread.home();
+		thread.home(id); // update thread place
 		try {
 			body.apply();
 		} finally {
-			thread.location(ret); // restore thread place
+			thread.home(ret); // restore thread place
 		}
 	}
 

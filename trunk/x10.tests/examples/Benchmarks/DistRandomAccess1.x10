@@ -104,7 +104,7 @@ class DistRandomAccess1 extends Benchmark {
                     val lt = table as LocalTable!;
                     for (var j:int=0; j<lt.a.length; j++)
                         if (lt.a(j) != j)
-                            finish async (errors.location)
+                            finish async (errors)
                                 errors(0)++;
                 }
             }

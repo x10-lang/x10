@@ -15,15 +15,15 @@ import x10.types.Type;
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref implements Any {
-    public final int location;
+    public final int home;
     
     public Ref() {
-       	location = Thread.currentThread().location();
+       	home = Thread.currentThread().home();
     }
      
     /** Note: since this is final, it's important that the method name not conflict with any methods introduced by subclasses of Ref in X10 code. */
-    public final int location() {
-        return location;
+    public final int home() {
+        return home;
     }
 
     public boolean equals(Object o) {
@@ -48,14 +48,14 @@ public class Ref implements Any {
         return this;
     }
 
-    public boolean at(int p) { return location == p;}
-    public boolean at(Ref r) { return location == r.location();}
+    public boolean at(int p) { return home == p;}
+    public boolean at(Ref r) { return home == r.home();}
 
     public static boolean at(Object obj, int p) {
         if (obj instanceof Ref) {
             return ((Ref)obj).at(p);
         } else {
-            return p == Thread.currentThread().location();
+            return p == Thread.currentThread().home();
         }
     }
 
@@ -64,24 +64,24 @@ public class Ref implements Any {
     public static boolean at(Object obj1, Object obj2) {
         if (obj1 instanceof Ref) {
             if (obj2 instanceof Ref) {
-                return ((Ref)obj1).location == ((Ref)obj2).location;
+                return ((Ref)obj1).home == ((Ref)obj2).home;
             } else {
-                return ((Ref)obj1).location == Thread.currentThread().location();
+                return ((Ref)obj1).home == Thread.currentThread().home();
             }
         } else {
             if (obj2 instanceof Ref) {
-                return ((Ref)obj2).location == Thread.currentThread().location();
+                return ((Ref)obj2).home == Thread.currentThread().home();
             } else {
                 return true;
             }
         }
     }
 
-    public static int location(Object obj) {
+    public static int home(Object obj) {
         if (obj instanceof Ref) {
-            return ((Ref)obj).location();
+            return ((Ref)obj).home();
         } else {
-            return Thread.currentThread().location();
+            return Thread.currentThread().home();
         }
     }
     public static String typeName(Object obj) {

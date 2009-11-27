@@ -36,7 +36,7 @@ public class RuntimeClock extends Clock {
 
     private global def remove() = Runtime.clockPhases().remove(this) as Int;
     
-	private def resumeLocal(){here==this.location} {
+	private def resumeLocal(){here==this.home} {
 		atomic { 
 		    if (--alive == 0) {
 			    alive = count;

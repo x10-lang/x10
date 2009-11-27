@@ -534,16 +534,16 @@ public class XTypeTranslator {
 
 			if (body == null) {
 				// hardwire s.at(t) for an interface
-				// return s.location = t is Place ? t : t.location
+				// return s.home = t is Place ? t : t.home
 
 				if (xmi.name().equals(Name.make("at"))
 						&& ts.typeEquals(xmi.def().container().get(), ts.Any(), xc)
 						&& t.arguments().size()==1) {
 					FieldInstance fi = ts.findField(ts.Object(), ts.FieldMatcher(ts.Object(), 
-							Name.make("location"), xc));
+							ts.homeName(), xc));
 					XTerm lhs =  trans(c, r, fi, ts.Place());
 
-					// replace by r.location == arg0 or r.location == arg0.location
+					// replace by r.home == arg0 or r.home == arg0.home
 					Expr arg = t.arguments().get(0);
 					XTerm y = trans(c, arg, xc);
 					if (y == null)

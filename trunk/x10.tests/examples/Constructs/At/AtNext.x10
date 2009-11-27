@@ -22,10 +22,10 @@ public class AtNext extends x10Test {
 			val t1: T = new T();
 			at (t) t.val = t1;
 		}
-		return t.val.location == Other;
+		return t.val.home == Other;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new AtNext().execute();
 	}
 

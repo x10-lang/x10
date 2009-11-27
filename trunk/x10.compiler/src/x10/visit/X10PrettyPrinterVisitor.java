@@ -1282,7 +1282,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		else {
 
-			boolean is_location_access = xts.isReferenceOrInterfaceType(fi.container(), context) && fi.name().equals(Name.make("location"));
+			boolean is_location_access = xts.isReferenceOrInterfaceType(fi.container(), context) && fi.name().equals(xts.homeName());
 			boolean needsHereCheck = er.needsHereCheck((Expr) target, context) && ! is_location_access;
 
 			if (needsHereCheck) {

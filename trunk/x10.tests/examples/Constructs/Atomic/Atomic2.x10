@@ -19,7 +19,7 @@ public class Atomic2 extends x10Test {
 
 
 	public def run(): boolean = {
-		finish async(this.location) atomic x++;
+		finish async(this) atomic x++;
 		atomic chk(x == 1);
 
 		var gotException: boolean = false;
