@@ -357,7 +357,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             	   }
                }
     		 
-    		// Now add this.location == currentLocation
+    		// Now add this.home == currentHome
 /*    		XConstrainedTerm placeTerm = xc.currentPlaceTerm().copy();
     		XRoot thisVar = type.thisVar();
     		XTerm placeVar = ((X10TypeSystem) type.typeSystem()).locVar(type.thisVar(), xc);

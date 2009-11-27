@@ -147,7 +147,7 @@ public final class FastArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.make[T](n);
             if (init!=null) {
-                val f = at (init.location) { init as (Point) => T };
+                val f = at (init) { init as (Point) => T };
                 for (p:Point in region)
                     raw(layout.offset(p)) = f(p);
             }

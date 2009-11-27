@@ -20,7 +20,7 @@ public class B_AtThisIntoAtHere extends x10Test {
     
      def m(b: Test!) {}
      def n() { 
-	 // n() is a method not marked global, hence on method entry one can assume that this.location==here.
+	 // n() is a method not marked global, hence on method entry one can assume that this.home==here.
 	 // therefore this.x also satisfies at(here) (since its type satisfies at(this)). 
 	 // Hence this is a legal call.
        m(x);

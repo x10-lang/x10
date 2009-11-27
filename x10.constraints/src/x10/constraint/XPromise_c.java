@@ -426,8 +426,8 @@ public class XPromise_c implements XPromise, Serializable {
             for (Map.Entry<XName, XPromise> p : fields.entrySet()) {
                 XName key = p.getKey();
                 XPromise val = p.getValue();
-                // doing this / self, and val == self.location -> this.location
-                // add this.location / self.location to the replacements to perform
+                // doing this / self, and val == self.home -> this.home
+                // add this.home / self.home to the replacements to perform
                 if (val.equals(x)) {
                     p.setValue(y);
                 }

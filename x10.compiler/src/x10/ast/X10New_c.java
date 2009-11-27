@@ -543,7 +543,7 @@ public class X10New_c extends New_c implements X10New {
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
-     * Also add the self.location==here clause.
+     * Also add the self.home==here clause.
      * 
      * @param tc
      * @return
@@ -555,12 +555,12 @@ public class X10New_c extends New_c implements X10New {
         Type type = xci.returnType();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
-        // Add self.location == here to the return type.
+        // Add self.home == here to the return type.
         if (! ts.isStructType(type)) {
         	XTerm selfVar = X10TypeMixin.selfVar(type);
         	X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         	X10Context xc = (X10Context) tc.context();
-        	XTerm locVar = xts.locVar(selfVar, xc);
+        	XTerm locVar = xts.homeVar(selfVar, xc);
         	type = X10TypeMixin.addBinding(type, locVar, xc.currentPlaceTerm());
         	
         	// Add self != null

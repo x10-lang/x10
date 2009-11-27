@@ -1286,7 +1286,7 @@ public static class MessageHandler implements IMessageHandler {
     PlaceType ::=  PlaceExpression
 --        /.$BeginJava
 --                    setResult(nf.Binary(pos(),
---                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
+--                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "home")), Binary.EQ,
 --                                        PlaceExpression));
 --          $EndJava
 --        ./

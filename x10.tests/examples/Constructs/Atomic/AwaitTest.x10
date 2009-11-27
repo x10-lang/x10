@@ -16,7 +16,7 @@ public class AwaitTest extends x10Test {
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
-		async(this.location) clocked(c) {
+		async(this) clocked(c) {
 			await (val > 43);
 			atomic val = 42;
 			await (val == 0);
@@ -38,7 +38,7 @@ public class AwaitTest extends x10Test {
 		return temp2 == 42;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]){
 		new AwaitTest().executeAsync();
 	}
 }

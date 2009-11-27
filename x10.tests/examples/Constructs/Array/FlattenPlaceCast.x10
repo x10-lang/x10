@@ -26,7 +26,7 @@ public class FlattenPlaceCast extends x10Test {
     static class Test {};
 
     public def run():boolean  = {
-        val x =  (a(1,1) as Test{self.location == d(1).next()}) ;
+        val x =  (a(1,1) as Test{self.home == d(1).next()}) ;
         return true;
     }
 

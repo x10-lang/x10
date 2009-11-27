@@ -389,7 +389,7 @@ public interface X10TypeSystem extends TypeSystem {
    
     
     /**
-     * Check that the type system asserts r.location==here.
+     * Check that the type system asserts r.home==here.
      * @param r
      * @param context
      * @return
@@ -418,12 +418,12 @@ public interface X10TypeSystem extends TypeSystem {
     
     XConstraint isHereConstraint(Receiver r, X10Context xc);
     /**
-     * Return r.location.
+     * Return r.home.
      * @param r
      * @param context
      * @return
      */
-    XTerm locVar(XTerm t, X10Context context) ;
+    XTerm homeVar(XTerm t, X10Context context) ;
     
     /**
      * Does there exist a struct with the given name, accessible at this point? 
@@ -441,4 +441,6 @@ public interface X10TypeSystem extends TypeSystem {
     Context emptyContext();
     Type Struct();
     boolean isExactlyFunctionType(Type t);
+    
+    Name homeName();
 }

@@ -22,14 +22,14 @@ public final class PlaceLocalHandle<T>{
   }
 
   public T get() {
-    int here = Thread.currentThread().location();
+    int here = Thread.currentThread().home();
     Object data = objects[here];
     assert data != null : "At "+here+": get called on uninitialized local object";
     return (T)data;
   }
 
   public void set(T data) {
-    int here = Thread.currentThread().location();
+    int here = Thread.currentThread().home();
     assert objects[here] == null : "At "+here+" set called on already initialized local object";
     objects[here] = data;
   }

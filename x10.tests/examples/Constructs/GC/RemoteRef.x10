@@ -49,10 +49,10 @@ public class RemoteRef extends x10Test {
 		if (Debug) Console.OUT.println("Remote before next: "+i);
 	        next;
 		if (Debug) Console.OUT.println("Remote after next: "+i);
-	        at (v.location) v.f++; 
+	        at (v) v.f++; 
             }
 	    if (Debug) Console.OUT.println("Remote: before last next");
-	    at (res.location) { res.success = (at (v.location) v.f == iterCount); }
+	    at (res) { res.success = (at (v) v.f == iterCount); }
 	    next;
 	    if (Debug) Console.OUT.println("Remote: after last next next");
 	}

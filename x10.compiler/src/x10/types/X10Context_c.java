@@ -614,7 +614,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		
 		if ( (type.kind() == ClassDef.ANONYMOUS) || ! type.toString().startsWith("x10.lang.")) 
 			try {
-				XTerm thisLoc = ((X10TypeSystem) typeSystem()).locVar(((X10ClassDef) classScope).thisVar(), 
+				XTerm thisLoc = ((X10TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(), 
 						this);
 				if (currentHere != null) {
 					XConstraint r = currentHere== null ? null : currentHere.constraint().copy();

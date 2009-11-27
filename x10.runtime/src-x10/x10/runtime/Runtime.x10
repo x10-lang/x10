@@ -64,7 +64,7 @@ public final class Runtime {
 	/**
 	 * Return the current place
 	 */
-	public static def here():Place = Thread.currentThread().location;
+	public static def here():Place = Thread.currentThread().home;
 
 	/**
 	 * The amount of unscheduled activities currently available to this worker thread.
@@ -214,9 +214,9 @@ public final class Runtime {
     public static def evalAt[T](place:Object, eval:()=>T):T {
     	val ret = here;
     	val box = new GrowableRail[T]();
-    	at (place.location) {
-    		val result = eval();
-    		at (ret) box.add(result); 
+    	at (place) {
+	    val result = eval();
+	    at (ret) box.add(result); 
     	}
     	return box(0);
     }
@@ -225,9 +225,12 @@ public final class Runtime {
 	 * Eval future expression
 	 */
 	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-		val futur:Future_c[T]{self.location == place} = at (place) new Future_c[T](eval);
-		async (place) (futur as Future_c[T]!).run(); // XTENLANG-565
-		return futur;
+	    val f = at (place) { 
+		val f1 = new Future_c[T](eval);
+                async f1.run();
+                f1 
+	    };
+	    return f;
 	}
     
     
@@ -240,7 +243,7 @@ public final class Runtime {
 		if (NativeRuntime.PLACE_CHECKS && null != o 
 		    && o instanceof Object 
 		    && !(o instanceof Worker) 
-		    && (o as Object!).location.id != p.id) {
+		    && (o as Object!).home.id != p.id) {
 		    NativeRuntime.println("BAD PLACE EXCEPTION");
 		    throw new BadPlaceException("object=" 
 						+ (at (o) o.toString()) 
@@ -373,20 +376,20 @@ public final class Runtime {
 	
 	// submit an activity to the pool
 	private static def execute(activity:Activity!):Void {
-        NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().push(activity));
+        NativeRuntime.runAtLocal(runtime().pool.home.id, ()=>worker().push(activity));
 	}
 	
 	// notify the pool a worker is about to execute a blocking operation
 	static def increaseParallelism():Void {
 		if (!NativeRuntime.STATIC_THREADS) {
-			NativeRuntime.runAtLocal(runtime().pool.location.id, runtime().pool.increase.());
+			NativeRuntime.runAtLocal(runtime().pool.home.id, runtime().pool.increase.());
 		}
     }
 
 	// notify the pool a worker resumed execution after a blocking operation
 	static def decreaseParallelism(n:Int) {
 		if (!NativeRuntime.STATIC_THREADS) {
-			NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>runtime().pool.decrease(n));
+			NativeRuntime.runAtLocal(runtime().pool.home.id, ()=>runtime().pool.decrease(n));
 		}
     }
 
@@ -408,11 +411,11 @@ public final class Runtime {
 
 	// run pending activities while waiting on condition
 	static def join(latch:Latch!) {
-		NativeRuntime.runAtLocal(runtime().pool.location.id, ()=>worker().join(latch));
+		NativeRuntime.runAtLocal(runtime().pool.home.id, ()=>worker().join(latch));
 	}
 
 	static def run(activity:Activity):Void {
-		NativeRuntime.runAtLocal(activity.location.id, (activity as Activity!).run.());
+		NativeRuntime.runAtLocal(activity.home.id, (activity as Activity!).run.());
 	}
 }
 

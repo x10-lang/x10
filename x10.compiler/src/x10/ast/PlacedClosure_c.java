@@ -128,7 +128,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     			}
     			try {
     				d= d.substitute(src, d.self());
-    				pt = XConstrainedTerm.make(ts.locVar(src,xc), d);
+    				pt = XConstrainedTerm.make(ts.homeVar(src,xc), d);
     			} catch (XFailure z) {
     				assert false;
     				throw new InternalCompilerError("Cannot construct placeTerm from " + 

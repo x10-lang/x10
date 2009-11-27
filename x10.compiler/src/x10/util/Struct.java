@@ -115,12 +115,12 @@ public class Struct {
 		List<Expr> list;
 		X10ClassType ann;
 	
-		// @Native("java", "x10.lang.Place.place(x10.core.Ref.location(#0))")
-		// property def loc():Place
+		// @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+		// property def home():Place
         mi = xts.methodDef(pos, Types.ref(ct), 
         		X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global().Safe(), 
         		PLACE,
-        		Name.make("loc"), 
+        		xts.homeName(), 
         		Collections.EMPTY_LIST, 
         		Collections.EMPTY_LIST, 
         		thisVar,
@@ -134,7 +134,7 @@ public class Struct {
 			public void run() {
 				List<Expr> list = new ArrayList<Expr>(2);
 		        list.add(new X10StringLit_c(pos, "java"));
-		        list.add(new X10StringLit_c(pos,  "x10.lang.Place.place(x10.core.Ref.location(#0))"));
+		        list.add(new X10StringLit_c(pos,  "x10.lang.Place.place(x10.core.Ref.home(#0))"));
 		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
 				NATIVE_LOC.update(ann);
 			}
