@@ -664,7 +664,11 @@ function main {
 		local tDir=${testDir%/$tPkg}
 		tDir=${tDir#\.\/}
 		tDir=`echo "$tDir" | sed -e 's/\//\./g'`
-		__cat_current_group="$tDir"
+		if [[ "${tDir}" == "." || "${tDir}" == ".." || "${tDir}" == "" ]]; then
+			__cat_current_group="Default"
+		else
+			__cat_current_group="$tDir"
+		fi
 		if [[ -d ${tcroot} ]]; then
 			rm -rf ${tcroot}
 		fi
