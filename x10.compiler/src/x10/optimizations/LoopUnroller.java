@@ -294,7 +294,7 @@ public class LoopUnroller extends ContextVisitor {
 
         // use type of domain to check its rank
         if (!checkDomainIs1D(fLoop.domain())) {
-            return fatalStatus("Cannot statically confirm that loop iteration domain is 1-dimensional");
+            return fatalStatus("(at " + fLoopParams.fLoopVar.position() + ": cannot statically confirm that loop iteration domain is 1-dimensional");
         }
 
         // now find the values that flow into the domain expr

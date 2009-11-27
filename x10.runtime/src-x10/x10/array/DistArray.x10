@@ -92,7 +92,7 @@ final class DistArray[T] extends BaseArray[T] {
         return v;
     }
 
-    def this(dist: Dist, init: (Point)=>T): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
         super(dist);
 
         val plsInit:()=>LocalState[T]! = () => {
@@ -100,7 +100,7 @@ final class DistArray[T] extends BaseArray[T] {
             val localLayout = layout(region);
             val localRaw = Rail.make[T](localLayout.size());
             
-                for (pt:Point in region) {
+                for (pt  in region) {
                     localRaw(localLayout.offset(pt)) = init(pt);
                 }
            

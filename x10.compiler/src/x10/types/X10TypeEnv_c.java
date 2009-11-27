@@ -17,6 +17,7 @@ import java.util.Set;
 
 import polyglot.main.Report;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.DerefTransform;
@@ -38,6 +39,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -1904,5 +1906,74 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return X10MethodInstance_c.callValidImpl((X10ProcedureInstance<?>) prototype, thisType, argTypes, context);
     }
     
+    /**
+     * Populates the list acceptable with those MethodInstances which are
+     * Applicable and Accessible as defined by JLS 15.11.2.1
+     * 
+     * @param container
+     *            TODO
+     * @param matcher
+     *            TODO
+     */
+    @Override
+    public List<ConstructorInstance> findAcceptableConstructors(Type container, ConstructorMatcher matcher) throws SemanticException {
+	SemanticException error = null;
+
+	List<ConstructorInstance> acceptable = new ArrayList<ConstructorInstance>();
+
+	if (Report.should_report(Report.types, 2))
+	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
+
+	if (!(container instanceof ClassType)) {
+	    return Collections.EMPTY_LIST;
+	}
+
+	for (ConstructorInstance ci : ((ClassType) container).constructors()) {
+	    if (Report.should_report(Report.types, 3))
+		Report.report(3, "Trying " + ci);
+
+	    try {
+		ci = matcher.instantiate(ci);
+
+		if (ci == null) {
+		    continue;
+		}
+
+		if (isAccessible(ci)) {
+		    if (Report.should_report(Report.types, 3))
+			Report.report(3, "->acceptable: " + ci);
+		    acceptable.add(ci);
+		}
+		else {
+		    if (error == null) {
+			error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() + "\n is inaccessible.");
+		    }
+		}
+
+		continue;
+	    }
+	    catch (SemanticException e) {
+		// Treat any instantiation errors as call invalid errors.
+	    }
+
+	    if (error == null) {
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "Constructor " + ci.signature() 
+				+ "\n cannot be invoked with arguments \n"
+			+ matcher.argumentString() + ".");
+
+	    }
+	}
+
+	if (acceptable.size() == 0) {
+	    if (error == null) {
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + container + matcher.signature() + ".");
+	    }
+
+	    throw error;
+	}
+
+	return acceptable;
+    }
+
   
 }

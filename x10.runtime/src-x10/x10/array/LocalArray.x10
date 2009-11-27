@@ -11,7 +11,7 @@ package x10.array;
 
 // TODO: Need to come through and clean up place types and global methods.
 //       This is a completely local array....
-final class LocalArray[T] extends BaseArray[T] {
+final public class LocalArray[T] extends BaseArray[T] {
 
     private global val raw:Rail[T]{self.at(dist.onePlace)};
     private global val layout:RectLayout;
@@ -120,7 +120,7 @@ final class LocalArray[T] extends BaseArray[T] {
         raw = r;
     }
 
-    def this(dist: Dist{constant}, init: (Point)=>T){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: (Point(dist.rank))=>T){here == dist.onePlace}:LocalArray[T]{self.dist==dist} {
         super(dist);
 
         layout = layout(region);

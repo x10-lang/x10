@@ -829,7 +829,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
          return x;
     }
   /**
-   * thisType has had ys[0] substitued in for its self, and for this.
+   * thisType has had ys[0] substituted in for its self, and for this.
    * 
    * @param <PI>
    * @param context

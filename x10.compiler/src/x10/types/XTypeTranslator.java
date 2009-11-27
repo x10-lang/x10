@@ -167,7 +167,8 @@ public class XTypeTranslator {
 	
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
-		XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
+		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
+		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
 		if (fi.flags().isStatic()) {
 		    Type container = Types.get(fi.def().container());
 		    container = X10TypeMixin.baseType(container);
