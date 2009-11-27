@@ -47,15 +47,15 @@ public abstract class Array[T](dist:Dist)
 
     public static def make[T](region:Region)=makeVar[T](region);
     public static def make[T](dist: Dist)= makeVar[T](dist);
-    public static def make[T](region:Region, init: (Point)=>T)= makeVar[T](region, init);
-    public static def make[T](dist: Dist, init: (Point)=>T)= makeVar[T](dist, init);
+    public static def make[T](region:Region, init: (Point(region.rank))=>T)= makeVar[T](region, init);
+    public static def make[T](dist: Dist, init: (Point(dist.rank))=>T)= makeVar[T](dist, init);
 
     public static def makeVar[T](region: Region)= BaseArray.makeVar1[T](region);
-    public static def makeVar[T](region: Region, init: (Point)=>T): Array[T](region)
+    public static def makeVar[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
         = BaseArray.makeVar1[T](region, init) as Array[T](region);
     
 
-    public static def makeVar[T](dist: Dist, init:(Point)=>T): Array[T](dist)
+    public static def makeVar[T](dist: Dist, init:(Point(dist.rank))=>T): Array[T](dist)
         = BaseArray.makeVar1[T](dist, init);
     public static def makeVar[T](dist: Dist): Array[T](dist)
     = BaseArray.makeVar1[T](dist);
@@ -66,10 +66,10 @@ public abstract class Array[T](dist:Dist)
     public static def makeVal[T](dist: Dist): Array[T](dist)
         = BaseArray.makeVal1[T](dist) as Array[T](dist);
 
-    public static def makeVal[T](region: Region, init: (Point)=>T): Array[T](region)
+    public static def makeVal[T](region: Region, init: (Point(region.rank))=>T): Array[T](region)
         = BaseArray.makeVal1[T](region, init) as Array[T](region);
 
-    public static def makeVal[T](dist: Dist, init: (Point)=>T): Array[T](dist)
+    public static def makeVal[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist)
         = BaseArray.makeVal1[T](dist, init) as Array[T](dist);
  
     public static def make[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased}
@@ -77,7 +77,7 @@ public abstract class Array[T](dist:Dist)
     public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
 
-    public static def make[T](size: nat, init: (Point)=>T): Array[T](1)
+    public static def make[T](size: nat, init: (Point(1))=>T): Array[T](1)
         = makeVar[T](0..size-1, init) as Array[T](1);
 
     public static def makeFast[T](region: Region)
@@ -88,11 +88,11 @@ public abstract class Array[T](dist:Dist)
         = makeVar[T](dist)
             as FastArray[T]{dist==dist};
 
-    public static def makeFast[T](region: Region, init: (Point)=>T)
+    public static def makeFast[T](region: Region, init: (Point(region.rank))=>T)
         = BaseArray.makeVar1[T](region, init)
             as FastArray[T]{region==region};
 
-    public static def makeFast[T](dist: Dist, init: (Point)=>T)
+    public static def makeFast[T](dist: Dist, init: (Point(dist.rank))=>T)
         = BaseArray.makeVar1[T](dist, init)
             as FastArray[T]{dist==dist};
 
@@ -116,16 +116,16 @@ public abstract class Array[T](dist:Dist)
     public abstract safe global def restriction(r: Region(rank)): Array[T](rank);
     public abstract safe global def restriction(p: Place): Array[T](rank);
 
-    public abstract safe global operator + this: Array[T];
-    public abstract safe global operator - this: Array[T];
+    public abstract safe global operator + this: Array[T](rank);
+    public abstract safe global operator - this: Array[T](rank);
 
-    public abstract safe global operator this + (that: Array[T]): Array[T];
-    public abstract safe global operator this - (that: Array[T]): Array[T];
-    public abstract safe global operator this * (that: Array[T]): Array[T];
-    public abstract safe global operator this / (that: Array[T]): Array[T];
+    public abstract safe global operator this + (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this - (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this * (that: Array[T](dist)): Array[T](dist);
+    public abstract safe global operator this / (that: Array[T](dist)): Array[T](dist);
 
-    public abstract safe global operator this | (r: Region(rank)): Array[T];
-    public abstract safe global operator this | (p: Place): Array[T];
+    public abstract safe global operator this | (r: Region(rank)): Array[T](dist);
+    public abstract safe global operator this | (p: Place): Array[T](dist);
 
 
     //
@@ -153,8 +153,8 @@ public abstract class Array[T](dist:Dist)
     //
     //
 
-    public static operator [T](r: Rail[T]): Array[T] = make(r);
-    public static operator [T](r: ValRail[T]): Array[T] = make(r);
+    public static operator [T](r: Rail[T]): Array[T](1) = make(r);
+    public static operator [T](r: ValRail[T]): Array[T](1) = make(r);
 
 
     public global def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];

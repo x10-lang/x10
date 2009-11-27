@@ -136,7 +136,7 @@ public final class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: (Point)=>T){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: (Point{self.rank==dist.rank})=>T){here == dist.onePlace}: FastArray[T]{self.dist==dist} {
 
         super(dist);
 

@@ -27,7 +27,7 @@ public abstract class BaseArray[T] extends Array[T] {
 
    
 
-    public static def makeVar1[T](region: Region, init:(Point)=>T): Array[T](region) {
+    public static def makeVar1[T](region: Region, init:(Point(region.rank))=>T): Array[T](region) {
         val dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
         return makeVar1[T](dist, init) as Array[T](region); // would eliminate cast here
     }
@@ -36,27 +36,27 @@ public abstract class BaseArray[T] extends Array[T] {
         return makeVar1[T](dist) as Array[T](region); // would eliminate cast here
     }
 
-    public static def makeVal1[T](region: Region, init: (Point)=>T): Array[T] {
+    public static def makeVal1[T](region: Region, init: (Point(region.rank))=>T): Array[T](region) {
         val dist = Dist.makeConstant(region);
         return makeVal1[T](dist, init);
     }
-    public static def makeVal1[T](region: Region): Array[T] {
+    public static def makeVal1[T](region: Region): Array[T](region) {
         val dist = Dist.makeConstant(region);
         return makeVal1[T](dist);
     }
-    public static def makeVal1[T](dist: Dist, init: (Point)=>T): Array[T] {
+    public static def makeVal1[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist) {
         return makeVar1[T](dist, init); // XXX for now
     }
-    public static def makeVal1[T](dist: Dist): Array[T] {
+    public static def makeVal1[T](dist: Dist): Array[T](dist) {
         return makeVar1[T](dist); // XXX for now
     }
 
-    public static def makeVar1[T](dist: Dist, init: (Point)=>T): Array[T](dist) {
+    public static def makeVar1[T](dist: Dist, init: (Point(dist.rank))=>T): Array[T](dist) {
         if (dist.constant) {
            if (checkBounds || checkPlace)
-               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here}, init) as Array[T](dist) }; // XXXXX ???
+               return at (dist.onePlace) { new LocalArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
            else
-               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here}, init) as Array[T](dist) }; // XXXXX ???
+               return at (dist.onePlace) { new FastArray[T](dist as Dist{constant,onePlace==here,self==dist}, init) }; 
         }
         else {
             return new DistArray[T](dist, init);
@@ -184,11 +184,11 @@ public abstract class BaseArray[T] extends Array[T] {
     // views
     //
 
-    public safe global def restriction(r: Region(rank)): Array[T] {
+    public safe global def restriction(r: Region(rank)): Array[T](rank) {
         return restriction(dist.restriction(r));
     }
 
-    public safe global def restriction(p: Place): Array[T] {
+    public safe global def restriction(p: Place): Array[T](rank) {
         return restriction(dist.restriction(p));
     }
 
@@ -267,24 +267,24 @@ public abstract class BaseArray[T] extends Array[T] {
     // ops
     //
 
-    public safe global operator this | (r: Region(rank)): Array[T] = restriction(r);
-    public safe global operator this | (p: Place): Array[T] = restriction(p);
+    public safe global operator this | (r: Region(rank)) = restriction(r);
+    public safe global operator this | (p: Place) = restriction(p);
 
-    incomplete public safe global operator + this: Array[T];
-    incomplete public safe global operator - this: Array[T];
+    incomplete public safe global operator + this: Array[T](dist);
+    incomplete public safe global operator - this: Array[T](dist);
 
-    incomplete public safe global operator this + (that: Array[T]): Array[T];
-    incomplete public safe global operator this - (that: Array[T]): Array[T];
-    incomplete public safe global operator this * (that: Array[T]): Array[T];
-    incomplete public safe global operator this / (that: Array[T]): Array[T];
-    incomplete public safe global operator this % (that: Array[T]): Array[T];
+    incomplete public safe global operator this + (that: Array[T](dist)): Array[T](dist);
+    incomplete public safe global operator this - (that: Array[T](dist)): Array[T](dist);
+    incomplete public safe global operator this * (that: Array[T](dist)): Array[T](dist);
+    incomplete public safe global operator this / (that: Array[T](dist)): Array[T](dist);
+    incomplete public safe global operator this % (that: Array[T](dist)): Array[T](dist);
 
-    incomplete public safe global operator this == (x: Array[T]): boolean;
-    incomplete public safe global operator this <  (x: Array[T]): boolean;
-    incomplete public safe global operator this >  (x: Array[T]): boolean;
-    incomplete public safe global operator this <= (x: Array[T]): boolean;
-    incomplete public safe global operator this >= (x: Array[T]): boolean;
-    incomplete public safe global operator this != (x: Array[T]): boolean;
+    incomplete public safe global operator this == (x: Array[T](dist)): boolean;
+    incomplete public safe global operator this <  (x: Array[T](dist)): boolean;
+    incomplete public safe global operator this >  (x: Array[T](dist)): boolean;
+    incomplete public safe global operator this <= (x: Array[T](dist)): boolean;
+    incomplete public safe global operator this >= (x: Array[T](dist)): boolean;
+    incomplete public safe global operator this != (x: Array[T](dist)): boolean;
 
     // incomplete public global def sum(): T; // XTENLANG-116
 
