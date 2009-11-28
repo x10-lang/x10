@@ -85,6 +85,7 @@ public class Ref implements Any {
         }
     }
     public static String typeName(Object obj) {
-    	return obj.getClass().toString();
+        String s = obj.getClass().toString();
+    	return s.equals("class java.lang.Object") ? "class x10.lang.Object" : s;
     }
 }
