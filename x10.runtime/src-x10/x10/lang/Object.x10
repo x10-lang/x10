@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Object (
         @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-        @Native("c++", "x10::lang::Place_methods::place((#0)->home)")
+        @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
         home: Place) 
 //        implements Equals
     /* @EQ implements Equals[Ref] */
