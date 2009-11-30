@@ -874,13 +874,13 @@ public class Emitter {
 		return;
 	}
 
-	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars) {
 		printDeclarationList(w, c, vars, true, false);
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism, boolean writable) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable) {
 		for (int i = 0; i < vars.size(); i++) {
-			VarInstance var = (VarInstance)vars.get(i);
+			VarInstance<?> var = vars.get(i);
 			Type t = var.type();
 			String type = translateType(t, true);
 			if (writable && !var.name().toString().equals(THIS)) // this is a temporary ref

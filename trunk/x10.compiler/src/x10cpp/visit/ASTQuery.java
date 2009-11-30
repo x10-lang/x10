@@ -49,6 +49,7 @@ import x10.ast.X10CanonicalTypeNode_c;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -209,7 +210,7 @@ public class ASTQuery {
 		return true;
 	}
 
-	static final ArrayList knownAsyncArrayCopyMethods = new ArrayList();
+	static final ArrayList<X10MethodInstance> knownAsyncArrayCopyMethods = new ArrayList<X10MethodInstance>();
 
 	/* -- SPMD compilation --
 	boolean isAsyncArrayCopy(Call_c n) {
@@ -235,7 +236,7 @@ public class ASTQuery {
 	*/
 
 
-	static final ArrayList knownArrayCopyMethods = new ArrayList();
+	static final ArrayList<X10MethodInstance> knownArrayCopyMethods = new ArrayList<X10MethodInstance>();
 
 	boolean isAsyncArrayCopy(Async_c n) {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();

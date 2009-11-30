@@ -71,7 +71,7 @@ public class X10Translator extends Translator {
 	    	NodeFactory nf = nodeFactory();
 	    	TargetFactory tf = this.tf;
 	    	int outputWidth = job.compiler().outputWidth();
-	    	Collection outputFiles = job.compiler().outputFiles();
+	    	Collection<String> outputFiles = job.compiler().outputFiles();
 	    	
 	    	try {
 	    	    File of;

@@ -18,6 +18,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import x10.ast.ConstantDistMaker_c;
+import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -109,9 +110,9 @@ public class SharedVarsMethods {
 		((X10ParsedClassType) distribution.type()).isConstantDist();
 	}
 	*/
-	static final ArrayList knownSafeClasses = new ArrayList();
-	static final ArrayList knownSafeMethods = new ArrayList();
-	static final ArrayList knownSafeFields = new ArrayList();
+	static final ArrayList<ReferenceType> knownSafeClasses = new ArrayList<ReferenceType>();
+	static final ArrayList<X10MethodInstance> knownSafeMethods = new ArrayList<X10MethodInstance>();
+	static final ArrayList<FieldInstance> knownSafeFields = new ArrayList<FieldInstance>();
 	static void populateKnownSafeEntries(Translator tr){
 		populateKnownSafeClasses(tr);
 		populateKnownSafeMethodsAndFields(tr);
@@ -170,8 +171,7 @@ public class SharedVarsMethods {
 		}
 	}	
 	
-	static final ArrayList knownIgnoredExternMethods = new ArrayList();
-	static final ArrayList knownInlinableMethods = new ArrayList();
+	static final ArrayList<X10MethodInstance> knownInlinableMethods = new ArrayList<X10MethodInstance>();
 
 	static void populateIninableMethodsIfEmpty(Translator tr) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();

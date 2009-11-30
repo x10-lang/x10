@@ -956,6 +956,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         return nn;
     }
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
         CollectionUtil.list(Report.types, Report.context);
 }

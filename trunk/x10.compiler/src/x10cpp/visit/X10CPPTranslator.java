@@ -312,7 +312,7 @@ public class X10CPPTranslator extends Translator {
 		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
 
 		int outputWidth = job.compiler().outputWidth();
-		Collection outputFiles = job.compiler().outputFiles();
+		Collection<String> outputFiles = job.compiler().outputFiles();
 
 		try {
 			String opfPath;

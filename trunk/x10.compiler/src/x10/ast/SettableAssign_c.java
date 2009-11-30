@@ -179,7 +179,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    	/** Visit the children of the expression. */
    	public Assign visitLeft(NodeVisitor v) {
    		Expr array = (Expr) visitChild(this.array, v);
-   		List index =  visitList(this.index, v);
+   		List<Expr> index =  visitList(this.index, v);
    		return reconstruct(array, index);
    	}
    	
@@ -273,8 +273,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    v.visitCFG(right(), this, EXIT);
 	}
 	
-	public List throwTypes(TypeSystem ts) {
-		List l = new ArrayList(super.throwTypes(ts));
+	public List<Type> throwTypes(TypeSystem ts) {
+		List<Type> l = new ArrayList<Type>(super.throwTypes(ts));
 		l.add(ts.NullPointerException());
 		l.add(ts.OutOfBoundsException());
 		return l;
@@ -305,8 +305,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
       w.write ("(");
       w.begin(0);
 
-      for(Iterator i = index.iterator(); i.hasNext();) {
-      	Expr e = (Expr) i.next();
+      for(Iterator<Expr> i = index.iterator(); i.hasNext();) {
+      	Expr e = i.next();
       	print(e, w, tr);
           if (i.hasNext()) {
               w.write(",");

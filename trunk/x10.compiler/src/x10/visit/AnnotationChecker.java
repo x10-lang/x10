@@ -49,10 +49,10 @@ public class AnnotationChecker extends ContextVisitor {
 		
 		init();
 
-		List annotations = ((X10Ext) n.ext()).annotations();
+		List<AnnotationNode> annotations = ((X10Ext) n.ext()).annotations();
 		
-		for (Iterator i = annotations.iterator(); i.hasNext(); ) {
-			AnnotationNode a = (AnnotationNode) i.next(); 
+		for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
+			AnnotationNode a = i.next(); 
 			X10ClassType at = a.annotationInterface();
 			if (n instanceof TypeNode && ! at.isSubtype(TA, context)) {
 				throw new SemanticException("Annotations on types must implement " + TA, n.position());

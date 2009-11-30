@@ -140,7 +140,7 @@ public class AsyncElimination extends NodeVisitor {
      *  - does not allocate other objects / arrays
      **/
     private boolean isOptimizableExpr_(Expr e) {
-        final Set critical = new HashSet();
+        final Set<Node> critical = new HashSet<Node>();
         e.visit( new NodeVisitor() {
             public Node leave( Node old, Node n, NodeVisitor v) {
                 if ( n instanceof ProcedureCall ||

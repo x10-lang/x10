@@ -107,7 +107,7 @@ public class LoadPlugins extends AbstractGoal_c {
 			// Now load the plugin from the class file.
 			try {
 //				System.out.println("classpath = " + System.getProperty("java.class.path"));
-				Class c = Class.forName(pluginName.toString());
+				Class<?> c = Class.forName(pluginName.toString());
 				Object o = c.newInstance();
 				if (o instanceof CompilerPlugin) {
 					// OK, it's a plugin!

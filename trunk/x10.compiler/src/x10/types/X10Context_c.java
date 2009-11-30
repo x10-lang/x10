@@ -426,7 +426,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		return varWhoseTypeIsBeingElaborated;
 	}
 
-	private static final Collection TOPICS =
+	private static final Collection<String> TOPICS =
 		CollectionUtil.list(Report.types, Report.context);
 
 	/**
