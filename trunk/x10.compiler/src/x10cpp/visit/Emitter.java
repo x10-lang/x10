@@ -631,7 +631,11 @@ public class Emitter {
           } else {
               h.write("const x10aux::RuntimeType** parents = NULL; "); h.newline();
           }
-          h.write("rtt.init(&rtt, \""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);"); h.end(); h.newline();
+          h.write("rtt.init(&rtt, \""+ct.fullName()+"\", "+numParents+ ", parents, 0, NULL, NULL);");
+          if (ct.isX10Struct() && isPointerless(ct)) {
+              h.newline(); h.write("rtt.containsPtrs = false;");
+          }
+          h.end(); h.newline();
           h.write("}"); h.newline();
 		} else {
 		    boolean first = true;
@@ -701,6 +705,30 @@ public class Emitter {
 		h.newline();
 	}
 
+    // Helper method to recursively examine the fields of a struct and determine if they
+    // are pointers.  Used to mark the RTT of the struct as pointerless, thus enabling
+    // Rails/ValRails of pointerless structs to be allocated with GC_MALLOC_ATOMIC
+    private boolean isPointerless(X10ClassType ct) {
+        assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
+        
+        for (FieldInstance fi : ct.fields()) {
+            if (fi.flags().isStatic()) continue; // ignore static fields; only care about instance fields
+            if (!fi.type().isNumeric()) {
+                if (fi.type().isClass() && ((X10ClassType)fi.type().toClass()).isX10Struct()) {
+                    // recursively check fields of struct type
+                    if (!isPointerless(((X10ClassType)fi.type().toClass()))) return false;
+                } else {
+                    // if fi.type() isn't numeric and isn't a struct, it must be a pointer.
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
+                                                    
+                                                    
+    
     void printHeader(ClassDecl_c n, CodeWriter h, Translator tr) {
 		h.begin(0);
 		
