@@ -74,6 +74,10 @@ namespace x10aux {
         dealloc(obj);
     }
 
+    // Return an upper bound on the current size of the heap in bytes.
+    // The accuracy of result returned by this method will vary widely depending on
+    // the underlying implementation of allocation.
+    size_t heap_size();
 }
 
 #endif

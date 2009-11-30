@@ -28,6 +28,20 @@ public class System {
 
     public static def exit() = exit(-1);
 
+    /**
+     * Provides an estimate in bytes of the size of the X10 heap
+     * allocated to the current place. The accuracy of this estimate
+     * is highly dependent on the implementation details of the 
+     * underlying memory management scheme being used by the X10 runtime,
+     * and in some cases may simply return Long.MAX_VALUE or some other similarly
+     * over conservative approximation.
+     *
+     * @return An upper bound in bytes on the size of the X10 heap allocated to the current place.
+     */
+    @Native("java", "java.lang.Runtime.totalMemory()")
+    @Native("c++", "x10aux::heap_size()")
+    public static native def heapSize():long;
+
     /* TODO: XTENLANG-180.  Provide full System properties API in straight X10 */
     @Native("java", "java.lang.System.setProperty(#1,#2)")
     @Native("c++", "printf(\"not setting %s\\n\", (#1)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.

@@ -113,3 +113,21 @@ void x10aux::dealloc_internal (const void *obj_) {
 #endif        
     ::free(obj);
 }
+
+size_t x10aux::heap_size() {
+#ifdef X10_USE_BDWGC
+    return GC_get_heap_size();
+#else
+    // TODO: an actual useful implementation of this function when we aren't using GC.
+    return (size_t)(-1);
+#endif
+}
+
+    
+
+
+
+        
+
+
+
