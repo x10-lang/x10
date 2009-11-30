@@ -19,7 +19,7 @@ the object). Thus objects are represented through an extra level of
 indirection. A consequence of this flexibility is that every class
 type contains the value \Xcd{null} corresponding to the invalid
 reference. \Xcd{null} is often useful as a default value. Further, two
-objects may be compared for equality (\Xcd{==}) in constant time by
+objects may be compared for identity (\Xcd{==}) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
@@ -35,7 +35,7 @@ Functions are instances of {\em function types|} {\Sref{Functions})
   \Xcd{(x1:T1,...,xn:Tn)\{c\}:T => e}. Functions contain no
   user-visible mutable or immutable state; their representation,
   however, contains enough memory to hold the values of the variables
-  in the envirnonment that are referenced in the body of the function
+  in the environment that are referenced in the body of the function
   (\Xcd{e}). Functions may be freely copied from place to place and
   may be repeatedly applied to a set of arguments, provided that the
   precondition \Xcd{c} is satisfied.
@@ -155,7 +155,7 @@ singleton classes to carry mutable static state.
         Classes
         are structured in a
         single-inheritance hierarchy.  All reference classes
-        extend the class \xcd"x10.lang.Objet".
+        extend the class \xcd"x10.lang.Object".
         Classes are declared to extend a single
         superclass (except for \xcd"Object", which extends
         no other class).
@@ -212,7 +212,7 @@ and properties defined in the interface.
 \index{properties!value properties}
 
         Classes and interfaces may have {\em value properties},
-        public final instance fields bound to object creation.  
+        public final instance fields bound on object creation.  
 %
         For example, the following code declares a class named
         \xcd"Point" with properties \xcd"x" and \xcd"y"
@@ -289,9 +289,9 @@ class Cell[X] {
 This declares a class \xcd"Cell" with a type parameter \xcd"X".
 \xcd"Cell" may be used as a type by instantiating \xcd"X".
 
-\xcd"Cell[int]" is the type of all \xcd"Cell" containing an
-\xcd"int".  The \xcd"get" method returns an \xcd"int"; the
-\xcd"set" method takes an \xcd"int" as argument.  Note that
+\xcd"Cell[Int]" is the type of all \xcd"Cell" containing an
+\xcd"Int".  The \xcd"get" method returns an \xcd"Int"; the
+\xcd"set" method takes an \xcd"Int" as argument.  Note that
 \xcd"Cell" alone is not a legal type because the parameter is
 not bound.
 
@@ -813,21 +813,21 @@ Formals \: Formal ( \xcd"," Formal )\star \\
 
 For every sequence of types \xcd"T1,..., Tn,T", and \xcd"n" distinct variables
 \xcd"x1,...,xn" and constraint \xcd"c", the expression
-\xcd"(x1:T1,...,xn:Tn)\{c\}=>T" is a \emph{function type}. It stands for
+\xcd"(x1:T1,...,xn:Tn){c}=>T" is a \emph{function type}. It stands for
  the set of all functions \xcd"f" which can be applied in a place \xcd"p" to a
  list of values \xcd"(v1,...,vn)" provided that the constraint
  \xcd"c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
- type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"\{c\}" can be
+ type \xcd"T[v1,...vn/x1,...,xn]". When \xcd"c" is true, the clause \xcd"{c}" can be
  omitted. When \xcd"x1,...,xn" do not occur in \xcd"c" or \xcd"T", they can be
  omitted. Thus the type \xcd"(T1,...,Tn)=>T" is actually shorthand for
- \xcd"(x1:T1,...,xn:Tn)\{true\}=>T", for some variables \xcd"x1,...,xn".
+ \xcd"(x1:T1,...,xn:Tn){true}=>T", for some variables \xcd"x1,...,xn".
 
 
 Juxtaposition is used to express function application: the expression
 \xcd"f(a1,..,an)" expresses the application of a function \xcd"f" to the argument
 list \xcd"a1,...,an".
 
-
+\index{Exception!unchecked}
 Note that function invocation may throw unchecked exceptions. 
 
 A function type is covariant in its result type and contravariant in
@@ -840,11 +840,11 @@ types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
 
 For convenience, a value \xcd"f" of a function type
 \xcd"(x1:T1,...,xn:Tn){c}=>T" has two other functions associated with
-it: \xcd"toString(): ()=> String" and \xcd"typeName():()=$>$String". These
+it: \xcd"toString(): ()=> String" and \xcd"typeName():()=>String". These
 functions are called using the method invocation syntax,
 viz. \xcd"f.toString()" and \xcd"f.typeName()". The first returns an
 implementation-defined string. The second returns a string
-representation of the function type, \xcd"(x1:T1,...xn:Tn,)=$>$T". These
+representation of the function type, \xcd"(x1:T1,...xn:Tn,)=>T". These
 functions can also be named using method selector notation,
 viz. \xcd"f.toString.()" and \xcd"f.typeName.()".
 
@@ -1096,6 +1096,7 @@ The inferred return type if the enclosing class type with
 properties bound to the arguments in the constructor's \xcd"property"
 statement, if any, or to the unconstrained class type.
 
+\index{Void}
 The inferred type of a method or closure body is the least common ancestor
 of the types of the expressions in \xcd"return" statements
 in the body.  If the method does not return a value, the
