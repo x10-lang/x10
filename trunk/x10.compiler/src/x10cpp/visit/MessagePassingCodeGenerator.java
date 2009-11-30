@@ -253,7 +253,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	protected final StreamWrapper sw;
 	protected final Translator tr;
-	protected XCDProcessor xcdProcessor;
 
 	protected Emitter emitter;
 	protected ASTQuery query;
@@ -261,7 +260,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		this.sw = sw;
 		this.tr = tr;
 		this.emitter = new Emitter(tr);
-		this.xcdProcessor = new XCDProcessor(sw, tr);
 		this.query = new ASTQuery(tr);
 	}
 
