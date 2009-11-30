@@ -37,14 +37,14 @@ public class PreLoader {
 			preLoad(PreLoader.class);
 	}
 	private static final String TRUE = "true";
-	private static final Map inited = new HashMap();
+	private static final Map<String, String> inited = new HashMap<String, String>();
 	private static final ClassLoader bootstrap = Object.class.getClassLoader();
 	/**
 	 * Recursively pre-load the given class and all the classes it statically
 	 * references.
 	 * @param c the class to pre-load
 	 */
-	public static void preLoad(Class c) {
+	public static void preLoad(Class<?> c) {
 		preLoad(getClassFile(c), c);
 	}
 	/**
@@ -53,14 +53,14 @@ public class PreLoader {
 	 * @param c the class to pre-load
 	 * @param intern whether to intern string constants
 	 */
-	public static void preLoad(Class c, boolean intern) {
+	public static void preLoad(Class<?> c, boolean intern) {
 		if (c.getClassLoader() == bootstrap) return;
 		preLoad(getClassFile(c), c, intern);
 	}
-	private static void preLoad(String name, Class c) {
+	private static void preLoad(String name, Class<?> c) {
 		preLoad(name, c, true);
 	}
-	private static void preLoad(String name, Class c, boolean intern) {
+	private static void preLoad(String name, Class<?> c, boolean intern) {
 		if (inited.get(name) != null) return;
 		inited.put(name, TRUE);
 //		System.err.println("Pre-loading '"+name+"'");
@@ -74,7 +74,7 @@ public class PreLoader {
 			for (int i = 0; i < ref_classes.length; i++) {
 				String nm = toClassName(ref_classes[i]);
 				try {
-					Class u = Class.forName(nm);
+					Class<?> u = Class.forName(nm);
 //					System.err.println(i+": "+nm+" -> "+u);
 					// Skip arrays
 					if (nm.charAt(0) == '[') continue;
@@ -87,10 +87,10 @@ public class PreLoader {
 			}
 		} catch (IOException e) { e.printStackTrace(System.err); assert false; }
 	}
-	private static InputStream getClassAsStream(Class c) throws IOException {
+	private static InputStream getClassAsStream(Class<?> c) throws IOException {
 		return getClassAsStream(getClassFile(c), c);
 	}
-	private static InputStream getClassAsStream(String name, Class c) throws IOException {
+	private static InputStream getClassAsStream(String name, Class<?> c) throws IOException {
 		InputStream cin = c.getClassLoader().getResourceAsStream(name);
 		if (cin == null)
 			throw new IOException("Class file "+name+" cannot be found");
@@ -102,10 +102,10 @@ public class PreLoader {
 	private static String toFileName(String n) {
 		return n.replace('.','/')+".class";
 	}
-	private static String getClassFile(Class c) {
+	private static String getClassFile(Class<?> c) {
 		return toFileName(c.getName());
 	}
-	private static byte[] getClassBytes(String name, Class c) throws IOException {
+	private static byte[] getClassBytes(String name, Class<?> c) throws IOException {
 		InputStream cin = getClassAsStream(name, c);
 		byte[] classbytes = new byte[cin.available()];
 		if (cin.read(classbytes) != classbytes.length)

@@ -75,7 +75,7 @@ public class Closure_c extends Expr_c implements Closure {
     ClassType typeContainer;
     DepParameterExpr guard;
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
         CollectionUtil.list(Report.types, Report.context);
 
     public Closure_c(Position pos) {

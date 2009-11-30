@@ -3772,7 +3772,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         emitter.enterClosure(c);
 
         ClosureDef closureDef = n.closureDef();
-        CodeInstance ci = closureDef.methodContainer().get();
+        CodeInstance<?> ci = closureDef.methodContainer().get();
         X10ClassType hostClassType = (X10ClassType) closureDef.typeContainer().get();
         X10ClassDef hostClassDef = hostClassType.x10Def();
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();

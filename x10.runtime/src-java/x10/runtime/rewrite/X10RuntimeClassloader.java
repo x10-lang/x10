@@ -57,7 +57,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 	private static final String INSTANTIATE_INTERFACES = "x10.generics.InstantiateInterfaces";
 	private final Method INSTANTIATE_INTERFACES_VALUE;
 	private static final String INSTANTIATE_TYPE = "x10.generics.InstantiateType";
-	private static final Class[] NO_PARAMETERS = { };
+	private static final Class<?>[] NO_PARAMETERS = { };
 	private Method getValueMethod(String container) {
 		try {
 			Class<? extends Annotation> pc = (Class<? extends Annotation>)loadClass(container);
@@ -410,7 +410,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 		return type.substring(1, type.length()-1);
 	}
 
-	public final Class<?> instantiate(Class<?> c, Class[] p) {
+	public final Class<?> instantiate(Class<?> c, Class<?>[] p) {
 		try {
 			String base = c.getName();
 			String[] formals = extractParameters(c, PARAMETERS_VALUE);
@@ -425,19 +425,19 @@ public class X10RuntimeClassloader extends ClassLoader {
 		}
 	}
 
-	public final Class<?> instantiate(Class<?> c, Class p) {
+	public final Class<?> instantiate(Class<?> c, Class<?> p) {
 		return instantiate(c, new Class[] { p });
 	}
 
-	public final Class<?> instantiate(Class<?> c, Class p, Class q) {
+	public final Class<?> instantiate(Class<?> c, Class<?> p, Class<?> q) {
 		return instantiate(c, new Class[] { p, q });
 	}
 
-	public final Class<?> instantiate(Class<?> c, Class p, Class q, Class r) {
+	public final Class<?> instantiate(Class<?> c, Class<?> p, Class<?> q, Class<?> r) {
 		return instantiate(c, new Class[] { p, q, r });
 	}
 
-	public final Class<?> instantiate(Class<?> c, Class p, Class q, Class r, Class s) {
+	public final Class<?> instantiate(Class<?> c, Class<?> p, Class<?> q, Class<?> r, Class<?> s) {
 		return instantiate(c, new Class[] { p, q, r, s });
 	}
 
@@ -792,7 +792,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 				Class<?> c = getClass(container.replace('/','.'));
 				if (c != null) {
 					MethodSig sig = MethodSig.fromSignature(signature);
-					Class[] argTypes = new Class[sig.argTypes.length];
+					Class<?>[] argTypes = new Class[sig.argTypes.length];
 					for (int i = 0; i < argTypes.length; i++) {
 						argTypes[i] = getClass(typeFromSignature(sig.argTypes[i]));
 					}
@@ -842,7 +842,7 @@ public class X10RuntimeClassloader extends ClassLoader {
 				Class<?> c = getClass(container.replace('/','.'));
 				if (c != null) {
 					MethodSig sig = MethodSig.fromSignature(signature);
-					Class[] argTypes = new Class[sig.argTypes.length];
+					Class<?>[] argTypes = new Class[sig.argTypes.length];
 					for (int i = 0; i < argTypes.length; i++)
 						argTypes[i] = getClass(typeFromSignature(sig.argTypes[i]));
 					parms = extractParameters(c.getDeclaredMethod(name, argTypes), p, INSTANTIATE_SUPERCLASS_VALUE);

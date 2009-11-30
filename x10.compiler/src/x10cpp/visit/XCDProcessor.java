@@ -32,7 +32,7 @@ public class XCDProcessor {
 		this.tr = tr;
 	}
 	
-	static HashMap translationCache_ = new HashMap();
+	static HashMap<String,String> translationCache_ = new HashMap<String,String>();
 
 	/**
 	 * Pretty-print a given object.
@@ -51,7 +51,7 @@ public class XCDProcessor {
 		}
 	}
 	static String translate(String id) {
-		String cached = (String) translationCache_.get(id);
+		String cached = translationCache_.get(id);
 		if (cached != null)
 			return cached;
 		try {
@@ -252,24 +252,6 @@ public class XCDProcessor {
 			}
 			sw.write("/* } */");
 		}
-	}
-
-	/**
-	 * A list of one object that has an infinite circular iterator.
-	 */
-	public class CircularList extends AbstractList {
-		// FIXME: Igor, where do we need this class? -[Krishna].
-		private Object o;
-		public CircularList(Object o) { this.o = o; }
-		public Iterator iterator() {
-			return new Iterator() {
-				public boolean hasNext() { return true; }
-				public Object next() { return o; }
-				public void remove() { return; }
-			};
-		}
-		public Object get(int i) { return o; }
-		public int size() { return -1; }
 	}
 
 	private static List asList(Object a, Object b) {

@@ -83,7 +83,7 @@ public abstract class Configuration {
 	 * @throws OptionError if the argument is invalid
 	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	protected static void set(Class cls, String key, String val)
+	protected static void set(Class<?> cls, String key, String val)
 		throws ConfigurationError, OptionError
 	{
 		assert (key != null);
@@ -96,7 +96,7 @@ public abstract class Configuration {
 				key = key.substring(0, key.indexOf('['));
 			}
 			Field f = cls.getField(key);
-			Class t = f.getType();
+			Class<?> t = f.getType();
 			Object o = null;
 			// TODO: implement arrays as described above
 			// FIXME: do we need support for Object arrays?
@@ -178,7 +178,7 @@ public abstract class Configuration {
 	 * @param cfg the configuration resource name
 	 * @throws ConfigurationError if unable to process the resource
 	 */
-	public static void readConfiguration(Class cls, String cfg)
+	public static void readConfiguration(Class<?> cls, String cfg)
 		throws ConfigurationError
 	{
 		if (cfg == null)
@@ -219,7 +219,7 @@ public abstract class Configuration {
 	 * @throws OptionError if the argument is invalid
 	 * @throws ConfigurationError if there was a problem processing the argument
 	 */
-	protected static void parseArgument(Class cls, String arg)
+	protected static void parseArgument(Class<?> cls, String arg)
 		throws OptionError, ConfigurationError
 	{
 		if (arg.length() < 1 || arg.charAt(0) != '-')
@@ -239,7 +239,7 @@ public abstract class Configuration {
 	/**
 	 * Return a human-readable string representation of a given type.
 	 */
-	private static String typeToString(Class t) {
+	private static String typeToString(Class<?> t) {
 		if (t.isPrimitive())
 			return t.toString();
 		if (t.isArray())
@@ -260,7 +260,7 @@ public abstract class Configuration {
 	 * @param cls the configuration class
 	 * @return array of two-element String arrays
 	 */
-	protected static String[][] options(Class cls) {
+	protected static String[][] options(Class<?> cls) {
 		Field[] flds = cls.getFields();
 		int num = 0;
 		for (int i = 0; i < flds.length; i++) {
@@ -278,7 +278,7 @@ public abstract class Configuration {
 			// f is guaranteed to be public
 			if (!Modifier.isStatic(m) || Modifier.isFinal(m))
 				continue;
-			Class t = f.getType();
+			Class<?> t = f.getType();
 			String type = typeToString(t);
 			String desc = "";
 			Object v = null;

@@ -27,17 +27,17 @@ public class Report {
 
   /** A collection of string names of topics which can be used with the
       -report command-line switch */
-  public static Collection topics = new HashSet();
+  public static Collection<String> topics = new HashSet<String>();
 
   /** A collection of string names of topics which we should always check
       if we should report. */
-  public static Stack should_report = new Stack();
+  public static Stack<String> should_report = new Stack<String>();
 
   /** 
    * The topics that the user has selected to report, mapped to the level
    * they want to report them to.
    */
-  protected static Map reportTopics = new HashMap(); // Map[String, Integer]
+  protected static Map<String,Integer> reportTopics = new HashMap<String,Integer>(); // Map[String, Integer]
 
   /**
    * Indicates if there is no reporting at all.
@@ -89,16 +89,16 @@ public class Report {
    * <code>level</code> should be reported, based on use of the
    * -report command-line switches given by the user.
    */
-  public static boolean should_report(Collection topics, int level) {
+  public static boolean should_report(Collection<String> topics, int level) {
       if (noReporting)
           return false;
-    for (Iterator i = should_report.iterator(); i.hasNext();) {
-        String topic = (String) i.next();
+    for (Iterator<String> i = should_report.iterator(); i.hasNext();) {
+        String topic = i.next();
         if (level(topic) >= level) return true;
     }
     if (topics != null) {
-	for (Iterator i = topics.iterator(); i.hasNext();) {
-	    String topic = (String) i.next();
+	for (Iterator<String> i = topics.iterator(); i.hasNext();) {
+	    String topic = i.next();
 	    if (level(topic) >= level) return true;
 	}
     }

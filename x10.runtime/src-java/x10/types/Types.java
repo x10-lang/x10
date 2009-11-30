@@ -25,7 +25,7 @@ public class Types {
         return (T) o;
     }
 
-    public static Type runtimeType(Class c) {
+    public static Type runtimeType(Class<?> c) {
         return new RuntimeType(c);
     }
 

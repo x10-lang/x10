@@ -13,6 +13,7 @@ package x10.ast;
 import java.util.List;
 
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.Expr;
 
 /**
  * The node constructed for [ateach,foreach,async] clocked (C) [stmt].
@@ -21,7 +22,7 @@ import polyglot.ast.CompoundStmt;
 public interface Clocked extends CompoundStmt {
 
     /** Get the clock. */
-    List clocks();
+    List<Expr> clocks();
 
-    Clocked clocks(List clocks);
+    Clocked clocks(List<Expr> clocks);
 }

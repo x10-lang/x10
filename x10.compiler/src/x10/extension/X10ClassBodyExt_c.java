@@ -23,6 +23,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
@@ -31,6 +32,7 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
@@ -370,7 +372,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
 		Name nativeName = generateX10NativeName(nativeMethod);
 		MethodDecl_c newNative = (MethodDecl_c)nativeMethod.name(nativeMethod.name().id(nativeName));
-		ArrayList newFormals = new ArrayList();
+		ArrayList<Formal> newFormals = new ArrayList<Formal>();
 
 		TypeNode longType = nf.CanonicalTypeNode(nativeMethod.position(), typeSystem.Long());
 		TypeNode arrayOfIntType = nf.CanonicalTypeNode(nativeMethod.position(), 
@@ -456,7 +458,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		Position pos = nativeMethod.position();
 		MethodDecl_c nativeWrapper = nativeMethod;
 
-		ArrayList newArgs = new ArrayList();
+		ArrayList<Expr> newArgs = new ArrayList<Expr>();
 		// FIXME: [IP] This looks like a bug -- in the stub, we do something else if the method is overloaded
 		Name jniName = generateX10NativeName(nativeMethod);
 
@@ -468,7 +470,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
                 Name descriptorName = KgetDescriptorMethod;
 	
-		ArrayList args = new ArrayList();
+		ArrayList<Expr> args = new ArrayList<Expr>();
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
 			Formal_c parameter = (Formal_c) i.next();
 
@@ -572,7 +574,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		// past that point...
 		jniCall = (Call) jniCall.type(nativeMethod.returnType().type());
 
-		ArrayList newStmts = new ArrayList();
+		ArrayList<Stmt> newStmts = new ArrayList<Stmt>();
 		if (nativeMethod.methodDef().returnType().get().isVoid())
 			newStmts.add(nf.Eval(pos, (Expr)jniCall));
 		else
@@ -816,11 +818,11 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		boolean seenNativeMethodDecl = false;
 
 		ClassBody_c cb = (ClassBody_c) node();
-		List members = cb.members();
-		Map methodHash = null;
-		ArrayList newListOfMembers = new ArrayList();
-		for (ListIterator i = members.listIterator(); i.hasNext();) {
-			Object o = i.next();
+		List<ClassMember> members = cb.members();
+		Map<Name,MethodDecl> methodHash = null;
+		ArrayList<ClassMember> newListOfMembers = new ArrayList<ClassMember>();
+		for (ListIterator<ClassMember> i = members.listIterator(); i.hasNext();) {
+			ClassMember o = i.next();
 			if (o instanceof MethodDecl) {
 				MethodDecl_c md = (MethodDecl_c) o;
 				MethodDef mi = md.methodDef();
@@ -864,7 +866,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 
 	private Map<Name,MethodDecl> buildNativeMethodHash(List members) {
-		Map<Name,MethodDecl> methodHash = new HashMap();
+		Map<Name,MethodDecl> methodHash = new HashMap<Name, MethodDecl>();
 		for (ListIterator j = members.listIterator(); j.hasNext();) {
 			Object theObj = j.next();
 			if (!(theObj instanceof MethodDecl))

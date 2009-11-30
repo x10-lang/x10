@@ -133,7 +133,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
     public ClassifiedStream templateFunctions = null;
     public ClassifiedStream structHeader = null;
 
-	public ArrayList<VarInstance> variables = new ArrayList<VarInstance>();
+	public ArrayList<VarInstance<?>> variables = new ArrayList<VarInstance<?>>();
 
     private void putYourVariablesHere(ArrayList<VarInstance> vars) {
         vars.addAll(variables);
@@ -224,7 +224,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
     
 	public Object copy() {
 		X10CPPContext_c res = (X10CPPContext_c) super.copy();
-		res.variables = new ArrayList<VarInstance>();  // or whatever the initial value is
+		res.variables = new ArrayList<VarInstance<?>>();  // or whatever the initial value is
 		res.inClosure = false;
 		res.stackAllocateClosure = false;
 		res.closureOuter = null;

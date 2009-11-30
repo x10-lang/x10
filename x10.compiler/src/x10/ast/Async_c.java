@@ -54,9 +54,9 @@ public class Async_c extends Stmt_c implements Async {
 
 	public Expr place;
 	public Stmt body;
-	protected List clocks;
+	protected List<Expr> clocks;
 
-	public Async_c(Position pos, Expr place, List clocks, Stmt body) {
+	public Async_c(Position pos, Expr place, List<Expr> clocks, Stmt body) {
 		super(pos);
 		this.place = place;
 		this.clocks = clocks;
@@ -75,12 +75,12 @@ public class Async_c extends Stmt_c implements Async {
 	}
 
 	/** Expression */
-	public List clocks() {
+	public List<Expr> clocks() {
 		return this.clocks;
 	}
 
 	/** clock */
-	public Clocked clocks(List clocks) {
+	public Clocked clocks(List<Expr> clocks) {
 		Async_c n = (Async_c) copy();
 		n.clocks = clocks;
 		return n;
@@ -327,7 +327,7 @@ public class Async_c extends Stmt_c implements Async {
 		return succs;
 	}
 
-	private static final Collection TOPICS =
+	private static final Collection<String> TOPICS =
 		CollectionUtil.list(Report.types, Report.context);
 }
 

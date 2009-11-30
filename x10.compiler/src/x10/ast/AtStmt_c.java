@@ -242,7 +242,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return succs;
 	}
 
-	private static final Collection TOPICS =
+	private static final Collection<String> TOPICS =
 		CollectionUtil.list(Report.types, Report.context);
 }
 

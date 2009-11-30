@@ -19,7 +19,9 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import polyglot.ast.ClassBody_c;
+import polyglot.ast.ClassMember;
 import polyglot.ast.Formal_c;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
@@ -412,13 +414,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return JNImangle(canonicalTypeString(type)) + EXTERN_STUB_SUFFIX;
 	}
 
-	private Map buildNativeMethodHash(List members) {
-		Map methodHash = new HashMap();
-		for (ListIterator j = members.listIterator(); j.hasNext();) {
+	private Map<Id, MethodDecl> buildNativeMethodHash(List<ClassMember> members) {
+		Map<Id, MethodDecl> methodHash = new HashMap<Id, MethodDecl>();
+		for (ListIterator<ClassMember> j = members.listIterator(); j.hasNext();) {
 			Object theObj = j.next();
 			if (!(theObj instanceof MethodDecl))
 				continue;
-			MethodDecl_c methodDecl = (MethodDecl_c) theObj;
+			MethodDecl methodDecl = (MethodDecl) theObj;
 			if (!X10Flags.isExtern(methodDecl.methodDef().flags()))
 				continue;
 
