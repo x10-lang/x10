@@ -164,7 +164,10 @@ x10rt:
 # A list of all .x10 files (relative to the src-cpp dir) that we should build
 # into the xrx lib.
 # prune .svn dirs (they probably don't contain *.x10 files so this is just an optimisation)
-XRXFILES  = $(shell find ../src-x10 -name .svn -prune -o -name '*.x10' -print)
+#
+# The sort is a workaround for XTENLANG-676.  The order in which files are listed on the x10c++ commandline
+# appears to affect the results of typechecking.  By sorting, we force a deterministic order of files.
+XRXFILES  = $(shell find ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
 
 #enable asserts, do not look in jar for x10 files
 X10CPPFLAGS += -J-ea -rtdev -disable CheckNativeAnnotations -commandlineonly
