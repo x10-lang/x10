@@ -17,7 +17,6 @@ Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
     Rail<ref<String> > *arr = alloc_rail<ref<String>, Rail<ref<String> > > (x10_argc);
-    arr->x10::lang::Ref::_constructor();
     for (int i = 1; i < ac; i++) {
         ref<String> val = String::Lit(av[i]);
         (*arr)[i-1] = val;

@@ -87,7 +87,9 @@ namespace x10aux {
     }
 
     template<class T, class R> R* alloc_rail(x10_int length) {
-        return alloc_rail_internal<T,R>(length, false);
+        R* rail = alloc_rail_internal<T,R>(length, false);
+        rail->x10::lang::Ref::_constructor();
+        return rail;
     }
 
     template<class T, class R> R* alloc_rail_remote(x10_int length) {
