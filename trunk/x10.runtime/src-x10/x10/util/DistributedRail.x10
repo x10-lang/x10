@@ -80,8 +80,9 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
             val local_ = data.get();
             {
                 val local = local_ as ValRail[T];
+                val data_ = data;
                 at (firstPlace) {
-                    val master = data.get();
+                    val master = data_.get();
                     atomic for (var i:Int=0 ; i<master.length ; ++i) {
                         master(i) = op(master(i), local(i));
                     }
