@@ -19,7 +19,7 @@ the object). Thus objects are represented through an extra level of
 indirection. A consequence of this flexibility is that every class
 type contains the value \Xcd{null} corresponding to the invalid
 reference. \Xcd{null} is often useful as a default value. Further, two
-objects may be compared for identity (\Xcd{==}) in constant time by
+objects may be compared for equality (\Xcd{==}) in constant time by
 simply containing references to the memory used to represent the
 objects.
 
@@ -844,7 +844,7 @@ it: \xcd"toString(): ()=> String" and \xcd"typeName():()=>String". These
 functions are called using the method invocation syntax,
 viz. \xcd"f.toString()" and \xcd"f.typeName()". The first returns an
 implementation-defined string. The second returns a string
-representation of the function type, \xcd"(x1:T1,...xn:Tn,)=>T". These
+representation of the function type, \xcd"(x1:T1,...xn:Tn)=>T". These
 functions can also be named using method selector notation,
 viz. \xcd"f.toString.()" and \xcd"f.typeName.()".
 
@@ -935,8 +935,7 @@ of any interfaces it is declared to implement.
 subtype of any interfaces it is declared to extend.
 
 \paragraph{Boxed types.}
-The type \xcd"Box[T]" is a subtype of any interface implemented
-by \xcd"T".
+The type \xcd"Box[T]" is unrelated to \xcd"T".
 
 \paragraph{Function types.}
 
@@ -1023,7 +1022,6 @@ least common ancestor type is \xcd"x10.lang.Object".
 \input{Coercions}
 
 %\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
-
 
 \section{Built-in types}
 
