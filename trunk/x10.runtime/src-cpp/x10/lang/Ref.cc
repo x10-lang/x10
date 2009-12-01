@@ -13,16 +13,23 @@ Ref::_make() {
 }
 
 x10_int x10::lang::Ref::hashCode() {
-#ifndef USE_DEFAULT_HASHCODE
-    void* v = (void*)this;
-    x10_int* p = (x10_int*)&v;
-    x10_int hc = 0;
-    for (unsigned int i = 0; i < sizeof(void*)/sizeof(x10_int); i++)
-        hc ^= p[i];
+    // STEP 1: Figure out the address to use as for the object.
+    void *v;
+    if (this->location == x10aux::here) {
+        v = (void*)this;
+    } else {
+        v = (void*)x10aux::get_remote_ref(this);
+    }
+
+    // STEP 2: Combine the bits of the pointer into a 32 bit integer.
+    //         Note: intentionally not doing some type-punning pointer thing here as
+    //         the behavior of that is somewhat underdefined and tends to expose
+    //         "interesting" behavior in C++ compilers (especially at high optimization level).
+    uint64_t v2 = (uint64_t)v;
+    x10_int lower = (x10_int)(v2 & 0xffffffff);
+    x10_int upper = (x10_int)(v2 >> 32);
+    x10_int hc = lower ^ upper;
     return hc;
-#else
-    return (x10_int) (int64_t)(void*)this;
-#endif
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
