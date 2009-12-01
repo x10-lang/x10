@@ -19,15 +19,15 @@ public interface Fun_0_0<U> {
     public static class RTT extends RuntimeType<Fun_0_0<?>>{
         Type<?> U;
 
-        public RTT(Type U) {
+        public RTT(Type<?> U) {
             super(Fun_0_0.class);
             this.U = U;
         }
 
         @Override
         public boolean instanceof$(Object o) {
-            if (o instanceof Fun_0_0) {
-                Fun_0_0 v = (Fun_0_0) o;
+            if (o instanceof Fun_0_0<?>) {
+                Fun_0_0<?> v = (Fun_0_0<?>) o;
                 return v.rtt_x10$lang$Fun_0_0_U().isSubtype(U); // covariant
             }
             return false;

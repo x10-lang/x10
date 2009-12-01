@@ -32,7 +32,7 @@ public interface Fun_0_7<T1,T2,T3,T4,T5,T6,T7,U> {
         Type<?> T7;
         Type<?> U;
 
-        public RTT(Type T1, Type T2, Type T3, Type T4, Type T5, Type T6, Type T7, Type U) {
+        public RTT(Type<?> T1, Type<?> T2, Type<?> T3, Type<?> T4, Type<?> T5, Type<?> T6, Type<?> T7, Type<?> U) {
             super(Fun_0_7.class);
             this.T1 = T1;
             this.T2 = T2;
@@ -47,7 +47,7 @@ public interface Fun_0_7<T1,T2,T3,T4,T5,T6,T7,U> {
         @Override
         public boolean instanceof$(Object o) {
             if (o instanceof Fun_0_7) {
-                Fun_0_7 v = (Fun_0_7) o;
+                Fun_0_7<?,?,?,?,?,?,?,?> v = (Fun_0_7<?,?,?,?,?,?,?,?>) o;
                 if (! v.rtt_x10$lang$Fun_0_7_U().isSubtype(U)) return false; // covariant
                 if (! T1.isSubtype(v.rtt_x10$lang$Fun_0_7_Z1())) return false; // contravariant
                 if (! T2.isSubtype(v.rtt_x10$lang$Fun_0_7_Z2())) return false; // contravariant

@@ -22,7 +22,7 @@ public interface Fun_0_2<T1,T2,U> {
         Type<?> T2;
         Type<?> U;
 
-        public RTT(Type T1, Type T2, Type U) {
+        public RTT(Type<?> T1, Type<?> T2, Type<?> U) {
             super(Fun_0_2.class);
             this.T1 = T1;
             this.T2 = T2;
@@ -32,7 +32,7 @@ public interface Fun_0_2<T1,T2,U> {
         @Override
         public boolean instanceof$(Object o) {
             if (o instanceof Fun_0_2) {
-                Fun_0_2 v = (Fun_0_2) o;
+                Fun_0_2<?,?,?> v = (Fun_0_2<?,?,?>) o;
                 if (! v.rtt_x10$lang$Fun_0_2_U().isSubtype(U)) return false; // covariant
                 if (! T1.isSubtype(v.rtt_x10$lang$Fun_0_2_Z1())) return false; // contravariant
                 if (! T2.isSubtype(v.rtt_x10$lang$Fun_0_2_Z2())) return false; // contravariant

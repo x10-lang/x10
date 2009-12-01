@@ -20,7 +20,7 @@ public interface VoidFun_0_2<T1,T2> {
         Type<?> T1;
         Type<?> T2;
 
-        public RTT(Type T1, Type T2) {
+        public RTT(Type<?> T1, Type<?> T2) {
             super(VoidFun_0_2.class);
             this.T1 = T1;
             this.T2 = T2;
@@ -29,7 +29,7 @@ public interface VoidFun_0_2<T1,T2> {
         @Override
         public boolean instanceof$(Object o) {
             if (o instanceof VoidFun_0_2) {
-                VoidFun_0_2 v = (VoidFun_0_2) o;
+                VoidFun_0_2<?,?> v = (VoidFun_0_2<?,?>) o;
                 if (! T1.isSubtype(v.rtt_x10$lang$VoidFun_0_2_Z1())) return false; // contravariant
                 if (! T2.isSubtype(v.rtt_x10$lang$VoidFun_0_2_Z2())) return false; // contravariant
                 return true;
