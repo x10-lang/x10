@@ -37,7 +37,7 @@ public class Object (
 
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
-    public native def hashCode() : Int;
+    public global native def hashCode() : Int;
 
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")
