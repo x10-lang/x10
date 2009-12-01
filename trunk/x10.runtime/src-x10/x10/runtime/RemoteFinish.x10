@@ -46,7 +46,7 @@ class RemoteFinish implements FinishState {
     
     public def rid():RID = rid;
     
-    public def incr():Void {
+    public def notifyActivityCreation():Void {
         count.getAndIncrement();
     }
     
@@ -65,7 +65,7 @@ class RemoteFinish implements FinishState {
 	/** 
 	 * An activity created under this finish has terminated.
 	 */
-    public def notifySubActivityTermination():Void {
+    public def notifyActivityTermination():Void {
         lock.lock();
         counts(here.id)--;
         if (count.decrementAndGet() > 0) {

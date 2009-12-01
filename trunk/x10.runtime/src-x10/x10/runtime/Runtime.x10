@@ -351,7 +351,7 @@ public final class Runtime {
 	public static def stopFinish():Void {
 	    val a = activity();
 		val finishState = a.finishStack.pop();
-		finishState.notifySubActivityTermination();
+		finishState.notifyActivityTermination();
 		(finishState as RootFinish!).waitForFinish(safe());
 	}
 

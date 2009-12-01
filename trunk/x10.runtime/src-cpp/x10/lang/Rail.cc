@@ -33,8 +33,8 @@ void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
     ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     ref<Object> fs = rt->FMGL(finishStates)->get(rid);
     // olivier says the incr should be just after the notifySubActivitySpawn
-    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
-    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
+    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
+    (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
 void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &buf, addr_map &m)

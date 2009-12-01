@@ -283,8 +283,8 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     x10::runtime::RID rid = buf.read<x10::runtime::RID>();
     x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     x10aux::ref<x10::lang::Object> fs = rt->FMGL(finishStates)->get(rid);
-    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->incr))();
-    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivityTermination))();
+    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
+    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
 x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *kernel)

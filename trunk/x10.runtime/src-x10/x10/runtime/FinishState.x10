@@ -22,7 +22,7 @@ interface FinishState {
     /** 
 	 * An activity created under this finish has terminated.
 	 */
-    def notifySubActivityTermination():Void;
+    def notifyActivityTermination():Void;
     
 	/** 
 	 * Push an exception onto the stack.
@@ -31,5 +31,5 @@ interface FinishState {
     
     def rid(): RID;
 
-    def incr():Void;
+    def notifyActivityCreation():Void;
 }

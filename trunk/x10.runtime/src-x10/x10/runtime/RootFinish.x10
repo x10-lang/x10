@@ -23,7 +23,7 @@ class RootFinish extends Latch implements FinishState {
     
     public def rid():RID = rid; 
     
-    public def incr():Void {}
+    public def notifyActivityCreation():Void {}
     
     def this() {
 		val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
@@ -91,7 +91,7 @@ class RootFinish extends Latch implements FinishState {
         unlock();
     }
     
-    public def notifySubActivityTermination():Void {
+    public def notifyActivityTermination():Void {
         lock();
         counts(here.id)--;
         for(var i:Int=0; i<Place.MAX_PLACES; i++) {

@@ -57,7 +57,7 @@ public class Activity {
     def this(body:()=>Void, finishState:FinishState!, safe:Boolean, free:Boolean) {
         this.finishState = finishState;
         this.safe = safe;
-        finishState.incr();
+        finishState.notifyActivityCreation();
         this.body = body;
         this.free = free;
     }
@@ -80,7 +80,7 @@ public class Activity {
             Runtime.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();
-		finishState.notifySubActivityTermination();
+		finishState.notifyActivityTermination();
         if (free) NativeRuntime.dealloc(body);
 	}
 	
