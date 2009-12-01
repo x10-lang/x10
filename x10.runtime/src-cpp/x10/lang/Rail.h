@@ -228,7 +228,6 @@ namespace x10 {
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            rail->x10::lang::Ref::_constructor();
             // Memset both for efficiency and to allow T to be a struct.
             memset(rail->raw(), 0, length * sizeof(T));
             return rail;
@@ -237,7 +236,6 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            rail->x10::lang::Ref::_constructor();
             x10aux::ref<x10::lang::Object> initAsObj = init;
             // FIXME:  This is a complete hack to compensate for some problem in the RTT infrastructure.  Same HACK in ValRail.h
             initAsObj->_type();
@@ -252,7 +250,6 @@ namespace x10 {
                                                                x10aux::ref<ValRail<T> > other) {
             x10aux::nullCheck(other);
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            rail->x10::lang::Ref::_constructor();
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
@@ -263,7 +260,6 @@ namespace x10 {
                                                                x10aux::ref<Rail<T> > other) {
             x10aux::nullCheck(other);
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            rail->x10::lang::Ref::_constructor();
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i+offset];
             }
@@ -274,7 +270,6 @@ namespace x10 {
             x10aux::nullCheck(other);
             x10_int length = other->FMGL(length);
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            rail->x10::lang::Ref::_constructor();
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (*other)[i];
             }
