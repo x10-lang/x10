@@ -7,6 +7,7 @@
 #include <x10aux/string_utils.h>
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/Fun_0_1.h>
 
 #ifdef __CYGWIN__
 extern "C" char *strdup (const char *);
@@ -26,6 +27,10 @@ namespace x10 {
             const char *c_str() const { return FMGL(content); }
 
             RTT_H_DECLS_CLASS;
+
+            static Fun_0_1<x10_int/*nat*/, x10_char>::itable<String> _itable_Fun_0_1;
+            static x10aux::itable_entry _itables[2];
+            virtual x10aux::itable_entry* _getITables() { return _itables; }
             
             // Set steal to true if you have just allocated the char * with
             // alloc_printf or it's otherwise OK if the String frees it.  Leave
@@ -89,6 +94,9 @@ namespace x10 {
 
             x10aux::ref<ValRail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
+            // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
+            x10_char apply(x10_int i) { return charAt(i); }
+            
             x10_char charAt(x10_int i);
 
             x10aux::ref<ValRail<x10_char> > chars();
