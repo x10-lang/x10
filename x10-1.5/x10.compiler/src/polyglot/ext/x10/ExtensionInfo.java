@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lpg.runtime.LexStream;
+
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
@@ -144,8 +146,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
             //
             X10Lexer x10_lexer = new X10Lexer(source.path());
-            X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-            x10_lexer.lexer(x10_parser);
+            X10Parser x10_parser = new X10Parser((LexStream) x10_lexer.getLexStream(), ts, nf, source, eq); // Create the parser
+            x10_lexer.lexer(x10_parser.getIPrsStream());
             return x10_parser; // Parse the token stream to produce an AST
         } catch (IOException e) {
             e.printStackTrace();
