@@ -100,11 +100,11 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
                     }
                 }
             }
-            next; // every place has transmitted contents to master
+            //next; // every place has transmitted contents to master
             val handle = data; // avoid 'this' being serialised
             finish local_.copyFrom[T](0, firstPlace, ()=>Pair[Rail[T],Int](handle.get(),0), local_.length);
         } else {
-            next;
+            //next;
         }
     }
 
@@ -125,19 +125,19 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
                 done.get().value = true;
             }
         }
-        next; // activity rails populated at this place
+        //next; // activity rails populated at this place
         if (i_won) {
             // single thread per place mode
             reduceLocal(op);
-            next; // every place has local rail populated
+            //next; // every place has local rail populated
             reduceGlobal(op); // there's one 'next' in here too
             bcastLocal(op);
             done.get().value = false;
         } else {
-            next;
-            next;
+            //next;
+            //next;
         }
-        next; // every place has finished reading from place 0
+        //next; // every place has finished reading from place 0
     }
 
 }
@@ -193,13 +193,13 @@ public class KMeansCUDA {
             finish async {
 
                 // SPMD style for algorithm
-                val clk = Clock.make();
+                //val clk = Clock.make();
 
                 val num_slice_points = num_global_points / num_slices;
 
                 for ((slice) in 0..num_slices-1) {
 
-                    for (h in Place.places) for (gpu in h.children()) async (h) clocked(clk) {
+                    for (h in Place.places) for (gpu in h.children()) async (h) /*clocked(clk)*/ {
 
                         // carve out local portion of points (point-major)
                         val num_local_points = num_slice_points / Place.NUM_ACCELS;
@@ -218,7 +218,7 @@ public class KMeansCUDA {
                         val host_nearest = Rail.make(num_local_points, (Int)=>0 as Int);
                         val gpu_nearest = Rail.makeRemote(gpu, num_local_points, (Int)=>0 as Int);
 
-                        next;
+                        //next;
 
                         val start_time = System.currentTimeMillis();
 
@@ -291,7 +291,7 @@ public class KMeansCUDA {
 
                             // TEST FOR CONVERGENCE
                             for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
-                                if (true||Math.abs(clusters_copy(j)-clusters(j))>0.0001) continue main_loop;
+                                if (true/*||Math.abs(clusters_copy(j)-clusters(j))>0.0001*/) continue main_loop;
                             }
 
                             break;
