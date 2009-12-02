@@ -1,5 +1,5 @@
-#ifndef X10_LANG_VALUE_H
-#define X10_LANG_VALUE_H
+#ifndef X10_LANG_CLOSURE_H
+#define X10_LANG_CLOSURE_H
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
@@ -13,17 +13,17 @@ namespace x10 {
 
     namespace lang {
 
-        class Value : public Object {
+        class Closure : public Object {
         public:
             RTT_H_DECLS_CLASS
 
-            Value() {
+            Closure() {
                 location = x10aux::here;
             }
 
-            static x10aux::ref<Value> _make();
+            static x10aux::ref<Closure> _make();
 
-            x10aux::ref<Value> _constructor() { return this; }
+            x10aux::ref<Closure> _constructor() { return this; }
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -39,16 +39,14 @@ namespace x10 {
                 // there are no fields
             }
 
-            static void _serialize(x10aux::ref<Value> this_,
+            static void _serialize(x10aux::ref<Closure> this_,
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
     
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
     
-
-
             virtual x10_int hashCode() {
-                // All instances of Value are equal, so their hashcodes can be too.
+                // All instances of Closure are equal, so their hashcodes can be too.
                 return 0;
             }
 
@@ -57,15 +55,15 @@ namespace x10 {
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
         };
 
-        template<class T> x10aux::ref<T> Value::_deserialize(x10aux::deserialization_buffer &buf){
+        template<class T> x10aux::ref<T> Closure::_deserialize(x10aux::deserialization_buffer &buf){
             // extract the id and execute a callback to instantiate the right concrete class
             _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"value"<<ANSI_RESET<<
                 " (expecting id) from buf: "<<&buf);
             return x10aux::DeserializationDispatcher::create<T>(buf);
         }
 
-        template<class T> x10aux::ref<T> Value::_deserializer(x10aux::deserialization_buffer &) {
-            x10aux::ref<Value> this_ = new (x10aux::alloc<Value>()) Value();
+        template<class T> x10aux::ref<T> Closure::_deserializer(x10aux::deserialization_buffer &) {
+            x10aux::ref<Closure> this_ = new (x10aux::alloc<Closure>()) Closure();
             return this_;
         }
     }

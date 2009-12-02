@@ -3841,13 +3841,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String superType = Emitter.translateType(sup.typeArguments(supArgs));
         String superTypeRef = Emitter.translateType(sup.typeArguments(supArgs), true);
 
-        inc.write("#include <x10/lang/Value.h>"); inc.newline();
+        inc.write("#include <x10/lang/Closure.h>"); inc.newline();
         String header = getHeader(sup);
         inc.write("#include <"+header+">"); inc.newline();
         // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("class "+cname+" : public x10::lang::Value {");
+        inc.write("class "+cname+" : public x10::lang::Closure {");
         inc.newline(4); inc.begin(0);
         inc.write("public:") ; inc.newline(); inc.forceNewline();
 
