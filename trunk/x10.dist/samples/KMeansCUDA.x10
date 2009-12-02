@@ -226,6 +226,7 @@ public class KMeansCUDA {
 
                             val clusters_copy = clusters as ValRail[Float];
 
+                            var k_start_time : Long = System.currentTimeMillis();
                             // classify kernel
                             finish async (gpu) @CUDA {
                                 val blocks = CUDAUtilities.autoBlocks(),
@@ -257,9 +258,12 @@ public class KMeansCUDA {
                                     }
                                 }
                             }
+                            Console.OUT.println("kernel: "+(System.currentTimeMillis() - k_start_time));
 
                             // bring gpu results onto host
+                            k_start_time = System.currentTimeMillis();
                             finish host_nearest.copyFrom(0, gpu_nearest, 0, num_local_points);
+                            Console.OUT.println("dma: "+(System.currentTimeMillis() - k_start_time));
                             
                             // compute new clusters
 
@@ -270,12 +274,14 @@ public class KMeansCUDA {
                             host_clusters.reset(0);
                             host_cluster_counts.reset(0);
 
+                            k_start_time = System.currentTimeMillis();
                             for (var p:Int=0 ; p<num_local_points ; p++) {
                                 val closest = host_nearest(p);
                                 for (var d:Int=0 ; d<4 ; ++d)
                                     host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
                                 host_cluster_counts(closest)++;
                             }
+                            Console.OUT.println("reaverage: "+(System.currentTimeMillis() - k_start_time));
 
                             clusters.collectiveReduce(Float.+);
                             cluster_counts.collectiveReduce(Int.+);
