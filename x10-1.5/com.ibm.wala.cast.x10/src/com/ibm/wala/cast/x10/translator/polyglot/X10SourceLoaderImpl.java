@@ -5,17 +5,15 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.IOException;
 
-import com.ibm.wala.cast.x10.loader.X10Language;
-import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
-import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
-import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
-import com.ibm.wala.cast.loader.AstMethod.LexicalInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
+import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
@@ -66,17 +64,17 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
      * IMethod here inside the loader, where we can actually trap defineFunction().
      * Gack.
      */
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
+    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
 	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
 	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
 
-	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo));
+	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
 	    X10ClosureObject closureObject= (X10ClosureObject) fTypeMap.get(n);
 
-	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo));
+	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else
-	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, false, lexicalInfo, debugInfo);
+	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
     }
 
     public String toString() {
