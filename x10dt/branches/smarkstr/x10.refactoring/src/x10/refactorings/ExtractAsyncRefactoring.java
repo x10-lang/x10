@@ -1182,15 +1182,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		rtJar.add(javaHomePath + File.separator + "lib" + File.separator + "core.jar");
 		rtJar.add(javaHomePath + File.separator + "lib" + File.separator + "vm.jar");
 
-		List<String> x10RTJar = new ArrayList<String>();
-		x10RTJar.addAll(rtJar);
+		List<String> x10RTJars = new ArrayList<String>();
+		x10RTJars.addAll(rtJar);
 		IJavaProject javaProject = JavaCore.create(fSourceFile.getProject());
 		try{
 			fEngine = new X10EclipseSourceAnalysisEngine(javaProject);
 		} catch (IOException ioe) {
 			return RefactoringStatus.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
 		}
-		x10RTJar.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
+		x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
 
 		if (!(fNode instanceof Expr))
 			return RefactoringStatus.createFatalErrorStatus("Extract Async is only valid for expressions");
@@ -1200,12 +1200,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		NodeTypeFindingVisitor typeFinder = new NodeTypeFindingVisitor(ClassDecl.class);
 		fNodeMethod.visit(typeFinder);
 
-		if (typeFinder.getResult() != null)
+		if (typeFinder.getResult() != null) {
 			return RefactoringStatus.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
+		}
 
-		
 		try {
-		  return this.analyzeSource(ExtractAsyncStaticTools.singleTestSrc(fSourceFile), x10RTJar, javaProject);
+		  return this.analyzeSource(ExtractAsyncStaticTools.singleTestSrc(fSourceFile), x10RTJars, javaProject);
 		} catch (CancelException e) {
 			return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
 		}
