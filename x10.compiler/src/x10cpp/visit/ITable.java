@@ -119,6 +119,13 @@ public final class ITable {
 	public boolean hasOverloadedMethods() {
 		return hasOverloadedMethods;
 	}
+	
+	/**
+	 * @return true if the ITable contains no methods at all, false otherwise.
+	 */
+	public boolean isEmpty() {
+	    return methods.length == 0;
+	}
 
 	public String mangledName(MethodInstance meth) {
 		if (hasOverloadedMethods) {
@@ -211,14 +218,18 @@ public final class ITable {
                 emitter.printTemplateSignature(cls.typeArguments(), sw);
             }           
             sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-                     thunkType+" > "+" "+thunkType+"::itable(");
-            int methodNum = 0;
-            for (MethodInstance meth : methods) {
-                if (methodNum > 0) sw.write(", ");
-                sw.write("&"+thunkType+"::"+Emitter.mangled_method_name(meth.name().toString()));
-                methodNum++;
+                     thunkType+" > "+" "+thunkType+"::itable");
+            if (!isEmpty()) {
+                int methodNum = 0;
+                sw.write("(");
+                for (MethodInstance meth : methods) {
+                    if (methodNum > 0) sw.write(", ");
+                    sw.write("&"+thunkType+"::"+Emitter.mangled_method_name(meth.name().toString()));
+                    methodNum++;
+                }
+                sw.write(")");
             }
-            sw.write(");"); sw.newline();
+            sw.write(";"); sw.newline();
             if (cd.package_() != null) {
                 Emitter.closeNamespaces(sw, cd.package_().get().fullName()); sw.newline();
             }
@@ -231,14 +242,18 @@ public final class ITable {
 	            emitter.printTemplateSignature(cls.typeArguments(), sw);
 	        }
 	        sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"(");
-	        int methodNum = 0;
-	        for (MethodInstance meth : methods) {
-	            if (methodNum > 0) sw.write(", ");
-	            sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
-	            methodNum++;
+	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");
+	        if (!isEmpty()) {
+	            int methodNum = 0;
+	            sw.write("(");
+	            for (MethodInstance meth : methods) {
+	                if (methodNum > 0) sw.write(", ");
+	                sw.write("&"+clsCType+"::"+Emitter.mangled_method_name(meth.name().toString()));
+	                methodNum++;
+	            }
+	            sw.write(")");
 	        }
-	        sw.write(");"); sw.newline();
+	        sw.write(";"); sw.newline();
 	    }
 	}
 
