@@ -94,7 +94,7 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     }
 
     /**
-     * Adds the given module to the X10 primordial loader's module list. Clients
+     * Adds the given module to the X10 source loader's module list. Clients
      * should/may call this method if they don't supply an IJavaProject to the
      * constructor.
      */
