@@ -5,7 +5,7 @@
 %Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser
-%options template=lpg.templates/LexerTemplate.gi
+%options template=LexerTemplateF.gi
 %options filter=x10KWLexer.gi
 
 %Notice
@@ -48,20 +48,6 @@
     -- Additional methods for the action class not provided in the template
     --
     /.
-        public void makeToken(int startLoc, int endLoc, int kind)
-        {
-            if (kind == TK_IDENTIFIER)
-            {
-                int index = getPrsStream().getSize() - 1;
-                IToken token = getPrsStream().getIToken(index);
-                if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
-                {
-                    token.setEndOffset(token.getEndOffset() - 1);
-                    getPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), TK_DOT);
-                }
-            }
-            prsStream.makeToken(startLoc, endLoc, kind);
-        }
         
         static public class DifferX10 extends DifferJava
         {

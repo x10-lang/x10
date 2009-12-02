@@ -5,11 +5,11 @@
 %Options fp=JavaLexer
 %options single_productions
 %options package=javaparser
-%options template=lpg.templates/LexerTemplate.gi
+%options template=LexerTemplateF.gi
 %options filter=GJavaKWLexer.gi
 
 %Include
-    lpg.templates/LexerBasicMap.gi
+    LexerBasicMapF.gi
 %End
 
 %Headers
@@ -42,7 +42,7 @@
             assert(size == 0);
         
             initialize(buffer, filename);
-            kwLexer = new $kw_lexer_class(getInputChars(), $_IDENTIFIER);
+            kwLexer = new $kw_lexer_class(lexStream.getInputChars(), $_IDENTIFIER);
         }
         
         private static int LINES = 0,
@@ -244,7 +244,7 @@
 
                 $action_type lexer = new $action_type(file);
 
-                PrsStream stream = new PrsStream(lexer);
+                PrsStream stream = new PrsStream(lexer.getILexStream());
                 lexer.lexer(stream);
     
                 DifferJava diff = (DifferJava) (differ_mode == JAVA
@@ -305,10 +305,10 @@
                 }
                 else new_lexer = new $action_type(new_file);
 
-                PrsStream old_stream = new PrsStream(old_lexer);
+                PrsStream old_stream = new PrsStream(old_lexer.getILexStream());
                 old_lexer.lexer(old_stream);
     
-                PrsStream new_stream = new PrsStream(new_lexer);
+                PrsStream new_stream = new PrsStream(new_lexer.getILexStream());
                 new_lexer.lexer(new_stream);
 
                 Differ diff = (differ_mode == LINES
@@ -953,7 +953,7 @@ assert(new_file != null);
 
     MultiLineComment ::= '/' '*' Inside Stars '/'
         /.$BeginAction
-                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
+                    if (lexStream.getKind(getRhsFirstTokenIndex(3)) == X10Lexersym.Char_Star && lexStream.getKind(lexStream.getNext(getRhsFirstTokenIndex(3))) != X10Lexersym.Char_Star)
                          makeComment($_DocComment);
                     else makeComment($_MlComment);
           $EndAction

@@ -1,6 +1,6 @@
 %options fp=JavaParser
 %options package=javaparser
-%options template=lpg.templates/btParserTemplate.gi
+%options template=btParserTemplateF.gi
 %options import_terminals=GJavaLexer.gi
 
 %Notice
@@ -324,8 +324,8 @@
                     // Add import x10.lang.* by default.
                     int token_pos = (ImportDeclarationsopt.size() == 0
                                          ? TypeDeclarationsopt.size() == 0
-                                               ? super.getSize() - 1
-                                               : getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
+                                               ? prsStream.getSize() - 1
+                                               : prsStream.getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
                                      : getRhsLastTokenIndex($ImportDeclarationsopt)
                                 );
                     Import x10LangImport = 
