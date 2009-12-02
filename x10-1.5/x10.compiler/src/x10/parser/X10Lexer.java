@@ -15,12 +15,14 @@ import java.util.Iterator;
 import java.io.File;
 import java.util.ArrayList;
 
-public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym, RuleAction
+public class X10Lexer implements RuleAction
 {
+    private X10LexerLpgLexStream lexStream;
+    
     private static ParseTable prs = new X10Lexerprs();
     public ParseTable getParseTable() { return prs; }
 
-    private LexParser lexParser = new LexParser(this, prs, this);
+    private LexParser lexParser = new LexParser();
     public LexParser getParser() { return lexParser; }
 
     public int getToken(int i) { return lexParser.getToken(i); }
@@ -30,31 +32,61 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     public int getLeftSpan() { return lexParser.getToken(1); }
     public int getRightSpan() { return lexParser.getLastToken(); }
 
+    public void resetKeywordLexer()
+    {
+        if (kwLexer == null)
+              this.kwLexer = new X10KWLexer(lexStream.getInputChars(), X10Parsersym.TK_IDENTIFIER);
+        else this.kwLexer.setInputChars(lexStream.getInputChars());
+    }
+
+    public void reset(String filename, int tab) throws java.io.IOException
+    {
+        lexStream = new X10LexerLpgLexStream(filename, tab);
+        lexParser.reset((ILexStream) lexStream, prs, (RuleAction) this);
+        resetKeywordLexer();
+    }
+
+    public void reset(char[] input_chars, String filename)
+    {
+        reset(input_chars, filename, 1);
+    }
+    
+    public void reset(char[] input_chars, String filename, int tab)
+    {
+        lexStream = new X10LexerLpgLexStream(input_chars, filename, tab);
+        lexParser.reset((ILexStream) lexStream, prs, (RuleAction) this);
+        resetKeywordLexer();
+    }
+    
     public X10Lexer(String filename, int tab) throws java.io.IOException 
     {
-        super(filename, tab);
+        reset(filename, tab);
     }
 
     public X10Lexer(char[] input_chars, String filename, int tab)
     {
-        super(input_chars, filename, tab);
+        reset(input_chars, filename, tab);
     }
 
     public X10Lexer(char[] input_chars, String filename)
     {
-        this(input_chars, filename, 1);
+        reset(input_chars, filename, 1);
     }
 
     public X10Lexer() {}
 
-    public String[] orderedExportedSymbols() { return X10Parsersym.orderedTerminalSymbols; }
-    public LexStream getLexStream() { return (LexStream) this; }
+    public ILexStream getILexStream() { return lexStream; }
+
+    /**
+     * @deprecated replaced by {@link #getILexStream()}
+     */
+    public ILexStream getLexStream() { return lexStream; }
 
     private void initializeLexer(IPrsStream prsStream, int start_offset, int end_offset)
     {
-        if (getInputChars() == null)
+        if (lexStream.getInputChars() == null)
             throw new NullPointerException("LexStream was not initialized");
-        setPrsStream(prsStream);
+        lexStream.setPrsStream(prsStream);
         prsStream.makeToken(start_offset, end_offset, 0); // Token list must start with a bad token
     }
 
@@ -73,7 +105,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     {
         initializeLexer(prsStream, 0, -1);
         lexParser.parseCharacters(monitor);  // Lex the input characters
-        addEOF(prsStream, getStreamIndex());
+        addEOF(prsStream, lexStream.getStreamIndex());
     }
 
     public void lexer(IPrsStream prsStream, int start_offset, int end_offset)
@@ -89,7 +121,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
 
         lexParser.parseCharacters(monitor, start_offset, end_offset);
 
-        addEOF(prsStream, (end_offset >= getStreamIndex() ? getStreamIndex() : end_offset + 1));
+        addEOF(prsStream, (end_offset >= lexStream.getStreamIndex() ? lexStream.getStreamIndex() : end_offset + 1));
     }
 
     /**
@@ -97,9 +129,9 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
      * simply report a lexical error. Otherwise, we produce a bad token.
      */
     public void reportLexicalError(int startLoc, int endLoc) {
-        IPrsStream prs_stream = getPrsStream();
+        IPrsStream prs_stream = lexStream.getPrsStream();
         if (prs_stream == null)
-            super.reportLexicalError(startLoc, endLoc);
+            lexStream.reportLexicalError(startLoc, endLoc);
         else {
             //
             // Remove any token that may have been processed that fall in the
@@ -132,22 +164,27 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     public X10Lexer(String filename) throws java.io.IOException
     {
         this(filename, ECLIPSE_TAB_VALUE);
-        this.kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
+        this.kwLexer = new X10KWLexer(lexStream.getInputChars(), X10Parsersym.TK_IDENTIFIER);
     }
 
+    /**
+     * @deprecated function replaced by {@link #reset(char [] content, String filename)}
+     */
     public void initialize(char [] content, String filename)
     {
-        super.initialize(content, filename);
-        if (this.kwLexer == null)
-             this.kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
-        else this.kwLexer.setInputChars(getInputChars());
+        reset(content, filename);
+    }
+    
+    final void makeToken(int left_token, int right_token, int kind)
+    {
+        lexStream.makeToken(left_token, right_token, kind);
     }
     
     final void makeToken(int kind)
     {
         int startOffset = getLeftSpan(),
             endOffset = getRightSpan();
-        makeToken(startOffset, endOffset, kind);
+        lexStream.makeToken(startOffset, endOffset, kind);
         if (printTokens) printValue(startOffset, endOffset);
     }
 
@@ -155,7 +192,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
     {
         int startOffset = getLeftSpan(),
             endOffset = getRightSpan();
-        super.getPrsStream().makeAdjunct(startOffset, endOffset, kind);
+        lexStream.getIPrsStream().makeAdjunct(startOffset, endOffset, kind);
     }
 
     final void skipToken()
@@ -168,7 +205,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         int startOffset = getLeftSpan(),
             endOffset = getRightSpan(),
             kwKind = kwLexer.lexer(startOffset, endOffset);
-        makeToken(startOffset, endOffset, kwKind);
+        lexStream.makeToken(startOffset, endOffset, kwKind);
         if (printTokens) printValue(startOffset, endOffset);
     }
     
@@ -183,20 +220,22 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             endOffset = getRightSpan(),
             kwKind = kwLexer.lexer(startOffset, endOffset);
         if (kwKind == X10Parsersym.TK_IDENTIFIER)
-          kwKind = defaultKind;
-        makeToken(startOffset, endOffset, kwKind);
+            kwKind = defaultKind;
+        lexStream.makeToken(startOffset, endOffset, kwKind);
         if (printTokens) printValue(startOffset, endOffset);
     }
     
     final void printValue(int startOffset, int endOffset)
     {
-        String s = new String(getInputChars(), startOffset, endOffset - startOffset + 1);
+        String s = new String(lexStream.getInputChars(), startOffset, endOffset - startOffset + 1);
         System.out.print(s);
     }
 
     //
     //
     //
+    static class X10LexerLpgLexStream extends LpgLexStream
+    {
     public final static int tokenKind[] =
     {
         X10Lexersym.Char_CtlCharNotWS,    // 000    0x00
@@ -341,6 +380,24 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
                        : X10Lexersym.Char_AfterASCII);
     }
 
+    public String[] orderedExportedSymbols() { return X10Parsersym.orderedTerminalSymbols; }
+
+    public X10LexerLpgLexStream(String filename, int tab) throws java.io.IOException
+    {
+        super(filename, tab);
+    }
+
+    public X10LexerLpgLexStream(char[] input_chars, String filename, int tab)
+    {
+        super(input_chars, filename, tab);
+    }
+
+    public X10LexerLpgLexStream(char[] input_chars, String filename)
+    {
+        super(input_chars, filename, 1);
+    }
+    }
+
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
         ArrayList buffers = new ArrayList();
@@ -366,7 +423,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
         assert(size == 0);
     
         initialize(buffer, filename);
-        kwLexer = new X10KWLexer(getInputChars(), X10Parsersym.TK_IDENTIFIER);
+        kwLexer = new X10KWLexer(lexStream.getInputChars(), X10Parsersym.TK_IDENTIFIER);
     }
     
     private static int LINES = 0,
@@ -568,7 +625,7 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
 
             X10Lexer lexer = new X10Lexer(file);
 
-            PrsStream stream = new PrsStream(lexer);
+            PrsStream stream = new PrsStream(lexer.getILexStream());
             lexer.lexer(stream);
 
             DifferJava diff = (DifferJava) (differ_mode == JAVA
@@ -629,10 +686,10 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
             }
             else new_lexer = new X10Lexer(new_file);
 
-            PrsStream old_stream = new PrsStream(old_lexer);
+            PrsStream old_stream = new PrsStream(old_lexer.getILexStream());
             old_lexer.lexer(old_stream);
 
-            PrsStream new_stream = new PrsStream(new_lexer);
+            PrsStream new_stream = new PrsStream(new_lexer.getILexStream());
             new_lexer.lexer(new_stream);
 
             Differ diff = (differ_mode == LINES
@@ -821,21 +878,6 @@ assert(new_file != null);
         return;
     }
 
-    public void makeToken(int startLoc, int endLoc, int kind)
-    {
-        if (kind == TK_IDENTIFIER)
-        {
-            int index = getPrsStream().getSize() - 1;
-            IToken token = getPrsStream().getIToken(index);
-            if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
-            {
-            	int oldEndOffset = token.getEndOffset();
-                token.setEndOffset(token.getEndOffset() - 1);
-                getPrsStream().makeToken(oldEndOffset, oldEndOffset, TK_DOT);
-            }
-        }
-        prsStream.makeToken(startLoc, endLoc, kind);
-    }
     
     static public class DifferX10 extends DifferJava
     {
@@ -983,439 +1025,439 @@ assert(new_file != null);
     {
         switch(ruleNumber)
         {
- 
+
             //
             // Rule 1:  Token ::= Identifier
             //
             case 1: { 
                 checkForKeyWord();
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 2:  Token ::= " SLBody "
             //
             case 2: { 
                 makeToken(X10Parsersym.TK_StringLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 3:  Token ::= ' NotSQ '
             //
             case 3: { 
                 makeToken(X10Parsersym.TK_CharacterLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 4:  Token ::= IntegerLiteral
             //
             case 4: { 
                 makeToken(X10Parsersym.TK_IntegerLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 5:  Token ::= LongLiteral
             //
             case 5: { 
                 makeToken(X10Parsersym.TK_LongLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 6:  Token ::= FloatingPointLiteral
             //
             case 6: { 
                 makeToken(X10Parsersym.TK_FloatingPointLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 7:  Token ::= DoubleLiteral
             //
             case 7: { 
                 makeToken(X10Parsersym.TK_DoubleLiteral);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 10:  Token ::= WS
             //
             case 10: { 
                 skipToken();
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 11:  Token ::= +
             //
             case 11: { 
                 makeToken(X10Parsersym.TK_PLUS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 12:  Token ::= -
             //
             case 12: { 
                 makeToken(X10Parsersym.TK_MINUS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 13:  Token ::= *
             //
             case 13: { 
                 makeToken(X10Parsersym.TK_MULTIPLY);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 14:  Token ::= /
             //
             case 14: { 
                 makeToken(X10Parsersym.TK_DIVIDE);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 15:  Token ::= (
             //
             case 15: { 
                 makeToken(X10Parsersym.TK_LPAREN);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 16:  Token ::= )
             //
             case 16: { 
                 makeToken(X10Parsersym.TK_RPAREN);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 17:  Token ::= =
             //
             case 17: { 
                 makeToken(X10Parsersym.TK_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 18:  Token ::= ,
             //
             case 18: { 
                 makeToken(X10Parsersym.TK_COMMA);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 19:  Token ::= :
             //
             case 19: { 
                 makeToken(X10Parsersym.TK_COLON);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 20:  Token ::= ;
             //
             case 20: { 
                 makeToken(X10Parsersym.TK_SEMICOLON);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 21:  Token ::= ^
             //
             case 21: { 
                 makeToken(X10Parsersym.TK_XOR);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 22:  Token ::= %
             //
             case 22: { 
                 makeToken(X10Parsersym.TK_REMAINDER);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 23:  Token ::= ~
             //
             case 23: { 
                 makeToken(X10Parsersym.TK_TWIDDLE);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 24:  Token ::= |
             //
             case 24: { 
                 makeToken(X10Parsersym.TK_OR);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 25:  Token ::= &
             //
             case 25: { 
                 makeToken(X10Parsersym.TK_AND);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 26:  Token ::= <
             //
             case 26: { 
                 makeToken(X10Parsersym.TK_LESS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 27:  Token ::= >
             //
             case 27: { 
                 makeToken(X10Parsersym.TK_GREATER);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 28:  Token ::= .
             //
             case 28: { 
                 makeToken(X10Parsersym.TK_DOT);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 29:  Token ::= !
             //
             case 29: { 
                 makeToken(X10Parsersym.TK_NOT);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 30:  Token ::= [
             //
             case 30: { 
                 makeToken(X10Parsersym.TK_LBRACKET);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 31:  Token ::= ]
             //
             case 31: { 
                 makeToken(X10Parsersym.TK_RBRACKET);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 32:  Token ::= {
             //
             case 32: { 
                 makeToken(X10Parsersym.TK_LBRACE);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 33:  Token ::= }
             //
             case 33: { 
                 makeToken(X10Parsersym.TK_RBRACE);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 34:  Token ::= ?
             //
             case 34: { 
                 makeToken(X10Parsersym.TK_QUESTION);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 35:  Token ::= @
             //
             case 35: { 
                 makeToken(X10Parsersym.TK_AT);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 36:  Token ::= + +
             //
             case 36: { 
                 makeToken(X10Parsersym.TK_PLUS_PLUS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 37:  Token ::= - -
             //
             case 37: { 
                 makeToken(X10Parsersym.TK_MINUS_MINUS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 38:  Token ::= = =
             //
             case 38: { 
                 makeToken(X10Parsersym.TK_EQUAL_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 39:  Token ::= < =
             //
             case 39: { 
                 makeToken(X10Parsersym.TK_LESS_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 40:  Token ::= ! =
             //
             case 40: { 
                 makeToken(X10Parsersym.TK_NOT_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 41:  Token ::= < <
             //
             case 41: { 
                 makeToken(X10Parsersym.TK_LEFT_SHIFT);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 42:  Token ::= + =
             //
             case 42: { 
                 makeToken(X10Parsersym.TK_PLUS_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 43:  Token ::= - =
             //
             case 43: { 
                 makeToken(X10Parsersym.TK_MINUS_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 44:  Token ::= * =
             //
             case 44: { 
                 makeToken(X10Parsersym.TK_MULTIPLY_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 45:  Token ::= / =
             //
             case 45: { 
                 makeToken(X10Parsersym.TK_DIVIDE_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 46:  Token ::= & =
             //
             case 46: { 
                 makeToken(X10Parsersym.TK_AND_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 47:  Token ::= | =
             //
             case 47: { 
                 makeToken(X10Parsersym.TK_OR_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 48:  Token ::= ^ =
             //
             case 48: { 
                 makeToken(X10Parsersym.TK_XOR_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 49:  Token ::= % =
             //
             case 49: { 
                 makeToken(X10Parsersym.TK_REMAINDER_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 50:  Token ::= < < =
             //
             case 50: { 
                 makeToken(X10Parsersym.TK_LEFT_SHIFT_EQUAL);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 51:  Token ::= | |
             //
             case 51: { 
                 makeToken(X10Parsersym.TK_OR_OR);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 52:  Token ::= & &
             //
             case 52: { 
                 makeToken(X10Parsersym.TK_AND_AND);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 53:  Token ::= . . .
             //
             case 53: { 
                 makeToken(X10Parsersym.TK_ELLIPSIS);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 68:  MultiLineComment ::= / * Inside Stars /
             //
             case 68: { 
-                if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
+                if (lexStream.getKind(getRhsFirstTokenIndex(3)) == X10Lexersym.Char_Star && lexStream.getKind(lexStream.getNext(getRhsFirstTokenIndex(3))) != X10Lexersym.Char_Star)
                      makeComment(X10Parsersym.TK_DocComment);
                 else makeComment(X10Parsersym.TK_MlComment);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 75:  SingleLineComment ::= SLC
             //
             case 75: { 
                 makeComment(X10Parsersym.TK_SlComment);
-                break;
+                  break;
             }
-     
+    
             //
             // Rule 355:  Token ::= - >
             //
             case 355: { 
                 makeToken(X10Parsersym.TK_ARROW);
-                break;
+                  break;
             }
     
     

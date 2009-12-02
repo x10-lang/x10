@@ -10,7 +10,7 @@ import lpg.runtime.*;
 import java.util.*;
 import java.util.*;
 
-public class X10KWLexer extends X10KWLexerprs implements X10Parsersym
+public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
     private final int keywordKind[] = new int[86 + 1];

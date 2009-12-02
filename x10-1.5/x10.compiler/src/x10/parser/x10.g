@@ -5,7 +5,7 @@
 %options conflicts
 %options softkeywords
 %options package=x10.parser
-%options template=lpg.templates/btParserTemplate.gi
+%options template=btParserTemplateF.gi
 %options import_terminals="x10Lexer.gi"
 
 %include
@@ -311,16 +311,16 @@
 
         public String getErrorLocation(int lefttok, int righttok)
         {
-            return getFileName() + ':' +
-                   getLine(lefttok) + ":" + getColumn(lefttok) + ":" +
-                   getEndLine(righttok) + ":" + getEndColumn(righttok) + ": ";
+            return prsStream.getFileName() + ':' +
+                   prsStream.getLine(lefttok) + ":" + prsStream.getColumn(lefttok) + ":" +
+                   prsStream.getEndLine(righttok) + ":" + prsStream.getEndColumn(righttok) + ": ";
         }
 
         public Position getErrorPosition(int lefttok, int righttok)
         {
-            return new Position(null, getFileName(),
-                   getLine(lefttok), getColumn(lefttok),
-                   getEndLine(righttok), getEndColumn(righttok));
+            return new Position(null, prsStream.getFileName(),
+                   prsStream.getLine(lefttok), prsStream.getColumn(lefttok),
+                   prsStream.getEndLine(righttok), prsStream.getEndColumn(righttok));
         }
 
         // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -378,31 +378,31 @@
 
         public String file()
         {
-            return super.getFileName();
+            return prsStream.getFileName();
         }
 
         public JPGPosition pos()
         {
             return new JPGPosition("",
-                                   super.getFileName(),
-                                   super.getIToken(getLeftSpan()),
-                                   super.getIToken(getRightSpan()));
+                                   prsStream.getFileName(),
+                                   prsStream.getIToken(getLeftSpan()),
+                                   prsStream.getIToken(getRightSpan()));
         }
 
         public JPGPosition pos(int i)
         {
             return new JPGPosition("",
-                                   super.getFileName(),
-                                   super.getIToken(i),
-                                   super.getIToken(i));
+                                   prsStream.getFileName(),
+                                   prsStream.getIToken(i),
+                                   prsStream.getIToken(i));
         }
 
         public JPGPosition pos(int i, int j)
         {
             return new JPGPosition("",
-                                   super.getFileName(),
-                                   super.getIToken(i),
-                                   super.getIToken(j));
+                                   prsStream.getFileName(),
+                                   prsStream.getIToken(i),
+                                   prsStream.getIToken(j));
         }
 
         /**
@@ -434,14 +434,14 @@
 
 
         private polyglot.lex.Operator op(int i) {
-            return new Operator(pos(i), super.getName(i), super.getKind(i));
+            return new Operator(pos(i), prsStream.getName(i), prsStream.getKind(i));
         }
 
         private polyglot.lex.Identifier id(int i) {
-            return new Identifier(pos(i), super.getName(i), $sym_type.TK_IDENTIFIER);
+            return new Identifier(pos(i), prsStream.getName(i), $sym_type.TK_IDENTIFIER);
         }
         private String comment(int i) {
-            String s = super.getName(i);
+            String s = prsStream.getName(i);
             if (s != null && s.startsWith("/**") && s.endsWith("*/")) {
                 return s +"\n";
             }
@@ -594,32 +594,32 @@
 
         private polyglot.lex.LongLiteral int_lit(int i, int radix)
         {
-            long x = parseLong(super.getName(i), radix);
+            long x = parseLong(prsStream.getName(i), radix);
             return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
         }
 
         private polyglot.lex.LongLiteral int_lit(int i)
         {
-            long x = parseLong(super.getName(i));
+            long x = parseLong(prsStream.getName(i));
             return new LongLiteral(pos(i),  x, $sym_type.TK_IntegerLiteral);
         }
 
         private polyglot.lex.LongLiteral long_lit(int i, int radix)
         {
-            long x = parseLong(super.getName(i), radix);
+            long x = parseLong(prsStream.getName(i), radix);
             return new LongLiteral(pos(i), x, $sym_type.TK_LongLiteral);
         }
 
         private polyglot.lex.LongLiteral long_lit(int i)
         {
-            long x = parseLong(super.getName(i));
+            long x = parseLong(prsStream.getName(i));
             return new LongLiteral(pos(i), x, $sym_type.TK_LongLiteral);
         }
 
         private polyglot.lex.FloatLiteral float_lit(int i)
         {
             try {
-                String s = super.getName(i);
+                String s = prsStream.getName(i);
                 int end_index = (s.charAt(s.length() - 1) == 'f' || s.charAt(s.length() - 1) == 'F'
                                                            ? s.length() - 1
                                                            : s.length());
@@ -629,7 +629,7 @@
             catch (NumberFormatException e) {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-                           "Illegal float literal \"" + super.getName(i) + "\"", pos(i));
+                           "Illegal float literal \"" + prsStream.getName(i) + "\"", pos(i));
                 return null;
             }
         }
@@ -637,7 +637,7 @@
         private polyglot.lex.DoubleLiteral double_lit(int i)
         {
             try {
-                String s = super.getName(i);
+                String s = prsStream.getName(i);
                 int end_index = (s.charAt(s.length() - 1) == 'd' || s.charAt(s.length() - 1) == 'D'
                                                            ? s.length() - 1
                                                            : s.length());
@@ -647,7 +647,7 @@
             catch (NumberFormatException e) {
                 unrecoverableSyntaxError = true;
                 eq.enqueue(ErrorInfo.LEXICAL_ERROR,
-                           "Illegal float literal \"" + super.getName(i) + "\"", pos(i));
+                           "Illegal float literal \"" + prsStream.getName(i) + "\"", pos(i));
                 return null;
             }
         }
@@ -655,7 +655,7 @@
         private polyglot.lex.CharacterLiteral char_lit(int i)
         {
             char x;
-            String s = super.getName(i);
+            String s = prsStream.getName(i);
             if (s.charAt(1) == '\\') {
                 switch(s.charAt(2)) {
                     case 'u':
@@ -704,12 +704,12 @@
 
         private polyglot.lex.BooleanLiteral boolean_lit(int i)
         {
-            return new BooleanLiteral(pos(i), super.getKind(i) == $sym_type.TK_true, super.getKind(i));
+            return new BooleanLiteral(pos(i), prsStream.getKind(i) == $sym_type.TK_true, prsStream.getKind(i));
         }
 
         private polyglot.lex.StringLiteral string_lit(int i)
         {
-            String s = super.getName(i);
+            String s = prsStream.getName(i);
             char x[] = new char[s.length()];
             int j = 1,
                 k = 0;
