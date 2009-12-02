@@ -1,6 +1,8 @@
 #include <x10aux/config.h>
 #include <x10aux/init_dispatcher.h>
+
 #include <x10/runtime/Runtime.h>
+#include <x10/lang/Closure.h>
 
 #include <stdio.h>
 
@@ -16,7 +18,7 @@ InitDispatcher::runInitializers() {
     }
 }
 
-class InitClosure : public x10::lang::Value
+class InitClosure : public x10::lang::Closure
 {
     protected:
         Initializer init;

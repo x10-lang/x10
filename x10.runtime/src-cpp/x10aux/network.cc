@@ -13,7 +13,7 @@
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h> // for debug output
 
-#include <x10/lang/Value.h> // for x10_runtime_Runtime__closure__6
+#include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
 #include <x10/runtime/RID.h>
 
 using namespace x10::lang;
@@ -121,29 +121,29 @@ void x10aux::registration_complete (void)
 
 /*
 // FIXME: this is perhaps the worst hack i've ever done
-struct x10_runtime_Runtime__closure__8 : x10::lang::Value {
+struct x10_runtime_Runtime__closure__8 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;
 };
-struct x10_runtime_Runtime__closure__7 : x10::lang::Value {
+struct x10_runtime_Runtime__closure__7 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;
 };
-struct x10_runtime_Runtime__closure__6 : x10::lang::Value {
+struct x10_runtime_Runtime__closure__6 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;
 };
-struct x10_runtime_Runtime__closure__5 : x10::lang::Value {
+struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;
 };
 */
 
-struct x10_runtime_Runtime__closure__6__hack : x10::lang::Value {
+struct x10_runtime_Runtime__closure__6__hack : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10::runtime::RID rid;

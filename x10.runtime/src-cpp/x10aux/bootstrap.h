@@ -16,6 +16,7 @@
 #include <x10/lang/Throwable.h>
 
 #include <x10/runtime/Thread.h>
+#include <x10/lang/Closure.h>
 
 #include <stdio.h>
 
@@ -26,7 +27,7 @@ namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
 
-    class StaticInitClosure : public x10::lang::Value
+    class StaticInitClosure : public x10::lang::Closure
     {
         public:
 
@@ -57,7 +58,7 @@ namespace x10aux {
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
-    class BootStrapClosure : public x10::lang::Value
+    class BootStrapClosure : public x10::lang::Closure
     {
         protected:
 

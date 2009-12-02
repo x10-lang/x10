@@ -3,8 +3,6 @@
 
 #include <x10/lang/Object.h>
 #include <x10/lang/Ref.h>
-#include <x10/lang/Value.h>
-
 
 using namespace x10::lang;
 using namespace x10aux;

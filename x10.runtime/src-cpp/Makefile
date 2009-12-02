@@ -238,6 +238,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/File__NativeFile.o \
 	x10/io/InputStreamReader__InputStream.o \
 	x10/io/OutputStreamWriter__OutputStream.o \
+	x10/lang/Closure.o \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
@@ -246,7 +247,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/String.o \
 	x10/lang/Struct.o \
 	x10/lang/Throwable.o \
-	x10/lang/Value.o \
 	x10/lang/ValRail.o \
 	x10/runtime/Deque.o \
 	x10/runtime/Lock.o \
