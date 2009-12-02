@@ -39,7 +39,20 @@ public final class ValRail<T> implements AnyRail<T> {
 		return new RailIterator();
 	}
 
-	protected class RailIterator implements Iterator<T> {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof ValRail) {
+            ValRail<?> that = (ValRail<?>)o;
+            if (length != that.length) return false;
+            for (int i=0; i<length; i++) {
+                if (!this.get(i).equals(that.get(i))) return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected class RailIterator implements Iterator<T> {
 		int i = 0;
 
 		public boolean hasNext() {

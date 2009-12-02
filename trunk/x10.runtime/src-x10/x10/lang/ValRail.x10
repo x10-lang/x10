@@ -48,6 +48,18 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     @Native("c++", "(#0)->iterator()")
     public global native def iterator(): Iterator[T];
 
+    /**
+     * Equals on ValRail is defined by (1) equal length and
+     * (2) pairwise comparision by equals of the elements of the
+     * two ValRails.
+     *
+     * @param other the ValRail[T] to compare this to.
+     * @return <code>true</code> if <code>this</code> is equal
+     * to <code>other</code> and <code>false</code> otherwise.
+     */
+    @Native("java", "#0.equals(#1)")
+    @Native("c++", "(#0)->equals(#1)")
+    public global native def equals(other:ValRail[T]):boolean;
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")

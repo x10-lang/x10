@@ -70,6 +70,8 @@ namespace x10 {
 
             virtual x10_int hashCode() { return 0; }
 
+            virtual x10_boolean equals(x10aux::ref<Object> other);
+            
             virtual x10aux::ref<x10::lang::String> toString() { return x10aux::railToString<T,ValRail<T> >(this); }
 
             static x10aux::ref<ValRail<T> > make(x10_int length);
@@ -124,6 +126,17 @@ namespace x10 {
             x10aux::itable_entry(&Fun_0_1<x10_int, T>::rtt, &ValRail<T>::_itable_fun),
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<ValRail<T> >())
         };
+
+        template<class T> x10_boolean ValRail<T>::equals(x10aux::ref<Object> other) {
+            if (!_type()->concreteInstanceOf(other))
+                return false;
+            x10aux::ref<ValRail<T> > that = (x10aux::ref<ValRail<T> >)other;
+            if (this->FMGL(length) != that->FMGL(length)) return false;
+            for (int i=0; i<this->FMGL(length); i++) {
+                if (!x10aux::equals(this->_data[i], that->_data[i])) return false;
+            }
+            return true;
+        }
 
         template<class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
             x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
