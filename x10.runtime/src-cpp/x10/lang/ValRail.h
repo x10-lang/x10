@@ -10,7 +10,6 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Iterable.h>
-#include <x10/lang/RailIterator.h>
 
 namespace x10 {
 
@@ -62,10 +61,7 @@ namespace x10 {
       
             T* raw() { return _data; }
 
-            virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                x10aux::ref<x10::lang::RailIterator<T> > tmp = new (x10aux::alloc<x10::lang::RailIterator<T> >()) x10::lang::RailIterator<T>(this->FMGL(length), this->raw());
-                return tmp;
-            }
+            virtual x10aux::ref<x10::lang::Iterator<T> > iterator();
 
             virtual x10_int hashCode() { return 0; }
 
@@ -97,6 +93,20 @@ namespace x10 {
             template<class S> static x10aux::ref<S> _deserialize(x10aux::deserialization_buffer &buf);
         };
 
+    }
+}
+#endif
+
+#ifndef __X10_LANG_VALRAIL_H_NODEPS
+#define __X10_LANG_VALRAIL_H_NODEPS
+#include <x10/lang/ValRail__RailIterator.h>
+#include <x10aux/itables.h>
+#ifndef X10_LANG_VALRAIL_H_IMPLEMENTATION
+#define X10_LANG_VALRAIL_H_IMPLEMENTATION
+
+namespace x10 {
+    namespace lang {
+        
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
                 ::addDeserializer(ValRail<T>::template _deserializer<Ref>);
@@ -167,6 +177,10 @@ namespace x10 {
             return rail;
         }
 
+        template <class T> x10aux::ref<Iterator<T> > ValRail<T>::iterator() {
+            return ValRail__RailIterator<T>::_make(this);
+        }
+
         // Specialized serialization
         template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
                                                        x10aux::serialization_buffer &buf,
@@ -216,6 +230,7 @@ namespace x10 {
     }
 }
 
-
 #endif
+#endif
+
 // vim:tabstop=4:shiftwidth=4:expandtab

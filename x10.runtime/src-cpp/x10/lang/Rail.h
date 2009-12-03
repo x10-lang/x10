@@ -10,8 +10,6 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Settable.h>
-#include <x10/lang/RailIterator.h>
-#include <x10/lang/ValRail.h>
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
 
@@ -19,7 +17,8 @@
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
-
+namespace x10 { namespace lang { template<class P1, class R> class Fun_0_1; } }
+namespace x10 { namespace lang { template<class T> class ValRail; } }
 
 namespace x10 {
 
@@ -28,7 +27,6 @@ namespace x10 {
         void _initRTTHelper_Rail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
 
-        template<class P1, class R> class Fun_0_1;
 
         template<class T> class Rail : public Ref {
             public:
@@ -84,10 +82,7 @@ namespace x10 {
             }
             #endif
 
-            virtual x10aux::ref<Iterator<T> > iterator() {
-                x10aux::ref<RailIterator<T> > tmp = new (x10aux::alloc<RailIterator<T> >()) RailIterator<T> (this->FMGL(length), this->raw());
-                return tmp;
-            }   
+            virtual x10aux::ref<Iterator<T> > iterator();
 
             static R make(x10_int length);
             static R make(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init);
@@ -201,6 +196,8 @@ namespace x10 {
 // #include <x10/lang/System.h> // causes cycle
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Fun_0_0.h>
+#include <x10/lang/Rail__RailIterator.h>
+#include <x10/lang/ValRail.h>
 #include <x10aux/itables.h>
 #ifndef X10_LANG_RAIL_H_IMPLEMENTATION
 #define X10_LANG_RAIL_H_IMPLEMENTATION
@@ -274,6 +271,11 @@ namespace x10 {
                 (*rail)[i] = (*other)[i];
             }
             return rail;
+        }
+
+
+        template <class T> x10aux::ref<Iterator<T> > Rail<T>::iterator() {
+            return Rail__RailIterator<T>::_make(this);
         }
 
 
