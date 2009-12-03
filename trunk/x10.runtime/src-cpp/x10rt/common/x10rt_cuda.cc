@@ -15,7 +15,7 @@
 
 #include <cuda.h> // Proprietory nvidia header
 
-//#define TRACE 1
+#define TRACE 1
 
 namespace {
 
@@ -125,10 +125,10 @@ namespace {
     typedef void *x10rt_cuda_kptr;
 
     // State machine
-    struct x10rt_cuda_base_op {
+    template<class T> struct x10rt_cuda_base_op {
         bool begun;
         x10rt_msg_params p;
-        x10rt_cuda_base_op *next;
+        T *next;
         x10rt_cuda_base_op (const x10rt_msg_params &p_)
           : begun(false), p(p_), next(NULL)
         { }
@@ -139,25 +139,26 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
-    struct x10rt_cuda_kernel : x10rt_cuda_base_op {
-        int blocks;
-        int threads;
-        int shm;
+    struct x10rt_cuda_kernel : x10rt_cuda_base_op<x10rt_cuda_kernel> {
+        size_t blocks;
+        size_t threads;
+        size_t shm;
         void *arg;
         x10rt_cuda_kernel (x10rt_msg_params &p_)
-          : x10rt_cuda_base_op(p_), blocks(0), threads(0), shm(0), arg(0)
+          : x10rt_cuda_base_op<x10rt_cuda_kernel>(p_), blocks(0), threads(0), shm(0), arg(0)
         { }
         virtual bool is_kernel() { return true; }
     };
 
-    struct x10rt_cuda_copy : x10rt_cuda_base_op {
+    struct x10rt_cuda_copy : x10rt_cuda_base_op<x10rt_cuda_copy> {
         void *dst; 
         void *src; // 1 of {dst,src} known at start, the other discovered via callback
         size_t len; // known at start
         size_t started;
         size_t finished; // when equal to len, call on_comp and clean up
         x10rt_cuda_copy (x10rt_msg_params &p_, void *dst_, void *src_, size_t len_)
-            : x10rt_cuda_base_op(p_), dst(dst_), src(src_), len(len_), started(0), finished(0) { }
+            : x10rt_cuda_base_op<x10rt_cuda_copy>(p_),
+              dst(dst_), src(src_), len(len_), started(0), finished(0) { }
         virtual bool is_copy() { return true; }
     };
 
@@ -172,13 +173,14 @@ namespace {
         virtual bool is_get() { return true; }
     };
 
-    struct op_queue {
+    template<class T> struct op_queue {
         bool initialized;
         CUstream stream;
         int size; // number of ops held here
-        x10rt_cuda_base_op *fifo_b, *fifo_e; // begin/end of fifo
+        T *fifo_b, *fifo_e; // begin/end of fifo
+        T *current; // op currently associated with the stream
         op_queue ()
-          : initialized(false), size(0), fifo_b(NULL), fifo_e(NULL)
+          : initialized(false), size(0), fifo_b(NULL), fifo_e(NULL), current(NULL)
         { }
         ~op_queue ()
         {
@@ -197,7 +199,7 @@ namespace {
             initialized = false;
         }
 
-        void push_back (x10rt_cuda_base_op *op)
+        void push_back (T *op)
         {
             if (fifo_e == NULL) {
                 fifo_b = op;
@@ -209,22 +211,10 @@ namespace {
             size++;
         }
 
-        void push_front (x10rt_cuda_base_op *op)
-        {
-            if (fifo_e == NULL) {
-                fifo_b = op;
-                fifo_e = op;
-            } else {
-                op->next = fifo_b;
-                fifo_b = op;
-            }
-            size++;
-        }
-
         // pop from front
-        x10rt_cuda_base_op *pop_op (void)
+        T *pop_op (void)
         {
-            x10rt_cuda_base_op *op = fifo_b;
+            T *op = fifo_b;
             if (op==NULL) return op;
             fifo_b = op->next;
             // case for empty queue
@@ -274,9 +264,12 @@ namespace {
 struct x10rt_cuda_ctx {
     CUdevice hw;
     CUcontext ctx;
-    void *pinned_mem;
-    op_queue kernel_q;
-    op_queue dma_q;
+    void *pinned_mem1;
+    void *pinned_mem2;
+    void *front;
+    void *back;
+    op_queue<x10rt_cuda_kernel> kernel_q;
+    op_queue<x10rt_cuda_copy> dma_q;
     Table<x10rt_functions> cbs;
     
     x10rt_cuda_ctx (unsigned device) {
@@ -284,19 +277,24 @@ struct x10rt_cuda_ctx {
         /* other options are SPIN and AUTO. */
         /* TODO: export this choice with env var */
         CU_SAFE(cuCtxCreate(&ctx, CU_CTX_SCHED_AUTO, hw));
-        CU_SAFE(cuMemAllocHost(&pinned_mem, dma_slice_sz()));
+        CU_SAFE(cuMemAllocHost(&pinned_mem1, dma_slice_sz()));
+        CU_SAFE(cuMemAllocHost(&pinned_mem2, dma_slice_sz()));
+        front = pinned_mem1;
+        back = pinned_mem2;
         kernel_q.init();
         dma_q.init();
         CU_SAFE(cuCtxPopCurrent(NULL));
     }
     ~x10rt_cuda_ctx (void) {
-        CU_SAFE(cuMemFreeHost(pinned_mem));
+        CU_SAFE(cuMemFreeHost(pinned_mem1));
+        CU_SAFE(cuMemFreeHost(pinned_mem2));
         kernel_q.shutdown();
         dma_q.shutdown();
         CU_SAFE(cuCtxPopCurrent(NULL));
         CU_SAFE(cuCtxDestroy(ctx));
     }
 
+    void swapBuffers (void) { void *tmp = front; front = back; back = tmp; }
 };
 
 
@@ -555,7 +553,6 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params &p, void *buf, x
 void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params &p)
 {
 #ifdef ENABLE_CUDA
-    pthread_mutex_lock(&big_lock_of_doom);
 
     if (ctx->cbs.arrc <= p.type) {
         fprintf(stderr,"X10RT: async %lu is invalid.\n", (unsigned long)p.type);
@@ -576,6 +573,13 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params &p)
     }
 
     x10rt_cuda_kernel *op = new (safe_malloc<x10rt_cuda_kernel>()) x10rt_cuda_kernel(p);
+
+    x10rt_cuda_pre *pre = ctx->cbs[p.type].kernel_cbs.pre;
+    DEBUG("x10rt_cuda_send_msg: pre callback begins\n");
+    op->arg = pre(p, op->blocks, op->threads, op->shm); /****CALLBACK****/
+    DEBUG("x10rt_cuda_send_msg: pre callback ends\n");
+
+    pthread_mutex_lock(&big_lock_of_doom);
     ctx->kernel_q.push_back(op);
     pthread_mutex_unlock(&big_lock_of_doom);
 
@@ -661,10 +665,29 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
 
     // spool kernels
     if (stream_ready(ctx->kernel_q.stream)) {
-        x10rt_cuda_base_op *op = ctx->kernel_q.pop_op();
-        assert(op==NULL || op->is_kernel());
-        x10rt_cuda_kernel *kop = static_cast<x10rt_cuda_kernel*>(op);
-        if (kop != NULL && kop->begun) {
+        if (ctx->kernel_q.current == NULL) {
+            x10rt_cuda_kernel *kop = ctx->kernel_q.pop_op();
+            if (kop != NULL) {
+                assert(kop->is_kernel());
+                assert(!kop->begun);
+                DEBUG("probe: kernel invoke\n");
+                x10rt_msg_type type = kop->p.type;
+                CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
+                // y and z params we leave as 1, as threads can vary from 1 to 512
+                CU_SAFE(cuFuncSetBlockShape(k, kop->threads, 1, 1));
+                CU_SAFE(cuParamSetv(k, 0, &kop->arg, sizeof(kop->arg)));
+                CU_SAFE(cuParamSetSize(k, sizeof(kop->arg)));
+                CU_SAFE(cuFuncSetSharedSize(k, kop->shm));
+                CU_SAFE(cuLaunchGridAsync(k, kop->blocks, 1, ctx->kernel_q.stream));
+                kop->begun = true;
+                assert(ctx->kernel_q.current == NULL);
+                ctx->kernel_q.current = kop;
+            }
+        } else {
+            x10rt_cuda_kernel *kop = ctx->kernel_q.current;
+            ctx->kernel_q.current = NULL;
+            assert(kop->is_kernel());
+            assert(kop->begun);
             DEBUG("probe: kernel complete\n");
             x10rt_msg_type type = kop->p.type;
             x10rt_cuda_post *fptr = ctx->cbs[type].kernel_cbs.post;
@@ -675,121 +698,91 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             DEBUG("probe: post callback ends\n");
-            op->~x10rt_cuda_base_op();
-            free(op);
-            op = ctx->kernel_q.pop_op(); // get another one
-            assert(op==NULL || op->is_kernel());
-            kop = static_cast<x10rt_cuda_kernel*>(op);
-        }
-        if (kop != NULL) {
-            DEBUG("probe: kernel invoke\n");
-            x10rt_msg_type type = kop->p.type;
-            x10rt_cuda_pre *pre = ctx->cbs[type].kernel_cbs.pre;
-            size_t blocks=1, threads=1, shm = 0;
-            DEBUG("probe: pre callback begins\n");
-            CU_SAFE(cuCtxPopCurrent(NULL));
-            pthread_mutex_unlock(&big_lock_of_doom);
-            kop->arg = pre(kop->p, blocks, threads, shm); /****CALLBACK****/
-            pthread_mutex_lock(&big_lock_of_doom);
-            CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-            DEBUG("probe: pre callback ends\n");
-            CUfunction k = ctx->cbs[type].kernel_cbs.kernel;
-            // y and z params we leave as 1, as threads can vary from 1 to 512
-            CU_SAFE(cuFuncSetBlockShape(k, threads, 1, 1));
-            CU_SAFE(cuParamSetv(k, 0, &kop->arg, sizeof(kop->arg)));
-            CU_SAFE(cuParamSetSize(k, sizeof(kop->arg)));
-            CU_SAFE(cuFuncSetSharedSize(k, shm));
-            CU_SAFE(cuLaunchGridAsync(k, blocks, 1, ctx->kernel_q.stream));
-            op->begun = true;
-            ctx->kernel_q.push_front(op);
+            kop->~x10rt_cuda_kernel();
+            free(kop);
         }
     }
 
     // spool DMAs
     if (stream_ready(ctx->dma_q.stream)) {
 
-        x10rt_cuda_base_op *op = ctx->dma_q.pop_op();
+        x10rt_cuda_copy *cop = ctx->dma_q.current;
 
-        if (op != NULL && op->begun) {
-            DEBUG("probe: do the final work for a previous slice\n");
-            assert(op->is_copy());
-            x10rt_cuda_copy *cop = static_cast<x10rt_cuda_copy *>(op);
-            // We are finishing off a previous copy.
-            char *dst = reinterpret_cast<char*>(cop->dst);
-            size_t len = cop->len;
-            size_t &finished = cop->finished;
-            size_t dma_sz = len - finished;
-            dma_sz = dma_sz > dma_slice_sz() ? dma_slice_sz() : dma_sz;
-            assert(dma_sz <= len);
-            assert(dma_sz <= len-finished);
-            assert(dma_sz <= dma_slice_sz());
-            assert(dma_sz != 0);
-            if (cop->is_get()) {
-                // For get, we need to memcpy the previous slice into the user buffer.
-                DEBUG("memcpy(%p,%p,%d)\n", dst+finished, ctx->pinned_mem, dma_sz);
-                ::memcpy(dst+finished, ctx->pinned_mem, dma_sz);
-            }
-            finished += dma_sz;
-            if (finished == len) {
-                x10rt_msg_type type = op->p.type;
-                x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
-                CU_SAFE(cuCtxPopCurrent(NULL));
-                pthread_mutex_unlock(&big_lock_of_doom);
-                ch(cop->p, len); /****CALLBACK****/
-                pthread_mutex_lock(&big_lock_of_doom);
-                CU_SAFE(cuCtxPushCurrent(ctx->ctx));
-                op->~x10rt_cuda_base_op();
-                free(op);
-                op = NULL;
-            }
+        if (cop == NULL) {
+            cop = ctx->dma_q.pop_op();
+            if (cop==NULL) goto landingzone;
+            assert(!cop->begun);
+            cop->begun = true;
+            ctx->dma_q.current = cop;
         }
 
-        if (op != NULL) {
-            DEBUG("probe: dma slice\n");
-            op->begun = true;
+        assert(cop->begun);
+        char *&src = reinterpret_cast<char*&>(cop->src);
+        char *&dst = reinterpret_cast<char*&>(cop->dst);
+        size_t len = cop->len;
+        size_t &started = cop->started;
+        size_t &finished = cop->finished;
+        assert(started>finished || started==0);
+        assert(finished<len);
 
-            assert(op->is_copy());
-            x10rt_cuda_copy *cop = static_cast<x10rt_cuda_copy *>(op);
+        size_t dma_sz = len - started;
+        dma_sz = dma_sz > dma_slice_sz() ? dma_slice_sz() : dma_sz;
+        assert(dma_sz <= len);
+        assert(started+dma_sz <= len);
+        assert(dma_sz <= dma_slice_sz());
 
-            // Invoke an asynchronous copy...
-            // For get, we need to request another slice.
-            // For put, we need to memcpy the next slice and request the transfer.
-            void *&dst = cop->dst;
-            void *&src = cop->src;
-            size_t len = cop->len;
-
-            size_t &started = cop->started;
-            size_t finished = cop->finished;
-
-            size_t dma_sz = len - finished;
-            dma_sz = dma_sz > dma_slice_sz() ? dma_slice_sz() : dma_sz;
-            assert(dma_sz <= len);
-            assert(dma_sz <= len-finished);
-            assert(dma_sz <= dma_slice_sz());
-            assert(dma_sz != 0);
-
-            assert(op->is_get() || op->is_put());
-
-            if (op->is_get()) {
-                CU_SAFE(cuMemcpyDtoHAsync(ctx->pinned_mem,
-                                          (CUdeviceptr)(size_t)(((char*)src)+started),
-                                          dma_sz,
-                                          ctx->dma_q.stream));
-            } else if (op->is_put()) {
-                memcpy(ctx->pinned_mem, ((char*)src)+started, dma_sz);
-                CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(size_t)(((char*)dst)+started),
-                                          ctx->pinned_mem,
+        if (cop->is_get()) {
+            DEBUG("get(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
+            // front buffer handled last tick... available for re-use
+            if (started > 0) ctx->swapBuffers();
+            // invoke async copy into back buffer
+            if (dma_sz > 0) {
+                CU_SAFE(cuMemcpyDtoHAsync(ctx->back,
+                                          (CUdeviceptr)(size_t)(src+started),
                                           dma_sz,
                                           ctx->dma_q.stream));
             }
-
+            if (started > 0) {
+                DEBUG("memcpy(%p,%p,%d)\n", dst+finished, ctx->front, started-finished);
+                ::memcpy(dst+finished, ctx->front, started-finished);
+                finished = started;
+            }
             started += dma_sz;
+        } else if (cop->is_put()) {
+            DEBUG("put(%p,%p,%llu,%llu,%llu)\n", src, dst, (unsigned long long)len, (unsigned long long)started, (unsigned long long)finished);
+            // back buffer has now been copied to device... available for re-use
+            if (started > 0) {
+                ctx->swapBuffers();
+                CU_SAFE(cuMemcpyHtoDAsync((CUdeviceptr)(size_t)(dst+finished),
+                                          ctx->back,
+                                          started-finished,
+                                          ctx->dma_q.stream));
+                finished = started;
+            }
+            if (dma_sz > 0) {
+                DEBUG("memcpy(%p,%p,%d)\n", ctx->front, src+started, dma_sz);
+                ::memcpy(ctx->front, src+started, dma_sz);
+                started += dma_sz;
+            }
+        } else {
+            abort();
+        }
 
-            ctx->dma_q.push_front(op);
-            
+        if (finished==len) {
+            ctx->dma_q.current = NULL;
+            x10rt_msg_type type = cop->p.type;
+            x10rt_notifier *ch = ctx->cbs[type].copy_cbs.ch;
+            CU_SAFE(cuCtxPopCurrent(NULL));
+            pthread_mutex_unlock(&big_lock_of_doom);
+            ch(cop->p, len); /****CALLBACK****/
+            cop->~x10rt_cuda_copy();
+            free(cop);
+            return;
         }
 
     }
+
+    landingzone:
 
     CU_SAFE(cuCtxPopCurrent(NULL));
     pthread_mutex_unlock(&big_lock_of_doom);
