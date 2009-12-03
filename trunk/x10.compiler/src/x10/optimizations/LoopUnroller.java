@@ -50,6 +50,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Context_c;
+import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -71,10 +72,12 @@ import x10.ast.X10Formal;
 import x10.ast.X10NodeFactory;
 import x10.constraint.XConstraint;
 import x10.constraint.XEquals;
+import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
@@ -432,9 +435,7 @@ public class LoopUnroller extends ContextVisitor {
         }
 
         XConstraint typeCons= type.constraint().get();
-        List<XTerm> consTerms= typeCons.constraints();
-
-        XTerm rankConstraint= findRankConstraint(consTerms);
+        XTerm rankConstraint= findRankConstraint(typeCons);
         if (rankConstraint != null) {
             if (constraintEq1(rankConstraint)) {
                 return true;
@@ -469,8 +470,16 @@ public class LoopUnroller extends ContextVisitor {
         return false;
     }
 
-    private XTerm findRankConstraint(List<XTerm> terms) {
-        for(XTerm term: terms) {
+    private String getFQN(XName name) {
+        if (name instanceof XNameWrapper<?>) {
+            FieldDef fd = ((XNameWrapper<FieldDef>) name).val();
+            return Types.get(fd.container()) + "#" + fd.name().toString();
+        }
+        return name.toString();
+    }
+    private XTerm findRankConstraint(XConstraint typeCons) {
+        List<XTerm> consTerms= typeCons.constraints();
+        for(XTerm term: consTerms) {
             if (term instanceof XEquals) {
                 XEquals eq= (XEquals) term;
                 List<XTerm> args= eq.arguments();
@@ -484,10 +493,13 @@ public class LoopUnroller extends ContextVisitor {
 
                     // HACK Would like to know whether leftRcvr is on "self", but the only indication seems to be
                     // that its name looks like "_selfNNNN"
-                    boolean isSelf= leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
-                    if (leftName.toString().equals("x10.lang.Region#rank")) {
-                        return term;
-                    }
+                    try {
+                        boolean isSelf= typeCons.entails(typeCons.self(), leftRcvr); //leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
+                        boolean isRank= getFQN(leftName).equals("x10.lang.Region#rank");
+                        if (isSelf && isRank) {
+                            return term;
+                        }
+                    } catch (XFailure e) { }
                 }
             }
         }
