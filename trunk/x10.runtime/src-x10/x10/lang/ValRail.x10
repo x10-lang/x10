@@ -72,4 +72,13 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     public global native def copyTo (src_off:Int,
                                      dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                                      len:Int) : Void;
+
+    private static class RailIterator[S] implements Iterator[S] {
+        private var curIndex:int = 0;
+        private val rail:ValRail[S]!;
+	
+	private def this(r:ValRail[S]!) { rail = r; }
+        public def hasNext() = curIndex < rail.length;
+	public def next() = rail(curIndex++);
+    }
 }

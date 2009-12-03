@@ -242,7 +242,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
-	x10/lang/RailIterator.o \
 	x10/lang/Ref.o \
 	x10/lang/String.o \
 	x10/lang/Struct.o \

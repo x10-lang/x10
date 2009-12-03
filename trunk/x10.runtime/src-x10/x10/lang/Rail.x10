@@ -163,12 +163,17 @@ public final class Rail[T](length: Int)
     public native def copyFrom[U] (dst_off:Int,
                                    src_place:Place, src_finder:()=>Pair[ValRail[U],Int],
                                    len:Int) : Void;
-                                
-
-
-
 
     @Native("java",  "#0.view()")
     @Native("c++", "#0->view()")
     public native def view(): ValRail[T]{self.length==this.length};
+
+    private static class RailIterator[S] implements Iterator[S] {
+        private var curIndex:int = 0;
+        private val rail:Rail[S]!;
+	
+	private def this(r:Rail[S]!) { rail = r; }
+        public def hasNext() = curIndex < rail.length;
+	public def next() = rail(curIndex++);
+    }
 }
