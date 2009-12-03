@@ -16,8 +16,6 @@ import x10.compiler.NativeRep;
  * A low-level lock that provides a subset of
  * the functionality of java.util.concurrent.locks.ReentrantLock.
  * The API is subsetted to that which is also supported by pthread_mutex.
-
- * vj: Making it a struct is a hack to get around place check issues.
  */
 @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
 @NativeRep("c++", "x10aux::ref<x10::runtime::Lock>", "x10::runtime::Lock", null)
