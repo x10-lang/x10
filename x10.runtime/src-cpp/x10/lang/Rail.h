@@ -234,8 +234,6 @@ namespace x10 {
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
             x10aux::ref<x10::lang::Object> initAsObj = init;
-            // FIXME:  This is a complete hack to compensate for some problem in the RTT infrastructure.  Same HACK in ValRail.h
-            initAsObj->_type();
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
                 (*rail)[i] = (initAsObj.operator->()->*(it->apply))(i);
@@ -288,8 +286,6 @@ namespace x10 {
 
         template <class T> void Rail<T>::reset(x10aux::ref<Fun_0_1<x10_int,T> > init) {
             x10aux::ref<x10::lang::Object> initAsObj = init;
-            // FIXME:  This is a complete hack to compensate for some problem in the RTT infrastructure.  Same HACK in ValRail.h
-            initAsObj->_type();
             typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
             for (x10_int i=0 ; i<FMGL(length) ; ++i) {
                 (*this)[i] = (initAsObj.operator->()->*(it->apply))(i);
