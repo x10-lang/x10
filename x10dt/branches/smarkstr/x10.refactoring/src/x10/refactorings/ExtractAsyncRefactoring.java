@@ -1065,6 +1065,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			}
 		};
 		fEngine.setEntrypointBuilder(entrypointBuilder);
+		fEngine.setExclusionsFile(ExtractAsyncStaticTools.cheapHack());
 		PropagationCallGraphBuilder builder = (PropagationCallGraphBuilder)fEngine.defaultCallGraphBuilder();
 		fCallGraph = builder.makeCallGraph(builder.getOptions());
 

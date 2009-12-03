@@ -276,14 +276,17 @@ public class ExtractAsyncStaticTools {
 	
 	public static String IFilePathtoCAstPath(String path){
 		String retval = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + path;
-		return retval.replace('/', '\\');
+		return retval.replace(File.separatorChar, '/');
 	}
 
-	public static File cheapHack() {
-		return new File("/Users/sm053/Documents/refactoring-workspace/x10.runtime/classes/");
+	/**
+	 * A cheap hack that hardcodes the path to the exclusions file. Will be updated to a 
+	 * legitimate project property in the future.
+	 * 
+	 * @return path to exclusions file
+	 */
+	public static String cheapHack() {
+		return "/Users/sm053/Documents/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 	}
 
-	public static JarFile cheapHack2() throws IOException {
-		return new JarFile("/Users/sm053/Documents/refactoring-workspace/x10.runtime/classes/x10.jar");
-	}
 }
