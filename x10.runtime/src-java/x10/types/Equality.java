@@ -73,7 +73,13 @@ public class Equality {
     public static boolean equalsequals(double a, double b) { return a == b; }
     public static boolean equalsequals(double a, Object b) { return equalsequals((Object) a, b); }
     
-    public static boolean equalsequals(String a, String b) { return a.equals(b); }
+    public static boolean equalsequals(String a, String b) {
+        if (a == null) {
+            return b == null;
+        } else {
+            return a.equals(b);
+        }
+    }
     public static boolean equalsequals(Value a, Value b) { return a.structEquals(b); }
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
