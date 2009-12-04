@@ -165,4 +165,6 @@ public class NativeRuntime {
   @Native("c++", "x10aux::dealloc(#1.operator->())")
   public static def dealloc (o:()=>Void) { }
 
+  @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
+  public static def registerHandlers() {}
 }

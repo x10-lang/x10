@@ -82,6 +82,7 @@ public final class Runtime {
 					NativeRuntime.runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
 				}
 			}
+			NativeRuntime.registerHandlers();
 			if (Thread.currentThread().locInt() == 0) {
 				execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
 				pool();
