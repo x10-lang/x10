@@ -117,8 +117,6 @@ namespace x10aux {
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
             x10aux::initialize_xrx();
 
-            x10aux::DeserializationDispatcher::registerHandlers();
-
             args = x10aux::convert_args(ac, av);
 
             // Construct closure to invoke the static initialisers at place 0
