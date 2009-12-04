@@ -16,7 +16,7 @@ import x10.compiler.Native;
 /**
  * @author tardieu 
  */
-class RemoteFinish implements FinishState {
+class RemoteFinish {
 	/**
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
@@ -38,14 +38,6 @@ class RemoteFinish implements FinishState {
 
     private var count:AtomicInteger = new AtomicInteger(0); 
     
-    private val rid:RID;
-    
-    def this(rid:RID) {
-        this.rid = rid;
-    }
-    
-    public def rid():RID = rid;
-    
     public def notifyActivityCreation():Void {
         count.getAndIncrement();
     }
@@ -65,7 +57,7 @@ class RemoteFinish implements FinishState {
 	/** 
 	 * An activity created under this finish has terminated.
 	 */
-    public def notifyActivityTermination():Void {
+    public def notifyActivityTermination(r:RootFinish):Void {
         lock.lock();
         counts(here.id)--;
         if (count.decrementAndGet() > 0) {
@@ -79,7 +71,6 @@ class RemoteFinish implements FinishState {
 	        for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
 	        length = 1;
 	        lock.unlock();
-	        val r = rid;
 	        if (null != e) {
 	            val t:Throwable;
 	            if (e.size() == 1) {
@@ -87,12 +78,12 @@ class RemoteFinish implements FinishState {
 	            } else {
 	                t = new MultipleExceptions(e);
 	            }
-	            val closure = () => { Runtime.findRoot(r).notify(m, t); NativeRuntime.deallocObject(m); };
-	            NativeRuntime.runAt(rid.place.id, closure);
+	            val closure = () => { (r as RootFinish!).notify(m, t); NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(r.home.id, closure);
 	            NativeRuntime.dealloc(closure);
 	        } else {
-	            val closure = () => { Runtime.findRoot(r).notify(m) ; NativeRuntime.deallocObject(m); };
-	            NativeRuntime.runAt(rid.place.id, closure);
+	            val closure = () => { (r as RootFinish!).notify(m); NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(r.home.id, closure);
 	            NativeRuntime.dealloc(closure);
 	        }
 	        NativeRuntime.deallocObject(m);
@@ -101,7 +92,6 @@ class RemoteFinish implements FinishState {
 	        for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
 	        length = 1;
 	        lock.unlock();
-	        val r = rid;
 	        if (null != e) {
 	            val t:Throwable;
 	            if (e.size() == 1) {
@@ -109,12 +99,12 @@ class RemoteFinish implements FinishState {
 	            } else {
 	                t = new MultipleExceptions(e);
 	            }
-	            val closure = () => { Runtime.findRoot(r).notify2(m, t); NativeRuntime.deallocObject(m); };
-	            NativeRuntime.runAt(rid.place.id, closure);
+	            val closure = () => { (r as RootFinish!).notify2(m, t); NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(r.home.id, closure);
 	            NativeRuntime.dealloc(closure);
 	        } else {
-	            val closure = () => { Runtime.findRoot(r).notify2(m) ; NativeRuntime.deallocObject(m); };
-	            NativeRuntime.runAt(rid.place.id, closure);
+	            val closure = () => { (r as RootFinish!).notify2(m) ; NativeRuntime.deallocObject(m); };
+	            NativeRuntime.runAt(r.home.id, closure);
 	            NativeRuntime.dealloc(closure);
 	        }
 	        NativeRuntime.deallocObject(m);

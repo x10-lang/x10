@@ -29,9 +29,8 @@ namespace x10 {
 
 void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
 {
-    x10::runtime::RID rid = buf.read<x10::runtime::RID>();
+    ref<Object> fs = buf.read<ref<Object> >();
     ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
-    ref<Object> fs = rt->FMGL(finishStates)->get(rid);
     // olivier says the incr should be just after the notifySubActivitySpawn
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
@@ -44,9 +43,7 @@ void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &bu
     ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     ref<Object> fs = rt->currentState();
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
-    rt->FMGL(finishStates)->put(fs);
-    x10::runtime::RID rid = (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->rid))();
-    buf.write(rid, m);
+    buf.write(fs, m);
 }
 
 void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Object> df, x10_ubyte code,

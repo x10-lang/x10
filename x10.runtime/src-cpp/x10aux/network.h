@@ -60,6 +60,8 @@ namespace x10aux {
 
     void registration_complete (void);
 
+    void network_init (int ac, char **av);
+
     inline void *msg_realloc(void *old, size_t old_sz, size_t new_sz) {
         return x10rt_msg_realloc(old, old_sz, new_sz);
     }

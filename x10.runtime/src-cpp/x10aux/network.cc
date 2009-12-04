@@ -14,7 +14,8 @@
 #include <x10/lang/String.h> // for debug output
 
 #include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
-#include <x10/runtime/RID.h>
+
+#include <x10/runtime/Runtime.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -110,13 +111,17 @@ x10aux::msg_type x10aux::kernel_put;
 
 void x10aux::registration_complete (void)
 {
+    x10aux::kernel_put =
+        x10rt_register_put_receiver(NULL, NULL, kernel_put_finder, kernel_put_notifier);
     x10rt_registration_complete();
+    x10aux::x10rt_initialized = true;
+}
+
+void x10aux::network_init (int ac, char **av) {
+    x10rt_init(ac, av);
     x10aux::here = x10rt_here();
     x10aux::num_places = x10rt_nplaces();
     x10aux::num_hosts = x10rt_nhosts();
-    x10aux::kernel_put =
-        x10rt_register_put_receiver(NULL, NULL, kernel_put_finder, kernel_put_notifier);
-    x10aux::x10rt_initialized = true;
 }
 
 /*
@@ -146,7 +151,7 @@ struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
 struct x10_runtime_Runtime__closure__6__hack : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::runtime::RID rid;
+    x10aux::ref<x10::lang::Object> fs;
 };
 
 void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
@@ -191,7 +196,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
 
         
         x10aux::ref<x10::lang::Object> real_body = body_->body;
-        x10::runtime::RID rid = body_->rid;
+        x10aux::ref<x10::lang::Object> fs = body_->fs;
 
         serialization_id_t real_sid = real_body->_get_serialization_id();
         msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
@@ -200,7 +205,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
             <<ref<Object>(real_body)->toString()->c_str()<<" id "<<real_id
             <<" sid "<<real_sid<<" at GPU: "<<p);
 
-        x10::runtime::RID::_serialize(rid, buf, m);
+        buf.write(fs, m);
         real_body->_serialize_body(buf, m);
 
         unsigned long sz = buf.length();
@@ -266,7 +271,7 @@ static void *cuda_pre (const x10rt_msg_params &p, size_t &blocks, size_t &thread
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
-    buf.read<x10::runtime::RID>();
+    buf.read<x10aux::ref<x10::lang::Object> >();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -280,9 +285,8 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
     remote_free(p.dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
-    x10::runtime::RID rid = buf.read<x10::runtime::RID>();
+    x10aux::ref<x10::lang::Object> fs = buf.read<x10aux::ref<x10::lang::Object> >();
     x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
-    x10aux::ref<x10::lang::Object> fs = rt->FMGL(finishStates)->get(rid);
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
 }

@@ -14,27 +14,45 @@ import x10.util.Stack;
 /**
  * @author tardieu 
  */
-class RootFinish extends Latch implements FinishState {
+class RootFinish extends Latch implements FinishState, Mortal {
     private val counts:Rail[Int]!;
-    
     private var exceptions:Stack[Throwable]!;
 
-    var rid:RID = RID(here, -1);
-    
-    public def rid():RID = rid; 
-    
-    public def notifyActivityCreation():Void {}
-    
     def this() {
 		val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
 	    c(here.id) = 1;
 		counts = c;
     }
+
+    private def notifySubActivitySpawnLocal(place:Place):Void {
+        lock();
+        counts(place.parent().id)++;
+        unlock();
+    }
+    
+    private def notifyActivityTerminationLocal():Void {
+        lock();
+        counts(here.id)--;
+        for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            if (counts(i) != 0) {
+                unlock();
+                return;
+            }
+        }
+        release();
+        unlock();
+    }
+    
+    private def pushExceptionLocal(t:Throwable):Void {
+        lock();
+        if (null == exceptions) exceptions = new Stack[Throwable]();
+        exceptions.push(t);
+        unlock();
+    }
     
     def waitForFinish(safe:Boolean):Void {
         if (!NativeRuntime.NO_STEALS && safe) Runtime.join(this);
         await();
-        Runtime.removeRoot(this);
         if (null != exceptions) {
             if (exceptions.size() == 1) {
                 val t = exceptions.peek();
@@ -76,38 +94,40 @@ class RootFinish extends Latch implements FinishState {
     }
 
     def notify(rail:ValRail[Int]!, t:Throwable):Void {
-        pushException(t);
+        pushExceptionLocal(t);
         notify(rail);
     }
 
     def notify2(rail:ValRail[Pair[Int,Int]]!, t:Throwable):Void {
-        pushException(t);
+        pushExceptionLocal(t);
         notify2(rail);
     }
 
-    public def notifySubActivitySpawn(place:Place):Void {
-        lock();
-        counts(place.parent().id)++;
-        unlock();
+    public global def notifySubActivitySpawn(place:Place):Void {
+    	if (here.equals(home)) {
+    		(this as RootFinish!).notifySubActivitySpawnLocal(place);
+    	} else {
+    		Runtime.proxy(this).notifySubActivitySpawn(place);
+    	}
+    }
+
+    public global def notifyActivityCreation():Void {
+    	if (!here.equals(home)) Runtime.proxy(this).notifyActivityCreation();
     }
     
-    public def notifyActivityTermination():Void {
-        lock();
-        counts(here.id)--;
-        for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-            if (counts(i) != 0) {
-                unlock();
-                return;
-            }
-        }
-        release();
-        unlock();
+    public global def notifyActivityTermination():Void {
+    	if (here.equals(home)) {
+    		(this as RootFinish!).notifyActivityTerminationLocal();
+    	} else {
+    		Runtime.proxy(this).notifyActivityTermination(this);
+    	}
     }
     
-    public def pushException(t:Throwable):Void {
-        lock();
-        if (null == exceptions) exceptions = new Stack[Throwable]();
-        exceptions.push(t);
-        unlock();
+    public global def pushException(t:Throwable):Void {
+    	if (here.equals(home)) {
+    		(this as RootFinish!).pushExceptionLocal(t);
+    	} else {
+    		Runtime.proxy(this).pushException(t);
+    	}
     }
 }

@@ -17,15 +17,12 @@ public class Activity {
     /**
      * the finish state governing the execution of this activity
      */
-    val finishState:FinishState!;
+    val finishState:FinishState;
+
     /**
      * safe to run pending jobs while waiting for a finish (temporary)
      */
     val safe:Boolean;
-    /**
-     * whether to dealloc the body after executing it
-     */
-    private val free:Boolean;
 
 	/**
 	 * The user-specified code for this activity.
@@ -42,30 +39,22 @@ public class Activity {
      * The finish states for the finish statements currently executed by this activity.  
      * Lazily created.
      */
-    var finishStack:Stack[FinishState!]!;
+    var finishStack:Stack[FinishState]!;
 
     /**
      * Create activity.
      */
-    def this(body:()=>Void, finishState:FinishState!, safe:Boolean) {
-        this(body, finishState, safe, false);
-    }
-
-    /**
-     * Create activity.
-     */
-    def this(body:()=>Void, finishState:FinishState!, safe:Boolean, free:Boolean) {
+    def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
         this.finishState = finishState;
         this.safe = safe;
         finishState.notifyActivityCreation();
         this.body = body;
-        this.free = free;
     }
 
 	/**
 	 * Create clocked activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState{self.at(here)}, clocks:ValRail[Clock], phases:ValRail[Int]) {
+	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
 		this(body, finishState, false);
 		clockPhases = ClockPhases.make(clocks, phases);
 	}
@@ -81,11 +70,8 @@ public class Activity {
         }
         if (null != clockPhases) clockPhases.drop();
 		finishState.notifyActivityTermination();
-        if (free) NativeRuntime.dealloc(body);
+        NativeRuntime.dealloc(body);
 	}
-	
-    // [DC] The correct thing to do here is do toString() on the closure
-	// public def toString():String = name; 
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

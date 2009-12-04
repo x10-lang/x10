@@ -9,27 +9,28 @@
 package x10.runtime;
 
 /**
- * @author tardieu 
+ * @author tardieu
  */
 interface FinishState {
 
 	/** 
-	 * An activity created under this finish has been created. Increment the count
-	 * associated with the finish.
+	 * An activity is spawned under this finish (called by spawner).
 	 */
-    def notifySubActivitySpawn(place:Place):Void;
+    global def notifySubActivitySpawn(place:Place):Void;
+
+	/** 
+	 * An activity is created under this finish (called by spawnee).
+	 */
+    global def notifyActivityCreation():Void;
 
     /** 
 	 * An activity created under this finish has terminated.
+	 * Also called be the activity governing the finish when it completes the finish body.
 	 */
-    def notifyActivityTermination():Void;
+    global def notifyActivityTermination():Void;
     
 	/** 
 	 * Push an exception onto the stack.
 	 */
-    def pushException(t:Throwable):Void;
-    
-    def rid(): RID;
-
-    def notifyActivityCreation():Void;
+    global def pushException(t:Throwable):Void;
 }

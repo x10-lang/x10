@@ -45,11 +45,8 @@ public final class Runtime {
 	 */
 	private const runtime = PlaceLocalHandle.createHandle[Runtime]();
 	
-	/**
-	 * Return the current runtime
-	 */
-	//private static def runtime() = runtime.get() as Runtime!;
-
+	static def proxy(rootFinish:RootFinish) = runtime().finishStates(rootFinish);
+	
 	/**
 	 * Return the current worker
 	 */
@@ -109,68 +106,49 @@ public final class Runtime {
 		runtime().pool.release();
 	}
     
-    static def findRoot(rid:RID) = runtime().finishStates.findRoot(rid) as RootFinish!;
-    	
-    static def removeRoot(rootFinish:RootFinish!) {
-	runtime().finishStates.removeRoot(rootFinish);
-    }
-    
-
     // async -> at statement -> at expression -> future
 	// do not introduce cycles!!!
 
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = clockPhases().register(clocks);
 		state.notifySubActivitySpawn(place);
 		if (place.id == Thread.currentThread().locInt()) {
 			execute(new Activity(body, state, clocks, phases));
 		} else {
-		    runtime().finishStates.put(state);
-	        val rid = state.rid();
-            val c = ()=>execute(new Activity(body, runtime().finishStates.get(rid), clocks, phases));
+            val c = ()=>execute(new Activity(body, state, clocks, phases));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
 
-	public static def runAsync(place:Place, body:()=>Void, free:Boolean):Void {
+	public static def runAsync(place:Place, body:()=>Void):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(place);
 		val ok = safe();
 		if (place.id == Thread.currentThread().locInt()) {
-			execute(new Activity(body, state, ok, free));
+			execute(new Activity(body, state, ok));
 		} else {
-		    runtime().finishStates.put(state);
-	        val rid = state.rid();
             var closure:()=>Void;
 //            val closure =
-//                ok ? (free ? ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, true))
-//                           : ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, false)))
-//                   : (free ? ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, true))
-//                           : ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, false)));
+//                ok ? (free ? ()=>execute(new Activity(body, state, true, true))
+//                           : ()=>execute(new Activity(body, state, true, false)))
+//                   : (free ? ()=>execute(new Activity(body, state, false, true))
+//                           : ()=>execute(new Activity(body, state, false, false)));
             // Workaround for XTENLANG_614
             if (ok) {
-                if (free) {
-                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, true));
-                } else {
-                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), true, false));
-                }
+                closure = ()=>execute(new Activity(body, state, true));
             } else {
-                if (free) {
-                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, true));
-                } else {
-                    closure = ()=>execute(new Activity(body, runtime().finishStates.get(rid), false, false));
-                }
+                closure = ()=>execute(new Activity(body, state, false));
             }
             NativeRuntime.runAt(place.id, closure);
             NativeRuntime.dealloc(closure);
 		}
 	}
 
-	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, Boolean):Void {
+	public static def runAsync(clocks:ValRail[Clock], body:()=>Void):Void {
 		val state = currentState();
 		val phases = clockPhases().register(clocks);
 		state.notifySubActivitySpawn(here);
@@ -178,13 +156,9 @@ public final class Runtime {
 	}
 
 	public static def runAsync(body:()=>Void):Void {
-		runAsync(body, false);
-	}
-	
-	public static def runAsync(body:()=>Void, free:Boolean):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn(here);
-		execute(new Activity(body, state, safe(), free));
+		execute(new Activity(body, state, safe()));
 	}
 	
 	/**
@@ -192,10 +166,10 @@ public final class Runtime {
 	 */
 	public static def runAt(place:Place, body:()=>Void):Void {
         //avoid creating another closure
-		//finish async (place) body();
-        startFinish();
-        runAsync(place, body, false);
-        stopFinish();
+		finish async (place) body();
+        //startFinish();
+        //runAsync(place, body);
+        //stopFinish();
 	}
 
 	/**
@@ -324,11 +298,11 @@ public final class Runtime {
 	/**
 	 * Return the innermost finish state for the current activity
 	 */
-	private static def currentState(): FinishState!  {
+	private static def currentState():RootFinish {
 		val a = activity();
 		if (null == a.finishStack || a.finishStack.isEmpty()) 
-		    return a.finishState;
-		return a.finishStack.peek();
+		    return a.finishState as RootFinish;
+		return a.finishStack.peek() as RootFinish;
 	}
 
 	/**
@@ -338,7 +312,7 @@ public final class Runtime {
 	public static def startFinish():Void {
 		val a = activity();
 		if (null == a.finishStack) 
-		    a.finishStack = new Stack[FinishState!]();
+		    a.finishStack = new Stack[FinishState]();
 		a.finishStack.push(new RootFinish());
 	}
 
