@@ -103,7 +103,7 @@ namespace x10aux {
 #endif
         setlinebuf(stdout);
 
-        x10rt_init(ac,av);
+        x10aux::network_init(ac,av);
 
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args = x10aux::null;
 
@@ -112,14 +112,14 @@ namespace x10aux {
 #endif
             x10aux::place_local::initialize();
 
-            x10aux::DeserializationDispatcher::registerHandlers();
-
-            args = x10aux::convert_args(ac, av);
-
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
             x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
             x10aux::initialize_xrx();
+
+            x10aux::DeserializationDispatcher::registerHandlers();
+
+            args = x10aux::convert_args(ac, av);
 
             // Construct closure to invoke the static initialisers at place 0
             x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
