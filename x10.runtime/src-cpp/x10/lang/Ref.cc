@@ -56,6 +56,14 @@ void Ref::_serialize(ref<Ref> this_, serialization_buffer &buf, addr_map &m)
     }
 }
 
+const serialization_id_t Ref::_interface_serialization_id =
+    DeserializationDispatcher::addDeserializer(Ref::_deserialize<Ref>);
+
+void Ref::_serialize_interface(serialization_buffer &buf, addr_map &m)
+{
+    _serialize(this, buf, m);
+}
+
 void Ref::_serialize_reference(ref<Ref> this_, serialization_buffer &buf, addr_map &m)
 {
     bool isNull = this_.isNull();

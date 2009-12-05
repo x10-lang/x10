@@ -7,17 +7,23 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+void Object::_serialize_interface(x10aux::serialization_buffer &buf,
+                                  x10aux::addr_map &m)
+{
+    _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
+    this->_serialize_body(buf, m);
+}
+
 void Object::_serialize(x10aux::ref<Object> this_,
                         x10aux::serialization_buffer &buf,
-                        x10aux::addr_map &m) 
+                        x10aux::addr_map &m)
 {
     bool isNull = this_.isNull();
-    x10aux::serialization_id_t id = isNull ? 0 : this_->_get_serialization_id();
+    x10aux::serialization_id_t id = isNull ? 0 : this_->_get_interface_serialization_id();
     _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<"interface id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
-    buf.write(id,m);
+    buf.write(id, m);
     if (!isNull) {
-        _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
-        this_->_serialize_body(buf, m);
+        this_->_serialize_interface(buf, m);
     }
 }
 

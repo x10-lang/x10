@@ -52,6 +52,14 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
+            // Should only be overridden in Ref
+            virtual x10aux::serialization_id_t _get_interface_serialization_id() {
+                _S_("===> Object's _get_interface_serialization_id() called");
+                return _get_serialization_id();
+            }
+            // Should only be overridden in Ref
+            virtual void _serialize_interface(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
             virtual x10_boolean equals(x10aux::ref<Object> other);
@@ -75,7 +83,7 @@ namespace x10 {
             }
             // extract the id and execute a callback to instantiate the right concrete class
             _S_("Deserializing an "<<ANSI_SER<<ANSI_BOLD<<"interface"<<ANSI_RESET<<
-                " (expecting id) from buf: "<<&buf);
+                " (expecting id " << id << ") from buf: "<<&buf);
             return x10aux::DeserializationDispatcher::create<T>(buf);
         }
     }
