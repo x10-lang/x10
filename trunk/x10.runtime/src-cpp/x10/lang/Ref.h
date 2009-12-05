@@ -35,6 +35,15 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
+            static const x10aux::serialization_id_t _interface_serialization_id;
+            // Do not override
+            virtual x10aux::serialization_id_t _get_interface_serialization_id() {
+                _S_("===> Ref's _get_interface_serialization_id() called");
+                return _interface_serialization_id;
+            }
+            // Do not override
+            virtual void _serialize_interface(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+
             // A helper method for serializing reference state
             // Client responsible for checking for null
             static void _serialize_reference(x10aux::ref<Ref> this_,
