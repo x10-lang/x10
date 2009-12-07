@@ -311,7 +311,7 @@ must entail \xcd"d".
 \section{Constructor definitions}
 
 A constructor for a class \xcd"C" is guaranteed to return an object of the
-class on successful termination. This object must satisfy i(C), the
+class on successful termination. This object must satisfy  \xcdmath"$\mathit{inv}$(C)", the
 class invariant associated with \xcd"C" (\Sref{DepType:TypeInvariant}).
 However,
 often the objects returned by a constructor may satisfy {\em stronger}
@@ -443,9 +443,9 @@ For every type \Xcd{T} (where \Xcd{T} is not a type variable), we introduce the
   type \Xcd{proto T}. This is the set of all values \Xcd{v} of type \Xcd{T} that are
   still being formed in that the constructor for the value has not yet
   exited or the value points through its fields (transitively) to an
-  object that is still being formed. We say that \Xcd{v} is
-  \emph{incomplete} . Below, a `` proto type'' is a type \Xcd{proto T} for
-  some\Xcd{T}, and a `` proto value'' is a value \Xcd{v} whose static type is a
+  object that is still being formed. We say that such a \Xcd{v} is
+  \emph{incomplete}. Below, a `` proto type'' is a type \Xcd{proto T} for
+  some \Xcd{T}, and a `` proto value'' is a value \Xcd{v} whose static type is a
   \Xcd{proto} type. \Xcd{proto} types are permitted to occur only as types of
   method parameters or local variables or as return types for methods
   and constructors; they may not occur in cast statements, extends or
