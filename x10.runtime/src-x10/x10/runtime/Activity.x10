@@ -15,7 +15,7 @@ import x10.util.Stack;
  */
 public class Activity {
     /**
-     * the finish state governing the execution of this activity
+     * the finish state governing the execution of this activity (may be remote)
      */
     val finishState:FinishState;
 
@@ -39,7 +39,7 @@ public class Activity {
      * The finish states for the finish statements currently executed by this activity.  
      * Lazily created.
      */
-    var finishStack:Stack[FinishState]!;
+    var finishStack:Stack[FinishState!]!;
 
     /**
      * Create activity.
@@ -66,7 +66,7 @@ public class Activity {
         try {
             body();
         } catch (t:Throwable) {
-            Runtime.pushException(t);
+            finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();
 		finishState.notifyActivityTermination();

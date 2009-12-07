@@ -33,4 +33,9 @@ interface FinishState {
 	 * Push an exception onto the stack.
 	 */
     global def pushException(t:Throwable):Void;
+
+	/** 
+	 * Wait for pending subactivities to complete.
+	 */
+    def waitForFinish(safe:Boolean):Void;
 }
