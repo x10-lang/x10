@@ -299,11 +299,11 @@ public final class Runtime {
 	/**
 	 * Return the innermost finish state for the current activity
 	 */
-	private static def currentState():RootFinish {
+	private static def currentState():FinishState {
 		val a = activity();
 		if (null == a.finishStack || a.finishStack.isEmpty()) 
-		    return a.finishState as RootFinish;
-		return a.finishStack.peek() as RootFinish;
+		    return a.finishState;
+		return a.finishStack.peek();
 	}
 
 	/**
@@ -313,7 +313,7 @@ public final class Runtime {
 	public static def startFinish():Void {
 		val a = activity();
 		if (null == a.finishStack) 
-		    a.finishStack = new Stack[FinishState]();
+		    a.finishStack = new Stack[FinishState!]();
 		a.finishStack.push(new RootFinish());
 	}
 
@@ -327,7 +327,7 @@ public final class Runtime {
 	    val a = activity();
 		val finishState = a.finishStack.pop();
 		finishState.notifyActivityTermination();
-		(finishState as RootFinish!).waitForFinish(safe());
+		finishState.waitForFinish(safe());
 	}
 
 	/** 

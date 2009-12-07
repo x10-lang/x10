@@ -50,7 +50,7 @@ class RootFinish extends Latch implements FinishState, Mortal {
         unlock();
     }
     
-    def waitForFinish(safe:Boolean):Void {
+    public def waitForFinish(safe:Boolean):Void {
         if (!NativeRuntime.NO_STEALS && safe) Runtime.join(this);
         await();
         if (null != exceptions) {
