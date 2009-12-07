@@ -32,12 +32,16 @@ all: all_dbg all_opt
 all_dbg: FT-dbg \
 	LU-dbg \
 	STREAM-dbg \
-	RA-dbg
+	RA-dbg\
+        FT-alltoall-dbg \
+        FT-global-dbg
 
 all_opt: FT-opt \
 	LU-opt \
 	STREAM-opt \
-	RA-opt
+	RA-opt \
+        FT-alltoall-opt\
+        FT-global-opt
 
 FT: FT-opt FT-dbg
 
@@ -83,7 +87,27 @@ RA-dbg:
 RA-clean:
 	$(MAKE) -C RA clean
 
-clean: FT-clean LU-clean STREAM-clean RA-clean
+FT-alltoall: FT-alltoall-opt FT-alltoall-dbg
+
+FT-alltoall-opt:
+	$(MAKE) -C FT-alltoall fft-opt
+
+FT-alltoall-dbg:
+	$(MAKE) -C FT-alltoall fft-dbg
+
+FT-alltoall-clean:
+	$(MAKE) -C FT-alltoall clean
+
+FT-global-opt:
+	$(MAKE) -C FT-global fft-opt
+
+FT-global-dbg:
+	$(MAKE) -C FT-global fft-dbg
+
+FT-global-clean:
+	$(MAKE) -C FT-global clean
+
+clean: FT-clean LU-clean STREAM-clean RA-clean FT-alltoall-clean
 
 .PHONY: FT LU STREAM RA
 .PHONY: clean

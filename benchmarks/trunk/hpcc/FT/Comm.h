@@ -1,19 +1,23 @@
-#ifndef __FT_COMM_H
-#define __FT_COMM_H
+#ifndef __COMM_H
+#define __COMM_H
 
-#include <x10rt17.h>
+#include <x10rt.h>
 #include <pgasrt.h>
 #include <x10/runtime/Runtime.h>
 
-#define X10_LANG_VALUE_H_NODEPS
-#include <x10/lang/Value.h>
-#undef X10_LANG_VALUE_H_NODEPS
+
+#define X10_LANG_OBJECT_H_NODEPS
+#include <x10/lang/Object.h>
+#undef X10_LANG_OBJECT_H_NODEPS
+#define X10_LANG_INT_STRUCT_H_NODEPS
+#include <x10/lang/Int.struct_h>
+#undef X10_LANG_INT_STRUCT_H_NODEPS
 namespace x10 { namespace lang { 
 class Int;
 } } 
-namespace FT { 
-
-class Comm : public x10::lang::Value  {
+#include <x10/lang/Int.struct_h>
+namespace FT{
+class Comm : public x10::lang::Ref   {
     public:
     RTT_H_DECLS_CLASS
     
@@ -21,53 +25,43 @@ class Comm : public x10::lang::Value  {
     
     static x10_int FMGL(next_id);
     
+    static x10_int FMGL(next_id__get)() {
+        return Comm::FMGL(next_id);
+    }
     x10_int FMGL(my_id);
     
-    static x10aux::ref<FT::Comm> _make() {
-        x10aux::ref<FT::Comm> this_ = new (x10aux::alloc<FT::Comm>()) FT::Comm();
-        this_->_constructor();
-        return this_;
-    }
-    void _constructor();
-  
-     public: Comm() {FMGL(my_id) = 0;} 
-     public: Comm (const Comm& other) { FMGL(my_id) = other.FMGL(my_id);}
- 
-    static x10aux::ref<FT::Comm> _make(x10_int id) {
-        x10aux::ref<FT::Comm> this_ = new (x10aux::alloc<FT::Comm>()) FT::Comm();
-        this_->_constructor(id);
-        return this_;
-    }
     void _constructor(x10_int id);
     
-    public: virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
-    public : static void _static_init();
+    static x10aux::ref<Comm> _make(x10_int id);
+    
     
     // Serialization
     public: static const x10aux::serialization_id_t _serialization_id;
     
-    public: virtual x10aux::serialization_id_t _get_serialization_id() {
+    public: static void _serialize(x10aux::ref<Comm> this_,
+                                   x10aux::serialization_buffer& buf,
+                                   x10aux::addr_map& m);
+    
+    public: x10aux::serialization_id_t _get_serialization_id() {
          return _serialization_id;
     }
     
-    public: virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+    public: void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
     
-    public: template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf) {
-        x10aux::ref<FT::Comm> this_ = new (x10aux::alloc<FT::Comm >()) FT::Comm();
-        this_->_deserialize_body(buf);
-        return this_;
-    }
+    public: template<class __T> static x10aux::ref<__T> _deserializer(x10aux::deserialization_buffer& buf);
+    
+    public: template<class __T> static x10aux::ref<__T> _deserialize(x10aux::deserialization_buffer& buf);
     
     public: void _deserialize_body(x10aux::deserialization_buffer& buf);
-   
-      void barrier();
+
+ void barrier();
 
     public: static x10aux::ref<FT::Comm> world() {return _make(0);}
 
     template<typename T>
     void broadcast (T* buf, int root, signed int len)
     {
-    
+   
      void *r = __pgasrt_tspcoll_ibcast((unsigned)FMGL(my_id),  (unsigned)root, (void*)buf, (void*)buf, len*sizeof(T));
      x10::runtime::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
@@ -77,8 +71,8 @@ class Comm : public x10::lang::Value  {
     template<typename T>
     void alltoall (T* sbuf, T* rbuf, signed int len)
     {
-    
-     void *r = __pgasrt_tspcoll_ialltoall((unsigned)FMGL(my_id),  (void*)sbuf, (void*)rbuf, 
+   
+     void *r = __pgasrt_tspcoll_ialltoall((unsigned)FMGL(my_id),  (void*)sbuf, (void*)rbuf,
              len*sizeof(T));
      x10::runtime::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
@@ -96,23 +90,37 @@ class Comm : public x10::lang::Value  {
    }
 
     int reduce_di(const double val, int index, int OP, int TYPE);
+    void alltoall(const double* in, double* out, size_t size);
 
    x10aux::ref<Comm> split(signed int color, signed int new_rank);
- 
+    
 };
+}
+#endif // COMM_H
 
-} 
-#endif // FT_COMM_H
-
-namespace FT { 
+namespace FT{
 class Comm;
-} 
+}
 
-#ifndef FT_COMM_H_NODEPS
-#define FT_COMM_H_NODEPS
-#include <x10/lang/Value.h>
+#ifndef COMM_H_NODEPS
+#define COMM_H_NODEPS
+#include <x10/lang/Object.h>
 #include <x10/lang/Int.h>
-#ifndef FT_COMM_H_GENERICS
-#define FT_COMM_H_GENERICS
-#endif // FT_COMM_H_GENERICS
-#endif // __FT_COMM_H_NODEPS
+#ifndef COMM_H_GENERICS
+#define COMM_H_GENERICS
+template<class __T> x10aux::ref<__T> FT::Comm::_deserializer(x10aux::deserialization_buffer& buf) {
+    x10aux::ref<FT::Comm> this_ = new (x10aux::alloc_remote<FT::Comm>()) FT::Comm();
+    this_->_deserialize_body(buf);
+    return this_;
+}
+
+template<class __T> x10aux::ref<__T> FT::Comm::_deserialize(x10aux::deserialization_buffer& buf) {
+    x10::lang::Ref::_reference_state rr = x10::lang::Ref::_deserialize_reference_state(buf);
+    x10aux::ref<FT::Comm> this_;
+    if (rr.ref != 0) {
+        this_ = FT::Comm::_deserializer<FT::Comm>(buf);
+    }
+    return x10::lang::Ref::_finalize_reference<__T>(this_, rr);
+}
+#endif // COMM_H_GENERICS
+#endif // __COMM_H_NODEPS
