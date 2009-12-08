@@ -14,22 +14,24 @@ import x10.util.HashMap;
  * @author tardieu
  */
 class ClockPhases extends HashMap[RuntimeClock,Int] {
-	static def make(clocks:ValRail[Clock], phases:ValRail[Int]) {
-		val clockPhases = new ClockPhases();
-		for(var i:Int = 0; i < clocks.length; i++) clockPhases.put(clocks(i) as RuntimeClock, phases(i));
-		return clockPhases;
-	}
+    static def make(clocks:ValRail[Clock], phases:ValRail[Int]) {
+        val clockPhases = new ClockPhases();
+        for(var i:Int = 0; i < clocks.length; i++) clockPhases.put(clocks(i) as RuntimeClock, phases(i));
+        return clockPhases;
+    }
 
-	def register(clocks:ValRail[Clock]) {
-		return ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as RuntimeClock).register());
-	}
-	
-	def next() {
-		for(clock:RuntimeClock in keySet()) clock.resumeUnsafe();
-		for(clock:RuntimeClock in keySet()) clock.nextUnsafe();
-	}
+    def register(clocks:ValRail[Clock]) {
+        return ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as RuntimeClock).register());
+    }
 
-	def drop() {
-		for(clock:RuntimeClock in keySet()) clock.dropUnsafe();
-	}
+    def next() {
+        for(clock:RuntimeClock in keySet()) clock.resumeUnsafe();
+        for(clock:RuntimeClock in keySet()) clock.nextUnsafe();
+    }
+
+    def drop() {
+       for(clock:RuntimeClock in keySet()) clock.dropUnsafe();
+    }
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

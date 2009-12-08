@@ -25,11 +25,11 @@ public class Future_c[T] extends Future[T] {
      * Can only be of type Error or RuntimeException
      */
     private global val exception = new GrowableRail[Throwable]();
-    
+
     private global val result:GrowableRail[T];
-    
+
     private global val eval:()=>T;
-    
+
     public def this(eval:()=>T) {
         this.eval = eval;
         result = new GrowableRail[T]();
@@ -37,7 +37,7 @@ public class Future_c[T] extends Future[T] {
 
     private global def result()= result as GrowableRail[T]!;
     public global def forced():boolean = at (latch) latch();
-    
+
     public global def apply():T = force();
 
     public global def force():T {
@@ -64,7 +64,9 @@ public class Future_c[T] extends Future[T] {
             latch.release();
         }
     }
-    
+
     // [DC] The correct thing to do here is pull the name from the closure
-    //public global def toString():String = name; 
+    //public global def toString():String = name;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

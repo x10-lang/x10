@@ -16,8 +16,8 @@ import x10.util.HashMap;
  */
 class FinishStates implements (RootFinish)=>RemoteFinish {
 
-	private val map = new HashMap[RootFinish, RemoteFinish!]();
-	private val lock = new Lock();
+    private val map = new HashMap[RootFinish, RemoteFinish!]();
+    private val lock = new Lock();
 
     public def apply(rootFinish:RootFinish):RemoteFinish {
         lock.lock();

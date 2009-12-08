@@ -13,8 +13,8 @@ import x10.compiler.NativeRep;
 
 /**
  * A PlaceLocalHandle is used in conjunction with the PlaceLocalStorage
- * facility to create, name, manage, and destory the place-local storage of 
- * a distributed object. PlaceLocalHandles are created internally by the 
+ * facility to create, name, manage, and destory the place-local storage of
+ * a distributed object. PlaceLocalHandles are created internally by the
  * PlaceLocalStorage service; they cannot be directly created by application code.</p>
  *
  * The primary operation on a PlaceLocalHandle is to use it to access an object
@@ -65,10 +65,12 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
   @Native("c++", "x10::runtime::PlaceLocalHandle<#1 >::createHandle()")
   @Native("java", "x10.runtime.impl.java.PlaceLocalHandle.createHandle()")
   static native def createHandle[T]():PlaceLocalHandle[T];
- 
+
 
   @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3)")
   @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3)")
   public native def copyTo (dst:Place, len:Int, notifier:()=>Void) : Void;
 
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

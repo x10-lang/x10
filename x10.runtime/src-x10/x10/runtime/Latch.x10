@@ -13,22 +13,24 @@ package x10.runtime;
  * @author tardieu
  */
 class Latch extends Monitor implements ()=>Boolean {
-	private var state:Boolean = false;
-	
+    private var state:Boolean = false;
+
     public def release():Void {
-    	lock();
-	    state = true;
-	    super.release();
+        lock();
+        state = true;
+        super.release();
     }
 
     public def await():Void {
-    	// avoid locking if state == true
-    	if (!state) {
-	    	lock();
-	    	while (!state) super.await();
+        // avoid locking if state == true
+        if (!state) {
+            lock();
+            while (!state) super.await();
             unlock();
-		}
+        }
     }
-	
+
     public def apply():Boolean = state; // memory model?
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
