@@ -68,7 +68,9 @@ namespace x10 {
             }   
 
             GPUSAFE T& operator[](x10_int index) {
+                #ifndef NO_BOUNDS_CHECKS
                 x10aux::checkRailBounds(index, FMGL(length));
+                #endif
                 return _data[index];
             }
       
