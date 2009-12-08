@@ -1512,10 +1512,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        String clsCType = Emitter.translateType(currentClass, false);
 	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
 	        itableNum = 0;
+            String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString()) + "_ithunk";
+            String thunkParams = "";
+            if (currentClass.typeArguments().size() != 0) {
+                String args = "";
+                int s = currentClass.typeArguments().size();
+                for (Type t: currentClass.typeArguments()) {
+                    args += Emitter.translateType(t, true); // type arguments are always translated as refs
+                    if (--s > 0)
+                        args +=", ";
+                }
+                thunkParams = chevrons(args);
+            }
 	        for (Type interfaceType : allInterfaces) {
 	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 	            sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
-	                     clsCType+"_ithunk"+itableNum+"::itable), ");
+	                     thunkBaseName+itableNum+thunkParams+"::itable), ");
 	            itableNum += 1;
 	        }
 	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();

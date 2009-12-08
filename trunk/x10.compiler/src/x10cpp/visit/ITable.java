@@ -1,5 +1,7 @@
 package x10cpp.visit;
 
+import static x10cpp.visit.SharedVarsMethods.chevrons;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -175,6 +177,17 @@ public final class ITable {
             String clsCType = Emitter.translateType(cls, false);
             X10ClassDef cd = ((X10ClassType) cls).x10Def();
             String thunkType = Emitter.mangled_non_method_name(cd.name().toString()) + "_ithunk"+itableNum;
+            String thunkParams = "";
+            if (cls.typeArguments().size() != 0) {
+                String args = "";
+                int s = cls.typeArguments().size();
+                for (Type t: cls.typeArguments()) {
+                    args += Emitter.translateType(t, true); // type arguments are always translated as refs
+                    if (--s > 0)
+                        args +=", ";
+                }
+                thunkParams = chevrons(args);
+            }
             boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
             
             if (cd.package_() != null) {
@@ -186,7 +199,7 @@ public final class ITable {
             sw.write("class "+thunkType+" : public "+clsCType+" {"); sw.newline();
             sw.write("public:"); sw.newline(4); sw.begin(0);
             sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
-                    (doubleTemplate ? "::template itable<":"::itable<")+thunkType+" > itable;");
+                    (doubleTemplate ? "::template itable<":"::itable<")+thunkType+thunkParams+" > itable;");
             sw.newline();
             
             for (MethodInstance meth : methods) {
@@ -218,13 +231,13 @@ public final class ITable {
                 emitter.printTemplateSignature(cls.typeArguments(), sw);
             }           
             sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-                     thunkType+" > "+" "+thunkType+"::itable");
+                     thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
             if (!isEmpty()) {
                 int methodNum = 0;
                 sw.write("(");
                 for (MethodInstance meth : methods) {
                     if (methodNum > 0) sw.write(", ");
-                    sw.write("&"+thunkType+"::"+Emitter.mangled_method_name(meth.name().toString()));
+                    sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString()));
                     methodNum++;
                 }
                 sw.write(")");
