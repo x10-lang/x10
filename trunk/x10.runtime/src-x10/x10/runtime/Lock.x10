@@ -2,8 +2,8 @@
  *
  * (C) Copyright IBM Corporation 2008
  *
- *  This file is part of X10 runtime. It is 
- *  governed by the licence under which 
+ *  This file is part of X10 runtime. It is
+ *  governed by the licence under which
  *  X10 is released.
  *
  */
@@ -20,25 +20,24 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
 @NativeRep("c++", "x10aux::ref<x10::runtime::Lock>", "x10::runtime::Lock", null)
 public class Lock {
-	
-	public native def this(): Lock;
-	
 
-	@Native("java", "#0.lock()")
-	@Native("c++", "(#0)->lock()")
-	public global native def lock():void;
-	
-	@Native("java", "#0.tryLock()")
-	@Native("c++", "(#0)->tryLock()")
-	public native def tryLock():boolean;
-	
-	@Native("java", "#0.unlock()")
-	@Native("c++", "(#0)->unlock()")
-	public global native def unlock():void;
+    public native def this(): Lock;
 
-	@Native("java", "#0.getHoldCount()")
-	@Native("c++", "(#0)->getHoldCount()")
-	public global native def getHoldCount():int;
+    @Native("java", "#0.lock()")
+    @Native("c++", "(#0)->lock()")
+    public global native def lock():void;
 
+    @Native("java", "#0.tryLock()")
+    @Native("c++", "(#0)->tryLock()")
+    public native def tryLock():boolean;
 
+    @Native("java", "#0.unlock()")
+    @Native("c++", "(#0)->unlock()")
+    public global native def unlock():void;
+
+    @Native("java", "#0.getHoldCount()")
+    @Native("c++", "(#0)->getHoldCount()")
+    public global native def getHoldCount():int;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

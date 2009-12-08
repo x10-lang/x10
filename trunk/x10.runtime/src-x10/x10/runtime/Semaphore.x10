@@ -15,51 +15,53 @@ import x10.util.Stack;
  */
 class Semaphore {
     private val lock = new Lock();
-    
+
     private val threads = new Stack[Thread]();
-    
+
     private var permits:Int;
 
-	def this(n:Int) {
-		permits = n;
-	}
-	
-	private static def min(i:Int, j:Int):Int = i<j ? i : j;
-	
+    def this(n:Int) {
+        permits = n;
+    }
+
+    private static def min(i:Int, j:Int):Int = i<j ? i : j;
+
     def release(n:Int):Void {
-    	lock.lock();
-	    permits += n;
-	    val m = min(permits, min(n, threads.size()));
+        lock.lock();
+        permits += n;
+        val m = min(permits, min(n, threads.size()));
         for (var i:Int = 0; i<m; i++) {
             Thread.unpark(threads.pop());
         }
-    	lock.unlock();
+        lock.unlock();
     }
 
     def release():Void {
-    	release(1);
+        release(1);
     }
 
     def reduce(n:Int):Void {
-    	lock.lock();
-	    permits -= n;
-    	lock.unlock();
+        lock.lock();
+        permits -= n;
+        lock.unlock();
     }
 
     def acquire():Void {
-    	lock.lock();
+        lock.lock();
         val thread = Thread.currentThread();
-    	while (permits <= 0) {
+        while (permits <= 0) {
             threads.push(thread);
             while (threads.contains(thread)) {
                 lock.unlock();
                 Thread.park();
                 lock.lock();
             }
-    	}
-   		--permits;
-   		lock.unlock();
+        }
+        --permits;
+        lock.unlock();
     }
 
-	def available():Int = permits;
+    def available():Int = permits;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

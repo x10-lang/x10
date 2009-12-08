@@ -25,3 +25,5 @@ public final class RemoteOperation {
     @Native("c++", "x10rt_remote_op_fence()")
     public static def fence() { }
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

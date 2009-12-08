@@ -15,59 +15,61 @@ import x10.util.Stack;
  * @author tardieu
  */
 class Monitor {
- 	/**
- 	 * Instance lock
- 	 */
- 	private val lock = new Lock();
- 	
- 	/**
- 	 * Parked threads
- 	 */
- 	private val threads = new Stack[Thread]();
+    /**
+     * Instance lock
+     */
+    private val lock = new Lock();
 
-	/**
-	 * Lock
-	 */
+    /**
+     * Parked threads
+     */
+    private val threads = new Stack[Thread]();
+
+    /**
+     * Lock
+     */
     def lock():Void {
-    	lock.lock();
+        lock.lock();
     }
 
     /**
      * Park calling thread
      * Increment blocked thread count
-	 * Must be called while holding the lock
-	 * Must not be called while holding the lock more than once
-	 */
+     * Must be called while holding the lock
+     * Must not be called while holding the lock more than once
+     */
     def await():Void {
-    	Runtime.increaseParallelism();
-    	val thread = Thread.currentThread();
-    	threads.push(thread);
-    	while (threads.contains(thread)) {
-	   		unlock();
-   			Runtime.park();
-   			lock();
-		}
+        Runtime.increaseParallelism();
+        val thread = Thread.currentThread();
+        threads.push(thread);
+        while (threads.contains(thread)) {
+            unlock();
+            Runtime.park();
+            lock();
+        }
     }
 
- 	/**
-	 * Unpark every thread
+    /**
+     * Unpark every thread
      * Decrement blocked thread count
-	 * Release the lock
-	 * Must be called while holding the lock
-	 */
+     * Release the lock
+     * Must be called while holding the lock
+     */
     def release():Void {
-    	val size = threads.size();
-    	if (size > 0) {
-	    	Runtime.decreaseParallelism(size);
-	    	for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
-	    }
-    	unlock();
+        val size = threads.size();
+        if (size > 0) {
+            Runtime.decreaseParallelism(size);
+            for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
+        }
+        unlock();
     }
 
-	/**
-	 * Unlock
-	 */
+    /**
+     * Unlock
+     */
     def unlock():Void {
-    	lock.unlock();
+        lock.unlock();
     }
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

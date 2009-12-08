@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
- 
+
 package x10.runtime;
 
 /**
@@ -13,29 +13,31 @@ package x10.runtime;
  */
 interface FinishState {
 
-	/** 
-	 * An activity is spawned under this finish (called by spawner).
-	 */
+    /**
+     * An activity is spawned under this finish (called by spawner).
+     */
     global def notifySubActivitySpawn(place:Place):Void;
 
-	/** 
-	 * An activity is created under this finish (called by spawnee).
-	 */
+    /**
+     * An activity is created under this finish (called by spawnee).
+     */
     global def notifyActivityCreation():Void;
 
-    /** 
-	 * An activity created under this finish has terminated.
-	 * Also called be the activity governing the finish when it completes the finish body.
-	 */
+    /**
+     * An activity created under this finish has terminated.
+     * Also called be the activity governing the finish when it completes the finish body.
+     */
     global def notifyActivityTermination():Void;
-    
-	/** 
-	 * Push an exception onto the stack.
-	 */
+
+    /**
+     * Push an exception onto the stack.
+     */
     global def pushException(t:Throwable):Void;
 
-	/** 
-	 * Wait for pending subactivities to complete.
-	 */
+    /**
+     * Wait for pending subactivities to complete.
+     */
     def waitForFinish(safe:Boolean):Void;
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

@@ -14,12 +14,12 @@ package x10.runtime;
 public final class PlaceLocalStorage {
 
   /**
-   * Create a distributed object with local state of type T 
-   * at each place in the argument distribution.  The local object will be initialized 
+   * Create a distributed object with local state of type T
+   * at each place in the argument distribution.  The local object will be initialized
    * by evaluating init at each place.  When this method returns, the local objects
    * will be initialized and available via the returned PlaceLocalHandle instance
    * at every place in the distribution.
-   * 
+   *
    * @param dist A distribution specifiying the places where local objects should be created.
    * @param init the initialization closure used to create the local object.
    * @return a PlaceLocalHandle that can be used to access the local objects.
@@ -36,3 +36,5 @@ public final class PlaceLocalStorage {
   public static def createDistributedObject[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T]
    = make[T](dist, init);
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

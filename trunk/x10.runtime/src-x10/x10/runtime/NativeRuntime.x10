@@ -48,7 +48,7 @@ public class NativeRuntime {
   @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
   @Native("c++", "x10aux::num_threads()")
   public const INIT_THREADS = 1;
-    
+
   @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
   @Native("c++", "x10aux::static_threads()")
   public const STATIC_THREADS = false;
@@ -168,3 +168,5 @@ public class NativeRuntime {
   @Native("c++", "x10aux::DeserializationDispatcher::registerHandlers()")
   public static def registerHandlers() {}
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
