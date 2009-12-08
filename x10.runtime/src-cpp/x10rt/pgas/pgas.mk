@@ -77,7 +77,7 @@ ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
 
-  ifneq ($(shell test -r $($(CUSTOM_PGAS)/lib/libxlpgas_lapi.a) && echo -n hi), hi)
+  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a && echo -n hi),hi)
     XLPGAS_LAPI_EXISTS := yes
   else
     XLPGAS_LAPI_EXISTS := no
@@ -103,21 +103,21 @@ EXECUTABLES += bin/launcher bin/manager bin/daemon
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(SOCKETS_LDFLAGS) $(SOCKETS_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
-	$(CP) $(CUSTOM_PGAS)/bin/* bin
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libxlpgas_sockets.a
 else
 $(SOCKETS_TGZ).phony:
 	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(SOCKETS_TGZ)"
 
 $(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 
-lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
+lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
 	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xvf -
+endif
+
+lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(CP) lib/libxlpgas_sockets.a lib/libx10rt_pgas_sockets.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
-endif
 
 etc/x10rt_pgas_sockets.properties:
 	echo "CXX=$(CXX)" > $@
@@ -185,20 +185,21 @@ PROPERTIES += etc/x10rt_pgas_bgp.properties
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(BGP_LDFLAGS) $(BGP_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
+lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libxlpgas_bgp.a
 else
 $(BGP_TGZ).phony:
 	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(BGP_TGZ)"
 
 $(BGP_TGZ): $(BGP_TGZ).phony
 
-lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
+lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
 	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xvf -
+endif
+
+lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
 	$(CP) lib/libxlpgas_bgp.a lib/libx10rt_pgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
-endif
 
 etc/x10rt_pgas_bgp.properties:
 	echo "CXX=$(CXX)" > $@
