@@ -77,7 +77,7 @@ ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
 
-  ifneq ($(shell test -r  sdf && echo -n hi), hi)
+  ifneq ($(shell test -r $($(CUSTOM_PGAS)/lib/libxlpgas_lapi.a) && echo -n hi), hi)
     XLPGAS_LAPI_EXISTS := yes
   else
     XLPGAS_LAPI_EXISTS := no
@@ -148,7 +148,6 @@ PROPERTIES += etc/x10rt_pgas_lapi.properties
 ifdef CUSTOM_PGAS
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libxlpgas_lapi.a
-	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LAPI_TGZ).phony:
 	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/svn head/$(LAPI_TGZ)"
