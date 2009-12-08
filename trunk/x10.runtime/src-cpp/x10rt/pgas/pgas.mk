@@ -76,6 +76,14 @@ endif
 ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
+
+  ifneq ($(shell test -r  sdf && echo -n hi), hi)
+    XLPGAS_LAPI_EXISTS := yes
+  else
+    XLPGAS_LAPI_EXISTS := no
+  endif
+else
+  XLPGAS_LAPI_EXISTS := yes # found in tarball
 endif
 
 ifneq ($(shell test -x `which poe 2>/dev/null` && echo -n hi), hi)
@@ -124,6 +132,7 @@ endif
 
 
 ifeq ($(LAPI_USE),yes)
+ifeq ($(XLPGAS_LAPI_EXISTS),yes)
 ifeq ($(POE_EXISTS),yes)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
 else
@@ -137,8 +146,8 @@ PROPERTIES += etc/x10rt_pgas_lapi.properties
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) $(LAPI_LDFLAGS) $(LAPI_LDLIBS)
 
 ifdef CUSTOM_PGAS
-lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
-	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
+lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
+	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libxlpgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LAPI_TGZ).phony:
@@ -146,11 +155,13 @@ $(LAPI_TGZ).phony:
 
 $(LAPI_TGZ): $(LAPI_TGZ).phony
 
-lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
+lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
 	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xvf -
+endif
+
+lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(CP) lib/libxlpgas_lapi.a lib/libx10rt_pgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
-endif
 
 etc/x10rt_pgas_lapi.properties:
 	echo "CXX=$(CXX)" > $@
@@ -161,7 +172,8 @@ etc/x10rt_pgas_lapi.properties:
 .PHONY: $(LAPI_TGZ).phony
 TGZ += $(LAPI_TGZ).phony
 
-endif
+endif #XLPGAS_LAPI_EXISTS
+endif #LAPI_USE
 
 
 ifeq ($(BGP_USE),yes)
