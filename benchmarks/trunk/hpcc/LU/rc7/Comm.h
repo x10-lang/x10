@@ -1,19 +1,19 @@
 #ifndef __RC7_COMM_H
 #define __RC7_COMM_H
 
-#include <x10rt17.h>
+#include <x10rt.h>
 #include <pgasrt.h>
 #include <x10/runtime/Runtime.h>
 
 #define X10_LANG_VALUE_H_NODEPS
-#include <x10/lang/Value.h>
+#include <x10/lang/Closure.h>
 #undef X10_LANG_VALUE_H_NODEPS
 namespace x10 { namespace lang { 
 class Int;
 } } 
 namespace rc7 { 
 
-class Comm : public x10::lang::Value  {
+class Comm : public x10::lang::Closure  {
     public:
     RTT_H_DECLS_CLASS
     
@@ -99,7 +99,7 @@ class Comm;
 
 #ifndef RC7_COMM_H_NODEPS
 #define RC7_COMM_H_NODEPS
-#include <x10/lang/Value.h>
+#include <x10/lang/Closure.h>
 #include <x10/lang/Int.h>
 #ifndef RC7_COMM_H_GENERICS
 #define RC7_COMM_H_GENERICS

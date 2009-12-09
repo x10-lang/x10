@@ -16,7 +16,7 @@ x10_int rc7::Comm::FMGL(next_id) = ((x10_int)0);
 
 //#line 5 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
 void rc7::Comm::_constructor() {
-    this->x10::lang::Value::_constructor();
+    this->x10::lang::Closure::_constructor();
     
     //#line 5 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
     x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
@@ -27,7 +27,7 @@ void rc7::Comm::_constructor() {
 
 //#line 6 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
 void rc7::Comm::_constructor(x10_int id) {
-    this->x10::lang::Value::_constructor();
+    this->x10::lang::Closure::_constructor();
     
     //#line 6 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
     x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
@@ -62,7 +62,7 @@ void rc7::Comm::_constructor(x10_int id) {
 
 x10_boolean rc7::Comm::_struct_equals(x10aux::ref<x10::lang::Object> p0) {
     if (p0.operator->() == this) return true; // short-circuit trivial equality
-    if (!this->x10::lang::Value::_struct_equals(p0))
+    if (!this->x10::lang::Closure::_struct_equals(p0))
         return false;
     x10aux::ref<rc7::Comm> that = (x10aux::ref<rc7::Comm>) p0;
     if (!x10aux::struct_equals(this->FMGL(my_id), that->FMGL(my_id)))
@@ -74,20 +74,20 @@ const x10aux::serialization_id_t rc7::Comm::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(rc7::Comm::_deserializer<x10::lang::Ref>);
 
 void rc7::Comm::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    x10::lang::Value::_serialize_body(buf, m);
+    x10::lang::Closure::_serialize_body(buf, m);
     buf.write(this->FMGL(my_id),m);
     
 }
 
 void rc7::Comm::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    x10::lang::Value::_deserialize_body(buf);
+    x10::lang::Closure::_deserialize_body(buf);
     FMGL(my_id) = buf.read<x10_int >();
 }
 
 x10aux::RuntimeType rc7::Comm::rtt;
 void rc7::Comm::_initRTT() {
     rtt.canonical = &rtt;
-    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Value>()};
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Closure>()};
     rtt.init(&rtt, "rc7.Comm", 1, parents, 0, NULL, NULL);
 }
 
