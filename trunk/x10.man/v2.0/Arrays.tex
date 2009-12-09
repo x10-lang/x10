@@ -28,12 +28,12 @@ rank two using a rail constructor:
 p: Point = [1,2];
 \end{xten}
 
-The \xcd"Point" constructor can take a rail constructor as
+The \xcd"Point" factory method \xcd"make" can take a rail constructor as
 argument.  The assignment above can be written, without
 implicit coercion, as:
 
 \begin{xten}
-p: Point = new Point([1,2]);
+p: Point = Point.make([1,2]);
 \end{xten}
 
 Points implement the function type \xcd"(Int) => Int"; thus, the
@@ -43,15 +43,10 @@ Points implement the function type \xcd"(Int) => Int"; thus, the
 \input{Distributions}
 \section{Array initializer}\label{ArrayInitializer}\label{array!creation}
 
-Arrays are instantiated by invoking the constructor for the
-classes
-\xcd"Array" or \xcd"ValArray".
+Arrays are instantiated by invoking one of the \xcd"make" factory
+methods of the \xcd"Array" class.
 
-An array instantiation may be annotated
-\xcd"unsafe"
-if it is intended to be
-allocated in an unmanaged region (e.g., for communication with native
-code). A value array is an immutable array. An array creation
+An array creation 
 must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
 case an array is created over the distribution \xcd"[0:N-1]->here";
 in the second over the given distribution. 
@@ -67,9 +62,9 @@ distribution).
 For instance:
 \begin{xten}
 val data : Array[Int]
-    = new Array[Int](1000->here, Point(i) => i);
-val data2 : Array[Int]
-    = new ValArray[Int]([1:1000,1:1000]->here, Point(i,j) => i*j);
+    = Array.make[Int](1..1000->here, ((i):Point) => i);
+val data2 : Array[Int,Int]
+    = Array.make[Int]([1..1000,1..1000]->here, ((i,j):Point) => i*j);
 \end{xten}
 
 {}\noindent 
@@ -77,25 +72,28 @@ The first declaration stores in \xcd"data" a reference to a mutable
 array with \xcd"1000" elements each of which is located in the
 same place as the array. Each array component is initialized to \xcd"i".
 
-The second declaration stores in \xcd"data2" an (immutable)
+The second declaration stores in \xcd"data2" a reference to a mutable
 2-d array over \xcd"[1:1000, 1:1000]" initialized with \xcd"i*j"
-at point \xcd"[i,j]". It uses a more abbreviated form to specify 
-the array initializer function.
+at point \xcd"[i,j]".
 
 Other examples:
 \begin{xten}
+val D1:Dist(1) = ...; /* An expression that creates a Dist */
+val D2:Dist(2) = ...; /* An expression that creates a Dist */
+
 val data : Array[Int]
-    = new Array[Int](1000) ((i): Point => i*i);
-val d : Array[Float](D)
-   = new Array[Float](D) ((i): point) => 10.0*i);
-val result : Array[Float](D)
-   = new Array[Float](D) ((i,j): point) => i+j);
+    = Array.make[Int](1000, ((i):Point) => i*i);
+
+val data2 : Array[Float]
+    = Array.make[Float](D1, ((i):Point) => i*i as Float);
+
+val result : Array[Float]
+   = Array.make[Float](D2, ((i,j):Point) => i+j as Float);;
 \end{xten}
 
 \section{Operations on arrays}
 In the following let \xcd"a" be an array with distribution \xcd"D" and
-base type \xcd"T". \xcd"a" may be mutable or immutable, unless
-indicated otherwise.
+base type \xcd"T". \xcd"a".
 
 \subsection{Element operations}\index{array!access}
 The value of \xcd"a" at a point \xcd"p" in its region of definition is
