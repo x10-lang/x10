@@ -83,7 +83,7 @@ include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
     XLPGAS_LAPI_EXISTS := no
   endif
 else
-  XLPGAS_LAPI_EXISTS := yes # found in tarball
+  XLPGAS_LAPI_EXISTS := yes
 endif
 
 ifneq ($(shell test -x `which poe 2>/dev/null` && echo -n hi), hi)
