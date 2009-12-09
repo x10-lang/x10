@@ -387,7 +387,7 @@ trap 'cleanUpExitHarness 1' INT QUIT TERM HUP
 # default values
 DEFAULT_TIMEOUT=360
 DEFAULT_LOGPATH="log"
-DEFAULT_NPLACES=1
+DEFAULT_NPLACES=2
 MAX_NPLACES=4
 
 # the value will be set later
