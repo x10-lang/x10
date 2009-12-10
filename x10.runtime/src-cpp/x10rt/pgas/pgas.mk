@@ -86,7 +86,7 @@ else
   XLPGAS_LAPI_EXISTS := yes
 endif
 
-ifneq ($(shell test -x `which poe 2>/dev/null` && echo -n hi), hi)
+ifneq ($(shell test -x "`which poe 2>/dev/null`" && echo -n hi),hi)
   POE_EXISTS := yes
 else
   POE_EXISTS := no
