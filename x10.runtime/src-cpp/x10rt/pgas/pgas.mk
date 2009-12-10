@@ -4,9 +4,9 @@ LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
 
 # defaults
-SOCKETS_USE := no
-LAPI_USE := no
-BGP_USE := no
+PLATFORM_SUPPORTS_SOCKETS := no
+PLATFORM_SUPPORTS_LAPI := no
+PLATFORM_SUPPORTS_BGP := no
 
 LAPI_LDFLAGS    = $(CUDA_LDFLAGS)
 BGP_LDFLAGS     = $(CUDA_LDFLAGS)
@@ -18,58 +18,58 @@ SOCKETS_LDLIBS  = -lx10rt_pgas_sockets -lpthread $(CUDA_LDLIBS)
 
 ifeq ($(X10RT_PLATFORM), bgp)
   WPLATFORM      := bgp_g++4
-  BGP_USE        := yes
+  PLATFORM_SUPPORTS_BGP        := yes
   BGP_LDFLAGS    += -L/bgsys/drivers/ppcfloor/comm/lib -L/bgsys/drivers/ppcfloor/runtime/SPI
   BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_xlc)
   WPLATFORM      := aix_xlc
-  LAPI_USE       := yes
-  #SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_LAPI       := yes
+  #PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
-  LAPI_USE       := yes
+  PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
-  #SOCKETS_USE    := yes
+  #PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64)
   WPLATFORM      := linux_ppc_64_g++4
-  LAPI_USE       := yes
+  PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
-  LAPI_USE       := yes
+  PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
-  LAPI_USE       := yes
+  PLATFORM_SUPPORTS_LAPI       := yes
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
   WPLATFORM      := cygwin_x86_g++3
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin)
   WPLATFORM      := macos_x86_g++4
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin64)
   WPLATFORM      := macos_x86_64_g++4
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), sunos)
   WPLATFORM      := sunos_sparc_g++4
-  SOCKETS_USE    := yes
+  PLATFORM_SUPPORTS_SOCKETS    := yes
   SOCKETS_LDLIBS += -lresolv -lnsl -lsocket -lrt
 endif
 
@@ -77,22 +77,35 @@ ifdef CUSTOM_PGAS
 include/pgasrt.h: $(CUSTOM_PGAS)/include/pgasrt.h
 	$(CP) $(CUSTOM_PGAS)/include/*.h include
 
-  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a && echo -n hi),hi)
+  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a && printf hi),hi)
     XLPGAS_LAPI_EXISTS := yes
   else
     XLPGAS_LAPI_EXISTS := no
   endif
+  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a && printf hi),hi)
+    XLPGAS_SOCKETS_EXISTS := yes
+  else
+    XLPGAS_SOCKETS_EXISTS := no
+  endif
+  ifeq ($(shell test -r $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a && printf hi),hi)
+    XLPGAS_BGP_EXISTS := yes
+  else
+    XLPGAS_BGP_EXISTS := no
+  endif
 else
-  XLPGAS_LAPI_EXISTS := yes
+  # if the platform supports it, it can be found in the website tarball for that platform
+  XLPGAS_LAPI_EXISTS := $(PLATFORM_SUPPORTS_LAPI)
+  XLPGAS_SOCKETS_EXISTS := $(PLATFORM_SUPPORTS_SOCKETS)
+  XLPGAS_BGP_EXISTS := $(PLATFORM_SUPPORTS_BGP)
 endif
 
-ifneq ($(shell test -x "`which poe 2>/dev/null`" && echo -n hi),hi)
+ifneq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
   POE_EXISTS := yes
 else
   POE_EXISTS := no
 endif
 
-ifeq ($(SOCKETS_USE), yes)
+ifeq ($(PLATFORM_SUPPORTS_SOCKETS), yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_sockets,$(BASE_TESTS))
 LIBS += lib/libx10rt_pgas_sockets.a
@@ -131,7 +144,7 @@ TGZ += $(SOCKETS_TGZ).phony
 endif
 
 
-ifeq ($(LAPI_USE),yes)
+ifeq ($(PLATFORM_SUPPORTS_LAPI),yes)
 ifeq ($(XLPGAS_LAPI_EXISTS),yes)
 ifeq ($(POE_EXISTS),yes)
 TESTS += $(patsubst test/%,test/%.pgas_lapi,$(BASE_TESTS))
@@ -172,10 +185,10 @@ etc/x10rt_pgas_lapi.properties:
 TGZ += $(LAPI_TGZ).phony
 
 endif #XLPGAS_LAPI_EXISTS
-endif #LAPI_USE
+endif #PLATFORM_SUPPORTS_LAPI
 
 
-ifeq ($(BGP_USE),yes)
+ifeq ($(PLATFORM_SUPPORTS_BGP),yes)
 
 TESTS += $(patsubst test/%,test/%.pgas_bgp,$(BASE_TESTS))
 LIBS += lib/libx10rt_pgas_bgp.a
@@ -221,6 +234,13 @@ debug::
 	@echo pgas.mk DISABLE_X10RT_MPI = $(DISABLE_X10RT_MPI)
 	@echo pgas.mk ENABLE_X10RT_PGAS = $(ENABLE_X10RT_PGAS)
 	@echo pgas.mk DISABLE_X10RT_PGAS = $(DISABLE_X10RT_PGAS)
+	@echo pgas.mk PLATFORM_SUPPORTS_LAPI = $(PLATFORM_SUPPORTS_LAPI)
+	@echo pgas.mk PLATFORM_SUPPORTS_SOCKETS = $(PLATFORM_SUPPORTS_SOCKETS)
+	@echo pgas.mk PLATFORM_SUPPORTS_BGP = $(PLATFORM_SUPPORTS_BGP)
+	@echo pgas.mk CUSTOM_PGAS = $(CUSTOM_PGAS)
+	@echo pgas.mk XLPGAS_LAPI_EXISTS = $(XLPGAS_LAPI_EXISTS)
+	@echo pgas.mk XLPGAS_SOCKETS_EXISTS = $(XLPGAS_SOCKETS_EXISTS)
+	@echo pgas.mk XLPGAS_BGP_EXISTS = $(XLPGAS_BGP_EXISTS)
 	@echo pgas.mk LIBS = $(LIBS)
 	@echo pgas.mk PROPERTIES = $(PROPERTIES)
 	@echo pgas.mk TESTS = $(TESTS)
