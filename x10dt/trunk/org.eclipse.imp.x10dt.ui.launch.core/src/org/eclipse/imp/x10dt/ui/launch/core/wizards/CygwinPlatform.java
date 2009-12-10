@@ -42,7 +42,7 @@ final class CygwinPlatform extends AbstractDefaultX10Platform implements IDefaul
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lxlpgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
+    return "-lx10 -lx10rt_pgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {

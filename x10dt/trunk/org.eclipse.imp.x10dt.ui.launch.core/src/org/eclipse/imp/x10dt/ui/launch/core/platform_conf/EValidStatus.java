@@ -5,15 +5,33 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.wizards;
+package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 /**
- * Common base for wizard pages related to X10 Platform Configuration.
+ * Represents the different validation status.
  * 
  * @author egeay
  */
-interface IPlaftormConfWizardPage {
+public enum EValidStatus {
   
-  boolean performFinish(final X10PlatformConfiguration platformConfiguration);
+  /**
+   * Identifies that the validation step ended up with an internal error.
+   */
+  ERROR,
+  
+  /**
+   * Identifies that the validation failed.
+   */
+  FAILURE,
+  
+  /**
+   * Identifies that the validation status is unknown.
+   */
+  UNKNOWN,
+  
+  /**
+   * Identifies that the configuration is valid.
+   */
+  VALID;
 
 }

@@ -74,7 +74,7 @@ public final class X10NewPlatformConfWizard extends Wizard implements INewWizard
   /**
    * Returns the new platform configuration after editing in the wizard page.
    * 
-   * @return A non-null {@link IX10PlatformConfiguration} instance.
+   * @return A non-null implementation of {@link IX10PlatformConfiguration}.
    */
   public IX10PlatformConfiguration getPlatformConfiguration() {
     return this.fPlatformConfiguration;

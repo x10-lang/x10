@@ -76,8 +76,6 @@ public class Messages extends NLS {
   public static String PCDWP_DirectoryLocation;
   public static String PCDWP_DistribGroup;
   public static String PCDWP_EnvironmentLabel;
-  public static String PCDWP_InternalErrorDialogMsg;
-  public static String PCDWP_InternalErrorDialogTitle;
   public static String PCDWP_LinkerText;
   public static String PCDWP_LinkingFailureMsg;
   public static String PCDWP_LinkingGroup;
@@ -91,12 +89,9 @@ public class Messages extends NLS {
   public static String PCDWP_SelectOSMsg;
   public static String PCDWP_SelectRMMsg;
   public static String PCDWP_TargetOS;
-  public static String PCDWP_TestCodeReadingError;
   public static String PCDWP_URLErrorDialogMsg;
   public static String PCDWP_URLErrorDialogTitle;
   public static String PCDWP_ValidateBt;
-  public static String PCDWP_ValidateConfMsg;
-  public static String PCDWP_ValidationErrorDialogTitle;
   public static String PCDWP_X10DistribLoc;
   public static String PCNWP_BackEndGroup;
   public static String PCNWP_ConfigurationName;
@@ -119,17 +114,9 @@ public class Messages extends NLS {
   public static String RMSD_StartBtText;
   public static String RMSD_StartBtTooltip;
   public static String RMSD_TaskMsg;
-  public static String VED_CopyMenuItem;
-  public static String VED_DetailsBtHideMsg;
-  public static String VED_DetailsBtShowMsg;
-  public static String VED_InfoFormat;
-  public static String VED_Information;
-  public static String VED_ShowTestBtMsg;
-  public static String VED_ShowTestDialogTitle;
   public static String XB_NoPlatformConfError;
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
-  public static String XBU_NoOSMatch;
   public static String XNPC_EditWindowTitle;
   public static String XNPC_WindowTitle;
   public static String XPCPP_AddBt;
@@ -140,6 +127,8 @@ public class Messages extends NLS {
   public static String XPCPP_CompilerOpts;
   public static String XPCPP_ConfNameAlreadyExists;
   public static String XPCPP_ConfSummary;
+  public static String XPCPP_CopyMenuItem;
+  public static String XPCPP_CreateNewRMMsg;
   public static String XPCPP_DialogTitle;
   public static String XPCPP_EditBt;
   public static String XPCPP_EmptyRenamingError;
@@ -150,6 +139,7 @@ public class Messages extends NLS {
   public static String XPCPP_LoadingErrorMsg;
   public static String XPCPP_NoResIdDgMsg;
   public static String XPCPP_NoResIdDgTitle;
+  public static String XPCPP_OneLineBreak;
   public static String XPCPP_PGASLoc;
   public static String XPCPP_PlatformConfigTitle;
   public static String XPCPP_RemoteBt;
@@ -158,13 +148,19 @@ public class Messages extends NLS {
   public static String XPCPP_RenameDialogTitle;
   public static String XPCPP_ResourceManagerName;
   public static String XPCPP_RMCreationMsg;
+  public static String XPCPP_RMSelectionDialogDescr;
+  public static String XPCPP_RMSelectionDialogTitle;
   public static String XPCPP_RMStartErrorDialogMsg;
   public static String XPCPP_RMStartErrorDialogTitle;
   public static String XPCPP_RMStartMsg;
   public static String XPCPP_SavingErrorDialogDescr;
   public static String XPCPP_SavingErrorDialogTitle;
   public static String XPCPP_SavingErrorLogMsg;
+  public static String XPCPP_StartExistingRMMsg;
   public static String XPCPP_TargetOS;
+  public static String XPCPP_TwoLinesBreak;
+  public static String XPCPP_ValidationFailure;
+  public static String XPCPP_ValidationInternalError;
   public static String XPCPP_X10DistribLoc;
   public static String XPCPP_X10PlatformsMsg;
  

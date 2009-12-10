@@ -42,19 +42,15 @@ public final class X10PlatformsManager {
    */
   public static IX10PlatformConfiguration createNewConfigurationName(final IX10PlatformConfiguration configuration,
                                                                      final String name) {
-    return new ImmutablePlatformConf(name, configuration.getArchitecture(), configuration.getResourceManagerId(), 
-                                     configuration.getTargetOS(), configuration.getX10DistribLocation(), 
-                                     configuration.getPGASLocation(), configuration.getX10HeadersLocations(), 
-                                     configuration.getX10LibsLocations(), configuration.getCompiler(), 
-                                     configuration.getCompilerOpts(), configuration.getArchiver(), 
-                                     configuration.getArchivingOpts(), configuration.getLinker(), 
-                                     configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
-                                     configuration.isCplusPlus(), configuration.isLocal());
-  }
-  
-  private static String safeGetString(final IMemento platformMemento, String tag) {
-    String res = platformMemento.getString(tag);
-	return res == null ? "" : res;
+    return new StoredPlatformConf(name, configuration.getArchitecture(), configuration.getResourceManagerId(), 
+                                  configuration.getTargetOS(), configuration.getX10DistribLocation(), 
+                                  configuration.getPGASLocation(), configuration.getX10HeadersLocations(), 
+                                  configuration.getX10LibsLocations(), configuration.getCompiler(), 
+                                  configuration.getCompilerOpts(), configuration.getArchiver(), 
+                                  configuration.getArchivingOpts(), configuration.getLinker(), 
+                                  configuration.getLinkingOpts(), configuration.getLinkingLibs(), 
+                                  configuration.isCplusPlus(), configuration.isLocal(), 
+                                  configuration.getValidationStatus(), configuration.getValidationErrorMessage());
   }
   
   /**
@@ -70,29 +66,32 @@ public final class X10PlatformsManager {
     if (file.exists()) {
       final XMLMemento rootMemento = XMLMemento.createReadRoot(new BufferedReader(new FileReader(file)));
       for (final IMemento platformMemento : rootMemento.getChildren(PLATFORM_TAG)) {
-        final String name = safeGetString(platformMemento, NAME_TAG);
-        String archString = platformMemento.getString(ARCH_TAG);
-		final EArchitecture architecture = archString == null ? EArchitecture.E32Arch : X10BuilderUtils.getArchitecture(archString);
-        final String x10DistLoc = safeGetString(platformMemento, X10_DIST_LOC_TAG);
-        final String pgasLoc = safeGetString(platformMemento, PGAS_LOC_TAG);
-        final String[] x10HeadersLocs = safeGetString(platformMemento, X10_DIST_HEADERS_LOC_TAG).split(PATH_SEP);
-        final String[] x10LibsLocs = safeGetString(platformMemento, X10_DIST_LIBS_LOC_TAG).split(PATH_SEP);
-        final String compiler = safeGetString(platformMemento, COMPILER_TAG);
-        final String compilerOpts = safeGetString(platformMemento, COMPILER_OPTS_TAG);
-        final String archiver = safeGetString(platformMemento, ARCHIVER_TAG);
-        final String archivingOpts = safeGetString(platformMemento, ARCHIVING_OPTS_TAG);
-        final String linker = safeGetString(platformMemento, LINKER_TAG);
-        final String linkingOpts = safeGetString(platformMemento, LINKING_OPTS_TAG);
-        final String linkingLibs = safeGetString(platformMemento, LINKING_LIBS_TAG);
-        final String resManagerId = safeGetString(platformMemento, RES_MANAGER_ID_TAG);
-        final String osName = safeGetString(platformMemento, TARGET_OS_TAG);
-        final ETargetOS targetOS = (osName == null) ? null : X10BuilderUtils.getTargetOS(osName);
+        final String name = platformMemento.getString(NAME_TAG);
+        final EArchitecture architecture = X10BuilderUtils.getArchitecture(platformMemento.getString(ARCH_TAG));
+        final String x10DistLoc = platformMemento.getString(X10_DIST_LOC_TAG);
+        final String pgasLoc = platformMemento.getString(PGAS_LOC_TAG);
+        final String[] x10HeadersLocs = platformMemento.getString(X10_DIST_HEADERS_LOC_TAG).split(PATH_SEP);
+        final String[] x10LibsLocs = platformMemento.getString(X10_DIST_LIBS_LOC_TAG).split(PATH_SEP);
+        final String compiler = platformMemento.getString(COMPILER_TAG);
+        final String compilerOpts = platformMemento.getString(COMPILER_OPTS_TAG);
+        final String archiver = platformMemento.getString(ARCHIVER_TAG);
+        final String archivingOpts = platformMemento.getString(ARCHIVING_OPTS_TAG);
+        final String linker = platformMemento.getString(LINKER_TAG);
+        final String linkingOpts = platformMemento.getString(LINKING_OPTS_TAG);
+        final String linkingLibs = platformMemento.getString(LINKING_LIBS_TAG);
+        final String resManagerId = platformMemento.getString(RES_MANAGER_ID_TAG);
+        final String osName = platformMemento.getString(TARGET_OS_TAG);
+        final ETargetOS targetOS = (osName == null) ? null : ETargetOS.valueOf(osName);
         final boolean isCplusPlus = platformMemento.getBoolean(IS_CPLUS_PLUS_TAG);
         final boolean isLocal = platformMemento.getBoolean(IS_LOCAL_TAG);
+        final String validationTag = platformMemento.getString(VALIDATION_STATUS_TAG);
+        final EValidStatus validStatus = (validationTag == null) ? EValidStatus.UNKNOWN : EValidStatus.valueOf(validationTag);
+        final String validationErrorMsg = platformMemento.getString(VALIDATION_ERR_MSG_TAG);
         
-        platforms.put(name, new ImmutablePlatformConf(name, architecture, resManagerId, targetOS, x10DistLoc, pgasLoc, 
-                                                      x10HeadersLocs, x10LibsLocs, compiler, compilerOpts, archiver, 
-                                                      archivingOpts, linker, linkingOpts, linkingLibs, isCplusPlus, isLocal));
+        platforms.put(name, new StoredPlatformConf(name, architecture, resManagerId, targetOS, x10DistLoc, pgasLoc, 
+                                                   x10HeadersLocs, x10LibsLocs, compiler, compilerOpts, archiver, 
+                                                   archivingOpts, linker, linkingOpts, linkingLibs, isCplusPlus, isLocal,
+                                                   validStatus, validationErrorMsg));
       }
     }
     return platforms;
@@ -154,6 +153,11 @@ public final class X10PlatformsManager {
       platformMemento.putBoolean(IS_CPLUS_PLUS_TAG, platformConf.isCplusPlus());
       platformMemento.putBoolean(IS_LOCAL_TAG, platformConf.isLocal());
       platformMemento.putString(ARCH_TAG, platformConf.getArchitecture().name());
+      final EValidStatus validStatus = platformConf.getValidationStatus();
+      platformMemento.putString(VALIDATION_STATUS_TAG, validStatus.name());
+      if ((validStatus == EValidStatus.ERROR) || (validStatus == EValidStatus.FAILURE)) {
+        platformMemento.putString(VALIDATION_ERR_MSG_TAG, platformConf.getValidationErrorMessage());
+      }
     }
     rootMemento.save(writer);
   }
@@ -197,6 +201,10 @@ public final class X10PlatformsManager {
   private static final String IS_CPLUS_PLUS_TAG = "is-cpp"; //$NON-NLS-1$
   
   private static final String IS_LOCAL_TAG = "is-local"; //$NON-NLS-1$
+  
+  private static final String VALIDATION_STATUS_TAG = "validation-status"; //$NON-NLS-1$
+  
+  private static final String VALIDATION_ERR_MSG_TAG = "validation-error"; //$NON-NLS-1$
   
   
   private static final String X10_PLATFORMS_FILE = "x10_platforms.xml"; //$NON-NLS-1$

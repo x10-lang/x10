@@ -42,7 +42,7 @@ final class MacPlatform extends AbstractDefaultX10Platform implements IDefaultX1
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lgc -lxlpgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
+    return "-lx10 -lgc -lx10rt_pgas_sockets -ldl -lm -lpthread"; //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {

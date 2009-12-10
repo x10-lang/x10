@@ -9,12 +9,21 @@ package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 
 
 final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   
   // --- Interface methods implementation
+  
+  public void defineStatus(final EValidStatus validStatus) {
+    this.fValidStatus = validStatus;
+  }
+  
+  public void defineValidationErrorStatus(final String errorMessage) {
+    this.fValidationErrorMsg = errorMessage;
+  }
   
   public EArchitecture getArchitecture() {
     return this.fArchitecture;
@@ -62,6 +71,14 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
 
   public ETargetOS getTargetOS() {
     return this.fTargetOS;
+  }
+  
+  public String getValidationErrorMessage() {
+    return this.fValidationErrorMsg;
+  }
+  
+  public EValidStatus getValidationStatus() {
+    return this.fValidStatus;
   }
   
   public String[] getX10HeadersLocations() {
@@ -194,5 +211,9 @@ final class X10PlatformConfiguration implements IX10PlatformConfiguration {
   private boolean fIsCplusPlus;
   
   private boolean fIsLocal;
+  
+  private EValidStatus fValidStatus;
+  
+  private String fValidationErrorMsg;
 
 }

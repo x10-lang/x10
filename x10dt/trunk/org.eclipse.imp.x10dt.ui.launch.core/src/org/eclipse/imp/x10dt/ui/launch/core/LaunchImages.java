@@ -28,6 +28,12 @@ public class LaunchImages {
   
   // --- Wizards images
   
+  public static final String CONF_ERROR = "conf_error.png";
+  
+  public static final String CONF_READY = "conf_ready.png";
+  
+  public static final String CONF_UNKNOWN = "conf_unknown.png";
+  
   public static final String RM_STARTED = "rm_started.gif";
   
   public static final String RM_STARTING = "rm_starting.gif";

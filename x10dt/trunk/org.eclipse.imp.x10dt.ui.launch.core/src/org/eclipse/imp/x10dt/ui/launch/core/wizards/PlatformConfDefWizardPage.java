@@ -7,37 +7,25 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.core.wizards;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
-import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;
-import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ErrorUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.WizardUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.jface.dialogs.IMessageProvider;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.osgi.util.NLS;
@@ -137,8 +125,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       }
     }
     
-    createValidationButton(composite);
-    
     if (this.fDefaultPlatformConf != null) {
       initDefaultConfValues();
     } else if (this.fIsLocal) {
@@ -180,7 +166,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
       platformConfiguration.setResManagerId(resourceManager.getID());
     }
     final String osName = this.fTargetOSCombo.getItem(this.fTargetOSCombo.getSelectionIndex());
-    platformConfiguration.setTargetOS(X10BuilderUtils.getTargetOS(osName));
+    platformConfiguration.setTargetOS(ETargetOS.valueOf(osName));
+    platformConfiguration.defineStatus(EValidStatus.UNKNOWN);
     return true;
   }
   
@@ -350,114 +337,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     });
   }
   
-  private void createValidationButton(final Composite parent) {
-    final Composite composite = new Composite(parent, SWT.NONE);
-    composite.setFont(parent.getFont());
-    composite.setLayout(new GridLayout(1, false));
-    composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    
-    this.fValidationBt = new Button(composite, SWT.PUSH);
-    this.fValidationBt.setFont(composite.getFont());
-    this.fValidationBt.setText(Messages.PCDWP_ValidateBt);
-    this.fValidationBt.setLayoutData(new GridData(SWT.RIGHT, SWT.NONE, false, false));
-    this.fValidationBt.setEnabled(false);
-    this.fValidationBt.addSelectionListener(new SelectionListener() {
-      
-      public void widgetSelected(final SelectionEvent event) {
-        final Combo combo = PlatformConfDefWizardPage.this.fResManagerCombo;
-        final String resName = combo.getItem(combo.getSelectionIndex());
-        final String resId = (String) combo.getData(resName);
-        final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
-        final IResourceManager resourceManager = universe.getResourceManager(resId);
-        
-        final ELanguage language = (PlatformConfDefWizardPage.this.fIsCplusPlus) ? ELanguage.CPP : ELanguage.JAVA;
-        final IPlatformConfChecker checker = new PlatformConfChecker(resourceManager);
-        
-        final String compiler = PlatformConfDefWizardPage.this.fCompilerText.getText().trim();
-        final String compilingOpts = PlatformConfDefWizardPage.this.fCompilerOptsText.getText().trim();
-        final String archiver = PlatformConfDefWizardPage.this.fArchiverText.getText().trim();
-        final String archivingOpts = PlatformConfDefWizardPage.this.fArchivingOptsText.getText().trim();
-        final String linker = PlatformConfDefWizardPage.this.fLinkerText.getText().trim();
-        final String linkingOpts = PlatformConfDefWizardPage.this.fLinkingOptsText.getText().trim();
-        final String linkingLibs = PlatformConfDefWizardPage.this.fLinkingLibsText.getText().trim();
-        final boolean hasLinkingStep = (PlatformConfDefWizardPage.this.fLinkerText != null);
-        final String x10DistLoc = getX10DistLoc();
-        final String pgasDistLoc = getPGASDistLoc();
-        final String[] x10HeadersLocs = getX10HeadersLocs();
-        final String[] x10LibsLocs = getX10LibsLocs();
-        
-        final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-          
-          public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-            final SubMonitor subMonitor = SubMonitor.convert(monitor, 20);
-            
-            String returnCompilMsg = null;
-            try {
-              returnCompilMsg = checker.validateCompilation(language, compiler, compilingOpts, x10DistLoc, pgasDistLoc,
-                                                            x10HeadersLocs, x10LibsLocs, subMonitor.newChild(7));
-            } catch (Exception except) {
-              monitor.done();
-              throw new InvocationTargetException(except);
-            }
-            if (returnCompilMsg == null) {
-              String returnArchivingMsg = null;
-              try {
-                returnArchivingMsg = checker.validateArchiving(archiver, archivingOpts, subMonitor.newChild(3));
-              } catch (Exception except) {
-                monitor.done();
-                throw new InvocationTargetException(except);
-              }
-              if (returnArchivingMsg != null) {
-                monitor.done();
-                throw new ValidationException(Messages.PCDWP_ArchivingFailureMsg, returnArchivingMsg);
-              }
-              if (hasLinkingStep) {
-                String returnLinkMsg = null;
-                try {
-                  returnLinkMsg = checker.validateLinking(linker, linkingOpts, linkingLibs, x10HeadersLocs,
-                                                          x10LibsLocs, subMonitor.newChild(10));
-                } catch (Exception except) {
-                  monitor.done();
-                  throw new InvocationTargetException(except);
-                }
-                if (returnLinkMsg != null) {
-                  monitor.done();
-                  throw new ValidationException(Messages.PCDWP_LinkingFailureMsg, returnLinkMsg);
-                }
-              }
-            } else {
-              monitor.done();
-              throw new ValidationException(Messages.PCDWP_CompilationFailureMsg, returnCompilMsg);
-            }
-          }          
-        };
-        try {
-          new ProgressMonitorDialog(getShell()).run(true, true, runnable);
-
-          PlatformConfDefWizardPage.this.fIsValidated = true;
-          PlatformConfDefWizardPage.this.fValidationBt.setEnabled(false);
-          updateMessage();
-        } catch (ValidationException except) {
-          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_ValidationErrorDialogTitle, 
-                                                   except.getValidationStepMessage(), 
-                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, except.getMessage()),
-                                                   getTestCode());
-        } catch (Exception except) {
-          DialogsFactory.openValidationErrorDialog(getShell(), Messages.PCDWP_InternalErrorDialogTitle,
-                                                   Messages.PCDWP_InternalErrorDialogMsg, 
-                                                   new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, 
-                                                              except.getCause().getMessage(), 
-                                                              except.getCause()), getTestCode());
-        } 
-      }
-      
-      public void widgetDefaultSelected(final SelectionEvent event) {
-        widgetSelected(event);
-      }
-      
-    });
-  }
-  
   private Text createX10PathLocation(final Composite parent, final String labelText) {
     final Composite composite = new Composite(parent, SWT.NONE);
     composite.setFont(parent.getFont());
@@ -588,29 +467,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     }
   }
   
-  private String getTestCode() {
-    final InputStream is = WizardUtils.createSampleContentStream(null /* packageName */, "Hello"); //$NON-NLS-1$
-    final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-    final StringBuilder sb = new StringBuilder();
-    try {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line).append('\n');
-      }
-    } catch (IOException except) {
-      LaunchCore.log(IStatus.ERROR, Messages.PCDWP_TestCodeReadingError, except);
-      // Let's forget about it after.
-      return null;
-    } finally {
-      try {
-        is.close();
-      } catch (IOException except) {
-        LaunchCore.log(IStatus.ERROR, Messages.PCDWP_TestCodeReadingError, except);
-      }
-    }
-    return sb.toString();
-  }
-  
   private String getX10DistLoc() {
     if (this.fIsLocal) {
       return this.fLocalLibsFile.getParentFile().getAbsolutePath();
@@ -739,14 +595,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   }
   
   private void updateMessage() {
-    this.fValidationBt.setEnabled(hasAllData());
-    if (this.fValidationBt.isEnabled()) {
-      if (this.fIsValidated) {
-        setMessage(null);
-      } else {
-        setMessage(Messages.PCDWP_ValidateConfMsg);
-      }
-    } else {
+    final boolean hasAllData = hasAllData();
+    if (! hasAllData) {
       if (this.fResManagerCombo.getSelectionIndex() == -1) {
         setMessage(Messages.PCDWP_SelectRMMsg);
       } else if (this.fTargetOSCombo.getSelectionIndex() == -1) {
@@ -763,7 +613,7 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
         }
       }
     }
-    setPageComplete(this.fIsValidated);
+    setPageComplete(hasAllData);
   }
   
   // --- Private classes
@@ -775,31 +625,8 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
     // --- Interface methods implementation
 
     public void modifyText(final ModifyEvent event) {
-      PlatformConfDefWizardPage.this.fIsValidated = false;
       updateMessage();
     }
-    
-  }
-  
-  private static final class ValidationException extends InterruptedException {
-    
-    ValidationException(final String validationStepMessage, final String errorMessage) {
-      super(errorMessage);
-      this.fValidationStepMessage = validationStepMessage;
-    }
-    
-    // --- Internal services
-    
-    String getValidationStepMessage() {
-      return this.fValidationStepMessage;
-    }
-    
-    // --- Fields
-    
-    private final String fValidationStepMessage;
-    
-    private static final long serialVersionUID = -7660712314030364087L;
-
     
   }
   
@@ -846,10 +673,6 @@ final class PlatformConfDefWizardPage extends WizardPage implements IWizardPage,
   private Text fLinkingOptsText;
   
   private Text fLinkingLibsText;
-  
-  private Button fValidationBt;
-  
-  private boolean fIsValidated;
     
   
   

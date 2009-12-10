@@ -8,13 +8,14 @@
 package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
 
 
-final class ImmutablePlatformConf implements IX10PlatformConfiguration {
+final class StoredPlatformConf implements IX10PlatformConfiguration {
   
-  ImmutablePlatformConf(final String name, final EArchitecture architecture, final String resManagerId, 
-                        final ETargetOS targetOS, final String x10DistLoc, final String pgasLoc, final String[] x10HeadersLocs,
-                        final String[] x10LibsLocs, final String compiler, final String compilerOpts, final String archiver,
-                        final String archivingOpts, final String linker, final String linkingOpts, final String linkingLibs,
-                        final boolean isCplusPlus, final boolean isLocal) {
+  StoredPlatformConf(final String name, final EArchitecture architecture, final String resManagerId, 
+                     final ETargetOS targetOS, final String x10DistLoc, final String pgasLoc, final String[] x10HeadersLocs,
+                     final String[] x10LibsLocs, final String compiler, final String compilerOpts, final String archiver,
+                     final String archivingOpts, final String linker, final String linkingOpts, final String linkingLibs,
+                     final boolean isCplusPlus, final boolean isLocal, final EValidStatus validStatus,
+                     final String validationErrorMsg) {
     this.fName = name;
     this.fArchitecture = architecture;
     this.fResManagerId = resManagerId;
@@ -32,9 +33,19 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
     this.fLinkingLibs = linkingLibs;
     this.fIsCplusPlus = isCplusPlus;
     this.fIsLocal = isLocal;
+    this.fValidStatus = validStatus;
+    this.fValidationErrorMsg = validationErrorMsg;
   }
   
   // --- Interface methods implementation
+  
+  public void defineStatus(final EValidStatus validStatus) {
+    this.fValidStatus = validStatus;
+  }
+  
+  public void defineValidationErrorStatus(final String errorMessage) {
+    this.fValidationErrorMsg = errorMessage;
+  }
   
   public EArchitecture getArchitecture() {
     return this.fArchitecture;
@@ -82,6 +93,14 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
 
   public ETargetOS getTargetOS() {
     return this.fTargetOS;
+  }
+  
+  public String getValidationErrorMessage() {
+    return this.fValidationErrorMsg;
+  }
+  
+  public EValidStatus getValidationStatus() {
+    return this.fValidStatus;
   }
 
   public String[] getX10HeadersLocations() {
@@ -147,5 +166,9 @@ final class ImmutablePlatformConf implements IX10PlatformConfiguration {
   private final boolean fIsCplusPlus;
   
   private final boolean fIsLocal;
+    
+  private EValidStatus fValidStatus;
+  
+  private String fValidationErrorMsg;
 
 }

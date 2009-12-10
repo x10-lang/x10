@@ -12,7 +12,21 @@ package org.eclipse.imp.x10dt.ui.launch.core.platform_conf;
  * 
  * @author egeay
  */
-public interface IX10PlatformConfiguration {
+public interface IX10PlatformConfiguration {  
+  
+  /**
+   * Defines the status of the platform configuration.
+   * 
+   * @param validStatus The new status.
+   */
+  public void defineStatus(final EValidStatus validStatus);
+  
+  /**
+   * Defines the status of the platform configuration to Error and assigns the error message to it.
+   * 
+   * @param errorMessage The error message associated with the platform configuration error status.
+   */
+  public void defineValidationErrorStatus(final String errorMessage);
   
   /**
    * Returns the computer architecture of the X10 platform installation.
@@ -97,6 +111,21 @@ public interface IX10PlatformConfiguration {
    * @return A non-null value.
    */
   public ETargetOS getTargetOS();
+  
+  /**
+   * Returns the validation error message if the validation failed, i.e is in {@link EValidStatus#ERROR} or
+   * {@link EValidStatus#FAILURE} states.
+   * 
+   * @return The validation error message if the validation failed, otherwise will return <b>null</b>.
+   */
+  public String getValidationErrorMessage();
+  
+  /**
+   * Returns the validation status.
+   * 
+   * @return A non-null enumeration value.
+   */
+  public EValidStatus getValidationStatus();
   
   /**
    * Returns the locations where X10 distribution headers are installed.

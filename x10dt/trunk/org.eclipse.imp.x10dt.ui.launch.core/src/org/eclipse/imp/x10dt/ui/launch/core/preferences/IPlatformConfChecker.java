@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.wizards;
+package org.eclipse.imp.x10dt.ui.launch.core.preferences;
 
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;

@@ -21,7 +21,6 @@ import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.ELanguage;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.ICompilerX10ExtInfo;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
-import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.QuotedStringTokenizer;
@@ -89,22 +88,6 @@ public final class X10BuilderUtils {
       }
     }
     throw new AssertionError(NLS.bind(Messages.XBU_ArchNameNotInEnum, architecture));
-  }
-  
-  /**
-   * Returns the {@link ETargetOS} instance for a given OS name.
-   * 
-   * @param osName The OS name for which one wants the associated ETargetOS.
-   * @return A non-null value.
-   * @throws AssertionError Occurs if the OS name given is not in the {@link ETargetOS} enumeration.
-   */
-  public static ETargetOS getTargetOS(final String osName) {
-    for (final ETargetOS targetOS : ETargetOS.values()) {
-      if (targetOS.name().equals(osName)) {
-        return targetOS;
-      }
-    }
-    throw new AssertionError(NLS.bind(Messages.XBU_NoOSMatch, osName));
   }
   
   // --- Private code
