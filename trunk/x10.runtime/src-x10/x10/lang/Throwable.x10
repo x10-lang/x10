@@ -60,14 +60,7 @@ public class Throwable {
     public global native def printStackTrace() : Void;
     
     @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
-    @Native("c++", "do {\n"+
-                   "    (#1)->println((#0)->toString());\n"+
-                   "    x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > trace = (#0)->getStackTrace();\n"+
-                   "    for (int i=0 ; i<trace->FMGL(length) ; ++i) {\n"+
-                   "        (#1)->print(x10::lang::String::Lit(\"\\tat \"));\n"+
-                   "        (#1)->println((*trace)[i]);\n"+
-                   "    }\n"+
-                   "} while (0)")
+    @Native("c++",  "(#0)->printStackTrace(#1)")
     public global native def printStackTrace(p: Printer) : Void;
 
     @Native("java", "#0.fillInStackTrace()")

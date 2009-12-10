@@ -10,6 +10,8 @@
 
 #include <x10/lang/Ref.h>
 
+namespace x10 { namespace io { class Printer; } }
+
 namespace x10 {
     namespace lang {
 
@@ -56,7 +58,8 @@ namespace x10 {
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
             virtual StringRail getStackTrace();
             virtual void printStackTrace();
-
+            virtual void printStackTrace(x10aux::ref<x10::io::Printer>);
+            
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
