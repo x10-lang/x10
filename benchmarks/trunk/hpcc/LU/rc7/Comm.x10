@@ -21,24 +21,24 @@ final public class Comm {
     @Native("c++", "(*#0).broadcast((#1)->raw(), #2, (#1)->FMGL(length))")
     public native def broadcast_d(a:Rail[Double]!, rootRank:Int):Void;
 
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_ADD, PGASRT_DT_int)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::ADD_OP, rc7::Comm::DT_INT)")
     public native def sum(i:Int):Int;
     
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_ADD, PGASRT_DT_dbl)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::ADD_OP, rc7::Comm::DT_DBL)")
     public native def sum(d:Double):Double;
     
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_MIN, PGASRT_DT_int)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::MIN_OP, rc7::Comm::DT_INT)")
     public native def min(i:Int):Int;
 
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_MIN, PGASRT_DT_dbl)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::MIN_OP, rc7::Comm::DT_DBL)")
     public native def min(d:Double):Double;
 
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_MAX, PGASRT_DT_dbl)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::MAX_OP, rc7::Comm::DT_DBL)")
     public native def max(d:Double):Double;
 
-    @Native("c++", "(*#0).reduce(#1, PGASRT_OP_MAX, PGASRT_DT_int)")
+    @Native("c++", "(*#0).reduce(#1, rc7::Comm::MAX_OP, rc7::Comm::DT_INT)")
     public native def max(i:Int):Int;
     
-    @Native("c++", "(*#0).reduce_di(fabs(#1), #2, PGASRT_OP_MAX, PGASRT_DT_dblint)")
+    @Native("c++", "(*#0).reduce_di(fabs(#1), #2, rc7::Comm::MAX_OP, rc7::Comm::DT_DBLINT)")
     public native def indexOfAbsMax(d:Double, i:Int):Int;
 }

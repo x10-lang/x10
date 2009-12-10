@@ -35,14 +35,41 @@ void rc7::Comm::_constructor(x10_int id) {
     
 }
 
+#if TRANSPORT == mpi
+    void rc7::Comm::barrier() {
+        NBC_Handle hndl;
+        if (NBC_OK != NBC_Ibarrier((MPI_Comm)FMGL(my_id), &hndl)) {
+            fprintf(stderr, "Error in NBC_Ibarrier\n");
+            abort();
+        }
+     x10::runtime::Runtime::increaseParallelism();
+     while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+     x10::runtime::Runtime::decreaseParallelism(1);
+    }
+#else
     void rc7::Comm::barrier() {
      void *r = __pgasrt_tspcoll_ibarrier(FMGL(my_id));
      x10::runtime::Runtime::increaseParallelism();
      while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
      x10::runtime::Runtime::decreaseParallelism(1);
     }
+#endif
 
 
+#if TRANSPORT == mpi
+    int rc7::Comm::reduce_di(const double d, const int idx, int OP, int TYPE) {
+     struct {double d; int i;} val = {d, idx};
+     NBC_Handle hndl;
+     if (NBC_OK != NBC_Iallreduce((void *) &val, (void *) &val, 1, MPI_BYTE, MPI_MAX, (MPI_Comm)FMGL(my_id), &hndl)) {
+         fprintf(stderr, "Error in NBC_Iallreduce\n");
+         abort();
+     }
+     x10::runtime::Runtime::increaseParallelism();
+     while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+     x10::runtime::Runtime::decreaseParallelism(1);
+      return val.i;
+   }
+#else
     int rc7::Comm::reduce_di(const double d, const int idx, int OP, int TYPE) {
      struct {double d; int i;} val = {d, idx};
      void *r = __pgasrt_tspcoll_iallreduce((unsigned)FMGL(my_id),  (void*) &val, (void*) &val, PGASRT_OP_MAX, PGASRT_DT_dblint, 1);
@@ -51,13 +78,28 @@ void rc7::Comm::_constructor(x10_int id) {
      x10::runtime::Runtime::decreaseParallelism(1);
       return val.i;
    }
+#endif
 
+#if TRANSPORT == mpi
+   x10aux::ref<rc7::Comm> rc7::Comm::split(signed int color, signed int new_rank) {
+    MPI_Comm comm_out;
+    //std::cout << "Comm id " << FMGL(my_id) << std::endl;
+    if (MPI_SUCCESS != MPI_Comm_split((MPI_Comm)FMGL(my_id), 
+                color, new_rank, &comm_out)) {
+        fprintf(stderr, "Error in MPI_Comm_split\n");
+        abort();
+    }
+    //
+    return rc7::Comm::_make(comm_out);
+  }
+#else
    x10aux::ref<rc7::Comm> rc7::Comm::split(signed int color, signed int new_rank) {
     signed int new_id = ++FMGL(next_id);
     //std::cout << "Comm id " << FMGL(my_id) << std::endl;
     __pgasrt_tspcoll_comm_split((unsigned)FMGL(my_id), (unsigned)new_id, (unsigned)color, (unsigned)new_rank);
     return rc7::Comm::_make(new_id);
   }
+#endif
 
 
 x10_boolean rc7::Comm::_struct_equals(x10aux::ref<x10::lang::Object> p0) {
