@@ -15,7 +15,7 @@ loop header is evaluated for its side effects.  For example,
 the following code sums the elements of an array.
 \begin{xten}
 var sum: Int = 0;
-for (i: Int = 0; i < a.length; i++, sum += a[i])
+for (var i: Int = 0; i < a.length; i++, sum += a[i])
     ;
 \end{xten}
 
@@ -94,8 +94,8 @@ array and breaks out of the loop when found:
 
 \begin{xten}
 var found: Boolean = false;
-for (i: Int = 0; i < a.length; i++)
-    for (j: Int = 0; j < a(i).length; j++)
+for (var i: Int = 0; i < a.length; i++)
+    for (var j: Int = 0; j < a(i).length; j++)
         if (a(i)(j) == v) {
             found = true;
             break;
