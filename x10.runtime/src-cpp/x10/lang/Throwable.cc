@@ -5,6 +5,7 @@
 #include <x10/lang/Throwable.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/io/Printer.h>
 
 #ifdef __GLIBC__
 #   include <execinfo.h> // for backtrace()
@@ -428,6 +429,15 @@ void Throwable::printStackTrace() {
     x10aux::ref<ValRail<x10aux::ref<String> > > trace = nullCheck(this->getStackTrace());
     for (int i = 0; i < trace->FMGL(length); ++i)
         fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
+}
+
+void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
+    printer->println(toString());
+    x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > trace = getStackTrace();
+    for (int i=0 ; i<trace->FMGL(length) ; ++i) { 
+        printer->print(x10::lang::String::Lit("\tat "));
+        printer->println((*trace)[i]);
+    }
 }
 
 RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Ref)
