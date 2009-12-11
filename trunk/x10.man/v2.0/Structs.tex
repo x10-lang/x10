@@ -221,18 +221,20 @@ into a class with \Xcd{global} fields and methods.
 An example illustrating pairing:
 \begin{xten}
 struct Pair[S,T] implements Equality {
-  val x: S;
-  val y: T;
-  def this(x: S, y: T) {
+  private val x: S;
+  private val y: T;
+  public def this(x: S, y: T) {
     this.x=x;
     this.y=y;
   }
-  def x()=x;
-  def y()=y;  
-  final def hashCode() = x.hashCode() + y.hashCode();
-  final def equalsX[U](o:Pair[S,U]) = x==o.x;
-  final def equalsY[U](o:Pair[U,Y]) = y==o.y;
-  final def equals(o:Pair[S,T]) = this==o;
+  public def x()=x;
+  public def y()=y;  
+  public final def hashCode() = x.hashCode() + y.hashCode();
+  public final def equalsX[U](o:Pair[S,U]) = x==o.x;
+  public final def equalsY[U](o:Pair[U,T]) = y==o.y;
+  public final def equals(o:Pair[S,T]) = this==o;
+  public final def equals(o:Top) = 
+     (o instanceof Pair[S,T]) && (this.equals(o as Pair[S,T]));
 }
 \end{xten}
 
@@ -338,7 +340,7 @@ public struct Complex {
     }
     public def isNaN()= re.isNaN() || im.isNaN();        
     public def isInfinite() =
-               !isNaN() && (re.isInfinite() || im.isInfinite();
+               !isNaN() && (re.isInfinite() || im.isInfinite());
     public def toString() = (re + " + " + im + "i");
 
 }
