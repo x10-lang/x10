@@ -284,7 +284,7 @@ in that an activity may use multiple clocks simultaneously. Yet
 programs using clocks are guaranteed not to suffer from
 deadlock.
 
-\emph{In future versions of the language,
+\futureext{In future versions of the language,
 clocks will be integrated into the \Xten{} type system,
 permitting variables to be declared so that they are final in each
 phase of a clock.}
@@ -299,7 +299,7 @@ array type.
 A distribution is a map from a \emph{region} (\Sref{XtenRegions}) to
 places.  A region is a collection of \emph{points} or
 \emph{indices}. For instance, the region \xcd"[0..200,1..100]" specifies
-a collection of two-dimensional points \xcd"[i,j]" with 
+a collection of two-dimensional points \xcd"(i,j)" with 
 \xcd"i" ranging from \xcd"0" to \xcd"200" and \xcd"j" ranging
 from \xcd"1" to \xcd"100". Points are used in array index expressions
 to pick out a particular array element.
