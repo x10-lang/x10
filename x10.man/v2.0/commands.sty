@@ -262,7 +262,6 @@
 \newcommand{\Java}{Java\xspace}
 \newcommand{\java}{Java\xspace}
 
-\newcommand{\futureext}[1]{{\em \paragraph{Future Extensions.}#1}}
 \newcommand{\tbd}{} % marker for things to be done later.
 \newcommand{\limitation}[1]{{\em Limitation: #1}} % marker for things to be done later.
 
@@ -295,3 +294,7 @@
 \newcommand\exref[1]{Example~\ref{#1}}
 
 \newcommand\eat[1]{}
+\newenvironment{future}{\begingroup\em Future Extensions.}{\endgroup}
+\newcommand{\futureext}[1]{{\em \paragraph{Future Extensions.}#1}}
+%\newcommand{\checkme}[1]{}
+\newcommand{\checkme}[1]{CHECK: {\em #1}}
