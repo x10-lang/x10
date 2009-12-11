@@ -105,7 +105,7 @@ public val x : T;
 \noindent and a getter method
 
 \begin{xten}
-public final def x(): T { return x; }
+public final def x()=x;
 \end{xten}
 
 \noindent Each interface \xcd"I" defining a property \xcd"x: T"
@@ -167,14 +167,13 @@ Because of its different concurrency model, \Xten{} does not support
 \oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
 
 \section{Classes}\index{class!reference class}\label{ReferenceClasses}
-A reference class is declared with the optional keyword \xcd"reference" preceding \xcd"class" in a class declaration. Reference
-class declarations may be used to construct reference types
-(\Sref{ReferenceTypes}). Reference classes may have mutable
-fields. Instances of a reference class are always created in a fixed
-place and in \XtenCurrVer{} stay there for the lifetime of the
-object. (Future versions of \Xten{} may support object migration.)
-Variables declared at a reference type always store a reference to the
-object, regardless of whether the object is local or remote.
+
+Class declarations may
+be used to construct class types (\Sref{ReferenceTypes}). Classes may
+have mutable fields. Instances of a class are always created in a
+fixed place and in \XtenCurrVer{} stay there for the lifetime of the
+object.  Variables declared at a class type always store a reference
+to the object, regardless of whether the object is local or remote.
 
 
 \section{Type invariants}\label{DepType:Guard}
@@ -611,7 +610,7 @@ and \xcd"D". This bears further investigation.
 A field may be declared \xcd"global".
 
 \begin{grammar}
-  FieldModifier \: \xcd"local"  
+  FieldModifier \: \xcd"global"  
 \end{grammar}
 
 A \Xcd{global} field must be immutable. It may be read from any place.
@@ -937,6 +936,76 @@ be accessed, but not local fields. The programmer must insert an explicit
 the field.
 
 \Xcd{global} methods can be overridden only by methods also marked \Xcd{global}.
+
+\subsubsection{\Xcd{pinned} qualifier}
+\label{PinnedAnnotation}
+\label{PinnedMethod}
+\index{pinned!method}
+
+A method may be declared \xcd"pinned".
+
+\begin{grammar}
+  MethodModifier \: \xcd"pinned"  
+\end{grammar}
+
+A \Xcd{pinned} method may not
+contain any \Xcd{at} statement or expression whose place argument
+is not statically equivalent to \Xcd{here}. It must call only
+\Xcd{pinned} methods. That is, a \Xcd{pinned} method does not cause
+any communication.
+
+\Xcd{pinned} methods can be overridden only by methods marked \Xcd{pinned}.
+
+\subsubsection{\Xcd{nonblocking} qualifier}
+\label{NonblockingAnnotation}
+\label{NonblockingMethod}
+\index{nonblocking!method}
+
+A method may be declared \xcd"nonblocking".
+
+\begin{grammar}
+  MethodModifier \: \xcd"nonblocking"  
+\end{grammar}
+
+A \Xcd{nonblocking} method may not
+contain any \Xcd{when} statement whose condition
+is not statically equivalent to \Xcd{true}. It must call only
+\Xcd{nonblocking} methods. That is, a \Xcd{nonblocking} method does not block.
+
+\Xcd{nonblocking} methods can be overridden only by methods marked \Xcd{nonblocking}.
+
+\subsubsection{\Xcd{sequential} qualifier}
+\label{SequentialAnnotation}
+\label{SequentialMethod}
+\index{sequential!method}
+
+A method may be declared \xcd"sequential".
+
+\begin{grammar}
+  MethodModifier \: \xcd"sequential"  
+\end{grammar}
+
+A \Xcd{sequential} method may not contain any \Xcd{async}
+statement. It must call only \Xcd{sequential} methods. That is, a
+\Xcd{sequential} method does not spawn any activity.
+
+\Xcd{sequential} methods can be overridden only by methods marked \Xcd{sequential}.
+
+\subsubsection{\Xcd{safe} qualifier}
+\label{SafeAnnotation}
+\label{SafeMethod}
+\index{safe!method}
+
+A method may be declared \xcd"safe".
+
+\begin{grammar}
+  MethodModifier \: \xcd"safe"  
+\end{grammar}
+
+The \Xcd{safe} annotation is considered shorthand for \Xcd{pinned
+  nonblocking sequential}.
+
+
 \section{Static initialization}
 \label{StaticInitialization}
 \index{initialization!static}
