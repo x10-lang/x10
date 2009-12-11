@@ -105,11 +105,11 @@ The place expression \xcd"e" is expected to be of type \xcd"Place",
 e.g., \xcd"here" or \xcd"d(p)" for some
 distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
 If not, the compiler replaces
-\xcd"e" with \xcd"e.location" if
-\xcd"e" is of type \xcd"x10.lang.Ref". Otherwise the compiler reports a type error. 
+\xcd"e" with \xcd"e.home" if
+\xcd"e" is of type \xcd"x10.lang.Object". Otherwise the compiler reports a type error. 
 
 Note specifically that the expression \xcd"a(i)" when used as a place
-expression may evaluate to \xcd"a(i).location", which may not be
+expression may evaluate to \xcd"a(i).home", which may not be
 the same place as \xcd"a.dist(i)". The programmer must be 
 careful to choose the right expression, appropriate for the statement.
 Accesses to \xcd"a(i)" within \grammarrule{Statement} should typically be guarded 
@@ -455,29 +455,22 @@ operations on clocks, \xcd"finish").
 \limitation{Not checked in the current implementation.}
 \end{staticrule*}
 
-
-All locations accessed in an atomic block must reside \xcd"here"
-(\Sref{Here}). A
-\xcd"BadPlaceException"\index{place!BadPlaceException} is thrown
-if (and when) this condition is violated.
-
 All locations accessed in an atomic block must statically satisfy the
 {\em locality condition}: they must belong to the place of the current
 activity.\index{locality condition}\label{LocalityCondition} The
 compiler checks for this condition by checking whether the statement
-could be the body of a \xcd"void" method annotated with \xcd"local" at
-that point in the code (\Sref{LocalAnnotation}).
+could be the body of a \xcd"void" method annotated with \xcd"safe" at
+that point in the code (\Sref{SafeAnnotation}).
 
 \paragraph{Consequences.}
 Note an important property of an (unconditional) atomic block:
 
 \begin{eqnarray}
- \mbox{\xcd"atomic {s1; atomic s2}"} &=& \mbox{\xcd"atomic {s1; s2}"}
+ \mbox{\xcd"atomic \{s1; atomic s2\}"} &=& \mbox{\xcd"atomic \{s1; s2\}"}
 \end{eqnarray}
 
 Further, an atomic block will eventually terminate successfully or
 thrown an exception; it may not introduce a deadlock.
-
 
 \subsubsection{Example}
 
