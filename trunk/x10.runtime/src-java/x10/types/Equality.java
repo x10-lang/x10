@@ -11,6 +11,7 @@ package x10.types;
 import x10.core.Box;
 import x10.core.Ref;
 import x10.core.Value;
+import x10.core.Struct;
 
 public class Equality {
     public static boolean equalsequals(boolean a, boolean b) { return a == b; }
@@ -80,6 +81,7 @@ public class Equality {
             return a.equals(b);
         }
     }
+    public static boolean equalsequals(Struct a, Struct b) { return a.structEquals(b); }
     public static boolean equalsequals(Value a, Value b) { return a.structEquals(b); }
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
@@ -98,22 +100,15 @@ public class Equality {
         // Ref equality is pointer equality, which we already tested.
         if (a == null || b == null) return false;
         
-        /*
-        // Except for boxed values...
-        if (a instanceof Box) return a.equals(b);
-        if (b instanceof Box) return b.equals(a);
-        */
-        
         if (a instanceof Ref || b instanceof Ref) return false;
         
-        // Value equality is structural equality.
-        if (a instanceof String) return a.equals(b);
         if (a instanceof Character && b instanceof Character)
             return (char) (Character) a == (char) (Character) b;
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
         if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
         if (a instanceof Value) return ((Value) a).structEquals(b);
+        if (a instanceof Struct) return ((Struct) a).structEquals(b);
         
         return false;
     }

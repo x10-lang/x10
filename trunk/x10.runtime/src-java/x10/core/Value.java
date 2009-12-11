@@ -12,8 +12,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import org.omg.CORBA.portable.BoxedValueHelper;
-
 import x10.types.Equality;
 import x10.types.RuntimeType;
 import x10.types.Type;
