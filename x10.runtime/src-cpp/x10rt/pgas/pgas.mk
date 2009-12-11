@@ -99,7 +99,11 @@ else
   XLPGAS_BGP_EXISTS := $(PLATFORM_SUPPORTS_BGP)
 endif
 
-ifneq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
+#Assume that if poe is installed then `which poe` will print its full path to
+#stdout.  Since we don't know what the full path is, we can't run it because it
+#will fail, and we can't trust the error messages or exit code of `which`, we
+#instead test if the path is an executable file.
+ifeq ($(shell test -x "`which poe 2>/dev/null`" && printf hi),hi)
   POE_EXISTS := yes
 else
   POE_EXISTS := no
