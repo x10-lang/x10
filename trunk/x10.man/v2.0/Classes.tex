@@ -634,9 +634,13 @@ MethodHeader \:
   && ReturnType\opt Throws\opt \\
 \end{grammar}
 
-In the formal parameter list, variables may be declared with
-\xcd"val" or \xcd"var".  If neither is specified, the variable
-is \xcd"val".
+A formal parameter may optionally have a \xcd"val" or \xcd"var"
+modifier (default: \xcd"val").  
+The body of the method is executed in an environment in which 
+each formal parameter corresponds to a local variable
+and is initialized with the value of the actual parameter.
+The local variable  is mutable if and only if the
+parameter is a \xcd"var" parameter.
 
 \label{MethodGuard}
 
