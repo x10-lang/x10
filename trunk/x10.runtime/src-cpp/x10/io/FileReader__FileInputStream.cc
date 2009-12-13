@@ -17,14 +17,14 @@ FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer<x10::lang::Ref>);
 
-void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    InputStreamReader__InputStream::_serialize_body(buf, m);
+void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf) {
+    InputStreamReader__InputStream::_serialize_body(buf);
     // This class simply has no global state.
     // TODO: attempting to serialize _inputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
     // assert(false);
-    // buf.write(this->_inputStream,m);
+    // buf.write(this->_inputStream);
 }
 
 void FileReader__FileInputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {

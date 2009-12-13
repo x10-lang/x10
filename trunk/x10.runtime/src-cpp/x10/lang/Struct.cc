@@ -14,7 +14,7 @@ x10_boolean Struct::_struct_equals(Struct that) {
     return true;
 }
 
-void Struct::_serialize(Struct this_, serialization_buffer& buf, addr_map& m) {
+void Struct::_serialize(Struct this_, serialization_buffer& buf) {
 }
 
 void Struct::_deserialize_body(deserialization_buffer& buf) {

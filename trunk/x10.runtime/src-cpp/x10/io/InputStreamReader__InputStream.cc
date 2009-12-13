@@ -25,8 +25,8 @@ x10_int InputStreamReader__InputStream::read(ref<Rail<x10_byte> > b,
     return i;
 }
 
-void InputStreamReader__InputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    x10::lang::Ref::_serialize_body(buf, m);
+void InputStreamReader__InputStream::_serialize_body(x10aux::serialization_buffer& buf) {
+    x10::lang::Ref::_serialize_body(buf);
 }
 
 void InputStreamReader__InputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {

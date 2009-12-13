@@ -36,25 +36,24 @@ void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
-void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &buf, addr_map &m)
+void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &buf)
 {
     // dst is the place where the finish update will occur, i.e. where the notifier runs
     dst = x10aux::parent(dst);
     ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     ref<Object> fs = rt->currentState();
     (fs.operator->()->*(findITable<x10::runtime::FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
-    buf.write(fs, m);
+    buf.write(fs);
 }
 
 void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Object> df, x10_ubyte code,
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
-    addr_map m;
     buf.realloc_func = x10aux::put_realloc;
-    buf.write(code, m);
-    buf.write(df, m);
-    Rail_serialize_finish_state (dst_place_.FMGL(id), buf, m);
+    buf.write(code);
+    buf.write(df);
+    Rail_serialize_finish_state (dst_place_.FMGL(id), buf);
     x10aux::send_put(dst_place_.FMGL(id), _id, buf, data, size);
 }
 
@@ -62,11 +61,10 @@ void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Object> df, x10_u
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
-    addr_map m;
     buf.realloc_func = x10aux::put_realloc;
-    buf.write(code, m);
-    buf.write(df, m);
-    Rail_serialize_finish_state (x10aux::here, buf, m);
+    buf.write(code);
+    buf.write(df);
+    Rail_serialize_finish_state (x10aux::here, buf);
     x10aux::send_get(src_place_.FMGL(id), _id, buf, data, size);
 }
 

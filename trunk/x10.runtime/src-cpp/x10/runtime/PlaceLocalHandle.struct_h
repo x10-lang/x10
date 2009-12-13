@@ -63,7 +63,7 @@ namespace x10 {
                 return FMGL(id) == that->FMGL(id);
             }
             
-            static void _serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            static void _serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf);
 
             static PlaceLocalHandle<T> _deserialize(x10aux::deserialization_buffer& buf);
         };
@@ -81,9 +81,9 @@ namespace x10 {
         
         template<class T> x10aux::RuntimeType PlaceLocalHandle<T>::rtt;
 
-        template <class T> void PlaceLocalHandle<T>::_serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+        template <class T> void PlaceLocalHandle<T>::_serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf) {
             // NOTE specialized semantics.  Only id is serialized, cached and localStorage are place local!
-            buf.write(this_->FMGL(id),m);
+            buf.write(this_->FMGL(id));
         }
 
         template<class T> PlaceLocalHandle<T> PlaceLocalHandle<T>::_deserialize(x10aux::deserialization_buffer& buf) {

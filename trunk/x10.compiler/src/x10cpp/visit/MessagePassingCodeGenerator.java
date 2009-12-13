@@ -1166,9 +1166,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         /* Serialization redirection methods */
         h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
         h.write(Emitter.translateType(currentClass, true)+" this_,"); h.newline();
-        h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
-        h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
-        h.write("x10::lang::Object::"+SERIALIZE_METHOD+"(this_, buf, m);"); h.end(); h.newline();
+        h.write(SERIALIZATION_BUFFER+"& buf) {"); h.end(); h.newline(4); h.begin(0);
+        h.write("x10::lang::Object::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         h.write("public: template<class __T> static ");
@@ -4007,7 +4006,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
-        inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+        inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
@@ -4017,7 +4016,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write("buf.write(this->" + name + ", m);");
+            inc.write("buf.write(this->" + name + ");");
         }
         inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
@@ -4547,10 +4546,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// otherwise overloads don't seem to work properly
 		sw.write("("+make_ref(type)+")");
 		sw.write("x10aux::alloc_rail<");
-		emitter.printType(T, sw);
+		sw.write(Emitter.translateType(T, true));
 		sw.write(",");
 		sw.allowBreak(0, " ");
-		sw.write(Emitter.translateType(c.type()));
+		sw.write(type);
 		sw.write(" >("+c.arguments().size());
 		for (Expr e : c.arguments()) {
 			sw.write(",");

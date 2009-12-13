@@ -125,21 +125,15 @@ namespace x10aux {
 
     // addr_map can be used to detect and properly handle cycles when serialising object graphs
     // it can also be used to avoid serialising two copies of an object when serialising a DAG.
-    //
-    // [DC] instead of threading this around everywhere, why don't we encapsulate it within the
-    // serialization_buffer?  That way the serialiation buffer always has it available, and noone
-    // else has to be troubled by it.
-    // [IP] if we had proper cycle handling, we could.  As it stands now, we have to be able to
-    // handle two refs to the same object being written into the same buffer.  For that we need
-    // to reset the addr_map between them (but only up to a certain point).  That code is too
-    // complex to implement right now.
     class addr_map {
         int _size;
         const void** _ptrs;
         int _top;
         void _grow();
         void _add(const void* ptr);
-        bool _find(const void* ptr);
+        int _find(const void* ptr);
+        const void* _get(int pos);
+        int _position(const void* p);
     public:
         addr_map(int init_size = 4) :
             _size(init_size),
@@ -147,10 +141,13 @@ namespace x10aux {
                       const void*[init_size]),
             _top(0)
         { }
-        template<class T> bool ensure_unique(const ref<T>& r) {
-            return ensure_unique((void*) r.get());
+        /* Returns 0 if the pointer has not been recorded yet */
+        template<class T> int previous_position(const ref<T>& r) {
+            return _position((void*) r.operator->());
         }
-        bool ensure_unique(const void* p);
+        template<class T> ref<T> get_at_position(int pos) {
+            return ref<T>((T*)_get(pos));
+        }
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
     };
@@ -179,6 +176,7 @@ namespace x10aux {
         char *buffer;
         char *limit;
         char *cursor;
+        addr_map map;
 
     public:
 
@@ -202,24 +200,26 @@ namespace x10aux {
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
-        template<typename T> void write(const T &val, addr_map &m);
+        template<typename T> void write(const T &val);
 
+        // So it can access the addr_map
+        template<class T> friend struct Write;
     };
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)
     template<class T> struct serialization_buffer::Write {
-        static void _(serialization_buffer &buf, const T &val, addr_map &m);
+        static void _(serialization_buffer &buf, const T &val);
     };
     // General case for structs
     template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf,
-                                                             const T &val, addr_map &m) {
+                                                             const T &val) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-        T::_serialize(val,buf,m);
+        T::_serialize(val,buf);
     }
     // Specializations for the simple primitives
     #define PRIMITIVE_WRITE(TYPE) \
     template<> inline void serialization_buffer::Write<TYPE>::_(serialization_buffer &buf, \
-                                                                const TYPE &val, addr_map &m) {\
+                                                                const TYPE &val) {\
         _S_("Serializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
                           <<val<<" into buf: "<<&buf); \
         /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
@@ -245,17 +245,28 @@ namespace x10aux {
     
     // Case for references e.g. ref<Object>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
-        static void _(serialization_buffer &buf, ref<T> val, addr_map &m);
+        static void _(serialization_buffer &buf, ref<T> val);
     };
     template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
-                                                                   ref<T> val, addr_map &m) {
+                                                                   ref<T> val) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
+        // FIXME: [IP] the code below happens to work for closures now because they are always
+        // serialized via the appropriate function interface.  If they are ever serialized
+        // via their exact type, this code will break (if the first captured variable in
+        // the closure happens to have a value of -1).
+        int pos = buf.map.previous_position(val);
+        if (pos != 0) {
+            _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
+            buf.write((x10_uint) 0xFFFFFFFF);
+            buf.write((x10_int) pos);
+            return;
+        }
         // Depends what T is (interface/Ref/Closure)
-        T::_serialize(val,buf,m);
+        T::_serialize(val,buf);
     }
     
-    template<typename T> void serialization_buffer::write(const T &val, addr_map &m) {
-        Write<T>::_(*this,val,m);
+    template<typename T> void serialization_buffer::write(const T &val) {
+        Write<T>::_(*this,val);
     }
 
 
@@ -264,10 +275,11 @@ namespace x10aux {
     private:
         const char* buffer;
         const char* cursor;
+        addr_map map;
     public:
 
         deserialization_buffer(const char *buffer_)
-            : buffer(buffer_), cursor(buffer_)
+            : buffer(buffer_), cursor(buffer_), map()
         { }
 
         size_t consumed (void) { return cursor - buffer; }
@@ -282,6 +294,9 @@ namespace x10aux {
             cursor = saved_cursor;
             return val;
         }
+
+        // So it can access the addr_map
+        template<class T> friend struct Read;
     };
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)
@@ -328,8 +343,24 @@ namespace x10aux {
     };
     template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+        // FIXME: [IP] the code below happens to work for closures now because they are always
+        // serialized via the appropriate function interface.  If they are ever serialized
+        // via their exact type, this code will break (if the first captured variable in
+        // the closure happens to have a value of -1).
+        x10_uint code = buf.peek<x10_uint>();
+        if (code == (x10_uint) 0xFFFFFFFF) {
+            buf.read<x10_uint>();
+            int pos = (int) buf.read<x10_int>();
+            _S_("\tRepeated ("<<pos<<") deserialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+            return buf.map.get_at_position<T>(pos);
+        }
         // Dispatch because we don't know what it is
-        return T::template _deserialize<T>(buf);
+        ref<T> res = T::template _deserialize<T>(buf);
+        int pos = buf.map.previous_position(res);
+        if (pos != 0) {
+            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Deserialized value found at position ("<<pos<<") in buf: "<<&buf);
+        }
+        return res;
     }
 
     template<typename T> GPUSAFE T deserialization_buffer::read() {

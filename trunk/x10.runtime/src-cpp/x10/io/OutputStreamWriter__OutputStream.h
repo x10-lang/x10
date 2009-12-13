@@ -33,7 +33,7 @@ namespace x10 {
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
 
             // Serialization
-            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+            virtual void _serialize_body(x10aux::serialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
         };
     }

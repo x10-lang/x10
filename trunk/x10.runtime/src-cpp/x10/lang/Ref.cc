@@ -43,44 +43,44 @@ x10aux::ref<x10::lang::String> x10::lang::Ref::typeName() {
 const serialization_id_t Ref::_serialization_id =
     DeserializationDispatcher::addDeserializer(Ref::_deserializer<Ref>);
 
-void Ref::_serialize(ref<Ref> this_, serialization_buffer &buf, addr_map &m)
+void Ref::_serialize(ref<Ref> this_, serialization_buffer &buf)
 {
     serialization_id_t id = this_.isNull() ? 0 : this_->_get_serialization_id();
     _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"class id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
-    buf.write(id, m);
+    buf.write(id);
     // FIXME: maybe optimize nulls by moving the call below into the conditional?
-    _serialize_reference(this_, buf, m);
+    _serialize_reference(this_, buf);
     if (!this_.isNull()) {
         _S_("Serializing the "<<ANSI_SER<<"class body"<<ANSI_RESET<<" to buf: "<<&buf);
-        this_->_serialize_body(buf, m);
+        this_->_serialize_body(buf);
     }
 }
 
 const serialization_id_t Ref::_interface_serialization_id =
     DeserializationDispatcher::addDeserializer(Ref::_deserialize<Ref>);
 
-void Ref::_serialize_interface(serialization_buffer &buf, addr_map &m)
+void Ref::_serialize_interface(serialization_buffer &buf)
 {
-    _serialize(this, buf, m);
+    _serialize(this, buf);
 }
 
-void Ref::_serialize_reference(ref<Ref> this_, serialization_buffer &buf, addr_map &m)
+void Ref::_serialize_reference(ref<Ref> this_, serialization_buffer &buf)
 {
     bool isNull = this_.isNull();
     x10_int loc = isNull ? 0 : this_->location;
-    buf.write(loc, m);
+    buf.write(loc);
     if (isNull) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
-        buf.write((x10_addr_t)0, m);
+        buf.write((x10_addr_t)0);
     } else if (loc == x10aux::here) {
         _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"local Ref"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name());
-        buf.write((x10_addr_t)(size_t)this_.operator->(), m);
+        buf.write((x10_addr_t)(size_t)this_.operator->());
     } else {
         _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"remote Ref"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name()<<" (loc="<<loc<<")");
         x10_addr_t tmp = get_remote_ref(this_.operator->());
-        buf.write(tmp, m);
+        buf.write(tmp);
     }
 }
 

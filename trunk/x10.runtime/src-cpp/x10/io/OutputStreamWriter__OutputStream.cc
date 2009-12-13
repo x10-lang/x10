@@ -35,8 +35,8 @@ void OutputStreamWriter__OutputStream::write(ref<ValRail<x10_byte> > b,
         this->write((x10_int) b->operator[](off + i));
 }
 
-void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    x10::lang::Ref::_serialize_body(buf, m);
+void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
+    x10::lang::Ref::_serialize_body(buf);
 }
 
 void OutputStreamWriter__OutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {

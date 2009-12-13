@@ -29,7 +29,7 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) {
+            virtual void _serialize_body(x10aux::serialization_buffer &) {
                 // there are no fields
             }
 
@@ -40,8 +40,7 @@ namespace x10 {
             }
 
             static void _serialize(x10aux::ref<Closure> this_,
-                                   x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m);
+                                   x10aux::serialization_buffer &buf);
     
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
     

@@ -109,8 +109,8 @@ ref<Object> Deque::popTask() {
     return NULL;
 }
 
-void Deque::_serialize_body(serialization_buffer &buf, addr_map &m) {
-    this->Ref::_serialize_body(buf, m);
+void Deque::_serialize_body(serialization_buffer &buf) {
+    this->Ref::_serialize_body(buf);
 }
 
 void Deque::_deserialize_body(deserialization_buffer& buf) {

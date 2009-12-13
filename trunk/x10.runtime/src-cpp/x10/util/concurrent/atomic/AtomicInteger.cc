@@ -23,8 +23,8 @@ AtomicInteger::_make(x10_int val) {
     return this_;
 }
 
-void AtomicInteger::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-    this->Ref::_serialize_body(buf, m);
+void AtomicInteger::_serialize_body(x10aux::serialization_buffer &buf) {
+    this->Ref::_serialize_body(buf);
 }
 
 void AtomicInteger::_deserialize_body(x10aux::deserialization_buffer& buf) {

@@ -100,10 +100,9 @@ namespace x10 {
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             static void _serialize(R this_,
-                                   x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m);
+                                   x10aux::serialization_buffer &buf);
 
-            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            void _serialize_body(x10aux::serialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
 
@@ -171,8 +170,7 @@ namespace x10 {
         void Rail_notifyEnclosingFinish(x10aux::deserialization_buffer& buf);
 
         void Rail_serialize_finish_state(x10aux::place dst_place,
-                                         x10aux::serialization_buffer& buf,
-                                         x10aux::addr_map &m);
+                                         x10aux::serialization_buffer& buf);
 
         void Rail_serializeAndSendPut(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
                                       x10_ubyte code, x10aux::serialization_id_t _id,
@@ -469,13 +467,12 @@ namespace x10 {
                 return;
             }
             x10aux::serialization_buffer buf;
-            x10aux::addr_map m;
             buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 0;
-            buf.write(code, m);
-            buf.write(dst, m);
-            buf.write(dst_off, m);
-            Rail_serialize_finish_state(dst_place, buf, m);
+            buf.write(code);
+            buf.write(dst);
+            buf.write(dst_off);
+            Rail_serialize_finish_state(dst_place, buf);
             x10aux::send_put(dst_place, _copy_to_serialization_id,
                              buf, &_data[src_off], len * sizeof(T));
 
@@ -550,12 +547,11 @@ namespace x10 {
                 return;
             }
             x10aux::serialization_buffer buf;
-            x10aux::addr_map m;
             buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 2;
-            buf.write(code, m);
-            buf.write(df, m);
-            buf.write(n, m);
+            buf.write(code);
+            buf.write(df);
+            buf.write(n);
             x10aux::send_put(dst_place, _copy_to_serialization_id,
                              buf, &_data[src_off], len * sizeof(T));
 
@@ -593,12 +589,11 @@ namespace x10 {
                 return;
             }
             x10aux::serialization_buffer buf;
-            x10aux::addr_map m;
             buf.realloc_func = x10aux::put_realloc;
             x10_ubyte code = 255;
-            buf.write(code, m);
-            buf.write(df, m);
-            buf.write(n, m);
+            buf.write(code);
+            buf.write(df);
+            buf.write(n);
             x10aux::send_put(dst_place, _copy_to_serialization_id,
                              buf, &_data[src_off], len * sizeof(T));
 
@@ -747,13 +742,12 @@ namespace x10 {
                 return;
             }
             x10aux::serialization_buffer buf;
-            x10aux::addr_map m;
             buf.realloc_func = x10aux::get_realloc;
             x10_ubyte code = 0;
-            buf.write(code, m);
-            buf.write(src, m);
-            buf.write(src_off, m);
-            Rail_serialize_finish_state(x10aux::here, buf, m);
+            buf.write(code);
+            buf.write(src);
+            buf.write(src_off);
+            Rail_serialize_finish_state(x10aux::here, buf);
             x10aux::send_get(src_place, _copy_from_serialization_id,
                              buf, &_data[src_off], len * sizeof(T));
         } // }}}
@@ -821,18 +815,17 @@ namespace x10 {
 
         // Specialized serialization
         template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,
-                                                    x10aux::serialization_buffer &buf,
-                                                    x10aux::addr_map &m) {
-            Ref::_serialize_reference(this_, buf, m);
+                                                    x10aux::serialization_buffer &buf) {
+            Ref::_serialize_reference(this_, buf);
             if (this_ != x10aux::null) {
-                this_->_serialize_body(buf, m);
+                this_->_serialize_body(buf);
             }
         }
 
-        template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+        template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
-            buf.write(length, m);
-            this->Ref::_serialize_body(buf, m); // intentional change of order
+            buf.write(length);
+            this->Ref::_serialize_body(buf); // intentional change of order
         }
 
         template <class T> void Rail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
