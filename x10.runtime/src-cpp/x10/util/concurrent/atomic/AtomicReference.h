@@ -48,7 +48,7 @@ namespace x10 {
 
                     virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-                    virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+                    virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
                     template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf);
 
@@ -131,8 +131,8 @@ namespace x10 {
                 template<class T> x10aux::RuntimeType AtomicReference<T>::rtt;
 
                 template<class T> void
-                AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                    this->Ref::_serialize_body(buf, m);
+                AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf) {
+                    this->Ref::_serialize_body(buf);
                 }
 
                 template<class T> void

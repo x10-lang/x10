@@ -928,17 +928,15 @@ public class Emitter {
             h.write("public: ");
             h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
             h.write(make_ref(klass)+" this_,"); h.newline();
-            h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
-            h.write("x10aux::addr_map& m);"); h.end();
+            h.write(SERIALIZATION_BUFFER+"& buf);"); h.end();
             h.newline(); h.forceNewline();
             printTemplateSignature(ct.typeArguments(), w);
             w.write("void "+klass+"::"+SERIALIZE_METHOD+"("); w.begin(0);
             w.write(make_ref(klass)+" this_,"); w.newline();
-            w.write(SERIALIZATION_BUFFER+"& buf,"); w.newline();
-            w.write("x10aux::addr_map& m) {"); w.end(); w.newline(4); w.begin(0);
-            w.write(    "_serialize_reference(this_, buf, m);"); w.newline();
+            w.write(SERIALIZATION_BUFFER+"& buf) {"); w.end(); w.newline(4); w.begin(0);
+            w.write(    "_serialize_reference(this_, buf);"); w.newline();
             w.write(    "if (this_ != x10aux::null) {"); w.newline(4); w.begin(0);
-            w.write(        "this_->_serialize_body(buf, m);"); w.end(); w.newline();
+            w.write(        "this_->_serialize_body(buf);"); w.end(); w.newline();
             w.write(    "}"); w.end(); w.newline();
             w.write("}"); w.newline();
             w.forceNewline();
@@ -961,16 +959,16 @@ public class Emitter {
         h.write("public: ");
         if (!type.flags().isFinal())
             h.write("virtual ");
-        h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);");
+        h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);");
         h.newline(0); h.forceNewline();
 
         printTemplateSignature(ct.typeArguments(), w);
         w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
-                    "("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+                    "("+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         Type parent = type.superClass();
         if (parent != null && parent.isClass()) {
-            w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf, m);");
+            w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf);");
             w.newline();
         }
         for (int i = 0; i < type.fields().size(); i++) {
@@ -982,7 +980,7 @@ public class Emitter {
             if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
-            w.write("buf.write(this->"+fieldName+",m);"); w.newline();
+            w.write("buf.write(this->"+fieldName+");"); w.newline();
         }
         w.end(); w.newline();
         w.write("}");
@@ -1069,15 +1067,15 @@ public class Emitter {
         sh.forceNewline();
         
         // _serialize()
-        sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);");
+        sh.write("static void "+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf);");
         sh.newline(0); sh.forceNewline();
 
         printTemplateSignature(ct.typeArguments(), w);
-        w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+        w.write("void "+klass+"::"+SERIALIZE_METHOD+"("+klass+" this_, "+SERIALIZATION_BUFFER+"& buf) {");
         w.newline(4); w.begin(0);
         Type parent = type.superClass();
         if (parent != null) {
-            w.write(translateType(parent)+"::"+SERIALIZE_METHOD+"(this_, buf, m);");
+            w.write(translateType(parent)+"::"+SERIALIZE_METHOD+"(this_, buf);");
             w.newline();
         }
         for (int i = 0; i < type.fields().size(); i++) {
@@ -1087,7 +1085,7 @@ public class Emitter {
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
-            w.write("buf.write(this_->"+fieldName+",m);"); w.newline();
+            w.write("buf.write(this_->"+fieldName+");"); w.newline();
         }
         w.end(); w.newline();
         w.write("}");

@@ -33,7 +33,7 @@ namespace x10 {
 
 
             virtual x10aux::serialization_id_t _get_serialization_id() = 0;
-            virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) = 0;
+            virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
 
             // This pair of functions should be overridden to not emit/extract the id in subclasses
             // that satisfy the following property:
@@ -49,8 +49,7 @@ namespace x10 {
             // Note these functions are static as we want to dispatch on the static type.
 
             static void _serialize(x10aux::ref<Object> this_,
-                                   x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m);
+                                   x10aux::serialization_buffer &buf);
 
             // Should only be overridden in Ref
             virtual x10aux::serialization_id_t _get_interface_serialization_id() {
@@ -58,7 +57,7 @@ namespace x10 {
                 return _get_serialization_id();
             }
             // Should only be overridden in Ref
-            virtual void _serialize_interface(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            virtual void _serialize_interface(x10aux::serialization_buffer &buf);
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 

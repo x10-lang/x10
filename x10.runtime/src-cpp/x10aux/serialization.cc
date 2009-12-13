@@ -6,8 +6,6 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-#if 0
-NOT USED AT PRESENT
 void addr_map::_grow() {
     _ptrs = (const void**) ::memcpy(new (x10aux::alloc<const void*>((_size<<1)*sizeof(const void*))) const void*[_size<<1], _ptrs, _size*sizeof(const void*));
     _size <<= 1;
@@ -20,27 +18,33 @@ void addr_map::_add(const void* ptr) {
     _ptrs[_top++] = ptr;
 }
 
-bool addr_map::_find(const void* ptr) {
-    for (int i = 0; i < _top; i++) {
-        if (_ptrs[i] == ptr) {
-            return true;
+int addr_map::_find(const void* ptr) {
+    for (int i = -1; i >= -_top; i--) {
+        if (_ptrs[_top+i] == ptr) {
+            return i;
         }
     }
-    return false;
+    return 0;
 }
 
-bool addr_map::ensure_unique(const void* p) {
-    if (_find(p)) {
-        return false;
+const void* addr_map::_get(int pos) {
+    if (pos < -_top || pos >= 0)
+        return NULL;
+    return _ptrs[_top+pos];
+}
+
+int addr_map::_position(const void* p) {
+    int pos = _find(p);
+    if (pos != 0) {
+        return pos;
     }
     _add(p);
-    return true;
+    return 0;
 }
-#endif
 
 serialization_buffer::serialization_buffer (void)
     // do not use GC
-    : realloc_func(x10aux::msg_realloc), buffer(NULL), limit(NULL), cursor(NULL)
+    : realloc_func(x10aux::msg_realloc), buffer(NULL), limit(NULL), cursor(NULL), map()
 { }
 
 void serialization_buffer::grow (void) {
@@ -56,3 +60,5 @@ void serialization_buffer::grow (void) {
     limit = buffer + new_capacity;
     cursor = buffer + new_length;
 }
+// vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
+

@@ -294,21 +294,21 @@ const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserializer<Ref>);
 
 // Specialized serialization
-void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-    Ref::_serialize_reference(this_, buf, m);
+void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
+    Ref::_serialize_reference(this_, buf);
     if (this_ != x10aux::null) {
-        this_->_serialize_body(buf, m);
+        this_->_serialize_body(buf);
     }
 }
 
-void String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
-    this->Ref::_serialize_body(buf, m);
+void String::_serialize_body(x10aux::serialization_buffer& buf) {
+    this->Ref::_serialize_body(buf);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
-    buf.write(sz, m);
+    buf.write(sz);
     const char* content = FMGL(content);
     for (x10_int i = 0; i < sz; ++i) {
-        buf.write((x10_char)content[i], m);
+        buf.write((x10_char)content[i]);
     }
 }
 

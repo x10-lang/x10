@@ -465,8 +465,8 @@ Thread::setName(ref<String> name)
     __thread_name = name;
 }
 
-void Thread::_serialize_body(serialization_buffer &buf, addr_map &m) {
-    this->Ref::_serialize_body(buf, m);
+void Thread::_serialize_body(serialization_buffer &buf) {
+    this->Ref::_serialize_body(buf);
 }
 
 void Thread::_deserialize_body(deserialization_buffer& buf) {

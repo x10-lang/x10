@@ -20,14 +20,14 @@ FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
     x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Ref>);
 
-void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    OutputStreamWriter__OutputStream::_serialize_body(buf, m);
+void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
+    OutputStreamWriter__OutputStream::_serialize_body(buf);
     // This class simply has no global state.
     // TODO: attempting to serialize _outputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
     // assert(false);
-    // buf.write(this->_outputStream,m);
+    // buf.write(this->_outputStream);
 }
 
 void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {

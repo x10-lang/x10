@@ -13,14 +13,13 @@ const serialization_id_t Closure::_serialization_id =
     DeserializationDispatcher::addDeserializer(Closure::_deserializer<Ref>);
 
 void Closure::_serialize(x10aux::ref<Closure> this_,
-                         x10aux::serialization_buffer &buf,
-                         x10aux::addr_map &m) 
+                         x10aux::serialization_buffer &buf) 
 {
     x10aux::serialization_id_t id = this_->_get_serialization_id();
     _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"value id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
-    buf.write(id,m);
+    buf.write(id);
     _S_("Serializing the "<<ANSI_SER<<"value body"<<ANSI_RESET<<" to buf: "<<&buf);
-    this_->_serialize_body(buf, m);
+    this_->_serialize_body(buf);
 }           
 
 x10aux::ref<Closure> Closure::_make() {

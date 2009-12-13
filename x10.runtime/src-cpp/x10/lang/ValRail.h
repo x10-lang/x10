@@ -81,10 +81,9 @@ namespace x10 {
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
             static void _serialize(x10aux::ref<ValRail<T> > this_,
-                                   x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m);
+                                   x10aux::serialization_buffer &buf);
 
-            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            void _serialize_body(x10aux::serialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
 
@@ -181,21 +180,20 @@ namespace x10 {
 
         // Specialized serialization
         template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
-                                                       x10aux::serialization_buffer &buf,
-                                                       x10aux::addr_map &m) {
-            Ref::_serialize_reference(this_, buf, m);
+                                                       x10aux::serialization_buffer &buf) {
+            Ref::_serialize_reference(this_, buf);
             if (this_ != x10aux::null) {
-                this_->_serialize_body(buf, m);
+                this_->_serialize_body(buf);
             }
         }
 
-        template <class T> void ValRail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+        template <class T> void ValRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
-            buf.write(length, m);
-            this->Ref::_serialize_body(buf, m); // intentional change of order
+            buf.write(length);
+            this->Ref::_serialize_body(buf); // intentional change of order
             T* raw = this->raw();
             for (x10_int i=0 ; i<length ; ++i) {
-                buf.write(raw[i], m); // avoid bounds check
+                buf.write(raw[i]); // avoid bounds check
             }
         }
 

@@ -40,7 +40,7 @@ namespace x10 {
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
 
-            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
             template<class U> static x10aux::ref<U> _deserializer(x10aux::deserialization_buffer &buf);
 
@@ -182,8 +182,8 @@ namespace x10 {
         
         template<class T> x10aux::RuntimeType GrowableRail<T>::rtt;
 
-        template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-            this->x10::lang::Ref::_serialize_body(buf, m);
+        template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
+            this->x10::lang::Ref::_serialize_body(buf);
         }
 
         template<class T> template<class U> x10aux::ref<U> GrowableRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {

@@ -48,7 +48,7 @@ namespace x10 {
             virtual x10_boolean markSupported() { return false; }
 
             // Serialization
-            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+            virtual void _serialize_body(x10aux::serialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
         };
     }

@@ -36,10 +36,10 @@ const serialization_id_t Throwable::_serialization_id =
     DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Ref>);
 
 void
-Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-    this->Ref::_serialize_body(buf, m);
-    buf.write(FMGL(cause), m);
-    buf.write(FMGL(message), m);
+Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
+    this->Ref::_serialize_body(buf);
+    buf.write(FMGL(cause));
+    buf.write(FMGL(message));
     // TODO: serialize the trace
 }
 
