@@ -86,12 +86,12 @@ class Comm : public x10::lang::Closure  {
     public: static const MPI_Datatype DT_DBL = MPI_DOUBLE;
     public: static const MPI_Datatype DT_DBLINT = MPI_BYTE;
 #else
-    public: static const int ADD_OP = PGASRT_OP_ADD;
-    public: static const int MIN_OP = PGASRT_OP_MIN;
-    public: static const int MAX_OP = PGASRT_OP_MAX;
-    public: static const int DT_INT = PGASRT_DT_int;
-    public: static const int DT_DBL = PGASRT_DT_dbl;
-    public: static const int DT_DBLINT = PGASRT_DT_dblint;
+    public: static const __pgasrt_ops_t ADD_OP = PGASRT_OP_ADD;
+    public: static const __pgasrt_ops_t MIN_OP = PGASRT_OP_MIN;
+    public: static const __pgasrt_ops_t MAX_OP = PGASRT_OP_MAX;
+    public: static const __pgasrt_dtypes_t DT_INT = PGASRT_DT_int;
+    public: static const __pgasrt_dtypes_t DT_DBL = PGASRT_DT_dbl;
+    public: static const __pgasrt_dtypes_t DT_DBLINT = PGASRT_DT_dblint;
 #endif
     
     public: void _deserialize_body(x10aux::deserialization_buffer& buf);
@@ -141,10 +141,10 @@ class Comm : public x10::lang::Closure  {
    }
 #else
    template<typename T>
-    T reduce(T val, int OP,  int TYPE) {
+    T reduce(T val, __pgasrt_ops_t OP,  __pgasrt_dtypes_t TYPE) {
     T val2;
     void *r = __pgasrt_tspcoll_iallreduce((unsigned)FMGL(my_id),  
-            &val, &val2, (__pgasrt_ops_t) OP, (__pgasrt_dtypes_t) TYPE, 1);
+            &val, &val2, OP, TYPE, 1);
     x10::runtime::Runtime::increaseParallelism();
     while (!__pgasrt_tspcoll_isdone(r)) x10rt_probe();
     x10::runtime::Runtime::decreaseParallelism(1);
