@@ -17,7 +17,7 @@ A \emph{closure literal expression}
 creates a function of type \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}). The constraint
 clause \xcd"{c}" is optional and defaults to \xcd"{true}". In some cases the
 return type \Xcd{T} is also optional and defaults to the type of \Xcd{e}. If a
-formal \Xcd{xi} does not occur in \Xcd{Ti},\Xcd{c},\Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may be
+formal \Xcd{xi} does not occur in any \Xcd{Tj},\Xcd{c},\Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may be
 replaced by just \Xcd{Ti}. The body \Xcd{e} of such an expression is type-checked
 in an environment in which \Xcd{c} is true. At runtime, function execution
 results in the evaluation of \Xcd{e} in an environment in which each formal

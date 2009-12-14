@@ -67,7 +67,10 @@
 
 
   A \emph{closure literal expression}
- (x1:T1,..,xn:Tn)\{c\}:T=$>$e creates a function of type (x1:T1,...,xn:Tn)\{c\}:T. The constraint clause \{c\} is optional and defaults to \{true\}. In some cases the return type T is also optional and defaults to the type of e. If a formal xi does not occur in Ti,c,T or e, the declaration xi:Ti may be replaced by just Ti. The body e of such an expression is type-checked in an environment in which c is true. At runtime, function execution results in the evaluation of e in an environment in which each formal is bound to the given actual parameter. 
+ (x1:T1,..,xn:Tn)\{c\}:T=$>$e creates a function of type
+ (x1:T1,...,xn:Tn)\{c\}:T. The constraint clause \{c\} is optional and
+ defaults to \{true\}. In some cases the return type T is also optional and
+ defaults to the type of e. If a formal xi does not occur in any Tj, c, T or e, the declaration xi:Ti may be replaced by just Ti. The body e of such an expression is type-checked in an environment in which c is true. At runtime, function execution results in the evaluation of e in an environment in which each formal is bound to the given actual parameter. 
 
 
   The \emph{method selector expression}
