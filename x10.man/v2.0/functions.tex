@@ -1,4 +1,4 @@
-\section{Functions}
+\chapter{Functions}
 \label{Functions}
 \label{functions}
 \index{functions}
@@ -13,8 +13,8 @@ set of arguments to produce a value. (As in most programming
 languages, functions in \Xten{} are partial.)
 
 A \emph{closure literal expression} 
-\xcd"(x1:T1,..,xn:Tn){c}:T=>e"
-creates a function of type \xcd"(x1:T1,...,xn:Tn){c}=>T" (\Sref{FunctionType}). The constraint
+\xcd"(x1:T1,..,xn:Tn)\{c\}:T=>e"
+creates a function of type \xcd"(x1:T1,...,xn:Tn)\{c\}:T" (\Sref{FunctionType}). The constraint
 clause \xcd"{c}" is optional and defaults to \xcd"{true}". In some cases the
 return type \Xcd{T} is also optional and defaults to the type of \Xcd{e}. If a
 formal \Xcd{xi} does not occur in any \Xcd{Tj},\Xcd{c},\Xcd{T} or \Xcd{e}, the declaration \Xcd{xi:Ti} may be
