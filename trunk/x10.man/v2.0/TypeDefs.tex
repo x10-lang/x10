@@ -24,9 +24,8 @@ The following examples are legal type definitions:
 \begin{xten}
 type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
-type Nat = Int{self>=0};
+type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
-type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
 \end{xten}
 
 As the two definitions of \xcd"Int" demonstrate, type definitions may 
