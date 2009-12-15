@@ -99,7 +99,7 @@ class Comm : public x10::lang::Closure  {
     public: static const MPI_Op MAX_OP = MPI_MAX;
     public: static const MPI_Datatype DT_INT = MPI_INT;
     public: static const MPI_Datatype DT_DBL = MPI_DOUBLE;
-    public: static const MPI_Datatype DT_DBLINT = MPI_BYTE;
+    public: static const MPI_Datatype DT_DBLINT = MPI_DOUBLE_INT;
 #else
     public: static const __pgasrt_ops_t ADD_OP = PGASRT_OP_ADD;
     public: static const __pgasrt_ops_t MIN_OP = PGASRT_OP_MIN;

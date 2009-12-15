@@ -4,7 +4,6 @@
 
 void rc7::Comm::_instance_init() {
     _I_("Doing initialisation for class: rc7::Comm");
-    
 }
 
 
@@ -26,7 +25,6 @@ void rc7::Comm::_constructor() {
     x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
       FMGL(my_id) = ((x10_int)0);
 #endif
-    
 }
 
 
@@ -77,7 +75,8 @@ void rc7::Comm::_constructor(x10_int id) {
     int rc7::Comm::reduce_di(const double d, const int idx, int OP, int TYPE) {
      struct {double d; int i;} val = {d, idx};
      NBC_Handle hndl;
-     if (NBC_OK != NBC_Iallreduce((void *) &val, (void *) &val, 1, MPI_BYTE, MPI_MAX, (MPI_Comm)FMGL(my_id), &hndl)) {
+     if (NBC_OK != NBC_Iallreduce((void *) &val, 
+                 (void *) &val, 1, MPI_DOUBLE_INT, MPI_MAXLOC, (MPI_Comm)FMGL(my_id), &hndl)) {
          fprintf(stderr, "Error in NBC_Iallreduce\n");
          abort();
      }
