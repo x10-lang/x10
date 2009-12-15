@@ -18,13 +18,29 @@ x10_int rc7::Comm::FMGL(next_id) = ((x10_int)0);
 void rc7::Comm::_constructor() {
     this->x10::lang::Closure::_constructor();
     
+#if TRANSPORT == mpi
+    x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
+      FMGL(my_id) = MPI_COMM_WORLD;
+#else
     //#line 5 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
     x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
       FMGL(my_id) = ((x10_int)0);
+#endif
     
 }
 
 
+#if TRANSPORT == mpi
+//#line 6 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
+void rc7::Comm::_constructor(MPI_Comm id) {
+    this->x10::lang::Closure::_constructor();
+    
+    //#line 6 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
+    x10aux::placeCheck(x10aux::nullCheck(((x10aux::ref<rc7::Comm>)this)))->
+      FMGL(my_id) = id;
+    
+}
+#else
 //#line 6 "/gsa/yktgsa-h1/01/bikshand/fresh/x10.demo.sc08/src/x10-20/HPL/scartch/Comm.x10"
 void rc7::Comm::_constructor(x10_int id) {
     this->x10::lang::Closure::_constructor();
@@ -34,6 +50,7 @@ void rc7::Comm::_constructor(x10_int id) {
       FMGL(my_id) = id;
     
 }
+#endif
 
 #if TRANSPORT == mpi
     void rc7::Comm::barrier() {
@@ -83,8 +100,7 @@ void rc7::Comm::_constructor(x10_int id) {
 #if TRANSPORT == mpi
    x10aux::ref<rc7::Comm> rc7::Comm::split(signed int color, signed int new_rank) {
     MPI_Comm comm_out;
-    //std::cout << "Comm id " << FMGL(my_id) << std::endl;
-    if (MPI_SUCCESS != MPI_Comm_split((MPI_Comm)FMGL(my_id), 
+    if (MPI_SUCCESS != MPI_Comm_split(FMGL(my_id), 
                 color, new_rank, &comm_out)) {
         fprintf(stderr, "Error in MPI_Comm_split\n");
         abort();

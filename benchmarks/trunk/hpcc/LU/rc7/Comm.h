@@ -50,15 +50,30 @@ class Comm : public x10::lang::Closure  {
     }
     void _constructor();
   
-     public: Comm() {FMGL(my_id) = 0;} 
+     public: Comm() {
+#if TRANSPORT == mpi
+                 FMGL(my_id) = MPI_COMM_WORLD;
+#else
+                 FMGL(my_id) = 0;
+#endif
+             }
      public: Comm (const Comm& other) { FMGL(my_id) = other.FMGL(my_id);}
  
+#if TRANSPORT == mpi
+    static x10aux::ref<rc7::Comm> _make(MPI_Comm id) {
+        x10aux::ref<rc7::Comm> this_ = new (x10aux::alloc<rc7::Comm>()) rc7::Comm();
+        this_->_constructor(id);
+        return this_;
+    }
+    void _constructor(MPI_Comm id);
+#else
     static x10aux::ref<rc7::Comm> _make(x10_int id) {
         x10aux::ref<rc7::Comm> this_ = new (x10aux::alloc<rc7::Comm>()) rc7::Comm();
         this_->_constructor(id);
         return this_;
     }
     void _constructor(x10_int id);
+#endif
     
     public: virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
     public : static void _static_init();
@@ -98,7 +113,13 @@ class Comm : public x10::lang::Closure  {
    
       void barrier();
 
-    public: static x10aux::ref<rc7::Comm> world() {return _make(0);}
+    public: static x10aux::ref<rc7::Comm> world() {
+#if TRANSPORT == mpi
+                return _make(MPI_COMM_WORLD);
+#else
+                return _make(0);
+#endif
+            }
 
     template<typename T>
 #if TRANSPORT == mpi
