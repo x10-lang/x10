@@ -132,7 +132,7 @@ class Comm : public x10::lang::Closure  {
                 abort();
             }
             x10::runtime::Runtime::increaseParallelism();
-            while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+            while (NBC_CONTINUE == NBC_Test(&hndl)) x10rt_probe();
             x10::runtime::Runtime::decreaseParallelism(1);
         }
 #else
@@ -151,12 +151,12 @@ class Comm : public x10::lang::Closure  {
     T reduce(T val, MPI_Op OP, MPI_Datatype TYPE) {
     T val2;
     NBC_Handle hndl;
-    if (NBC_SUCCESS != NBC_Iallreduce(&val, &val2, 1, TYPE, OP, (MPI_Comm)FMGL(my_id), &hndl)) {
+    if (NBC_SUCCESS != NBC_Iallreduce(&val, &val2, 1, TYPE, OP, FMGL(my_id), &hndl)) {
         fprintf(stderr, "Error in NBC_Iallreduce\n");
         abort();
     }
      x10::runtime::Runtime::increaseParallelism();
-     while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+     while (NBC_CONTINUE == NBC_Test(&hndl)) x10rt_probe();
      x10::runtime::Runtime::decreaseParallelism(1);
           return val2;
    }

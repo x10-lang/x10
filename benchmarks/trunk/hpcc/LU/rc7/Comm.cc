@@ -60,7 +60,7 @@ void rc7::Comm::_constructor(x10_int id) {
             abort();
         }
      x10::runtime::Runtime::increaseParallelism();
-     while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+     while (NBC_CONTINUE == NBC_Test(&hndl)) x10rt_probe();
      x10::runtime::Runtime::decreaseParallelism(1);
     }
 #else
@@ -82,7 +82,7 @@ void rc7::Comm::_constructor(x10_int id) {
          abort();
      }
      x10::runtime::Runtime::increaseParallelism();
-     while (NBC_CONTINUE != NBC_Test(&hndl)) x10rt_probe();
+     while (NBC_CONTINUE == NBC_Test(&hndl)) x10rt_probe();
      x10::runtime::Runtime::decreaseParallelism(1);
       return val.i;
    }
