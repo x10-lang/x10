@@ -94,11 +94,11 @@ array and breaks out of the loop when found:
 
 \begin{xten}
 var found: Boolean = false;
-for (var i: Int = 0; i < a.length; i++)
+outer: for (var i: Int = 0; i < a.length; i++)
     for (var j: Int = 0; j < a(i).length; j++)
         if (a(i)(j) == v) {
             found = true;
-            break;
+            break outer;
         }
 \end{xten}
 
