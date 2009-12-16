@@ -1,0 +1,23 @@
+   0:M=15 SQRTN=32768 N=1073741824 nRows=1024 localSize=67108864 MAX_PLACES=32 Mem=32768.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:execution time=18.004606000000003 secs Gigaflops=8.945559464061583
+   0:Step transpose1 took 3.083267 s
+   0:Step row_ffts1 took 3.164819 s
+   0:Step transpose2 took 3.077549 s
+   0:Step twiddle took 2.427118 s
+   0:Step row_ffts2 took 3.164615 s
+   0:Step transpose3 took 3.087238 s
+   0:FFT complete
+   0:Start reverse FFT
+   0:execution time=17.989158 secs Gigaflops=8.953241369051291
+   0:Step transpose1 took 3.104086 s
+   0:Step row_ffts1 took 3.110903 s
+   0:Step transpose2 took 3.110599 s
+   0:Step twiddle took 2.425139 s
+   0:Step row_ffts2 took 3.115177 s
+   0:Step transpose3 took 3.123254 s
+   0:Reverse FFT complete
+   0:Now combining forward and inverse FTT measurements
+   0:execution time=35.993763999999999 secs Gigaflops=8.949398768075492
+   0:Start verification
+   0:Verification complete

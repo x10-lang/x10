@@ -1,0 +1,226 @@
+  15:Binding ID=15 to local CPU=30 on node=15
+   2:Binding ID=2 to local CPU=4 on node=2
+   7:Binding ID=7 to local CPU=14 on node=7
+  10:Binding ID=10 to local CPU=20 on node=10
+  14:Binding ID=14 to local CPU=28 on node=14
+   3:Binding ID=3 to local CPU=6 on node=3
+  12:Binding ID=12 to local CPU=24 on node=12
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   4:Binding ID=4 to local CPU=8 on node=4
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  11:Binding ID=11 to local CPU=22 on node=11
+  13:Binding ID=13 to local CPU=26 on node=13
+   6:Binding ID=6 to local CPU=12 on node=6
+   5:Binding ID=5 to local CPU=10 on node=5
+   5:Binding ID=5 to local CPU=10 on node=5
+  13:Binding ID=13 to local CPU=26 on node=13
+   3:Binding ID=3 to local CPU=6 on node=3
+   7:Binding ID=7 to local CPU=14 on node=7
+  11:Binding ID=11 to local CPU=22 on node=11
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   6:Binding ID=6 to local CPU=12 on node=6
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  12:Binding ID=12 to local CPU=24 on node=12
+   2:Binding ID=2 to local CPU=4 on node=2
+   4:Binding ID=4 to local CPU=8 on node=4
+  10:Binding ID=10 to local CPU=20 on node=10
+   0:LU Starting: M 65600 B 200 px 4 py 4
+   0:Main loop starting ...
+   0:3 of 328 complete last 2 iterations took 67.586427999999998 seconds
+   0:5 of 328 complete last 2 iterations took 32.637053000000002 seconds
+   0:7 of 328 complete last 2 iterations took 32.385696000000003 seconds
+   0:9 of 328 complete last 2 iterations took 31.856851000000002 seconds
+   0:11 of 328 complete last 2 iterations took 31.625397000000003 seconds
+   0:13 of 328 complete last 2 iterations took 31.092074 seconds
+   0:15 of 328 complete last 2 iterations took 30.847725000000001 seconds
+   0:17 of 328 complete last 2 iterations took 30.321633000000002 seconds
+   0:19 of 328 complete last 2 iterations took 30.111326000000002 seconds
+   0:21 of 328 complete last 2 iterations took 29.581116000000002 seconds
+   0:23 of 328 complete last 2 iterations took 29.355847000000001 seconds
+   0:25 of 328 complete last 2 iterations took 28.851718000000002 seconds
+   0:27 of 328 complete last 2 iterations took 28.626291000000002 seconds
+   0:29 of 328 complete last 2 iterations took 28.126131000000001 seconds
+   0:31 of 328 complete last 2 iterations took 27.885632000000001 seconds
+   0:33 of 328 complete last 2 iterations took 27.385484000000002 seconds
+   0:35 of 328 complete last 2 iterations took 27.192019000000002 seconds
+   0:37 of 328 complete last 2 iterations took 26.681646000000001 seconds
+   0:39 of 328 complete last 2 iterations took 26.472676 seconds
+   0:41 of 328 complete last 2 iterations took 25.996796000000003 seconds
+   0:43 of 328 complete last 2 iterations took 25.808673000000002 seconds
+   0:45 of 328 complete last 2 iterations took 25.306183000000001 seconds
+   0:47 of 328 complete last 2 iterations took 25.130861000000003 seconds
+   0:49 of 328 complete last 2 iterations took 24.681398000000002 seconds
+   0:51 of 328 complete last 2 iterations took 24.440649000000001 seconds
+   0:53 of 328 complete last 2 iterations took 23.967757000000002 seconds
+   0:55 of 328 complete last 2 iterations took 23.819688000000003 seconds
+   0:57 of 328 complete last 2 iterations took 23.321422000000002 seconds
+   0:59 of 328 complete last 2 iterations took 23.104782 seconds
+   0:61 of 328 complete last 2 iterations took 22.655267000000002 seconds
+   0:63 of 328 complete last 2 iterations took 22.471653 seconds
+   0:65 of 328 complete last 2 iterations took 22.021933000000001 seconds
+   0:67 of 328 complete last 2 iterations took 21.853035000000002 seconds
+   0:69 of 328 complete last 2 iterations took 21.394404000000002 seconds
+   0:71 of 328 complete last 2 iterations took 21.224753 seconds
+   0:73 of 328 complete last 2 iterations took 20.771167000000002 seconds
+   0:75 of 328 complete last 2 iterations took 20.551965000000003 seconds
+   0:77 of 328 complete last 2 iterations took 20.129409000000003 seconds
+   0:79 of 328 complete last 2 iterations took 19.966613000000002 seconds
+   0:81 of 328 complete last 2 iterations took 19.526018000000001 seconds
+   0:83 of 328 complete last 2 iterations took 19.368908000000001 seconds
+   0:85 of 328 complete last 2 iterations took 18.950066 seconds
+   0:87 of 328 complete last 2 iterations took 18.765937000000001 seconds
+   0:89 of 328 complete last 2 iterations took 18.386784000000002 seconds
+   0:91 of 328 complete last 2 iterations took 18.230906000000001 seconds
+   0:93 of 328 complete last 2 iterations took 17.763747000000002 seconds
+   0:95 of 328 complete last 2 iterations took 17.605951000000001 seconds
+   0:97 of 328 complete last 2 iterations took 17.204567000000001 seconds
+   0:99 of 328 complete last 2 iterations took 17.078163 seconds
+   0:101 of 328 complete last 2 iterations took 16.650034000000002 seconds
+   0:103 of 328 complete last 2 iterations took 16.475221000000001 seconds
+   0:105 of 328 complete last 2 iterations took 16.094265 seconds
+   0:107 of 328 complete last 2 iterations took 15.944339000000001 seconds
+   0:109 of 328 complete last 2 iterations took 15.567741000000002 seconds
+   0:111 of 328 complete last 2 iterations took 15.385589000000001 seconds
+   0:113 of 328 complete last 2 iterations took 15.063554000000002 seconds
+   0:115 of 328 complete last 2 iterations took 14.915664000000001 seconds
+   0:117 of 328 complete last 2 iterations took 14.55527 seconds
+   0:119 of 328 complete last 2 iterations took 14.383033000000001 seconds
+   0:121 of 328 complete last 2 iterations took 13.996885000000001 seconds
+   0:123 of 328 complete last 2 iterations took 13.840717000000001 seconds
+   0:125 of 328 complete last 2 iterations took 13.486405000000001 seconds
+   0:127 of 328 complete last 2 iterations took 13.339876 seconds
+   0:129 of 328 complete last 2 iterations took 12.979362 seconds
+   0:131 of 328 complete last 2 iterations took 12.847855000000001 seconds
+   0:133 of 328 complete last 2 iterations took 12.501633 seconds
+   0:135 of 328 complete last 2 iterations took 12.410218 seconds
+   0:137 of 328 complete last 2 iterations took 12.070321000000002 seconds
+   0:139 of 328 complete last 2 iterations took 11.885936000000001 seconds
+   0:141 of 328 complete last 2 iterations took 11.564355000000001 seconds
+   0:143 of 328 complete last 2 iterations took 11.426804000000001 seconds
+   0:145 of 328 complete last 2 iterations took 11.112467000000001 seconds
+   0:147 of 328 complete last 2 iterations took 10.983809000000001 seconds
+   0:149 of 328 complete last 2 iterations took 10.654873 seconds
+   0:151 of 328 complete last 2 iterations took 10.526751000000001 seconds
+   0:153 of 328 complete last 2 iterations took 10.211805 seconds
+   0:155 of 328 complete last 2 iterations took 10.095056000000001 seconds
+   0:157 of 328 complete last 2 iterations took 9.780713 seconds
+   0:159 of 328 complete last 2 iterations took 9.658327 seconds
+   0:161 of 328 complete last 2 iterations took 9.361515000000001 seconds
+   0:163 of 328 complete last 2 iterations took 9.246688000000001 seconds
+   0:165 of 328 complete last 2 iterations took 8.958552000000001 seconds
+   0:167 of 328 complete last 2 iterations took 8.836235 seconds
+   0:169 of 328 complete last 2 iterations took 8.54297 seconds
+   0:171 of 328 complete last 2 iterations took 8.435139000000001 seconds
+   0:173 of 328 complete last 2 iterations took 8.147376000000001 seconds
+   0:175 of 328 complete last 2 iterations took 8.042829000000001 seconds
+   0:177 of 328 complete last 2 iterations took 7.771562 seconds
+   0:179 of 328 complete last 2 iterations took 7.65659 seconds
+   0:181 of 328 complete last 2 iterations took 7.38677 seconds
+   0:183 of 328 complete last 2 iterations took 7.297326000000001 seconds
+   0:185 of 328 complete last 2 iterations took 7.042024000000001 seconds
+   0:187 of 328 complete last 2 iterations took 6.932722 seconds
+   0:189 of 328 complete last 2 iterations took 6.667615000000001 seconds
+   0:191 of 328 complete last 2 iterations took 6.576827000000001 seconds
+   0:193 of 328 complete last 2 iterations took 6.324552000000001 seconds
+   0:195 of 328 complete last 2 iterations took 6.254375 seconds
+   0:197 of 328 complete last 2 iterations took 5.991241 seconds
+   0:199 of 328 complete last 2 iterations took 5.904030000000001 seconds
+   0:201 of 328 complete last 2 iterations took 5.647131000000001 seconds
+   0:203 of 328 complete last 2 iterations took 5.574746 seconds
+   0:205 of 328 complete last 2 iterations took 5.358762 seconds
+   0:207 of 328 complete last 2 iterations took 5.249362000000001 seconds
+   0:209 of 328 complete last 2 iterations took 5.034479 seconds
+   0:211 of 328 complete last 2 iterations took 4.944699 seconds
+   0:213 of 328 complete last 2 iterations took 4.729019 seconds
+   0:215 of 328 complete last 2 iterations took 4.657809 seconds
+   0:217 of 328 complete last 2 iterations took 4.442876 seconds
+   0:219 of 328 complete last 2 iterations took 4.363511 seconds
+   0:221 of 328 complete last 2 iterations took 4.159524 seconds
+   0:223 of 328 complete last 2 iterations took 4.088281 seconds
+   0:225 of 328 complete last 2 iterations took 3.895624 seconds
+   0:227 of 328 complete last 2 iterations took 3.82027 seconds
+   0:229 of 328 complete last 2 iterations took 3.62023 seconds
+   0:231 of 328 complete last 2 iterations took 3.558045 seconds
+   0:233 of 328 complete last 2 iterations took 3.366835 seconds
+   0:235 of 328 complete last 2 iterations took 3.301888 seconds
+   0:237 of 328 complete last 2 iterations took 3.117626 seconds
+   0:239 of 328 complete last 2 iterations took 3.045182 seconds
+   0:241 of 328 complete last 2 iterations took 2.879927 seconds
+   0:243 of 328 complete last 2 iterations took 2.825714 seconds
+   0:245 of 328 complete last 2 iterations took 2.662534 seconds
+   0:247 of 328 complete last 2 iterations took 2.595758 seconds
+   0:249 of 328 complete last 2 iterations took 2.444054 seconds
+   0:251 of 328 complete last 2 iterations took 2.378636 seconds
+   0:253 of 328 complete last 2 iterations took 2.231672 seconds
+   0:255 of 328 complete last 2 iterations took 2.174016 seconds
+   0:257 of 328 complete last 2 iterations took 2.038611 seconds
+   0:259 of 328 complete last 2 iterations took 1.977457 seconds
+   0:261 of 328 complete last 2 iterations took 1.838954 seconds
+   0:263 of 328 complete last 2 iterations took 1.793177 seconds
+   0:265 of 328 complete last 2 iterations took 1.656743 seconds
+   0:267 of 328 complete last 2 iterations took 1.615167 seconds
+   0:269 of 328 complete last 2 iterations took 1.489998 seconds
+   0:271 of 328 complete last 2 iterations took 1.447056 seconds
+   0:273 of 328 complete last 2 iterations took 1.327547 seconds
+   0:275 of 328 complete last 2 iterations took 1.288485 seconds
+   0:277 of 328 complete last 2 iterations took 1.176206 seconds
+   0:279 of 328 complete last 2 iterations took 1.140838 seconds
+   0:281 of 328 complete last 2 iterations took 1.036067 seconds
+   0:283 of 328 complete last 2 iterations took 0.997503 seconds
+   0:285 of 328 complete last 2 iterations took 0.898763 seconds
+   0:287 of 328 complete last 2 iterations took 0.868241 seconds
+   0:289 of 328 complete last 2 iterations took 0.772788 seconds
+   0:291 of 328 complete last 2 iterations took 0.744624 seconds
+   0:293 of 328 complete last 2 iterations took 0.657938 seconds
+   0:295 of 328 complete last 2 iterations took 0.625733 seconds
+   0:297 of 328 complete last 2 iterations took 0.550504 seconds
+   0:299 of 328 complete last 2 iterations took 0.525299 seconds
+   0:301 of 328 complete last 2 iterations took 0.450809 seconds
+   0:303 of 328 complete last 2 iterations took 0.42848 seconds
+   0:305 of 328 complete last 2 iterations took 0.361105 seconds
+   0:307 of 328 complete last 2 iterations took 0.341242 seconds
+   0:309 of 328 complete last 2 iterations took 0.286152 seconds
+   0:311 of 328 complete last 2 iterations took 0.263953 seconds
+   0:313 of 328 complete last 2 iterations took 0.218095 seconds
+   0:315 of 328 complete last 2 iterations took 0.203809 seconds
+   0:317 of 328 complete last 2 iterations took 0.1615 seconds
+   0:319 of 328 complete last 2 iterations took 0.144845 seconds
+   0:321 of 328 complete last 2 iterations took 0.11532 seconds
+   0:323 of 328 complete last 2 iterations took 0.100698 seconds
+   0:325 of 328 complete last 2 iterations took 0.079101 seconds
+   0:327 of 328 complete last 2 iterations took 0.046156 seconds
+   1:diff 0.0 1
+   2:diff 0.0 2
+   3:diff 0.0 3
+   5:diff 0.0 5
+   6:diff 0.0 6
+   7:diff 0.0 7
+   9:diff 0.0 9
+  10:diff 0.0 10
+  11:diff 0.0 11
+  13:diff 0.0 13
+  14:diff 0.0 14
+  15:diff 0.0 15
+   8:diff 5.7E-18 8
+   4:diff 4.7E-18 4
+   0:diff 4.0E-18 0
+   0:difference 5.7E-18
+   0: ok) diff=5.7E-18
+   0:Timer(0) TOTAL #invocations=1 Time=1951.638058000000228 seconds
+   0:Timer(1) PANEL #invocations=328 Time=152.325112000000018 seconds
+  12:diff 3.8E-18 12
+   0:Timer(2) SWAPROWS #invocations=328 Time=22.562358 seconds
+   0:Timer(3) TRISOLVE #invocations=328 Time=19.037987000000001 seconds
+   0:Timer(4) UPDATE #invocations=328 Time=1723.819199000000026 seconds
+   0:Timer(5) PANEL-PIVOT #invocations=16400 Time=6.637923000000001 seconds
+   0:Timer(6) PANEL-SWAP #invocations=16400 Time=1.624629 seconds
+   0:Timer(7) PANEL-BCAST #invocations=16400 Time=0.165076 seconds
+   0:Timer(8) PANEL-UPDATE #invocations=16400 Time=29.997829000000003 seconds
+   0:
+   0: Time= 1951.638809000000037 seconds Rate= 97.315501700345621 GFlops

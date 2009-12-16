@@ -1,0 +1,111 @@
+   4:Binding ID=4 to local CPU=8 on node=4
+  12:Binding ID=12 to local CPU=24 on node=12
+   0:Binding ID=0 to local CPU=0 on node=0
+   8:Binding ID=8 to local CPU=16 on node=8
+   3:Binding ID=3 to local CPU=6 on node=3
+   6:Binding ID=6 to local CPU=12 on node=6
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   5:Binding ID=5 to local CPU=10 on node=5
+   7:Binding ID=7 to local CPU=14 on node=7
+  11:Binding ID=11 to local CPU=22 on node=11
+  13:Binding ID=13 to local CPU=26 on node=13
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   1:Binding ID=1 to local CPU=2 on node=1
+   4:Binding ID=4 to local CPU=8 on node=4
+   8:Binding ID=8 to local CPU=16 on node=8
+  11:Binding ID=11 to local CPU=22 on node=11
+   0:Binding ID=0 to local CPU=0 on node=0
+   2:Binding ID=2 to local CPU=4 on node=2
+   5:Binding ID=5 to local CPU=10 on node=5
+  10:Binding ID=10 to local CPU=20 on node=10
+  12:Binding ID=12 to local CPU=24 on node=12
+   0:localSize=50331648
+   3:Binding ID=3 to local CPU=6 on node=3
+   6:Binding ID=6 to local CPU=12 on node=6
+   7:Binding ID=7 to local CPU=14 on node=7
+   9:Binding ID=9 to local CPU=18 on node=9
+  13:Binding ID=13 to local CPU=26 on node=13
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   0:Number of places=16
+   0:Size of arrays: 18432 MB (total)1152 MB (per place)
+   0:Min time: 0.238552110216571 rate=81.019416740658954 GB/s
+   0:Result is verified.
+   3:Binding ID=3 to local CPU=6 on node=3
+  11:Binding ID=11 to local CPU=22 on node=11
+  15:Binding ID=15 to local CPU=30 on node=15
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   4:Binding ID=4 to local CPU=8 on node=4
+   5:Binding ID=5 to local CPU=10 on node=5
+   9:Binding ID=9 to local CPU=18 on node=9
+  13:Binding ID=13 to local CPU=26 on node=13
+  14:Binding ID=14 to local CPU=28 on node=14
+   6:Binding ID=6 to local CPU=12 on node=6
+  10:Binding ID=10 to local CPU=20 on node=10
+  12:Binding ID=12 to local CPU=24 on node=12
+   0:Binding ID=0 to local CPU=0 on node=0
+   7:Binding ID=7 to local CPU=14 on node=7
+   8:Binding ID=8 to local CPU=16 on node=8
+  13:Binding ID=13 to local CPU=26 on node=13
+   2:Binding ID=2 to local CPU=4 on node=2
+   5:Binding ID=5 to local CPU=10 on node=5
+   7:Binding ID=7 to local CPU=14 on node=7
+  11:Binding ID=11 to local CPU=22 on node=11
+   1:Binding ID=1 to local CPU=2 on node=1
+   3:Binding ID=3 to local CPU=6 on node=3
+   6:Binding ID=6 to local CPU=12 on node=6
+  12:Binding ID=12 to local CPU=24 on node=12
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   4:Binding ID=4 to local CPU=8 on node=4
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+   0:localSize=50331648
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:Number of places=16
+   0:Size of arrays: 18432 MB (total)1152 MB (per place)
+   0:Min time: 0.238771030577916 rate=80.945133022295622 GB/s
+   0:Result is verified.
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   4:Binding ID=4 to local CPU=8 on node=4
+   6:Binding ID=6 to local CPU=12 on node=6
+   8:Binding ID=8 to local CPU=16 on node=8
+  12:Binding ID=12 to local CPU=24 on node=12
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   3:Binding ID=3 to local CPU=6 on node=3
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+  11:Binding ID=11 to local CPU=22 on node=11
+  13:Binding ID=13 to local CPU=26 on node=13
+   5:Binding ID=5 to local CPU=10 on node=5
+   7:Binding ID=7 to local CPU=14 on node=7
+  11:Binding ID=11 to local CPU=22 on node=11
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   2:Binding ID=2 to local CPU=4 on node=2
+   3:Binding ID=3 to local CPU=6 on node=3
+   8:Binding ID=8 to local CPU=16 on node=8
+   9:Binding ID=9 to local CPU=18 on node=9
+  10:Binding ID=10 to local CPU=20 on node=10
+  12:Binding ID=12 to local CPU=24 on node=12
+  14:Binding ID=14 to local CPU=28 on node=14
+  15:Binding ID=15 to local CPU=30 on node=15
+   4:Binding ID=4 to local CPU=8 on node=4
+   5:Binding ID=5 to local CPU=10 on node=5
+   6:Binding ID=6 to local CPU=12 on node=6
+   7:Binding ID=7 to local CPU=14 on node=7
+  13:Binding ID=13 to local CPU=26 on node=13
+   0:localSize=50331648
+   0:Number of places=16
+   0:Size of arrays: 18432 MB (total)1152 MB (per place)
+   0:Min time: 0.238325919413743 rate=81.096310798016887 GB/s
+   0:Result is verified.
