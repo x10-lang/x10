@@ -14,23 +14,11 @@ import x10.util.Stack;
  * Lock with wait/notify capability implemented using park/unpark
  * @author tardieu
  */
-class Monitor {
-    /**
-     * Instance lock
-     */
-    private val lock = new Lock();
-
+class Monitor extends Lock {
     /**
      * Parked threads
      */
     private val threads = new Stack[Thread]();
-
-    /**
-     * Lock
-     */
-    def lock():Void {
-        lock.lock();
-    }
 
     /**
      * Park calling thread
@@ -62,13 +50,6 @@ class Monitor {
             for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
         }
         unlock();
-    }
-
-    /**
-     * Unlock
-     */
-    def unlock():Void {
-        lock.unlock();
     }
 }
 
