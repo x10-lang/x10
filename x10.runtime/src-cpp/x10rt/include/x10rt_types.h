@@ -16,7 +16,7 @@ typedef unsigned long x10rt_copy_sz;
 
 struct x10rt_msg_params {
     x10rt_place dest_place;
-    unsigned type;
+    x10rt_msg_type type;
     void *msg;
     unsigned long len;
 };
