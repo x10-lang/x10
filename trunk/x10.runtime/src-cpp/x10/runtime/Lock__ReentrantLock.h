@@ -4,8 +4,8 @@
  * This file is part of XRX/C++ native layer implementation.
  */
 
-#ifndef X10_RUNTIME_LOCK_H
-#define X10_RUNTIME_LOCK_H
+#ifndef X10_RUNTIME_LOCK__REENTRANT_LOCK_H
+#define X10_RUNTIME_LOCK__REENTRANT_LOCK_H
 
 #include <x10/lang/Ref.h>
 
@@ -13,10 +13,10 @@
 
 namespace x10 {
     namespace runtime {
-        
+
        /**
         * A low-level lock that provides a subset of the functionality
-        * of java.util.concurrent.locks.ReentrantLock.
+        * of java.util.concurrent.locks.Lock__ReentrantLock.
         *
         * A reentrant Lock is owned by the thread last successfully
         * locking, but not yet unlocking it.  A thread invoking lock()
@@ -24,17 +24,17 @@ namespace x10 {
         * is not owned by another thread.  The method will return
         * immediately if the calling thread already owns the lock.
         */
-        class Lock : public x10::lang::Ref {
+        class Lock__ReentrantLock : public x10::lang::Ref {
         public:
             RTT_H_DECLS_CLASS;
 
-            static x10aux::ref<Lock> _make();
-            ~Lock() { teardown(); }
+            static x10aux::ref<Lock__ReentrantLock> _make();
+            ~Lock__ReentrantLock() { teardown(); }
 
         private:
             void initialize();
             void teardown();
-            
+
         public:
            /**
             * Acquires the lock [blocking call].
@@ -87,7 +87,7 @@ namespace x10 {
         };
     }
 }
-        
-#endif /* __X10_RUNTIME_LOCK_H */
+
+#endif /* __X10_RUNTIME_LOCK__REENTRANT_LOCK_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab

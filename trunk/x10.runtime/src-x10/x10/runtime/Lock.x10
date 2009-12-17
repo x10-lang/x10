@@ -17,27 +17,40 @@ import x10.compiler.NativeRep;
  * the functionality of java.util.concurrent.locks.ReentrantLock.
  * The API is subsetted to that which is also supported by pthread_mutex.
  */
-@NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
-@NativeRep("c++", "x10aux::ref<x10::runtime::Lock>", "x10::runtime::Lock", null)
 public class Lock {
 
-    public native def this(): Lock;
+    @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
+    @NativeRep("c++", "x10aux::ref<x10::runtime::Lock__ReentrantLock>", "x10::runtime::Lock__ReentrantLock", null)
+    static class ReentrantLock {
 
-    @Native("java", "#0.lock()")
-    @Native("c++", "(#0)->lock()")
-    public global native def lock():void;
+        public native def this():ReentrantLock;
 
-    @Native("java", "#0.tryLock()")
-    @Native("c++", "(#0)->tryLock()")
-    public native def tryLock():boolean;
+        @Native("java", "#0.lock()")
+        @Native("c++", "(#0)->lock()")
+        native def lock():Void;
 
-    @Native("java", "#0.unlock()")
-    @Native("c++", "(#0)->unlock()")
-    public global native def unlock():void;
+        @Native("java", "#0.tryLock()")
+        @Native("c++", "(#0)->tryLock()")
+        native def tryLock():Boolean;
 
-    @Native("java", "#0.getHoldCount()")
-    @Native("c++", "(#0)->getHoldCount()")
-    public global native def getHoldCount():int;
+        @Native("java", "#0.unlock()")
+        @Native("c++", "(#0)->unlock()")
+        native def unlock():Void;
+
+        @Native("java", "#0.getHoldCount()")
+        @Native("c++", "(#0)->getHoldCount()")
+        native def getHoldCount():Int;
+    }
+
+    private val lock = new ReentrantLock();
+
+    public def lock() { lock.lock(); }
+
+    public def tryLock() { lock.tryLock(); }
+
+    public def unlock() { lock.unlock(); }
+
+    public def getHoldCount() = lock.getHoldCount();
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
