@@ -28,6 +28,7 @@ import java.util.Set;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
+import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
@@ -210,6 +211,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		this.tr = tr;
 		this.er = new Emitter(w,tr);
 	}
+
+    public void visit(Block_c n) {
+        String s = er.getJavaImplForStmt(n, (X10TypeSystem) tr.typeSystem());
+        if (s != null) {
+            w.write(s);
+        } else {
+            super.visit(n);
+        }
+    }
 
 	public void visit(Node n) {
 		// Don't call through del; that would be recursive.

@@ -27,6 +27,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
+import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -269,6 +270,26 @@ public class Emitter {
 		}
 	}
 
+    public String getJavaImplForStmt(Stmt n, X10TypeSystem xts) {
+        if (n.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) n.ext();
+            try {
+                Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+                List<X10ClassType> as = ext.annotationMatching(java);
+                for (Type at : as) {
+                    assertNumberOfInitializers(at, 2);
+                    String lang = getPropertyInit(at, 0);
+                    if (lang != null && lang.equals("java")) {
+                        String lit = getPropertyInit(at, 1);
+                        return lit;
+                    }
+                }
+            }
+            catch (SemanticException e) {}
+        }
+        return null;
+    }
+	
 	public String getJavaImplForDef(X10Def o) {
 		X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 		try {
