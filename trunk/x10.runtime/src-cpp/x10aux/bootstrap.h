@@ -44,16 +44,20 @@ namespace x10aux {
 
         StaticInitClosure() { }
 
-        virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0) {
-            return false; // FIXME: should we be able to compare function types structurally?
-        }
-
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
         ref<x10::lang::String> toString() {
             return x10::lang::String::Lit("x10aux::StaticInitClosure ("__FILELINE__")");
         }
 
+        virtual x10aux::serialization_id_t _get_serialization_id() {
+            assert(false); // We should never be serializing this closure
+            return 0;
+        }
+        
+        virtual void _serialize_body(x10aux::serialization_buffer &) {
+            assert(false); // We should never be serializing this closure
+        }
     };
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
@@ -82,16 +86,20 @@ namespace x10aux {
           : main(main_), args(args_)
         { }
 
-        virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0) {
-            return false; // FIXME: should we be able to compare function types structurally?
-        }
-
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
         ref<x10::lang::String> toString() {
             return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 
+        virtual x10aux::serialization_id_t _get_serialization_id() {
+            assert(false); // We should never be serializing this closure
+            return 0;
+        }
+        
+        virtual void _serialize_body(x10aux::serialization_buffer &) {
+            assert(false); // We should never be serializing this closure
+        }
     };
 
     void initialize_xrx();

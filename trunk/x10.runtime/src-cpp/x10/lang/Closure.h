@@ -6,37 +6,27 @@
 #include <x10aux/serialization.h>
 #include <x10aux/RTT.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 namespace x10 { namespace lang { class String; } }
 
 namespace x10 {
 
     namespace lang {
 
-        class Closure : public Object {
+        /**
+         * This is a class that exists only at the C++ implementation level,
+         * not at the X10 language level.  Therefore it does not have an
+         * associated RTT.
+         * 
+         * The purpose of this class is to provide a common C++ level superclass
+         * for all X10 closures.  This provides a class in which to locate object model
+         * and other serialization/deserialization functions that are common for all
+         * concrete Closure instances.  This is an abstract class.
+         */
+        class Closure : public Reference {
         public:
-            RTT_H_DECLS_CLASS
-
             Closure() {
                 location = x10aux::here;
-            }
-
-            static x10aux::ref<Closure> _make();
-
-            x10aux::ref<Closure> _constructor() { return this; }
-
-            static const x10aux::serialization_id_t _serialization_id;
-
-            virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };
-
-            virtual void _serialize_body(x10aux::serialization_buffer &) {
-                // there are no fields
-            }
-
-            template<class T> static x10aux::ref<T> _deserializer(x10aux::deserialization_buffer &);
-
-            void _deserialize_body(x10aux::deserialization_buffer &) {
-                // there are no fields
             }
 
             static void _serialize(x10aux::ref<Closure> this_,
@@ -44,14 +34,7 @@ namespace x10 {
     
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
     
-            virtual x10_int hashCode() {
-                // All instances of Closure are equal, so their hashcodes can be too.
-                return 0;
-            }
-
             virtual x10aux::ref<String> toString();
-
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
         };
 
         template<class T> x10aux::ref<T> Closure::_deserialize(x10aux::deserialization_buffer &buf){
@@ -59,12 +42,6 @@ namespace x10 {
             _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"value"<<ANSI_RESET<<
                 " (expecting id) from buf: "<<&buf);
             return x10aux::DeserializationDispatcher::create<T>(buf);
-        }
-
-        template<class T> x10aux::ref<T> Closure::_deserializer(x10aux::deserialization_buffer &buf) {
-            x10aux::ref<Closure> this_ = new (x10aux::alloc<Closure>()) Closure();
-            buf.record_reference(this_); // TODO: avoid; closure
-            return this_;
         }
     }
 }

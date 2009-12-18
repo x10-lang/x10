@@ -9,9 +9,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-const serialization_id_t Closure::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Closure::_deserializer<Ref>);
-
 void Closure::_serialize(x10aux::ref<Closure> this_,
                          x10aux::serialization_buffer &buf) 
 {
@@ -22,22 +19,8 @@ void Closure::_serialize(x10aux::ref<Closure> this_,
     this_->_serialize_body(buf);
 }           
 
-x10aux::ref<Closure> Closure::_make() {
-    return (new (x10aux::alloc<Closure>()) Closure())->_constructor();
-}
-
 x10aux::ref<x10::lang::String> x10::lang::Closure::toString() {
     return String::Lit("Closure without toString defined.");
 }
-
-x10_boolean
-Closure::_struct_equals(x10aux::ref<Object> other) {
-    if (!_type()->concreteInstanceOf(other))
-        return false;
-    // now compare fields but there aren't any
-    return true;
-}
-
-RTT_CC_DECLS1(Closure, "x10.lang.Closure", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

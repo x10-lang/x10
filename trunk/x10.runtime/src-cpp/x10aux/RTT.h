@@ -31,6 +31,7 @@
 namespace x10 {
     namespace lang {
         class Object;
+        class Reference;
     }
 }
 
@@ -221,7 +222,8 @@ namespace x10aux {
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
-
+    template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
+    
     template<class T, class S> struct Instanceof { static x10_boolean _(S v) {
         return false;
     } };

@@ -3,6 +3,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/atomic_ops.h>
 
+#include <x10/lang/Reference.h>
 #include <x10/lang/Object.h>
 
 #include <cstdarg>
@@ -90,63 +91,51 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* typeName_,
 }
     
 void RuntimeType::initBooleanType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    BooleanType.init(&BooleanType, "x10.lang.Boolean", 1, parents, 0, NULL, NULL);
+    BooleanType.init(&BooleanType, "x10.lang.Boolean", 0, NULL, 0, NULL, NULL);
     BooleanType.containsPtrs = false;
 }
 void RuntimeType::initByteType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    ByteType.init(&ByteType, "x10.lang.Byte", 1, parents, 0, NULL, NULL);
+    ByteType.init(&ByteType, "x10.lang.Byte", 0, NULL, 0, NULL, NULL);
     ByteType.containsPtrs = false;
 }
 void RuntimeType::initCharType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    CharType.init(&CharType, "x10.lang.Char", 1, parents, 0, NULL, NULL);
+    CharType.init(&CharType, "x10.lang.Char", 0, NULL, 0, NULL, NULL);
     CharType.containsPtrs = false;
 }
 void RuntimeType::initShortType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    ShortType.init(&ShortType, "x10.lang.Short", 1, parents, 0, NULL, NULL);
+    ShortType.init(&ShortType, "x10.lang.Short", 0, NULL, 0, NULL, NULL);
     ShortType.containsPtrs = false;
 }
 void RuntimeType::initIntType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    IntType.init(&IntType, "x10.lang.Int", 1, parents, 0, NULL, NULL);
+    IntType.init(&IntType, "x10.lang.Int", 0, NULL, 0, NULL, NULL);
     IntType.containsPtrs = false;
 }
 void RuntimeType::initFloatType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    FloatType.init(&FloatType, "x10.lang.Float", 1, parents, 0, NULL, NULL);
+    FloatType.init(&FloatType, "x10.lang.Float", 0, NULL, 0, NULL, NULL);
     FloatType.containsPtrs = false;
 }
 void RuntimeType::initLongType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    LongType.init(&LongType, "x10.lang.Long", 1, parents, 0, NULL, NULL);
+    LongType.init(&LongType, "x10.lang.Long", 0, NULL, 0, NULL, NULL);
     LongType.containsPtrs = false;
 }
 void RuntimeType::initDoubleType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    DoubleType.init(&DoubleType, "x10.lang.Double", 1, parents, 0, NULL, NULL);
+    DoubleType.init(&DoubleType, "x10.lang.Double", 0, NULL, 0, NULL, NULL);
     DoubleType.containsPtrs = false;
 }
 void RuntimeType::initUByteType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    UByteType.init(&UByteType, "x10.lang.UByte", 1, parents, 0, NULL, NULL);
+    UByteType.init(&UByteType, "x10.lang.UByte", 0, NULL, 0, NULL, NULL);
     UByteType.containsPtrs = false;
 }
 void RuntimeType::initUShortType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    UShortType.init(&UShortType, "x10.lang.UShort", 1, parents, 0, NULL, NULL);
+    UShortType.init(&UShortType, "x10.lang.UShort", 0, NULL, 0, NULL, NULL);
     UShortType.containsPtrs = false;
 }
 void RuntimeType::initUIntType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    UIntType.init(&UIntType, "x10.lang.UInt", 1, parents, 0, NULL, NULL);
+    UIntType.init(&UIntType, "x10.lang.UInt", 0, NULL, 0, NULL, NULL);
     UIntType.containsPtrs = false;
 }
 void RuntimeType::initULongType() {
-    const RuntimeType* parents[1] = {x10::lang::Object::getRTT()};
-    ULongType.init(&ULongType, "x10.lang.ULong", 1, parents, 0, NULL, NULL);
+    ULongType.init(&ULongType, "x10.lang.ULong", 0, NULL, 0, NULL, NULL);
     ULongType.containsPtrs = false;
 }
 

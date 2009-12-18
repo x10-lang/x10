@@ -1167,21 +1167,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
         h.write(Emitter.translateType(currentClass, true)+" this_,"); h.newline();
         h.write(SERIALIZATION_BUFFER+"& buf) {"); h.end(); h.newline(4); h.begin(0);
-        h.write("x10::lang::Object::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
+        h.write("x10::lang::Reference::"+SERIALIZE_METHOD+"(this_, buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         h.write("public: template<class __T> static ");
         h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {"); h.newline(4) ; h.begin(0);
-        h.write("return x10::lang::Object::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
+        h.write("return x10::lang::Reference::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
+        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.
         h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
         h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->equals(that);");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
+        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.        
         h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
         h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->hashCode();");
         h.end(); h.newline();
@@ -2808,7 +2810,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                if (t.isClass()) {
 		                    X10ClassType clsType = (X10ClassType)t.toClass();
 		                    if (clsType.flags().isInterface()) {
-		                        invokeInterface(n, (Expr) target, args, make_ref("x10::lang::Object"), clsType, mi, needsPlaceCheck, needsNullCheck);
+		                        invokeInterface(n, (Expr) target, args, make_ref("x10::lang::Reference"), clsType, mi, needsPlaceCheck, needsNullCheck);
 		                        sw.end();
 		                        return;
 		                    }
@@ -2951,7 +2953,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.allowBreak(0, " ");
 	    }
 	    boolean needsCast = true;
-	    sw.write("(((x10::lang::Object*)(");
+	    sw.write("(((x10::lang::Reference*)(");
 	    if (!replicate) {
 	        sw.write("_");
 	    } else {
@@ -3635,7 +3637,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    if (needsNullCheck) sw.write(")");
 		    sw.writeln(")->iterator();");
 		}
-		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Object> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
+		sw.write((doubleTemplate ? "typename " : "")+iteratorType+"::"+(doubleTemplate ? "template ":"")+"itable<x10::lang::Reference> *"+itableName+" = x10aux::findITable"+chevrons(iteratorType)+"("+name+"->_getITables());"); sw.newline();
 
 		sw.write("for (");
 		sw.begin(0);
@@ -4279,7 +4281,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    } catch (SemanticException e) {
 		        assert (false);
 		    }
-		    invokeInterface(c, target, args, make_ref("x10::lang::Object"), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
+		    invokeInterface(c, target, args, make_ref("x10::lang::Reference"), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
 		    return;
 		} else {
             if (needsPlaceCheck) sw.write("x10aux::placeCheck(");

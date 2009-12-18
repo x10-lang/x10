@@ -20,7 +20,7 @@
 namespace x10 {
     namespace lang {
         class String;
-        class Object;
+        class Reference;
     }
 }
 
