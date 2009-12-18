@@ -1,0 +1,130 @@
+# Some basic recursive rules for building, installing, and cleaning up
+# a source tree
+#
+subdirs:
+	@sub="$(SUBDIRS)"; \
+	for i in $$sub; do if test -n "$$i"; then \
+	      (cd $$i; make); \
+	fi; done;
+
+clean:  localclean
+	@sub="$(SUBDIRS)"; \
+	for i in $$sub; do if test -n "$$i"; then \
+	      (cd $$i; make $@); \
+	fi; done;
+
+localclean:
+	$(RM) $(DIRT)
+
+clobber: localclean
+	@sub="$(SUBDIRS)"; \
+	for i in $$sub; do if test -n "$$i"; then \
+	      (cd $$i; make $@); \
+	fi; done;
+	$(RM) $(TARGETS) $(GENERATED)
+
+install: default localinstall
+	@sub="$(SUBDIRS)"; \
+	for i in $$sub; do if test -n "$$i"; then \
+	      (cd $$i; make $@); \
+	fi; done;
+
+incdepend: .dependtime
+depend: .dependtime
+
+.dependtime: $(SOURCES)
+	touch temp
+	$(MKDEPEND) $(MKDEPC++FLAGS) -f temp $(C++FILES)
+	touch $(MKDEPFILE)
+	$(MKDEPEND) $(MKDEPCFLAGS) -f $(MKDEPFILE) $(CFILES)
+	cat temp >> $(MKDEPFILE)
+	rm -f temp
+	touch $@
+
+# Rules for TeX files
+#
+# The line that runs LATEX needs to run inside a subshell to turn off
+# "make"'s status checking. It blows away .aux because the .aux file
+# created is bad and also breaks bibtex. It touches .tex to force a
+# rebuild.
+.tex.dvi:
+	@if test -r "$*.aux"; \
+	   then cp $*.aux $*.auxprev; \
+	   else echo > $*.auxprev; \
+	fi
+	@echo "$(LATEX) $<"
+	@sh -c "$(LATEX) $< || (rm -f $*.aux; sleep 1; touch $*.stamp; exit 1)"
+	@-cmp -s $*.aux $*.auxprev; \
+	if test $$? = 1; \
+	then \
+	    sleep 1; \
+	    echo "==> Rebuilding $@"; \
+	    touch $*.stamp; \
+	    $(MAKE) $@; \
+	else \
+	    echo "==> No need to rebuild $@"; \
+	fi
+	@rm -f $*.auxprev
+
+.tex.pdf:
+	@if test -r "$*.aux"; \
+	   then cp $*.aux $*.auxprev; \
+	   else echo > $*.auxprev; \
+	fi
+	@echo "$(PDFLATEX) $<"
+	@sh -c "$(PDFLATEX) $< || (rm -f $*.aux; sleep 1; touch $*.stamp; exit 1)"
+	@-cmp -s $*.aux $*.auxprev; \
+	if test $$? = 1; \
+	then \
+	    sleep 1; \
+	    echo "==> Rebuilding $@"; \
+	    touch $*.stamp; \
+	    $(MAKE) $@; \
+	else \
+	    echo "==> No need to rebuild $@"; \
+	    touch $*.stamp; \
+	fi
+	@rm -f $*.auxprev
+
+# must add dependencies like
+#    foo.ind: foo.stamp
+#    foo.dvi: foo.ind
+# to use this rule properly.
+.tex.ind:
+	@if [ -f $*.idx ]; then \
+	   echo makeindex $*.idx; \
+	   makeindex $*.idx; \
+	else \
+	   echo touch $@; \
+	   touch $@; \
+        fi
+
+# must add dependencies like
+#    foo.bbl: foo.bib
+#    foo.dvi: foo.bbl
+# to use this rule properly.
+.tex.bbl:
+	@if [ -r $*.aux ]; then echo $(BIBTEX) $*; sh -c "$(BIBTEX) $(BIBOPTS) $* || echo"; else echo; fi
+
+.tex.stamp: # backward compatibility
+	touch $@
+
+.dvi.ps:
+	$(DVIPS) $(DVIPSOPTS) $< -o $@
+.eps.pdf:
+	epstopdf $<
+
+#
+# Rules for C++ and .i files
+#
+
+.C.i:
+	$(C++F) -E $< > $@
+
+.c.i:
+	$(CCF) -E $< > $@
+
+.C.o:
+	$(C++F) -c $<
+
+# include $(M3SU)    # old Modula-3 rules

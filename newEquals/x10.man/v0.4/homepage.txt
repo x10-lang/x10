@@ -1,0 +1,31 @@
+This is the HomePage of the IBM PERCS ProgrammingModel Wiki.
+
+We will be using it for discussing X10, the programming model for the PERCS project.
+
+The outline of the language is as follows
+
+* XtenOverview and basic concepts. 
+** Example program: JacobiIteration
+* XtenPlaces 
+* XtenInterfaces
+** Type parameters, generic interfaces
+* ScalarClasses
+** ReferenceClasses
+** ValueClasses
+* XtenArrays
+** XtenRegions
+** XtenDistributions
+* XtenClocks
+* XtenStatements
+* XtenExpressions
+* ExecutionEnvironment
+
+
+Other links of interest:
+
+*OtherIssues (will consolidate some of the open items here...)
+
+*XtenGenerics, TailRecursionOptimization, QuickAndDirtyImplementation, XtenQdOmpImpl, JavaBnf, MatrixClasses, WhatAboutClocks, AsyncForIO...
+
+
+The text-formatting rules for a wiki are a bit idiosyncratic. See http://c2.com/cgi/wiki?TextFormattingRules

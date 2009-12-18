@@ -1,0 +1,81 @@
+\begin{tightcode}
+\quad\num{1}class Label \{
+\quad\num{2}    final static Label H = new Label();
+\quad\num{3}    final static Label L = new Label();
+\quad\num{4}
+\quad\num{5}    private Label() \{ \}
+\quad\num{6}
+\quad\num{7}    Label join(Label l) \{
+\quad\num{8}        if (this == H || l == H)
+\quad\num{9}            return H;
+\quad\num{10}        return L;
+\quad\num{11}    \}
+\quad\num{12}
+\quad\num{13}    boolean leq(Label l) \{
+\quad\num{14}        if (this == H)
+\quad\num{15}            return l == H;
+\quad\num{16}        return true;
+\quad\num{17}    \}
+\quad\num{18}\}
+\quad\num{19}
+\quad\num{20}\emph{// the "program counter"}
+\quad\num{21}class Runnable(Label pc) \{
+\quad\num{22}    Runnable(:pc == l)(Label l) \{
+\quad\num{23}        property(l);
+\quad\num{24}    \}
+\quad\num{25}
+\quad\num{26}    void run() \{ \}
+\quad\num{27}\}
+\quad\num{28}
+\quad\num{29}class Labeled(Label label) \{
+\quad\num{30}    private int x;
+\quad\num{31}
+\quad\num{32}    private static Label pc
+\quad\num{33}
+\quad\num{34}    Labeled(:label = l)(final Label l, int v) \{
+\quad\num{35}        property(l);
+\quad\num{36}        x = v;
+\quad\num{37}    \}
+\quad\num{38}
+\quad\num{39}    void cmp(Labeled i, Labeled j, Runnable curr,
+\quad\num{40}             Runnable(:curr.pc.join(i.label).join(j.label).leq(pc)) T,
+\quad\num{41}             Runnable(:curr.pc.join(i.label).join(j.label).leq(pc)) F) \{
+\quad\num{42}        if (i < j) 
+\quad\num{43}            T.run();
+\quad\num{44}        else
+\quad\num{45}            F.run();
+\quad\num{46}    \}
+\quad\num{47}
+\quad\num{48}    void assign(Runnable curr, Labeled i : curr.pc.join(i.label).leq(label)) \{
+\quad\num{49}        this.x = i.x;
+\quad\num{50}    \}
+\quad\num{51}
+\quad\num{52}    int get(Runnable curr : curr.pc.leq(label)) \{
+\quad\num{53}        return x;
+\quad\num{54}    \}
+\quad\num{55}\}
+\quad\num{56}
+\quad\num{57}class Leak extends Runnable(:pc == H) \{
+\quad\num{58}    Labeled(:self.label == H) sec;
+\quad\num{59}    Labeled(:self.label == L) pub;
+\quad\num{60}
+\quad\num{61}    Leak(:pc == H)() \{
+\quad\num{62}        super(H);
+\quad\num{63}    \}
+\quad\num{64}
+\quad\num{65}    void run() \{
+\quad\num{66}        pc = L;
+\quad\num{67}
+\quad\num{68}        pub.assign(this, pub); \emph{// legal}
+\quad\num{69}        sec.assign(this, pub); \emph{// legal}
+\quad\num{70}        sec.assign(this, sec); \emph{// legal}
+\quad\num{71}        pub.assign(this, sec); \emph{// illegal}
+\quad\num{72}
+\quad\num{73}        Labeled one = new Labeled(L, 1);
+\quad\num{74}
+\quad\num{75}        if (sec.eq(this, one)) \{
+\quad\num{76}            pub.assign(this, one); \emph{// illegal}
+\quad\num{77}        \}
+\quad\num{78}    \}
+\quad\num{79}\}
+\end{tightcode}
