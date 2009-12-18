@@ -59,17 +59,25 @@
         </delete>
     </target>
 
-    <target name="distclean" depends="clean">
+    <target name="squeakyclean" depends="clean">
         <delete dir="${etc}" />
         <mkdir dir="${etc}" />
         <delete dir="${incdir}" />
         <mkdir dir="${incdir}" />
+        <!-- TODO: remove generated libs, but not downloaded ones
         <delete dir="${lib}" />
         <mkdir dir="${lib}" />
+        -->
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
+    </target>
+
+    <target name="distclean" depends="squeakyclean">
+        <delete dir="${lib}" />
+        <mkdir dir="${lib}" />
+        <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>

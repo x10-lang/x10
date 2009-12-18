@@ -73,7 +73,7 @@
             <isfalse value="${DISABLE_GC}" />
             <or>
                 <os family="unix" name="linux"/>
-            	<os family="mac"/>
+                <os family="mac"/>
                 <os family="windows"/>
             </or>
         </and>
@@ -109,11 +109,14 @@
         <property name="available.procs" value="2"/>
     </target>
 
+    <target name="distclean" depends="distclean-java,distclean-cpp"/>
     <target name="clean" depends="clean-java,clean-cpp"/>
+    <target name="distclean-java" depends="clean-java"/>
     <target name="clean-java">
         <delete dir="${build}"/>
     </target>
-    <target name="clean-cpp" depends="available-procs,clean-bdwgc">
+    <target name="distclean-cpp" depends="clean-cpp,clean-bdwgc"/>
+    <target name="clean-cpp" depends="available-procs">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j1" />
             <arg value="clean"/>
@@ -172,6 +175,7 @@
         </ejc>
     </target>
     <property name="gen" location="${build}/gen"/>
+    <!-- TODO: check the generated files with respect to the compiler jar -->
     <target name="check-xrx" depends="init">
         <fileset id="xrx.files" dir="${basedir}/src-x10" includes="**/*.x10"/>
         <uptodate property="xrx.uptodate">
@@ -252,12 +256,12 @@
     <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
         <sequential>
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
-	    <if>
-	      <conditions>
+            <if>
+              <conditions>
                 <os family="unix" name="linux"/>
-	      </conditions>
-	      <sequential>
-	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
@@ -265,29 +269,29 @@
                 </exec>
               </sequential>
             </if>
-	    <if>
-	      <conditions>
-            	<os family="mac"/>
-	      </conditions>
-	      <sequential>
-	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+            <if>
+              <conditions>
+                <os family="mac"/>
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
-            	  <arg value="CFLAGS=-D_XOPEN_SOURCE" />
+                  <arg value="CFLAGS=-D_XOPEN_SOURCE" />
                   <arg value="--prefix=${bdwgc.platform.dir}/install" />
                 </exec>
               </sequential>
             </if>
-	    <if>
-	      <conditions>
+            <if>
+              <conditions>
                 <os family="unix" name="aix"/>
-	      </conditions>
-	      <sequential>
-	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-		  <env key="OBJECT_MODE" value="32_64" />
-		  <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
-		  <env key="CXXFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                  <env key="OBJECT_MODE" value="32_64" />
+                  <env key="CFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
+                  <env key="CXXFLAGS" value="-Wa,-mppc64 -Wa,-a64 -maix64 -D__ppc64__" />
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=aix" />
                   <!-- TODO: <arg value="-enable-thread-local-alloc" /> -->
@@ -295,12 +299,12 @@
                 </exec>
               </sequential>
             </if>
-	    <if>
-	      <conditions>
+            <if>
+              <conditions>
                 <os family="windows"/>
-	      </conditions>
-	      <sequential>
-	        <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+              </conditions>
+              <sequential>
+                <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                   <arg value="${bdwgc.dir}/src/configure" />
                   <arg value="-enable-threads=posix" />
                   <arg value="-enable-thread-local-alloc" />
@@ -309,11 +313,11 @@
               </sequential>
             </if>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-	        <env key="OBJECT_MODE" value="32_64" />
+                <env key="OBJECT_MODE" value="32_64" />
                 <arg value="-j${available.procs}" />
             </exec>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-	        <env key="OBJECT_MODE" value="32_64" />
+                <env key="OBJECT_MODE" value="32_64" />
                 <arg value="install" />
             </exec>
         </sequential>
@@ -338,15 +342,15 @@
                  failonerror="true"
              />
             <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
-	    <if>
-	      <conditions>
+            <if>
+              <conditions>
                 <os family="unix" name="aix"/>
-	      </conditions>
-	      <sequential>
-	        <patch patchfile="${basedir}/src-cpp/bdwgc-patches/fixPPCHeaderFiles.patch.txt"
-	               dir="${bdwgc.dir}/src" strip="0" />
-	        <patch patchfile="${basedir}/src-cpp/bdwgc-patches/linkerHackConfigure.patch.txt"
-	               dir="${bdwgc.dir}/src" strip="0" />
+              </conditions>
+              <sequential>
+                <patch patchfile="${basedir}/src-cpp/bdwgc-patches/fixPPCHeaderFiles.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
+                <patch patchfile="${basedir}/src-cpp/bdwgc-patches/linkerHackConfigure.patch.txt"
+                       dir="${bdwgc.dir}/src" strip="0" />
               </sequential>
             </if>
         </sequential>
