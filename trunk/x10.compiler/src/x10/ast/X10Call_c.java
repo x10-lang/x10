@@ -241,32 +241,24 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				t = ts.expandMacros(t);
 				tn = tn.typeRef(Types.lazyRef(t));
 				*/
-				TypeBuilder tb = new TypeBuilder(tc.job(),  ts, nf);
-				TypeNode otn = new X10ParsedName(nf, ts, position(), name()).toType();//
-				X10New_c call = (X10New_c) nf.X10New(position(), otn, typeArguments, args);
-				call.setStructConstructorCall();
 				
-				call = (X10New_c) call.visit(tb);
-				
-				
-				/*I would like to just do this:
-				   call = (X10New_c) call.visit(tc);
-				   Unfortunately, it catches and queues SemanticExceptions it may generate.
-				   We need to catch those exceptions and ignore them.
-				   So we have to do what the visit protocol does, 
-				   but ensure that SemanticExceptions flow through.
-				*/
-				TryTypeChecker tc1 = new TryTypeChecker((TypeChecker) tc);
-				
-				call = (X10New_c) call.tryVisit(tc1);
-				if (tc1.errorQueue().errorCount() == 0) {
-					if (! (ts.isStructType(call.type()))) {
-						StructType ct = call.constructorInstance().def().container().get();
-						throw new SemanticException("Cannot use struct constructors for non-struct class " + ct, 
-								call.position());
-					}
+				TypeNode otn;
+				if (typeArguments().size() > 0) {
+                                    otn = nf.AmbMacroTypeNode(position(), null, name(), typeArguments(), Collections.EMPTY_LIST);
+				}
+				else {
+				    otn = nf.X10AmbTypeNode(position(), null, name());
+				}
 
-					return call;
+				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
+				otn = (TypeNode) otn.del().disambiguate(tc).del().typeCheck(tc);
+				
+				if (X10TypeMixin.isStruct(otn.type())) {
+				    X10New_c call = (X10New_c) nf.X10New(position(), otn, typeArguments, args);
+				    call.setStructConstructorCall();
+
+				    call = (X10New_c) call.del().disambiguate(tc).del().typeCheck(tc);
+				    return call;
 				}
 			} catch (SemanticException z) {
 				// This may have caused some errors to print out.
