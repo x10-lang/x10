@@ -21,36 +21,29 @@ public class Lock {
 
     @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
     @NativeRep("c++", "x10aux::ref<x10::runtime::Lock__ReentrantLock>", "x10::runtime::Lock__ReentrantLock", null)
-    static class ReentrantLock {
-
-        public native def this():ReentrantLock;
-
-        @Native("java", "#0.lock()")
-        @Native("c++", "(#0)->lock()")
-        native def lock():Void;
-
-        @Native("java", "#0.tryLock()")
-        @Native("c++", "(#0)->tryLock()")
-        native def tryLock():Boolean;
-
-        @Native("java", "#0.unlock()")
-        @Native("c++", "(#0)->unlock()")
-        native def unlock():Void;
-
-        @Native("java", "#0.getHoldCount()")
-        @Native("c++", "(#0)->getHoldCount()")
-        native def getHoldCount():Int;
-    }
+    static class ReentrantLock {}
 
     private val lock = new ReentrantLock();
 
-    public def lock() { lock.lock(); }
+    public def lock() {
+        @Native("java", "lock.lock();")
+        @Native("c++", "FMGL(lock)->lock();") {}
+    }
 
-    public def tryLock() { lock.tryLock(); }
+    public def tryLock() {
+        @Native("java", "lock.tryLock();")
+        @Native("c++", "FMGL(lock)->tryLock();") {}
+    }
 
-    public def unlock() { lock.unlock(); }
+    public def unlock() {
+        @Native("java", "lock.unlock();")
+        @Native("c++", "FMGL(lock)->unlock();") {}
+    }
 
-    public def getHoldCount() = lock.getHoldCount();
+    public def getHoldCount() {
+        @Native("java", "return lock.getHoldCount();")
+        @Native("c++", "return FMGL(lock)->getHoldCount();") { return 0; }
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
