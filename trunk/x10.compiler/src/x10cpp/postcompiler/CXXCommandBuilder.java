@@ -129,13 +129,14 @@ public class CXXCommandBuilder {
 
     /** Add the arguments that go after the output files */
     protected void addPostArgs(ArrayList<String> cxxCmd) {
-        if (!Configuration.DISABLE_GC && gcEnabled()) {
-            cxxCmd.add(X10GC+"/lib/libgc.a");
-        }
-        
         // prebuilt XRX
         cxxCmd.add("-L"+X10_DIST+"/lib");
         cxxCmd.add("-lx10");
+
+        if (!Configuration.DISABLE_GC && gcEnabled()) {
+            cxxCmd.add("-L"+X10GC+"/lib");
+            cxxCmd.add("-lgc");
+        }
 
         cxxCmd.addAll(x10rtOpts.ldFlags);
         cxxCmd.addAll(x10rtOpts.libs);
