@@ -1,0 +1,11 @@
+#!/bin/bash
+# run the test script with given arguments
+
+MYDIR=`dirname $0`
+"$MYDIR"/xtestScriptCT0 "$@" 3>&2 2>ErrorsLog
+retC=$?
+# if the objective was just to clean files, remove ErrorsLog as well.
+if [[ "$1" = "-f" && "$2" = "-cleanOnly" && $# -eq 2 || "$1" = "-cleanOnly" && $# -eq 1 ]]; then
+	find . -name 'ErrorsLog' -exec rm -f {} \;
+fi
+exit $retC

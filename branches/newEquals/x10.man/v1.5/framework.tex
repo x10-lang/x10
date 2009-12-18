@@ -1,0 +1,187 @@
+\documentclass{article}
+\input{../../../../vj/res/pagesizes}
+\def\csharp{{\sf C\#}}
+\usepackage[pdftex]{graphicx}
+\def\Xten{{\sf X10}}
+\def\java{{\sf Java}}
+\newtheorem{example}{Example}[section]
+
+\begin{document}
+\title{A parametric framework for static/dynamic checking of assertions}
+\author{
+Vijay Saraswat \\
+IBM TJ Watson Research Center \\
+PO Box 704, Yorktown Heights\\
+NY 10598\\
+({\sc Draft Version 0.21})\\
+(Please do not cite)\\
+(Send comments to {\tt vsaraswa@us.ibnm.com}.)
+}
+
+\date{30 December 2004}
+\maketitle
+
+\begin{abstract}
+We consider the problem of making it easy for programmers and language
+designers to enrich the type system for \java-like class-based OO
+languages. 
+
+Let $L$ be such a language.  We show that under some simple
+assumptions it is possible to translate programs written in $L$
+augmented with an ``extended'' type system into programs written in
+a language $L_a$ which is 
+$L$  augmented with {\tt assert} and {\tt assume} statements over a
+particular assertion language.
+
+We show that programs in $L_a$ may be evaluated by a ``universal''
+transformer (a single program in {\sf Axa}) which knows only about the
+operational semantics of $L$ and works parametrically with a
+constraint solver for the assertion language. The type-checker
+transforms an input program into a semantically equivalent output
+program that may be less expensive to run because it simplifies
+conditionals whose condition can be evaluated statically and removes
+{\tt assert}s that are statically shown to be valid. (Assertions not
+statically removed will generate checks at runtime and may throw
+exceptions if the checks fail.)
+
+To implement an extended type system, a programming language designer
+or programmer must supply a translator for programs in the extended
+type system to programs with asserts and assumes, and must specify the
+underlying constraint solver. No separate type-checker needs to be provided.
+
+We illustrate the use of this framework by showing how to implement the dependent
+types of \cite{saraswat-dp}.
+
+\end{abstract}
+
+\section{Introduction}
+
+
+An enriched language is a \java{} like language in which the type
+system is richer than some base type system.
+
+The problem at hand is making it easy for programming language
+designers (and programmers) to design and implement new, richer type
+systems on top of the base type system.
+
+\subsection{Specifying \java{} like languages}
+We now discuss what it means for a language to be ``\java-like''.  The
+language must be organized around a notion of classes, which support
+an inheritance structure, carry instance and static state (through
+fields), and code, organized in {\em methods} which are named, and may
+take multiple arguments and return values. 
+
+$L$ must ensure that objects are encapsulated, and are created through
+the invocation of {\em constructors} which may take zero or more
+arguments and throw exceptions. Each constructor is associated with a
+precondition and a postcondition. We require that any constructor
+invocation $I$ must be uniquely matched with a constructor definition
+$D$, and $L$ must check that the precondition of $D$ is satisfied
+statically at the site of the call. After the call, the calling site
+may {\tt assume} the postcondition of $D$.
+
+Every variable must be declared with a type. The language rules must
+guarantee that only objects that satisfy the type can be stored in the
+variable.  Variables are assumed to be mutable, unless they are
+declared to be {\tt final}. The language may support different kinds
+of variables with different scope and extent -- e.g.{} arguments to
+methods, local variables in method bodies, arguments of catch clauses,
+loop variables in for loops, instance and static fields of
+classes, and members of arrays, the implicit variable representing the
+return value from a method, etc.
+
+We require that {\em the type of all accesses to a variable be
+statically determinable}. That is, given a statement, it should be
+possible to statically determine the type of any variable that the
+statement reads or writes. This property is true of \java{}; it is not
+true, for example, for a language that permits the name of the field
+being read/written to be computed by an expression whose value cannot
+be determined statically, and permits different fields of an object to
+have different types.
+
+We require that all methods be associated with a {\em precondition}
+and a {\em postcondition}.  Each must be a predicate in the assertion
+language on the arguments and the return value (if any) of the method.
+We require that given a particular method invocation $o.m(t_1,\ldots,
+t_n)$ the particular method declaration on the type of $o$ which will
+be invoked at runtime be determined statically. Recall that because of
+subtyping in OO languages it is possible that the actual method that
+is invoked at runtime may not be the method that is statically
+determined by a method on a subtype of the type of $o$ which overrides
+this method. Therefore we require that overriding respect the pre/post
+assertions of the method. That is, if a method $M_1$ on a subclass
+override a method $M_2$ on a superclass then it must be the case that
+$M_1$'s precondition is implied by $M_2$'s precondition, and $M_1$'s
+postcondition implies $M_2$'s postcondition. We require that the
+language ensure that every method invocation statically satisfies the
+precondition of the method it is invoking. The call site may {\tt assume}
+the postcondition of the method after the call.
+
+As an example \java{} satisfies this property. The precondition of a
+method is simply the assertion that each argument to the method has
+the given type. The postcondition of a method is simply the assertion
+that the result has the given type. \java{} forces the postcondition
+of a method to be uniquely determined by the precondition of the
+method (the return type of the method is uniquely detrmined by the
+input types of the arguments to the method). It allows a method $M_1$
+to override a method $M_2$ only if the preconditions of both are the
+same.  It checks that the type of actuals in a method invocation matches
+the type of formals in the associated method declaration.
+
+\subsection{$L$ with {\tt assert} and {\tt assume}}
+
+Let $L$ be such a language.  For the purposes of this paper, let us
+define {\tt assert} and {\tt assume} statements as follows.  For {\tt
+e} a boolean expression the statement:
+{\footnotesize
+\begin{verbatim}
+   assume e; 
+\end{verbatim}}
+asserts that {\tt e} will be true whenever control reaches that point
+in the code. This assertion is categorical -- it does not depend on
+any property of the code other than what is expressed through the type
+system and hence checked statically. Thus it is a mere comment -- it
+does not translate into any runtime code. 
+
+On the contrary the statement: 
+{\footnotesize
+\begin{verbatim}
+   assert e : s; 
+\end{verbatim}}
+(where {\tt e} is a boolean expression and {\tt s} a string) is an
+assertion that says {\tt e} {\em should} be true at runtime whenever
+control reaches that point. In case it is not, a runtime error should be thrown
+with the given string as argument. Thus it translates into the code:
+{\footnotesize
+\begin{verbatim}
+   if (! e) throw new RuntimeError( s );
+\end{verbatim}}
+
+The predications occurring in these statements must belong to a
+special class of {\tt boolean} valued methods defined in the source
+language called {\em operations}. An operation satisfies the property
+that the set of all tuples of objects on which it succeeds is closed
+under equivalence of objects. Two objects (of the same class) are said
+to be {\em equivalent} if they are instances of the same class and
+their immutable state is identical. Further, the operation must be
+associated with an {\em invariant}, a constraint (in the underlying
+constraint language) of the same arity as the number of arguments to
+the operation.  The constraint must be co-extensive with the
+operation, that is it must succeed on the same set of tuples of
+objects.  Thus a constraint is a symbolic representation of the
+operation and can be used to reason symbolically about the effect of
+the operation on unknown arguments.
+
+Programs in the enriched source language -- with the enriched type
+system -- are translated into programs in the base language, augmented
+with {\tt assert} and {\tt assume} statements. 
+
+When is this possible? The enriched type system must satisfy some
+properties.  To each enriched type $t$ must correspond a type, the
+base type $b(t)$ in the base language which is a coarse approximation
+to $t$ (is implied by $b(t)$). 
+
+
+\bibliographystyle{plain}
+\bibliography{master}
+\end{document}

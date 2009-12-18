@@ -1,0 +1,423 @@
+\subsection{Type-valued properties}
+\label{sec:type-properties}
+\label{sec:variance}
+
+We explored a 
+different approach to adding generics to \Xten based on a
+generlization of properties.
+A \emph{type property}
+is a final object member initialized at construction-time with a
+concrete type.  Type properties and other type-valued variables
+are declared just as normal variables but with type \xcd"*".
+Like normal value properties, type properties
+can be used in constrained types through the variable \xcd"self".
+
+For example, the \xcd"Vector" class of Figure~\ref{fig:vector}
+could be written as shown in Figure~\ref{fig:vprop}.
+The class has a type-valued property \xcd"T" and a value property \xcd"len".
+\begin{figure}
+{
+\begin{xtennoindent}
+class List(T: *, len: int) {
+  val data: Rail(T);
+
+  def this(S: *, n: int, init: (int) => T):
+      Vector{self.T==S,self.len==n} {
+    super();
+    property(S, n);
+    ...
+  }
+
+  def map(S: *, f: T => S):
+      Vector{self.T==S,self.len==this.len} { ... }
+
+  def get(i: int{0 <= self, self < len}): this.T { ... }
+
+  ...
+}
+\end{xtennoindent}
+}
+\caption{Vector example, with type properties}
+\label{fig:vprop}
+\end{figure}
+
+The constructor of \xcd"Vector" takes an additional type-valued
+argument \xcd"S", which is used to initialize the type property
+\xcd"T".  The \xcd"map" method takes a type argument \xcd"S" among its
+formal parameters and returns a \xcd"Vector" whose \xcd"T"
+property is constrained to be equal to \xcd"S".
+
+Subtyping constraints on type properties may be used to
+provide \emph{use-site variance} constraints.
+Use-site variance based on structural virtual types was proposed by
+Thorup and Torgerson~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type system lead
+to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  Constrained
+type properties
+have similar expressive power.
+
+Consider the following subtypes of \xcd"Vector":
+\begin{itemize}
+\item \xcd"Vector".  This type has no constraints on the type
+property \xcd"T".
+Any type that constrains \xcd"T"
+is a subtype of \xcd"Vector".  The type \xcd"Vector" is equivalent to
+\xcd"Vector{true}".
+%
+For a \xcd"Vector" \xcd"v", the return type of the \xcd"get" method
+is \xcd"v.T".
+Since the property \xcd"T" is unconstrained,
+the caller can only assign the return value of \xcd"get"
+to a variable of type \xcd"v.T" or of type \xcd"Object".
+
+\item \xcd"Vector{T==float}".
+The type property \xcd"T" is bound to \xcd"float".
+For a final expression \xcd"v" of this type,
+\xcd"v.T" and \xcd"float" are equivalent types and can be used
+interchangeably.
+The syntax \xcd"Vector[float]" is used as
+shorthand for \xcd"Vector{T==float}".
+
+\item \xcdmath"Vector{T$\extends$Collection}".
+This type constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances of this type must bind \xcd"T" to a subtype of
+\xcd"Collection"; for example \xcd"Vector[Set]" (i.e.,
+\xcd"Vector{T==Set}") is a subtype of
+\xcdmath"Vector{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcdmath"T"
+\xcdmath"$\extends$"
+\xcdmath"Collection".
+%
+If \xcd"v" has the type \xcdmath"Vector{T$\extends$Collection}",
+then the return type of \xcd"get" has type \xcd"v.T", which is an unknown but
+fixed subtype of \xcd"Collection"; the return value can be
+assigned into a variable of type \xcd"Collection".
+
+\item \xcdmath"Vector{T$\super$String}".  This type bounds the type property
+\xcd"T"
+from below.  For a \xcd"Vector" \xcd"v" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"v.T".
+The return type of the \xcd"get"
+method is known to be a
+supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
+\end{itemize}
+
+\label{sec:usability}
+\label{sec:parameters-vs-fields}
+
+The key difference between type parameters and type properties
+is that type properties are
+instance \emph{members} bound during object construction.  Type
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type (if \xcd"e" is final)---and are inherited by subclasses.
+These features gives type properties more expressive power than
+type parameters, but because they 
+provide similar functionality with often subtle distinctions
+type properties
+can be difficult to use, especially for novices.
+For this reason, \Xten uses type parameter rather than type properties.
+
+Since type properties are inherited, the language design needs
+to account for ambiguities introduced when the same name is
+used for different type properties declared in or inherited into a class.
+These can be disambiguated
+by ``casting'' the target up to the desired supertype,
+e.g., \xcd"(e as C).X" specifies
+the property \xcd"X" inherited from \xcd"C".
+
+As an example, in the following \Xten code extended with type properties, the
+\xcd"HashMap"  class inherits the properties \xcd"K" and \xcd"V" from the
+\xcd"Map" interface.
+\begin{xten}
+interface Map(K:*, V:*) {
+  def get(K): V;
+  def put(K, V): V;
+}
+
+class HashMap implements Map {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+A user more used to type parameters might declare \xcd"HashMap" as follows:
+\begin{xten}
+class HashMap(K:*,V:*) implements Map(K,V) {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+This declaration would introduce a new pair of type properties
+named \xcd"K" and
+\xcd"V" that shadow the inherited properties.
+A na{\"\i}ve implementation of type properties would store run-time
+type information for all four properties in each instance
+of \xcd"HashMap".
+
+
+\subsection{Virtual types}
+
+\emph{Virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+are a language-based extensibility
+mechanism 
+originally introduced in the language
+BETA~\cite{beta} that---along with
+similar constructs built on path-dependent types found in
+languages such as Scala~\cite{scala}, J\&~\cite{nqm06},
+and Tribe~\cite{cdnw07-tribe}---share many similarities with type properties.
+A virtual type is a type binding nested within an enclosing instance.
+Subclasses are permitted to override the binding of inherited virtual types. 
+
+Virtual types
+may be used to provide genericity; indeed,
+one of the first proposals for genericity in Java was based on
+virtual types~\cite{thorup97}, and
+Java
+wildcards (i.e., parameters with use-site variance)
+were developed from a line of work beginning with virtual
+types~\cite{unifying-genericity,variant-parametric-types,adding-wildcards}.
+
+%Igarashi and Pierce~\cite{ip99-virtual-types}
+%model the semantics of virtual types
+%and several variants
+%in a typed lambda-calculus with subtyping and dependent types.
+
+Constrained types are more expressive than virtual
+types in that they can be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly as well as covariantly.
+
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
+{
+\begin{xten}
+abstract class List {
+  abstract typedef T;
+  T get(int i) { ... }
+}
+\end{xten}}
+\noindent
+The virtual type \xcd"T" is unbound in \xcd"List", but 
+can be refined by binding \xcd"T" in a subclass:
+{
+\begin{xten}
+abstract class NumberList extends List {
+  abstract typedef T as Number;
+}
+class IntList extends NumberList {
+  final typedef T as Integer;
+}
+\end{xten}}
+\noindent
+Only classes where \xcd"T" is final bound, such as \xcd"IntList",
+can be non-abstract.
+%
+The analogous definition of 
+\xcd"List" in \Xten{} using type properties is as follows:
+{
+\begin{xten}
+class List[T] {
+  def get(i: int): T { ... }
+}
+\end{xten}}
+
+\noindent
+Unlike the virtual-type version,
+the \Xten{} version of \xcd"List" is not abstract;
+\xcd"T" need not be instantiated by a subclass because it can be
+instantiated on a per-object basis.
+Rather than declaring subclasses of \xcd"List",
+one uses the constrained subtypes
+\xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
+
+Type properties can also be refined contravariantly.
+For instance, one can write the type \xcdmath"List{T$\super$Integer}".
+
+Dependent classes~\cite{dependent-classes} generalize virtual
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only other their enclosing
+instance; dependent classes, in contrast, depend on any number
+of objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
+rather properties are members and types are constructed by
+constraining these properties.  Parametrization can be 
+encoded with type properties using equality constraints.
+
+\subsection{Wildcards}
+\label{sec:wildcards}
+
+Constraints on type properties can also provide a characterization of
+wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
+We leave to future work a formal proof of this
+characterization.
+Wildcards can be  motivated
+by the following example from Torgersen et al.~\cite{adding-wildcards}:
+Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
+the empty set.  What should be the type of \xcd"EMPTY"?
+In Java, one can use a wildcard and 
+assign the type \xcd"Set<?>", i.e., the type of all \xcd"Set"
+instantiated on \emph{some} parameter.  Clients of this
+type do not know what parameter to which the actual instance of \xcd"Set"
+is bound.
+With type properties,
+a similar effect is achieved simply by leaving the
+element type property of \xcd"Set" unconstrained.
+
+Wildcards can
+also be bounded above and below with
+``\Xcd{?} \Xcd{extends} \Xcd{T}'' and ``\Xcd{?} \Xcd{super} \Xcd{T}'',
+respectively.
+%
+Again, with type properties, 
+a similar effect is achieved by constraining
+the
+element type property \xcd"X" of \xcd"Set" with subtyping constraints,
+e.g., \xcd"Set{X<=T}" and \xcd"Set{X>=T}".
+
+\eat{
+Finally,
+one can also specify lower bounds on types.  These are useful for
+comparators:
+{\footnotesize
+\begin{xtenmath}
+class TreeSet[T] {
+  def this[T](cmp: Comparator{T $\super$ this.T}) { ... }
+}
+\end{xtenmath}}
+Here, the comparator for any supertype of \xcd"T" can be used as
+to compare \xcd"TreeSet" elements.
+
+Another use of lower bounds is for list operations.
+The \xcd"map" method below takes a function that maps a supertype
+of the class parameter \xcd"T" to the method type parameter \xcd"S":
+{\footnotesize
+\begin{xtenmath}
+class List[T] {
+  def map[S](fun: Object{self $\super$ T} => S) : List[S] { ... }
+}
+\end{xtenmath}}
+}
+
+Like wildcards,
+constrained types support
+\emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
+\xcd"reverse"
+operation can operate on \xcd"List" of any type:
+{
+\begin{xten}
+def reverse(list: List) {
+  for (i: int in 0..list.length-1)
+    swap(list, i, list.length-1-i);
+}
+\end{xten}}
+
+\noindent
+The client of \xcd"reverse" need not provide the concrete type
+on which the list is instantiated; the \xcd"list" itself
+provides the element type---it is stored in the \xcd"list"
+to implement run-time type introspection.
+
+In Java, this method would be written with a type parameter on
+the method; the type system permits it to be called with any
+\xcd"List".
+However,
+the method parameter cannot be omitted: declaring a parameterless version
+of \xcd"reverse" requires delegating to a private parametrized version that
+``opens up'' the parameter.
+
+%\input{self-types.tex}
+
+
+\subsection{Self types}
+
+Type properties can also be used to support a form of self
+types~\cite{bruce-binary,bsg95}.
+%
+Self types can be implemented by introducing a
+type property \Xcd{type} to the root of the class hierarchy, \Xcd{Object}:
+\begin{xtenmath}
+class Object(type:*){type <= Object} { $\dots$ }
+\end{xtenmath}
+
+\noindent
+For any final path expression \Xcd{p}, the type
+$\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by \Xcd{p}.
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+constraining types so that if a path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{type} \subtype \Xcd{C}$.
+In particular, one can add the class invariant
+$\Xcd{this}.\Xcd{type} \subtype \Xcd{C}$ to every class \Xcd{C}.
+This invariant ensures that
+$\Xcd{this}.\Xcd{type}$ is a subtype
+of the lexically enclosing class.
+
+\eat{
+\subsection{Ownership types}
+
+Consider the following example of generic ownership
+derived from Potanin et al.~\cite{ogj-oopsla06}.
+
+\begin{xtenmath}
+class Object(owner: Object) { }
+
+// Map inherits Object.owner
+// No need to add explicit vOwner and kOwner properties for Key, Value
+class Map[Key, Value]{Key $\extends$ Comparable, Value $\extends$ Object}
+{
+    private nodes: Vector[Node[Key, Value](this)](this);
+
+    public def put(key: Key, value: Value): Void {
+        nodes.add(new Node[Key, Value](key, value, this)());
+    }
+
+    public def get(key: Key): Value {
+        for (mn: Node[Key, Value](this) in nodes) {
+            if (mn.key.equals(key))
+                return mn.value;
+        }
+        return null;
+    }
+
+    // OGJ will prevent this from being called, since caller
+    // can only assign the result to a supertype of Vector(this),
+    // which would be only Vector(this) or Object(this)
+    // BUT: we have Vector $\super$ Vector(this)
+    // Need to require that all class types have an equality constraint
+    // on the owner property
+    public def exposeVector(): Vector(this) { return nodes; }
+}
+
+class Node[Key, Value]
+    {Key $\extends$ Comparable, Value $\extends$ Object}
+{
+    val key: Key;
+    val value: Value;
+
+    public def this[K, V](k: Key, v: Value, o: Object): Node[K, V](o) {
+        super(o);               // set the owner
+        property[K, V];         // set the type properties
+        this.key = k;
+        this.value = v;
+    }
+}
+\end{xten}
+
+Restrictions:
+\begin{itemize}
+\item owner property must be constrained (define this!)
+\item owner is always equal to or inside the owner of all other type properties
+\item types with an actual owner == this, can only be accessed via this
+\end{itemize}
+
+}
+
+
+\input{cast}
