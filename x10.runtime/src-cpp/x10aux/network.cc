@@ -154,7 +154,7 @@ struct x10_runtime_Runtime__closure__6__hack : x10::lang::Closure {
     x10aux::ref<x10::lang::Object> fs;
 };
 
-void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
+void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
     assert(p!=here); // this case should be handled earlier
     assert(p<num_places); // this is ensured by XRX runtime
@@ -165,7 +165,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
     msg_type id = DeserializationDispatcher::getMsgType(sid);
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting an async: "<<ANSI_RESET
-        <<ref<Object>(body)->toString()->c_str()<<" id "<<id
+        <<ref<Reference>(body)->toString()->c_str()<<" id "<<id
         <<" sid "<<sid<<" to place: "<<p);
 
     if (!is_cuda(p)) {
@@ -194,7 +194,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Object> body) {
         x10aux::ref<x10_runtime_Runtime__closure__6__hack> body_ = body;
 
         
-        x10aux::ref<x10::lang::Object> real_body = body_->body;
+        x10aux::ref<x10::lang::Reference> real_body = body_->body;
         x10aux::ref<x10::lang::Object> fs = body_->fs;
 
         serialization_id_t real_sid = real_body->_get_serialization_id();
@@ -257,7 +257,7 @@ static void receive_async (const x10rt_msg_params &p) {
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
-    ref<Object> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
+    ref<Reference> async(x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf, sid));
     assert(buf.consumed() <= p.len);
     _X_("The deserialised async was: "<<x10aux::safe_to_string(async));
     deserialized_bytes += buf.consumed()  ; asyncs_received++;
@@ -270,7 +270,7 @@ static void *cuda_pre (const x10rt_msg_params &p, size_t &blocks, size_t &thread
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
-    buf.read<x10aux::ref<x10::lang::Object> >();
+    buf.read<x10aux::ref<x10::lang::Reference> >();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p.type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -284,7 +284,7 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
     remote_free(p.dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
-    x10aux::ref<x10::lang::Object> fs = buf.read<x10aux::ref<x10::lang::Object> >();
+    x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
     x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
     (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();

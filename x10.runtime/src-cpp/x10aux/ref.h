@@ -9,7 +9,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/network.h>
 
-namespace x10 { namespace lang { class Object; } }
+namespace x10 { namespace lang { class Reference; } }
 
 namespace x10aux {
 
@@ -160,7 +160,7 @@ namespace x10aux {
     }
 #endif
 
-    x10aux::place location (ref<x10::lang::Object> obj);
+    x10aux::place location (ref<x10::lang::Reference> obj);
 
     void throwNPE() X10_PRAGMA_NORETURN;
 
@@ -182,7 +182,7 @@ namespace x10aux {
     }
 
     // will be initialised to null
-    typedef ref<x10::lang::Object> NullType;
+    typedef ref<x10::lang::Reference> NullType;
     static NullType null;
 
     template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }

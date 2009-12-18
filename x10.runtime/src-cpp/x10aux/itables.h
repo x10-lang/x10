@@ -15,7 +15,7 @@
  * known as itables. For every <class C, interface I> pair where C implements I,
  * a unique itable is defined as part of the C's meta-data. Each itable for C
  * is stored (along with I's unique id) in an array of itables reachable from
- * instances of C via the _getITables method of Object.  To dispatch an interface
+ * instances of C via the _getITables method of Reference.  To dispatch an interface
  * invocation, the generated code first calls findITable, passing in the
  * target object and the unique id of the interface being invoked.  findItable
  * gets the objects itables array, compares ids to find the right itable, and
@@ -25,7 +25,7 @@
  * There are a couple ways in which the implementation of itables in C++ for X10
  * diverges from the usual implementation for Java in JVMs.
  *   (a) C++ won't easily let us directly insert a pointer to a virtual function
- *       in the itable (whose nominal type needs to have a first argument of Object
+ *       in the itable (whose nominal type needs to have a first argument of Reference
  *       instead of C*).  Therefore we have to use static method thunks to a pointer
  *       to a function that casts an explicit receiver parameter and invokes the
  *       appropriate virtual method on it.  There is a way to use templates to
@@ -43,7 +43,7 @@
  *       not a runtime exception.
  */
 
-namespace x10 { namespace lang { class Object; }}
+namespace x10 { namespace lang { class Reference; }}
 
 namespace x10aux {
     class RuntimeType;
@@ -69,15 +69,15 @@ namespace x10aux {
      * to find the desired interface. To avoid code space bloat, both of these
      * cases are handled in the out-of-line outlinedITableLookup routine.
      */
-    template<class I> inline typename I::template itable<x10::lang::Object>* findITable(itable_entry* itables) {
+    template<class I> inline typename I::template itable<x10::lang::Reference>* findITable(itable_entry* itables) {
         RuntimeType *id = &I::rtt;
         for (int i=0; true; i++) {
             if (itables[i].id == id) {
-                return (typename I::template itable<x10::lang::Object>*)(itables[i].itable);
+                return (typename I::template itable<x10::lang::Reference>*)(itables[i].itable);
             }
             if (NULL == itables[i].id) {
                 // Hit the end of itables, now deal with complex cases involving generic types.
-                return (typename I::template itable<x10::lang::Object>*)outlinedITableLookup(itables, id);
+                return (typename I::template itable<x10::lang::Reference>*)outlinedITableLookup(itables, id);
             }
         }
     }

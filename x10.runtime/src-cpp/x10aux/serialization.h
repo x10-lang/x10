@@ -44,8 +44,8 @@
  * generated from X10 classes by the X10 compiler.
  *
  *
- * 'Object' declares a static function _serialize which behaves the same way regardless of the
- * concrete type of the target.  Object::_serialize will emit an id (via a virtual function
+ * 'Reference' declares a static function _serialize which behaves the same way regardless of the
+ * concrete type of the target.  Reference::_serialize will emit an id (via a virtual function
  * _serialize_id) that is unique to each class, and then serialise the objects representation (via
  * another virtual function _serialize_body).  For the special case of a remote reference (b) it
  * does not defer to these virtual functions since the object's vtable is not located at the current
@@ -71,9 +71,9 @@
  * (e.g. if we are deserialising into a variable whose type is final), we would like to omit the id
  * from the communication, as it is not required.  This is achieved through a final value class C
  * providing its own _serialize function that does not call _serialize_id.  The write() function
- * will call C::_serialize() instead of resolving the call to Object::_serialize().  This does not
+ * will call C::_serialize() instead of resolving the call to Reference::_serialize().  This does not
  * affect the behaviour of _serialize when invoked on an instance of C that has been up-cast to
- * Object because _serialize is a static function.  In this case the id would still be emitted.
+ * Reference because _serialize is a static function.  In this case the id would still be emitted.
  * This strategy is used to omit the id in the cases of (a,b,d), above.  In the case of (b),
  * Ref::_serialize does not invoke _serialize_body but just encodes the address.
  *
@@ -88,7 +88,7 @@
  * will construct the right kind of object and initialise it by deserialising the object's
  * representation from the stream (provided as a serialization_buffer).
  *
- * Object::_deserialize is the complement of Object::_serialize and defers deserialisation to
+ * Reference::_deserialize is the complement of Reference::_serialize and defers deserialisation to
  * DeserializationDispatcher.  Ref and final value classes can provide their own static _deserialize
  * functions that do not use DeserializationDispatcher and assume that no id is found in the stream.
  * Thus classes should either define both _serialize and _deserialize or define neither.
@@ -115,7 +115,7 @@
 
 namespace x10 {
     namespace lang {
-        class Object;
+        class Reference;
     }
 }
 
@@ -255,7 +255,7 @@ namespace x10aux {
     //PRIMITIVE_WRITE(x10_addr_t) // already defined above
     //PRIMITIVE_WRITE(remote_ref)
     
-    // Case for references e.g. ref<Object>, 
+    // Case for references e.g. ref<Reference>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
         static void _(serialization_buffer &buf, ref<T> val);
     };
@@ -362,7 +362,7 @@ namespace x10aux {
     //PRIMITIVE_READ(x10_addr_t) // already defined above
     //PRIMITIVE_READ(remote_ref)
 
-    // Case for references e.g. ref<Object>, 
+    // Case for references e.g. ref<Reference>, 
     template<class T> struct deserialization_buffer::Read<ref<T> > {
         GPUSAFE static ref<T> _(deserialization_buffer &buf);
     };

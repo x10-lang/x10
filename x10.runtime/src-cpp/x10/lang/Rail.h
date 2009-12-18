@@ -233,10 +233,10 @@ namespace x10 {
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
                                                                x10aux::ref<Fun_0_1<x10_int,T> > init ) {
             R rail = x10aux::alloc_rail<T,Rail<T> >(length);
-            x10aux::ref<x10::lang::Object> initAsObj = init;
-            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
+            x10aux::ref<x10::lang::Reference> initAsRef = init;
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (initAsObj.operator->()->*(it->apply))(i);
+                (*rail)[i] = (initAsRef.operator->()->*(it->apply))(i);
             }
             return rail;
         }
@@ -285,10 +285,10 @@ namespace x10 {
 
 
         template <class T> void Rail<T>::reset(x10aux::ref<Fun_0_1<x10_int,T> > init) {
-            x10aux::ref<x10::lang::Object> initAsObj = init;
-            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Object> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsObj->_getITables());
+            x10aux::ref<x10::lang::Reference> initAsRef = init;
+            typename Fun_0_1<x10_int,T>::template itable<x10::lang::Reference> *it = x10aux::findITable<Fun_0_1<x10_int,T> >(initAsRef->_getITables());
             for (x10_int i=0 ; i<FMGL(length) ; ++i) {
-                (*this)[i] = (initAsObj.operator->()->*(it->apply))(i);
+                (*this)[i] = (initAsRef.operator->()->*(it->apply))(i);
             }
         }
 
@@ -332,7 +332,7 @@ namespace x10 {
                     break;
                 }
                 case 1: case 2: { // get closure with which to find rail+offset
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     P pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<P> >(bf->_getITables())->apply))();
                     this_ = pair.FMGL(first);
                     dst_off = pair.FMGL(second);
@@ -341,7 +341,7 @@ namespace x10 {
                 }
                 case 255: { // {{{ on death row
                     dst_off = 0;
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<R> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<R> > >();
                     this_ = (bf.operator->()->*(x10aux::findITable<Fun_0_0<R> >(bf->_getITables())->apply))();
                     x10aux::dealloc(bf.operator->());
                     break;
@@ -372,16 +372,16 @@ namespace x10 {
                     Rail_notifyEnclosingFinish(buf);
                 } break;
                 case 1: {
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
                     Rail_notifyEnclosingFinish(buf);
                     break;
                 }
                 // case 255 on death row
                 case 255: case 2: {
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
-                    x10aux::ref<Object> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
+                    x10aux::ref<Reference> vf = buf.read<x10aux::ref<VoidFun_0_0> >();
                     (vf.operator->()->*(x10aux::findITable<VoidFun_0_0>(vf->_getITables())->apply))();
                     x10aux::dealloc(vf.operator->());
                     break;
@@ -492,7 +492,7 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
-            x10aux::ref<Object> df = dst_finder;
+            x10aux::ref<Reference> df = dst_finder;
             if (dst_place == x10aux::here) {
                 P pair = (df.operator->()->*(x10aux::findITable<Fun_0_0<P> >(df->_getITables())->apply))();
                 R dst = pair.FMGL(first);
@@ -527,8 +527,8 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
-            x10aux::ref<Object> df = dst_finder;
-            x10aux::ref<Object> n = notifier;
+            x10aux::ref<Reference> df = dst_finder;
+            x10aux::ref<Reference> n = notifier;
             if (dst_place == x10aux::here) {
                 P pair = (df.operator->()->*(x10aux::findITable<Fun_0_0<P> >(df->_getITables())->apply))();
                 R dst = pair.FMGL(first);
@@ -570,8 +570,8 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(src_off, FMGL(length));
             x10aux::checkRailBounds(src_off+len-1, FMGL(length));
-            x10aux::ref<Object> df = dst_finder;
-            x10aux::ref<Object> n = notifier;
+            x10aux::ref<Reference> df = dst_finder;
+            x10aux::ref<Reference> n = notifier;
             if (dst_place == x10aux::here) {
                 x10aux::ref<Rail<T> > dst = (df.operator->()->*(x10aux::findITable<Fun_0_0<x10aux::ref<Rail<T> > > >(df->_getITables())->apply))();
                 x10_int dst_off = 0;
@@ -624,7 +624,7 @@ namespace x10 {
                     break;
                 }
                 case 1: { // get rail+offset from closure
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     P pair = (bf.operator->()->*(x10aux::findITable<Fun_0_0<P> >(bf->_getITables())->apply))();
                     this_ = pair.FMGL(first);
                     src_off = pair.FMGL(second);
@@ -657,7 +657,7 @@ namespace x10 {
                     Rail_notifyEnclosingFinish(buf);
                 } break;
                 case 1: {
-                    x10aux::ref<Object> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
+                    x10aux::ref<Reference> bf = buf.read<x10aux::ref<Fun_0_0<P> > >();
                     x10aux::dealloc(bf.operator->());
                     Rail_notifyEnclosingFinish(buf);
                     break;
@@ -766,7 +766,7 @@ namespace x10 {
             // check beginning and end of range
             x10aux::checkRailBounds(dst_off, FMGL(length));
             x10aux::checkRailBounds(dst_off+len-1, FMGL(length));
-            x10aux::ref<Object> df = dst_finder;
+            x10aux::ref<Reference> df = dst_finder;
             if (src_place == x10aux::here) {
                 P pair = (df.operator->()->*(x10aux::findITable<Fun_0_0<P> >(df->_getITables())->apply))();
                 R src = pair.FMGL(first);

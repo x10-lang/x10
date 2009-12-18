@@ -46,6 +46,15 @@ class InitClosure : public x10::lang::Closure
         ref<x10::lang::String> toString() {
             return x10::lang::String::Lit("x10aux::InitClosure ("__FILELINE__")");
         }
+
+        virtual x10aux::serialization_id_t _get_serialization_id() {
+            assert(false); // We should never be serializing this closure
+            return 0;
+        }
+        
+        virtual void _serialize_body(x10aux::serialization_buffer &) {
+            assert(false); // We should never be serializing this closure
+        }
 };
 
 x10::lang::VoidFun_0_0::itable<InitClosure> InitClosure::_itable(&InitClosure::apply);

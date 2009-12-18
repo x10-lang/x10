@@ -7,6 +7,7 @@
 #include <x10rt_front.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
+namespace x10 { namespace lang { class Reference; } }
 
 namespace x10aux {
 
@@ -97,7 +98,7 @@ namespace x10aux {
 
 namespace x10aux {
 
-    void run_at (place p, x10aux::ref<x10::lang::Object> body);
+    void run_at (place p, x10aux::ref<x10::lang::Reference> body);
 
     class serialization_buffer;
 

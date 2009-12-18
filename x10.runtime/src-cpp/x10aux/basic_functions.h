@@ -209,8 +209,8 @@ namespace x10aux {
 
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
-        ref<x10::lang::Object> asObj = x;
-        return nullCheck(asObj)->toString();
+        ref<x10::lang::Reference> asRef = x;
+        return nullCheck(asRef)->toString();
     }
 
     template<class T> ref<x10::lang::String> to_string(T x) {

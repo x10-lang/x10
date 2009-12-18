@@ -8,7 +8,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 
 namespace x10aux {
 
@@ -36,7 +36,7 @@ namespace x10aux {
     // T stands for "to"
     // F stands for "from"
 
-    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj, bool checked) {
+    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Reference> obj, bool checked) {
         if (obj == x10aux::null) {
             // NULL passes any class cast check and remains NULL
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));

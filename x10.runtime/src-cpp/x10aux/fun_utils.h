@@ -3,7 +3,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 
 namespace x10aux {
     class serialization_buffer;
@@ -13,11 +13,11 @@ namespace x10aux {
 
         static void _serialize(ref<AnyFun> this_,
                                x10aux::serialization_buffer &buf) {
-            x10::lang::Object::_serialize(this_, buf);
+            x10::lang::Reference::_serialize(this_, buf);
         }
 
         template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf) {
-            return x10::lang::Object::_deserialize<T>(buf);
+            return x10::lang::Reference::_deserialize<T>(buf);
         }
     };
 }
