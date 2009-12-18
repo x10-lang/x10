@@ -152,6 +152,7 @@ public interface X10NodeFactory extends NodeFactory {
 
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     
+    AmbMacroTypeNode AmbMacroTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args);
     TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
     TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
 
