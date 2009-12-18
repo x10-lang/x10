@@ -249,16 +249,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				else {
 				    otn = nf.X10AmbTypeNode(position(), null, name());
 				}
-
+				
 				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
 				otn = (TypeNode) otn.del().disambiguate(tc).del().typeCheck(tc);
-				
 				if (X10TypeMixin.isStruct(otn.type())) {
-				    X10New_c call = (X10New_c) nf.X10New(position(), otn, typeArguments, args);
-				    call.setStructConstructorCall();
+				    X10New_c neu = (X10New_c) nf.X10New(position(), otn, Collections.EMPTY_LIST, args);
+				    neu.setStructConstructorCall();
 
-				    call = (X10New_c) call.del().disambiguate(tc).del().typeCheck(tc);
-				    return call;
+				    neu = (X10New_c) neu.del().disambiguate(tc).del().typeCheck(tc);
+				    return neu;
 				}
 			} catch (SemanticException z) {
 				// This may have caused some errors to print out.
