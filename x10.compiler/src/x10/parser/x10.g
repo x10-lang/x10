@@ -1569,8 +1569,17 @@ public static class MessageHandler implements IMessageHandler {
         
     --------------------------------------- Section :: Statement
 
-    Statement ::= NonExpressionStatement
+    Statement ::= AnnotationStatement
                 | ExpressionStatement
+
+    AnnotationStatement ::= Annotationsopt NonExpressionStatement
+        /.$BeginJava
+                    if (NonExpressionStatement.ext() instanceof X10Ext && Annotationsopt instanceof List) {
+                        NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations((List) Annotationsopt);
+                    }
+                    setResult(NonExpressionStatement);
+          $EndJava
+        ./
 
     NonExpressionStatement ::= Block
                 | EmptyStatement
@@ -1595,7 +1604,6 @@ public static class MessageHandler implements IMessageHandler {
                 | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
-                | AnnotationStatement
                 | NextStatement
                 | AwaitStatement
                 | AssignPropertyCall
@@ -1923,16 +1931,6 @@ public static class MessageHandler implements IMessageHandler {
     FinishStatement ::= finish Statement
         /.$BeginJava
                     setResult(nf.Finish(pos(),  Statement));
-          $EndJava
-        ./
-
-
-    AnnotationStatement ::= Annotations Statement
-        /.$BeginJava
-                    if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
-                        Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
-                    }
-                    setResult(Statement);
           $EndJava
         ./
 

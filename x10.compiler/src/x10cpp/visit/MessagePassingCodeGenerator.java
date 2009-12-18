@@ -193,6 +193,7 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
+import x10.extension.X10Ext;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.ParameterType;
@@ -2385,6 +2386,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Block_c b) {
+        String s = getCppImplForStmt(b);
+        if (s != null) {
+            sw.write(s);
+            return;
+        }
 		sw.write("{");
 		sw.newline();
 		if (b.statements().size() > 0) {
@@ -2404,7 +2410,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		sw.write("}");
 	}
-
 
 	public void visit(StmtSeq_c n) {
 	    List<Stmt> stmts = n.statements();
@@ -4521,6 +4526,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return null;
 	}
 
+    private String getCppImplForStmt(Stmt n) {
+        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        if (n.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) n.ext();
+            try {
+                Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+                List<X10ClassType> as = ext.annotationMatching(annotation);
+                String[] our_langs = getCurrentNativeStrings();
+                for (String our_lang : our_langs) {
+                    for (Type at : as) {
+                        assertNumberOfInitializers(at, 2);
+                        String lang = getStringPropertyInit(at, 0);
+                        if (lang != null && lang.equals(our_lang)) {
+                            String lit = getStringPropertyInit(at, 1);
+                            return lit;
+                        }
+                    }
+                }
+            }
+            catch (SemanticException e) {}
+        }
+        return null;
+    }
 
     // FIXME: generic native methods will break
 	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
