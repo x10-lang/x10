@@ -49,7 +49,7 @@ public class Unsigned {
     public static int div(int a, int b) {
         return (int) ( toLong(a) / toLong(b) );
     }
-    public static int mod(int a, int b) {
+    public static int rem(int a, int b) {
         return (int) ( toLong(a) % toLong(b) );
     }
 
