@@ -106,6 +106,10 @@
  * Deserialisation of Ref instances is handled through special casing in Ref::_deserialize.  The
  * address is read from the stream, and either the local address, a remote proxy, or null is
  * returned as appropriate.
+ *
+ * Classes must call buf.register_reference(R) on the deserialization buffer buf right after
+ * allocating the object in the DeserializationDispatcher callback (where R is the newly allocated
+ * object).
  */
 
 
@@ -143,10 +147,18 @@ namespace x10aux {
         { }
         /* Returns 0 if the pointer has not been recorded yet */
         template<class T> int previous_position(const ref<T>& r) {
-            return _position((void*) r.operator->());
+            int pos = _position((void*) r.operator->());
+            if (pos == 0) {
+                _S_("\t\tRecorded new reference "<<((void*) r.operator->())<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos-1)<<" (absolute) in map: "<<this);
+            } else {
+                _S_("\t\tFound repeated reference "<<((void*) r.operator->())<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
+            }
+            return pos;
         }
         template<class T> ref<T> get_at_position(int pos) {
-            return ref<T>((T*)_get(pos));
+            T* val = (T*)_get(pos);
+            _S_("\t\tRetrieving repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
+            return ref<T>(val);
         }
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
@@ -254,12 +266,14 @@ namespace x10aux {
         // serialized via the appropriate function interface.  If they are ever serialized
         // via their exact type, this code will break (if the first captured variable in
         // the closure happens to have a value of -1).
-        int pos = buf.map.previous_position(val);
-        if (pos != 0) {
-            _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-            buf.write((x10_uint) 0xFFFFFFFF);
-            buf.write((x10_int) pos);
-            return;
+        if (!val.isNull()) {
+            int pos = buf.map.previous_position(val);
+            if (pos != 0) {
+                _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
+                buf.write((x10_uint) 0xFFFFFFFF);
+                buf.write((x10_int) pos);
+                return;
+            }
         }
         // Depends what T is (interface/Ref/Closure)
         T::_serialize(val,buf);
@@ -294,10 +308,21 @@ namespace x10aux {
             cursor = saved_cursor;
             return val;
         }
+        // This has to be called every time a remote reference is created, but
+        // before the rest of the object is deserialized!
+        template<typename T> bool record_reference(ref<T> ref);
 
         // So it can access the addr_map
         template<class T> friend struct Read;
     };
+
+    template<typename T> bool deserialization_buffer::record_reference(ref<T> ref) {
+        int pos = map.previous_position(ref);
+        if (pos != 0) {
+            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to repeatedly record a reference "<<((void*)ref.operator->())<<" (already found at position "<<pos<<") in buf: "<<this);
+        }
+        return !pos;
+    }
     
     // Case for non-refs (includes simple primitives like x10_int and all structs)
     template<class T> struct deserialization_buffer::Read {
@@ -355,12 +380,7 @@ namespace x10aux {
             return buf.map.get_at_position<T>(pos);
         }
         // Dispatch because we don't know what it is
-        ref<T> res = T::template _deserialize<T>(buf);
-        int pos = buf.map.previous_position(res);
-        if (pos != 0) {
-            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Deserialized value found at position ("<<pos<<") in buf: "<<&buf);
-        }
-        return res;
+        return T::template _deserialize<T>(buf);
     }
 
     template<typename T> GPUSAFE T deserialization_buffer::read() {

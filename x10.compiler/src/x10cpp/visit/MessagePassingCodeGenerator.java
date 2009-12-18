@@ -4026,6 +4026,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
                   cnamet+"("+SERIALIZATION_MARKER+"());");
         inc.newline();
+        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
+        inc.newline();
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance var = (VarInstance) c.variables.get(i);

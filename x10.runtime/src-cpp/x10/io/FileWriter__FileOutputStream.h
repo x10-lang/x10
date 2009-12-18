@@ -64,6 +64,7 @@ namespace x10 {
             //       it just silently didn't serialize the FILEPtrInputSteam field.
             // assert(false);
             x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc_remote<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(NULL);
+            buf.record_reference(this_);
             this_->_deserialize_body(buf);
             return this_;
         }

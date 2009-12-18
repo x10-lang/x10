@@ -59,7 +59,8 @@ namespace x10 {
             //       The old 1.7 definition of this class simply didn't work either,
             //       it just silently didn't serialize the FILEPtrInputSteam field.
             // assert(false);
-            x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc_remote<FileReader__FileInputStream>()) FileReader__FileInputStream (NULL);
+            x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc_remote<FileReader__FileInputStream>()) FileReader__FileInputStream(NULL);
+            buf.record_reference(this_);
             this_->_deserialize_body(buf);
             return this_;
         }

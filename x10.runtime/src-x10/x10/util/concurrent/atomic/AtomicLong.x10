@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.util.concurrent.atomic.AtomicLong", null, null)
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicLong>", "x10::util::concurrent::atomic::AtomicLong", null)
-public class AtomicLong {
+public final class AtomicLong {
 	
 	public native def this():AtomicLong;
 	public native def this(val:long):AtomicLong;

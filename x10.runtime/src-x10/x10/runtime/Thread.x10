@@ -26,7 +26,7 @@ import x10.runtime.InterruptedException;
 
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
 @NativeRep("c++", "x10aux::ref<x10::runtime::Thread>", "x10::runtime::Thread", null)
-public class Thread {
+final class Thread {
 
     /**
      * Allocates new thread in current place

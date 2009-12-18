@@ -210,6 +210,7 @@ namespace x10 {
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
             x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail_remote<T,ValRail<T> >(length);
+            buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;
         }
