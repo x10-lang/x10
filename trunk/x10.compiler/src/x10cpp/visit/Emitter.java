@@ -998,6 +998,7 @@ public class Emitter {
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
                        "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
+            sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
             sw.end(); sw.newline();

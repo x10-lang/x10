@@ -837,6 +837,7 @@ namespace x10 {
             x10_int length = buf.read<x10_int>();
             // Don't allocate any storage for the data - it's a remote rail
             R this_ = x10aux::alloc_rail_remote<T,Rail<T> >(0);
+            buf.record_reference(this_); // TODO: avoid; no global refs; final class
             // But the above set the length to 0, so set it correctly
             const_cast<x10_int&>(this_->FMGL(length)) = length;
             this_->_deserialize_body(buf);

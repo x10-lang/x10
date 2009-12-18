@@ -61,8 +61,9 @@ namespace x10 {
             return x10aux::DeserializationDispatcher::create<T>(buf);
         }
 
-        template<class T> x10aux::ref<T> Closure::_deserializer(x10aux::deserialization_buffer &) {
+        template<class T> x10aux::ref<T> Closure::_deserializer(x10aux::deserialization_buffer &buf) {
             x10aux::ref<Closure> this_ = new (x10aux::alloc<Closure>()) Closure();
+            buf.record_reference(this_); // TODO: avoid; closure
             return this_;
         }
     }

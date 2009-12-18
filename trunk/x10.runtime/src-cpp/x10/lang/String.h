@@ -156,6 +156,7 @@ namespace x10 {
 
         template<class T> x10aux::ref<T> String::_deserializer(x10aux::deserialization_buffer& buf) {
             x10aux::ref<String> this_ = new (x10aux::alloc_remote<String>()) String();
+            buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;
         }
