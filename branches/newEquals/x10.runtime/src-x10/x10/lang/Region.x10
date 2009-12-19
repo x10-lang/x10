@@ -412,9 +412,6 @@ public abstract class Region(
         property(r, t, z);
     }
 
-    /** 
-      Override Object's toString() and mark it global.
-     */
-    abstract public global def toString():String;
+
 }
 

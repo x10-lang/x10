@@ -107,7 +107,7 @@ public final struct Float {
     
     @Native("java", "java.lang.Float.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
 
     @Native("java", "java.lang.Float.parseFloat(#1)")
@@ -133,4 +133,7 @@ public final struct Float {
     @Native("java", "java.lang.Float.intBitsToFloat(#1)")
     @Native("c++", "x10aux::float_utils::fromIntBits(#1)")
     public static native def fromIntBits(Int): Float;
+
+    @Native("java", "((((#2) instanceof float) && #1 == ((float)#2)) || (((#2) instanceof x10.core.BoxedFloat) && #1 == ((x10.core.BoxedFloat) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 }

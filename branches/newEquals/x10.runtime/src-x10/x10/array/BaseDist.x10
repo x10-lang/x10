@@ -339,7 +339,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
     //
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         var s: String = "Dist(";
         var first: boolean = true;
         for (p:Place in places) {

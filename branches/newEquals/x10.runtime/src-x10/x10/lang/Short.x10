@@ -129,7 +129,7 @@ public final struct Short {
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")
-    public native def toString(radix: Int): String;
+    public global safe native def toString(radix: Int): String;
     
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::short_utils::toHexString(#0)")
@@ -145,7 +145,7 @@ public final struct Short {
     
     @Native("java", "java.lang.Short.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     @Native("java", "java.lang.Short.parseShort(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
@@ -158,4 +158,7 @@ public final struct Short {
     @Native("java", "java.lang.Short.reverseBytes(#0)")
     @Native("c++", "x10aux::short_utils::reverseBytes(#0)")
     public native def reverseBytes(): Short;
+
+    @Native("java", "((((#2) instanceof short) && #1 == ((short)#2)) || (((#2) instanceof x10.core.BoxedShort) && #1 == ((x10.core.BoxedShort) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 }

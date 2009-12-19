@@ -1,7 +1,7 @@
 package x10.util;
 
 public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
-    val buf: GrowableRail[T]!;
+    global val buf: GrowableRail[T]!;
 
     public def this() {
         buf = new GrowableRail[T]();
@@ -20,8 +20,7 @@ public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
         return buf.length();
     }
 
-    public def result(): ValRail[T] {
-        return buf.toValRail();
-    }
+    public  def result() = buf.toValRail();
+    
 }
 

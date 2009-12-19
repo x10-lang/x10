@@ -45,11 +45,9 @@ public class StringBuilder implements Builder[Object,String] {
     
     @Native("java", "new String(#1.getCharArray())")
     @Native("c++", "x10aux::vrc_to_string(#1)")
-    private static native def makeString(ValRail[Char]): String;
+    private static safe global native def makeString(ValRail[Char]): String;
 
-    public def result(): String {
-        return makeString(at (this) buf.result());
-    }
+    public def result() = makeString(buf.result());
     
-    public def toString() = result();
+    
 }

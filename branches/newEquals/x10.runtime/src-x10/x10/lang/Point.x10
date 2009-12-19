@@ -228,4 +228,6 @@ final public class Point(rank: nat) implements (nat) => Int {
         this.coords = cs;
     }
 
+    
+
 }

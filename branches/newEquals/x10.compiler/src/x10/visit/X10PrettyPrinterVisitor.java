@@ -568,11 +568,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        interfaces.add(tn);
 		    }
 		}
-		if (n.flags().flags().isInterface() && interfaces.isEmpty()) {
+	/* Interfaces automatically extend Any
+	  	if (n.flags().flags().isInterface() && interfaces.isEmpty()) {
+	
 		    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		    interfaces.add(tr.nodeFactory().CanonicalTypeNode(n.position(), ts.Any()));
 		}
-
+*/
 		if (!interfaces.isEmpty()) {
 			w.allowBreak(2);
 			if (flags.isInterface()) {

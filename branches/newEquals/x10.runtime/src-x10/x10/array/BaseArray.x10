@@ -314,7 +314,7 @@ public abstract class BaseArray[T] extends Array[T] {
         super(dist);
     }
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         return "Array(" + dist + ")";
     }
 

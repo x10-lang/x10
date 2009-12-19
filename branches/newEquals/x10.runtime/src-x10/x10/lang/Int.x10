@@ -135,7 +135,7 @@ public struct Int {
 
     @Native("java", "java.lang.Integer.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
@@ -200,4 +200,7 @@ public struct Int {
     @Native("java", "java.lang.Integer.reverseBytes(#0)")
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): Int;
+
+    @Native("java", "((((#2) instanceof int) && #1 == ((int)#2)) || (((#2) instanceof x10.core.BoxedInt) && #1 == ((x10.core.BoxedInt) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 }

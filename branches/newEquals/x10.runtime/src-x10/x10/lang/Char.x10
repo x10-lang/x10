@@ -61,7 +61,7 @@ public final struct Char {
     
     @Native("java", "java.lang.Character.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.
@@ -129,4 +129,7 @@ public final struct Char {
     @Native("java", "java.lang.Character.reverseBytes(#0)")
     @Native("c++", "x10aux::char_utils::reverseBytes(#0)")
     public native def reverseBytes(): Char;
+
+    @Native("java", "((((#2) instanceof char) && #1 == ((char)#2)) || (((#2) instanceof x10.core.BoxedChar) && #1 == ((x10.core.BoxedChar) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 }

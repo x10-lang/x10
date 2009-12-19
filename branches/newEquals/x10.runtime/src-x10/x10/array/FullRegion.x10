@@ -21,7 +21,7 @@ class FullRegion extends PolyRegion {
         return this;
     }
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         return "full(" + rank + ")";
     }
 }

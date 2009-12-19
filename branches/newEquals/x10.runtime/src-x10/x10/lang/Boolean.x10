@@ -42,11 +42,14 @@ public final struct Boolean {
 
     @Native("java", "java.lang.Boolean.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     @Native("java", "java.lang.Boolean.parseBoolean(#1)")
     @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
     public native static def parseBoolean(String): Boolean;
+
+    @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof x10.core.BoxedBoolean) && #1 == ((x10.core.BoxedBoolean) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.

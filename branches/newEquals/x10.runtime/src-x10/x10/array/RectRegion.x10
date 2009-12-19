@@ -257,7 +257,7 @@ final class RectRegion extends PolyRegion{rect} {
     //
     //
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         val thisMin = this.min();
         val thisMax = this.max();
         var s: String = "[";

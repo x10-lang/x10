@@ -447,7 +447,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         cd.kind(ClassDef.TOP_LEVEL);
         cd.superType(null); // interfaces have no superclass
         // Functions implement the Any interface.
-        //cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(Any())));
+        cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(Any())));
         cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
 
         final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
@@ -1459,9 +1459,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Type Any() {
         if (ANY_ != null)
             return ANY_;
-    	return ANY_ = x10.util.Any.makeDef(this).asType();
+    	return ANY_ = load("x10.lang.Any"); // x10.util.Any.makeDef(this).asType();
     }
 
+    public LazyRef<Type> lazyAny() {
+		final LazyRef<Type> ANY = Types.lazyRef(null);
+		ANY.setResolver(new Runnable() {
+			public void run() {
+				ANY.update(Any());
+			}
+		});
+		return ANY;
+    }
     Type STRUCT_ = null;
     public Type Struct() {
     	if (STRUCT_ != null) 
