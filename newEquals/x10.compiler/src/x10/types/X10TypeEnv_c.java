@@ -111,6 +111,22 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
+                    	if (X10TypeMixin.isStruct(ct)) {
+                    		// Ignore checking requirement if the method is equals(Any), and ct is a struct.
+                    		if (mi.name().toString().equals("equals")) {
+                    			List<Type> argTypes = mi.formalTypes();
+                    			if (argTypes.size() == 1 && ts.typeEquals(argTypes.get(0), ts.Any(), ts.emptyContext())) {
+                    				continue;
+                    			}
+                    		}
+                    		// Ignore checking requirement if the method is hashCode(), and ct is a struct.
+                    		if (mi.name().toString().equals("hashCode")) {
+                    			List<Type> argTypes = mi.formalTypes();
+                    			if (argTypes.size() == 0) {
+                    				continue;
+                    			}
+                    		}
+                    	}
                         if (!ct.flags().isAbstract()) {
                             throw new SemanticException(ct.fullName() + " should be " +
                                                         "declared abstract; it does not define " +
@@ -686,6 +702,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		t2 = xt2.clearFlags(X10Flags.ROOTED);
     	}*/
     		
+ 
     	if (xt1.isProto() || xt2.isProto()) {
     		if (xt1.isProto() != xt2.isProto())
     			return false;
@@ -697,11 +714,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
     	
     	if (xt1.isX10Struct() || xt2.isX10Struct()) {
-    		if (xt1.isX10Struct() != xt2.isX10Struct())
-    			return false;
-    		if (! ts.typeEquals(X10TypeMixin.baseType(xt1), X10TypeMixin.baseType(xt2),
-    				xcontext))
-    			return false;
+    		if (xt1.isX10Struct() && xt2.isX10Struct()) {
+    			if (xt1.isX10Struct() != xt2.isX10Struct())
+    				return false;
+    			if (! ts.typeEquals(X10TypeMixin.baseType(xt1), X10TypeMixin.baseType(xt2),
+    					xcontext))
+    				return false;
+    		}
     		xt1 = X10TypeMixin.makeRef(xt1);
     		xt2 = X10TypeMixin.makeRef(xt2);
     		// now keep going, the clause entailment will be checked by the

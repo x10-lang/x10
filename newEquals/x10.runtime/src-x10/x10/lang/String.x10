@@ -20,15 +20,15 @@ public final class String implements (nat) => Char {
     
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native global def equals(Object): boolean;
+    public native global safe def equals(Any): boolean;
     
     @Native("java", "(#0).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
-    public native global def hashCode(): int;
+    public native global safe def hashCode(): int;
     
     @Native("java", "(#0).toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public native global def toString(): String;
+    public native global safe def toString(): String;
     
     @Native("java", "#0.length()")
     @Native("c++", "#0->length()")

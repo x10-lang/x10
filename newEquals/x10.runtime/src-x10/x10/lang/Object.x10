@@ -20,6 +20,7 @@ public class Object (
         @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
         @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
         home: Place) 
+        implements Any 
 //        implements Equals
     /* @EQ implements Equals[Ref] */
 {
@@ -33,15 +34,15 @@ public class Object (
 
     @Native("java", "#0.equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Object): boolean;
+    public global safe native def equals(Any): boolean;
 
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
-    public global native def hashCode() : Int;
+    public global safe native def hashCode() : Int;
 
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString() : String;
+    public global safe native def toString() : String;
 
  //   @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
 //   @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
@@ -57,5 +58,5 @@ public class Object (
     
     @Native("java", "x10.core.Ref.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
-    public native global final def typeName():String;
+    public global safe native final def typeName():String;
 }

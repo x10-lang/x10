@@ -9,7 +9,7 @@ import x10.types.RuntimeType;
 import x10.types.Type;
 
 // Base class for all X10 structs
-public abstract class Struct {
+public abstract class Struct implements Any {
 
     public static class RTT extends RuntimeType<Struct> {
     	public static final RTT it = new RTT();

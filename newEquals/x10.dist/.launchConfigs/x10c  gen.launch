@@ -19,8 +19,8 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10.ExtensionInfo &quot;${resource_loc}&quot; -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -sourcepath &quot;${workspace_loc:x10.dist}/lib/x10.jar&quot; -sourcepath &quot;${workspace_loc:x10.tests}/examples/x10lib&quot; -noserial -assert -post &quot;javac -source 1.5&quot; -d out -disable CheckNativeAnnotations"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10.ExtensionInfo &quot;${resource_loc}&quot; -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -sourcepath &quot;${workspace_loc:x10.dist}/lib/x10.jar&quot; -sourcepath &quot;${workspace_loc:x10.tests}/examples/x10lib&quot; -noserial -assert -post &quot;javac -source 1.5&quot; -d &quot;${workspace_loc:gen/src}&quot; -disable CheckNativeAnnotations"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xmx512M"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
 </launchConfiguration>

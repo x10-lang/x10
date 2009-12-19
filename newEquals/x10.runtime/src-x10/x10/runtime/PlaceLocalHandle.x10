@@ -54,7 +54,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
 
   @Native("c++", "(#0)->toString()")
   @Native("java", "#0.toString()")
-  public native def toString():String;
+  public global safe native def toString():String;
 
   // Only to be used by create methods in PlaceLocalStorage
   @Native("c++", "(#0)->set(#1)")

@@ -6,9 +6,9 @@ import x10.compiler.NativeRep;
 public final class Box[+T](value: T) {
     public def this(x: T) { property(x); }
 
-    public global def hashCode(): int = value.hashCode();
+    public global safe def hashCode(): int = value.hashCode();
 
-    public def toString(): String = value.toString();
+    public global safe def toString(): String = value.toString();
 
     public def equals(x:Object): Boolean {
         if (x == null) {

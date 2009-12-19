@@ -6,7 +6,7 @@ public final class Cell[T] {
 
     public def this (x:T) { value = x; }
 
-    public global def toString () = at (this) value.toString();
+    public global safe def toString () = "Cell(" + hashCode()+")"; // at (this) value.toString();
 
     public global def apply () = at (this) value;
     public global def apply (x:T) { at (this) value = x; }

@@ -9,7 +9,7 @@ public class ByteWriter[T] extends Writer {
 
     public global def write(x: Byte): Void { b.add(x); }
     public global incomplete def size() : Long;
-    public global def toString() = (b as Object).toString();
+    public global safe def toString() = b.toString();
     public global def result() = b.result(); 
     
     public global def flush(): Void { }

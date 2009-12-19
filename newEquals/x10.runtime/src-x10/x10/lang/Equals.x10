@@ -1,18 +1,16 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006-2008.
- *
- *  This file is part of X10 Language.
- *
- */
-
 package x10.lang;
 
 /**
- * An interface implemented by any container (struct or class) that wishes
- * to support equality.
+ * An interface that should be implemented by any struct with a user-defined notion of equality.
+ * 
+ * This interface is implemented by x10.lang.Object. It is not implemented by functions (which do not
+ * implement == either.)
+ * 
+ * @author vj 12/16/2009
  */
 public interface Equals {
-    def equals(Top):boolean;
-    def hashCode():int;
+	
+	def equals(Any):Boolean;
+	
+	def hashCode():Int;
 }

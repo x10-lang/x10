@@ -129,7 +129,7 @@ public final struct Byte {
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
-    public native def toString(radix: Int): String;
+    public global safe native def toString(radix: Int): String;
     
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
@@ -145,7 +145,7 @@ public final struct Byte {
     
     @Native("java", "java.lang.Byte.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     @Native("java", "java.lang.Byte.parseByte(#1, #2)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
@@ -154,4 +154,8 @@ public final struct Byte {
     @Native("java", "java.lang.Byte.parseByte(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(String): Byte throws NumberFormatException;
+
+    @Native("java", "((((#2) instanceof byte) && #1 == ((byte)#2)) || (((#2) instanceof x10.core.BoxedByte) && #1 == ((x10.core.BoxedByte) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
+
 }

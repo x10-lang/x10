@@ -129,7 +129,7 @@ public final struct Long {
 
     @Native("java", "java.lang.Long.toString(#0, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public native def toString(radix: Int): String;
+    public global safe native def toString(radix: Int): String;
     
     @Native("java", "java.lang.Long.toHexString(#0)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
@@ -145,7 +145,7 @@ public final struct Long {
     
     @Native("java", "java.lang.Long.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String;
+    public global safe native def toString(): String;
     
     @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
@@ -194,4 +194,7 @@ public final struct Long {
     @Native("java", "java.lang.Long.reverseBytes(#0)")
     @Native("c++", "x10aux::long_utils::reverseBytes(#0)")
     public native def reverseBytes(): Long;
+
+    @Native("java", "((((#2) instanceof long) && #1 == ((long)#2)) || (((#2) instanceof x10.core.BoxedLong) && #1 == ((x10.core.BoxedLong) #2).value.value))")
+    public global safe native def equals(x:Any):Boolean;
 }

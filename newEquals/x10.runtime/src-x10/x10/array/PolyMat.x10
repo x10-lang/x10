@@ -274,7 +274,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
 
-    public global def toString(): String {
+    public global safe def toString(): String {
 
         var s: String = "(";
         var first: boolean = true;

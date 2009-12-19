@@ -250,18 +250,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	X10Flags flags = X10Flags.toX10Flags(flags().flags());
     	if (flags.isStruct() 
     			|| (flags.isInterface() && ! name.toString().equals("Any"))
-    			|| thisType.fullName().equals(QName.make("x10.lang.Object"))
     			|| xts.isParameterType(thisType.asType())) {
-
-    		// We need to lazily set the superclass, otherwise we go into an infinite loop
-    		// during bootstrapping: Object, refers to Int, refers to Object, ...
-    		final LazyRef<Type> ANY = Types.lazyRef(null);
-    		ANY.setResolver(new Runnable() {
-    			public void run() {
-    				ANY.update(xts.Any());
-    			}
-    		});
-    		thisType.addInterface(ANY);
+    		thisType.addInterface(xts.lazyAny());
     	}
     	
     	super.setInterfaces(ts, thisType);
