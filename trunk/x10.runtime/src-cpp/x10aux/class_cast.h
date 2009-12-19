@@ -9,32 +9,20 @@
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/Reference.h>
+#include <x10/lang/IBox.h>
 
 namespace x10aux {
 
+    /*
+     * Throughout this file:
+     *  T stands for "to"
+     *  F stands for "from"
+     */
+    
     extern void throwClassCastException() X10_PRAGMA_NORETURN;
     
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
-
-    template<class T> struct CAST_TRACER {
-        CAST_TRACER(T val_) : val(val_) { }
-        T val;
-        T get() { return val; }
-    };
-    template<class T> struct CAST_TRACER<ref<T> > {
-        CAST_TRACER(ref<T> val_) : val(val_) { }
-        ref<T> val;
-        T* get() { return val.operator->(); }
-    };
-    #ifndef NO_IOSTREAM
-    template<class T> std::ostream& operator<<(std::ostream& o, CAST_TRACER<T> t) {
-        return o << t.get();
-    }
-    #endif
-
-    // T stands for "to"
-    // F stands for "from"
 
     template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Reference> obj, bool checked) {
         if (obj == x10aux::null) {
@@ -67,15 +55,63 @@ namespace x10aux {
 
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
         static GPUSAFE ref<T> _(ref<F> obj, bool checked) {
-            _CAST_("Ref to ref cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
+            _CAST_("Ref to ref cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
             return real_class_cast<T>(obj, checked);
         }
     };
 
+    template<class T, class F> struct ClassCastNotPrimitive<ref<T>,F> {
+        static GPUSAFE ref<T> _(F val, bool checked) {
+            _CAST_("Struct to ref cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
+            if (checked) {
+                const RuntimeType *from = getRTT<F>();
+                const RuntimeType *to = getRTT<ref<T> >();
+                #ifndef NO_EXCEPTIONS
+                _CAST_(from->name()<<" to "<<to->name());
+                if (!from->subtypeOf(to)) {
+                    throwClassCastException();
+                }
+                #else
+                (void) from; (void) to;
+                _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
+                #endif
+            }
+            x10aux::ref<x10::lang::IBox<F> > obj = new (x10aux::alloc<x10::lang::IBox<F> >()) x10::lang::IBox<F>(val);
+            return obj;
+        }
+    };
+    
+    template<class T, class F> struct ClassCastNotPrimitive<T,ref<F> > {
+        static GPUSAFE T _(ref<F> val, bool checked) {
+            _CAST_("Ref to struct cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
+            if (val == x10aux::null) {
+                // NULL cannot be cast to a struct.
+                _CAST_("Special case: null cannot be cast to "<<TYPENAME(T));
+                throwClassCastException();
+            }
+            if (checked) {
+                x10aux::ref<x10::lang::Reference> asRef = val;
+                const RuntimeType *from = asRef->_type();
+                const RuntimeType *to = getRTT<T>();
+                #ifndef NO_EXCEPTIONS
+                _CAST_(from->name()<<" to "<<to->name());
+                if (!from->subtypeOf(to)) {
+                    throwClassCastException();
+                }
+                #else
+                (void) from; (void) to;
+                _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
+                #endif
+            }
+            x10aux::ref<x10::lang::IBox<T> > ibox = val;
+            return ibox->value; 
+        }
+    };
+    
     // This is the second level that recognises primitive casts
     template<class T, class F> struct ClassCastPrimitive { static GPUSAFE T _(F obj, bool checked) {
         // if we get here it's not a primitive cast
-        _CAST_("Not a primitive cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
+        _CAST_("Not a primitive cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
         return ClassCastNotPrimitive<T,F>::_(obj, checked);
     } };
 

@@ -1179,14 +1179,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
         // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.
         h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->equals(that);");
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
+                Emitter.translateType(currentClass, true)+"(this))->equals(that);");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
         // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.        
         h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->hashCode();");
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
+                Emitter.translateType(currentClass, true)+"(this))->hashCode();");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
  
