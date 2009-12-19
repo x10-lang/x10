@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Types.UINT")
 //                  v-- when used
-@NativeRep("c++", "uint32_t", "uint32_t", null)
+@NativeRep("c++", "x10_uint", "x10_uint", null)
 //                            ^ when constructed
 public final struct UInt {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
@@ -35,59 +35,59 @@ public final struct UInt {
     public native static safe operator (x:UInt) >= (y:UInt): Boolean;
 
     @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((#1) + (#2))")
+    @Native("c++",  "((x10_uint) ((#1) + (#2)))")
     public native static safe operator (x:UInt) + (y:UInt): UInt;
 
     @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
+    @Native("c++",  "((x10_int) ((#1) - (#2)))")
     public native static safe operator (x:UInt) - (y:UInt): Int;
 
     @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((#1) * (#2))")
+    @Native("c++",  "((x10_uint) ((#1) * (#2)))")
     public native static safe operator (x:UInt) * (y:UInt): UInt;
 
     @Native("java", "x10.core.Unsigned.div(#1, #2)")
-    @Native("c++",  "((#1) / (#2))")
+    @Native("c++",  "((x10_uint) ((#1) / (#2)))")
     public native static safe operator (x:UInt) / (y:UInt): UInt;
 
     @Native("java", "x10.core.Unsigned.rem(#1, #2)")
-    @Native("c++",  "((#1) % (#2))")
+    @Native("c++",  "((x10_uint) ((#1) % (#2)))")
     public native static safe operator (x:UInt) % (y:UInt): UInt;
     
     @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((#1) & (#2))")
+    @Native("c++",  "((x10_uint) ((#1) & (#2)))")
     public native static safe operator (x:UInt) & (y:UInt): UInt;
     
     @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((#1) ^ (#2))")
+    @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
     public native static safe operator (x:UInt) ^ (y:UInt): UInt;
     
     @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((#1) | (#2))")
+    @Native("c++",  "((x10_uint) ((#1) | (#2)))")
     public native static safe operator (x:UInt) | (y:UInt): UInt;
     
     @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
+    @Native("c++",  "((x10_uint) ((#1) << (#2)))")
     public native static safe operator (x:UInt) << (y:UInt): UInt;
     
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
     public native static safe operator (x:UInt) >> (y:UInt): UInt;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
     public native static safe operator (x:UInt) >>> (y:UInt): UInt;
     
     @Native("java", "+(#1)")
-    @Native("c++",  "+(#1)")
+    @Native("c++",  "((x10_uint) +(#1))")
     public native static safe operator + (x:UInt): UInt;
     
     @Native("java", "-(#1)")
-    @Native("c++",  "-(#1)")
+    @Native("c++",  "((x10_int) -(#1))")
     public native static safe operator - (x:UInt): Int;
     
     @Native("java", "~(#1)")
-    @Native("c++",  "~(#1)")
+    @Native("c++",  "((x10_uint) ~(#1))")
     public native static safe operator ~ (x:UInt): UInt;
     
     // In Java,
@@ -100,39 +100,39 @@ public final struct UInt {
     // That is (int) 0 is converted to (uint) 0, represented as MININT
 
     @Native("java", "((int) ((#1) & 0xff))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:UByte): UInt;
 
     @Native("java", "((int) ((#1) & 0xffff))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:UShort): UInt;
 
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:ULong) as UInt;
 
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Byte) as UInt;
 
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Short) as UInt;
 
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Int) as UInt;
 
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Long) as UInt;
     
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Float) as UInt;
     
     @Native("java", "((int) (#1))")
-    @Native("c++",  "((uint32_t) (#1))")
+    @Native("c++",  "((x10_uint) (#1))")
     public native static safe operator (x:Double) as UInt;
     
 
