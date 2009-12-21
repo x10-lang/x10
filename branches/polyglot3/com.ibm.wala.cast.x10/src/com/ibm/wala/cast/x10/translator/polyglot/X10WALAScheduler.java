@@ -3,12 +3,11 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import x10.ExtensionInfo.X10Scheduler;
 
 import com.ibm.wala.cast.java.translator.polyglot.AscriptionGoal;
-import com.ibm.wala.cast.java.translator.polyglot.IRGoal;
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
