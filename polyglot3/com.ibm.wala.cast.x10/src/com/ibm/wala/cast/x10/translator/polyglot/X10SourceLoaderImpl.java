@@ -25,12 +25,15 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
 
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
-    public static Atom X10SourceLoaderName= Atom.findOrCreateAsciiAtom("X10Source");
+    public static Atom X10SourceLoaderName = Atom.findOrCreateAsciiAtom("X10Source");
 
-    public static ClassLoaderReference X10SourceLoader= new ClassLoaderReference(X10SourceLoaderName, X10Language.X10, X10PrimordialClassLoader.X10Primordial);
+    public final static Atom X10 = Atom.findOrCreateUnicodeAtom("X10");
+
+    public static ClassLoaderReference X10SourceLoader = new ClassLoaderReference(X10SourceLoaderName, X10,
+                                                                                  X10PrimordialClassLoader.X10Primordial);
 
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
-	    IClassHierarchy cha, IRTranslatorExtension extInfo) throws IOException {
+                               IClassHierarchy cha, IRTranslatorExtension extInfo) throws IOException {
 	super(loaderRef, parent, exclusions, cha, extInfo);
     }
 
@@ -54,6 +57,7 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
                 // runtime jar contains the source of the XRX (X10 Runtime in X10).
                 StringBuilder sb= new StringBuilder();
                 addModulesForLoader(scope, X10PrimordialClassLoader.X10Primordial, sb);
+                addModulesForLoader(scope, X10SourceLoaderImpl.X10SourceLoader, sb);
                 fSourcePath= sb.toString();
             }
         };
@@ -78,17 +82,17 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
      * IMethod here inside the loader, where we can actually trap defineFunction().
      * Gack.
      */
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
+    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, boolean hasMonitorOp, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
 	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
 	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
 
-	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    asyncObject.setCodeBody(new ConcreteJavaMethod(n, asyncObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else if (n.getKind() == X10CAstEntity.CLOSURE_BODY) {
 	    X10ClosureObject closureObject= (X10ClosureObject) fTypeMap.get(n);
 
-	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo));
+	    closureObject.setCodeBody(new ConcreteJavaMethod(n, closureObject, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo));
 	} else
-	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, lexicalInfo, debugInfo);
+	    super.defineFunction(n, owner, cfg, symtab, hasCatchBlock, catchTypes, hasMonitorOp, lexicalInfo, debugInfo);
     }
 
     public String toString() {
