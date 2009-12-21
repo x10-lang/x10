@@ -294,15 +294,17 @@ public final class ITable {
 			if (m1Formals.size() < m2Formals.size()) return -1;
 			if (m1Formals.size() > m2Formals.size()) return 1;
 			// Have same number of formal parameters; impose arbitrary order via toString of formals
+			// NOTE: Exploiting X10 2.0 semantics that methods can't be overloaded based on constraints.
+			//       If that is changed in the future, we will have to fix this code.
 			Iterator<Type> i1 = m1Formals.iterator();
 			Iterator<Type> i2 = m2Formals.iterator();
 			while (i1.hasNext()) {
-				Type f1 = i1.next();
-				Type f2 = i2.next();
+				Type f1 = X10TypeMixin.baseType(i1.next());
+				Type f2 = X10TypeMixin.baseType(i2.next());
 				int fcompare = f1.toString().compareTo(f2.toString());
 				if (fcompare != 0) return fcompare;
 			}
-			// TODO:  Does X10 also allow method overloading based on constraints or # of type parameters?
+			// TODO:  Does X10 allow method overloading based on # of type parameters?
 
 			// X10 allows covariant return types, but not overloading based on return type.
 			// Therefore we ignore return type in comparing methods and if we get to this point the
