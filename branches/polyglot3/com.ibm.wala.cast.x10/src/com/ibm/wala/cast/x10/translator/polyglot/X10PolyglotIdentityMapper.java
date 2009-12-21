@@ -1,17 +1,21 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import polyglot.ext.x10.types.*;
-import polyglot.types.*;
+import polyglot.types.ClassType;
+import polyglot.types.PrimitiveType;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import x10.types.ConstrainedType;
+import x10.types.FunctionType;
+import x10.types.MacroType;
+import x10.types.ParameterType;
+import x10.types.X10ClassType;
 
-import com.ibm.wala.cast.java.translator.polyglot.*;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
-import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.types.*;
+import com.ibm.wala.types.ClassLoaderReference;
 
 class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
     /**
@@ -51,30 +55,25 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
             return typeToTypeID(constrainedType.baseType().get());
         }
         if (type instanceof X10ClassType && ((X10ClassType) type).typeArguments().size() > 0) {
-            X10ClassType classType = (X10ClassType) type;
-            List<Type> typeParams = new ArrayList<Type>(classType.typeArguments().size());
-            StringBuilder sb= new StringBuilder();
-
-            sb.append("L");
-            sb.append(classType.fullName().toString().replace('.', '/'));
-            // Ignore the type arguments - they're not part of the type's "name"
-//            sb.append("<");
-//            int idx= 0;
-//            for(Type typeParam: classType.typeArguments()) {
-//                if (idx++ > 0) { sb.append(","); }
-//                sb.append(typeToTypeID(typeParam));
-//            }
-//            sb.append(">");
+          final X10ClassType classType = (X10ClassType) type;
+          if (classType.isLocal() || classType.isAnonymous()) {
+            if (classType.isAnonymous()) {
+              final Type interfaceType = classType.interfaces().get(0);
+              if (interfaceType instanceof FunctionType) {
+                mapLocalAnonTypeToMethod(classType, ((FunctionType) interfaceType).applyMethod());
+              }
+              // Otherwise we delegate to parent method as is.
+            }
+            // In case of local type we just delegate to parent method as is.
+          } else {
+            final StringBuilder sb = new StringBuilder();
+            sb.append('L').append(classType.fullName().toString().replace('.', '/'));
             return sb.toString();
+          }
         }
         if (type instanceof ParameterType) {
-            ParameterType parameterType = (ParameterType) type;
             Type bound = fTypeSystem.Object(); // How to get the real bound?
             return typeToTypeID(bound);
-        }
-        if (type instanceof ClosureType) {
-            ClosureType closureType = (ClosureType) type;
-            closureType.typeArguments();
         }
         if (type instanceof MacroType) {
             MacroType macroType = (MacroType) type;
