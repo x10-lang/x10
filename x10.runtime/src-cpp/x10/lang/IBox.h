@@ -8,7 +8,7 @@ namespace x10 {
 
         class String;
         
-        template <class T> inline x10aux::itable_entry* getITablesForIBox(T value) { return value->_getITables(); } // TODO: Very soon will be changed to _getITablesForIBox()
+        template <class T> inline x10aux::itable_entry* getITablesForIBox(T value) { return value->_getIBoxITables(); } 
 
         // TODO: As soon as we change the basic numeric types to implement interfaces
         //       at the X10 level, we will have to change this code to return to the

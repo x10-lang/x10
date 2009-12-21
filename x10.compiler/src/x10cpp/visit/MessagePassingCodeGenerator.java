@@ -1293,7 +1293,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        generateITablesForStruct(currentClass, xts, "", sh, h);
+        generateITablesForStruct(currentClass, xts, sh, h);
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1490,32 +1490,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void generateITablesForStruct(X10ClassType currentClass,
-	                                      X10TypeSystem xts, String maybeVirtual, ClassifiedStream sh,
+	                                      X10TypeSystem xts, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
         int numInterfaces = allInterfaces.size() - 1; // IGNORE ANY by subtracting 1
 	    if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
-	        /* ITables declarations */
-	        sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
-	        sh.writeln(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); sh.forceNewline();
-	        int itableNum = 0;
-
-	        /* ITables initialization */
-	        itableNum = 0;
-	        for (Type interfaceType : allInterfaces) {
-	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
-	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
-	            itableNum += 1;
-	        }
-
-	        if (!currentClass.typeArguments().isEmpty()) {
-	            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-	        }
-	        String clsCType = Emitter.translateType(currentClass, false);
-	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
-	        itableNum = 0;
-            String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString()) + "_ithunk";
+            String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString());
             String thunkParams = "";
             if (currentClass.typeArguments().size() != 0) {
                 String args = "";
@@ -1526,14 +1506,39 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         args +=", ";
                 }
                 thunkParams = chevrons(args);
-            }
+            }	        
+	        
+	        /* ITables declarations */
+	        sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
+	        sh.writeln("x10aux::itable_entry* _getITables() { return _itables; }"); sh.forceNewline();
+            sh.writeln("static x10aux::itable_entry _iboxitables["+(numInterfaces+1)+"];"); sh.forceNewline();
+            sh.writeln("x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }"); sh.forceNewline();
+	        
+	        /* ITables initialization */
+	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
 	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
-	            sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
-	                     thunkBaseName+itableNum+thunkParams+"::itable), ");
+	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
 	            itableNum += 1;
 	        }
-	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+
+	        String clsCType = Emitter.translateType(currentClass, false);
+	        for (int i=0; i<2; i++) {
+	            String ibox = i == 0 ? "" : "ibox";
+	            if (!currentClass.typeArguments().isEmpty()) {
+	                emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+	            }
+	            sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
+	            itableNum = 0;
+	            for (Type interfaceType : allInterfaces) {
+	                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
+	                sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+	                         thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
+	                itableNum += 1;
+	            }
+	            sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
+	        }
 	    }
 	}
 	

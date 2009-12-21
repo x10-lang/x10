@@ -176,7 +176,7 @@ public final class ITable {
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
             X10ClassDef cd = ((X10ClassType) cls).x10Def();
-            String thunkType = Emitter.mangled_non_method_name(cd.name().toString()) + "_ithunk"+itableNum;
+            String thunkBaseType = Emitter.mangled_non_method_name(cd.name().toString());
             String thunkParams = "";
             if (cls.typeArguments().size() != 0) {
                 String args = "";
@@ -193,56 +193,63 @@ public final class ITable {
             if (cd.package_() != null) {
                 Emitter.openNamespaces(sw, cd.package_().get().fullName()); sw.newline();
             }            
-            if (!cls.typeArguments().isEmpty()) {
-                emitter.printTemplateSignature(cls.typeArguments(), sw);
-            }
-            sw.write("class "+thunkType+" : public "+clsCType+" {"); sw.newline();
-            sw.write("public:"); sw.newline(4); sw.begin(0);
-            sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
-                    (doubleTemplate ? "::template itable<":"::itable<")+thunkType+thunkParams+" > itable;");
-            sw.newline();
-            
-            for (MethodInstance meth : methods) {
-                sw.write(Emitter.translateType(meth.returnType()));
-                sw.write(" ");
-                sw.write(Emitter.mangled_method_name(meth.name().toString())); 
-                sw.write("(");
-                boolean first = true;
-                int argNum=0;
-                for (Type f : meth.formalTypes()) {
-                    if (!first) sw.write(", ");
-                    sw.write(Emitter.translateType(f, true)+" arg"+(argNum++));
-                    first = false;
+            for (int i=0; i<2; i++) {
+                boolean ibox = i == 1;
+                String thunkType = thunkBaseType + (ibox ? "_iboxithunk":"_ithunk")+itableNum;
+                String parentCType = ibox ? "x10::lang::IBox"+chevrons(clsCType) : clsCType;
+                String recvArg = ibox ? "this->value" : "*this";
+
+                if (!cls.typeArguments().isEmpty()) {
+                    emitter.printTemplateSignature(cls.typeArguments(), sw);
                 }
-                sw.write(") {"); sw.newline(4); sw.begin(0);
-                if (!meth.returnType().isVoid()) sw.write("return ");
-                sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"(*this");
-                for (int i=0; i<meth.formalTypes().size(); i++) {
-                    sw.write(", arg"+i);
-                }
-                sw.write(");");
+                sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
+                sw.write("public:"); sw.newline(4); sw.begin(0);
+                sw.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
+                         (doubleTemplate ? "::template itable<":"::itable<")+thunkType+thunkParams+" > itable;");
+                sw.newline();
+
+                 for (MethodInstance meth : methods) {
+                    sw.write(Emitter.translateType(meth.returnType()));
+                    sw.write(" ");
+                    sw.write(Emitter.mangled_method_name(meth.name().toString())); 
+                    sw.write("(");
+                    boolean first = true;
+                    int argNum=0;
+                    for (Type f : meth.formalTypes()) {
+                        if (!first) sw.write(", ");
+                        sw.write(Emitter.translateType(f, true)+" arg"+(argNum++));
+                        first = false;
+                    }
+                    sw.write(") {"); sw.newline(4); sw.begin(0);
+                    if (!meth.returnType().isVoid()) sw.write("return ");
+                    sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
+                    for (int j=0; j<meth.formalTypes().size(); j++) {
+                        sw.write(", arg"+j);
+                    }
+                    sw.write(");");
+                    sw.end(); sw.newline();
+                    sw.write("}"); sw.newline();
+                }            
                 sw.end(); sw.newline();
-                sw.write("}"); sw.newline();
-            }            
-            sw.end(); sw.newline();
-            sw.write("};"); sw.newline();
-            
-            if (!cls.typeArguments().isEmpty()) {
-                emitter.printTemplateSignature(cls.typeArguments(), sw);
-            }           
-            sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
-                     thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
-            if (!isEmpty()) {
-                int methodNum = 0;
-                sw.write("(");
-                for (MethodInstance meth : methods) {
-                    if (methodNum > 0) sw.write(", ");
-                    sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString()));
-                    methodNum++;
+                sw.write("};"); sw.newline();
+
+                if (!cls.typeArguments().isEmpty()) {
+                    emitter.printTemplateSignature(cls.typeArguments(), sw);
+                }           
+                sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
+                         thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
+                if (!isEmpty()) {
+                    int methodNum = 0;
+                    sw.write("(");
+                    for (MethodInstance meth : methods) {
+                        if (methodNum > 0) sw.write(", ");
+                        sw.write("&"+thunkType+thunkParams+"::"+Emitter.mangled_method_name(meth.name().toString()));
+                        methodNum++;
+                    }
+                    sw.write(")");
                 }
-                sw.write(")");
+                sw.write(";"); sw.newline();
             }
-            sw.write(";"); sw.newline();
             if (cd.package_() != null) {
                 Emitter.closeNamespaces(sw, cd.package_().get().fullName()); sw.newline();
             }
