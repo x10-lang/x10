@@ -1,11 +1,12 @@
 package com.ibm.wala.cast.x10.analysis.typeInference;
 
-import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
+import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAAtStmtInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
@@ -19,11 +20,11 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.wala.cast.x10.types.X10TypeReference;
-import com.ibm.wala.cast.java.analysis.typeInference.AstJavaTypeInference;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.IR;
 import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.debug.Assertions;
 
 public class AstX10TypeInference extends AstJavaTypeInference {
 
@@ -122,6 +123,10 @@ public class AstX10TypeInference extends AstJavaTypeInference {
  	    IClass klass= cha.lookupClass(type);
  	    result = new DeclaredTypeOperator(new ConeType(klass));
  	}
+ 	
+ 	public void visitAtStmt(final SSAAtStmtInstruction atStmtInstruction) {
+      Assertions.UNREACHABLE("Type operator requested for X10 atStmt instruction");
+    }
     }
 
     protected void initialize() {
