@@ -208,6 +208,14 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 	        visitor.leaveTupleExpr(n, context, visitor);
 	        break;
 	    }
+	    case X10CastNode.AT_STMT_ENTER:
+	        if (visitor.visitAtStmtEnter(n, context, visitor))
+	            break;
+	        visitor.leaveAtStmtEnter(n, context, visitor);
+	    case X10CastNode.AT_STMT_EXIT:
+	        if (visitor.visitAtStmtExit(n, context, visitor))
+	            break;
+	        visitor.leaveAtStmtExit(n, context, visitor);
 	    default:
 		return super.doVisit(n, context, visitor);
 	}
@@ -375,4 +383,50 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
      * @param c a visitor-specific context
      */
     protected void leaveTupleExpr(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    
+    /**
+     * Visits the AtStmt node at the beginning of the block code.
+     * 
+     * @param node The node to process.
+     * @param context A visitor-specific context.
+     * @param visitor The CAst visitor for redirection.
+     * @return True if no further processing is needed, false otherwise.
+     */
+    protected boolean visitAtStmtEnter(final CAstNode node, final Context context, final CAstVisitor visitor) {
+      return visitor.visitNode(node, context, visitor);
+    }
+    
+    /**
+     * Leaves the AtStmt node at the beginning of the block code.
+     * 
+     * @param node The node to process.
+     * @param context A visitor-specific context.
+     * @param visitor The CAst visitor for redirection.
+     */
+    protected void leaveAtStmtEnter(final CAstNode node, final Context context, final CAstVisitor visitor) {
+      visitor.leaveNode(node, context, visitor);
+    }
+    
+    /**
+     * Visits the AtStmt node at the end of the block code.
+     * 
+     * @param node The node to process.
+     * @param context A visitor-specific context.
+     * @param visitor The CAst visitor for redirection.
+     * @return True if no further processing is needed, false otherwise.
+     */
+    protected boolean visitAtStmtExit(final CAstNode node, final Context context, final CAstVisitor visitor) {
+      return visitor.visitNode(node, context, visitor);
+    }
+    
+    /**
+     * Leaves the AtStmt node at the end of the block code.
+     * 
+     * @param node The node to process.
+     * @param context A visitor-specific context.
+     * @param visitor The CAst visitor for redirection.
+     */
+    protected void leaveAtStmtExit(final CAstNode node, final Context context, final CAstVisitor visitor) {
+      visitor.leaveNode(node, context, visitor);
+    }
 }
