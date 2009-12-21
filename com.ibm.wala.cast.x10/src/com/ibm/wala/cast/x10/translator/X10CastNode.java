@@ -231,4 +231,23 @@ public interface X10CastNode extends CAstNode {
      * </ol>
      */
     public static final int TUPLE_EXPR= SUB_LANGUAGE_BASE + 23;
+    
+    /**
+     * Kind constant for a CAstNode representing the beginning of an "at (P) {S}" statement.
+     * Children:
+     * <ol>
+     *   <li>CAstNode.BLOCK_STMT</li>
+     * </ol>
+     */
+    public static final int AT_STMT_ENTER = SUB_LANGUAGE_BASE + 24;
+    
+    
+    /**
+     * Kind constant for a CAstNode representing the end of an "at (P) {S}" statement.
+     * Children:
+     * <ol>
+     *   <li>CAstNode.BLOCK_STMT</li>
+     * </ol>
+     */
+    public static final int AT_STMT_EXIT = SUB_LANGUAGE_BASE + 25;
 }
