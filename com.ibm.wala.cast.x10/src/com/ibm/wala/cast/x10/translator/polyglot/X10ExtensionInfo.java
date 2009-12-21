@@ -1,8 +1,8 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import polyglot.ext.x10.ExtensionInfo;
 import polyglot.frontend.JobExt;
 import polyglot.frontend.Scheduler;
+import x10.ExtensionInfo;
 
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
