@@ -41,7 +41,6 @@ public final class ITable {
 	 */
 	private ITable(X10ClassType interfaceType) {
 		assert interfaceType.flags().isInterface() : "Cannot create an ITable for a non-interface type";
-		assert !((X10TypeSystem)interfaceType.typeSystem()).isAny(interfaceType) : "Should be ignoring Any in C++ backend";
 		this.interfaceType = interfaceType;
 		methods = collectMethods(interfaceType);
 		Arrays.sort(methods, new MethodComparator());
@@ -64,8 +63,6 @@ public final class ITable {
 		uniqueMethods.addAll(interfaceType.methods());
 
 		for (X10ClassType superInterface : ((X10TypeSystem)interfaceType.typeSystem()).allImplementedInterfaces(interfaceType)) {
-            if (xts.isAny(superInterface)) continue; // IGNORE ANY
-
 			for (MethodInstance newMethod : superInterface.methods()) {
 				boolean duplicate = false;
 				for (MethodInstance oldMethod : uniqueMethods) {
