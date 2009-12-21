@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.jar.JarFile;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 
-import com.ibm.wala.eclipse.util.EclipseProjectPath;
+import com.ibm.wala.ide.util.EclipseProjectPath;
 
 /**
  * Sub-class of EclipseProjectPath that prevents the X10 runtime jar from
