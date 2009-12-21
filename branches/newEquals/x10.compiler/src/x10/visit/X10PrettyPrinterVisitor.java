@@ -560,7 +560,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			    w.write("x10.core.Ref");
 		}
 
-		// Filter out x10.lang.Object from the interfaces.
+		// Filter out x10.lang.Any from the interfaces.
 		List<TypeNode> interfaces = new ArrayList<TypeNode>();
 
 		for (TypeNode tn: n.interfaces()) {
