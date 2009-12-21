@@ -8,57 +8,71 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.openmbean.InvalidOpenTypeException;
-
-import polyglot.ast.ArrayInit;
 import polyglot.ast.Assign;
-import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Receiver;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.*;
-import polyglot.ext.x10.types.ClosureType;
-import polyglot.ext.x10.types.ConstrainedType;
-import polyglot.ext.x10.types.ParametrizedType;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10ParsedClassType;
-//import polyglot.ext.x10.types.FutureType;
-import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
-import polyglot.types.ReferenceType;
+import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import x10.ast.Async;
+import x10.ast.AtEach;
+import x10.ast.AtStmt;
+import x10.ast.Atomic;
+import x10.ast.Await;
+import x10.ast.Clocked;
+import x10.ast.Closure;
+import x10.ast.ClosureCall;
+import x10.ast.Finish;
+import x10.ast.ForEach;
+import x10.ast.ForLoop;
+import x10.ast.Future;
+import x10.ast.Here;
+import x10.ast.Next;
+import x10.ast.ParExpr;
+import x10.ast.PlaceCast;
+import x10.ast.Point;
+import x10.ast.Range;
+import x10.ast.Region;
+import x10.ast.SettableAssign;
+import x10.ast.Tuple;
+import x10.ast.TypeDecl;
+import x10.ast.When;
+import x10.ast.When_c;
+import x10.ast.X10Formal;
+import x10.ast.X10Loop;
+import x10.types.FunctionType;
+import x10.types.ParametrizedType;
+import x10.types.X10TypeSystem;
 
-import com.ibm.wala.cast.x10.translator.X10CAstEntity;
-import com.ibm.wala.cast.x10.translator.X10CastNode;
-import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.LoopContext;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
-import com.ibm.wala.cast.tree.CAstSymbol;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstTypeDictionary;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.ClassLoaderReference;
@@ -69,7 +83,6 @@ import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.collections.IteratorPlusOne;
 import com.ibm.wala.util.debug.Assertions;
-import com.ibm.wala.util.debug.UnimplementedError;
 import com.ibm.wala.util.strings.Atom;
 
 public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
@@ -141,28 +154,63 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     protected CAstEntity walkAsyncEntity(final Node rootNode, final Node bodyNode, final WalkContext context) {
-	Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
-	final CodeBodyContext asyncContext= new CodeBodyContext(context, childEntities);
-	final CAstNode bodyAST= walkNodes(bodyNode, asyncContext);
+      Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
+      final CodeBodyContext asyncContext= new CodeBodyContext(context, childEntities);
+      final CAstNode bodyAST= walkNodes(bodyNode, asyncContext);
 
-	return new AsyncEntity(childEntities, rootNode, asyncContext, bodyAST);
+      return new AsyncEntity(childEntities, rootNode, asyncContext, bodyAST);
     }
 
     protected CAstEntity walkClosureEntity(final Closure rootNode, final Node bodyNode, final WalkContext context) {
-	Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
-	final MethodContext closureContext= new MethodContext(rootNode.closureDef().asInstance(), childEntities, context);
-	final CAstNode bodyAST= walkNodes(bodyNode, closureContext);
+      Map<CAstNode,CAstEntity> childEntities = new HashMap<CAstNode,CAstEntity>();
+      final MethodContext closureContext = new MethodContext(rootNode.closureDef().asInstance(), childEntities, context);
+      final CAstNode bodyAST = walkNodes(bodyNode, closureContext);
 
-    List/* <Formal> */formals = rootNode.formals();
-    String[] argNames;
-    int i = 0;
-    argNames = new String[formals.size()];
-    for (Iterator iter = formals.iterator(); iter.hasNext(); i++) {
-      Formal formal = (Formal) iter.next();
-      argNames[i] = formal.name().toString();
+      final List<Formal> formals = rootNode.formals();
+      final Collection<String> argNames = new ArrayList<String>();
+      final Collection<CAstNode> bodyNodes = new ArrayList<CAstNode>();
+      for (final Formal formal : formals) {
+        argNames.add(formal.name().toString());
+        if (formal instanceof X10Formal) {
+          final X10Formal x10Formal = (X10Formal) formal;
+          if (x10Formal.hasExplodedVars()) {
+            int i = 0;
+            for (final Formal explodedVarFormal : x10Formal.vars()) {
+              bodyNodes.add(createExplodedVarInitialization(context, formal, explodedVarFormal, i++));
+            }
+          }
+        }
+      }
+      final CAstNode newBodyAst;
+      if (bodyNodes.isEmpty()) {
+        newBodyAst = bodyAST;
+      } else {
+        // We want to access directly to the block statement.
+        bodyNodes.add(bodyAST.getChild(0).getChild(0));
+        newBodyAst = makeNode(context, fFactory, bodyNode, CAstNode.LOCAL_SCOPE, 
+                              makeNode(context, fFactory, bodyNode, CAstNode.BLOCK_STMT,
+                                       bodyNodes.toArray(new CAstNode[bodyNodes.size()])));
+      }
+
+      return new ClosureBodyEntity(childEntities, rootNode, closureContext, newBodyAst, context.getEnclosingType(), 
+                                   argNames.toArray(new String[argNames.size()]),
+                                   bodyNodes.toArray(new CAstNode[bodyNodes.size()]));
     }
-
-	return new ClosureBodyEntity(childEntities, rootNode, closureContext, bodyAST, context.getEnclosingType(), argNames);
+    
+    private CAstNode createExplodedVarInitialization(final WalkContext context, final Formal parameter,
+                                                     final Formal explodedVar, final int index) {
+      final CAstNode recvNode = makeNode(context, parameter.position(), CAstNode.VAR,
+                                         fFactory.makeConstant(parameter.name().toString()));
+     
+      final TypeReference typeRef = fIdentityMapper.getTypeRef(parameter.type().type());
+      final MethodReference methodRef = MethodReference.findOrCreate(typeRef, Atom.findOrCreateAsciiAtom("apply"), 
+                                                                     Descriptor.findOrCreateUTF8("(I)Lx10/lang/Int;"));
+      final CallSiteReference csRef = CallSiteReference.make(0, methodRef, IInvokeInstruction.Dispatch.VIRTUAL);
+      return makeNode(context, parameter.position(), CAstNode.DECL_STMT,
+                      fFactory.makeConstant(new CAstSymbolImpl(explodedVar.name().toString(), false)),
+                      makeNode(context, fFactory, parameter, CAstNode.CALL, 
+                               new CAstNode[] { recvNode, fFactory.makeConstant(csRef), 
+                                                fFactory.makeConstant(index) }));
     }
 
     private final class AsyncBodyType implements CAstType.Method {
@@ -465,7 +513,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         }
 
         private boolean isIndexedByPoint(Expr index) {
-            return index.type().descendsFrom(((X10TypeSystem) fTypeSystem).Point());
+            return index.type().isSubtype(((X10TypeSystem) fTypeSystem).Point(), fTypeSystem.emptyContext());
         }
 
         private CAstNode visitArrayAssign(Expr assign, Expr array, List<Expr> indices, WalkContext wc) {
@@ -476,12 +524,22 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    MethodInstance methodInstance= c.methodInstance();
 	    StructType methodOwner= methodInstance.container();
 
-            //PORT1.7 Array accesses are now represented as ordinary method calls
+	    //PORT1.7 Array accesses are now represented as ordinary method calls
 	    if (methodOwner instanceof ClassType) {
 	        ClassType classType = (ClassType) methodOwner;
 	        String className = classType.fullName().toString();
+	        final QName settableName = QName.make("x10.lang.Settable");
+            boolean isSettable = false;
+            for (final Type type : classType.interfaces()) {
+              if (type instanceof Named) {
+                if (((Named) type).fullName().equals(settableName)) {
+                  isSettable = true;
+                  break;
+                }
+              }
+            }
 
-	        if (className.equals("x10.lang.Array")) {
+	        if (className.equals("x10.lang.Array") || isSettable) {
 	            if (c.name().id().toString().equals("apply")) {
 	                Expr array = (Expr) c.target();
 	                List<Expr> indices = c.arguments();
@@ -506,13 +564,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	            return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
 	        }
 	    }
-// OLIVIER
-//	    if (methodOwner instanceof FutureType) {
-//		FutureType type= (FutureType) methodOwner;
-//		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, fIdentityMapper.typeToTypeID(type.base()));
-//
-//		return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
-//	    } else
 	    return super.visit(c, wc);
 	}
 
@@ -554,7 +605,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    // clearly marked in a more declarative fashion, but for now, this has the
 	    // advantage of making the operational semantics clear, with minimal extra
 	    // machinery.
-            Assertions._assert(exprs.size() == stmts.size());
+            Assertions.productionAssertion(exprs.size() == stmts.size());
 	    CAstNode[] whenClauses= new CAstNode[exprs.size()+1];
 
 	    
@@ -787,8 +838,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         int i = 0;
         children[i++] = walkNodes(closureCall.target(), wc);
         children[i++] = fFactory.makeConstant(callSiteRef);
-        for (Iterator iter = closureCall.arguments().iterator(); iter.hasNext();) {
-            Expr arg = (Expr) iter.next();
+        for (final Expr arg : closureCall.arguments()) {
             children[i++] = walkNodes(arg, wc);
         }
 
@@ -800,8 +850,17 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(ParExpr pe, WalkContext wc) {
 	    return walkNodes(pe.expr(), wc);
 	}
+    
+    public CAstNode visit(final AtStmt atStmt, final WalkContext context) {
+      return makeNode(context, atStmt, CAstNode.UNWIND,
+                      makeNode(context, atStmt, CAstNode.BLOCK_STMT, 
+                               makeNode(context, X10CastNode.AT_STMT_ENTER, atStmt.position().startOf()),
+                               walkNodes(atStmt.body(), context)),
+                               makeNode(context, X10CastNode.AT_STMT_EXIT, atStmt.position().endOf()));
     }
-
+    
+    }
+    
     private final class ClosureBodyEntity extends CodeBodyEntity {
 	private final CodeBodyContext fContext;
 
@@ -813,31 +872,37 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	private final CAstType fEnclosingType;
 
-    private final String[] argumentNames;
+    private final String[] fArgumentNames;
+    
+    private final CAstNode[] fArgDefaults;
 
-	public ClosureBodyEntity(Map<CAstNode,CAstEntity> entities, Closure node, CodeBodyContext context, CAstNode bodyAst, Type enclosingType, String[] argumentNames) {
+	public ClosureBodyEntity(final Map<CAstNode,CAstEntity> entities, final Closure node, final CodeBodyContext context,
+	                         final CAstNode bodyAst, final Type enclosingType, final String[] argumentNames,
+	                         final CAstNode[] argDefaults) {
 	    super(entities);
 	    fContext= context;
 	    fBodyAst= bodyAst;
 	    fPosition= makePosition(node.position());
 	    fEnclosingType= getTypeDict().getCAstTypeFor(enclosingType);
-	    fBodyType= new ClosureBodyType((ClosureType) ((X10ParsedClassType) node.type()).interfaces().get(0), fEnclosingType);
-	    this.argumentNames = argumentNames;
+	    fBodyType= new ClosureBodyType(node.closureDef().asType(), fEnclosingType);
+	    this.fArgumentNames = argumentNames;
+	    this.fArgDefaults = argDefaults;
 	}
+	
 	public CAstNode getAST() {
 	    return fBodyAst;
 	}
 
 	public int getArgumentCount() {
-	    return fBodyType.getArgumentCount();
+	    return fArgumentNames.length;
 	}
 
 	public CAstNode[] getArgumentDefaults() {
-	    return new CAstNode[0];
+	    return fArgDefaults;
 	}
 
 	public String[] getArgumentNames() {
-	     return argumentNames;
+	     return fArgumentNames;
 	}
 
 	public CAstControlFlowMap getControlFlow() {
@@ -874,7 +939,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     private final class ClosureBodyType implements CAstType.Method {
-	private final ClosureType closureType;
+	private final FunctionType closureType;
 
 	private List<CAstType> argTypes;
 
@@ -884,7 +949,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	private CAstType enclosingType;
 
-	public ClosureBodyType(ClosureType cType, CAstType enclosingType) {
+	public ClosureBodyType(FunctionType cType, CAstType enclosingType) {
 	    closureType= cType;
 	    this.enclosingType= enclosingType;
 	}
@@ -938,7 +1003,150 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     protected CAstNode walkNodes(Node n, WalkContext context) {
-	if (n == null) return fFactory.makeNode(CAstNode.EMPTY);
-	return X10ASTTraverser.visit(n, (X10TranslatorVisitor) getTranslator(), context);
+      if (n == null) return fFactory.makeNode(CAstNode.EMPTY);
+      return X10ASTTraverser.visit(n, (X10TranslatorVisitor) getTranslator(), context);
+    }
+      
+    protected CAstEntity walkEntity(final Node rootNode, final WalkContext context) {
+      if (rootNode instanceof TypeDecl) {
+        return new TypeDeclarationCAstEntity(makePosition(rootNode.position()), (TypeDecl) rootNode);
+      } else  if (rootNode instanceof ProcedureDecl) {
+        // We need to have a specialization for the case of exploded vars definition and initialization.
+        final ProcedureDecl pd = (ProcedureDecl) rootNode;
+        final Map<CAstNode, CAstEntity> memberEntities = new LinkedHashMap<CAstNode, CAstEntity>();
+        final MethodContext mc = new MethodContext(pd.procedureInstance().asInstance(), memberEntities, context);
+
+        CAstNode procedureAST = null;
+
+        if (! pd.flags().flags().isAbstract()) {
+          procedureAST = walkNodes(pd, mc);
+        }
+
+        final List<Formal> formals = pd.formals();
+        final String[] argNames;
+        int i = 0;
+        if (! pd.flags().flags().isStatic()) {
+          argNames = new String[formals.size() + 1];
+          argNames[i++] = "this";
+        } else {
+          argNames = new String[formals.size()];
+        }
+        final Collection<CAstNode> bodyNodes = new ArrayList<CAstNode>();
+        for (final Formal formal : formals) {
+          argNames[i++] = formal.name().toString();
+          if (formal instanceof X10Formal) {
+            final X10Formal x10Formal = (X10Formal) formal;
+            if (x10Formal.hasExplodedVars()) {
+              int j = 0;
+              for (final Formal explodedVarFormal : x10Formal.vars()) {
+                bodyNodes.add(createExplodedVarInitialization(mc, formal, explodedVarFormal, j++));
+              }
+            }
+          }
+        }
+        
+        final CAstNode newBodyAst;
+        if (bodyNodes.isEmpty()) {
+          newBodyAst = procedureAST;
+        } else {
+          // We want to access directly to the block statement.
+          bodyNodes.add(procedureAST.getChild(0).getChild(0));
+          newBodyAst = makeNode(mc, fFactory, pd, CAstNode.LOCAL_SCOPE, 
+                                makeNode(mc, fFactory, pd, CAstNode.BLOCK_STMT,
+                                         bodyNodes.toArray(new CAstNode[bodyNodes.size()])));
+        }
+
+        return new ProcedureEntity(newBodyAst, fTypeSystem, pd.procedureInstance().asInstance(), argNames, memberEntities, mc);
+      } else {
+        return super.walkEntity(rootNode, context);
+      }
+    }
+    
+    final class TypeDeclarationCAstEntity implements CAstEntity {
+
+      TypeDeclarationCAstEntity(final Position position, final TypeDecl typeDecl) {
+        this.fPosition = position;
+        this.fTypeDecl = typeDecl;
+      }
+
+      public CAstNode getAST() {
+        // No AST node
+        return null;
+      }
+
+      public Map<CAstNode, Collection<CAstEntity>> getAllScopedEntities() {
+        return Collections.emptyMap();
+      }
+
+      public int getArgumentCount() {
+        return 0;
+      }
+
+      public CAstNode[] getArgumentDefaults() {
+        return new CAstNode[0];
+      }
+
+      public String[] getArgumentNames() {
+        return new String[0];
+      }
+
+      public CAstControlFlowMap getControlFlow() {
+        // No Control Flow Map
+        return null;
+      }
+
+      public int getKind() {
+        return CAstEntity.TYPE_ENTITY;
+      }
+
+      public String getName() {
+        return this.fTypeDecl.name().toString();
+      }
+
+      public CAstNodeTypeMap getNodeTypeMap() {
+        return null;
+      }
+
+      public Position getPosition() {
+        return this.fPosition;
+      }
+
+      public Collection getQualifiers() {
+        return mapFlagsToQualifiers(this.fTypeDecl.typeDef().flags());
+      }
+
+      public Iterator getScopedEntities(CAstNode construct) {
+        return null;
+      }
+
+      public String getSignature() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('L').append(getName().replace('.', '/')).append(';');
+        return sb.toString();
+      }
+
+      public CAstSourcePositionMap getSourceMap() {
+        // No source map
+        return null;
+      }
+
+      public CAstType getType() {
+        return new CAstType() {
+
+          public String getName() {
+            return fTypeDecl.name().toString();
+          }
+
+          public Collection getSupertypes() {
+            return Collections.EMPTY_LIST;
+          }
+          
+        };
+      }
+      
+      private final Position fPosition;
+      
+      private final TypeDecl fTypeDecl;
+      
     }
 }
