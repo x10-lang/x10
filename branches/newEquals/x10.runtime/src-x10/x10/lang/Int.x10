@@ -33,71 +33,71 @@ public struct Int {
     public native static safe operator (x:Int) >= (y:Int): Boolean;
 
     @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((#1) + (#2))")
+    @Native("c++",  "((x10_int) ((#1) + (#2)))")
     public native static safe operator (x:Int) + (y:Int): Int;
 
     @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
+    @Native("c++",  "((x10_int) ((#1) - (#2)))")
     public native static safe operator (x:Int) - (y:Int): Int;
 
     @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((#1) * (#2))")
+    @Native("c++",  "((x10_int) ((#1) * (#2)))")
     public native static safe operator (x:Int) * (y:Int): Int;
 
     @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((#1) / (#2))")
+    @Native("c++",  "((x10_int) ((#1) / (#2)))")
     public native static safe operator (x:Int) / (y:Int): Int;
 
     @Native("java", "((#1) % (#2))")
-    @Native("c++",  "((#1) % (#2))")
+    @Native("c++",  "((x10_int) ((#1) % (#2)))")
     public native static safe operator (x:Int) % (y:Int): Int;
     
     @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((#1) & (#2))")
+    @Native("c++",  "((x10_int) ((#1) & (#2)))")
     public native static safe operator (x:Int) & (y:Int): Int;
     
     @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((#1) ^ (#2))")
+    @Native("c++",  "((x10_int) ((#1) ^ (#2)))")
     public native static safe operator (x:Int) ^ (y:Int): Int;
     
     @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((#1) | (#2))")
+    @Native("c++",  "((x10_int) ((#1) | (#2)))")
     public native static safe operator (x:Int) | (y:Int): Int;
     
     @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
+    @Native("c++",  "((x10_int) ((#1) << (#2)))")
     public native static safe operator (x:Int) << (y:Int): Int;
     
     @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_int) ((#1) >> (#2)))")
     public native static safe operator (x:Int) >> (y:Int): Int;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    @Native("c++",  "((x10_int) ((x10_uint) (#1) >> (#2)))")
     public native static safe operator (x:Int) >>> (y:Int): Int;
     
     @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
+    @Native("c++",  "((x10_int) ((#1) << (#2)))")
     public native static safe operator (x:Int) << (y:Long): Int;
     
     @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_int) ((#1) >> (#2)))")
     public native static safe operator (x:Int) >> (y:Long): Int;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_int) ((uint32_t) (#1) >> (#2)))")
+    @Native("c++",  "((x10_int) ((x10_uint) (#1) >> (#2)))")
     public native static safe operator (x:Int) >>> (y:Long): Int;
     
     @Native("java", "+(#1)")
-    @Native("c++",  "+(#1)")
+    @Native("c++",  "((x10_int) +(#1))")
     public native static safe operator + (x:Int): Int;
     
     @Native("java", "-(#1)")
-    @Native("c++",  "-(#1)")
+    @Native("c++",  "((x10_int) -(#1))")
     public native static safe operator - (x:Int): Int;
     
     @Native("java", "~(#1)")
-    @Native("c++",  "~(#1)")
+    @Native("c++",  "((x10_int) ~(#1))")
     public native static safe operator ~ (x:Int): Int;
     
     @Native("java", "((int) (#1))")
