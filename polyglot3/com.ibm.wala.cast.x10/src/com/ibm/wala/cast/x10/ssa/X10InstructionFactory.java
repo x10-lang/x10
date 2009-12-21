@@ -39,4 +39,6 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 	X10ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value, TypeReference declaredType);
 
 	NewTupleInstruction NewTuple(int retValue, int[] slotValues);
+	
+	SSAAtStmtInstruction AtStmt(boolean isEnter);
 }
