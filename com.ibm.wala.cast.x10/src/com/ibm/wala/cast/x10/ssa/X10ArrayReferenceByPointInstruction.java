@@ -22,8 +22,7 @@ public abstract class X10ArrayReferenceByPointInstruction extends X10ArrayRefere
 
     @Override
     public int getUse(int j) throws UnsupportedOperationException {
-	if (Assertions.verifyAssertions)
-	    Assertions._assert(j <= 2);
+    Assertions.productionAssertion(j <= 2);
 	return (j == 0) ? arrayRef : pointIndex;
     }
 
