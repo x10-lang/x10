@@ -33,13 +33,14 @@ public class X10CAstPrinter extends CAstPrinter {
 	    case X10CastNode.POINT: return "POINT";
 	    case X10CastNode.RANGE: return "RANGE";
 	    case X10CastNode.REGION: return "REGION";
-//	    case X10CastNode.WHEN: return "WHEN";
 	    case X10CastNode.REGION_ITER_INIT: return "REGION_INIT";
 	    case X10CastNode.REGION_ITER_HASNEXT: return "REGION_HASNEXT";
 	    case X10CastNode.REGION_ITER_NEXT: return "REGION_NEXT";
 	    case X10CastNode.PLACE_OF_POINT: return "PLACE_OF_POINT";
 	    case X10CastNode.ARRAY_DISTRIBUTION: return "ARRAY_DISTRIBUTION";
 	    case X10CastNode.TUPLE_EXPR: return "TUPLE";
+	    case X10CastNode.AT_STMT_ENTER: return "AT_STMT_ENTER";
+        case X10CastNode.AT_STMT_EXIT: return "AT_STMT_EXIT";
 	}
         return super.getKindAsString(kind);
     }
