@@ -8,7 +8,7 @@
 
 #include <x10/lang/Object.h>
 
-#define X10_LANG_PLASE_H_NODEPS
+#define X10_LANG_PLACE_H_NODEPS
 #include <x10/lang/Place.struct_h>
 #undef X10_LANG_PLACE_H_NODEPS
 
