@@ -45,7 +45,7 @@ public class X10AsyncObject extends AstFunctionClass {
     }
 
     public void setCodeBody(IMethod method) {
-        Assertions._assert(method.getReference().getDeclaringClass().equals(getReference()));
+        Assertions.productionAssertion(method.getReference().getDeclaringClass().equals(getReference()));
 	functionBody= method;
     }
 
