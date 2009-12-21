@@ -12,6 +12,10 @@ Ref::_make() {
     return (new (x10aux::alloc<Ref>()) Ref())->_constructor();
 }
 
+x10::lang::Place x10::lang::Ref::home() {
+    return x10::lang::Place_methods::_make(location);
+}
+
 x10_int x10::lang::Ref::hashCode() {
     // STEP 1: Figure out the address to use as for the object.
     void *v;

@@ -206,7 +206,7 @@ public final class ITable {
                 sw.newline();
 
                  for (MethodInstance meth : methods) {
-                    sw.write(Emitter.translateType(meth.returnType()));
+                    sw.write(Emitter.translateType(meth.returnType(), true));
                     sw.write(" ");
                     sw.write(Emitter.mangled_method_name(meth.name().toString())); 
                     sw.write("(");

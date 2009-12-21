@@ -1168,23 +1168,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("return x10::lang::Reference::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
-        /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
-        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.
-        h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
-                Emitter.translateType(currentClass, true)+"(this))->equals(that);");
-        h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
-
-        /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
-        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.        
-        h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
-                Emitter.translateType(currentClass, true)+"(this))->hashCode();");
-        h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
- 
-        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
@@ -1373,6 +1356,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.generateStructSerializationMethods(currentClass, sw);
             sw.forceNewline();
         }
+        
+        // Deal with the methods of Any.
+        // We must define them all in the struct_methods class so they can be picked up by the ITables
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Ref> obj);");
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10::lang::Place place);");
+        h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_);");        
+        h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_);");        
         
         // All types support toString.  If there is no user-defined toString, then we define one here.  
         // We also have to define a redirection method so that toString is actually defined
@@ -3940,7 +3930,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply);");
+        			cnamet+"::_itable(&"+cnamet+"::apply, &"+cnamet+"::at, &"+cnamet+"::at, &"+cnamet+"::home, &"+cnamet+"::toString, &"+cnamet+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
