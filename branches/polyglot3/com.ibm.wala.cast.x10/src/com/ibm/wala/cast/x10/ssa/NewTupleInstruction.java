@@ -56,6 +56,10 @@ public class NewTupleInstruction extends SSAInstruction {
     public int getDef() {
         return retValue;
     }
+    
+    public int getDef(int j) {
+      return retValue;
+    }
 
     public void visit(IVisitor v) {
         ((AstX10InstructionVisitor) v).visitNewTuple(this);
