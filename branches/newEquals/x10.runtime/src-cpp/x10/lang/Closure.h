@@ -7,6 +7,15 @@
 #include <x10aux/RTT.h>
 
 #include <x10/lang/Reference.h>
+
+#define X10_LANG_PLACE_H_NODEPS
+#include <x10/lang/Place.struct_h>
+#undef X10_LANG_PLACE_H_NODEPS
+
+#define X10_LANG_ANY_H_NODEPS
+#include <x10/lang/Any.h>
+#undef X10_LANG_ANY_H_NODEPS
+
 namespace x10 { namespace lang { class String; } }
 
 namespace x10 {
@@ -33,8 +42,18 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf);
     
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
-    
+
+            virtual x10_boolean at(x10::lang::Place p) {
+                return location == p->FMGL(id);
+            }
+           
+            virtual x10_boolean at(x10aux::ref<x10::lang::Ref> o);
+            
+            virtual x10::lang::Place home();
+
             virtual x10aux::ref<String> toString();
+
+            virtual x10aux::ref<x10::lang::String> typeName();
         };
 
         template<class T> x10aux::ref<T> Closure::_deserialize(x10aux::deserialization_buffer &buf){

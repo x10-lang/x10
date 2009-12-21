@@ -125,9 +125,19 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
         };
 
-        template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::iterator);
+        template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::at,
+                                                                                                          &ValRail<T>::at,
+                                                                                                          &ValRail<T>::home,
+                                                                                                          &ValRail<T>::iterator,
+                                                                                                          &ValRail<T>::toString,
+                                                                                                          &ValRail<T>::typeName);
 
-        template<class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply);
+        template<class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply,
+                                                                                                            &ValRail<T>::at,
+                                                                                                            &ValRail<T>::at,
+                                                                                                            &ValRail<T>::home,
+                                                                                                            &ValRail<T>::toString,
+                                                                                                            &ValRail<T>::typeName);
 
         template<class T> x10aux::itable_entry ValRail<T>::_itables[3] = {
             x10aux::itable_entry(&Iterable<T>::rtt, &ValRail<T>::_itable_iterable),

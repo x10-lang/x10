@@ -16,17 +16,17 @@ namespace x10 {
         public:
             RTT_H_DECLS_STRUCT
 
-            x10_boolean _struct_equals(x10::lang::Struct that);
-
             static void _serialize(x10::lang::Struct this_, x10aux::serialization_buffer& buf);
 
             void _deserialize_body(x10aux::deserialization_buffer& buf);
 
             x10aux::ref<x10::lang::String> toString();
 
-            x10_int hashCode();
-
             x10aux::ref<x10::lang::String> typeName();
+
+            x10_boolean _struct_equals(x10::lang::Struct that);
+
+            x10_int hashCode();
         };
     }
 }
