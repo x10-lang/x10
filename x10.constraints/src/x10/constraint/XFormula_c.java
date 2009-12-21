@@ -102,7 +102,7 @@ public class XFormula_c extends XTerm_c implements XFormula {
         for (int i = 0; i < arguments.size(); i++) {
             XTerm arg = arguments.get(i);
             if (arg == null) {
-            	System.err.println("XFormula_c: Golden: null arg in " + this);
+            	// System.err.println("XFormula_c: Golden: null arg in " + this);
             	continue;
             }
             	
