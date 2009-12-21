@@ -28,7 +28,7 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
 
     @Override
     public int getDef(int i) {
-      Assertions._assert(i == 0);
+      Assertions.productionAssertion(i == 0);
       return result;
     }
 
