@@ -9,12 +9,15 @@ Bundle-Localization: plugin
 Require-Bundle: com.ibm.wala.cast.java.polyglot;bundle-version="1.0.0",
  org.eclipse.core.runtime,
  polyglot3,
- x10.compiler.p3,
  com.ibm.wala.core,
  org.eclipse.jdt.core,
  com.ibm.wala.cast,
  com.ibm.wala.cast.java,
- x10.runtime.17
+ x10.compiler,
+ x10.runtime,
+ com.ibm.wala.shrike,
+ com.ibm.wala.ide,
+ org.eclipse.core.resources
 Eclipse-AutoStart: true
 Export-Package: com.ibm.wala.cast.x10,
  com.ibm.wala.cast.x10.analysis,
