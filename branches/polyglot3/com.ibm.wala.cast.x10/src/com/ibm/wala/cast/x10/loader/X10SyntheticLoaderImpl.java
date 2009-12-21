@@ -14,7 +14,7 @@ public class X10SyntheticLoaderImpl extends BypassSyntheticClassLoader {
 
     public static Atom X10SyntheticLoaderName= Atom.findOrCreateAsciiAtom("X10Synthetic");
 
-    public static ClassLoaderReference X10SyntheticLoader= new ClassLoaderReference(AnalysisScope.SYNTHETIC, X10Language.X10, X10SourceLoaderImpl.X10SourceLoader);
+    public static ClassLoaderReference X10SyntheticLoader= new ClassLoaderReference(AnalysisScope.SYNTHETIC, X10SourceLoaderImpl.X10, X10SourceLoaderImpl.X10SourceLoader);
 
     public X10SyntheticLoaderImpl(ClassLoaderReference loader, IClassLoader parent,
             SetOfClasses exclusions, IClassHierarchy cha) {
