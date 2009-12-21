@@ -3,33 +3,24 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import polyglot.ext.x10.types.ConstrainedType;
-import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.NullableType;
-import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.ParametrizedType;
-import polyglot.ext.x10.types.X10ClassType;
-
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.PrimitiveType;
-import polyglot.types.QName;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import x10.types.ConstrainedType;
+import x10.types.MacroType;
+import x10.types.ParameterType;
+import x10.types.X10ClassType;
 
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.PolyglotJavaParametricType;
-import com.ibm.wala.util.debug.Assertions;
 
 public class X10TypeDictionary extends PolyglotTypeDictionary {
     public X10TypeDictionary(TypeSystem typeSystem, PolyglotJava2CAstTranslator translator) {
