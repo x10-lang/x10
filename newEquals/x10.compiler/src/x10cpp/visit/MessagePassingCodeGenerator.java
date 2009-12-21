@@ -1171,14 +1171,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
         // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.
         h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->equals(that);");
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
+                Emitter.translateType(currentClass, true)+"(this))->equals(that);");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
         /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
         // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.        
         h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >(this)->hashCode();");
+        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
+                Emitter.translateType(currentClass, true)+"(this))->hashCode();");
         h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
  
@@ -1283,7 +1285,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<ClassMember> members = n.members();
 
-        generateITablesForStruct(currentClass, xts, "", sh, h);
+        generateITablesForStruct(currentClass, xts, sh, h);
 
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
@@ -1477,31 +1479,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void generateITablesForStruct(X10ClassType currentClass,
-	                                      X10TypeSystem xts, String maybeVirtual, ClassifiedStream sh,
+	                                      X10TypeSystem xts, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
-        int numInterfaces = allInterfaces.size();
+            int numInterfaces = allInterfaces.size();
 	    if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
-	        /* ITables declarations */
-	        sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
-	        sh.writeln(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); sh.forceNewline();
-	        int itableNum = 0;
-
-	        /* ITables initialization */
-	        itableNum = 0;
-	        for (Type interfaceType : allInterfaces) {
-	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
-	            itableNum += 1;
-	        }
-
-	        if (!currentClass.typeArguments().isEmpty()) {
-	            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-	        }
-	        String clsCType = Emitter.translateType(currentClass, false);
-	        sw.write("x10aux::itable_entry "+clsCType+"::_itables["+(numInterfaces+1)+"] = {");
-	        itableNum = 0;
-            String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString()) + "_ithunk";
+            String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString());
             String thunkParams = "";
             if (currentClass.typeArguments().size() != 0) {
                 String args = "";
@@ -1512,13 +1495,37 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         args +=", ";
                 }
                 thunkParams = chevrons(args);
+            }	        
+	        
+            /* ITables declarations */
+            sh.writeln("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); sh.forceNewline();
+            sh.writeln("x10aux::itable_entry* _getITables() { return _itables; }"); sh.forceNewline();
+            sh.writeln("static x10aux::itable_entry _iboxitables["+(numInterfaces+1)+"];"); sh.forceNewline();
+            sh.writeln("x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }"); sh.forceNewline();
+	        
+            /* ITables initialization */
+            int itableNum = 0;
+            for (Type interfaceType : allInterfaces) {
+                ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
+                itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+                itableNum += 1;
             }
-	        for (Type interfaceType : allInterfaces) {
-	            sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
-	                     thunkBaseName+itableNum+thunkParams+"::itable), ");
-	            itableNum += 1;
+
+            String clsCType = Emitter.translateType(currentClass, false);
+            for (int i=0; i<2; i++) {
+                String ibox = i == 0 ? "" : "ibox";
+                if (!currentClass.typeArguments().isEmpty()) {
+                    emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+                }
+                sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
+                itableNum = 0;
+                for (Type interfaceType : allInterfaces) {
+                        sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+                                 thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
+                        itableNum += 1;
+	            }
+	            sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
 	        }
-	        sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
 	    }
 	}
 	

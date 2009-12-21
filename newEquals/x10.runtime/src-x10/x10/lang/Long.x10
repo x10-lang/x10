@@ -31,71 +31,71 @@ public final struct Long {
     public native static safe operator (x:Long) >= (y:Long): Boolean;
 
     @Native("java", "((#1) + (#2))")
-    @Native("c++",  "((#1) + (#2))")
+    @Native("c++",  "((x10_long) ((#1) + (#2)))")
     public native static safe operator (x:Long) + (y:Long): Long;
 
     @Native("java", "((#1) - (#2))")
-    @Native("c++",  "((#1) - (#2))")
+    @Native("c++",  "((x10_long) ((#1) - (#2)))")
     public native static safe operator (x:Long) - (y:Long): Long;
 
     @Native("java", "((#1) * (#2))")
-    @Native("c++",  "((#1) * (#2))")
+    @Native("c++",  "((x10_long) ((#1) * (#2)))")
     public native static safe operator (x:Long) * (y:Long): Long;
 
     @Native("java", "((#1) / (#2))")
-    @Native("c++",  "((#1) / (#2))")
+    @Native("c++",  "((x10_long) ((#1) / (#2)))")
     public native static safe operator (x:Long) / (y:Long): Long;
 
     @Native("java", "((#1) % (#2))")
-    @Native("c++",  "((#1) % (#2))")
+    @Native("c++",  "((x10_long) ((#1) % (#2)))")
     public native static safe operator (x:Long) % (y:Long): Long;
     
     @Native("java", "((#1) & (#2))")
-    @Native("c++",  "((#1) & (#2))")
+    @Native("c++",  "((x10_long) ((#1) & (#2)))")
     public native static safe operator (x:Long) & (y:Long): Long;
     
     @Native("java", "((#1) ^ (#2))")
-    @Native("c++",  "((#1) ^ (#2))")
+    @Native("c++",  "((x10_long) ((#1) ^ (#2)))")
     public native static safe operator (x:Long) ^ (y:Long): Long;
     
     @Native("java", "((#1) | (#2))")
-    @Native("c++",  "((#1) | (#2))")
+    @Native("c++",  "((x10_long) ((#1) | (#2)))")
     public native static safe operator (x:Long) | (y:Long): Long;
     
     @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
+    @Native("c++",  "((x10_long) ((#1) << (#2)))")
     public native static safe operator (x:Long) << (y:Long): Long;
     
     @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_long) ((#1) >> (#2)))")
     public native static safe operator (x:Long) >> (y:Long): Long;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_long) ((uint64_t) (#1) >> (#2)))")
+    @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
     public native static safe operator (x:Long) >>> (y:Long): Int;
     
     @Native("java", "((#1) << (#2))")
-    @Native("c++",  "((#1) << (#2))")
+    @Native("c++",  "((x10_long) ((#1) << (#2)))")
     public native static safe operator (x:Long) << (y:Int): Long;
     
     @Native("java", "((#1) >> (#2))")
-    @Native("c++",  "((#1) >> (#2))")
+    @Native("c++",  "((x10_long) ((#1) >> (#2)))")
     public native static safe operator (x:Long) >> (y:Int): Long;
 
     @Native("java", "((#1) >>> (#2))")
-    @Native("c++",  "((x10_long) ((uint64_t) (#1) >> (#2)))")
+    @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
     public native static safe operator (x:Long) >>> (y:Int): Int;
     
     @Native("java", "+(#1)")
-    @Native("c++",  "+(#1)")
+    @Native("c++",  "((x10_long) +(#1))")
     public native static safe operator + (x:Long): Long;
     
     @Native("java", "-(#1)")
-    @Native("c++",  "-(#1)")
+    @Native("c++",  "((x10_long) -(#1))")
     public native static safe operator - (x:Long): Long;
     
     @Native("java", "~(#1)")
-    @Native("c++",  "~(#1)")
+    @Native("c++",  "((x10_long) ~(#1))")
     public native static safe operator ~ (x:Long): Long;
     
     @Native("java", "((long) (#1))")

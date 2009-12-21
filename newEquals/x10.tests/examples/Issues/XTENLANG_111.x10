@@ -17,7 +17,7 @@ class XTENLANG_111 extends x10Test {
         incomplete def set(e:int, p:P): void;
     }
         
-    def foo(a:A) {
+    def foo(a:A!) {
         a([1,2,3]) = 0;
     }
 
