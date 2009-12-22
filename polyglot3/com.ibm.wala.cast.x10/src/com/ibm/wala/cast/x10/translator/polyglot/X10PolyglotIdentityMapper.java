@@ -3,12 +3,14 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.util.HashMap;
 import java.util.Map;
 
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.MethodDef;
 import polyglot.types.PrimitiveType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 import x10.types.ConstrainedType;
-import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
@@ -57,14 +59,12 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
         if (type instanceof X10ClassType && ((X10ClassType) type).typeArguments().size() > 0) {
           final X10ClassType classType = (X10ClassType) type;
           if (classType.isLocal() || classType.isAnonymous()) {
-            if (classType.isAnonymous()) {
-              final Type interfaceType = classType.interfaces().get(0);
-              if (interfaceType instanceof FunctionType) {
-                mapLocalAnonTypeToMethod(classType, ((FunctionType) interfaceType).applyMethod());
-              }
-              // Otherwise we delegate to parent method as is.
+            final ClassDef classDef = classType.def().outer().get();
+            final MethodDef enclosingMethod = getEnclosingMethod(classDef, classType.position());
+            if (enclosingMethod == null) {
+              throw new AssertionError("We could not find the enclosing method for the type " + classType);
             }
-            // In case of local type we just delegate to parent method as is.
+            mapLocalAnonTypeToMethod(classType, enclosingMethod.asInstance());
           } else {
             final StringBuilder sb = new StringBuilder();
             sb.append('L').append(classType.fullName().toString().replace('.', '/'));
@@ -94,4 +94,20 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
         sb.append(classType.fullName());
         return sb.toString();
     }
+    
+    // --- Private code
+    
+    // This is a very hackish way of getting the enclosing method, since it is not provided at this time in Polyglot.
+    // To change soon...
+    private MethodDef getEnclosingMethod(final ClassDef classDef, final Position targetTypePosition) {
+      for (final MethodDef methodDef : classDef.methods()) {
+        final Position methodPos = methodDef.position();
+        if (targetTypePosition.offset() >= methodPos.offset() && targetTypePosition.offset() <= methodPos.endOffset() &&
+            targetTypePosition.endOffset() >= methodPos.offset() && targetTypePosition.endOffset() <= methodPos.endOffset()) {
+          return methodDef;
+        }
+      }
+      return null;
+    }
+    
 }
