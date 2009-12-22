@@ -305,7 +305,7 @@ public abstract class Dist(
      * regions, and map every point in that region to the same place.
      */
 
-    abstract public global def equals(that:Object):boolean;
+    abstract public global safe def equals(that:Any):boolean;
 
     //
     // other geometric ops
