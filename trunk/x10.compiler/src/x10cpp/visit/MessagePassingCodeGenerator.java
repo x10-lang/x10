@@ -1360,14 +1360,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // Deal with the methods of Any.
         
         // We must define them all in the struct_methods class so they can be picked up by the ITables
-        // FIXME:  The at methods are stubbed out so linking will work. 
-        //         We need real implementations before we can actually call them successfully!
-        //         What are the desired semantics, since a struct is "at" all places...?
         // FIXME: The home method should call Place_methods::make(here) instead of doing a C++ level construction.
-        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Ref> obj) { /* FIXME What are the desired semantics? */ return true; }");        
-        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10::lang::Place place) { /* FIXME What are the desired semantics ? */ return true; }");
-        h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_) { /* FIXME */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");        
- 
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Ref> obj) { return true; }");        
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10::lang::Place place) { return true; }");
+        h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
         h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_) { return this_->typeName(); }");        
         
         // All types support toString.  If there is no user-defined toString, then we define one here.  
@@ -1392,8 +1388,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10aux::ref<x10::lang::String> toString("+Emitter.translateType(currentClass, false)+" this_) { return this_->toString(); }");        
-
+            h.writeln("static x10aux::ref<x10::lang::String> toString("+Emitter.translateType(currentClass, false)+" this_) { return this_->toString(); }");
         }
         
         // HACKS for hashCode.  To be removed once Equality is implemented.
