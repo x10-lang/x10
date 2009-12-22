@@ -329,7 +329,8 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     _S_("Deserialized string was: \""<<this<<"\"");
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply);
+Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply, &String::at, &String::at,
+                                                                   &String::home, &String::toString, &String::typeName);
         
 x10aux::itable_entry String::_itables[2] = {
     x10aux::itable_entry(&Fun_0_1<x10_int, x10_char>::rtt, &String::_itable_Fun_0_1),
