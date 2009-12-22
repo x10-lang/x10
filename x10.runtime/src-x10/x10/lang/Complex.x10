@@ -184,7 +184,7 @@ public struct Complex {
         (re.isInfinite() || im.isInfinite());
     }
 
-    public def toString():String {
+    public global safe def toString():String {
         return (re + " + " + im + "i");
     }
 

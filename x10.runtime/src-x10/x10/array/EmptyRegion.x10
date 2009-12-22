@@ -24,7 +24,5 @@ class EmptyRegion extends UnionRegion {
         throw U.illegal("bounding box not not defined for empty region");
     }
 
-    public global def toString(): String {
-        return "empty(" + rank + ")";
-    }
+    public global safe def toString() = "empty(" + rank + ")";
 }

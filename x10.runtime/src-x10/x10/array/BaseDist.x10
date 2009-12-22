@@ -282,7 +282,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return places(0);
     }
 
-    public global def equals(thatObj:Object): boolean {
+    public global safe def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
         for (p:Place in Place.places)
@@ -339,7 +339,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
     //
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         var s: String = "Dist(";
         var first: boolean = true;
         for (p:Place in places) {

@@ -186,7 +186,7 @@ abstract public class BaseRegion extends Region {
         return that.difference(this).isEmpty();
     }
 
-    public global def equals(that:Object):boolean {
+    public global safe def equals(that:Any):boolean {
 	if (!(that instanceof Region)) return false;
 	val t1 = that as Region;
 	if (rank != t1.rank) return false;

@@ -54,7 +54,7 @@ abstract class Row(cols:nat) implements (nat)=>int {
         if (c!=0||first) ps.print((c>=0&&!first?"+":"") + c);
     }
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         val os = new StringWriter();
         val ps = new Printer(os);
         printEqn(ps, "", 0);

@@ -8,9 +8,13 @@
 
 #include <x10/lang/Object.h>
 
-#define X10_LANG_PLASE_H_NODEPS
+#define X10_LANG_PLACE_H_NODEPS
 #include <x10/lang/Place.struct_h>
 #undef X10_LANG_PLACE_H_NODEPS
+
+#define X10_LANG_ANY_H_NODEPS
+#include <x10/lang/Any.h>
+#undef X10_LANG_ANY_H_NODEPS
 
 namespace x10 {
     
@@ -92,6 +96,8 @@ namespace x10 {
             virtual x10_boolean at(x10aux::ref<x10::lang::Ref> o) {
                 return location == o->location;
             }
+
+            virtual x10::lang::Place home();
 
             virtual x10aux::ref<x10::lang::String> typeName();
 

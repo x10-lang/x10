@@ -24,6 +24,7 @@ import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
@@ -443,4 +444,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isExactlyFunctionType(Type t);
     
     Name homeName();
+    
+    LazyRef<Type> lazyAny();
 }

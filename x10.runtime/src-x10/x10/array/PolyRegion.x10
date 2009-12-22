@@ -352,7 +352,7 @@ public class PolyRegion extends BaseRegion {
         mat.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         return mat.toString();
     }
 

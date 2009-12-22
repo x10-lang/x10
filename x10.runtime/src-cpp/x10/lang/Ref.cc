@@ -3,6 +3,7 @@
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/String.h>
+#include <x10/lang/Place.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -10,6 +11,10 @@ using namespace x10aux;
 x10aux::ref<Ref>
 Ref::_make() {
     return (new (x10aux::alloc<Ref>()) Ref())->_constructor();
+}
+
+x10::lang::Place x10::lang::Ref::home() {
+    return x10::lang::Place_methods::_make(location);
 }
 
 x10_int x10::lang::Ref::hashCode() {

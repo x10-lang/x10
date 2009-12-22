@@ -59,7 +59,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "#0.equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global native def equals(other:ValRail[T]):boolean;
+    public global safe native def equals(other:Any):boolean;
 
     @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3,#4,#5)")
     @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3,#4,#5)")

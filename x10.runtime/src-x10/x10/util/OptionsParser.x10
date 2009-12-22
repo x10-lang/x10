@@ -11,7 +11,7 @@ public final class OptionsParser {
     public static final class Err extends Exception {
         global private val msg:String;
         public def this (m:String) { this.msg = m; }
-        global public def toString() = "Commandline error: "+msg;
+        global safe public def toString() = "Commandline error: "+msg;
     }
 
     private val map : HashMap[String,String]!;

@@ -64,7 +64,7 @@ public final class AtomicInteger {
 	
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
-	public global native def toString():String;
+	public global safe native def toString():String;
 
 	@Native("java", "#0.intValue()")
 	@Native("c++", "(#0)->intValue()")

@@ -8,10 +8,17 @@
 #include <x10aux/itables.h>
 
 #include <x10/lang/Ref.h>
-#include <x10/lang/Iterable.h>
-#include <x10/lang/Settable.h>
+
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
+
+#define X10_LANG_ITERABLE_H_NODEPS
+#include <x10/lang/Iterable.h>
+#undef X10_LANG_ITERABLE_H_NODEPS
+#define X10_LANG_SETTABLE_H_NODEPS
+#include <x10/lang/Settable.h>
+#undef X10_LANG_SETTABLE_H_NODEPS
+
 
 #include <stdio.h>
 
@@ -194,6 +201,8 @@ namespace x10 {
 #ifndef __X10_LANG_RAIL_H_NODEPS
 #define __X10_LANG_RAIL_H_NODEPS
 // #include <x10/lang/System.h> // causes cycle
+#include <x10/lang/Iterable.h>
+#include <x10/lang/Settable.h>
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Rail__RailIterator.h>
@@ -213,9 +222,19 @@ namespace x10 {
                                            x10aux::getRTT<Iterable<T> >());
         }
 
-        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::iterator);
+        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::at,
+                                                                                                     &Rail<T>::at,
+                                                                                                     &Rail<T>::home,
+                                                                                                     &Rail<T>::iterator,
+                                                                                                     &Rail<T>::toString,
+                                                                                                     &Rail<T>::typeName);
 
-        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::set);
+        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::at,
+                                                                                                              &Rail<T>::at,
+                                                                                                              &Rail<T>::home,
+                                                                                                              &Rail<T>::set,
+                                                                                                              &Rail<T>::toString,
+                                                                                                              &Rail<T>::typeName);
         
         template <class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
             x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
