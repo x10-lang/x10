@@ -67,8 +67,8 @@ public class Struct {
         QName fullName = QName.make("x10.lang", name);
         cd.kind(ClassDef.TOP_LEVEL);
         cd.superType(null); // base class has no superclass
-        // Functions implement the Any interface.
-        //cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(Any())));
+       
+        cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(xts.lazyAny()));
         cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract()).Struct());
 
 
@@ -169,7 +169,9 @@ public class Struct {
 		});
         mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_1));
         cd.addMethod(mi);
-        
+
+        //  @Native("java", "x10.core.Ref.typeName(#0)")
+        //  native final global safe def typeName():String;        
         mi = xts.methodDef(pos,
         		Types.ref(ct),
     			X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe(), 
@@ -196,6 +198,36 @@ public class Struct {
 		});
  		
  		mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_TYPE_NAME));
+ 		cd.addMethod(mi);
+
+        //  @Native("java", "\"<struct>\"")
+        //  native global safe def toString():String;        
+        mi = xts.methodDef(pos,
+        		Types.ref(ct),
+			   X10Flags.toX10Flags(Flags.PUBLIC.Native()).Global().Safe(), 
+    			STRING,
+    			Name.make("toString"),
+    			Collections.EMPTY_LIST, 
+    			Collections.EMPTY_LIST,
+    			thisVar,
+    			Collections.EMPTY_LIST, 
+    			null,
+    			null,
+    			Collections.EMPTY_LIST,
+    			null
+    			);
+        final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME2 = Types.lazyRef(null);
+		NATIVE_TYPE_NAME2.setResolver(new Runnable() {
+			public void run() {
+				List<Expr> list = new ArrayList<Expr>(2);
+		        list.add(new X10StringLit_c(pos, "java"));
+		        list.add(new X10StringLit_c(pos,  "\"<struct>\""));
+		        X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
+				NATIVE_TYPE_NAME2.update(ann);
+			}
+		});
+ 		
+ 		mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_TYPE_NAME2));
  		cd.addMethod(mi);
 
  		

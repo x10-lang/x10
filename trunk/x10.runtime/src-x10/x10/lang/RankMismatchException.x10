@@ -40,7 +40,7 @@ public class RankMismatchException extends x10.lang.Exception {
         n = n_;
     }
 
-    public global def toString() =  "RankMismatchException(" +
+    public global safe def toString() =  "RankMismatchException(" +
         (p != null ? "point " + p :
          r != null ? "region " + r :
          "distribution " + d) +

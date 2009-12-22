@@ -603,12 +603,10 @@ public class Emitter {
         X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 		String x10name = ct.fullName().toString();
 		int numParents = 0;
-		if (ct.superClass() != null && !xts.isAny(ct.superClass())) {
+		if (ct.superClass() != null) {
 		    numParents++;
 		}
-		for (Type iface: ct.interfaces()) {
-		    if (!xts.isAny(iface)) numParents++;
-		}
+		numParents += ct.interfaces().size();
 		
 		if (ct.typeArguments().isEmpty()) {
 		  boolean first = true;
@@ -617,12 +615,11 @@ public class Emitter {
           h.write("rtt.canonical = &rtt;"); h.newline();
           if (numParents > 0) { 
               h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
-              if (ct.superClass() != null && !xts.isAny(ct.superClass())) {
+              if (ct.superClass() != null) {
                   h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
                   first = false;
               }
               for (Type iface : ct.interfaces()) {
-                  if (xts.isAny(iface)) continue; // IGNORE ANY
                   if (!first) h.write(", ");
                   h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
                   first = false;
@@ -648,12 +645,11 @@ public class Emitter {
             h.write("rtt.canonical = &rtt;"); h.newline();
             if (numParents > 0) {
                 h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
-                if (ct.superClass() != null && !xts.isAny(ct.superClass())) {
+                if (ct.superClass() != null) {
                     h.write("x10aux::getRTT" + chevrons(translateType(ct.superClass())) + "()");
                     first = false;
                 }
                 for (Type iface : ct.interfaces()) {
-                    if (xts.isAny(iface)) continue; // IGNORE ANY
                     if (!first) h.write(", ");
                     h.write("x10aux::getRTT"+chevrons(translateType(iface))+"()");
                     first = false;

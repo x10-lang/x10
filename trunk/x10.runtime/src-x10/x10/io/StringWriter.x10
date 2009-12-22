@@ -19,7 +19,6 @@ public class StringWriter extends Writer {
     }
 
     public global def size() = at (b) b.length();
-    public global def toString() = at (b) b.toString();
     public global def result() = at (b) b.result(); 
     
     public global def flush(): Void { }

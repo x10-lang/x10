@@ -100,7 +100,7 @@ final class RectLayout(rank: int) extends Layout {
         return offset;
     }
 
-    public global def toString() {
+    public global safe def toString() {
         var s:String = "RectLayout[";
         s += "size=" + size;
         for (var i:int=0; i<min.length; i++)

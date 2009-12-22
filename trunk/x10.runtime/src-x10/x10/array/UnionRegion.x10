@@ -195,7 +195,7 @@ public class UnionRegion extends BaseRegion {
     //
     //
 
-    public global def toString(): String {
+    public global safe def toString(): String {
         var s: String = "(";
         for (var i:int=0; i<regions.length; i++) {
             if (i>0) s += " || ";

@@ -5,6 +5,7 @@
 
 #include <x10/lang/Closure.h>
 #include <x10/lang/String.h>
+#include <x10/lang/Place.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -19,8 +20,21 @@ void Closure::_serialize(x10aux::ref<Closure> this_,
     this_->_serialize_body(buf);
 }           
 
+x10_boolean Closure::at(x10aux::ref<x10::lang::Ref> o) {
+    return location == o->location;
+}
+
+Place Closure::home() {
+    return x10::lang::Place_methods::_make(location);
+}
+
 x10aux::ref<x10::lang::String> x10::lang::Closure::toString() {
     return String::Lit("Closure without toString defined.");
 }
+
+x10aux::ref<x10::lang::String> x10::lang::Closure::typeName() {
+    return x10::lang::String::Lit(_type()->name());
+}
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab

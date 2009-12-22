@@ -94,5 +94,15 @@ ref<String> x10aux::to_string(x10_char v) {
     return String::Lit(v_);
 }
 
+x10_boolean x10aux::general_equals_impl(x10aux::ref<x10::lang::Any> x, x10aux::ref<x10::lang::Any> y) {
+    nullCheck(x);
+    // TODO: HACK:  FIXME:  This is not correct.
+    // We should be pulling the itable for Equals (once everyone implements it...)
+    // and using it to do the dispatch.
+    // This will not work for IBox<S>.
+    x10aux::ref<x10::lang::Object> xAsObj(x);
+    return xAsObj->equals(y);
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab
 

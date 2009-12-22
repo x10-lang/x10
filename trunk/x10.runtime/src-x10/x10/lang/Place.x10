@@ -17,7 +17,7 @@ import x10.runtime.NativeRuntime;
  * @author vj
  * @author Dave Cunningham
  */
-public final struct Place(id: Int) {
+public final struct Place(id: Int) implements Equals {
     public const MAX_PLACES = NativeRuntime.MAX_HOSTS;
     public const places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
     public const children = ValRail.make[ValRail[Place]](
@@ -64,6 +64,7 @@ public final struct Place(id: Int) {
         return NativeRuntime.childIndex(id);
     }
 
-    public def toString() = "(Place " + id + ")";
-    public def equals(p:Place) = this.id==p.id;
+    public global safe def toString() = "(Place " + this.id + ")";
+    public global safe def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
+    public global safe def hashCode()=id;
 }    

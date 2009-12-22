@@ -637,12 +637,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// emit no c++ code as this is a native rep class
 			return;
 		}
-		
-		if (xts.isAny(def.asType())) {
-		    // HACK: We don't need Any in the C++ backend, but we do in the Java backend.
-		    //       So, here we want to ignore the class decl for x10.lang.Any
-		    return;
-		}
 
         assert (!def.isNested()) : ("Nested class alert!");
 
@@ -755,7 +749,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		for (TypeNode i : n.interfaces()) {
 		    ClassType ct = i.type().toClass();
-		    if (xts.isAny(ct)) continue; // IGNORE ANY
 		    X10ClassDef icd = (X10ClassDef) ct.def();
 		    if (icd != def) {
 		        String header = getHeader(ct);
@@ -806,7 +799,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		ArrayList<ClassType> types = referencedTypes(n, def);
         for (ClassType ct : types) {
-            if (xts.isAny(ct)) continue; // IGNORE ANY
             X10ClassDef cd = (X10ClassDef) ct.def();
             if (cd == def)
                 continue;
@@ -1176,23 +1168,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.write("return x10::lang::Reference::"+DESERIALIZE_METHOD+"<__T>(buf);"); h.end(); h.newline();
         h.write("}"); h.newline(); h.forceNewline();
 
-        /* equals redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
-        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.
-        h.write("x10_boolean equals(x10aux::ref<x10::lang::Object> that) {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
-                Emitter.translateType(currentClass, true)+"(this))->equals(that);");
-        h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
-
-        /* hashCode redirection method: Something of an interface type is a subclass of Object even if C++ doesn't know that... */
-        // FIXME: XTENLANG-752.  This is wrong in X10 2.0 because closures implement interfaces, but are not objects.        
-        h.write("x10_int hashCode() {"); h.newline(4); h.begin(0);
-        h.write("return x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Object> >("+
-                Emitter.translateType(currentClass, true)+"(this))->hashCode();");
-        h.end(); h.newline();
-        h.write("}"); h.newline(); h.forceNewline();
- 
-        
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
@@ -1382,6 +1357,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.forceNewline();
         }
         
+        // Deal with the methods of Any.
+        
+        // We must define them all in the struct_methods class so they can be picked up by the ITables
+        // FIXME:  The at methods are stubbed out so linking will work. 
+        //         We need real implementations before we can actually call them successfully!
+        //         What are the desired semantics, since a struct is "at" all places...?
+        // FIXME: The home method should call Place_methods::make(here) instead of doing a C++ level construction.
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Ref> obj) { /* FIXME What are the desired semantics? */ return true; }");        
+        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10::lang::Place place) { /* FIXME What are the desired semantics ? */ return true; }");
+        h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_) { /* FIXME */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");        
+ 
+        h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_) { return this_->typeName(); }");        
+        
         // All types support toString.  If there is no user-defined toString, then we define one here.  
         // We also have to define a redirection method so that toString is actually defined
         // on the struct class, not just in the structMethods.  This is to fit in with
@@ -1452,14 +1440,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private void generateITablesForClass(X10ClassType currentClass,
 			X10TypeSystem xts, String maybeVirtual, ClassifiedStream h) {
 		List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
-		int numInterfaces = allInterfaces.size() - 1; // IGNORE ANY by subtracting 1
+		int numInterfaces = allInterfaces.size();
 		if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
 			/* ITables declarations */
 			h.write("static x10aux::itable_entry _itables["+(numInterfaces+1)+"];"); h.newline(); h.forceNewline();
 			h.write(maybeVirtual+"x10aux::itable_entry* _getITables() { return _itables; }"); h.newline(); h.forceNewline();
 			int itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-			    if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableDecl(currentClass, itableNum, emitter, h);
 				itableNum += 1;
@@ -1469,7 +1456,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			/* ITables initialization */
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 				itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
 				itableNum += 1;
@@ -1481,7 +1467,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 				sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
@@ -1493,7 +1478,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                                      X10TypeSystem xts, ClassifiedStream sh,
 	                                      ClassifiedStream h) {
 	    List<X10ClassType> allInterfaces = xts.allImplementedInterfaces(currentClass);
-        int numInterfaces = allInterfaces.size() - 1; // IGNORE ANY by subtracting 1
+        int numInterfaces = allInterfaces.size();
 	    if (numInterfaces > 0 && !currentClass.flags().isAbstract()) {
             String thunkBaseName = Emitter.mangled_non_method_name(currentClass.name().toString());
             String thunkParams = "";
@@ -1517,7 +1502,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        /* ITables initialization */
 	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
-	            if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
 	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
 	            itableNum += 1;
@@ -1532,7 +1516,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
 	            itableNum = 0;
 	            for (Type interfaceType : allInterfaces) {
-	                if (xts.isAny(interfaceType)) continue; // IGNORE ANY
 	                sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
 	                         thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
 	                itableNum += 1;
@@ -3953,7 +3936,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply);");
+        			cnamet+"::_itable(&"+cnamet+"::apply, &"+cnamet+"::at, &"+cnamet+"::at, &"+cnamet+"::home, &"+cnamet+"::toString, &"+cnamet+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);

@@ -238,6 +238,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/File__NativeFile.o \
 	x10/io/InputStreamReader__InputStream.o \
 	x10/io/OutputStreamWriter__OutputStream.o \
+	x10/lang/Any.o \
 	x10/lang/Closure.o \
 	x10/lang/Fun.o \
 	x10/lang/Object.o \
@@ -268,7 +269,8 @@ gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
 	$(MAKE) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
 	touch $@
 
-$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
+$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)
+	$(MAKE) $(ALL_MANUAL_OBJECTS)
 	$(AR) $(ARFLAGS) $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
             $(ALL_MANUAL_OBJECTS)

@@ -221,7 +221,7 @@ public final class Runtime {
             && (o as Object!).home.id != p.id) {
             NativeRuntime.println("BAD PLACE EXCEPTION");
             throw new BadPlaceException("object="
-                        + (at (o) o.toString())
+                        + o.toString()
                         + " access at place=" + p);
         }
         return o;
