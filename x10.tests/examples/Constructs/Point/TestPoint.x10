@@ -24,7 +24,7 @@ abstract public class TestPoint extends x10Test {
     abstract def expected():String;
 
     def status() {
-        val got = os.toString();
+        val got = os.result();
         if (got.equals(expected())) {
             return true;
         } else {
