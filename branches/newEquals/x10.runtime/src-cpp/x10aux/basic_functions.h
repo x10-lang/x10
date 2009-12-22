@@ -17,9 +17,11 @@ namespace x10aux {
         return x10::lang::String::Lit(getRTT<T>()->name());
     }
 
+    x10_boolean general_equals_impl(ref<x10::lang::Any> x, ref<x10::lang::Any> y);
+    
     template<class T, class U>
     class Equals {
-      public: static inline x10_boolean _(ref<T> x, ref<U> y) { return nullCheck(x)->equals(y); }
+      public: static inline x10_boolean _(ref<T> x, ref<U> y) { return general_equals_impl(x, y); }
     };
 
     // covers Ref and Value (ie, all subtypes of Object)
