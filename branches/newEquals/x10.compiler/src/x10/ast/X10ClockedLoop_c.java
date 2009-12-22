@@ -18,6 +18,9 @@ import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
+import polyglot.main.Report;
+import polyglot.types.Context;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -25,6 +28,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.types.X10Context;
+import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 
 /**
@@ -75,6 +79,26 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
+
+	public Context enterChildScope(Node child, Context c) {
+	    X10Context xc = (X10Context) c;
+	    if (child == this.body) {
+	        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+	        if (xc.currentCode() instanceof X10MethodDef) {
+	            X10MethodDef outer = (X10MethodDef) c.currentCode();
+	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            if (!capturedTypes.isEmpty()) {
+	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
+	                asyncInstance.setTypeParameters(capturedTypes);
+	            }
+	        }
+	        xc = (X10Context) xc.pushCode(asyncInstance);
+	    }
+	    return xc;
+	}
+
+	
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {
