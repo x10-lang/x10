@@ -392,8 +392,6 @@ public abstract class Region(
 
     abstract public global def contains(that: Region(rank)): boolean;
 
-    abstract public global def equals(that:Object):boolean; 
-
     abstract public global def contains(p: Point): boolean;
 
 

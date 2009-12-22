@@ -226,7 +226,7 @@ final class RectRegion extends PolyRegion{rect} {
 
     // XTENLANG-28
 
-    public global def equals(thatObj:Object): boolean {
+    public global safe def equals(thatObj:Any): boolean {
         if (!(thatObj instanceof Region)) return false; /* EQUALS HACK */
         val that:Region = thatObj as Region;
 

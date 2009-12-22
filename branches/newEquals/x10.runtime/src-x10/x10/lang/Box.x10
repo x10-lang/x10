@@ -10,7 +10,7 @@ public final class Box[+T](value: T) {
 
     public global safe def toString(): String = value.toString();
 
-    public def equals(x:Object): Boolean {
+    public global safe def equals(x:Any): Boolean {
         if (x == null) {
             return false;
         }
