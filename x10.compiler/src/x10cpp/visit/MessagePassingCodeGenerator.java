@@ -1392,6 +1392,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
+            h.writeln("static x10aux::ref<x10::lang::String> toString("+Emitter.translateType(currentClass, false)+" this_) { return this_->toString(); }");        
+
         }
         
         // HACKS for hashCode.  To be removed once Equality is implemented.
