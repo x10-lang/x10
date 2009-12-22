@@ -3,7 +3,6 @@
 
 import harness.x10Test;
 
-import x10.io.StringWriter;
 import x10.io.Printer;
 
 import x10.compiler.Native;

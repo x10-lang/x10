@@ -28,7 +28,7 @@ class XTENLANG_38 extends x10Test {
         try { ps.write(b); } catch (e:IOException) {}
         x10.io.Console.OUT.println("got " + os.toString());
 
-        return os.toString().equals("a");
+        return os.result().equals("a");
     }
 
     public static def main(Rail[String]) {
