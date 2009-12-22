@@ -326,7 +326,7 @@ function execTimeOut {
 
 # the following needs to be defined outside main
 # program name
-MYDIR=$(dirname $0)
+MYDIR=$(cd $(dirname $0) && pwd)
 X10_HOME=$X10_HOME
 if [[ -z "$X10_HOME" ]]; then
 	X10_HOME=$(cd $MYDIR/../..; pwd)
@@ -511,6 +511,8 @@ function init {
 }
 
 function xmlLog {
+	TOUTF=$TLOGF
+	if [[ -z "$TLOGF" ]]; then TLOGF=/dev/null; TOUTF=/dev/stderr; fi
 	__cat_test_end_time=$(perl -e 'print time;')
 	let '__cat_test_duration = __cat_test_end_time - __cat_test_start_time'
 	if [[ "${__cat_current_group}" != ${__cat_opened_group} ]]; then
@@ -561,14 +563,14 @@ function xmlLog {
 	          s/>/\&gt;/g;
 	          s/"/\&quot;/g;
 	          s/'"'"'/\&apos;/g;
-	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TLOGF
+	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TOUTF
 #	sed -e 's/</\&lt;/g' \
 #		-e 's/>/\&gt;/g' \
 #		-e 's/&&/\&amp;\&amp;/g' \
 #		-e 's/ & / \&amp; /g' \
 #		-e 's/&/\&amp;/g' \
 #		-e '/Unexpected character ignored:/d' \
-#		$1 >> $TLOGF
+#		$1 >> $TOUTF
 	printf "\t\t\t</output>\n" >> $TLOGF
 	printf "\t\t</test-execution>\n" >> $TLOGF
 	printf "\t</test>\n" >> $TLOGF
