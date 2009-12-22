@@ -16,61 +16,67 @@ import x10.lib.collections.List;
   <p>Uses linked lists to represent a stream.
 
   @author vj Nov 2009
-*/
+ */
 public class SimpleStreamImp[T] implements Stream[T] {
 
-    var head: List[T];
+	var head: List[T];
+    val name:String;
+var tail:List[T];
 
-    var tail:List[T];
-
-    public def this() {
+public def this() {
+	this("Stream");
+}
+public def this(n:String) {
 	val v = new List[T]();
 	head = v;
 	tail = v;
-    }
+	name = n;
+}
 
-    public def source() = this;
-    public def sink() = this;
+public def source():Source[T] = this;
+public def sink():Sink[T] = this;
 
-   /** Close the stream. 
-    */
-    public def close() {
+/** Close the stream. 
+ */
+public def close() {
 	if (tail != null)
-	  atomic { 
-	    tail.tail=null;
-            tail=null;
-          }
-    }
+		atomic { 
+		tail.tail=null;
+		tail=null;
+	}
+}
 
-    /**
+/**
       Is the stream closed and empty?
-    */
-    public def isClosed()  = (tail==null && head.tail==null);
+ */
+public def isClosed()  = (tail==null && head.tail==null);
 
-    /**
+/**
       Put the given element in the stream, throwing a StreamClosedException
       if the stream is closed.
-    */
-    public def put(t:T):Void throws StreamClosedException {
+ */
+public def put(t:T):Void throws StreamClosedException {
 	if (tail==null)
-	    throw new StreamClosedException();
+		throw new StreamClosedException();
 	val v = new List[T]();
 	tail.head = t;
 	tail.tail = v;
 	atomic tail = v;
-    }
+}
 
-    /**
+/**
 	Return the next element in the stream, throwing a 
         StreamClosedException if the last element in the stream
         has been read and the stream has been discovered to be closed.
-    */
-    public def get():T throws StreamClosedException {
+ */
+public def get():T throws StreamClosedException {
 	await (head != tail || tail==null);
 	if (head.tail==null)
-	    throw new StreamClosedException();
+		throw new StreamClosedException();
 	val result = head.head;
 	head = head.tail;
 	return result;
-    }
+}
+public def toString() = name;
+//public def toString() = "Stream(" + head + "," + tail + ")";
 }
