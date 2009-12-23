@@ -1,0 +1,71 @@
+\subsection{Array types}
+\label{ArrayTypeConstructors}\index{array types}
+\index{\Xcd{Array}}
+\index{\Xcd{ValArray}}
+\index{\Xcd{x10.lang.Array}}
+
+Arrays in \Xten{} are instances of the class
+\xcd"x10.lang.Array".
+Because of the importance of arrays in \Xten{}, the language
+supports more concise syntax for accessing array elements and
+performing operations on arrays.
+
+% The array type constructor takes as argument a type (the {\em base
+% type}), an optional distribution (\Sref{XtenDistributions}), and
+% optionally the keyword \xcd"value":
+
+The array type \xcd"Array[T]" is the type of all
+reference arrays of base type \xcd"T". Such an array can take on any
+distribution, over any region. 
+
+\eat{
+The array type \xcd"ValArray[T]" specifies the type of all
+values arrays of base type \xcd"T".
+The array elements of a \xcd"ValArray" are
+all final.\footnote{Note that the base type of a
+\xcd"ValArray" can be a value class or a reference class, just as the 
+type of a final variable can be a value class or a reference class.}
+}
+
+The array class implements the function type
+\xcd"(Point) => T"; the element of array \xcd"A" at point
+\xcd"p" may be accessed using the 
+syntax \xcd"A(p)".  The \xcd"Array" class 
+also implements the \xcd"Settable[Point,T]" interface 
+permitting assignment to an array element using the syntax
+\xcd"A(p) = v".
+
+\Xten{} also supports dependent types for arrays,
+e.g.,
+\xcd"Array[Double]{rank==3}" is the type of all arrays of 
+\xcd"Double" of rank \xcd"3".
+The \xcd"Array" class has distribution, region, and rank
+properties. 
+\XtenCurrVer{} defines type definitions that allow a distribution,
+region, or rank to be specified with on the array type.
+
+\begin{xten}
+package x10.lang;
+type Array[T](n: Int) = Array[T]{rank==n};
+type Array[T](d: Dist) = Array[T]{dist==d};
+type Array[T](r: Region) = Array[T]{region==r};
+\end{xten}
+
+\subsection{Rails}
+
+A \emph{rail} is a one-dimensional, zero-based, local array. 
+It is more primitive than the \xcd"Array" class.
+Rails are indexed by integers rather than multi-dimensional
+points.  Rails have a single \xcd"length" property of type
+\xcd"Int".  Rails can be mutable or immutable and are defined
+by the following class definitions:
+
+\begin{xten}
+package x10.lang;
+public value class ValRail[T](length: Int) extends (Int)=>T { }
+public class Rail[T](length: Int) extends (Int)=>T, Settable[Int,T] { }
+\end{xten}
+
+\Xten{} supports shorthand syntax for rail construction
+(\Sref{RailConstructors}).
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+# Use to run an X10 program linked against PGAS sockets using mpirun.
+# Should work on Cygwin, Linux, Darwin, AIX
+DEFAULT_PORT=21053
+IP=$(host -t A $(hostname) | awk '{print $NF}')
+PORT=$(expr $DEFAULT_PORT + $$ % 1024)
+while netstat -an | grep tcp | grep -q "$IP.$PORT"; do
+    let PORT=$PORT+1
+done
+mpirun -x PGASRT_HOME_PORT=$PORT "$@"
