@@ -2316,8 +2316,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Type aType = lhs.type();
 	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type(), context);
 	    if (rhsNeedsCast) {
-	        // FIXME: this cast would not be needed if not for a frontend bug
-	        sw.write("x10aux::class_cast" + chevrons(Emitter.translateType(aType, true)) + "(");
+	        // Cast is needed to ensure conversion/autoboxing.
+	        // However, it is statically correct to do the assignment, therefore it can be unchecked.
+	        sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(aType, true)) + "(");
 	    }
 	    if (unsigned_op)
 	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
@@ -2358,8 +2359,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        Type aType = dec.type().type();
 	        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, initexpr.type(), context);
 	        if (rhsNeedsCast) {
-	            // FIXME: this cast would not be needed if not for a frontend bug
-	            sw.write("x10aux::class_cast" + chevrons(Emitter.translateType(aType, true)) + "(");
+	            // Cast is needed to ensure conversion/autoboxing.
+	            // However, it is statically correct to do the assignment, therefore it can be unchecked.
+	            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(aType, true)) + "(");
 	        }
 	        dec.print(initexpr, sw, tr);
 	        if (rhsNeedsCast)
@@ -3249,8 +3251,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 if (xts.typeEquals(f_, t_, context)) {
                     c.printSubExpr(c.expr(), true, sw, tr);
                 } else if (c.conversionType()==X10Cast_c.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
-					c.printSubExpr(c.expr(), true, sw, tr);
-				} else {
+                    // Need to check for case where a struct is being upcast to an interface that it implements.
+                    // When that happens, we need to put in a class_cast_unchecked to cause boxing to happen.
+                    if (t_.isClass() && t_.toClass().flags().isInterface() &&
+                            f_.isClass() && ((X10ClassType)f_.toClass()).isX10Struct()) {
+                        sw.write("x10aux::class_cast_unchecked");
+                        sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
+                        c.printSubExpr(c.expr(), true, sw, tr);
+                        sw.write(")");
+                    } else {
+                        c.printSubExpr(c.expr(), true, sw, tr);
+                    }
+                } else {
 				    if (c.conversionType()==X10Cast_c.ConversionType.UNCHECKED) {
 				        sw.write("x10aux::class_cast_unchecked");
 				    } else {
