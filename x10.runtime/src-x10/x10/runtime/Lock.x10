@@ -9,41 +9,33 @@
  */
 package x10.runtime;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
+import x10.compiler.NativeClass;
+import x10.compiler.NativeDef;
 
 /**
  * A low-level lock that provides a subset of
  * the functionality of java.util.concurrent.locks.ReentrantLock.
  * The API is subsetted to that which is also supported by pthread_mutex.
  */
+@NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
+@NativeClass("c++", "x10.runtime", "Lock__ReentrantLock")
 public class Lock {
 
-    @NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
-    @NativeRep("c++", "x10aux::ref<x10::runtime::Lock__ReentrantLock>", "x10::runtime::Lock__ReentrantLock", null)
-    static class ReentrantLock {}
+    @NativeDef("java")
+    @NativeDef("c++")
+    public def lock() {}
 
-    private val lock = new ReentrantLock();
+    @NativeDef("java")
+    @NativeDef("c++")
+    public def tryLock() {}
 
-    public def lock() {
-        @Native("java", "lock.lock();")
-        @Native("c++", "FMGL(lock)->lock();") {}
-    }
+    @NativeDef("java")
+    @NativeDef("c++")
+    public def unlock() {}
 
-    public def tryLock() {
-        @Native("java", "lock.tryLock();")
-        @Native("c++", "FMGL(lock)->tryLock();") {}
-    }
-
-    public def unlock() {
-        @Native("java", "lock.unlock();")
-        @Native("c++", "FMGL(lock)->unlock();") {}
-    }
-
-    public def getHoldCount() {
-        @Native("java", "return lock.getHoldCount();")
-        @Native("c++", "return FMGL(lock)->getHoldCount();") { return 0; }
-    }
+    @NativeDef("java")
+    @NativeDef("c++")
+    public def getHoldCount() = 0;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

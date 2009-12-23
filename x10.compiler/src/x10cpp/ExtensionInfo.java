@@ -35,6 +35,7 @@ import x10.Configuration;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.visit.CheckNativeAnnotationsVisitor;
+import x10.visit.NativeClassVisitor;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10InnerClassRemover;
 import x10cpp.ast.X10CPPDelFactory_c;
@@ -131,6 +132,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			NodeFactory nf = extInfo.nodeFactory();
 			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
 		}
+       public Goal NativeClassVisitor(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
+       }
 		public Goal InnerClassesRemoved(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
 			NodeFactory nf = extInfo.nodeFactory();
