@@ -280,9 +280,9 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Ref> > > parms) {
     return String::Lit(ss.str().c_str());
 }
 
-x10_boolean String::equals(ref<Object> p0) {
+x10_boolean String::equals(ref<Any> p0) {
     nullCheck(p0);
-    if (p0.operator->() == this) return true; // short-circuit trivial equality
+    if (ref<String>(p0).operator->() == this) return true; // short-circuit trivial equality
     if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
     ref<String> that = (ref<String>) p0;
     if (strcmp(this->FMGL(content), that->FMGL(content)))

@@ -126,7 +126,7 @@ namespace x10 {
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<Rail<x10aux::ref<Ref> > > parms);
 
-            virtual x10_boolean equals(x10aux::ref<x10::lang::Object> p0);
+            virtual x10_boolean equals(x10aux::ref<x10::lang::Any> p0);
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {
