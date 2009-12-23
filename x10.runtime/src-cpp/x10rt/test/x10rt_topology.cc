@@ -25,14 +25,14 @@ int main(int argc, char **argv)
     std::cout << "Nodes: " << x10rt_nplaces() << std::endl;
     std::cout << "Here: " << x10rt_here() << std::endl;
 
-    std::cout << "┐" << std::endl;
+    std::cout << "-." << std::endl;
     for (x10rt_place i=0 ; i<x10rt_nhosts() ; ++i) {
 
         int last = i==x10rt_nhosts()-1;
 
-        std::cout << (last?"└":"├") << "─"<<std::setfill('0')<<std::setw(2)<<i<<"("<<std::setfill('0')<<std::setw(2)<<x10rt_parent(i)<<")─"<<typestr(i);
+        std::cout << (last?" `-":" |-") << "-"<<std::setfill('0')<<std::setw(2)<<i<<"("<<std::setfill('0')<<std::setw(2)<<x10rt_parent(i)<<")-"<<typestr(i);
         if (x10rt_nchildren(i)>0) {
-            std::cout << "─┐";
+            std::cout << "--.";
         }
 
         std::cout << std::endl;
@@ -40,10 +40,9 @@ int main(int argc, char **argv)
         for (x10rt_place j=0 ; j<x10rt_nchildren(i) ; ++j) {
             x10rt_place p = x10rt_child(i,j);
             int last2 = j==x10rt_nchildren(i)-1;
-            std::cout << (last?" ":"│")<<"             "
-                      << (last2?"└":"├")<<"─"<<j<<"─"<<p<<"("<<x10rt_parent(p)<<")-"
+            std::cout << (last?"   ":" | ")<<"              "
+                      << (last2?" `-":" |-")<<"-"<<j<<"-"<<p<<"("<<x10rt_parent(p)<<")-"
                       << typestr(p)<<std::endl;
-                   
         }
 
     }

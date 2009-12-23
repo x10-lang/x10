@@ -1,7 +1,7 @@
 #include <x10rt_front.h>
 #include <x10rt_logical.h>
 
-static x10rt_msg_type counter = 0;
+static x10rt_msg_type counter = 1;
 
 void x10rt_init (int &argc, char **&argv)
 { x10rt_lgl_init(argc, argv, counter); }
