@@ -65,7 +65,7 @@ namespace x10 {
 
             virtual x10_int hashCode() { return 0; }
 
-            virtual x10_boolean equals(x10aux::ref<Object> other);
+            virtual x10_boolean equals(x10aux::ref<Any> other);
             
             virtual x10aux::ref<x10::lang::String> toString() { return x10aux::railToString<T,ValRail<T> >(this); }
 
@@ -145,7 +145,7 @@ namespace x10 {
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<ValRail<T> >())
         };
 
-        template<class T> x10_boolean ValRail<T>::equals(x10aux::ref<Object> other) {
+        template<class T> x10_boolean ValRail<T>::equals(x10aux::ref<Any> other) {
             if (!_type()->concreteInstanceOf(other))
                 return false;
             x10aux::ref<ValRail<T> > that = (x10aux::ref<ValRail<T> >)other;

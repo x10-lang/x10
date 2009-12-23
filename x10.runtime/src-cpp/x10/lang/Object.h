@@ -9,7 +9,8 @@ namespace x10 {
 
         class String;
         class Ref;
-
+        class Any;
+        
         class Object : public Reference {
         private:
             static x10aux::itable_entry _itables[1];
@@ -23,7 +24,7 @@ namespace x10 {
 
             virtual ~Object() { }
 
-            virtual x10_boolean equals(x10aux::ref<Object> other);
+            virtual x10_boolean equals(x10aux::ref<Any> other);
 
             virtual x10_int hashCode() = 0;
 
