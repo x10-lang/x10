@@ -775,7 +775,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			return;
 		}
 		if ((((X10Translator) tr).inInnerClass() || c.inAnonObjectScope() )
-				&& n.qualifier() == null && n.kind() != X10Special.SELF) {
+				&& n.qualifier() == null && n.kind() != X10Special.SELF && n.kind() != Special.SUPER) {
 			er.printType(n.type(), 0);
 			w.write(".");
 		}

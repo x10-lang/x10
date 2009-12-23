@@ -4542,8 +4542,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		 Object[] components = new Object[1+3*types.size() + args.size()];
 		 assert (receiver != null);
          components[0] = receiver;
-         if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER)
+         if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
              pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
+             pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(receiver.type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
+         }
 
          int i = 1;
 		 for (Type at : types) {
