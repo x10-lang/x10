@@ -23,19 +23,19 @@ public class Lock {
 
     @NativeDef("java")
     @NativeDef("c++")
-    public def lock() {}
+    public def lock():Void {}
 
     @NativeDef("java")
     @NativeDef("c++")
-    public def tryLock() {}
+    public def tryLock():Void {}
 
     @NativeDef("java")
     @NativeDef("c++")
-    public def unlock() {}
+    public def unlock():Void {}
 
     @NativeDef("java")
     @NativeDef("c++")
-    public def getHoldCount() = 0;
+    public def getHoldCount():Int = 0;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
