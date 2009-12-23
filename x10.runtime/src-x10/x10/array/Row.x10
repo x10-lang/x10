@@ -58,7 +58,7 @@ abstract class Row(cols:nat) implements (nat)=>int {
         val os = new StringWriter();
         val ps = new Printer(os);
         printEqn(ps, "", 0);
-        return os.toString();
+        return os.result();
     }
 
 
