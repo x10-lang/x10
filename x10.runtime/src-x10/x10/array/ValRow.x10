@@ -3,10 +3,6 @@
 
 package x10.array;
 
-import x10.io.Printer;
-import x10.io.StringWriter;
-
-
 public class ValRow extends Row {
 
     global private val row: ValRail[int];
