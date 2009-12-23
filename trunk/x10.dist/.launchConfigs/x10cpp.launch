@@ -9,6 +9,8 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="X10LIB" value="${project_loc:x10.compiler}/../pgas2/common/work"/>
+<mapEntry key="X10GC" value="${project_loc:x10.dist}"/>
+<mapEntry key="X10RT_IMPL" value="pgas_sockets"/>
 <mapEntry key="X10LANG" value="${project_loc:x10.runtime}/src-cpp"/>
 </mapAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
@@ -25,6 +27,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10cpp.ExtensionInfo ${resource_loc} -sourcepath ${project_loc:x10.runtime}/src-x10 -noserial -assert -d out -disable CheckNativeAnnotations ${project_loc:x10.tests}/examples/x10lib/harness/x10Test.x10"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.compiler"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea -Xmx256m"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
 </launchConfiguration>
