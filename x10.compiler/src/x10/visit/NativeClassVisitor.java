@@ -101,7 +101,6 @@ public class NativeClassVisitor extends ContextVisitor {
         return null;
     }
 
-
     public String getNativeClassPackage(X10ClassDef def) {
         try {
             Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
@@ -172,13 +171,13 @@ public class NativeClassVisitor extends ContextVisitor {
         Expr init = xnf.New(pos, tn, Collections.<Expr>emptyList()).constructorInstance(ci).type(ft);
         cm.add(xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, fieldName), init).fieldDef(ff));
 
-        // look for @NativeDef methods
+        // look for @NativeDef methods and native methods
         for (ClassMember m : cb.members()) {
             if (m instanceof X10MethodDecl) {
                 X10MethodDecl md = (X10MethodDecl) m;
                 X10MethodDef mf = (X10MethodDef) md.methodDef();
                 
-                if (!isNativeMethod(mf)) {
+                if (!isNativeMethod(mf) && !mf.flags().isNative()) {
                     cm.add(m);
                     continue;
                 }
@@ -189,14 +188,14 @@ public class NativeClassVisitor extends ContextVisitor {
                 // turn formals into arguments of delegate call
                 List<Expr> args = new ArrayList<Expr>();
                 for (Formal f : md.formals())
-                    args.add(xnf.Local(pos, f.name()));
-                
+                    args.add(xnf.Local(pos, f.name()).localInstance(f.localDef().asInstance()).type(f.type().type()));
+
                 // call delegate
                 Receiver special = xnf.This(pos).type(cf.asType());
                 Receiver field = xnf.Field(pos, special, xnf.Id(pos, fieldName)).fieldInstance(ff.asInstance()).type(ft);
-                // HACK: reuse x10 method instance for delegate method but make it global
+                // HACK: reuse x10 method instance for delegate method but make it global and non-native
                 MethodInstance mi = mf.asInstance();
-                mi = (MethodInstance) mi.flags(((X10Flags) mi.flags()).Global());
+                mi = (MethodInstance) mi.flags(((X10Flags) mi.flags()).Global().clearNative());
                 Expr expr = xnf.Call(pos, field, md.name(), args).methodInstance(mi).type(md.returnType().type());
                 
                 // void vs. non-void methods
@@ -206,6 +205,10 @@ public class NativeClassVisitor extends ContextVisitor {
                 } else {
                     body = xnf.Return(pos, expr);
                 }
+
+                // clear native flag
+                md = (X10MethodDecl) md.flags(xnf.FlagsNode(pos, md.flags().flags().clearNative()));
+                mf.setFlags(mf.flags().clearNative());
                 cm.add((X10MethodDecl) md.body(xnf.Block(pos, body)));
                 continue;
             }

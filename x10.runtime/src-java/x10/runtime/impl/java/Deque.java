@@ -88,7 +88,7 @@ public class Deque {
      * Pushes a task. Called only by current thread.
      * @param t the task. Caller must ensure nonnull
      */
-    public final void pushTask(Object t) {
+    public final void push(Object t) {
         Object[] q = queue;
         int mask = q.length - 1;
         int s = sp;
@@ -105,7 +105,7 @@ public class Deque {
      * either empty or contended.
      * @return a task, or null if none or contended.
      */
-    public final Object deqTask() {
+    public final Object steal() {
         Object t;
         Object[] q;
         int i;
@@ -124,7 +124,7 @@ public class Deque {
      * Returns a popped task, or null if empty. Ensures active status
      * if nonnull. Called only by current thread.
      */
-    public final Object popTask() {
+    public final Object poll() {
         int s = sp;
         while (s != base) {
             Object[] q = queue;
@@ -176,7 +176,7 @@ public class Deque {
     /**
      * Returns an estimate of the number of tasks in the queue.
      */
-    public final int getQueueSize() {
+    public final int size() {
         int n = sp - base;
         return n < 0? 0 : n; // suppress momentarily negative values
     }

@@ -20,22 +20,13 @@ import x10.compiler.NativeDef;
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
 @NativeClass("c++", "x10.runtime", "Lock__ReentrantLock")
 public class Lock {
+    public native def lock():Void;
 
-    @NativeDef("java")
-    @NativeDef("c++")
-    public def lock():Void {}
+    public native def tryLock():Void;
 
-    @NativeDef("java")
-    @NativeDef("c++")
-    public def tryLock():Void {}
+    public native def unlock():Void;
 
-    @NativeDef("java")
-    @NativeDef("c++")
-    public def unlock():Void {}
-
-    @NativeDef("java")
-    @NativeDef("c++")
-    public def getHoldCount():Int = 0;
+    public native def getHoldCount():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
