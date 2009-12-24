@@ -24,7 +24,7 @@ final class Worker implements ()=>Void {
     private var activity:Activity = null;
 
     // pending activities
-    private val queue = new Deque();
+    private val queue = new X10Deque();
 
     // random number generator for this worker
     private val random:Random!;

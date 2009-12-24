@@ -66,7 +66,7 @@ void Deque::growQueue() {
     } while (++b != bf);
 }
 
-void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
+void Deque::push(x10aux::ref<x10::lang::Object> t) {
     Slots *q = queue;
     int mask = q->capacity - 1;
     int s = sp;
@@ -79,7 +79,7 @@ void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
     }
 }
 
-ref<Object> Deque::deqTask() {
+ref<Object> Deque::steal() {
     Object *t;
     Slots *q;
     int i;
@@ -94,7 +94,7 @@ ref<Object> Deque::deqTask() {
     return null;
 }
 
-ref<Object> Deque::popTask() {
+ref<Object> Deque::poll() {
     int s = sp;
     while (s != base) {
         Slots *q = queue;

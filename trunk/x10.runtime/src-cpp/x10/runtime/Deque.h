@@ -87,20 +87,20 @@ namespace x10 {
              * Pushes a task. Called only by current thread.
              * @param t the task. Caller must ensure nonnull
              */
-            void pushTask(x10aux::ref<x10::lang::Object> t);
+            void push(x10aux::ref<x10::lang::Object> t);
 
             /**
              * Tries to take a task from the base of the queue, failing if
              * either empty or contended.
              * @return a task, or null if none or contended.
              */
-            x10aux::ref<x10::lang::Object> deqTask();
+            x10aux::ref<x10::lang::Object> steal();
 
             /**
              * Returns a popped task, or null if empty. Ensures active status
              * if nonnull. Called only by current thread.
              */
-            x10aux::ref<x10::lang::Object> popTask();
+            x10aux::ref<x10::lang::Object> poll();
                 
             /**
              * Returns next task to pop.
@@ -113,7 +113,7 @@ namespace x10 {
             /**
              * Returns an estimate of the number of tasks in the queue.
              */
-            inline int getQueueSize() {
+            inline int size() {
                 int n = sp - base;
                 return n < 0 ? 0 : n; // suppress momentarily negative values
             }
