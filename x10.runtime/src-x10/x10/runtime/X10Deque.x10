@@ -17,8 +17,6 @@ import x10.compiler.NativeDef;
 @NativeClass("java", "x10.runtime.impl.java", "Deque")
 @NativeClass("c++", "x10.runtime", "Deque")
 public final class X10Deque {
-    public native def this();
-
     public native def size():Int;
 
     public native def poll():Object;

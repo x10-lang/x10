@@ -20,8 +20,6 @@ import x10.compiler.NativeDef;
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
 @NativeClass("c++", "x10.runtime", "Lock__ReentrantLock")
 public class Lock {
-    public native def this();
-
     public native def lock():Void;
 
     public native def tryLock():Void;

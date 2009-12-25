@@ -11,11 +11,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import polyglot.ast.Assign;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
@@ -43,13 +41,10 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.ast.X10ConstructorDecl;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext;
-import x10.types.X10Def;
-import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
@@ -76,39 +71,48 @@ public class NativeClassVisitor extends ContextVisitor {
         fieldName = Name.make("__NATIVE_FIELD__");
     }
 
-    public boolean isNativeDef(X10Def def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeDef"));
-        List<Type> as = def.annotationsMatching(t);
-        for (Type at : as) {
-            String lang = getPropertyInit(at, 0);
-            if (theLanguage.equals(lang)) {
-                return true;
+    public boolean isNativeMethod(X10MethodDef def) {
+        try {
+            Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeDef"));
+            List<Type> as = def.annotationsMatching(t);
+            for (Type at : as) {
+                String lang = getPropertyInit(at, 0);
+                if (theLanguage.equals(lang)) {
+                    return true;
+                }
             }
         }
+        catch (SemanticException e) {}
         return false;
     }
 
-    public String getNativeClassName(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
-        List<Type> as = def.annotationsMatching(t);
-        for (Type at : as) {
-            String lang = getPropertyInit(at, 0);
-            if (theLanguage.equals(lang)) {
-                return getPropertyInit(at, 2);
+    public String getNativeClassName(X10ClassDef def) {
+        try {
+            Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+            List<Type> as = def.annotationsMatching(t);
+            for (Type at : as) {
+                String lang = getPropertyInit(at, 0);
+                if (theLanguage.equals(lang)) {
+                    return getPropertyInit(at, 2);
+                }
             }
         }
+        catch (SemanticException e) {}
         return null;
     }
 
-    public String getNativeClassPackage(X10ClassDef def) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
-        List<Type> as = def.annotationsMatching(t);
-        for (Type at : as) {
-            String lang = getPropertyInit(at, 0);
-            if (theLanguage.equals(lang)) {
-                return getPropertyInit(at, 1);
+    public String getNativeClassPackage(X10ClassDef def) {
+        try {
+            Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeClass"));
+            List<Type> as = def.annotationsMatching(t);
+            for (Type at : as) {
+                String lang = getPropertyInit(at, 0);
+                if (theLanguage.equals(lang)) {
+                    return getPropertyInit(at, 1);
+                }
             }
         }
+        catch (SemanticException e) {}
         return null;
     }
 
@@ -160,21 +164,20 @@ public class NativeClassVisitor extends ContextVisitor {
         // add field with native type
         Flags flags = X10Flags.GLOBAL.Private().Final();
         FieldDef ff = xts.fieldDef(pos, Types.ref(cf.asType()), flags, Types.ref(ft), fieldName);
+        ConstructorInstance ci = xts.constructorDef(pos, Types.ref(ft), flags,
+                Collections.<Ref<? extends Type>>emptyList(),
+                Collections.<Ref<? extends Type>>emptyList()).asInstance();
         CanonicalTypeNode tn = xnf.CanonicalTypeNode(pos, ft);
-        cm.add(xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, fieldName)).fieldDef(ff));
+        Expr init = xnf.New(pos, tn, Collections.<Expr>emptyList()).constructorInstance(ci).type(ft);
+        cm.add(xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, fieldName), init).fieldDef(ff));
 
-        Receiver special = xnf.This(pos).type(cf.asType());
-        Receiver field = xnf.Field(pos, special, xnf.Id(pos, fieldName)).fieldInstance(ff.asInstance()).type(ft);
-        
-        Boolean hasNativeConstructor = false;
-
-        // look for native methods and constructors
+        // look for @NativeDef methods and native methods
         for (ClassMember m : cb.members()) {
             if (m instanceof X10MethodDecl) {
                 X10MethodDecl md = (X10MethodDecl) m;
                 X10MethodDef mf = (X10MethodDef) md.methodDef();
                 
-                if (!isNativeDef(mf) && !mf.flags().isNative()) {
+                if (!isNativeMethod(mf) && !mf.flags().isNative()) {
                     cm.add(m);
                     continue;
                 }
@@ -187,11 +190,12 @@ public class NativeClassVisitor extends ContextVisitor {
                 for (Formal f : md.formals())
                     args.add(xnf.Local(pos, f.name()).localInstance(f.localDef().asInstance()).type(f.type().type()));
 
+                // call delegate
+                Receiver special = xnf.This(pos).type(cf.asType());
+                Receiver field = xnf.Field(pos, special, xnf.Id(pos, fieldName)).fieldInstance(ff.asInstance()).type(ft);
                 // HACK: reuse x10 method instance for delegate method but make it global and non-native
                 MethodInstance mi = mf.asInstance();
                 mi = (MethodInstance) mi.flags(((X10Flags) mi.flags()).Global().clearNative());
-
-                // call delegate
                 Expr expr = xnf.Call(pos, field, md.name(), args).methodInstance(mi).type(md.returnType().type());
                 
                 // void vs. non-void methods
@@ -208,42 +212,7 @@ public class NativeClassVisitor extends ContextVisitor {
                 cm.add((X10MethodDecl) md.body(xnf.Block(pos, body)));
                 continue;
             }
-            
-            if (m instanceof X10ConstructorDecl) {
-                X10ConstructorDecl xd = (X10ConstructorDecl) m;
-                X10ConstructorDef xf = (X10ConstructorDef) xd.constructorDef();
-                
-                if (!isNativeDef(xf) && !xf.flags().isNative()) {
-                    // TODO: check that non-native constructors invoke native constructors
-                    cm.add(m);
-                    continue;
-                }
-                
-                hasNativeConstructor = true;
-
-                if (Report.should_report("nativeclass", 2))
-                    Report.report(1, "Processing @NativeDef " + xd);
-
-                // turn formals into arguments of delegate call
-                List<Expr> args = new ArrayList<Expr>();
-                for (Formal f : xd.formals())
-                    args.add(xnf.Local(pos, f.name()).localInstance(f.localDef().asInstance()).type(f.type().type()));
-
-                ConstructorInstance xi = xf.asInstance();
-                xi = (ConstructorInstance) xi.flags(((X10Flags) xi.flags()).clearNative());
-                Expr init = xnf.New(pos, tn, args).constructorInstance(xi).type(ft);
-                Stmt body = xnf.Eval(pos, xnf.FieldAssign(pos, special, xnf.Id(pos, fieldName), Assign.ASSIGN, init).fieldInstance(ff.asInstance()).type(ft));
-
-                xd = (X10ConstructorDecl) xd.flags(xnf.FlagsNode(pos, xd.flags().flags().clearNative()));
-                xf.setFlags(xf.flags().clearNative());
-                cm.add((X10ConstructorDecl) xd.body(xnf.Block(pos, body)));
-                continue;
-            }
             cm.add(m);
-        }
-        
-        if (!hasNativeConstructor) {            
-            throw new SemanticException("@NativeClass " + cd.name() + " must be declare a native constructor.");
         }
         
         return cd.body(cb.members(cm));
