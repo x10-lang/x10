@@ -16,7 +16,7 @@ import x10.util.Stack;
 class Semaphore {
     private val lock = new Lock();
 
-    private val threads = new Stack[Thread]();
+    private val threads = new Stack[X10Thread]();
 
     private var permits:Int;
 
@@ -31,7 +31,7 @@ class Semaphore {
         permits += n;
         val m = min(permits, min(n, threads.size()));
         for (var i:Int = 0; i<m; i++) {
-            Thread.unpark(threads.pop());
+            threads.pop().unpark();
         }
         lock.unlock();
     }
@@ -48,12 +48,12 @@ class Semaphore {
 
     def acquire():Void {
         lock.lock();
-        val thread = Thread.currentThread();
+        val thread = X10Thread.currentThread();
         while (permits <= 0) {
             threads.push(thread);
             while (threads.contains(thread)) {
                 lock.unlock();
-                Thread.park();
+                X10Thread.park();
                 lock.lock();
             }
         }

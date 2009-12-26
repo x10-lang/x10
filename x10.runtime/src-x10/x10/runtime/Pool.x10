@@ -30,25 +30,25 @@ public class Pool implements ()=>Void {
     private val workers:Rail[Worker!]!;
 
     // the threads in the pool
-    private val threads:Rail[Thread!]!;
+    private val threads:Rail[X10Thread!]!;
 
     def this(latch:Latch!, size:Int) {
         this.latch = latch;
         this.size = size;
         val workers = Rail.make[Worker!](MAX);
-        val threads = Rail.make[Thread!](size);
+        val threads = Rail.make[X10Thread!](size);
 
         // worker for the master thread
         val master = new Worker(latch, 0);
         workers(0) = master;
-        threads(0) = Thread.currentThread();
-        Thread.currentThread().worker(master);
+        threads(0) = X10Thread.currentThread();
+        X10Thread.currentThread().worker(master);
 
         // other workers
         for (var i:Int = 1; i<size; i++) {
             val worker = new Worker(latch, i);
             workers(i) = worker;
-            threads(i) = new Thread(worker.apply.(), "thread-" + i);
+            threads(i) = new X10Thread(worker.apply.(), "thread-" + i);
             threads(i).worker(worker);
         }
         this.workers = workers;
@@ -61,7 +61,7 @@ public class Pool implements ()=>Void {
             threads(i).start();
         }
         workers(0)();
-        while (size > 0) Thread.park();
+        while (size > 0) X10Thread.park();
     }
 
 
@@ -86,7 +86,7 @@ public class Pool implements ()=>Void {
             }
             val worker = new Worker(latch as Latch!, i);
             workers(i) = worker;
-            val thread = new Thread(worker.apply.(), "thread-" + i);
+            val thread = new X10Thread(worker.apply.(), "thread-" + i);
             thread.worker(worker);
             thread.start();
         }
@@ -107,7 +107,7 @@ public class Pool implements ()=>Void {
         semaphore.release();
         lock.lock();
         size--;
-        if (size == 0) Thread.unpark(threads(0));
+        if (size == 0) threads(0).unpark();
         lock.unlock();
     }
 

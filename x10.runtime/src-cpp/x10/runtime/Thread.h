@@ -28,7 +28,7 @@ namespace x10 {
     namespace runtime {
 
         class Worker;
-        
+
         // execution thread condition & associated lock pair
         typedef struct {
             pthread_cond_t cond;
@@ -41,7 +41,7 @@ namespace x10 {
             pthread_mutex_t mutex;
             x10_boolean permit;
         } permit_t;
-        
+
        /************************************************************
         * A thread is a unit of execution in a place.
         * In a given place, we can have multiple threads of execution.
@@ -57,13 +57,13 @@ namespace x10 {
             // [constructors] Allocates a new Thread object.
             static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::VoidFun_0_0> task,
                                              x10aux::ref<x10::lang::String> name);
-            
+
             x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::VoidFun_0_0> task,
                                              x10aux::ref<x10::lang::String> name) {
                 this->x10::lang::Ref::_constructor();
                 thread_init(task, name);
                 return this;
-            } 
+            }
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -171,16 +171,19 @@ namespace x10 {
              * to have any effect at all if the given thread has not been
              * started.
              */
-            static void unpark(x10aux::ref<Thread> thread);
+            void unpark();
 
             // Returns the current worker.
             x10aux::ref<x10::runtime::Worker> worker(void);
+
+            // Returns the current location.
+            x10_int locInt(void);
 
             // Set the current worker.
             void worker(x10aux::ref<x10::runtime::Worker> worker);
 
             // Returns this thread's name.
-            const x10aux::ref<x10::lang::String> getName(void);
+            const x10aux::ref<x10::lang::String> name(void);
 
             /**
              * Returns the identifier of this thread. The thread ID is
@@ -190,7 +193,7 @@ namespace x10 {
             long getId();
 
             // Changes the name of this thread to be equal to the argument name.
-            void setName(const x10aux::ref<x10::lang::String> name);
+            void name(const x10aux::ref<x10::lang::String> name);
 
         protected:
             // Helper method to initialize a Thread object.

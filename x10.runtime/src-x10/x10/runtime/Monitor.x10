@@ -18,7 +18,7 @@ class Monitor extends Lock {
     /**
      * Parked threads
      */
-    private val threads = new Stack[Thread]();
+    private val threads = new Stack[X10Thread]();
 
     /**
      * Park calling thread
@@ -28,7 +28,7 @@ class Monitor extends Lock {
      */
     def await():Void {
         Runtime.increaseParallelism();
-        val thread = Thread.currentThread();
+        val thread = X10Thread.currentThread();
         threads.push(thread);
         while (threads.contains(thread)) {
             unlock();

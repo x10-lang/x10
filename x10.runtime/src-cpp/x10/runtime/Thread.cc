@@ -105,7 +105,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_name = String::_make(name);
     __taskBody = task;
 
-    
+
     // create start condition object with default attributes
     // ??check the return code for ENOMEM/EAGAIN??
     (void)pthread_cond_init(&__thread_start_cond, NULL);
@@ -365,7 +365,7 @@ Thread::park(void)
 {
     ref<Thread> th = currentThread();
     permit_t *perm = &(th->__thread_permit);
-    
+
     pthread_mutex_lock(&(perm->mutex));
     pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
     while (perm->permit == false) {
@@ -418,10 +418,10 @@ Thread::parkNanos(x10_long nanos)
  * not already available.
  */
 void
-Thread::unpark(ref<Thread> thread)
+Thread::unpark()
 {
-    permit_t *perm = &(thread->__thread_permit);
-    
+    permit_t *perm = &(__thread_permit);
+
     pthread_mutex_lock(&(perm->mutex));
     if (!perm->permit) {
         perm->permit = true;
@@ -435,6 +435,12 @@ ref<Worker>
 Thread::worker(void)
 {
     return __current_worker;
+}
+
+x10_int
+Thread::locInt(void)
+{
+    return (x10_int) location;
 }
 
 // Set the current worker.
@@ -453,14 +459,14 @@ Thread::getId()
 
 // Returns this thread's name.
 const ref<String>
-Thread::getName(void)
+Thread::name(void)
 {
     return __thread_name;
 }
 
 // Set the name of this thread.
 void
-Thread::setName(ref<String> name)
+Thread::name(ref<String> name)
 {
     __thread_name = name;
 }
