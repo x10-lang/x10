@@ -50,7 +50,7 @@ public final class Runtime {
     /**
      * Return the current worker
      */
-    private static def worker():Worker! = Thread.currentThread().worker();
+    private static def worker():Worker! = X10Thread.currentThread().worker();
 
     /**
      * Return the current activity
@@ -61,7 +61,7 @@ public final class Runtime {
     /**
      * Return the current place
      */
-    public static def here():Place = Thread.currentThread().home;
+    public static def here():Place = X10Thread.currentThread().home;
 
     /**
      * The amount of unscheduled activities currently available to this worker thread.
@@ -83,7 +83,7 @@ public final class Runtime {
                 }
             }
             NativeRuntime.registerHandlers();
-            if (Thread.currentThread().locInt() == 0) {
+            if (X10Thread.currentThread().locInt() == 0) {
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
                 pool();
                 if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
@@ -117,7 +117,7 @@ public final class Runtime {
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == X10Thread.currentThread().locInt()) {
             execute(new Activity(body, state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
@@ -129,7 +129,7 @@ public final class Runtime {
         val state = currentState();
         state.notifySubActivitySpawn(place);
         val ok = safe();
-        if (place.id == Thread.currentThread().locInt()) {
+        if (place.id == X10Thread.currentThread().locInt()) {
             execute(new Activity(body, state, ok));
         } else {
             var closure:()=>Void;
@@ -266,7 +266,7 @@ public final class Runtime {
     public static def sleep(millis:long):Boolean {
         try {
             increaseParallelism();
-            Thread.sleep(millis);
+            X10Thread.sleep(millis);
             decreaseParallelism(1);
             return true;
         } catch (e:InterruptedException) {
@@ -371,16 +371,16 @@ public final class Runtime {
     // park current thread
     static def park() {
         if (!NativeRuntime.STATIC_THREADS) {
-            Thread.park();
+            X10Thread.park();
         } else {
             NativeRuntime.event_probe();
         }
     }
 
     // unpark given thread
-    static def unpark(thread:Thread) {
+    static def unpark(thread:X10Thread) {
         if (!NativeRuntime.STATIC_THREADS) {
-            Thread.unpark(thread);
+            thread.unpark();
         }
     }
 
