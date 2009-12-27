@@ -1,7 +1,7 @@
 import x10.util.Random;
 public value PrefixClock {
     val P:Int;
-    val a:Array[int](1);
+    val a:Rail[Int];
     def this(p:Int) {
 	this.P=p;
         val r = new Random(2156L);
