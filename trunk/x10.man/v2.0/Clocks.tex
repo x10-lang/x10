@@ -1,7 +1,7 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
 
 The standard library for \Xten{}, \xcd"x10.lang" defines a
-final value class", \xcd"Clock" intended for repeated quiescence detection
+final value class, \xcd"Clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
 activities to register and deregister. An activity may be registered
@@ -66,7 +66,7 @@ The special statements introduced for clock operations are listed below.
 \begin{grammar}
 Statement \: ClockedStatement \\
 ClockedStatement \: \xcd"clocked" \xcd"(" ClockList \xcd")" Statement \\
-NextStatement \: next \xcd";" \\
+NextStatement \: \xcd"next" \xcd";" \\
 \end{grammar}
 
 Note that \xcd"x10.lang.Clock" provides several useful methods on
