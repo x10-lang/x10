@@ -323,12 +323,13 @@ those variables in the enclosing lexical environment which are
 declared to be \xcd"final".
 
 If the type of \xcd"e" is \xcd"T" then the type of
-\xcd"future (Q) e" is \xcd"future[T]".  This 
+\xcd"future (Q) e" is \xcd"Future[T]".  This 
 type \xcd"Future[T]" is defined as if by:
 \begin{xten}
 package x10.lang;
 public interface Future[T] implements () => T {
-  def forced(): Boolean;
+  global def forced(): Boolean;
+  global def force(): T;
 }
 \end{xten}
 
