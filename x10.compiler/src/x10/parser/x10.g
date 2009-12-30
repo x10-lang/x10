@@ -2906,7 +2906,7 @@ public static class MessageHandler implements IMessageHandler {
                       | Type
         /.$BeginJava
                 Formal f;
-                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST, true);
+                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.EMPTY_LIST, true);
                 setResult(f);
           $EndJava
         ./

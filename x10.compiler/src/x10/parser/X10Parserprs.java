@@ -1,5 +1,5 @@
 
-//#line 18 "/Users/tardieu/workspace/x10.compiler/src/x10/parser/x10.g"
+//#line 18 "C:/eclipsews/head2/x10.compiler/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
