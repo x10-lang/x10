@@ -73,7 +73,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
-import x10.visit.TryTypeChecker;
+
 
 /**
  * Representation of an X10 method call.
