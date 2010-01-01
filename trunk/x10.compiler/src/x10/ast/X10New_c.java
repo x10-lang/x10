@@ -62,8 +62,7 @@ import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.visit.TryTypeChecker;
-import x10.visit.TryVisitorI;
+
 
 /**
  * new C[T](e)
@@ -581,14 +580,6 @@ public class X10New_c extends New_c implements X10New {
        // return (X10New_c) this.constructorInstance(xci).type(type);
     }
     
-    /**
-     * This should be implemented by any node that wants to be visited by a TryVisitor.
-     * @param n
-     * @return
-     * @throws SemanticException
-     */
-   public Node tryVisit(TryVisitorI n) throws SemanticException {
-	   return n.tryVisitEdge(null, this);
-   }
+   
    
 }
