@@ -222,7 +222,7 @@ public class Emitter {
 	 * @param components
 	 * @param regex
 	 */
-	public void dumpCodeString(Object[] components, String regex) {
+	public void dumpCodeString(String regex, Object... components) {
 		dumpRegex("internal", components, tr, regex);
 	}
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex) {
