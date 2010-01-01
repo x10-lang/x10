@@ -656,6 +656,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Cast_c c) {
 		TypeNode tn = c.castType();
 		assert tn instanceof CanonicalTypeNode;
+		
 		Expr expr = c.expr();
 		Type type = expr.type();
 
@@ -689,7 +690,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					new Template(er, template, ex, expr, rt, new Join(er, " && ", conds)).expand();
 					xct.restoreAnonObjectScope(inAnonObjectScope);
 				}
-				else if (t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
+				else 
+					if (((X10TypeSystem) type.typeSystem()).isAny(type) && (t.isBoolean() || t.isNumeric())) {
+						if (t.isBoolean()) {
+							er.dumpCodeString("((Boolean) #0).booleanValue()", expr);
+						} else if (t.isInt()) {
+							er.dumpCodeString("((Integer) #0).intValue()", expr);
+						} else if (t.isShort()) {
+							er.dumpCodeString("((Short) #0).shortValue()", expr);
+						} else if (t.isByte()) {
+							er.dumpCodeString("((Byte) #0).byteValue()", expr);
+						} else if (t.isLong()) {
+							er.dumpCodeString("((Long) #0).longValue()", expr);
+						} else if (t.isFloat()) {
+							er.dumpCodeString("((Float) #0).floatValue()", expr);
+						} else if (t.isDouble()) {
+							er.dumpCodeString("((Double) #0).doubleValue()", expr);
+						} else if (t.isChar()) {
+							er.dumpCodeString("((Char) #0).charValue()", expr);
+						}
+					} else if 
+					(t.isBoolean() || t.isNumeric() || t.isChar() || type.isSubtype(t, tr.context())) {
+					
 					w.begin(0);
 					w.write("("); // put "(Type) expr" in parentheses.
 					w.write("(");
