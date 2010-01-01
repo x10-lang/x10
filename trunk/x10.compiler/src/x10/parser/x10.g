@@ -1328,9 +1328,9 @@ public static class MessageHandler implements IMessageHandler {
         ./
         
         
-    DepParameters ::= { ExistentialListopt Conjunction }
+    DepParameters ::= { ExistentialListopt Conjunctionopt }
          /.$BeginJava
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
+                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, (List) Conjunctionopt));
           $EndJava
         ./
                     | ! PlaceType
@@ -1405,6 +1405,18 @@ public static class MessageHandler implements IMessageHandler {
                 setResult(DepParameters);
           $EndJava
           ./
+
+    Conjunctionopt ::= %Empty
+          /.$BeginJava
+                    List l = new ArrayList();
+                    setResult(l);
+          $EndJava
+          ./
+          | Conjunction
+          /.$BeginJava
+                setResult(Conjunction);
+          $EndJava
+        ./
 
     ExistentialListopt ::= %Empty
           /.$BeginJava
