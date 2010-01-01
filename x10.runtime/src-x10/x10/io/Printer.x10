@@ -29,13 +29,13 @@ public class Printer extends FilterWriter {
 
     private const NEWLINE:Char = '\n'; // System.getProperty("line.separator");
 
-    public global def println(): Void = print(new Box[Char](NEWLINE));
+    public global def println(): Void = print(NEWLINE);
     
-    public global def print(o:Object): Void {
-        if (o == null)
-            print("null");
-        else
-            print(at (o) o.toString());
+    public final global def println(o:Any): Void {
+    	print(o==null? "null\n" : o.toString()+"\n");
+    }
+    public final global def print(o:Any): Void {
+    	print(o==null? "null" : o.toString());
     }
 
     public global def print(s:String): Void {
@@ -48,65 +48,7 @@ public class Printer extends FilterWriter {
         }
     }
 
-    /* TODO: Top/toString/struct.
-             Once front-end changes are made so that the compiler
-             understands that all types provide a toString,
-             then we can use this nice clean code and kill
-             all of the print/println specializations below.
-    public final global def print[T](x:T){T<:Primitive} = print(x.toString());
 
-    public final global def println[T](x:T): Void {
-        print(x);
-        println();
-    }
-    */
-
-    public final global def print(x:Boolean) = print(x.toString());
-    public final global def print(x:Byte) = print(x.toString());
-    public final global def print(x:Char) = print(x.toString());
-    public final global def print(x:Short) = print(x.toString());
-    public final global def print(x:Int) = print(x.toString());
-    public final global def print(x:Long) = print(x.toString());
-    public final global def print(x:Float) = print(x.toString());
-    public final global def print(x:Double) = print(x.toString());
-
-
-    public final global def println(x:Object): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Boolean): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Byte): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Char): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Short): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Int): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Long): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Float): Void {
-        print(x);
-        println();
-    }
-    public final global def println(x:Double): Void {
-        print(x);
-        println();
-    }
     
     public global def printf(fmt: String): Void { printf(fmt, []); }
     public global def printf(fmt: String, o1: Object): Void { printf(fmt, [o1]); }
