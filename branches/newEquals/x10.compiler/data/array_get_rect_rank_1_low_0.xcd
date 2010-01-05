@@ -1,2 +1,0 @@
-// SYNOPSIS: #0[#1]
-((#0).getBackingArray()[#1])
