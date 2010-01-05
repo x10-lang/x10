@@ -36,12 +36,10 @@ public class RuntimeClock extends Clock {
 
     private global def remove() = Runtime.clockPhases().remove(this) as Int;
 
-    private def resumeLocal(){here==this.home} {
-        atomic {
-            if (--alive == 0) {
-                alive = count;
-                ++phase;
-            }
+    private atomic def resumeLocal() {
+        if (--alive == 0) {
+            alive = count;
+            ++phase;
         }
     }
 
@@ -73,8 +71,8 @@ public class RuntimeClock extends Clock {
     }
 
     global def dropUnsafe() {
-        val ph = get();
-        at (this) atomic {
+        val ph = remove();
+        async (this) atomic {
             --count;
             if (-ph != phase) resumeLocal();
         }
