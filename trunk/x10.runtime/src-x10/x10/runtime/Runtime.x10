@@ -8,7 +8,6 @@
 
 package x10.runtime;
 
-import x10.util.GrowableRail;
 import x10.util.HashMap;
 import x10.util.Random;
 import x10.util.Stack;
@@ -165,36 +164,77 @@ public final class Runtime {
     /**
      * Run at statement
      */
+    static class RemoteControl {
+        var e:Box[Throwable] = null;
+        val latch = new Latch();
+    }
+
     public static def runAt(place:Place, body:()=>Void):Void {
-        //avoid creating another closure
-        finish async (place) body();
-        //startFinish();
-        //runAsync(place, body);
-        //stopFinish();
+        val box = new RemoteControl();
+        async (place) {
+            try {
+                body();
+                async (box) box.latch.release();
+            } catch (e:Throwable) {
+                async (box) {
+                    box.e = e;
+                    box.latch.release();
+                }
+            }
+        }
+        if (!NativeRuntime.NO_STEALS && safe()) Runtime.join(box.latch);
+        box.latch.await();
+        if (null != box.e) {
+            val x = box.e as Throwable;
+            if (x instanceof Error)
+                throw x as Error;
+            if (x instanceof RuntimeException)
+                throw x as RuntimeException;
+        }
+    }
+
+    public static def runAt(place:Object, body:()=>Void):Void {
+        runAt(place.home, body);
     }
 
     /**
      * Eval at expression
      */
-    public static def evalAt[T](place:Place, eval:()=>T):T {
-        val ret = here;
-        val box = new GrowableRail[T]();
-        at (place) {
-            val result = eval();
-            at (ret) box.add(result);
-        }
-        return box(0);
+    static class Remote[T] {
+        var t:Box[T] = null;
+        var e:Box[Throwable] = null;
+        val latch = new Latch();
     }
 
-    public static def evalAt[T](place:Object, eval:()=>T):T {
-        val ret = here;
-        val box = new GrowableRail[T]();
-        at (place) {
-        val result = eval();
-        at (ret) box.add(result);
+    public static def evalAt[T](place:Place, eval:()=>T):T {
+        val box = new Remote[T]();
+        async (place) {
+            try {
+                val result = eval();
+                async (box) {
+                    box.t = result;
+                    box.latch.release();
+                }
+            } catch (e:Throwable) {
+                async (box) {
+                    box.e = e;
+                    box.latch.release();
+                }
+            }
         }
-        return box(0);
+        if (!NativeRuntime.NO_STEALS && safe()) Runtime.join(box.latch);
+        box.latch.await();
+        if (null != box.e) {
+            val x = box.e as Throwable;
+            if (x instanceof Error)
+                throw x as Error;
+            if (x instanceof RuntimeException)
+                throw x as RuntimeException;
+        }
+        return box.t.value;
     }
+
+    public static def evalAt[T](place:Object, eval:()=>T):T = evalAt[T](place.home, eval);
 
     /**
      * Eval future expression
