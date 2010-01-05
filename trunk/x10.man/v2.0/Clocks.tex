@@ -85,8 +85,8 @@ All clocked variables are implicitly final. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
 Clocks are created in the place global heap and hence outlive the
-lifetime of the creating activity.  Clocks are instances of value
-classes, hence may be freely copied from place to
+lifetime of the creating activity.  Clocks are structs, hence may be freely
+copied from place to 
 place. (Clock instances typically contain references to mutable state
 that maintains the current state of the clock.)
 
