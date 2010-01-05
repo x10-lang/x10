@@ -1,2 +1,0 @@
-// SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))
