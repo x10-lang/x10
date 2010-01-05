@@ -1,7 +1,7 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
 
 The standard library for \Xten{}, \xcd"x10.lang" defines a
-final value class, \xcd"Clock" intended for repeated quiescence detection
+final class", \xcd"Clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
 activities to register and deregister. An activity may be registered
@@ -32,6 +32,7 @@ for its lifetime. It may {\em check} to see if it is unregistered on a
 clock. It may {\em register} a newly forked activity with \xcd"c".
 %% It may {\em post} a statement \xcd"S" for completion in the current phase
 %% of \xcd"c" by executing the statement \xcd"now(c) S". 
+Once registered and "active" (see below), it may also perform the following operations.
 It may {\em resume} the clock by executing \xcd"c.resume();". This
 indicates to \xcd"c" that it has finished posting all statements it
 wishes to perform in the current phase. Finally, it may {\em block}
