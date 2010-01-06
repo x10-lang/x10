@@ -47,7 +47,7 @@ public class X10IRTests extends IRTests {
     }
 
     public X10IRTests() {
-    	super("X10IRTests", null);
+    	super(null);
     	setTestSrcPath("." + File.separator + "testSrc");
     }
 
@@ -68,11 +68,11 @@ public class X10IRTests extends IRTests {
     }
 
     protected String singleJavaInputForTest() {
-	return getName().substring(4) + ".x10";
+	return getTestName().substring(4) + ".x10";
     }
 
     protected String singleJavaPkgInputForTest(String pkgName) {
-	return pkgName + File.separator + getName().substring(4) + ".x10";
+	return pkgName + File.separator + getTestName().substring(4) + ".x10";
     }
 
     @Override
