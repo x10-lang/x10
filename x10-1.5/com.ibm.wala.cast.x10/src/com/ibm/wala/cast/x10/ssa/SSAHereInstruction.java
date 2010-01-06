@@ -2,7 +2,7 @@ package com.ibm.wala.cast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.wala.util.debug.Assertions;
+
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
@@ -47,7 +47,7 @@ public class SSAHereInstruction extends SSAInstruction {
     }
 
     public int getDef(int i) {
-	Assertions._assert(i == 0);
+	assert i == 0;
         return retValue;
     }
 }

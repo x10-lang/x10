@@ -6,14 +6,12 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.io.IOException;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.translator.JavaFilteredSourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
-import com.ibm.wala.ide.util.EclipseProjectPath;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;

@@ -3,11 +3,13 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.util.HashMap;
 import java.util.Map;
 
-import polyglot.ext.x10.types.*;
-import polyglot.types.*;
+import polyglot.ext.x10.types.NullableType;
+import polyglot.types.ClassType;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 
-import com.ibm.wala.cast.java.translator.polyglot.*;
-import com.ibm.wala.types.*;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
+import com.ibm.wala.types.ClassLoaderReference;
 
 class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
 

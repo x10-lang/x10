@@ -18,24 +18,43 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
-import polyglot.ext.x10.ast.*;
+import polyglot.ext.x10.ast.ArrayConstructor;
+import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Await;
+import polyglot.ext.x10.ast.Clocked;
+import polyglot.ext.x10.ast.Closure;
+import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForEach;
+import polyglot.ext.x10.ast.ForLoop;
+import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.Next;
+import polyglot.ext.x10.ast.ParExpr;
+import polyglot.ext.x10.ast.PlaceCast;
+import polyglot.ext.x10.ast.Point;
+import polyglot.ext.x10.ast.Range;
+import polyglot.ext.x10.ast.Region;
+import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.When_c;
+import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10ArrayAccess1;
+import polyglot.ext.x10.ast.X10Formal;
+import polyglot.ext.x10.ast.X10Loop;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
-import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 
-import com.ibm.wala.cast.x10.translator.X10CAstEntity;
-import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.LoopContext;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
@@ -45,6 +64,8 @@ import com.ibm.wala.cast.tree.CAstSymbol;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.ClassLoaderReference;
@@ -377,7 +398,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    // clearly marked in a more declarative fashion, but for now, this has the
 	    // advantage of making the operational semantics clear, with minimal extra
 	    // machinery.
-            Assertions._assert(exprs.size() == stmts.size());
+            assert exprs.size() == stmts.size();
 	    CAstNode[] whenClauses= new CAstNode[exprs.size()+1];
 
 	    

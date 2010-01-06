@@ -1,11 +1,12 @@
 package com.ibm.wala.cast.x10.loader;
 
-import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.types.ClassLoaderReference;
-
-import java.util.*;
 
 public class X10AnalysisScope extends JavaSourceAnalysisScope {
     private static final Set<Language> languages = new HashSet<Language>(2);

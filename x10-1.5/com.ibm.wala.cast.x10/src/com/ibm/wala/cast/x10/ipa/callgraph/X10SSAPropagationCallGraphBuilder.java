@@ -1,7 +1,5 @@
 package com.ibm.wala.cast.x10.ipa.callgraph;
 
-import com.ibm.wala.util.debug.Assertions;
-import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.analysis.typeInference.TypeInference;
 import com.ibm.wala.cast.ipa.callgraph.AstSSAPropagationCallGraphBuilder;
 import com.ibm.wala.cast.java.ipa.callgraph.AstJavaSSAPropagationCallGraphBuilder;
@@ -19,13 +17,14 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
-import com.ibm.wala.ipa.callgraph.*;
+import com.ibm.wala.ipa.callgraph.AnalysisCache;
+import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import com.ibm.wala.ipa.callgraph.CGNode;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
-import com.ibm.wala.ipa.callgraph.propagation.*;
+import com.ibm.wala.ipa.callgraph.propagation.PointerKeyFactory;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
-import com.ibm.wala.ssa.*;
-import com.ibm.wala.ssa.SSACFG.BasicBlock;
-import com.ibm.wala.util.graph.*;
+import com.ibm.wala.ssa.IR;
+import com.ibm.wala.util.debug.Assertions;
 
 public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCallGraphBuilder {
 
@@ -38,14 +37,14 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	ti.solve();
 
 	if (DEBUG_TYPE_INFERENCE) {
-	    Trace.println("IR of " + ir.getMethod());
-	    Trace.println(ir);
-	    Trace.println("TypeInference of " + ir.getMethod());
+	    java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info("IR of " + ir.getMethod());
+	    java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info(ir.toString());
+	    java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info("TypeInference of " + ir.getMethod());
 	    for(int i= 0; i < ir.getSymbolTable().getMaxValueNumber(); i++) {
 		if (ti.isUndefined(i)) {
-		    Trace.println("  value " + i + " is undefined");
+		    java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info("  value " + i + " is undefined");
 		} else {
-		    Trace.println("  value " + i + " has type " + ti.getType(i));
+		    java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info("  value " + i + " has type " + ti.getType(i));
 		}
 	    }
 	}
@@ -67,12 +66,12 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitForce(SSAForceInstruction instruction) {
-	    Assertions._assert(instruction.getUse(0) == vn, "force instruction has bogus use/def info?");
+	    assert instruction.getUse(0) == vn: "force instruction has bogus use/def info?";
 	    bingo= true;
 	}
 
 	public void visitRegionIterInit(SSARegionIterInitInstruction instruction) {
-	    Assertions._assert(instruction.getUse(0) == vn, "regionIterInit instruction has bogus use/def info?");
+	    assert instruction.getUse(0) == vn : "regionIterInit instruction has bogus use/def info?";
 	    bingo= true;
 	}
 
@@ -80,7 +79,7 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitRegionIterNext(SSARegionIterNextInstruction instruction) {
-	    Assertions._assert(instruction.getUse(0) == vn, "regionIterNext instruction has bogus use/def info?");
+	    assert instruction.getUse(0) == vn : "regionIterNext instruction has bogus use/def info?";
 	    bingo= true;
 	}
 

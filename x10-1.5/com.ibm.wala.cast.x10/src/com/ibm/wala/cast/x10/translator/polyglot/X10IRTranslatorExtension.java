@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 
 public class X10IRTranslatorExtension extends X10ExtensionInfo {
     // Doesn't matter which goal we get here, because they all have the same ExtensionInfo

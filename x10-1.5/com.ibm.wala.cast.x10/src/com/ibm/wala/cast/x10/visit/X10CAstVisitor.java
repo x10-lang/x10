@@ -1,8 +1,11 @@
 package com.ibm.wala.cast.x10.visit;
 
-import com.ibm.wala.cast.tree.*;
-import com.ibm.wala.cast.tree.visit.*;
-import com.ibm.wala.cast.x10.translator.*;
+import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.tree.CAstNode;
+import com.ibm.wala.cast.tree.visit.CAstVisitor;
+import com.ibm.wala.cast.tree.visit.DelegatingCAstVisitor;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.x10.translator.X10CastNode;
 
 /**
  * @author Igor Peshansky
