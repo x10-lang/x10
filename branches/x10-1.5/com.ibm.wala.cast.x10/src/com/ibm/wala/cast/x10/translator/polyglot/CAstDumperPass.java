@@ -8,9 +8,9 @@ import java.io.PrintWriter;
 import polyglot.frontend.AbstractPass;
 import polyglot.frontend.goals.Goal;
 
+import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
 import com.ibm.wala.cast.x10.translator.X10CAstPrinter;
-import com.ibm.wala.cast.tree.CAstEntity;
 
 public class CAstDumperPass extends AbstractPass {
 

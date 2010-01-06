@@ -11,8 +11,8 @@ import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
-import com.ibm.wala.cast.x10.translator.polyglot.WALAScheduler;
 import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.x10.translator.polyglot.WALAScheduler;
 
 public class AsyncAnalysisGoal extends AbstractGoal {
     public AsyncAnalysisGoal(Job job) {

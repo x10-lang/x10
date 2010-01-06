@@ -7,7 +7,6 @@ import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.debug.Assertions;
 
 // TODO refactor to share code with X10AsyncObject
 
@@ -36,7 +35,7 @@ public class X10ClosureObject extends AstFunctionClass {
     }
 
     public void setCodeBody(IMethod method) {
-	Assertions._assert(method.getReference().getDeclaringClass().equals(getReference()));
+	assert method.getReference().getDeclaringClass().equals(getReference());
 	functionBody= method;
     }
 

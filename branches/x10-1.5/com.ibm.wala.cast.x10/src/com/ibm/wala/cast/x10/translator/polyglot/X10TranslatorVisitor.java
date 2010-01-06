@@ -3,11 +3,33 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import polyglot.ext.x10.ast.*;
+import polyglot.ext.x10.ast.ArrayConstructor;
+import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Await;
+import polyglot.ext.x10.ast.Clocked;
+import polyglot.ext.x10.ast.Closure;
+import polyglot.ext.x10.ast.Finish;
+import polyglot.ext.x10.ast.ForEach;
+import polyglot.ext.x10.ast.ForLoop;
+import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.ast.GenParameterExpr;
+import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.Next;
+import polyglot.ext.x10.ast.ParExpr;
+import polyglot.ext.x10.ast.PlaceCast;
+import polyglot.ext.x10.ast.Point;
+import polyglot.ext.x10.ast.Range;
+import polyglot.ext.x10.ast.Region;
+import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10ArrayAccess;
+import polyglot.ext.x10.ast.X10ArrayAccess1;
+import polyglot.ext.x10.ast.X10Formal;
 
-import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
-import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.*;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
+import com.ibm.wala.cast.tree.CAstNode;
 
 public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(ArrayConstructor ac, WalkContext context);

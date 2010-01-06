@@ -2,7 +2,6 @@ package com.ibm.wala.cast.x10.ssa;
 
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.debug.Assertions;
 
 public abstract class X10ArrayReferenceByIndexInstruction extends X10ArrayReferenceInstruction {
     private final int[] indices;
@@ -10,8 +9,7 @@ public abstract class X10ArrayReferenceByIndexInstruction extends X10ArrayRefere
     public X10ArrayReferenceByIndexInstruction(int arrayRef, int[] indices, TypeReference declaredType) {
 	super(arrayRef, declaredType);
 	this.indices = indices;
-	if (Assertions.verifyAssertions)
-	    Assertions._assert(indices.length > 0, "Must have > 0 indices for array reference operation");
+	assert indices.length > 0 : "Must have > 0 indices for array reference operation";
     }
 
     public int[] getIndices() {
@@ -25,9 +23,8 @@ public abstract class X10ArrayReferenceByIndexInstruction extends X10ArrayRefere
 
     @Override
     public int getUse(int j) throws UnsupportedOperationException {
-	if (Assertions.verifyAssertions)
-	    Assertions._assert(j <= 1 + indices.length);
-	return (j == 0) ? arrayRef : indices[j-1];
+    	assert j <= 1 + indices.length;
+    	return (j == 0) ? arrayRef : indices[j-1];
     }
 
     @Override
