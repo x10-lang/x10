@@ -125,7 +125,7 @@ public class X10StaAnIRTests extends IRTests {
 	}
 
 	public X10StaAnIRTests() {
-		super("clock optimization tests", null);
+		super(null);
     	setTestSrcPath("." + File.separator + "testSrc");
 	}
 
@@ -148,11 +148,11 @@ public class X10StaAnIRTests extends IRTests {
 	}
 
 	protected String singleJavaInputForTest() {
-		return getName().substring(4) + ".x10";
+		return getTestName().substring(4) + ".x10";
 	}
 
 	protected String singleJavaPkgInputForTest(String pkgName) {
-		return pkgName + File.separator + getName().substring(4) + ".x10";
+		return pkgName + File.separator + getTestName().substring(4) + ".x10";
 	}
 
 	@Override
@@ -531,7 +531,7 @@ public class X10StaAnIRTests extends IRTests {
 			}
 		};
 
-		//Trace.println(ipCFG);
+		//java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info(ipCFG);
 	
 		//System.out.println(ipCFG.getNumberOfNodes());
 		
@@ -608,7 +608,7 @@ public class X10StaAnIRTests extends IRTests {
 							}
 
 							//clockId = "" + inst.getUse(0);
-							// Trace.println("VC: " + viableclocks + " PAVC: " + paViableClocks );
+							// java.util.logging.LogManager.getLogManager().getLogger("com.ibm.wala.trace").info("VC: " + viableclocks + " PAVC: " + paViableClocks );
 							if (inst.toString().contains("doNext()"))
 								functionName = "next";
 							else if (inst.toString().contains("drop()"))
