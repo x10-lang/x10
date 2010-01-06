@@ -41,6 +41,8 @@ public struct Complex {
         return Complex(re + that.re, im + that.im);
     }
 
+    public static safe operator (x:Double) + (y:Complex): Complex = y + x;
+
     /**
      * @return the sum of this complex number and the given Double
      */
@@ -54,6 +56,8 @@ public struct Complex {
     public operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
+
+    public static safe operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
 
     /**
      * @return the difference between this complex number and the given Double
@@ -69,6 +73,8 @@ public struct Complex {
         return Complex(re * that.re - im * that.im, 
                        re * that.im + im * that.re);
     }
+
+    public static safe operator (x:Double) * (y:Complex): Complex = y * x;
 
     /**
      * @return the product of this complex number and the given Double
@@ -116,6 +122,8 @@ public struct Complex {
                            (im * r - re) / denominator);
         }
     }
+
+    public static safe operator (x:Double) / (y:Complex): Complex = Complex(x, 0.0) / y;
 
     /**
      * Gets the quotient of this complex number and the given Double.
