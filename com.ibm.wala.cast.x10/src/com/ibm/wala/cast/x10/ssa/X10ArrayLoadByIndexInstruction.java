@@ -6,7 +6,6 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.debug.Assertions;
 
 public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInstruction {
     private final int result;
@@ -28,7 +27,7 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
 
     @Override
     public int getDef(int i) {
-      Assertions._assert(i == 0);
+      assert i == 0;
       return result;
     }
 

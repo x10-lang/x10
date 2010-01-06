@@ -5,10 +5,12 @@ package com.ibm.wala.cast.x10.ssa;
 
 import java.util.Collection;
 import java.util.Collections;
-import com.ibm.wala.util.debug.Assertions;
+
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
+import com.ibm.wala.ssa.SSAInstruction.IVisitor;
+import com.ibm.wala.util.debug.Assertions;
 
 public class SSAAtomicInstruction extends SSAInstruction {
     private final boolean isEnter;

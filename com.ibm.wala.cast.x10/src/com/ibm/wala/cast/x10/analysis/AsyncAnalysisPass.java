@@ -3,12 +3,10 @@
  */
 package com.ibm.wala.cast.x10.analysis;
 
-import com.ibm.wala.cast.tree.CAstEntity;
-import com.ibm.wala.cast.util.CAstPrinter;
-
 import polyglot.frontend.AbstractPass;
-import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
+
+import com.ibm.wala.cast.tree.CAstEntity;
 
 public class AsyncAnalysisPass extends AbstractPass {
     private final CAstEntity fEntity;

@@ -1,7 +1,6 @@
 package com.ibm.wala.cast.x10.ssa;
 
 import com.ibm.wala.types.TypeReference;
-import com.ibm.wala.util.debug.Assertions;
 
 public abstract class X10ArrayReferenceByPointInstruction extends X10ArrayReferenceInstruction {
     protected final int pointIndex;
@@ -22,9 +21,8 @@ public abstract class X10ArrayReferenceByPointInstruction extends X10ArrayRefere
 
     @Override
     public int getUse(int j) throws UnsupportedOperationException {
-	if (Assertions.verifyAssertions)
-	    Assertions._assert(j <= 2);
-	return (j == 0) ? arrayRef : pointIndex;
+    	assert j <= 2;
+    	return (j == 0) ? arrayRef : pointIndex;
     }
 
     @Override
