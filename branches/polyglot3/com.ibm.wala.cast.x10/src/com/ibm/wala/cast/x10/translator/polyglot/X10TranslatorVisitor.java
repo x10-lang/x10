@@ -16,6 +16,7 @@ import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
+import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.PlaceCast;
@@ -45,6 +46,7 @@ public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(ForEach f, WalkContext context);
     CAstNode visit(Future f, WalkContext context);
     CAstNode visit(Here h, WalkContext context);
+    CAstNode visit(LocalTypeDef l, WalkContext context);
     CAstNode visit(Next n, WalkContext context);
     CAstNode visit(ParExpr expr, WalkContext wc);
     CAstNode visit(PlaceCast pc, WalkContext context);
