@@ -13,6 +13,7 @@ import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
+import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.SettableAssign;
@@ -65,6 +66,8 @@ public class X10ASTTraverser extends ASTTraverser {
       return xtv.visit((Tuple) n, wc);
     else if (n instanceof SettableAssign)
       return xtv.visit((SettableAssign) n, wc);
+    else if (n instanceof LocalTypeDef)
+      return xtv.visit((LocalTypeDef) n, wc);
     else
       return ASTTraverser.visit(n, xtv, wc);
   }
