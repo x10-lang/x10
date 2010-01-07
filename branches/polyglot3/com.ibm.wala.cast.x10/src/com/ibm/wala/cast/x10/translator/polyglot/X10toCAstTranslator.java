@@ -42,6 +42,7 @@ import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.Here;
+import x10.ast.LocalTypeDef;
 import x10.ast.Next;
 import x10.ast.ParExpr;
 import x10.ast.PlaceCast;
@@ -110,20 +111,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
           for(Type typeParam: fPolyglotTypeParameters) {
             fTypeParameters.add(fDict.getCAstTypeFor(typeParam));
           }
-        }
-
-        @Override
-        public String getName() {
-          StringBuilder sb= new StringBuilder();
-          sb.append(((X10PolyglotIdentityMapper) fIdentityMapper).getBaseTypeName(fType).replace('.', '/'));
-//          int idx= 0;
-//          sb.append("<");
-//          for(Type typeParam: fPolyglotTypeParameters) {
-//            if (idx++ > 0) { sb.append(", "); }
-//            sb.append(fIdentityMapper.getTypeRef(typeParam).getName());
-//          }
-//          sb.append(">");
-          return sb.toString();
         }
 
         @Override
@@ -585,6 +572,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public CAstNode visit(Here h, WalkContext context) {
 	    return makeNode(context, h, X10CastNode.HERE);
+	}
+	
+	public CAstNode visit(LocalTypeDef l, WalkContext context) {
+	  return fFactory.makeNode(CAstNode.EMPTY);
 	}
 
 	public CAstNode visit(Next n, WalkContext context) {
