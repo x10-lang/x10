@@ -7,7 +7,7 @@
 #if !defined(_LP64)
 namespace x10 {
     namespace runtime {
-        class Lock;
+        class Lock__ReentrantLock;
     }
 }
 #endif
@@ -54,7 +54,7 @@ namespace x10aux {
     class atomic_ops {
     private:
 #if !defined(_LP64)
-        static x10aux::ref<x10::runtime::Lock> _longOperationLock;
+        static x10aux::ref<x10::runtime::Lock__ReentrantLock> _longOperationLock;
         static void lock();
         static void unlock();
 #endif
