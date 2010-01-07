@@ -109,6 +109,10 @@ public final struct Long {
     @Native("java", "((long) (#1))")
     @Native("c++",  "((x10_long) (#1))")
     public native static safe operator (x:Int): Long;
+
+    @Native("java", "((long) (#1))")
+    @Native("c++",  "((x10_long) (#1))")
+    public native static safe operator (x:UInt): Long;
     
     @Native("java", "((long) (#1))")
     @Native("c++",  "((x10_long) (#1))")
