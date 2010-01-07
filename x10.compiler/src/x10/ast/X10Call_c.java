@@ -201,19 +201,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
  * @throws SemanticException
  */
         
-    SemanticException typeCheckNullTargetException = null;
-	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes,
-			List<Expr> args) throws SemanticException {
-	//	if (typeArgs == null || typeArgs.size()==0) {
-			// This could possibly be an invocation of a constructor for a struct.
-			try {
+        protected Node tryStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes,
+    			List<Expr> args) throws SemanticException {
+        	try {
 				X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 				X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 				Context c = tc.context();
 			
 				// TODO: Actually, determine if there is a struct with the given name,
 				// and able to accept given typeargs and args.
-				ts.existsStructWithName(name(), tc);
+				//ts.existsStructWithName(name(), tc);
 				/*
 				// ok so it is a struct type. Now create the return type.
 				tn = nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
@@ -244,10 +241,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 				TypeNode otn;
 				if (typeArguments().size() > 0) {
-					otn = nf.AmbMacroTypeNode(position(), null, name(), typeArguments(), Collections.EMPTY_LIST);
+					otn = nf.AmbMacroTypeNode(position(), r, name(), typeArguments(), Collections.EMPTY_LIST);
 				}
 				else {
-				    otn = nf.X10AmbTypeNode(position(), null, name());
+				    otn = nf.X10AmbTypeNode(position(), r, name());
 				}
 				
 				otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
@@ -272,7 +269,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				// This may have caused some errors to print out.
 				typeCheckNullTargetException = z;
 			}
-	//	}
+			return null;
+        }
+    SemanticException typeCheckNullTargetException = null;
+	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes,
+			List<Expr> args) throws SemanticException {
+
+		 Node n = tryStructConstructor(tc, null, typeArgs, argTypes, args);
+		 if (n != null)
+			 return n;
 		// Otherwise try and find the usual null target method.
 		return typeCheckNullTargetForMethod(tc, typeArgs, argTypes);
 	}
@@ -462,12 +467,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			return n;
 		}
 
+		Node structCall = null;
     		if (target instanceof TypeNode) {
     		    Type t = ((TypeNode) target).type();
     		    t = X10TypeMixin.baseType(t);
     		    if (t instanceof ParameterType) {
     		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
     		    }
+    		    structCall = tryStructConstructor(tc, target, typeArgs, argTypes, arguments);
+    		    if (structCall != null)
+    		    	return structCall;
     		}
 
 		X10Call_c n = this;
