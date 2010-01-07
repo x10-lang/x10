@@ -32,9 +32,6 @@ public class _ {
     public static type Double(b:Double) = Double{self==b};
     public static type String(s:String) = String{self==s};
    
-    // COMMENT OUT IF UNSIGNED INTEGERS SUPPORTED
-    public static type Nat = Int;
-    public static type nat = int;
 
     public static type signed = Int;
     public static type unsigned = UInt;
@@ -63,18 +60,18 @@ public class _ {
     public static type Point(r: Int) = Point{self.rank==r};
     public static type Place(id:Int) = Place{self.id==id};
 
-    public static type Region(r:Nat) = Region{self.rank==r};
-    public static type RectRegion(r:Nat) = Region{self.rect && self.rank==r};
+    public static type Region(r:Int) = Region{self.rank==r};
+    public static type RectRegion(r:Int) = Region{self.rect && self.rank==r};
     
-    public static type Dist(r:Nat)   = Dist{self.rank==r};
+    public static type Dist(r:Int)   = Dist{self.rank==r};
     public static type Dist(r:Region) = Dist{self.region==r};
     
-    public static type Array[T](r:Nat) = Array[T]{self.rank==r};
+    public static type Array[T](r:Int) = Array[T]{self.rank==r};
     public static type Array[T](r:Region) = Array[T]{self.region==r};
     public static type Array[T](d:Dist) = Array[T]{self.dist==d};
 
-    public static type ValRail[T](n:Nat) = ValRail[T]{self.length==n};
-    public static type Rail[T](n:Nat) = Rail[T]{self.length==n};
+    public static type ValRail[T](n:Int) = ValRail[T]{self.length==n};
+    public static type Rail[T](n:Int) = Rail[T]{self.length==n};
 
     public static type Console = x10.io.Console;
 }

@@ -389,7 +389,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
                 finish {
                     for (var i:int=min; i<=max; i++) {
                         q(r) = i;
-                        val qq = Rail.make[int](q.length, (i:nat)=>q(i));
+                        val qq = Rail.make[int](q.length, (i:Int)=>q(i));
                         async {
                             //Console.OUT.println("async{");
                             loop(body, p, qq, r+1);
@@ -429,7 +429,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     // XXX makes simplifying assumptions about conformance of regions
     // - make this more general!!!
     public operator this || (that:PolyScanner!) {
-        val x = ValRail.make(this.X1.length + that.X1.length, (i:nat) =>
+        val x = ValRail.make(this.X1.length + that.X1.length, (i:Int) =>
             i<this.X1.length? this.X1(i) : that.X1(i-this.X1.length));
         return new PolyScanner(this.C, x);
     }

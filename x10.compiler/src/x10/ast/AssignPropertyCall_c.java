@@ -44,6 +44,7 @@ import x10.constraint.XVar;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
@@ -135,12 +136,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		                                position());
 		}
 		
-		 checkAssignments(tc, pos, thisConstructor, definedProperties);
+		checkAssignments(tc, pos, thisConstructor, definedProperties, args());
+		 checkReturnType(tc, pos, thisConstructor, definedProperties);
 		 
 		 List<Stmt> s = new ArrayList<Stmt>(pSize);
 
 		 for (int i=0; i < aSize; i++) {
-		     //				 We fudge type checking of the generating code as follows.
+		     //	We fudge type checking of the generating code as follows.
 		     // X10 Typechecking of the assignment statement is problematic since 	
 		     // the type of the field may have references to other fields, hence may use this,
 		     // But this doesn't exist yet. We will check all the properties simultaneously
@@ -161,7 +163,22 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
 	}
 
-	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
+	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, 
+			List<FieldInstance> props, List<Expr> args)
+	throws SemanticException {
+		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		// First check that the base types are correct.
+		for (int i=0; i < args.size(); ++i) {
+			if (! xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
+				throw new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
+						+ " is not a subtype of the property type " + props.get(i).type(), position());
+			}
+		}
+		// Now we check that the constraints are correct.
+		
+		
+	}
+	protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
 		throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		    X10Context ctx = (X10Context) tc.context();

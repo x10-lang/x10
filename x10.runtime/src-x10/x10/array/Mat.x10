@@ -5,17 +5,17 @@ package x10.array;
 
 import x10.io.Printer;
 
-public abstract class Mat[+T](rows:nat, cols:nat){T <: Row} 
-    implements (nat)=>T, Iterable[T] {
+public abstract class Mat[+T](rows:Int, cols:Int){T <: Row} 
+    implements (Int)=>T, Iterable[T] {
 
     private global val mat: ValRail[T];
 
-    public def this(rows: nat, cols: nat, mat:ValRail[T]) {
+    public def this(rows: Int, cols: Int, mat:ValRail[T]) {
         property(rows, cols);
         this.mat = mat;
     }
 
-    public global def apply(i: nat) = mat(i);
+    public global def apply(i: Int) = mat(i);
 
     public global def iterator() = mat.iterator();
 

@@ -20,8 +20,8 @@ import x10.io.Printer;
 
 public class PolyMat(rank: int) extends Mat[PolyRow] {
 
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
-    static type PolyMatBuilder(rank:nat) = PolyMatBuilder{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
+    static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
 
     //
     // value
@@ -34,8 +34,8 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * Low-level constructor. For greater convenience use PolyMatBuilder.
      */
 
-    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int, isSimplified:boolean) {
-        super(rows, cols, ValRail.make[PolyRow](rows, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j))));
+    public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
+        super(rows, cols, ValRail.make[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
         property(cols-1);
         this.isSimplified = isSimplified;
     }
@@ -82,7 +82,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
             return this;
 
         val pmb = new PolyMatBuilder(rank);
-        var removed:Rail[boolean]! = Rail.make[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
+        var removed:Rail[boolean]! = Rail.make[boolean](rows, (Int)=>false); // XTENLANG-39 workaround
 
         for (var i: int = 0; i<rows; i++) {
             val r = this(i);
@@ -193,10 +193,10 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
     global def rectMin(): ValRail[int]
-        = ValRail.make[int](rank, (i:nat)=>rectMin(i));
+        = ValRail.make[int](rank, (i:Int)=>rectMin(i));
 
     global def rectMax(): ValRail[int]
-        = ValRail.make[int](rank, (i:nat)=>rectMax(i));
+        = ValRail.make[int](rank, (i:Int)=>rectMax(i));
 
     global def isZeroBased(): boolean {
         if (!isRect())
@@ -251,7 +251,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     public global operator this * (that: XformMat): PolyMat {
-        return new PolyMat(this.rows, that.cols, (i:nat,j:nat) => {
+        return new PolyMat(this.rows, that.cols, (i:Int,j:Int) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
                 sum += this(i)(k)*that(k)(j);

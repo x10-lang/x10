@@ -27,7 +27,7 @@ public final struct Place(id: Int) implements Equals {
     public const NUM_ACCELS = NativeRuntime.MAX_PLACES - NativeRuntime.MAX_HOSTS;
     public const FIRST_PLACE: Place(0) = places(0) as Place(0);
 
-    public def this(id: Int):Place{self.id==id} { property(id); }
+    public def this(id: Int):Place(id) { property(id); }
 
     public static def place(id: Int): Place(id) = places(id) as Place(id);
     public def next(): Place = next(1);

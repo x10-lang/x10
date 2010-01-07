@@ -86,7 +86,9 @@ public class X10Field_c extends Field_c {
 				
 			X10Type xtType = (X10Type) ((X10Field_c) n).target().type();
 			if (xtType.isProto()) {
-				throw new SemanticException("Cannot read fields of the proto value " 
+				throw new SemanticException("Not permitted to read field " + 
+				n + " of proto value "  + target() +"."
+						
 						+ ((X10Field_c) n).target());
 			}
 			}

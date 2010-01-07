@@ -213,7 +213,7 @@ public abstract class BaseArray[T] extends Array[T] {
 
         // scatter
         val ps:ValRail[Place] = dist.places();
-        val results = Rail.make[T](ps.length, (p:nat) => unit);
+        val results = Rail.make[T](ps.length, (p:Int) => unit);
         val r = 0..(ps.length-1);
         
         
@@ -240,7 +240,7 @@ public abstract class BaseArray[T] extends Array[T] {
 
         // scatter
         val ps = dist.places();
-        val results = ValRail.make[Future[T]](ps.length, (p:nat) => {
+        val results = ValRail.make[Future[T]](ps.length, (p:Int) => {
             future(ps(p)) {
                 var result: T = unit;
                 val a = (this | here) as Array[T](rank);
@@ -302,8 +302,8 @@ public abstract class BaseArray[T] extends Array[T] {
     protected proto global def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?
-            val min = ValRail.make[int](r.rank, (nat)=>0);
-            val max = ValRail.make[int](r.rank, (nat)=>-1);
+            val min = ValRail.make[int](r.rank, (Int)=>0);
+            val max = ValRail.make[int](r.rank, (Int)=>-1);
             return new RectLayout(min, max);
         } else {
             return new RectLayout(r.min(), r.max());

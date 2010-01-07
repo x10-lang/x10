@@ -13,17 +13,17 @@ public class ValRow extends Row {
     }
 
     public def this(row: Rail[int]!) {
-        this(row.length, (i:nat) => row(i));
+        this(row.length, (i:Int) => row(i));
     }
 
-    public def this(cols: nat, init: (nat)=>int) {
+    public def this(cols: Int, init: (Int)=>int) {
         super(cols);
         row = ValRail.make[int](cols, init);
     }
     
-    public safe global def apply(i:nat) = row(i);
+    public safe global def apply(i:Int) = row(i);
     
-    public safe global def set(v:int, i:nat):int {
+    public safe global def set(v:int, i:Int):int {
         throw new IllegalOperationException("ValRow.set");
     }
 }

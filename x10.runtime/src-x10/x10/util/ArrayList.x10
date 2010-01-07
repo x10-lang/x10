@@ -65,7 +65,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return v;
     }
             
-    public def apply(i: nat) = a(i);
+    public def apply(i: Int) = a(i);
 
     public def get(i: int): T = a(i);
 

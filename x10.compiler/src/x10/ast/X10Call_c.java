@@ -201,7 +201,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
  * @throws SemanticException
  */
         
-
+    SemanticException typeCheckNullTargetException = null;
 	protected Node typeCheckNullTarget(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes,
 			List<Expr> args) throws SemanticException {
 	//	if (typeArgs == null || typeArgs.size()==0) {
@@ -244,7 +244,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				
 				TypeNode otn;
 				if (typeArguments().size() > 0) {
-                                    otn = nf.AmbMacroTypeNode(position(), null, name(), typeArguments(), Collections.EMPTY_LIST);
+					otn = nf.AmbMacroTypeNode(position(), null, name(), typeArguments(), Collections.EMPTY_LIST);
 				}
 				else {
 				    otn = nf.X10AmbTypeNode(position(), null, name());
@@ -266,7 +266,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				    return neu;
 				}
 			} catch (SemanticException z) {
+				// TBD: Sometimes this is the real error. e.g. the only legitimate target is the 
+				// struct call. We should record this exception and then come back and use this later
+				// if necessary.
 				// This may have caused some errors to print out.
+				typeCheckNullTargetException = z;
 			}
 	//	}
 		// Otherwise try and find the usual null target method.

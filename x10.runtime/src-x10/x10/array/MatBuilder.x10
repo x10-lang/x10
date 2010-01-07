@@ -10,12 +10,12 @@ public class MatBuilder {
     protected val mat: ArrayList[Row]!;
     protected val cols: int;
 
-    public def this(cols: nat) {
+    public def this(cols: Int) {
         this.cols = cols;
         mat = new ArrayList[Row]();
     }
 
-    public def this(rows: nat, cols: nat) {
+    public def this(rows: Int, cols: Int) {
         this.cols = cols;
 	val m = new ArrayList[Row](rows);
         mat = m;
@@ -26,7 +26,7 @@ public class MatBuilder {
         mat.add(row);
     }
 
-    public safe def add(a:(nat)=>int) {
+    public safe def add(a:(Int)=>int) {
         mat.add(new VarRow(cols, a));
     }
 
@@ -35,19 +35,19 @@ public class MatBuilder {
         mat(i)(j) = v;
     }
 
-    public safe def setDiagonal(i:nat, j:nat, n:nat, v:(nat)=>int) {
+    public safe def setDiagonal(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
         for (var k:int=0; k<n; k++)
             mat(i+k)(j+k) = v(k);
     }
 
-    public safe def setColumn(i:nat, j:nat, n:nat, v:(nat)=>int) {
+    public safe def setColumn(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
         for (var k:int=0; k<n; k++)
             mat(i+k)(j) = v(k);
     }
 
-    public safe def setRow(i:nat, j:nat, n:nat, v:(nat)=>int) {
+    public safe def setRow(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+1);
         for (var k:int=0; k<n; k++)
             mat(i)(j+k) = v(k);
@@ -60,7 +60,7 @@ public class MatBuilder {
     }
 
     public safe def toXformMat() {
-        return new XformMat(mat.size(), cols, (i:nat,j:nat)=>mat(i)(j));
+        return new XformMat(mat.size(), cols, (i:Int,j:Int)=>mat(i)(j));
     }
 }
 

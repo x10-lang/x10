@@ -77,7 +77,7 @@ public abstract class Array[T](dist:Dist)
     public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
 
-    public static def make[T](size: nat, init: (Point(1))=>T): Array[T](1)
+    public static def make[T](size: Int, init: (Point(1))=>T): Array[T](1)
         = makeVar[T](0..size-1, init) as Array[T](1);
 
     public static def makeFast[T](region: Region)

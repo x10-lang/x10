@@ -21,7 +21,7 @@ class ClockPhases extends HashMap[RuntimeClock,Int] {
     }
 
     def register(clocks:ValRail[Clock]) {
-        return ValRail.make[Int](clocks.length, (i:Nat)=>(clocks(i) as RuntimeClock).register());
+        return ValRail.make[Int](clocks.length, (i:Int)=>(clocks(i) as RuntimeClock).register());
     }
 
     def next() {
