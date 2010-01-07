@@ -9,25 +9,25 @@ import x10.compiler.ComparisonOps;
 
 /**
  * The type <code>Point(rank)</code> represents a point in a
- * rank-dimensional space. The coordinates of a point <code>p</code>
+ * rank-dimensional space. The coordiIntes of a point <code>p</code>
  * may be accessed individually (with zero-based indexing) using
  * <code>p(i)</code> because <code>Point</code> implements
- * <code>(nat)=>int</code>. The coordinates may also be accessed as a
+ * <code>(Int)=>int</code>. The coordiIntes may also be accessed as a
  * Rail[int]. Point arithmetic is supported.
  *
  * @author bdlucas
  * @author vj
  */
 
-final public class Point(rank: nat) implements (nat) => Int {
+final public class Point(rank: Int) implements (Int) => Int {
 
     /**
-     * Returns the value of the ith coordinate.
+     * Returns the value of the ith coordiInte.
      */
-    public global safe def apply(i: nat): Int = coords(i);
+    public global safe def apply(i: Int): Int = coords(i);
 
     /**
-     * Returns the coordinates as a <code>ValRail[Int]</code>.
+     * Returns the coordiIntes as a <code>ValRail[Int]</code>.
      */
 
     public global safe def coords(): ValRail[int] = coords;
@@ -41,14 +41,14 @@ final public class Point(rank: nat) implements (nat) => Int {
      * Constructs a Point from a Rail[int]
      */
     public static global safe def make(cs: Rail[int]!): Point(cs.length) {
-	val a = ValRail.make[int](cs.length, (i:nat)=>cs(i));
+	val a = ValRail.make[int](cs.length, (i:Int)=>cs(i));
         return make(a);
     }
 
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public static global safe def make(rank:nat, init:(i:nat)=>int):Point(rank) {
+    public static global safe def make(rank:Int, init:(i:Int)=>int):Point(rank) {
         val a = ValRail.make[int](rank, init);
         return make(a);
     }
@@ -78,65 +78,65 @@ final public class Point(rank: nat) implements (nat) => Int {
     /**  The point <code>-p</code> is the same as <code>p</code> with each index negated.
      */
     public global safe operator - this: Point(rank) 
-       = Point.make(rank, (i:nat)=>-this.coords(i));
+       = Point.make(rank, (i:Int)=>-this.coords(i));
 
-    /**  The ith coordinate of point <code>p+q</code> is <code>p(i)+q(i)</code>.
+    /**  The ith coordiInte of point <code>p+q</code> is <code>p(i)+q(i)</code>.
      */
     public global safe operator this + (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) + that.coords(i));
 
 
-    /**  The ith coordinate of point <code>p-q</code> is <code>p(i)-q(i)</code>.
+    /**  The ith coordiInte of point <code>p-q</code> is <code>p(i)-q(i)</code>.
      */
     public global safe operator this - (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) - that.coords(i));
 
-    /**  The ith coordinate of point <code>p*q</code> is <code>p(i)*q(i)</code>.
+    /**  The ith coordiInte of point <code>p*q</code> is <code>p(i)*q(i)</code>.
      */
     public global safe operator this * (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) * that.coords(i));
 
-    /**  The ith coordinate of point <code>p/q</code> is <code>p(i)/q(i)</code>.
+    /**  The ith coordiInte of point <code>p/q</code> is <code>p(i)/q(i)</code>.
      */
     public global safe operator this / (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) / that.coords(i));
 
-    /**  The ith coordinate of point <code>p+c</code> is <code>p(i)+c</code>.
+    /**  The ith coordiInte of point <code>p+c</code> is <code>p(i)+c</code>.
      */
     public global safe operator this + (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) + c);
 
-    /**  The ith coordinate of point <code>p-c</code> is <code>p(i)-c</code>.
+    /**  The ith coordiInte of point <code>p-c</code> is <code>p(i)-c</code>.
      */
     public global safe operator this - (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) - c);
 
-    /**  The ith coordinate of point <code>p*c</code> is <code>p(i)*c</code>.
+    /**  The ith coordiInte of point <code>p*c</code> is <code>p(i)*c</code>.
      */
     public global safe operator this * (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) * c);
 
-    /**  The ith coordinate of point <code>p/c</code> is <code>p(i)/c</code>.
+    /**  The ith coordiInte of point <code>p/c</code> is <code>p(i)/c</code>.
      */
     public global safe operator this / (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) / c);
 
-    /**  The ith coordinate of point <code>c+p</code> is <code>c+p(i)</code>.
+    /**  The ith coordiInte of point <code>c+p</code> is <code>c+p(i)</code>.
      */
     public global safe operator (c: int) + this: Point(rank) 
        = Point.make(rank, (i:Int) => c + this.coords(i));
 
-    /**  The ith coordinate of point <code>c-p</code> is <code>c-p(i)</code>.
+    /**  The ith coordiInte of point <code>c-p</code> is <code>c-p(i)</code>.
      */
     public global safe operator (c: int) - this: Point(rank) 
        = Point.make(rank, (i:Int) => c - this.coords(i));
 
-    /**  The ith coordinate of point <code>c*p</code> is <code>c*p(i)</code>.
+    /**  The ith coordiInte of point <code>c*p</code> is <code>c*p(i)</code>.
      */
     public global safe operator (c: int) * this: Point(rank) 
        = Point.make(rank, (i:Int) => c * this.coords(i));
 
-    /**  The ith coordinate of point <code>c/p</code> is <code>c/p(i)</code>.
+    /**  The ith coordiInte of point <code>c/p</code> is <code>c/p(i)</code>.
      */
     public global safe operator (c: int) / this: Point(rank) 
        = Point.make(rank, (i:Int) => c / this.coords(i));
@@ -211,7 +211,7 @@ final public class Point(rank: nat) implements (nat) => Int {
         return false;
     }
 
-    /** A point with coordinates <code>i1,..., ik</code> is printed as <code>(i1,.., ik)</code>.
+    /** A point with coordiIntes <code>i1,..., ik</code> is printed as <code>(i1,.., ik)</code>.
      */
     public global safe def toString() {
         var s:String = "(";

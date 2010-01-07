@@ -5,7 +5,7 @@ package x10.array;
 
 public abstract class Xform {
 
-    public static def transpose(rank:nat, i:nat, j:nat) {
+    public static def transpose(rank:Int, i:Int, j:Int) {
 
         // reverse transform
         val t = new MatBuilder(rank+1, rank+1);
@@ -32,15 +32,15 @@ public abstract class Xform {
         // reverse transform
         val t = new MatBuilder(rank+1, 2*rank+1);
         t.setDiagonal(0, 0, sizes.length, sizes);
-        t.setDiagonal(0, rank, rank, (nat)=>1);
+        t.setDiagonal(0, rank, rank, (Int)=>1);
         t(rank, 2*rank) = 1;
         val T = t.toXformMat();
 
         // extra constraints
         val e = new PolyMatBuilder(2*rank);
-        e.setDiagonal(0, rank, rank, (nat)=>-1);
-        e.setDiagonal(rank, rank, rank, (nat)=>1);
-        e.setColumn(rank, 2*rank, rank, (i:nat)=>1-sizes(i));
+        e.setDiagonal(0, rank, rank, (Int)=>-1);
+        e.setDiagonal(rank, rank, rank, (Int)=>1);
+        e.setColumn(rank, 2*rank, rank, (i:Int)=>1-sizes(i));
         val E = e.toSortedPolyMat(true);
 
         return new PolyXform(E, T);
@@ -52,8 +52,8 @@ public abstract class Xform {
         
         // reverse transform
         val t = new MatBuilder(rank+1, rank+1);
-        t.setDiagonal(0, 0, rank+1, (nat)=>1);
-        t.setColumn(0, axis, rank, (i:nat)=>with(i));
+        t.setDiagonal(0, 0, rank+1, (Int)=>1);
+        t.setColumn(0, axis, rank, (i:Int)=>with(i));
         val T = t.toXformMat();
 
         // no extra constraints

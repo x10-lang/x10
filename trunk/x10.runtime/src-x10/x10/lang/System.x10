@@ -243,7 +243,7 @@ public class System {
         return null;
     }
 
-    public static safe def makeRemoteRail[T] (p:Place, length:Int, init: (nat) => T)
+    public static safe def makeRemoteRail[T] (p:Place, length:Int, init: (Int) => T)
         : Rail[T]{self.length==length} {
         val tmp = Rail.make(length, init);
         return makeRemoteRail[T](p,length,tmp);

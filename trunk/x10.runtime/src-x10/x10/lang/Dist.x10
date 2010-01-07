@@ -28,7 +28,7 @@ public abstract class Dist(
     , Iterable[Point(region.rank)]
 {
 
-    property rank: nat = region.rank;
+    property rank: Int = region.rank;
     property rect: boolean = region.rect;
     property zeroBased: boolean = region.zeroBased;
     property rail: boolean = region.rail;

@@ -206,14 +206,14 @@ public abstract class Region(
      * the ith axis.
      */
 
-    public global def min(i:nat) = min()(i);
+    public global def min(i:Int) = min()(i);
 
     /**
      * Returns the upper bound of the bounding box of the region along
      * the ith axis.
      */
 
-    public global def max(i:nat) = max()(i);    
+    public global def max(i:Int) = max()(i);    
 
 
     //
@@ -315,7 +315,7 @@ public abstract class Region(
         val count = max-min+1;
         val baseSize = count/n;
         val extra = count - baseSize*n;
-        val result = ValRail.make[Region(1)](n, (i:nat):Region(1) => {
+        val result = ValRail.make[Region(1)](n, (i:Int):Region(1) => {
             val start = min + i*baseSize + (i<extra?i:extra);
             return start..start+baseSize+(i<extra?0:-1);
         });

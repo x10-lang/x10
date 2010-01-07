@@ -6,7 +6,7 @@ import x10.compiler.NativeRep;
 /** We make this a native class for efficiency. */
 @NativeRep("java", "x10.core.GrowableRail<#1>", null, null)
 @NativeRep("c++", "x10aux::ref<x10::util::GrowableRail<#1 > >", "x10::util::GrowableRail<#1 >", null)
-public final class GrowableRail[T] implements Indexable[nat,T], Settable[nat,T] {
+public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] {
     /** Return a rail of length 0 */
     public native def this();
     

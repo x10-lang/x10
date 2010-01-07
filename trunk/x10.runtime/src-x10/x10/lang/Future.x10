@@ -13,7 +13,7 @@ package x10.lang;
  * @author Christoph von Praun
  * @author tardieu
  */
-public abstract class Future[T] implements ()=>T {
+public abstract class Future[+T] implements ()=>T {
     /**
      * Wait for the completion of this activity and return the computed value.
      */

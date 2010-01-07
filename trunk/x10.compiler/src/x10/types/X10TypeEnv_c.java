@@ -327,7 +327,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         X10Context  c = (X10Context) this.context;
         t = X10TypeMixin.baseType(t);
         if (t instanceof FunctionType)
-            return Kind.VALUE;
+            return Kind.INTERFACE;
         if (t instanceof ClassType) {
             ClassType ct = (ClassType) t;
             if (ct.isAnonymous()) {
@@ -338,10 +338,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 else
                     throw new InternalCompilerError(t + " must have either a superclass or a single superinterface.");
             }
-            if (X10Flags.toX10Flags(ct.flags()).isValue())
-                return Kind.VALUE;
             if (X10Flags.toX10Flags(ct.flags()).isInterface())
-                return Kind.EITHER;
+                return Kind.INTERFACE;
 
             if (X10Flags.toX10Flags(ct.flags()).isStruct())
                 return Kind.STRUCT;
@@ -358,8 +356,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     ;
                 else if (k2 == Kind.EITHER)
                     ;
-                else if (k == Kind.EITHER && k2 == Kind.VALUE)
-                    k = Kind.VALUE;
                 else if (k == Kind.EITHER && k2 == Kind.STRUCT)
                     k = Kind.STRUCT;
                 else if (k == Kind.EITHER && k2 == Kind.REFERENCE)
@@ -960,7 +956,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				}
 
     				if (allowValueInterfacesHere 
-    						|| ts. isValueType(parentType, xcontext)) {
+    					) {
     					if (isSubtype(x, parentType, ancestor, allowValueInterfaces)) {
     						return true;
     					}
@@ -1129,7 +1125,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
       //  	return true;
         
         if (fromType instanceof NullType) {
-            return toType.isNull() || ! ts.isValueType(toType, (X10Context) context);
+            return toType.isNull() || ts.isReferenceOrInterfaceType(toType, (X10Context) context);
+          
         }
 
         // For now, can always cast to or from a parameter type.
@@ -1155,10 +1152,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (baseType1 != fromType || baseType2 != toType)
             return isCastValid(baseType1, baseType2);
 
-        if (ts.isValueType(baseType1, (X10Context) context) && ts.isReferenceType(baseType2, (X10Context) context))
+        if (ts.isStructType(baseType1) && ts.isReferenceType(baseType2, (X10Context) context))
             return false;
 
-        if (ts.isReferenceType(baseType1, (X10Context) context) && ts.isValueType(baseType2, (X10Context) context))
+        if (ts.isReferenceType(baseType1, (X10Context) context) && ts.isStructType(baseType2))
             return false;
 
         if (ts.isParameterType(baseType1) || ts.isParameterType(baseType2))

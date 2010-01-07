@@ -19,10 +19,10 @@ import x10.io.Printer;
 abstract public class BaseRegion extends Region {
 
     // XTENLANG-49
-    static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
+    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
+    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
 
 

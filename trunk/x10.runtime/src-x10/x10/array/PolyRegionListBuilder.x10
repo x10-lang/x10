@@ -16,11 +16,11 @@ import x10.util.ArrayList;
 public class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==this.rank}] {
 
     // XTENLANG-49
-    static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
-    static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
+    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
+    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
+    static type UnionRegion(rank:Int) = UnionRegion{self.rank==rank};
 
     public def this(rank: int): PolyRegionListBuilder(rank) {
         super(); // XTENLANG-31

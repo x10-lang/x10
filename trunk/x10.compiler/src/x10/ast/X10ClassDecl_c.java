@@ -21,6 +21,7 @@ import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
@@ -965,8 +966,60 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     protected ConstructorDecl createDefaultConstructor(ClassDef thisType,
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
-        ConstructorDecl ctor = super.createDefaultConstructor(thisType, ts, nf);
-        return ctor.name(nf.Id(ctor.name().position(), "this"));
+    	  Position pos = body().position().startOf();
+    	  X10NodeFactory xnf = (X10NodeFactory) nf;
+          Block block = null;
+
+          Ref<? extends Type> superType = thisType.superType();
+          Stmt s1 = null;
+          if (superType != null) {
+              s1 = nf.SuperCall(pos, Collections.EMPTY_LIST);
+          }
+          
+          Stmt s2=null; 
+          List<TypeParamNode> typeFormals = Collections.EMPTY_LIST;
+          List<Formal> formals = Collections.EMPTY_LIST;
+          DepParameterExpr guard = null;
+          TypeNode returnType = null;
+          
+         
+          if (! properties.isEmpty()) {
+        	  // build type parameters.
+        	/*  typeFormals = new ArrayList<TypeParamNode>(typeParameters.size());
+        	  List<TypeNode> typeActuals = new ArrayList<TypeNode>(typeParameters.size());
+        	  for (TypeParamNode tp : typeParameters) {
+        		  typeFormals.add(xnf.TypeParamNode(pos, tp.name()));
+        		  typeActuals.add(xnf.CanonicalTypeNode(pos, tp.type()));
+        	  }*/
+        	  
+        	  formals = new ArrayList<Formal>(properties.size());
+        	  List<Expr> actuals = new ArrayList<Expr>(properties.size());
+        	  for (PropertyDecl pd: properties) {
+        		  Id name = pd.name();
+        		  formals.add(xnf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL), 
+        				  (TypeNode) pd.type().copy(), name));
+        		  actuals.add(xnf.Local(pos, name));
+        	  }
+        	 
+        	  guard = classInvariant();
+        	  s2 =  xnf.AssignPropertyCall(pos, Collections.EMPTY_LIST, actuals);
+        	  // TODO: Check that this works.
+        	  returnType = xnf.CanonicalTypeNode(pos, thisType.asType());
+          }
+          block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
+        		  : (s1 == null ? nf.Block(pos, s2) : nf.Block(pos, s1, s2));
+
+          ConstructorDecl cd = xnf.X10ConstructorDecl(pos,
+                  nf.FlagsNode(pos, Flags.PUBLIC),
+                  nf.Id(pos, "this"), 
+                  returnType,
+                  typeFormals,
+                  formals,
+                  guard, 
+                  Collections.EMPTY_LIST, // throwTypes
+                  block);
+        return cd;
+        
     }
 
    

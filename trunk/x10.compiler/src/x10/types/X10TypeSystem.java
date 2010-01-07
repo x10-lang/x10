@@ -233,8 +233,6 @@ public interface X10TypeSystem extends TypeSystem {
     boolean isPoint(Type me);
 
     boolean isPlace(Type me);
-
-    boolean isValueType(Type me, X10Context context);
     
     boolean isStructType(Type me);
 

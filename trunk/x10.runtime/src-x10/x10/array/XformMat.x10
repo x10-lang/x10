@@ -5,14 +5,14 @@ package x10.array;
 
 public final class XformMat extends Mat[ValRow] {
     
-    public def this(cols: nat, mat: ValRail[ValRow])
+    public def this(cols: Int, mat: ValRail[ValRow])
         = super(mat.length, cols, mat);
 
-    public def this(rows: nat, cols: nat, init:(nat)=>ValRow)
+    public def this(rows: Int, cols: Int, init:(Int)=>ValRow)
         = super(rows, cols, ValRail.make[ValRow](rows, init));
 
-    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int)
-        = this(rows, cols, (i:nat)=>new ValRow(cols, (j:nat)=>init(i,j)));
+    public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int)
+        = this(rows, cols, (i:Int)=>new ValRow(cols, (j:Int)=>init(i,j)));
 
 
     /**
@@ -20,7 +20,7 @@ public final class XformMat extends Mat[ValRow] {
      */
 
     public global operator this * (that: XformMat): XformMat {
-        return new XformMat(this.rows, that.cols, (i:nat,j:nat) => {
+        return new XformMat(this.rows, that.cols, (i:Int,j:Int) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
                 sum += this(i)(k)*that(k)(j);
@@ -34,7 +34,7 @@ public final class XformMat extends Mat[ValRow] {
      */
 
     public global operator this * (p:Point):Point {
-        return Point.make(rows-1, (i:nat)=> {
+        return Point.make(rows-1, (i:Int)=> {
             var sum:int = this(i)(p.rank);
             for (var j:int=0; j<p.rank; j++)
                 sum += p(j)*this(i)(j);
@@ -47,7 +47,7 @@ public final class XformMat extends Mat[ValRow] {
      * Identity matrix.
      */
 
-    public static def identity(rank:int) = new XformMat(rank+1, rank+1, (i:nat,j:nat)=>(i==j?1:0));
+    public static def identity(rank:int) = new XformMat(rank+1, rank+1, (i:Int,j:Int)=>(i==j?1:0));
 
 }
 

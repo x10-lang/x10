@@ -134,7 +134,8 @@ public interface X10NodeFactory extends NodeFactory {
 	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
     
     ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
-            TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, Block body);
+            TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
+            DepParameterExpr guard, List<TypeNode> throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
     Special Self(Position pos);

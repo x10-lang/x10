@@ -319,7 +319,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         // v as Value
         // ->
         // (v as Box[Ref]).value as Value
-        if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isValueType(toType, context) || ts.isParameterType(toType))) {
+        if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isParameterType(toType))) {
             Expr boxed = expr;
             if (! ts.typeEquals(baseFrom, boxOfTo, context)) {
                 boxed = check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), boxOfTo), expr, convert), tc);
@@ -354,7 +354,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
 
         // v to I, where I is not a value interface (i.e., a function type)
-        if ((ts.isValueType(fromType, context) || ts.isParameterType(fromType)) && ts.isInterfaceType(toType) && ! ts.isValueType(toType, context)) {
+        if (( ts.isParameterType(fromType)) && ts.isInterfaceType(toType)) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, context)) {
                 return new X10Boxed_c(position(), castType, expr, ConversionType.BOXING).type(toType);
             }

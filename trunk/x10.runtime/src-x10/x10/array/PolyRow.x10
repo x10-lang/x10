@@ -19,12 +19,12 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-public class PolyRow(rank:nat) extends ValRow {
+public class PolyRow(rank:Int) extends ValRow {
 
-    static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
+    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
+    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
 
     //
     //
@@ -39,11 +39,11 @@ public class PolyRow(rank:nat) extends ValRow {
     }
 
     def this(p:Point, k:int) {
-        super(p.rank+1, (i:nat) => i<p.rank? p(i) : k);
+        super(p.rank+1, (i:Int) => i<p.rank? p(i) : k);
         property(p.rank);
     }
 
-    def this(cols:int, init: (i:nat)=>int) {
+    def this(cols:int, init: (i:Int)=>int) {
         super(cols, init);
         property(cols-1);
     }
@@ -122,7 +122,7 @@ public class PolyRow(rank:nat) extends ValRow {
      */
 
     global def complement(): PolyRow {
-        val init = (i:nat) => i<rank? -this(i) : -this(rank)+1;
+        val init = (i:Int) => i<rank? -this(i) : -this(rank)+1;
         val as = ValRail.make[int](rank+1, init);
         return new PolyRow(as);
     }

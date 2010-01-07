@@ -985,7 +985,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     static enum Kind {
-        NEITHER, EITHER, REFERENCE, VALUE, STRUCT
+        NEITHER, EITHER, REFERENCE, STRUCT, INTERFACE
     }
 
     public Kind kind(Type t, X10Context c) {
@@ -999,7 +999,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public boolean isReferenceOrInterfaceType(Type t, X10Context c) {
         Kind kind = kind(t, c);
-        return kind == Kind.REFERENCE || kind == Kind.EITHER;
+        return kind == Kind.REFERENCE  || kind == Kind.INTERFACE;
         // t = X10TypeMixin.baseType(t);
         // if (t instanceof ClosureType)
         // return false;
@@ -1027,10 +1027,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         // return isX10BaseSubtype(t, Ref());
     }
 
-    public boolean isValueType(Type t, X10Context c) {
-    	return false;
-        //return kind(t, c) == Kind.VALUE;
-    }
     
     public boolean isStructType(Type t) {
         return kind(t, null) == Kind.STRUCT;

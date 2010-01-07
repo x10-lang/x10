@@ -88,7 +88,7 @@ class RemoteFinish {
             }
             NativeRuntime.deallocObject(m);
         } else {
-            val m = ValRail.make[Pair[Int,Int]](length, (i:Nat)=>Pair[Int,Int](message(i), counts(message(i))));
+            val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
             for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
             length = 1;
             lock.unlock();

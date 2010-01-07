@@ -5,17 +5,17 @@ package x10.array;
 
 final class VarMat extends Mat[VarRow] {
     
-    public def this(cols: nat, mat: ValRail[VarRow])
+    public def this(cols: Int, mat: ValRail[VarRow])
         = super(mat.length, cols, mat);
 
-    public def this(rows: nat, cols: nat, init:(nat)=>VarRow)
+    public def this(rows: Int, cols: Int, init:(Int)=>VarRow)
         = super(rows, cols, ValRail.make[VarRow](rows, init));
 
-    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int)
-        = this(rows, cols, (i:nat)=>new VarRow(cols, (j:nat)=>init(i,j)));
+    public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int)
+        = this(rows, cols, (i:Int)=>new VarRow(cols, (j:Int)=>init(i,j)));
 
-    public def this(rows: nat, cols: nat)
-        = this(rows, cols, (nat)=>new VarRow(cols));
+    public def this(rows: Int, cols: Int)
+        = this(rows, cols, (Int)=>new VarRow(cols));
 }
 
 

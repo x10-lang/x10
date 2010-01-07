@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.String", "x10.core.BoxedString", null)
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
-public final class String implements (nat) => Char {
+public final class String implements (Int) => Char {
     // TODO: constructors
     public native def this(): String;
     public native def this(String): String;
@@ -36,11 +36,11 @@ public final class String implements (nat) => Char {
     
     @Native("java", "(#0).charAt(#1)")
     @Native("c++", "(#0)->charAt(#1)")
-    public native global def apply(index: nat): Char;
+    public native global def apply(index: Int): Char;
 
     @Native("java", "(#0).charAt(#1)")
     @Native("c++", "(#0)->charAt(#1)")
-    public native global def charAt(index: nat): Char;
+    public native global def charAt(index: Int): Char;
     
     @Native("java", "x10.core.RailFactory.<java.lang.Character>makeValRailFromJavaArray(#0.toCharArray())")
     @Native("c++", "(#0)->chars()")
@@ -52,7 +52,7 @@ public final class String implements (nat) => Char {
     
     @Native("java", "#0.substring(#1, #2)")
     @Native("c++", "(#0)->substring(#1, #2)")
-    public native global def substring(fromIndex: nat, toIndex: nat): String;
+    public native global def substring(fromIndex: Int, toIndex: Int): String;
     
     @Native("java", "#0.indexOf(#1)")
     @Native("c++", "(#0)->indexOf(#1)")

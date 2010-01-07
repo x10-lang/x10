@@ -17,11 +17,11 @@ package x10.array;
 public class UnionRegion extends BaseRegion {
 
     // XTENLANG-49
-    static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
-    static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
+    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
+    static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
+    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
+    static type UnionRegion(rank:Int) = UnionRegion{self.rank==rank};
 
 
     //

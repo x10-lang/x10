@@ -111,7 +111,7 @@ public class X10Boxed_c extends X10Cast_c {
         
         local = true;
         
-        assert ts.isValueType(fromType, context) || ts.isParameterType(fromType);
+        assert  ts.isParameterType(fromType);
 
         Name className = Name.makeFresh("Boxed$");
         Name xname = Name.make("v");
@@ -280,7 +280,7 @@ public class X10Boxed_c extends X10Cast_c {
         X10Context context = (X10Context) tc.context();
         
         // v to I, where I is not a value interface (i.e., a function type)
-        if (ts.isValueType(fromType, context) && ts.isInterfaceType(toType) && ! ts.isValueType(toType, context)) {
+        if (ts.isStructType(fromType) && ts.isInterfaceType(toType)) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, tc.context())) {
                 return this.type(toType);
             }

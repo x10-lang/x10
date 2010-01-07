@@ -37,6 +37,8 @@ namespace x10 {
          * When that happens, all we need to provide is a 
          */
         template <class T> class IBox : public Reference {
+        protected:
+           IBox(){ }
         public:
             T value;
             

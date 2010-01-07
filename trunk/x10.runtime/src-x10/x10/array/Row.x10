@@ -7,12 +7,12 @@ import x10.io.Printer;
 import x10.io.StringWriter;
 
 
-abstract class Row(cols:nat) implements (nat)=>int {
+abstract class Row(cols:Int) implements (Int)=>int {
 
-    public abstract global def apply(i:nat): int;
-    public abstract global def set(v:int, i:nat): int;
+    public abstract global def apply(i:Int): int;
+    public abstract global def set(v:int, i:Int): int;
 
-    protected def this(cols:nat) = property(cols);
+    protected def this(cols:Int) = property(cols);
 
     /**
      * print a row in both matrix and equation form

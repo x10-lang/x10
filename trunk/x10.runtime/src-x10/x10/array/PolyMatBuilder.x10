@@ -17,8 +17,8 @@ import x10.io.Printer;
 public class PolyMatBuilder(rank: int) extends MatBuilder {
 
     // XTENLANG-49
-    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
-    static type PolyMatBuilder(rank:nat) = PolyMatBuilder{self.rank==rank};
+    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
+    static type PolyMatBuilder(rank:Int) = PolyMatBuilder{self.rank==rank};
 
 
     /**
@@ -37,7 +37,7 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
 
     public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
         mat.sort(PolyRow.compare.(Row,Row));
-        val result = new PolyMat(mat.size(), rank+1, (i:nat,j:nat)=>mat(i)(j), isSimplified);
+        val result = new PolyMat(mat.size(), rank+1, (i:Int,j:Int)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
 
@@ -69,6 +69,6 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
             coeff = coeff >> 2;
         }
         as(rank) = op==LE? -k : k;
-        add((i:nat) => as(i));
+        add((i:Int) => as(i));
     }
 }
