@@ -241,7 +241,7 @@ public final class Runtime {
      */
     public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
         val f = at (place) {
-        val f1 = new Future_c[T](eval);
+        val f1 = new Future[T](eval);
                 async f1.run();
                 f1
         };
