@@ -1711,7 +1711,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public boolean isLongOrLess(Type t) {
         if (isChar(t))
             return false;
-        return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t);
+        return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
     public Type expandMacros(Type t) {
