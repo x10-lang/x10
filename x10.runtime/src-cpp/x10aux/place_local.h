@@ -5,7 +5,7 @@
 #include <x10aux/ref.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
         class Lock;
     }
 }
@@ -24,7 +24,7 @@ namespace x10aux {
         static x10_int _nextId;
         static Bucket **_buckets;
         static void** _fastData;
-        static x10aux::ref<x10::runtime::Lock> _lock;
+        static x10aux::ref<x10::lang::Lock> _lock;
 
     public:
         static void initialize();

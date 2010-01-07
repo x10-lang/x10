@@ -1,9 +1,5 @@
 package x10.util;
 
-import x10.runtime.PlaceLocalStorage;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.Runtime;
-import x10.runtime.Activity;
 import x10.util.Pair;
 import x10.util.HashMap;
 

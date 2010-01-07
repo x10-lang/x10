@@ -1,9 +1,8 @@
 #include <x10aux/reference_logger.h>
 
-#include <x10/runtime/Lock.h>
+#include <x10/lang/Lock.h>
 
 using namespace x10::lang;
-using namespace x10::runtime;
 using namespace x10aux;
 
 #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)

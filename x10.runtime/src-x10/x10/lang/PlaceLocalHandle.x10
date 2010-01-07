@@ -6,7 +6,7 @@
  *
  */
 
-package x10.runtime;
+package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
@@ -32,7 +32,7 @@ import x10.compiler.NativeRep;
  * using the particular PlaceLocalHandle (mapping the same object at
  * multiple places or mapping distinct object at each place).</p>
  */
-@NativeRep("c++", "x10::runtime::PlaceLocalHandle<#1 >", "x10::runtime::PlaceLocalHandle<#1 >", null)
+@NativeRep("c++", "x10::lang::PlaceLocalHandle<#1 >", "x10::lang::PlaceLocalHandle<#1 >", null)
 @NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
 public final struct PlaceLocalHandle[T]{T <: Object} {
 
@@ -62,7 +62,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
   native def set(newVal:T!):void;
 
   // Only to be used by create methods in PlaceLocalStorage
-  @Native("c++", "x10::runtime::PlaceLocalHandle<#1 >::createHandle()")
+  @Native("c++", "x10::lang::PlaceLocalHandle<#1 >::createHandle()")
   @Native("java", "x10.runtime.impl.java.PlaceLocalHandle.createHandle()")
   static native def createHandle[T]():PlaceLocalHandle[T];
 

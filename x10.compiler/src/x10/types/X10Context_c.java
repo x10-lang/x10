@@ -32,7 +32,7 @@ package x10.types;
  * Certain methods should not be called if depType is set, e.g. methods to add names,
  * push scopes etc. These throw an assertion error.
  *
- * Certain methods can be called within a deptype, but the result should be as if they 
+ * Certain methods can be called within a deptype, but the result should be as if they
  * are called on the outer context. So this is easily dealt with using the pattern
  * depType == null ? super.Foo(..) : pop.Foo(...)
  * That is, if this context is not deptype context, run the usual code.  Otherwise
@@ -92,7 +92,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public X10Context_c(TypeSystem ts) {
 		super(ts);
 	}
-	
+
 	public List<LocalDef> locals() {
 	    if (vars != null) {
 	        List<LocalDef> lis = allLocals();
@@ -105,7 +105,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 	    return Collections.EMPTY_LIST;
 	}
-	
+
 	public List<LocalDef> allLocals() {
 	    if (vars != null) {
 	        List<LocalDef> lis = new ArrayList<LocalDef>(vars.values().size());
@@ -125,7 +125,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 	    return Collections.EMPTY_LIST;
 	}
-	
+
 	public XRoot thisVar() {
 	    if (this.inSuperTypeDeclaration()) {
 	        X10ClassDef t = this.supertypeDeclarationType();
@@ -141,14 +141,14 @@ public class X10Context_c extends Context_c implements X10Context {
 	    }
 	    return null;
 	}
-	
+
 	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
         public XConstraint constraintProjection(XConstraint... cs) throws XFailure {
             HashMap<XTerm, XConstraint> m = new HashMap<XTerm, XConstraint>();
-            
+
             // add in the real clause of the type of any var mentioned in the constraint list cs
             XConstraint r = null;
-            
+
             for (XConstraint ci : cs) {
                 XConstraint ri = constraintProjection(ci, m);
                 if (r == null)
@@ -156,15 +156,15 @@ public class X10Context_c extends Context_c implements X10Context {
                 else
                     r.addIn(ri);
             }
-            
+
             if (r == null) r = new XConstraint_c();
-            
-            // fold in the current constraint 
+
+            // fold in the current constraint
             XConstraint c1 = currentConstraint();
             XConstraint sigma1 = constraintProjection(c1, m);
             r.addIn(c1);
             r.addIn(sigma1);
-            
+
             // fold in the current place constraint
             XConstraint c2 = currentPlaceTerm == null ? null : currentPlaceTerm.xconstraint();
            r.addIn(c2);
@@ -177,7 +177,7 @@ public class X10Context_c extends Context_c implements X10Context {
            r.addIn(c3);
            XConstraint sigma3 = constraintProjection(c3, m);
            r.addIn(sigma3);
-          
+
             // fold in the real clause of the base type
             Type selfType = this.currentDepType();
             if (selfType != null) {
@@ -186,10 +186,10 @@ public class X10Context_c extends Context_c implements X10Context {
                     r.addIn(selfConstraint.substitute(r.self(), selfConstraint.self()));
                 }
             }
-            
+
             return r;
         }
-        
+
         /* sigma(Gamma) restricted to the variables mentioned in c */
         private XConstraint constraintProjection(XConstraint c, Map<XTerm,XConstraint> m) throws XFailure {
             XConstraint r = new XConstraint_c();
@@ -201,14 +201,14 @@ public class X10Context_c extends Context_c implements X10Context {
                 }
             return r;
         }
-        
+
         private XConstraint constraintProjection(XTerm t, Map<XTerm,XConstraint> m) throws XFailure {
 	    X10TypeSystem xts = (X10TypeSystem) this.ts;
-	    
+
 	    XConstraint r = m.get(t);
 	    if (r != null)
 	        return r;
-	    
+
 	    // pre-fill the cache to avoid infinite recursion
 	    m.put(t, new XConstraint_c());
 
@@ -284,7 +284,7 @@ public class X10Context_c extends Context_c implements X10Context {
         }
         return null;
     }
-    
+
     private X10LocalDef getLocal(XLocal f) {
         XName n = f.name();
         if (n instanceof XNameWrapper) {
@@ -295,22 +295,22 @@ public class X10Context_c extends Context_c implements X10Context {
         }
         return null;
     }
-    
+
     protected Ref<TypeConstraint> currentTypeConstraint;
-    public TypeConstraint currentTypeConstraint() { 
-    	if (currentTypeConstraint == null) 
-    		return new TypeConstraint_c(); 
+    public TypeConstraint currentTypeConstraint() {
+    	if (currentTypeConstraint == null)
+    		return new TypeConstraint_c();
     	return currentTypeConstraint.get(); }
-    public void setCurrentTypeConstraint(Ref<TypeConstraint> c) { 
-    	currentTypeConstraint = c; 
+    public void setCurrentTypeConstraint(Ref<TypeConstraint> c) {
+    	currentTypeConstraint = c;
     }
 
     /*
     protected XConstraint currentPlaceConstraint;
-    public XConstraint currentPlaceConstraint() { 
-    	if (currentPlaceConstraint == null) 
-    		return new XConstraint_c(); 
-    	return currentPlaceConstraint; 
+    public XConstraint currentPlaceConstraint() {
+    	if (currentPlaceConstraint == null)
+    		return new XConstraint_c();
+    	return currentPlaceConstraint;
     }
    */
     protected XConstrainedTerm currentPlaceTerm = null;
@@ -320,7 +320,7 @@ public class X10Context_c extends Context_c implements X10Context {
     		currentPlaceTerm = xts.xtypeTranslator().firstPlace();
     		assert currentPlaceTerm != null;
     	}
-    
+
     	return currentPlaceTerm;
     }
     public Context pushPlace(XConstrainedTerm t) {
@@ -338,10 +338,10 @@ public class X10Context_c extends Context_c implements X10Context {
     	}
     	return thisPlace;
     }
-  
+
     protected XConstraint currentConstraint;
     // vj: TODO: check if this is the right thing to do.
-    public XConstraint currentConstraint() { 
+    public XConstraint currentConstraint() {
     	if (currentConstraint == null) {
     		XConstraint c = new XConstraint_c();
     		if (! inStaticContext()) {
@@ -349,10 +349,10 @@ public class X10Context_c extends Context_c implements X10Context {
     		}
     		return c;
     	}
-    	return currentConstraint; 
+    	return currentConstraint;
     }
-    public void setCurrentConstraint(XConstraint c) { 
-    	currentConstraint = c; 
+    public void setCurrentConstraint(XConstraint c) {
+    	currentConstraint = c;
     }
 
 	public CodeDef definingCodeDef(Name name) {
@@ -386,7 +386,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAnnotation;
 	protected boolean inAnonObjectScope;
 	protected boolean inAssignment;
-	
+
 	public boolean inSafeCode() { return inSafeCode; }
 	public boolean inSequentialCode() { return inSequentialCode; }
 	public boolean inNonBlockingCode() { return inNonBlockingCode; }
@@ -417,7 +417,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public X10NamedType currentDepType() {
 		return (X10NamedType) Types.get(depType);
 	}
-	
+
 	public Ref<? extends Type> depTypeRef() {
 		return depType;
 	}
@@ -456,11 +456,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	            if (Report.should_report(TOPICS, 3))
 	              Report.report(3, "find-method " + matcher.signature() + " -> " +
 	                                currentClass);
-	            
+
 	            // Override to change the type from C to C{self==this}.
 	            Type t = currentClass;
 	            X10TypeSystem xts = (X10TypeSystem) ts;
-	            
+
 	            XRoot thisVar = null;
 	            if (XTypeTranslator.THIS_VAR) {
 	                CodeDef cd = this.currentCode();
@@ -487,7 +487,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	        throw new SemanticException("Method " + matcher.signature() + " not found.");
 	    }
-	    
+
 	/**
 	 * Looks up a method with name "name" and arguments compatible with
 	 * "argTypes".
@@ -496,14 +496,14 @@ public class X10Context_c extends Context_c implements X10Context {
 		MethodInstance result = depType == null ? superFindMethod(matcher) : pop().findMethod(matcher);
 		return result;
 	}
-	
+
 	/**
 	 * Gets a local variable of a particular name.
 	 */
 	public LocalInstance findLocal(Name name) throws SemanticException {
 		return depType == null ? super.findLocal(name) : pop().findLocal(name);
 	}
-	
+
 	public ClassType type() { return type; }
 
 	/**
@@ -511,7 +511,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 */
 	public ClassType findFieldScope(Name name) throws SemanticException {
 		VarInstance<?> vi = findVariableInThisScope(name);
-		
+
 		if (vi instanceof FieldInstance) {
 		    ClassType result = type;
 		    if (result != null)
@@ -525,11 +525,11 @@ public class X10Context_c extends Context_c implements X10Context {
 		    if (result != null)
 			return result;
 		}
-		
+
 		if (vi == null && outer != null) {
 		    return outer.findFieldScope(name);
 		}
-		
+
 		throw new SemanticException("Field " + name + " not found.");
 	}
 
@@ -598,11 +598,11 @@ public class X10Context_c extends Context_c implements X10Context {
 		|| q.equals(QName.make("x10.lang.Boolean"))
 			|| q.equals(QName.make("x10.lang.Object"))
 				|| q.equals(QName.make("x10.lang.Ref"))
-		|| q.equals(QName.make("x10.runtime.NativeRuntime"));
-		
+		|| q.equals(QName.make("x10.lang.NativeRuntime"));
+
 	}
 	public Context pushClass(ClassDef classScope, ClassType type) {
-		//System.err.println("Pushing class" + classScope);
+		//System.err.println("Pushing class " + classScope);
 		assert (depType == null);
 		XConstrainedTerm currentHere = null;
 		if (! (inBootLoads(classScope)) ){
@@ -611,10 +611,14 @@ public class X10Context_c extends Context_c implements X10Context {
 		}
 		//XConstrainedTerm currentHere = currentPlaceTerm();
 		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
-		
-		if ( (type.kind() == ClassDef.ANONYMOUS) || ! type.toString().startsWith("x10.lang.")) 
+
+		if ( (type.kind() == ClassDef.ANONYMOUS) || ! (
+		        type.toString().startsWith("x10.lang.Boolean") ||
+                type.toString().startsWith("x10.lang.Object")
+
+		))
 			try {
-				XTerm thisLoc = ((X10TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(), 
+				XTerm thisLoc = ((X10TypeSystem) typeSystem()).homeVar(((X10ClassDef) classScope).thisVar(),
 						this);
 				if (currentHere != null) {
 					XConstraint r = currentHere== null ? null : currentHere.constraint().copy();
@@ -622,13 +626,13 @@ public class X10Context_c extends Context_c implements X10Context {
 					result.thisPlace = XConstrainedTerm.make(thisLoc, r);
 				}
 				//instantiate(currentHere.constraint().copy(), thisLoc);
-				
+
 			} catch (XFailure f) {
-				throw new InternalError("Unexpected failure when realizing thisPlace constraint" + 
+				throw new InternalError("Unexpected failure when realizing thisPlace constraint" +
 						currentHere);
 			}
-	
-		return result; 
+
+		return result;
 	}
 
 	/**
@@ -647,7 +651,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		c.setSequentialCode();
 		return c;
 	}
-	
+
 	public X10Context pushAssignment() {
 		if (depType != null)
 			assert (depType == null);
@@ -687,7 +691,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean inCode() {
 		return depType == null ? super.inCode() : pop().inCode();
 	}
-	
+
 	public boolean inAssignment() {
 		return inAssignment;
 	}
@@ -879,8 +883,8 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 	public String toString() {
-		return "(" + (depType != null ? "depType " + depType : kind.toString()) 
-		  + (currentConstraint !=null ? " constraint " + currentConstraint : "") 
+		return "(" + (depType != null ? "depType " + depType : kind.toString())
+		  + (currentConstraint !=null ? " constraint " + currentConstraint : "")
 		  + (" place=" + currentPlaceTerm)
 		  + (" thisPlace=" + thisPlace)
 		  + " "+  mapsToString() + " " + outer + ")";

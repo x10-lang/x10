@@ -5,13 +5,13 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 		// start native runtime
 		new Main().start(args);
 	}
-	
-	// called by native runtime inside main x10 thread 
+
+	// called by native runtime inside main x10 thread
 	public void main(final x10.core.Rail<java.lang.String> args) {
 		try {
-	
+
 			// start xrx
-			x10.runtime.Runtime.start(
+			x10.lang.Runtime.start(
 				// static init activity
 				new x10.core.fun.VoidFun_0_0() {
 					public void apply() {
@@ -22,7 +22,7 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 					}
 				},
 				// body of main activity
-				new x10.core.fun.VoidFun_0_0() { 
+				new x10.core.fun.VoidFun_0_0() {
 					public void apply() {
 						// catch and rethrow checked exceptions
 						// (closures cannot throw checked exceptions)
@@ -30,15 +30,15 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 							// call the original app-main method
 							#2.main(args);
 						} catch (java.lang.RuntimeException e) {
-							throw e; 
+							throw e;
 						} catch (java.lang.Error e) {
-							throw e; 
+							throw e;
 						} catch (java.lang.Throwable t) {
 			 		   		throw new x10.lang.MultipleExceptions(t);
 			 		   	}
 					}
 				});
-				
+
 		} catch (java.lang.Throwable t) {
 			t.printStackTrace();
 		}

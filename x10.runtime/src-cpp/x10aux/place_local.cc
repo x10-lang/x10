@@ -2,10 +2,9 @@
 
 #include <x10aux/place_local.h>
 #include <x10aux/basic_functions.h>
-#include <x10/runtime/Lock.h>
+#include <x10/lang/Lock.h>
 
 using namespace x10::lang;
-using namespace x10::runtime;
 using namespace x10aux;
 
 #define MAX_FAST_ID 255
@@ -14,7 +13,7 @@ using namespace x10aux;
 x10_int place_local::_nextId;
 place_local::Bucket **place_local::_buckets;
 void **place_local::_fastData;
-x10aux::ref<x10::runtime::Lock> place_local::_lock;
+x10aux::ref<x10::lang::Lock> place_local::_lock;
 
 void place_local::initialize() {
     _lock = Lock::_make();
@@ -53,7 +52,7 @@ void* place_local::lookupData(x10_int id) {
         return NULL;
     }
 }
-            
+
 void place_local::registerData(x10_int id, void *data) {
     assert(NULL == lookupData(id));
     if (id < MAX_FAST_ID) {

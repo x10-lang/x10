@@ -15,7 +15,7 @@
 
 #include <x10/lang/Throwable.h>
 
-#include <x10/runtime/Thread.h>
+#include <x10/lang/Thread.h>
 #include <x10/lang/Closure.h>
 
 #include <stdio.h>
@@ -54,7 +54,7 @@ namespace x10aux {
             assert(false); // We should never be serializing this closure
             return 0;
         }
-        
+
         virtual void _serialize_body(x10aux::serialization_buffer &) {
             assert(false); // We should never be serializing this closure
         }
@@ -96,7 +96,7 @@ namespace x10aux {
             assert(false); // We should never be serializing this closure
             return 0;
         }
-        
+
         virtual void _serialize_body(x10aux::serialization_buffer &) {
             assert(false); // We should never be serializing this closure
         }
@@ -122,7 +122,7 @@ namespace x10aux {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            x10::runtime::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
+            x10::lang::Thread::_make(x10aux::null, x10::lang::String::Lit("thread-main"));
             x10aux::initialize_xrx();
 
             args = x10aux::convert_args(ac, av);

@@ -1,15 +1,15 @@
-#ifndef X10_RUNTIME_PLACELOCALHANDLE_STRUCT_H
-#define X10_RUNTIME_PLACELOCALHANDLE_STRUCT_H
+#ifndef X10_LANG_PLACELOCALHANDLE_STRUCT_H
+#define X10_LANG_PLACELOCALHANDLE_STRUCT_H
 
 #include <x10rt.h>
 
 #include <x10/lang/String.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
 
         void _initRTTHelper_PlaceLocalHandle(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
-        
+
         template <class T> class PlaceLocalHandle  {
         public:
             RTT_H_DECLS_STRUCT
@@ -62,7 +62,7 @@ namespace x10 {
             x10_boolean _struct_equals(PlaceLocalHandle<T> that) {
                 return FMGL(id) == that->FMGL(id);
             }
-            
+
             static void _serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf);
 
             static PlaceLocalHandle<T> _deserialize(x10aux::deserialization_buffer& buf);
@@ -76,9 +76,9 @@ namespace x10 {
 
         template<class T> void PlaceLocalHandle<T>::_initRTT() {
             rtt.canonical = &rtt;
-            x10::runtime::_initRTTHelper_PlaceLocalHandle(&rtt, x10aux::getRTT<T>());
+            x10::lang::_initRTTHelper_PlaceLocalHandle(&rtt, x10aux::getRTT<T>());
         }
-        
+
         template<class T> x10aux::RuntimeType PlaceLocalHandle<T>::rtt;
 
         template <class T> void PlaceLocalHandle<T>::_serialize(PlaceLocalHandle<T> this_, x10aux::serialization_buffer &buf) {

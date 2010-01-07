@@ -4,8 +4,8 @@
  * This file is part of XRX/C++ native layer implementation.
  */
 
-#ifndef X10_RUNTIME_THREAD_H
-#define X10_RUNTIME_THREAD_H
+#ifndef X10_LANG_THREAD_H
+#define X10_LANG_THREAD_H
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
@@ -21,12 +21,6 @@ namespace x10 {
     namespace lang {
         class String;
         class Reference;
-    }
-}
-
-namespace x10 {
-    namespace runtime {
-
         class Worker;
 
         // execution thread condition & associated lock pair
@@ -174,13 +168,13 @@ namespace x10 {
             void unpark();
 
             // Returns the current worker.
-            x10aux::ref<x10::runtime::Worker> worker(void);
+            x10aux::ref<x10::lang::Worker> worker(void);
 
             // Returns the current location.
             x10_int locInt(void);
 
             // Set the current worker.
-            void worker(x10aux::ref<x10::runtime::Worker> worker);
+            void worker(x10aux::ref<x10::lang::Worker> worker);
 
             // Returns this thread's name.
             const x10aux::ref<x10::lang::String> name(void);
@@ -216,7 +210,7 @@ namespace x10 {
 
         private:
             // the current worker
-            x10aux::ref<x10::runtime::Worker> __current_worker;
+            x10aux::ref<x10::lang::Worker> __current_worker;
             // the current thread
             static x10aux::ref<Thread> __current_thread;
             // internal thread id counter (monotonically increasing only)
@@ -254,6 +248,6 @@ namespace x10 {
     }
 }
 
-#endif /* X10_RUNTIME_THREAD_H */
+#endif /* X10_LANG_THREAD_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab

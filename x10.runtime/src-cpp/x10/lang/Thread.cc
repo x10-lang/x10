@@ -13,14 +13,14 @@
 #include <x10aux/alloc.h>
 #include <x10aux/throw.h>
 
-#include <x10/runtime/Thread.h>
+#include <x10/lang/Thread.h>
 
 #include <x10/lang/String.h>
 
 #include <x10/runtime/Debug.h>
-#include <x10/runtime/InterruptedException.h>
+#include <x10/lang/InterruptedException.h>
 #include <x10/runtime/IllegalThreadStateException.h>
-#include <x10/runtime/Worker.h>
+#include <x10/lang/Worker.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -42,13 +42,13 @@ using namespace std;
 
 // initialize static data members
 ref<Thread> Thread::__current_thread = null;
-long x10::runtime::Thread::__thread_cnt = 0;
+long x10::lang::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
 x10_boolean Thread::__thread_mapper_inited = false;
 
 // Thread start routine.
 void*
-x10::runtime::Thread::thread_start_routine(void *arg)
+x10::lang::Thread::thread_start_routine(void *arg)
 {
     // simply call the run method of the invoking thread object
     __xrxDPrStart();
