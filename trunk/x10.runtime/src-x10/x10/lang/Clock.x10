@@ -11,22 +11,96 @@ package x10.lang;
 /**
  * @author tardieu
  */
-public abstract class Clock(name: String) {
+public class Clock(name:String) {
     public static def make(): Clock = make("");
 
-    public static def make(name: String): Clock = RuntimeClock.make(name);
+    public const FIRST_PHASE = 1;
 
-    protected def this(name: String) = property(name);
+    public static def make(name:String):Clock {
+        val clock = new Clock(name);
+        Runtime.clockPhases().put(clock, FIRST_PHASE);
+        return clock;
+    }
 
-    public abstract global def registered(): boolean;
+    private var count:Int = 1;
+    private var alive:Int = 1;
+    private var phase:Int = FIRST_PHASE;
 
-    public abstract global def dropped(): boolean;
+    private def this(name:String) {
+        property(name);
+    }
 
-    public abstract global def resume(): void;
+    private global def get() = Runtime.clockPhases().get(this) as Int;
 
-    public abstract global def next(): void;
+    private global def put(ph:Int) = Runtime.clockPhases().put(this, ph);
 
-    public abstract global def phase(): int;
+    private global def remove() = Runtime.clockPhases().remove(this) as Int;
 
-    public abstract global def drop(): void;
+    private atomic def resumeLocal() {
+        if (--alive == 0) {
+            alive = count;
+            ++phase;
+        }
+    }
+
+    global def register() {
+        if (dropped()) throw new ClockUseException();
+        val ph = get();
+        at (this) atomic {
+            ++count;
+            if (-ph != phase) ++alive;
+        }
+        return ph;
+    }
+
+    global def resumeUnsafe() {
+        val ph = get();
+        if (ph < 0) return;
+        at (this) resumeLocal();
+        put(-ph);
+    }
+
+    global def nextUnsafe() {
+        val ph = get();
+        val abs = Math.abs(ph);
+        at (this) {
+            if (ph > 0) resumeLocal();
+            await (abs < phase);
+        }
+        put(abs + 1);
+    }
+
+    global def dropUnsafe() {
+        val ph = remove();
+        async (this) atomic {
+            --count;
+            if (-ph != phase) resumeLocal();
+        }
+    }
+
+    public global def registered():Boolean = Runtime.clockPhases().containsKey(this);
+
+    public global def dropped():Boolean = !registered();
+
+    public global def phase():Int {
+        if (dropped()) throw new ClockUseException();
+        return Math.abs(get());
+    }
+
+    public global def resume():Void {
+        if (dropped()) throw new ClockUseException();
+        resumeUnsafe();
+    }
+
+    public global def next():Void {
+        if (dropped()) throw new ClockUseException();
+        nextUnsafe();
+    }
+
+    public global def drop():Void {
+        if (dropped()) throw new ClockUseException();
+        dropUnsafe();
+    }
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
