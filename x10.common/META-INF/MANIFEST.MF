@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Common components
 Bundle-SymbolicName: x10.common
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.1
 Export-Package: x10.config
