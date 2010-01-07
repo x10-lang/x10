@@ -9,7 +9,7 @@ import harness.x10Test;
 
 class XTENLANG_50 extends x10Test {
 
-    static class R(rank:nat) {
+    static class R(rank:int) {
     
         public static def make(val rs: ValRail[R]): R{self.rank==rs.length} {
             return new R(rs.length) as R{self.rank==rs.length};
@@ -20,7 +20,7 @@ class XTENLANG_50 extends x10Test {
         // workaround: declare return type explicitly
         //public static operator (rs: ValRail[R]): R{self.rank==rs.length} = make(rs);
     
-        def this(rank:nat) = property(rank);
+        def this(rank:int) = property(rank);
     }
     
     val x: R{rank==2} = [new R(1), new R(1)];

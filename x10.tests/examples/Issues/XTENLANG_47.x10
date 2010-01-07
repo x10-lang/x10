@@ -9,11 +9,11 @@ import harness.x10Test;
 
 class XTENLANG_47 extends x10Test {
 
-    class C(rank:nat) {
-        def this(r:nat) = property(r);
+    class C(rank:int) {
+        def this(r:int) = property(r);
     }
     
-    class CL(rank2:nat) {
+    class CL(rank2:int) {
     
         private class It implements Iterator[C{self.rank==rank2}] {
             incomplete public def hasNext(): boolean;
@@ -21,7 +21,7 @@ class XTENLANG_47 extends x10Test {
             incomplete public def remove(): void;
         }
     
-        def this(r:nat) = property(r);
+        def this(r:int) = property(r);
     }
 
     public def run(): boolean {

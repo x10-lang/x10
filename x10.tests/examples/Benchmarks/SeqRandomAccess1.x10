@@ -42,7 +42,7 @@ class SeqRandomAccess1 extends Benchmark {
     }
 
     val tables = ValRail.make[LocalTable](PARALLELISM,
-        (p:nat) => new LocalTable(localTableSize));
+        (p:int) => new LocalTable(localTableSize));
 
     final static def HPCCStarts(var n:long): long {
         var i:int, j:int;

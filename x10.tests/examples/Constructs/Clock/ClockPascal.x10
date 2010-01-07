@@ -135,7 +135,7 @@ public class ClockPascal extends x10Test {
 		x10.io.Console.OUT.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
-	public static val maxW = Rail.make[Int](1, (x:nat)=>0);
+	public static val maxW = Rail.make[Int](1, (x:int)=>0);
 
 	static def pr3(var i: int, var j: int, var A: Array[int]): void = {
 		var w: int = i+j-1; // wave number

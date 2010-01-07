@@ -13,7 +13,7 @@ final class UTSRand {
 
     final static type descriptor = long;
 
-    final static def next(r:descriptor, i:nat) {
+    final static def next(r:descriptor, i:int) {
         var seed: long = r+i;
         seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
         for (var k:int=0; k<11; k++)

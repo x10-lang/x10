@@ -12,7 +12,7 @@ class LocalTable {
     
     def this(size:int) {
         mask = size-1;
-        a = Rail.make[long](size, (i:nat)=>i as long);
+        a = Rail.make[long](size, (i:int)=>i as long);
     }
     
     public def update(ran:long) {

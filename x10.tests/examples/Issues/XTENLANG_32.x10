@@ -9,7 +9,7 @@ import harness.x10Test;
 
 class XTENLANG_32 extends x10Test {
 
-    def foo(x: (nat)=>int) = x(0);
+    def foo(x: (int)=>int) = x(0);
     
     public def run():boolean {
         val r = [1,2];

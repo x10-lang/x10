@@ -24,7 +24,7 @@ public class ClockTest9 extends x10Test {
 
 	public const N: int = 8;
 	public const M: int = 8;
-	val v: Rail[int]! = Rail.make[int](N, (x:nat)=>0);
+	val v: Rail[int]! = Rail.make[int](N, (x:int)=>0);
 
 	public def run(): boolean = {
 		finish async {

@@ -13,10 +13,10 @@ public class GenericOverPrimitives3x extends GenericTest {
 
     public def run(): boolean = {
         
-        class A[T]{T<:(nat)=>char} {
+        class A[T]{T<:(int)=>char} {
             val t:T;
             def this(t:T) = {this.t=t;}
-            def get(i:nat) = t(i);
+            def get(i:int) = t(i);
         }
 
         a:A[String]! = new A[String]("012");

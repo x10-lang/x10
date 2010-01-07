@@ -18,7 +18,7 @@ public class PlaceCheckInRail extends x10Test {
 
     public def run01(): boolean {
 
-        val r = Rail.make[C](3, (nat)=>new C());
+        val r = Rail.make[C](3, (int)=>new C());
 
         try {
             (future (Place.places(1)) r(0).x).force();
@@ -32,7 +32,7 @@ public class PlaceCheckInRail extends x10Test {
 
     public def run02(): boolean {
 
-        val r = Rail.make[C](3, (nat)=>new C());
+        val r = Rail.make[C](3, (int)=>new C());
 
         try {
             (future (Place.places(1)) r(0).foo()).force();
@@ -46,7 +46,7 @@ public class PlaceCheckInRail extends x10Test {
 
     public def run03(): boolean {
 
-        val r = ValRail.make[C](3, (nat)=>new C());
+        val r = ValRail.make[C](3, (int)=>new C());
 
         try {
             (future (Place.places(1)) r(0).x).force();
@@ -60,7 +60,7 @@ public class PlaceCheckInRail extends x10Test {
 
     public def run04(): boolean {
 
-        val r = ValRail.make[C](3, (nat)=>new C());
+        val r = ValRail.make[C](3, (int)=>new C());
 
         try {
             (future (Place.places(1)) r(0).foo()).force();
