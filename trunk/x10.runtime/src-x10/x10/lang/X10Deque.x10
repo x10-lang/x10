@@ -15,7 +15,7 @@ import x10.compiler.NativeDef;
  * @author tardieu
  */
 @NativeClass("java", "x10.runtime.impl.java", "Deque")
-@NativeClass("c++", "x10.runtime", "Deque")
+@NativeClass("c++", "x10.lang", "Deque")
 public final class X10Deque {
     public native def this();
 

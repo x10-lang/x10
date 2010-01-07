@@ -6,7 +6,7 @@
 
 #if !defined(_LP64)
 namespace x10 {
-    namespace runtime {
+    namespace lang {
         class Lock__ReentrantLock;
     }
 }
@@ -54,11 +54,11 @@ namespace x10aux {
     class atomic_ops {
     private:
 #if !defined(_LP64)
-        static x10aux::ref<x10::runtime::Lock__ReentrantLock> _longOperationLock;
+        static x10aux::ref<x10::lang::Lock__ReentrantLock> _longOperationLock;
         static void lock();
         static void unlock();
 #endif
-        
+
 #if (defined(_ARCH_PPC) || defined(_ARCH_450) || defined(_ARCH_450d)) && !defined(__xlC__)
         /* inline ppc asms for gcc; can be nicely defined as private class member functions  */
         static inline void ppc_isync() { asm("isync"); }
@@ -75,14 +75,14 @@ namespace x10aux {
                 "stwcx. %3,0,%2\n\t"     /* Store new value -- or set flags if no longer reserved */
                 "bne- $-16\n\t"          /* lost reservation -- retry */
                 "" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#else            
+#else
             asm("0: lwarx %0,0,%2\n\t"   /* Load and reserve address into result */
                 "cmpw %0,%4\n\t"         /* Compare old value with current */
                 "bne- 1f\n\t"            /* oldvalue changed -- bail */
                 "stwcx. %3,0,%2\n\t"     /* Store new value -- or set flags if no longer reserved */
                 "bne- 0b\n\t"            /* lost reservation -- retry */
                 "1:" : "=&r" (result), "+m" (*address) : "p" (address), "b" (newValue), "b" (oldValue) : "cc");
-#endif            
+#endif
             return result;
         }
 
@@ -107,8 +107,8 @@ namespace x10aux {
 #endif
             return result;
         }
-#endif 
-#endif 
+#endif
+#endif
 
     public:
         /**
@@ -158,7 +158,7 @@ namespace x10aux {
          * Atomic compare and swap of a 32 bit value.
          * The semantics of this operation are:
          * <pre>
-         * 
+         *
          * x10_int tmp;
          * Atomic {
          *    tmp = *address;
@@ -187,14 +187,14 @@ namespace x10aux {
             return newValue;
 #else
 #  error "Unknown architecture"
-#endif 
+#endif
         }
 
         /**
          * Atomic compare and swap of a 64 bit value.
          * The semantics of this operation are:
          * <pre>
-         * 
+         *
          * x10_int tmp;
          * Atomic {
          *    tmp = *address;
@@ -243,7 +243,7 @@ namespace x10aux {
          * Atomic compare and swap of a pointer value.
          * The semantics of this operation are:
          * <pre>
-         * 
+         *
          * x10_int tmp;
          * Atomic {
          *    tmp = *address;

@@ -4,15 +4,15 @@
  * This file is part of XRX/C++ native layer implementation.
  */
 
-#ifndef X10_RUNTIME_LOCK__REENTRANT_LOCK_H
-#define X10_RUNTIME_LOCK__REENTRANT_LOCK_H
+#ifndef X10_LANG_LOCK__REENTRANT_LOCK_H
+#define X10_LANG_LOCK__REENTRANT_LOCK_H
 
 #include <x10/lang/Ref.h>
 
 #include <pthread.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
 
        /**
         * A low-level lock that provides a subset of the functionality
@@ -88,6 +88,6 @@ namespace x10 {
     }
 }
 
-#endif /* __X10_RUNTIME_LOCK__REENTRANT_LOCK_H */
+#endif /* __X10_LANG_LOCK__REENTRANT_LOCK_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab
