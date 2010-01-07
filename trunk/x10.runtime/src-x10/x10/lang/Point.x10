@@ -144,6 +144,19 @@ final public class Point(rank: Int) implements (Int) => Int {
     /** Two points of the same rank are equal if and only if their
      * corresponding indices are equal.
      */
+    public global safe def equals(other:Any):boolean {
+        if (!(other instanceof Point)) return false;
+	val otherPoint = other as Point;
+        if (rank != otherPoint.rank) return false;
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)==otherPoint.coords(i)))
+                return false;
+        return true;
+    }
+
+    /** Two points of the same rank are equal if and only if their
+     * corresponding indices are equal.
+     */
     public global safe operator this == (that: Point(rank)): boolean {
         for (var i: int = 0; i<rank; i++)
             if (!(this.coords(i)==that.coords(i)))
