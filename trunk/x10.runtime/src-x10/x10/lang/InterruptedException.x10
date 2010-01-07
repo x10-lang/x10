@@ -7,7 +7,7 @@
  *  X10 is released.
  *
  */
-package x10.runtime;
+package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;

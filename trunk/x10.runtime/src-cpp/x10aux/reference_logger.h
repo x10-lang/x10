@@ -5,7 +5,7 @@
 #include <x10aux/ref.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
         class Lock;
     }
 }
@@ -27,10 +27,10 @@ namespace x10aux {
             void *_reference;
             Bucket *_next;
         };
-        x10aux::ref<x10::runtime::Lock> _lock;
+        x10aux::ref<x10::lang::Lock> _lock;
         Bucket **_buckets;
-        
-    public: 
+
+    public:
         ReferenceLogger();
         void log_(void *x);
         static void log(void *x) { it->log_(x); }

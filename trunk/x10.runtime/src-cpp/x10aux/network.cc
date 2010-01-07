@@ -15,7 +15,7 @@
 
 #include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
 
-#include <x10/runtime/Runtime.h>
+#include <x10/lang/Runtime.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -129,22 +129,22 @@ void x10aux::network_init (int ac, char **av) {
 struct x10_runtime_Runtime__closure__8 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::runtime::RID rid;
+    x10::lang::RID rid;
 };
 struct x10_runtime_Runtime__closure__7 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::runtime::RID rid;
+    x10::lang::RID rid;
 };
 struct x10_runtime_Runtime__closure__6 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::runtime::RID rid;
+    x10::lang::RID rid;
 };
 struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10::runtime::RID rid;
+    x10::lang::RID rid;
 };
 */
 
@@ -193,7 +193,7 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
         x10aux::ref<x10_runtime_Runtime__closure__6__hack> body_ = body;
 
-        
+
         x10aux::ref<x10::lang::Reference> real_body = body_->body;
         x10aux::ref<x10::lang::Object> fs = body_->fs;
 
@@ -244,7 +244,7 @@ x10_int x10aux::num_threads() {
 	const char* env = getenv("X10_NTHREADS");
     if (env==NULL) return 2;
     x10_int num = strtol(env, NULL, 10);
-    assert (num > 0); 
+    assert (num > 0);
     return num;
 }
 
@@ -285,9 +285,9 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     remote_free(p.dest_place, (x10_ulong)(size_t)env);
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
-    x10aux::ref<x10::runtime::Runtime> rt = x10::runtime::Runtime::FMGL(runtime)->get();
-    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityCreation))();
-    (fs.operator->()->*(x10aux::findITable<x10::runtime::FinishState>(fs->_getITables())->notifyActivityTermination))();
+    x10aux::ref<x10::lang::Runtime> rt = x10::lang::Runtime::FMGL(runtime)->get();
+    (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityCreation))();
+    (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
 x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *kernel)

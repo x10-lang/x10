@@ -1,7 +1,7 @@
 #include <x10aux/config.h>
 #include <x10aux/init_dispatcher.h>
 
-#include <x10/runtime/Runtime.h>
+#include <x10/lang/Runtime.h>
 #include <x10/lang/Closure.h>
 
 #include <stdio.h>
@@ -51,7 +51,7 @@ class InitClosure : public x10::lang::Closure
             assert(false); // We should never be serializing this closure
             return 0;
         }
-        
+
         virtual void _serialize_body(x10aux::serialization_buffer &) {
             assert(false); // We should never be serializing this closure
         }
@@ -72,7 +72,7 @@ InitDispatcher::runInitializers_() {
         x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
             x10aux::ref<InitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(InitClosure)))
                                      InitClosure(initv[i]));
-        x10::runtime::Runtime::runAsync(init_closure);
+        x10::lang::Runtime::runAsync(init_closure);
     }
     initc = -1;
 }

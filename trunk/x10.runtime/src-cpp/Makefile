@@ -251,8 +251,8 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/ValRail.o \
 	x10/runtime/Deque.o \
 	x10/runtime/Lock__ReentrantLock.o \
-	x10/runtime/PlaceLocalHandle.o \
-	x10/runtime/Thread.o \
+	x10/lang/PlaceLocalHandle.o \
+	x10/lang/Thread.o \
 	x10/util/GrowableRail.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \

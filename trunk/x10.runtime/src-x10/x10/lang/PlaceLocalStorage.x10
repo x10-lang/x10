@@ -6,7 +6,7 @@
  *
  */
 
-package x10.runtime;
+package x10.lang;
 
 /**
  * Runtime service routines to create, manage, and destory place-local storage.

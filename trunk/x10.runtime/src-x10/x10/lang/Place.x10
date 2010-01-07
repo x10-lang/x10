@@ -8,8 +8,6 @@
 
 package x10.lang;
 
-import x10.runtime.NativeRuntime;
-
 /**
  * @author Christian Grothoff
  * @author Raj Barik, Vivek Sarkar
@@ -42,7 +40,7 @@ public final struct Place(id: Int) implements Equals {
         // FIXME: iterate through peers
         return this;
 	}
-	
+
 	public def isFirst(): Boolean = id == 0;
 	public def isLast(): Boolean = id == MAX_PLACES - 1;
 
@@ -67,4 +65,4 @@ public final struct Place(id: Int) implements Equals {
     public global safe def toString() = "(Place " + this.id + ")";
     public global safe def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
     public global safe def hashCode()=id;
-}    
+}

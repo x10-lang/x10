@@ -7,12 +7,11 @@
  *  X10 is released.
  *
  */
-package x10.runtime;
+package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
 import x10.compiler.NativeDef;
-import x10.runtime.InterruptedException;
 
 /**
  * A unit of execution (a thread).
@@ -26,7 +25,7 @@ import x10.runtime.InterruptedException;
  */
 
 @NativeClass("java", "x10.runtime.impl.java" , "Thread")
-@NativeClass("c++", "x10.runtime", "Thread")
+@NativeClass("c++", "x10.lang", "Thread")
 final class X10Thread {
 
     /**
@@ -51,7 +50,7 @@ final class X10Thread {
     @NativeDef("c++")
     public def worker():Worker! {
         // TODO fix place inconsistency in java backend
-        @Native("java", "return ((x10.runtime.Worker)(__NATIVE_FIELD__.worker()));")
+        @Native("java", "return ((x10.lang.Worker)(__NATIVE_FIELD__.worker()));")
         { return null; }
     }
 

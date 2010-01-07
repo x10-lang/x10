@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime;
+package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  */
 public class NativeRuntime {
 
-  @Native("java", "System.out.println(#1)")
+  @Native("java", "java.lang.System.out.println(#1)")
   @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
   public native static def println(o:Object) : Void;
 

@@ -11,7 +11,6 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.util.Pair;
-import x10.runtime.PlaceLocalHandle;
 
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
@@ -20,7 +19,7 @@ public final class Rail[T](length: Int)
 {
     // need to declare a constructor to shut up the initialization checker
     private native def this(n: Int): Rail[T]{self.length==n};
-    
+
 
     /*
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
@@ -57,9 +56,9 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
     public native static safe def makeVal[S](length: Int): ValRail[S]{self.length==length};
-    
+
 */
-    
+
 /*
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
@@ -85,7 +84,7 @@ public final class Rail[T](length: Int)
     @Native("c++", "(*#0)[#2] = #1")
     @Native("cuda", "(#0)[#2] = #1")
     public native safe def set(v: T, i: Int): T;
-    
+
     @Native("java", "#0.iterator()")
     @Native("c++", "(#0)->iterator()")
     public native safe def iterator(): Iterator[T];
@@ -155,7 +154,7 @@ public final class Rail[T](length: Int)
     @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
     @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
     // U must be T. hack to get the type info.
-    public  native def copyFrom[U] (dst_off:Int, src:ValRail[U], src_off:Int, len:Int):Void; 
+    public  native def copyFrom[U] (dst_off:Int, src:ValRail[U], src_off:Int, len:Int):Void;
 
     @Native("java", "x10.lang.System.copyFrom(#3, #0,#4,#5,#6,#7)")
     @Native("c++", "(#0)->copyFrom(#4,#5,#6,#7)")
@@ -171,7 +170,7 @@ public final class Rail[T](length: Int)
     private static class RailIterator[S] implements Iterator[S] {
         private var curIndex:int = 0;
         private val rail:Rail[S]!;
-	
+
 	private def this(r:Rail[S]!) { rail = r; }
         public def hasNext() = curIndex < rail.length;
 	public def next() = rail(curIndex++);

@@ -13,8 +13,6 @@ import x10.io.Console;
 import x10.util.Timer;
 import x10.util.Pair;
 
-import x10.runtime.PlaceLocalHandle;
-
 public class System {
 
     private def this() {}
@@ -31,7 +29,7 @@ public class System {
     /**
      * Provides an estimate in bytes of the size of the X10 heap
      * allocated to the current place. The accuracy of this estimate
-     * is highly dependent on the implementation details of the 
+     * is highly dependent on the implementation details of the
      * underlying memory management scheme being used by the X10 runtime,
      * and in some cases may simply return Long.MAX_VALUE or some other similarly
      * over conservative approximation.
@@ -116,7 +114,7 @@ public class System {
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
-        x10.runtime.NativeRuntime.runAt(dst_place.id, ()=>{
+        NativeRuntime.runAt(dst_place.id, ()=>{
             val pair = dst_finder();
             val dst = pair.first;
             val dst_off = pair.second;
@@ -134,7 +132,7 @@ public class System {
                                  size:Int) {
         val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size);
-        x10.runtime.NativeRuntime.dealloc(finder);
+        NativeRuntime.dealloc(finder);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder)
@@ -143,8 +141,8 @@ public class System {
                                  size:Int, notifier:()=>Void) {
         val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size, notifier);
-        x10.runtime.NativeRuntime.dealloc(finder);
-        x10.runtime.NativeRuntime.dealloc(notifier);
+        NativeRuntime.dealloc(finder);
+        NativeRuntime.dealloc(notifier);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
@@ -153,8 +151,8 @@ public class System {
                                  dst:Place, size:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](handle.get(), 0);
         handle.get().copyTo[T](0, dst, finder, size, notifier);
-        x10.runtime.NativeRuntime.dealloc(finder);
-        x10.runtime.NativeRuntime.dealloc(notifier);
+        NativeRuntime.dealloc(finder);
+        NativeRuntime.dealloc(notifier);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
@@ -162,8 +160,8 @@ public class System {
                                  len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](dst,0);
         src.copyTo[T](0, dst.home, finder, len, notifier);
-        x10.runtime.NativeRuntime.dealloc(finder);
-        x10.runtime.NativeRuntime.dealloc(notifier);
+        NativeRuntime.dealloc(finder);
+        NativeRuntime.dealloc(notifier);
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
