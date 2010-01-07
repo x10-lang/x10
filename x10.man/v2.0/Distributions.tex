@@ -19,8 +19,8 @@ The {\em rank} of a distribution is the rank of the underlying region.
 
 \begin{xten}
 R: Region = 1..100;
-D: Dist = Dist.block(R);
-D: Dist = Dist.cyclic(R);
+D: Dist = Dist.makeBlock(R);
+D: Dist = Dist.makeCyclic(R);
 D: Dist = R -> here;
 D: Dist = Dist.random(R);
 \end{xten}
