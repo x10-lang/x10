@@ -1,10 +1,12 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.IOException;
-import com.ibm.wala.cast.x10.loader.X10Language;
-import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
-import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
@@ -12,6 +14,11 @@ import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceModuleTranslator
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
+import com.ibm.wala.cast.tree.CAstType;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
+import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
@@ -21,6 +28,7 @@ import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
 
@@ -102,4 +110,54 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     public X10Language.InstructionFactory getInstructionFactory() {
     	return X10Language.X10Lang.instructionFactory();
     }
+    
+    public IClass defineType(CAstEntity type, String typeName, CAstEntity owner) {
+      final Collection<TypeName> superTypeNames = new ArrayList<TypeName>();
+      for (final Object superType : type.getType().getSupertypes()) {
+        superTypeNames.add(TypeName.string2TypeName(((CAstType) superType).getName()));
+      }
+
+      final X10Class x10Class = new X10Class(typeName, type.getPosition(), type.getQualifiers(), this,
+                                             (owner != null) ? (JavaClass) fTypeMap.get(owner) : (JavaClass) null,
+                                             superTypeNames);
+
+      fTypeMap.put(type, x10Class);
+      loadedClasses.put(x10Class.getName(), x10Class);
+
+      return x10Class;
+    }
+    
+    private final class X10Class extends JavaClass {
+
+      public X10Class(final String typeName, final Position position, final Collection qualifiers, 
+                      final JavaSourceLoaderImpl loader, final IClass enclosingClass, 
+                      final Collection<TypeName> superTypeNames) {
+        super(typeName, superTypeNames, position, qualifiers, loader, enclosingClass);
+      }
+      
+      @Override
+      public IClass getSuperclass() {
+        for (final Object superTypeName : superTypeNames) {
+          final IClass domoType = lookupClass((TypeName) superTypeName);
+          if (domoType != null && ! domoType.isInterface()) {
+            return domoType;
+          }
+        }
+        return null;
+      }
+
+      @Override
+      public Collection<IClass> getDirectInterfaces() {
+        final List<IClass> result = new ArrayList<IClass>();
+        for (final Object superTypeName : superTypeNames) {
+          final IClass domoType = lookupClass((TypeName) superTypeName);
+          if (domoType != null && domoType.isInterface()) {
+            result.add(domoType);
+          }
+        }
+        return result;
+      }
+            
+    }
+    
 }
