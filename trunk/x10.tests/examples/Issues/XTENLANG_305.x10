@@ -9,7 +9,7 @@ import harness.x10Test;
 
 class XTENLANG_305 extends x10Test {
 
-    class A[T] implements (nat,nat,nat)=>T {
+    class A[T] implements (int,int,int)=>T {
         public def set(v:T, i:int, j:int, k:int): T = 0 as T;
         public def apply(i:int, j:int, k:int): T = 0 as T;
     }

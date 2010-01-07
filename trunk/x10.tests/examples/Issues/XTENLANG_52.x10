@@ -9,20 +9,20 @@ import harness.x10Test;
 
 class XTENLANG_52 extends x10Test {
 
-    class R(rank:nat) {
-        protected def this(rank:nat) = property(rank);
+    class R(rank:int) {
+        protected def this(rank:int) = property(rank);
     }
     
-    class BD(rank:nat) {
+    class BD(rank:int) {
     
-        static type R(rank:nat) = R{self.rank==rank};
+        static type R(rank:int) = R{self.rank==rank};
     
         incomplete public def get(): R(rank);
     
         val rs: Rail[R] = [get()];
-        //workaround: val rs:Rail[R] = ValRail.make[R](1, (nat)=&gt;get());
+        //workaround: val rs:Rail[R] = ValRail.make[R](1, (int)=&gt;get());
     
-        protected def this(rank:nat) = property(rank);
+        protected def this(rank:int) = property(rank);
     }
 
     public def run(): boolean {

@@ -22,7 +22,7 @@ public class Stencil1D {
     }
 
     public def run() {
-       val A = Rail.make[Double](N+2, (nat)=>0.0D); 
+       val A = Rail.make[Double](N+2, (int)=>0.0D); 
        A(N+1) = N+1.0D;
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {

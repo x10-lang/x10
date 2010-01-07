@@ -17,7 +17,7 @@ public class PointArray extends x10Test {
 
     public def run(): boolean = {
 
-        var p: Rail[Point]! = Rail.make[Point](1, (nat)=>Point.make(0));
+        var p: Rail[Point]! = Rail.make[Point](1, (int)=>Point.make(0));
         p(0) = Point.make(1, 2);
 
         return (p(0)(0) == 1 && p(0)(1) == 2);

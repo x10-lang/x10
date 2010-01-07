@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_193 extends x10Test {
 
     public static final class Bug[T]  {
-        private const x = ValRail.make[int](0, (nat)=>0);
+        private const x = ValRail.make[int](0, (int)=>0);
     }
 
     public def run(): boolean {
