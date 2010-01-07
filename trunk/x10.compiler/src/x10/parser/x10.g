@@ -1903,8 +1903,10 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
-                    f = f.Final();
                     fn = fn.flags(f);
+                    if (! f.isFinal()) {
+                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    }
                     setResult(nf.ForEach(pos(),
                                   LoopIndex.flags(fn),
                                   Expression,
@@ -1917,8 +1919,10 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
-                    f = f.Final();
                     fn = fn.flags(f);
+                    if (! f.isFinal()) {
+                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    }
                     setResult(nf.AtEach(pos(),
                                  LoopIndex.flags(fn),
                                  Expression,
@@ -1931,8 +1935,9 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
                     Flags f = fn.flags();
-                    f = f.Final();
-                    fn = fn.flags(f);
+                    if (! f.isFinal()) {
+                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    }
                     setResult(nf.ForLoop(pos(),
                             LoopIndex.flags(fn),
                             Expression,
