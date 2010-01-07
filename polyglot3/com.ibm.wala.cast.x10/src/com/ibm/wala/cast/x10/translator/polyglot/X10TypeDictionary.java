@@ -39,55 +39,32 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
             Type baseType = classType.def().asType();
             List<Type> typeArgs = classType.typeArguments();
             PolyglotJavaParametricType result = ((X10toCAstTranslator) fTranslator).new PolyglotJavaParametricType((ClassType) baseType, typeArgs, this, fTypeSystem);
-
+            super.map(astType, result);
             return result;
         }
         if (astType instanceof PrimitiveType) {
             PrimitiveType primitiveType = (PrimitiveType) astType;
             String javaPrimitiveName = X10PolyglotIdentityMapper.getJavaPrimitiveTypeFor(primitiveType.fullName().toString());
-
-            return JavaPrimitiveTypeMap.lookupType(javaPrimitiveName);
+            final CAstType castType = JavaPrimitiveTypeMap.lookupType(javaPrimitiveName);
+            super.map(astType, castType);
+            return castType;
         }
         if (astType instanceof ParameterType) {
             final ParameterType parameterType = (ParameterType) astType;
-            return new CAstType() {
+            final CAstType castType = new CAstType() {
                 private Collection<CAstType> justObject = new HashSet<CAstType>();
-//                {
-//                    justObject.add()
-//                }
+
                 public String getName() {
                     return parameterType.name().toString();
                 }
 
                 public Collection getSupertypes() {
                     return justObject;
-                } };
+                }
+            };
+            super.map(astType, castType);
+            return castType;
         }
-/*      if (astType instanceof FutureType) {
-            FutureType futureType = (FutureType) astType;
-            Type baseType = futureType.base();
-            try {
-                ClassType x10_lang_future = (ClassType) fTypeSystem.typeForName(QName.make("x10.lang.Future"));
-                List<Type> typeArgs = Collections.singletonList(baseType);
-                PolyglotJavaParametricType result = ((X10toCAstTranslator) fTranslator).new PolyglotJavaParametricType(
-                        x10_lang_future, typeArgs, this, fTypeSystem);
-
-                return result;
-            } catch (SemanticException e) {
-                Assertions.UNREACHABLE("Couldn't find x10.lang.Future?");
-                return null;
-            }
-        } else if (astType instanceof NullableType) {
-            NullableType nullableType = (NullableType) astType;
-            Type baseType = nullableType.base();
-            ClassType x10_lang_nullable = ((X10TypeSystem_c) fTypeSystem).nullable();
-            List<Type> typeArgs = Collections.singletonList(baseType);
-            PolyglotJavaParametricType result = ((X10toCAstTranslator) fTranslator).new PolyglotJavaParametricType(
-                    x10_lang_nullable, typeArgs, this, fTypeSystem);
-
-            return result;
-        }
-*/
         return super.getCAstTypeFor(astType);
     }
 }
