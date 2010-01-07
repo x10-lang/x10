@@ -18,7 +18,7 @@ public class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
     protected boolean gcEnabled() { return true; }
 
     protected String defaultPostCompiler() {
-        return "g++-3";
+        return "g++-4";
     }
 
     protected void addPreArgs(ArrayList<String> cxxCmd) {
