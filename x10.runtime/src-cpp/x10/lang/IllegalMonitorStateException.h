@@ -15,7 +15,7 @@
 #include <x10/lang/Exception.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
 
         class IllegalMonitorStateException : public x10::lang::Exception {
             // to do

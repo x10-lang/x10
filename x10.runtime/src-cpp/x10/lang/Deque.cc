@@ -7,7 +7,7 @@
 #include <x10aux/config.h>
 #include <x10aux/atomic_ops.h>
 
-#include <x10/runtime/Deque.h>
+#include <x10/lang/Deque.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
@@ -15,7 +15,6 @@
 #endif /* XRX_DEBUG */
 
 using namespace x10::lang;
-using namespace x10::runtime;
 using namespace x10aux;
 
 x10aux::ref<Deque>
@@ -51,7 +50,7 @@ void Deque::growQueue() {
     newQ->data = x10aux::alloc<volatile void*>(newSize * sizeof(void*));
     memset(newQ->data, 0, (newSize * sizeof(void*)));
     queue = newQ;
-    
+
     int b = base;
     int bf = b + oldSize;
     int oldMask = oldSize - 1;
@@ -117,7 +116,7 @@ void Deque::_deserialize_body(deserialization_buffer& buf) {
     this->Ref::_deserialize_body(buf);
 }
 
-            
-RTT_CC_DECLS1(Deque, "x10.runtime.Deque", Ref)
+
+RTT_CC_DECLS1(Deque, "x10.lang.Deque", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

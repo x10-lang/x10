@@ -18,7 +18,7 @@ import x10.compiler.NativeDef;
  * The API is subsetted to that which is also supported by pthread_mutex.
  */
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
-@NativeClass("c++", "x10.runtime", "Lock__ReentrantLock")
+@NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
 public class Lock {
     public native def this();
 

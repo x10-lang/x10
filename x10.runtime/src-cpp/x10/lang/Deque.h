@@ -4,20 +4,20 @@
  * This file is part of XRX/C++ native layer implementation.
  */
 
-#ifndef X10_RUNTIME_DEQUE_H
-#define X10_RUNTIME_DEQUE_H
+#ifndef X10_LANG_DEQUE_H
+#define X10_LANG_DEQUE_H
 
 #include <x10rt.h>
 #include <x10/lang/Ref.h>
 #include <x10aux/serialization.h>
 
 namespace x10 {
-    namespace runtime {
+    namespace lang {
 
        /**
         * A Deque for use by the workstealing implementation.
         *
-        * Some code of this class is derived from a Java implementation that was 
+        * Some code of this class is derived from a Java implementation that was
         * written by Doug Lea with assistance from members of JCP JSR-166
         * Expert Group and released to the public domain, as explained at
         * http://creativecommons.org/licenses/publicdomain
@@ -48,7 +48,7 @@ namespace x10 {
             };
             template<class T> friend const char *x10aux::typeName();
 
-            
+
             /**
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
@@ -101,7 +101,7 @@ namespace x10 {
              * if nonnull. Called only by current thread.
              */
             x10aux::ref<x10::lang::Object> poll();
-                
+
             /**
              * Returns next task to pop.
              */
@@ -117,7 +117,7 @@ namespace x10 {
                 int n = sp - base;
                 return n < 0 ? 0 : n; // suppress momentarily negative values
             }
-            
+
         private:
             /**
              * Capacity of work-stealing queue array upon initialization.
@@ -160,9 +160,9 @@ namespace x10 {
 }
 
 namespace x10aux {
-    template<> inline const char *typeName<x10::runtime::Deque::Slots>() { return "x10::runtime::Deque::Slots"; }
+    template<> inline const char *typeName<x10::lang::Deque::Slots>() { return "x10::lang::Deque::Slots"; }
 }
 
-#endif /* X10_RUNTIME_DEQUE_H */
+#endif /* X10_LANG_DEQUE_H */
 
 // vim:tabstop=4:shiftwidth=4:expandtab

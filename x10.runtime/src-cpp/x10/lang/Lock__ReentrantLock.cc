@@ -13,9 +13,9 @@
 #include <x10aux/config.h>
 #include <x10aux/throw.h>
 
-#include <x10/runtime/Lock__ReentrantLock.h>
+#include <x10/lang/Lock__ReentrantLock.h>
 
-#include <x10/runtime/IllegalMonitorStateException.h>
+#include <x10/lang/IllegalMonitorStateException.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
@@ -23,7 +23,6 @@
 #endif /* XRX_DEBUG */
 
 using namespace x10::lang;
-using namespace x10::runtime;
 using namespace x10aux;
 
 
@@ -169,6 +168,6 @@ Lock__ReentrantLock::getHoldCount()
     */
 }
 
-RTT_CC_DECLS1(Lock__ReentrantLock, "x10.runtime.Lock__ReentrantLock", Ref)
+RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

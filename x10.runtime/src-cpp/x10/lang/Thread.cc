@@ -17,9 +17,9 @@
 
 #include <x10/lang/String.h>
 
-#include <x10/runtime/Debug.h>
+#include <x10/lang/Debug.h>
 #include <x10/lang/InterruptedException.h>
-#include <x10/runtime/IllegalThreadStateException.h>
+#include <x10/lang/IllegalThreadStateException.h>
 #include <x10/lang/Worker.h>
 
 #include <unistd.h>
@@ -35,7 +35,6 @@
 #endif
 
 using namespace x10::lang;
-using namespace x10::runtime;
 using namespace x10aux;
 using namespace std;
 
@@ -479,6 +478,6 @@ void Thread::_deserialize_body(deserialization_buffer& buf) {
     this->Ref::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(Thread, "x10.runtime.Thread", Ref)
+RTT_CC_DECLS1(Thread, "x10.lang.Thread", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab
