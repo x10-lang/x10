@@ -16,7 +16,7 @@ public class ArraySum {
     public def this(n: Int) {
         size=n;
         R= 0..n-1 as Region{rail};
-        data = Rail.make[Int](n, (x:nat)=>1);
+        data = Rail.make[Int](n, (x:int)=>1);
         // for ((i) in R) S executes S for each point in R.
         // R must be a 1-d region. (i) decomposes the 1-d point
         // to retrieve the index in the 0th dimension.
