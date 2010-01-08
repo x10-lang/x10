@@ -35,7 +35,7 @@ public class NQueensDist {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1){rect}](P, (i:Nat):Region(1){rect} => {
+        ValRail.make[Region(1){rect}](P, (i:int):Region(1){rect} => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -44,11 +44,11 @@ public class NQueensDist {
     class Board {
         global val q: ValRail[Int];
         def this() {
-            q = ValRail.make[Int](0, (Nat)=>0);
+            q = ValRail.make[Int](0, (int)=>0);
         }
         def this(old: ValRail[Int], newItem:Int) {
             val n = old.length;
-            q = ValRail.make[Int](n+1, (i:Nat)=> (i < n? old(i) : newItem));
+            q = ValRail.make[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
         global def safe(j: int) {
             val n = q.length;
