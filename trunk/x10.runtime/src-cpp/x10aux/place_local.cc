@@ -2,7 +2,7 @@
 
 #include <x10aux/place_local.h>
 #include <x10aux/basic_functions.h>
-#include <x10/lang/Lock.h>
+#include <x10/lang/Lock__ReentrantLock.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -13,10 +13,10 @@ using namespace x10aux;
 x10_int place_local::_nextId;
 place_local::Bucket **place_local::_buckets;
 void **place_local::_fastData;
-x10aux::ref<x10::lang::Lock> place_local::_lock;
+x10aux::ref<x10::lang::Lock__ReentrantLock> place_local::_lock;
 
 void place_local::initialize() {
-    _lock = Lock::_make();
+    _lock = Lock__ReentrantLock::_make();
     _nextId = 0;
 
     _buckets = alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));

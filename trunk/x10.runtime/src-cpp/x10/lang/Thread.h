@@ -21,7 +21,7 @@ namespace x10 {
     namespace lang {
         class String;
         class Reference;
-        class Worker;
+        class Runtime__Worker;
 
         // execution thread condition & associated lock pair
         typedef struct {
@@ -168,13 +168,13 @@ namespace x10 {
             void unpark();
 
             // Returns the current worker.
-            x10aux::ref<x10::lang::Worker> worker(void);
+            x10aux::ref<x10::lang::Runtime__Worker> worker(void);
 
             // Returns the current location.
             x10_int locInt(void);
 
             // Set the current worker.
-            void worker(x10aux::ref<x10::lang::Worker> worker);
+            void worker(x10aux::ref<x10::lang::Runtime__Worker> worker);
 
             // Returns this thread's name.
             const x10aux::ref<x10::lang::String> name(void);
@@ -210,7 +210,7 @@ namespace x10 {
 
         private:
             // the current worker
-            x10aux::ref<x10::lang::Worker> __current_worker;
+            x10aux::ref<x10::lang::Runtime__Worker> __current_worker;
             // the current thread
             static x10aux::ref<Thread> __current_thread;
             // internal thread id counter (monotonically increasing only)

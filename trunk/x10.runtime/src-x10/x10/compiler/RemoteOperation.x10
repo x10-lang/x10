@@ -6,9 +6,7 @@
  *
  */
 
-package x10.lang;
-
-import x10.compiler.Native;
+package x10.compiler;
 
 /**
  * @author igor

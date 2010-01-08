@@ -20,7 +20,7 @@ public class Future[+T] implements ()=>T {
     /**
      * Latch for signaling and wait
      */
-    private global val latch = new Latch();
+    private global val latch = new Runtime.Latch();
 
     /**
      * Set if the activity terminated with an exception.

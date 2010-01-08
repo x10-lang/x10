@@ -20,7 +20,7 @@
 #include <x10/lang/Debug.h>
 #include <x10/lang/InterruptedException.h>
 #include <x10/lang/IllegalThreadStateException.h>
-#include <x10/lang/Worker.h>
+#include <x10/lang/Runtime__Worker.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -430,7 +430,7 @@ Thread::unpark()
 }
 
 // Returns the current worker.
-ref<Worker>
+ref<Runtime__Worker>
 Thread::worker(void)
 {
     return __current_worker;
@@ -444,7 +444,7 @@ Thread::locInt(void)
 
 // Set the current worker.
 void
-Thread::worker(ref<Worker> worker)
+Thread::worker(ref<Runtime__Worker> worker)
 {
     __current_worker = worker;
 }

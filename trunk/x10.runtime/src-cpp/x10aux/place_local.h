@@ -6,7 +6,7 @@
 
 namespace x10 {
     namespace lang {
-        class Lock;
+        class Lock__ReentrantLock;
     }
 }
 
@@ -24,7 +24,7 @@ namespace x10aux {
         static x10_int _nextId;
         static Bucket **_buckets;
         static void** _fastData;
-        static x10aux::ref<x10::lang::Lock> _lock;
+        static x10aux::ref<x10::lang::Lock__ReentrantLock> _lock;
 
     public:
         static void initialize();

@@ -114,7 +114,7 @@ public class System {
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
-        NativeRuntime.runAt(dst_place.id, ()=>{
+        Runtime.runAt(dst_place.id, ()=>{
             val pair = dst_finder();
             val dst = pair.first;
             val dst_off = pair.second;
@@ -132,7 +132,7 @@ public class System {
                                  size:Int) {
         val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size);
-        NativeRuntime.dealloc(finder);
+        Runtime.dealloc(finder);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder)
@@ -141,8 +141,8 @@ public class System {
                                  size:Int, notifier:()=>Void) {
         val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size, notifier);
-        NativeRuntime.dealloc(finder);
-        NativeRuntime.dealloc(notifier);
+        Runtime.dealloc(finder);
+        Runtime.dealloc(notifier);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
@@ -151,8 +151,8 @@ public class System {
                                  dst:Place, size:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](handle.get(), 0);
         handle.get().copyTo[T](0, dst, finder, size, notifier);
-        NativeRuntime.dealloc(finder);
-        NativeRuntime.dealloc(notifier);
+        Runtime.dealloc(finder);
+        Runtime.dealloc(notifier);
     }
 
     // This function exists because we do not want to call dealloc in user code (finder, notifier)
@@ -160,8 +160,8 @@ public class System {
                                  len:Int, notifier:()=>Void) {
         val finder = ()=>Pair[Rail[T],Int](dst,0);
         src.copyTo[T](0, dst.home, finder, len, notifier);
-        NativeRuntime.dealloc(finder);
-        NativeRuntime.dealloc(notifier);
+        Runtime.dealloc(finder);
+        Runtime.dealloc(notifier);
     }
 
     // FIXME: this ought to be in Rail but @Native system does not allow this
