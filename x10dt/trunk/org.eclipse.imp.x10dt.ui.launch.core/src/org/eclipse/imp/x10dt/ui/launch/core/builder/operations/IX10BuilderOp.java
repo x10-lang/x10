@@ -24,7 +24,7 @@ public interface IX10BuilderOp {
    * 
    * @param platform The platform to consider.
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
-   * @throws CoreException Occurs if we could not add some X10 markers to Problems View.
+   * @throws CoreException Occurs if we could not transfer remotely some generated files.
    */
   public void archive(final IX10PlatformConfiguration platform, final IProgressMonitor monitor) throws CoreException;
   
@@ -34,8 +34,10 @@ public interface IX10BuilderOp {
    * @param platform The platform to consider.
    * @param monitor The monitor to consider for reporting progress or canceling the operation.
    * @throws CoreException Occurs if we could not add some X10 markers to Problems View.
+   * @return True if the compilation succeeded, false otherwise. In the latter, marker will be created and error will be 
+   * logged.
    */
-  public void compile(final IX10PlatformConfiguration platform, final IProgressMonitor monitor) throws CoreException;
+  public boolean compile(final IX10PlatformConfiguration platform, final IProgressMonitor monitor) throws CoreException;
   
   /**
    * Transfers the generated files to the workspace directory of the target platform.

@@ -112,7 +112,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
     }
   }
   
-  public final void compile(final IX10PlatformConfiguration platform, final IProgressMonitor monitor) throws CoreException {
+  public final boolean compile(final IX10PlatformConfiguration platform, final IProgressMonitor monitor) throws CoreException {
     monitor.beginTask(null, this.fCompiledFiles.size());
     monitor.subTask(Messages.CPPB_RemoteCompilTaskName);
         
@@ -169,23 +169,27 @@ abstract class AbstractX10BuilderOp implements IX10BuilderOp {
         final int returnCode = process.exitValue();
         process.destroy();
         
+        monitor.worked(1);
+        
         if (returnCode != 0) {
           IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, entry.getKey().getName()), 
                                      IMarker.SEVERITY_ERROR, entry.getKey().getAbsolutePath(), IMarker.PRIORITY_HIGH);
+          return false;
         }
-        
-        monitor.worked(1);
       }
     } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_RemoteOpError, getResourceManagerName()), 
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_RemoteOpError, getResourceManagerName()), except);
+      return false;
     } catch (InterruptedException except) {
       IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, getResourceManagerName()), 
                                  IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+      return false;
     } finally {
       monitor.done();
     }
+    return true;
   }
 
   // --- Code for descendants
