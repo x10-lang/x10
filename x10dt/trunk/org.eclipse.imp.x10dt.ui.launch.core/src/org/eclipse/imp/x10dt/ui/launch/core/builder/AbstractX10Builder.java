@@ -87,6 +87,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
       this.fDependencyInfo.clearAllDependencies();
       this.fSourcesToCompile.clear();
+      final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
+      final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
 
       monitor.beginTask(null, 100);
       
@@ -145,12 +147,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       if (platform.isLocal()) {
         outputDir = new File(workspaceDir);
       } else {
-        outputDir = new File(this.fBinaryContainer.getLocationURI());
+        outputDir = new File(binaryContainer.getLocationURI());
       }
       compileX10Files(outputDir.getAbsolutePath(), new SubProgressMonitor(monitor, 27));
       
       // Finally, let's compile the generated files.
-      return compileGeneratedFiles(resourceManager, dependentProjects, workspaceDir, platform, 
+      return compileGeneratedFiles(resourceManager, dependentProjects, workspaceDir, platform, binaryContainer,
                                    new SubProgressMonitor(monitor, 60));
     } catch (IOException except) {
       IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
@@ -175,7 +177,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
         
         final IPath outpuLoc = this.fProjectWrapper.getOutputLocation();
-        final IContainer binaryContainer = getBinaryContainer(outpuLoc);
+        final IContainer binaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outpuLoc);
         if (binaryContainer != null) {
         	binaryContainer.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
         	final IResource[] members = binaryContainer.members();
@@ -228,6 +230,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private IProject[] compileGeneratedFiles(final IResourceManager resourceManager, final Set<IProject> dependentProjects, 
                                            final String workspaceDir, final IX10PlatformConfiguration platform,
+  		                                     final IContainer binaryContainer, 
   		                                     final IProgressMonitor monitor) throws CoreException {
     try {
       final IX10BuilderOp builderOp;
@@ -237,9 +240,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         builderOp = new RemoteX10BuilderOp(getProject(), workspaceDir, resourceManager, platform.getTargetOS());
       }
       
-      builderOp.transfer(this.fBinaryContainer, new SubProgressMonitor(monitor, 10));
-      builderOp.compile(platform, new SubProgressMonitor(monitor, 70));
-      builderOp.archive(platform, new SubProgressMonitor(monitor, 20));
+      builderOp.transfer(binaryContainer, new SubProgressMonitor(monitor, 10));
+      if (builderOp.compile(platform, new SubProgressMonitor(monitor, 70))) {
+        builderOp.archive(platform, new SubProgressMonitor(monitor, 20));
+      }
     } catch (WorkbenchException except) {
       IResourceUtils.addMarkerTo(getProject(), Messages.XPCPP_LoadingErrorMsg,
                                  IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
@@ -278,13 +282,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     compiler.compile(toSources(this.fSourcesToCompile));
   }
   
-  private IContainer getBinaryContainer(final IPath outputLoc) {
-    if (this.fBinaryContainer == null) {
-    	this.fBinaryContainer = ResourcesPlugin.getWorkspace().getRoot().getFolder(outputLoc);
-    }
-    return this.fBinaryContainer;
-  }
-  
   private Collection<Source> toSources(final Collection<IFile> sources) throws CoreException {
     final Collection<Source> pSources = new ArrayList<Source>(sources.size());
     for (final IFile file : sources) {
@@ -304,8 +301,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private DependencyInfo fDependencyInfo;
   
   private IJavaProject fProjectWrapper;
-  
-  private IContainer fBinaryContainer;
   
   private Collection<IFile> fSourcesToCompile = new HashSet<IFile>();  
   
