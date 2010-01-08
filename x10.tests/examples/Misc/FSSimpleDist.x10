@@ -7,7 +7,6 @@
  * @author bdlucas
  */
 
-import x10.runtime.NativeRuntime;
 import x10.util.Timer;
 import x10.io.Console;
 
@@ -22,8 +21,7 @@ public class FSSimpleDist {
     //const DEFAULT_SIZE = 2*MEG;
     const DEFAULT_SIZE = MEG / 8;
 
-    const NUM_PLACES = NativeRuntime.MAX_PLACES;
-    //const NUM_PLACES = 4; // Place.MAX_PLACES;
+    const NUM_PLACES = Place.MAX_PLACES;
 
     public static def run():Boolean {
         val verified:Rail[boolean]! = [true];
