@@ -1,9 +1,6 @@
 import x10.io.Console;
 
 import x10.util.Timer;
-import x10.runtime.NativeRuntime;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
 
 class LocalTable {
     
