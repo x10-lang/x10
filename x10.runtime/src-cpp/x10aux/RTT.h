@@ -30,7 +30,6 @@
 
 namespace x10 {
     namespace lang {
-        class Object;
         class Reference;
     }
 }
@@ -80,10 +79,10 @@ namespace x10aux {
         bool subtypeOf(const RuntimeType * const other) const;
 
         // use "const ref<t> &" here to break circular dependency
-        bool instanceOf(const x10aux::ref<x10::lang::Object> &other) const;
+        bool instanceOf(const x10aux::ref<x10::lang::Reference> &other) const;
 
         // use "const ref<t> &" here to break circular dependency
-        bool concreteInstanceOf(const x10aux::ref<x10::lang::Object> &other) const;
+        bool concreteInstanceOf(const x10aux::ref<x10::lang::Reference> &other) const;
 
         bool equals(const RuntimeType * const other) const {
             return other == this;
