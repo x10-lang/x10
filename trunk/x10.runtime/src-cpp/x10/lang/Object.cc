@@ -7,10 +7,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10_boolean Object::equals(x10aux::ref<Any> other) {
-    return this->_struct_equals(other);
-}
-
 x10aux::RuntimeType x10::lang::Object::rtt;
 
 void Object::_initRTT() {

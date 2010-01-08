@@ -14,6 +14,7 @@ namespace x10 {
     namespace lang {
 
         class String;
+        class Any;
 
         /**
          * This is a class that exists only at the C++ implementation level,
@@ -25,6 +26,7 @@ namespace x10 {
          * is needed because pointers to instances of both of these classes could
          * appear in variables of interface type and we need a common C++ level
          * ancestor class so that virtual dispatch will work.
+         * 
          * This class is intentionally not a parent of Structs, because Structs
          * don't have virtual methods and cannot be pointed to by variables of
          * interface type.
@@ -49,6 +51,14 @@ namespace x10 {
              *********************************************************************************/
             virtual x10aux::ref<String> toString() = 0;
 
+            virtual x10_boolean equals(x10aux::ref<Any> other) {
+                return this->_struct_equals(x10aux::ref<Reference>(other));
+            }
+
+            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other) {
+                return other == x10aux::ref<Reference>(this);
+            }
+            
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/

@@ -24,7 +24,7 @@ namespace x10aux {
       public: static inline x10_boolean _(ref<T> x, ref<U> y) { return general_equals_impl(x, y); }
     };
 
-    // covers Ref and Value (ie, all subtypes of Object)
+    // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
     template<class T, class U>
     inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
@@ -102,11 +102,9 @@ namespace x10aux {
             return y.isNull();
         } else if (y.isNull()) {
             return false; // x != null, needed for remote refs
-        //} else if (remote_ref::is_remote(x.operator->()) || remote_ref::is_remote(y.operator->())) {
-        //    return remote_ref::equals(x.operator->(), y.operator->());
         } else {
-            ref<x10::lang::Object> xAsObj = x;
-            ref<x10::lang::Object> yAsObj = y;
+            ref<x10::lang::Reference> xAsObj = x;
+            ref<x10::lang::Reference> yAsObj = y;
             return xAsObj->_struct_equals(yAsObj);
         }
     }
