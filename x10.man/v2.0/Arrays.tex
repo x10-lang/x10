@@ -24,8 +24,9 @@ can be implicitly coerced to a \xcd"Point" of rank $n$.  For
 example, the following code initializes \xcd"p" to a point of
 rank two using a rail constructor:
 
+\checkme{Huh? Why do we say rail constructor above? As opposed to just any old valrail?}
 \begin{xten}
-p: Point = [1,2];
+p: Point(2) = [1,2];
 \end{xten}
 
 The \xcd"Point" factory method \xcd"make" can take a rail constructor as
@@ -48,7 +49,7 @@ methods of the \xcd"Array" class.
 
 An array creation 
 must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
-case an array is created over the distribution \xcd"[0..(N-1)]->here";
+case an array is created over the distribution \xcd"[0:N-1]->here";
 in the second over the given distribution. 
 
 An array creation operation may also specify an initializer
@@ -73,7 +74,7 @@ array with \xcd"1000" elements each of which is located in the
 same place as the array. Each array component is initialized to \xcd"i".
 
 The second declaration stores in \xcd"data2" a reference to a mutable
-2-d array over \xcd"[1..1000, 1..1000]" initialized with \xcd"i*j"
+2-d array over \xcd"[1:1000, 1:1000]" initialized with \xcd"i*j"
 at point \xcd"[i,j]".
 
 Other examples:
