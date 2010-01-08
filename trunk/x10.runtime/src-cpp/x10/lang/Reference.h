@@ -22,14 +22,15 @@ namespace x10 {
          * associated RTT.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for Object (X10 objects) and Closure (X10 closures).  The common superclass
-         * is needed because pointers to instances of both of these classes could
+         * for Object (X10 objects), Closure (function objects created from X10 closure literals),
+         * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
+         * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
          * ancestor class so that virtual dispatch will work.
          * 
-         * This class is intentionally not a parent of Structs, because Structs
+         * This class is intentionally not a parent of Struct, because Structs
          * don't have virtual methods and cannot be pointed to by variables of
-         * interface type.
+         * interface type unless they are wrapped in an IBox (which is a subclass of this class).
          */
         class Reference {
         public:
