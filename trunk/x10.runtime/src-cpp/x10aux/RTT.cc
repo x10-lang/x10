@@ -4,7 +4,6 @@
 #include <x10aux/atomic_ops.h>
 
 #include <x10/lang/Reference.h>
-#include <x10/lang/Object.h>
 
 #include <cstdarg>
 
@@ -47,13 +46,13 @@ bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     return false;
 }
 
-bool RuntimeType::instanceOf (const ref<Object> &other) const {
+bool RuntimeType::instanceOf (const ref<Reference> &other) const {
     if (other.isNull())
         return false;
     return other->_type()->subtypeOf(this);
 }
 
-bool RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
+bool RuntimeType::concreteInstanceOf (const ref<Reference> &other) const {
     if (other.isNull())
         return false;
     return other->_type()->equals(this);
