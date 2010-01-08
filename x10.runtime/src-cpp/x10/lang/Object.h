@@ -24,14 +24,8 @@ namespace x10 {
 
             virtual ~Object() { }
 
-            virtual x10_boolean equals(x10aux::ref<Any> other);
-
             virtual x10_int hashCode() = 0;
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
-                if (other == x10aux::ref<Object>(this)) return true;
-                return false;
-            }
         };
     }
 }
