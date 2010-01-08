@@ -489,75 +489,14 @@ During code generation, the type \Xcd{proto T} is treated as if it were
 
 \section{Field definitions}
 
-Not every instance of a class needs to have every field defined on the
-class. In Java-like languages this is ensured by conditionally setting
-fields to a default value, such as \xcd"null", in those instances where the
-fields are not needed.  
+A class may have zero or more mutable or immutable fields. 
+No two fields declared in a class may have the same name. 
 
-Consider the class \xcd"List" used earlier.  Here all instances of \xcd"List"
-returned by the second constructor do not need the fields \xcd"value" and
-\xcd"tail"; their value is set to null.
-
-\label{FieldGuard}
-
-\Xten{} permits a much cleaner solution that does not require default
-values such as null to be stored in such fields. \Xten{} permits fields to
-be {\em guarded} with a constraint.  The field is accessible
-only if the \emph{guard} constraint is satisfied.
-
-\begin{grammar}
-FieldDeclaration  \:
-   FieldModifiers\opt \xcd"val" VariableDeclarators \xcd";" \\
-   \|
-   FieldModifiers\opt \xcd"var" VariableDeclarators \xcd";" \\
-VariableDeclarators \:
-        VariableDeclarator ( \xcd"," VariableDeclarator )\star \\
-VariableDeclarator \:
-   Identifier ( Constraint )\opt ( \xcd":" Type )\opt ( \xcd"=" Expression )\opt \\
-\end{grammar}
-
-It is illegal for code to access a guarded field through a reference
-whose static type does not satisfy the associated guard, even
-implicitly (i.e., through an implicit \xcd"this"). Rather the source
-program should contain an explicit cast, e.g., \xcd"me: C{c} = this as C{c}".
-
-\begin{staticrule*}
-Let \xcd"f" be a field defined in class
-\xcd"C" with guard \xcd"c".  The compiler declares an error if
-field \xcd"f" is accessed through a reference \xcd"o" whose static
-type is not a subtype of \xcd"C{c}".
-\end{staticrule*}
-
-\begin{example}
-
-We may now rewrite the List example:
-\begin{xten}
-public class List(n: Int{n>=0}) {
-  protected val head{n>0}: Object;
-  protected val tail{n>0}: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) {
-     property(t.n+1);
-     head=o;
-     tail=t;
-  }
-  public def this(): List(0) {
-     property(0);
-  }
-  ...
-}
-\end{xten}
-
-The fields \xcd"value" and \xcd"tail" do not exist for instances of the class
-\xcd"List(0)".
-\end{example}
-
-It is a compile-time error for a class to have two fields of the same
-name, even if their guards are different. A class \xcd"C" with a field
-named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
-
-\begin{staticrule*}
-     A class may not declare two fields with the same name.
-\end{staticrule*}
+Fields may be marked \xcd{static}. Only one instance of such a field
+exists, and it may be accessed through the name of the class in which
+it is defined (\Sref{StaticInitialization}).  Fields not marked
+\xcd{static} are said to be {\em instance} fields. One copy of such a
+field exists for every instance of the class.
 
 To avoid an ambiguity, it is a static error for a class to
 declare a field with a function type (\Sref{FunctionTypes}) with
@@ -569,35 +508,6 @@ A subclass that defines a field \xcd"f" hides any field \xcd"f"
 declared in a superclass, regardless of their types.  The
 superclass field \xcd"f" may be accessed within the body of
 the subclass via the reference \xcd"super.f".
-
-\eat{
-The definition of field hiding does not take
-\grammar{Guard} into
-account. Suppose a class \xcd"C" has a field
-
-\begin{xten}
-var f{c}: Foo;
-\end{xten}
-\noindent and a subclass \xcd"D" of \xcd"C" has a field
-\begin{xten}
-var f{d}: Fum;
-\end{xten}
-
-We will say that \xcd"D.f" hides \xcd"C.f", {\em regardless} of the
-constraints \xcd"c" and \xcd"d". This is in keeping with \Java, and
-permits a naive implementation which always allocates space for a
-conditional field.
-
-\begin{rationale}
-It might seem attractive to require that \xcd"D.f"
-hides \xcd"C.f" only if \xcd"d" entails \xcd"c". This would seem
-to necessitate a rather complex implementation structure for classes,
-requiring some kind of a heterogeneous translation for
-constrained types of \xcd"C"
-and \xcd"D". This bears further investigation.
-\end{rationale}
-}
-
 
 \subsection{Field qualifiers}
 \label{FieldQualifier}
@@ -620,9 +530,7 @@ Fields not marked \Xcd{global} cannot be overridden by fields marked
 
 \section{Method definitions}
 
-\Xten{} permits guarded method definitions, similar to guarded
-field definitions. Additionally, the parameter list for a method may
-contain a \grammarrule{Guard}.
+\Xten{} permits guarded method definitions. 
 
 \begin{grammar}
 MethodDeclaration \: MethodHeader \xcd";" \\
@@ -729,8 +637,13 @@ A method declared with the modifier \xcd"property" may be used
 in constraints.  A property method declared in a class must have
 a body and must not be \xcd"void".  The body of the method must
 consist of only a single \xcd"return" statement or a single
-expression.  It is a static error of the expression cannot be
-represented in the constraint system.
+expression.  It is a static error if the expression cannot be
+represented in the constraint system. 
+
+The expression may contain invocations of other properties. It is the
+responsibility of the programmer to ensure that the evaluation of 
+a property terminates at compile-time, otherwise the type-checker
+will not terminate and the program will fail to compile.
 
 Property methods in classes are implicitly \xcd"final"; they cannot be
 overridden.
@@ -754,27 +667,37 @@ Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
 they have value parameters of different types.
 
+\XtenCurrVer{} does not permit overloading based on constraints. 
+
+
 The definition of a method declaration \xcdmath"m$_1$" ``having the same signature
-as'' a method declaration \xcdmath"m$_2$" involves identity of types. Two \Xten{} types
-are defined to be identical iff they are equivalent (\Sref{DepType:Equivalence}).
-Two methods are said to have {\em the same signature} if (a)
-they have the same number of type parameters, (b) they have the
-same number of formal (value) parameters, and (c) for each formal parameter
-their types are equivalent. It is a compile-time error for there
-to be two methods with the same name and same signature in a class
-(either defined in that class or in a superclass).
+as'' a method declaration \xcdmath"m$_2$" involves identity of types. 
+
+The {\em constraint erasure} of a type \xcdmath"T" is defined as follows.
+The constraint erasure of  (a)~a class, interface or struct type \xcdmath"T" is 
+\xcdmath"T"; (b)~a type \xcdmath"T{c}" is the constraint erasure of 
+\xcdmath"T"; (b)~a type \xcdmath"T[S$_1$,\ldots,S$_n$]" 
+is \xcdmath"T'[S$_1$',\ldots,S$_n$']" where each primed type is the erasure of 
+the corresponding unprimed type.
+ Two methods are said to have {\em the
+  same signature} if (a) they have the same number of type parameters,
+(b) they have the same number of formal (value) parameters, and (c)
+for each formal parameter the constraint erasure of its types are equivalent. It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
 
 \begin{staticrule*}
   A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
   defined at \xcd"C" or inherited:
 \begin{xtenmath}
-def m[X$_1$, $\dots$, X$_m$](v$_1$: T$_1${t$_1$}, $\dots$, v$_n$: T$_n${t$_n$}){tc}: T {...}
-def m[X$_1$, $\dots$, X$_m$](v$_1$: S$_1${s$_1$}, $\dots$, v$_n$: S$_n${s$_n$}){sc}: S {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: T$_1$, $\dots$, v$_n$: T$_n$){tc}: T {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: S$_1$, $\dots$, v$_n$: S$_n$){sc}: S {...}
 \end{xtenmath}
 \noindent
-if it is the case that the types \xcd"C{tc}", \xcdmath"T$_1${t$_1$}",
-\dots, \xcdmath"T$_n${t$_n$}" are
-equivalent to the types \xcdmath"C{sc}, S$_1${t$_1$}, $\dots$, T$_n${t$_n$}"
+if it is the case that the constraint erasures of the types \xcdmath"T$_1$",
+\dots, \xcdmath"T$_n$" are
+equivalent to the constraint erasures of the types \xcdmath"S$_1$, $\dots$, T$_n$"
 respectively.
 \end{staticrule*}
 
@@ -790,9 +713,8 @@ satisfies the guard of the callee.
 \end{staticrule*}
 
 A class \xcd"C" inherits from its direct superclass and superinterfaces all
-their methods visible according to the access restriction modifiers
-public/private/protected/(package) of the superclass/superinterfaces
-that are not hidden or overridden. A method \xcdmath"M$_1$" in a class
+their methods visible according to the access modifiers
+of the superclass/superinterfaces that are not hidden or overridden. A method \xcdmath"M$_1$" in a class
 \xcd"C" overrides
 a method \xcdmath"M$_2$" in a superclass \xcd"D" if
 \xcdmath"M$_1$" and \xcdmath"M$_2$" have the same signature.
@@ -816,93 +738,6 @@ may be a dependent type \xcd"C{c}". Therefore, given a class definition for
 \xcd"C{c}". But the answer to this question is clear: exactly those methods
 defined on \xcd"C" are available at the type \xcd"C{c}"
 whose guard \xcd"d" is implied by \xcd"c".
-
-
-\begin{example}
-  Consider the definitions:
-\begin{xten}
-class Point(i: Int, j: Int) {...}
-class Line(s: Point, e: Point{self != i}) {
-  // m1: Both points lie in the right half of the plane
-  def draw(){s.i>= 0 && e.i >= 0} = {...}
-  // m2: Both points lie on the y-axis
-  def draw(){s.i== 0 && e.i == 0} = {...}
-  // m3: Both points lie in the top half of the plane
-  def draw(){s.j>= 0 && e.j >= 0} = {...}
-  // m4: The general method
-  def draw() = {...}
-} 
-\end{xten} 
-\noindent  Three different implementations are given for the
-\xcd"draw" method, one
-  for the case in which the line lies in the right half of the plane,
-  one for the case that the line lies on the y-axis and the third for
-  the case that the line lies in the top half of the plane.
-
-
-\noindent  Consider the invocation
-\begin{xten}
-m: Line{s.i < 0} = ...
-m.draw();
-\end{xten}
-
-\noindent  This generates a compile time error because there is no applicable
-  method definition.
-
-\noindent  Consider the invocation
-
-\begin{xten}
-m: Line{s.i>=0 && s.j>=0 && e.i>=0 && e.j>=0} = ...
-m.draw();
-\end{xten}
-
-\noindent  This generates a compile time error because both
-\xcd"m1" and \xcd"m3" are applicable.
-
-\noindent  Consider the invocation
-\begin{xten}
-m: Line{s.i>=0 && s.j>=0 && e.i>=0} = ...
-m.draw();
-\end{xten}
-  This does not generate any compile-time error since only m1 is
-  applicable. 
-\end{example}
-
-
-In the last example, notice that at runtime \xcd"m1" will be invoked
-(assuming \xcd"m" contains an instance of the \xcd"Line" class, and not some
-subclass of \xcd"Line" that overrides this method). This will be the case
-even if \xcd"m" satisfies at runtime the stronger conditions for \xcd"m2" (i.e.,
-\xcd"s.i==0 && e.i==0"). That is, dynamic method lookup will not take into
-account the  ``strongest'' constraint that the receiver may
-satisfy, i.e.,
-its ``strongest constrained type''. 
-
-\begin{rationale}
-  The design decision that dynamic method lookup should ignore
-  dependent type information was made to keep the design and the
-  implementation simple and to ensure that serious errors such as
-  method invocation errors are captured at compile-time.
- 
-  Consider the above example and the invocation
-\begin{xten}
-m: Line = ...
-m.draw();    
-\end{xten}
-
-
-   Statically the compiler will not report an error because m4 is the
-   only method that is applicable. However, if dynamic method lookup
-   were to use constrained types then we would face the problem that if m is a
-   line that lives in the upper right quadrant then both \xcd"m2"
-   and \xcd"m3"
-   are applicable and one does not override the other. Hence we must
-   report an error dynamically.
-
-   As discussed above, the programmer can write code with \xcd"instanceof"
-   and class casts that perform any application-appropriate
-   discrimination.  
-\end{rationale}
 
 \subsection{Method qualifiers}
 \label{MethodQualifier}
@@ -929,10 +764,10 @@ implicitly in an \xcd"atomic" statement.
 A method may be declared \xcd"global".
 
 \begin{grammar}
-  MethodModifier \: \xcd"local"  
+  MethodModifier \: \xcd"global"  
 \end{grammar}
 
-A global method can be invoked on an object \Xcd{o} in any place. The
+A \xcd"global" method can be invoked on an object \Xcd{o} in any place. The
 body of such a method is type-checked without assuming that
 \Xcd{here==this.loc}. This permits \Xcd{global} fields of \Xcd{o} to
 be accessed, but not local fields. The programmer must insert an explicit

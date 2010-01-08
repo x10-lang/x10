@@ -473,15 +473,12 @@ Type parameters cannot be constrained.
 \def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
 \def\LL#1{\withmath{\lbrack\!\lbrack #1\rbrack\!\rbrack}}
 
-Expressions used as constraints are restricted by the
-constraint system in use to ensure that the constraints can
-be solved at compile time.  The \Xten{} compiler allows compiler
-plugins to be installed to extend the constraint language and
-the
-constraint system.
-Constraints must be of type \xcd"Boolean".
-The
-compiler supports the following constraint syntax.
+Expressions used as constraints are restricted by the constraint
+system in use to ensure that the constraints can be solved at compile
+time.  The \Xten{} compiler allows compiler plugins to be installed to
+extend the constraint language and the constraint system.  Constraints
+must be of type \xcd"Boolean".  The compiler supports the following
+constraint syntax.
 
 
 \begin{grammar}
@@ -494,9 +491,16 @@ Guard            \: \xcd"{" DepExpression \xcd"}" \\
 DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
-The default \Xten{} constraint system supports equality expressions
-(\xcd"=="), conjunction (\xcd"&&"), and subtyping and supertyping (\xcd"<:" and
-\xcd":>") expressions over constants and types, and existential quantification over typed variables.
+In \XtenCurrVer{} value constraints may be equalities 
+(\xcd"=="), disequalities (\xcd"!=") and conjunctions thereof.
+The terms over which these constraints are specified include
+literals and (accessible, immutable) variables and fields,
+and the special constants {\tt here}, {\tt self}, and {\tt this}.
+
+Type constraints may be subtyping and supertyping (\xcd"<:" and
+\xcd":>") expressions over types.
+
+//, and existential quantification over typed variables.
 
 \emph{
 Subsequent implementations are intended to support boolean algebra,
@@ -507,11 +511,13 @@ if not all, dynamic array bounds and place checks from \Xten{}.
 
 
 \subsubsection{Acyclicity restriction}
-To ensure that type-checking is decidable, we introduce restrictions to ensure that
-it is impossible to create cycles using just properties. Concretely, it is not possible
-in \Xten{} to write a program which can create at runtime a set of objects such that
-the graph formed by taking objects as nodes and adding an edge from $m$ to $n$ if
-$m$ has a property whose value is $n$ has a cycle in it. 
+
+To ensure that type-checking is decidable, we introduce restrictions
+to ensure that it is impossible to create cycles using just
+properties. Concretely, it is not possible in \Xten{} to write a
+program which can create at runtime a set of objects such that the
+graph formed by taking objects as nodes and adding an edge from $m$ to
+$n$ if $m$ has a property whose value is $n$ has a cycle in it.
 
 The restirction is implemented by using the {\em proto} rules for visibility of {\tt this} during constructor execution (\Sref{Protorules}).
 

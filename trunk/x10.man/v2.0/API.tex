@@ -9,7 +9,7 @@ classes in the package \xcd"x10.lang".
 package x10.lang;
 
 /** The top of the type hierarchy. */
-public interface Object {
+public class Object(home:Place) {
     public def equals(o: Object): Boolean;
     public def hashCode(): Int;
     public def toString(): String;

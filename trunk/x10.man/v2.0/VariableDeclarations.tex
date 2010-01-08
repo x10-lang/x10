@@ -97,7 +97,7 @@ the declared type of the variable.
 For \xcd"var" fields,
 if the initializer is omitted, the constructor must initialize
 the field, or else the field is initialized with
-\xcd"null" if a reference type \xcd"0" if an \xcd"Int", \xcd"0L"
+\xcd"null" if a reference type, \xcd"0" if an \xcd"Int", \xcd"0L"
 if a \xcd"Long",
 \xcd"0.0F" if a \xcd"Float", \xcd"0.0" if a \xcd"Double", or
 \xcd"false" if a \xcd"Boolean".  It is a static error if the
@@ -108,11 +108,6 @@ If the variable is final,
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Mutable fields must be declared with a type.
-A field declaration may have an optional
-\grammarrule{Guard}, restricting how the field may be accessed.
-The compiler is free to not allocate storage for the field if
-the guard of a field cannot be satisfied for a given containing
-object.
 
 \begin{grammar}
 FieldDeclaration
@@ -124,7 +119,7 @@ FieldDeclarators
         \: FieldDeclaratorsWithType \\
         \: FieldDeclaratorWithInit \\
 FieldDeclaratorId
-        \: Identifier Guard\opt \\
+        \: Identifier  \\
 FieldDeclaratorWithInit
         \: FieldDeclaratorId Init \\
         \| FieldDeclaratorId ResultType Init \\

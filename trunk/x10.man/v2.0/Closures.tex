@@ -275,13 +275,13 @@ Primary \: Expr \xcd"." Operator \xcd"(" Formals\opt \xcd")" \\
         \| Expr \xcd"." Operator \\
 \end{grammar}
 
-For every expression \xcd"e" of a type \xcd"T" at which a unary
-operator \xcd"OP" is defined, the expression \xcd"e.OP()"
-represents the function defined by:
+%% For every expression \xcd"e" of a type \xcd"T" at which a unary
+%%operator \xcd"OP" is defined, the expression \xcd"e.OP()"
+%% represents the function defined by:
 
-\begin{xten}
-(): T => { OP e }
-\end{xten}
+%% \begin{xten}
+%% (): T => { OP e }
+%% \end{xten}
 
 For example,
 one may write an expression that adds one to each member of a

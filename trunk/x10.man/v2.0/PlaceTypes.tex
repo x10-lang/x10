@@ -22,14 +22,14 @@ Because of the importance of places in the \Xten{} design, special
 syntactic support is provided for constrained types involving places.
 
 All \Xten{} classes extend the class
-\xcd"x10.lang.Ref", which defines a property
-\xcd"location" of type
+\xcd"x10.lang.Object", which defines a property
+\xcd"home" of type
 \xcd"Place".
 
 If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
 the constraint for \xcd"T" is implicitly assumed to contain the clause
-\xcd"self.location==p"; that is,
-\xcd"C{c}!p" is equivalent to \xcd"C{self.location==p && c}".
+\xcd"self.home==p"; that is,
+\xcd"C{c}!p" is equivalent to \xcd"C{self.home==p && c}".
 
 The place \xcd"p" may be ommitted. It defaults to \xcd"this" 
 for types in field declarations, and to \xcd"here" elsewhere.

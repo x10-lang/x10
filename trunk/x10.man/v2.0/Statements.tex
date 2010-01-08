@@ -253,10 +253,9 @@ syntax may
 be used for the formal parameter (\Sref{exploded-syntax}).
 Each iteration of the loop
 binds the parameter to another element of the collection.
-If the parameter is final, it may not be assigned within the
-loop body.
+The formal paramter must be immutable. 
 
-In a common case, the
+In a common case, 
 the collection is intended to be of type
 \xcd"Region" and the formal parameter is of type \xcd"Point".
 Expressions \xcd"e" of type \xcd"Dist" and
