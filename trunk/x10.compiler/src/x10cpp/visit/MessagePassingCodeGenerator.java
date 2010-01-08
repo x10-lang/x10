@@ -1827,7 +1827,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     }
                 } else if (call.kind() == ConstructorCall.THIS) {
                     if (container.isX10Struct()) {
-                        sw.write(CONSTRUCTOR+"(");
+                        sw.write(CONSTRUCTOR+"(this_");
+                        if (call.arguments().size() > 0) sw.write(", ");
                     } else {
                         sw.write("this->"+CONSTRUCTOR+"(");
                     }
@@ -3629,11 +3630,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean needsPlaceCheck = !xf.isGlobal() && needsPlaceCheck(domain, context);
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
-		    sw.write(make_ref("x10::lang::Object") + " " + name + " = "+iteratorTypeRef+"(");
-		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref("x10::lang::Object"), xts.Iterable(form.type().type()), mi, needsPlaceCheck, needsNullCheck);
+		    sw.write(make_ref("x10::lang::Reference") + " " + name + " = "+iteratorTypeRef+"(");
+		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref("x10::lang::Reference"), xts.Iterable(form.type().type()), mi, needsPlaceCheck, needsNullCheck);
 		    sw.write(");"); sw.newline();
 		} else {
-		    sw.write(make_ref("x10::lang::Object") + " " + name + " = (");
+		    sw.write(make_ref("x10::lang::Reference") + " " + name + " = (");
 		    if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 		    if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		    n.print(domain, sw, tr);
@@ -3647,7 +3648,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.begin(0);
 
 		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write("(((x10::lang::Object*)("+name+".operator->()))->*("+itableName+"->hasNext))();");
+		sw.write("(((x10::lang::Reference*)("+name+".operator->()))->*("+itableName+"->hasNext))();");
 		sw.allowBreak(2, " ");
 
 		sw.end();
@@ -3658,7 +3659,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(";");
 		sw.newline();
 		sw.write(mangled_non_method_name(form.name().id().toString()));
-        sw.write(" = (((x10::lang::Object*)("+name+".operator->()))->*("+itableName+"->next))();");
+        sw.write(" = (((x10::lang::Reference*)("+name+".operator->()))->*("+itableName+"->next))();");
 		sw.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 		    Stmt l = (Stmt) li.next();

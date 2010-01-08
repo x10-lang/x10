@@ -22,7 +22,7 @@ namespace x10 {
 
         class String;
 
-        class Ref : public Object {
+        class Ref : public SomeObject {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -102,7 +102,7 @@ namespace x10 {
             virtual x10aux::ref<x10::lang::String> typeName();
 
             // Needed for linking - do not override
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
+            virtual x10_boolean _struct_equals(x10aux::ref<Ref> other) {
                 if (other == x10aux::ref<Ref>(this)) return true;
                 if (this->location == x10aux::here) return false; // already tested above
                 if (other->location == this->location &&

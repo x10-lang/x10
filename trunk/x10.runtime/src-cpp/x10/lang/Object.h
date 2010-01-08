@@ -11,7 +11,7 @@ namespace x10 {
         class Ref;
         class Any;
         
-        class Object : public Reference {
+        class SomeObject : public Reference {
         private:
             static x10aux::itable_entry _itables[1];
             
@@ -20,9 +20,9 @@ namespace x10 {
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
             
-            Object(){ }
+            SomeObject(){ }
 
-            virtual ~Object() { }
+            virtual ~SomeObject() { }
 
             virtual x10_int hashCode() = 0;
 

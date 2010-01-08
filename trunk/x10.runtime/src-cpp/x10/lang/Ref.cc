@@ -99,6 +99,6 @@ void Ref::dealloc_object(Ref* obj) {
 }
 
 
-RTT_CC_DECLS1(Ref, "x10.lang.Ref", Object)
+RTT_CC_DECLS1(Ref, "x10.lang.Ref", SomeObject)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

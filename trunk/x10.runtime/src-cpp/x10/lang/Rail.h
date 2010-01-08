@@ -179,11 +179,11 @@ namespace x10 {
         void Rail_serialize_finish_state(x10aux::place dst_place,
                                          x10aux::serialization_buffer& buf);
 
-        void Rail_serializeAndSendPut(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
+        void Rail_serializeAndSendPut(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Reference> df,
                                       x10_ubyte code, x10aux::serialization_id_t _id,
                                       void* data, size_t size);
 
-        void Rail_serializeAndSendGet(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Object> df,
+        void Rail_serializeAndSendGet(x10::lang::Place dst_place_, x10aux::ref<x10::lang::Reference> df,
                                       x10_ubyte code, x10aux::serialization_id_t _id,
                                       void* data, size_t size);
 

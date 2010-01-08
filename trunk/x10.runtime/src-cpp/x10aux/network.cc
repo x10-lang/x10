@@ -151,7 +151,7 @@ struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
 struct x10_runtime_Runtime__closure__6__hack : x10::lang::Closure {
     static const x10aux::serialization_id_t _serialization_id;
     x10aux::ref<x10::lang::VoidFun_0_0> body;
-    x10aux::ref<x10::lang::Object> fs;
+    x10aux::ref<x10::lang::Reference> fs;
 };
 
 void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
@@ -195,13 +195,13 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
 
         x10aux::ref<x10::lang::Reference> real_body = body_->body;
-        x10aux::ref<x10::lang::Object> fs = body_->fs;
+        x10aux::ref<x10::lang::Reference> fs = body_->fs;
 
         serialization_id_t real_sid = real_body->_get_serialization_id();
         msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
 
         _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
-            <<ref<Object>(real_body)->toString()->c_str()<<" id "<<real_id
+            <<ref<Reference>(real_body)->toString()->c_str()<<" id "<<real_id
             <<" sid "<<real_sid<<" at GPU: "<<p);
 
         buf.write(fs);

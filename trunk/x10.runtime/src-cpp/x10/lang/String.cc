@@ -183,7 +183,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Ref> > > parms) {
             continue;
         }
         nullCheck(parms);
-        const ref<Object> p = parms->operator[](i);
+        const ref<Reference> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull()) {
             ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
@@ -241,7 +241,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Ref> > > parms) {
             continue;
         }
         placeCheck(nullCheck(parms));
-        const ref<Object> p = parms->operator[](i);
+        const ref<Reference> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull()) {
             ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
