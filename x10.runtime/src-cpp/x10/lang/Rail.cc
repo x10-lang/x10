@@ -46,7 +46,7 @@ void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &bu
     buf.write(fs);
 }
 
-void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Object> df, x10_ubyte code,
+void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Reference> df, x10_ubyte code,
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;
@@ -57,7 +57,7 @@ void x10::lang::Rail_serializeAndSendPut(Place dst_place_, ref<Object> df, x10_u
     x10aux::send_put(dst_place_.FMGL(id), _id, buf, data, size);
 }
 
-void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Object> df, x10_ubyte code,
+void x10::lang::Rail_serializeAndSendGet(Place src_place_, ref<Reference> df, x10_ubyte code,
                                          serialization_id_t _id, void* data, size_t size)
 {
     serialization_buffer buf;

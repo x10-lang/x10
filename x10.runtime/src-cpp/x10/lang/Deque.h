@@ -53,7 +53,7 @@ namespace x10 {
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            inline void setSlot(Slots *q, int i, x10::lang::Object *t) {
+            inline void setSlot(Slots *q, int i, x10::lang::Reference *t) {
                 q->data[i] = t;
                 x10aux::atomic_ops::store_store_barrier();
             }
@@ -63,7 +63,7 @@ namespace x10 {
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            inline bool casSlotNull(Slots *q, int i, x10::lang::Object* t) {
+            inline bool casSlotNull(Slots *q, int i, x10::lang::Reference* t) {
                 return x10aux::atomic_ops::compareAndSet_ptr(&(q->data[i]), t, NULL) == t;
             }
 
@@ -87,27 +87,27 @@ namespace x10 {
              * Pushes a task. Called only by current thread.
              * @param t the task. Caller must ensure nonnull
              */
-            void push(x10aux::ref<x10::lang::Object> t);
+            void push(x10aux::ref<x10::lang::Reference> t);
 
             /**
              * Tries to take a task from the base of the queue, failing if
              * either empty or contended.
              * @return a task, or null if none or contended.
              */
-            x10aux::ref<x10::lang::Object> steal();
+            x10aux::ref<x10::lang::Reference> steal();
 
             /**
              * Returns a popped task, or null if empty. Ensures active status
              * if nonnull. Called only by current thread.
              */
-            x10aux::ref<x10::lang::Object> poll();
+            x10aux::ref<x10::lang::Reference> poll();
 
             /**
              * Returns next task to pop.
              */
-            inline x10aux::ref<x10::lang::Object> peekTask() {
+            inline x10aux::ref<x10::lang::Reference> peekTask() {
                 Slots *q = queue;
-                return q == NULL ? NULL : (x10::lang::Object*)(q->data[(sp - 1) & (q->capacity - 1)]);
+                return q == NULL ? NULL : (x10::lang::Reference*)(q->data[(sp - 1) & (q->capacity - 1)]);
             }
 
             /**

@@ -57,7 +57,7 @@ void Deque::growQueue() {
     int newMask = newSize - 1;
     do {
         int oldIndex = b & oldMask;
-        Object *t = (Object*)(oldQ->data[oldIndex]);
+        Reference *t = (Reference*)(oldQ->data[oldIndex]);
         if (t != NULL && !casSlotNull(oldQ, oldIndex, t)) {
             t = NULL;
         }
@@ -65,7 +65,7 @@ void Deque::growQueue() {
     } while (++b != bf);
 }
 
-void Deque::push(x10aux::ref<x10::lang::Object> t) {
+void Deque::push(x10aux::ref<x10::lang::Reference> t) {
     Slots *q = queue;
     int mask = q->capacity - 1;
     int s = sp;
@@ -78,14 +78,14 @@ void Deque::push(x10aux::ref<x10::lang::Object> t) {
     }
 }
 
-ref<Object> Deque::steal() {
-    Object *t;
+ref<Reference> Deque::steal() {
+    Reference *t;
     Slots *q;
     int i;
     int b;
     if (sp != (b = base) &&
         (q = queue) != NULL && // must read q after b
-        (t = ((Object*)q->data[i = (q->capacity - 1) & b])) != NULL &&
+        (t = ((Reference*)q->data[i = (q->capacity - 1) & b])) != NULL &&
         casSlotNull(q, i, t)) {
         base = b + 1;
         return t;
@@ -93,13 +93,13 @@ ref<Object> Deque::steal() {
     return null;
 }
 
-ref<Object> Deque::poll() {
+ref<Reference> Deque::poll() {
     int s = sp;
     while (s != base) {
         Slots *q = queue;
         int mask = q->capacity - 1;
         int i = (s - 1) & mask;
-        Object *t = (Object*)(q->data[i]);
+        Reference *t = (Reference*)(q->data[i]);
         if (t == NULL || !casSlotNull(q, i, t))
             break;
         storeSp(s - 1);
