@@ -200,13 +200,13 @@ public class Desugarer extends ContextVisitor {
         return visitRemoteClosure(e, EVAL_AT, e.place());
     }
 
-    
+
     private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
     	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
         	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
         }
-    	
+
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         Position bPos = c.body().position();
         ClosureDef cDef = c.closureDef().position(bPos);
@@ -218,8 +218,8 @@ public class Desugarer extends ContextVisitor {
             xts.Place(), cDef.asType()
         }));
        // List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
-        
-        Expr result = synth.makeStaticCall(pos, xts.Runtime(), implName, 
+
+        Expr result = synth.makeStaticCall(pos, xts.Runtime(), implName,
         		typeArgs, args, c.type(), xContext());
         return result;
     }
@@ -228,11 +228,11 @@ public class Desugarer extends ContextVisitor {
       	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
           	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
           }
-        Closure closure = 
+        Closure closure =
         	synth.makeClosure(body.position(), xts.Void(),  synth.toBlock(body), xContext());
         Stmt result = xnf.Eval(pos,
-        		synth.makeStaticCall(pos, xts.Runtime(), RUN_AT, 
-        				Arrays.asList(new Expr[] { place, closure }), xts.Void(), 
+        		synth.makeStaticCall(pos, xts.Runtime(), RUN_AT,
+        				Arrays.asList(new Expr[] { place, closure }), xts.Void(),
         				xContext()));
         return result;
     }
@@ -278,7 +278,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
-    private static final QName REMOTE_OPERATION = QName.make("x10.runtime.RemoteOperation");
+    private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
 
     /**
      * Recognize the following pattern:
@@ -291,7 +291,7 @@ public class Desugarer extends ContextVisitor {
      * and compile it into an optimized remote operation.
      * @param a the async statement
      * @return an invocation of the remote operation, or null if no match
-     * @throws SemanticException 
+     * @throws SemanticException
      * TODO: move into a separate pass!
      */
     private Stmt specializeAsync(Node old, Async a) throws SemanticException {
@@ -348,16 +348,16 @@ public class Desugarer extends ContextVisitor {
         if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
             place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
         }
-        if (clocks.size() == 0) 
+        if (clocks.size() == 0)
         	return async(pos, body, place);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
-        
-        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })), 
+
+        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
                              body);
     }
-      
+
 
     private Stmt async(Position pos, Stmt body, Expr place) throws SemanticException {
     	List<Expr> l = new ArrayList<Expr>(1);
@@ -366,33 +366,33 @@ public class Desugarer extends ContextVisitor {
     	t.add(xts.Place());
     	return makeAsyncBody(pos, l, t, body);
     }
-    	
+
     private Stmt async(Position pos, Stmt body, List clocks) throws SemanticException {
-        if (clocks.size() == 0) 
+        if (clocks.size() == 0)
         	return async(pos, body);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
-        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })), 
+        return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body);
     }
-    
+
     private Stmt async(Position pos, Stmt body) throws SemanticException {
-        return makeAsyncBody(pos, new LinkedList<Expr>(), 
+        return makeAsyncBody(pos, new LinkedList<Expr>(),
                 new LinkedList<Type>(), body);
     }
- 
+
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
-        Closure closure = synth.makeClosure(body.position(), xts.Void(), 
+        Closure closure = synth.makeClosure(body.position(), xts.Void(),
                 synth.toBlock(body), xContext());
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = xnf.Eval(pos,
-                synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs, 
+                synth.makeStaticCall(pos, xts.Runtime(), RUN_ASYNC, exprs,
                         xts.Void(), types, xContext()));
         return result;
     }
     // end Async
-  
+
 
     private Expr visitHere(Here h) throws SemanticException {
         Position pos = h.position();
@@ -410,24 +410,24 @@ public class Desugarer extends ContextVisitor {
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
         return xnf.Try(pos, tryBlock, new LinkedList(), finallyBlock);
     }
-    
+
     private Stmt visitAwait(Await a) throws SemanticException {
         Position pos = a.position();
-        return xnf.Try(pos, 
-        		xnf.Block(pos, 
-                		xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
-                        xnf.While(pos, 
-                        		xnf.Unary(pos, a.expr(), Unary.NOT), 
+        return xnf.Try(pos,
+        		xnf.Block(pos,
+                		xnf.Eval(pos, call(pos, LOCK, xts.Void())),
+                        xnf.While(pos,
+                        		xnf.Unary(pos, a.expr(), Unary.NOT),
                         		xnf.Eval(pos, call(pos, AWAIT, xts.Void())))),
-        		Collections.EMPTY_LIST, 
-        		xnf.Block(pos, 
+        		Collections.EMPTY_LIST,
+        		xnf.Block(pos,
         				xnf.Eval(pos, call(pos, RELEASE, xts.Void()))));
     }
-    
+
     private Stmt wrap(Position pos, Stmt s) {
         return s.reachable() ? xnf.Block(pos, s, xnf.Break(pos)) : s;
     }
-    
+
     private Stmt visitWhen(When w) throws SemanticException {
         Position pos = w.position();
         Block body = xnf.Block(pos, xnf.If(pos, w.expr(), wrap(pos, w.stmt())));
@@ -435,16 +435,16 @@ public class Desugarer extends ContextVisitor {
             body = body.append(xnf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
         }
         body = body.append(xnf.Eval(pos, call(pos, AWAIT, xts.Void())));
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())),
                 xnf.While(pos, xnf.BooleanLit(pos, true), body));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
         return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
     }
-    
+
     private Expr call(Position pos, Name name, Type returnType) throws SemanticException {
     	return synth.makeStaticCall(pos, xts.Runtime(), name,  returnType, xContext());
     }
-    
+
     private Stmt specializeFinish(Finish f) throws SemanticException {
         if (!hasAnnotation(f, QName.make("x10.compiler.Immediate")))
             return null;
@@ -457,16 +457,16 @@ public class Desugarer extends ContextVisitor {
     private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = getTmp();
-        
+
         Stmt specializedFinish = specializeFinish(f);
         if (specializedFinish != null)
             return specializedFinish;
-        
+
         // TODO: merge with the call() function
         MethodInstance mi = xts.findMethod(xts.Runtime(),
                 xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context));
         LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp);
-        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
+        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()),
                 xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, tmp)).localDef(lDef);
         Expr local = xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(xts.Throwable());
         Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
@@ -502,7 +502,7 @@ public class Desugarer extends ContextVisitor {
             domain = xnf.Field(pos, domain, xnf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
         }
         LocalDef lDef = xts.localDef(pos, xts.Final(), Types.ref(dType), tmp);
-        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), 
+        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, dType), xnf.Id(pos, tmp), domain).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
         Type fType = formal.type().type();
@@ -533,7 +533,7 @@ public class Desugarer extends ContextVisitor {
                         xts.MethodMatcher(fType, CONVERT_IMPLICITLY,
                                 Collections.singletonList(intRail), context));
                 assert (cnv.flags().isStatic());
-                index.add(xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), 
+                index.add(xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType),
                         xnf.Id(bpos, CONVERT_IMPLICITLY),
                         xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType));
             }
@@ -559,7 +559,7 @@ public class Desugarer extends ContextVisitor {
 
     private Expr visitBinary(X10Binary_c n) throws SemanticException {
         Position pos = n.position();
-        
+
         Call c = X10Binary_c.desugarBinaryOp(n, this);
         if (c != null) {
             return c;
@@ -571,7 +571,7 @@ public class Desugarer extends ContextVisitor {
     /**
      * Same as xnf.Assign(...), but also set the appropriate type objects, which the
      * node factory screws up.
-     * @throws SemanticException 
+     * @throws SemanticException
      */
     private Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
         Assign a = (Assign) xnf.Assign(pos, e, asgn, val).type(e.type());
@@ -650,7 +650,7 @@ public class Desugarer extends ContextVisitor {
         if (c != null) {
             return c;
         }
-        
+
         return n;
     }
 
@@ -812,7 +812,7 @@ public class Desugarer extends ContextVisitor {
         return xnf.ClosureCall(pos, c, Collections.singletonList(cast)).closureInstance(ci).type(ot);
     }
 
-    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e) 
+    // e instanceof T{c} -> ((x:F)=>x instanceof T && c[self/x as T])(e)
     private Expr visitInstanceof(X10Instanceof_c n) throws SemanticException {
         Position pos = n.position();
         Expr e = n.expr();

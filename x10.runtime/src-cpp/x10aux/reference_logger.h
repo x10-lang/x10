@@ -6,7 +6,7 @@
 
 namespace x10 {
     namespace lang {
-        class Lock;
+        class Lock__ReentrantLock;
     }
 }
 
@@ -27,7 +27,7 @@ namespace x10aux {
             void *_reference;
             Bucket *_next;
         };
-        x10aux::ref<x10::lang::Lock> _lock;
+        x10aux::ref<x10::lang::Lock__ReentrantLock> _lock;
         Bucket **_buckets;
 
     public:

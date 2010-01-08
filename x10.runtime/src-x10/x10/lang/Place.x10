@@ -16,13 +16,13 @@ package x10.lang;
  * @author Dave Cunningham
  */
 public final struct Place(id: Int) implements Equals {
-    public const MAX_PLACES = NativeRuntime.MAX_HOSTS;
+    public const MAX_PLACES = Runtime.MAX_HOSTS;
     public const places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
     public const children = ValRail.make[ValRail[Place]](
-                                NativeRuntime.MAX_PLACES,
-                                (p: Int) => ValRail.make[Place](NativeRuntime.numChildren(p),
-                                                                (i:Int) => Place(NativeRuntime.child(p,i))));
-    public const NUM_ACCELS = NativeRuntime.MAX_PLACES - NativeRuntime.MAX_HOSTS;
+                                Runtime.MAX_PLACES,
+                                (p: Int) => ValRail.make[Place](Runtime.numChildren(p),
+                                                                (i:Int) => Place(Runtime.child(p,i))));
+    public const NUM_ACCELS = Runtime.MAX_PLACES - Runtime.MAX_HOSTS;
     public const FIRST_PLACE: Place(0) = places(0) as Place(0);
 
     public def this(id: Int):Place(id) { property(id); }
@@ -33,7 +33,7 @@ public final struct Place(id: Int) implements Equals {
     public def prev(i: Int): Place = next(-i);
     public def next(i: Int): Place {
         // -1 % n == -1, not n-1, so need to add n
-        if (NativeRuntime.isHost(id)) {
+        if (Runtime.isHost(id)) {
             val k = (id + i % MAX_PLACES + MAX_PLACES) % MAX_PLACES;
             return place(k);
         }
@@ -44,22 +44,22 @@ public final struct Place(id: Int) implements Equals {
 	public def isFirst(): Boolean = id == 0;
 	public def isLast(): Boolean = id == MAX_PLACES - 1;
 
-	public def isHost(): Boolean = NativeRuntime.isHost(id);
-	public def isSPE(): Boolean = NativeRuntime.isSPE(id);
-	public def isCUDA(): Boolean = NativeRuntime.isCUDA(id);
+	public def isHost(): Boolean = Runtime.isHost(id);
+	public def isSPE(): Boolean = Runtime.isSPE(id);
+	public def isCUDA(): Boolean = Runtime.isCUDA(id);
 
-    public def numChildren() = NativeRuntime.numChildren(id);
-    public def child(i:Int) = Place(NativeRuntime.child(id,i));
+    public def numChildren() = Runtime.numChildren(id);
+    public def child(i:Int) = Place(Runtime.child(id,i));
 
     public def children() = children(id);
 
-    public def parent() = places(NativeRuntime.parent(id));
+    public def parent() = places(Runtime.parent(id));
 
     public def childIndex() {
         if (isHost()) {
             throw new BadPlaceException();
         }
-        return NativeRuntime.childIndex(id);
+        return Runtime.childIndex(id);
     }
 
     public global safe def toString() = "(Place " + this.id + ")";

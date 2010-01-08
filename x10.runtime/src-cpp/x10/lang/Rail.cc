@@ -5,7 +5,7 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Runtime.h>
-#include <x10/lang/FinishStates.h>
+#include <x10/lang/Runtime__FinishStates.h>
 
 using namespace x10aux;
 
@@ -32,8 +32,8 @@ void x10::lang::Rail_notifyEnclosingFinish(deserialization_buffer& buf)
     ref<Reference> fs = buf.read<ref<Reference> >();
     ref<x10::lang::Runtime> rt = x10::lang::Runtime::FMGL(runtime)->get();
     // olivier says the incr should be just after the notifySubActivitySpawn
-    (fs.operator->()->*(findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityCreation))();
-    (fs.operator->()->*(findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityTermination))();
+    (fs.operator->()->*(findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
+    (fs.operator->()->*(findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
 void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &buf)
@@ -42,7 +42,7 @@ void x10::lang::Rail_serialize_finish_state (place dst, serialization_buffer &bu
     dst = x10aux::parent(dst);
     ref<x10::lang::Runtime> rt = x10::lang::Runtime::FMGL(runtime)->get();
     ref<Reference> fs = rt->currentState();
-    (fs.operator->()->*(findITable<x10::lang::FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
+    (fs.operator->()->*(findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifySubActivitySpawn))(x10::lang::Place_methods::_make(dst));
     buf.write(fs);
 }
 

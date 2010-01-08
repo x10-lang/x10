@@ -10,7 +10,7 @@ import x10.util.HashMap;
 public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
-    global val localRails = PlaceLocalStorage.createDistributedObject[HashMap[Activity, Rail[T]!]](Dist.makeUnique(), ()=>new HashMap[Activity, Rail[T]!]());
+    global val localRails = PlaceLocalStorage.createDistributedObject[HashMap[Runtime.Activity, Rail[T]!]](Dist.makeUnique(), ()=>new HashMap[Runtime.Activity, Rail[T]!]());
     global val original : ValRail[T];
     global val original_len : Int;
 

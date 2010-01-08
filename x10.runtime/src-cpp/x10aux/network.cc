@@ -286,8 +286,8 @@ static void cuda_post (const x10rt_msg_params &p, void *env)
     x10aux::deserialization_buffer buf(static_cast<char*>(p.msg));
     x10aux::ref<x10::lang::Reference> fs = buf.read<x10aux::ref<x10::lang::Reference> >();
     x10aux::ref<x10::lang::Runtime> rt = x10::lang::Runtime::FMGL(runtime)->get();
-    (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityCreation))();
-    (fs.operator->()->*(x10aux::findITable<x10::lang::FinishState>(fs->_getITables())->notifyActivityTermination))();
+    (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
+    (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
 }
 
 x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *kernel)
