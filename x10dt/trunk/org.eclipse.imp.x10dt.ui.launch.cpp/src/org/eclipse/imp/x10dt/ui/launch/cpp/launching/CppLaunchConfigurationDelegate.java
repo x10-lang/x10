@@ -175,9 +175,9 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         return 0;
       }
       
-      final int dotIndex = execPath.lastIndexOf('.');
-      final int lastIndex = (dotIndex == -1) ? execPath.length() : dotIndex;
-      final String className = execPath.substring(execPath.lastIndexOf('/') + 1, lastIndex);
+      final String fileNameWithoutPath = execPath.substring(execPath.lastIndexOf('/') + 1);
+      final int dotIndex = fileNameWithoutPath.lastIndexOf('.');
+      final String className = (dotIndex == -1) ? fileNameWithoutPath : fileNameWithoutPath.substring(0, dotIndex);
       final String mainFilePath = createMainFile(fileManager, className, workspaceDir, subMonitor.newChild(1)); 
       
       final List<String> command = new ArrayList<String>();
