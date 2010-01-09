@@ -1,7 +1,7 @@
 #ifndef X10_IO_NATIVEINPUTSTREAM_H
 #define X10_IO_NATIVEINPUTSTREAM_H
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 namespace x10 {
 
@@ -11,7 +11,7 @@ namespace x10 {
 
     namespace io {
 
-        class InputStreamReader__InputStream : public x10::lang::Ref {
+        class InputStreamReader__InputStream : public x10::lang::Object {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -23,7 +23,7 @@ namespace x10 {
 
         public:
             x10aux::ref<InputStreamReader__InputStream> _constructor() {
-                this->x10::lang::Ref::_constructor();
+                this->x10::lang::Object::_constructor();
                 return this;
             }
             

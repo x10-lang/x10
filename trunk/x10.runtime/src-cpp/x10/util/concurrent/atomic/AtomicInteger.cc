@@ -24,16 +24,16 @@ AtomicInteger::_make(x10_int val) {
 }
 
 void AtomicInteger::_serialize_body(x10aux::serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
 }
 
 void AtomicInteger::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
 }
 
 const x10aux::serialization_id_t AtomicInteger::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicInteger::_deserializer<Ref>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicInteger::_deserializer<Object>);
 
-RTT_CC_DECLS1(AtomicInteger, "x10.util.concurrent.atomic.AtomicInteger", Ref)
+RTT_CC_DECLS1(AtomicInteger, "x10.util.concurrent.atomic.AtomicInteger", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

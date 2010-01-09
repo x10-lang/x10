@@ -2,7 +2,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Runtime.h>
 #include <x10/lang/Runtime__FinishStates.h>
@@ -17,7 +17,7 @@ namespace x10 {
         void
         _initRTTHelper_Rail(RuntimeType *location, const RuntimeType *element,
                             const RuntimeType *p1, const RuntimeType *p2) {
-            const RuntimeType *parents[3] = { Ref::getRTT(), p1, p2 };
+            const RuntimeType *parents[3] = { Object::getRTT(), p1, p2 };
             const RuntimeType *params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
             const RuntimeType *canonical = x10aux::getRTT<Rail<void> >();

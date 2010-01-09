@@ -82,7 +82,7 @@ Thread::_make(ref<x10::lang::VoidFun_0_0> task, ref<x10::lang::String> name) {
 }
 
 const serialization_id_t Thread::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Ref>);
+    DeserializationDispatcher::addDeserializer(Thread::_deserializer<Object>);
 
 
 // Helper method to initialize a Thread object.
@@ -471,13 +471,13 @@ Thread::name(ref<String> name)
 }
 
 void Thread::_serialize_body(serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
 }
 
 void Thread::_deserialize_body(deserialization_buffer& buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(Thread, "x10.lang.Thread", Ref)
+RTT_CC_DECLS1(Thread, "x10.lang.Thread", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

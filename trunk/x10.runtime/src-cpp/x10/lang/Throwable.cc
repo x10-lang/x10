@@ -33,11 +33,11 @@ using namespace x10::lang;
 using namespace x10aux;
 
 const serialization_id_t Throwable::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Ref>);
+    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Object>);
 
 void
 Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
     buf.write(FMGL(cause));
     buf.write(FMGL(message));
     // TODO: serialize the trace
@@ -45,7 +45,7 @@ Throwable::_serialize_body(x10aux::serialization_buffer &buf) {
 
 void
 Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<Throwable> >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
     // TODO: deserialize the trace
@@ -74,7 +74,7 @@ Throwable::_make(x10aux::ref<String> message, x10aux::ref<Throwable> cause) {
 x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
                                                x10aux::ref<Throwable> cause)
 {
-    this->Ref::_constructor();
+    this->Object::_constructor();
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
@@ -440,6 +440,6 @@ void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     }
 }
 
-RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Ref)
+RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -2,7 +2,6 @@
 #include <x10aux/alloc.h>
 
 #include <x10/lang/Any.h>
-#include <x10/lang/Ref.h>
 
 x10aux::RuntimeType x10::lang::Any::rtt;
 

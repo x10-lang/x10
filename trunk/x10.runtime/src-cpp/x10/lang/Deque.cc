@@ -25,7 +25,7 @@ Deque::_make() {
 }
 
 ref<Deque> Deque::_constructor() {
-    this->x10::lang::Ref::_constructor();
+    this->x10::lang::Object::_constructor();
     queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;
     queue->data = x10aux::alloc<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
@@ -36,7 +36,7 @@ ref<Deque> Deque::_constructor() {
 }
 
 const serialization_id_t Deque::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Ref>);
+    DeserializationDispatcher::addDeserializer(Deque::_deserializer<Object>);
 
 void Deque::growQueue() {
     Slots *oldQ = queue;
@@ -109,14 +109,14 @@ ref<Reference> Deque::poll() {
 }
 
 void Deque::_serialize_body(serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
 }
 
 void Deque::_deserialize_body(deserialization_buffer& buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
 }
 
 
-RTT_CC_DECLS1(Deque, "x10.lang.Deque", Ref)
+RTT_CC_DECLS1(Deque, "x10.lang.Deque", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

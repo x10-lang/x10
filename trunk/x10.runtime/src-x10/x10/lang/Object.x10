@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
  * The base class for all reference classes.
  */
 @NativeRep("java", "java.lang.Object", null, null)
-@NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
+@NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
 public class Object (
         @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
         @Native("c++", "x10::lang::Place_methods::place((#0)->location)")

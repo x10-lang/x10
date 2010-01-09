@@ -6,7 +6,7 @@
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10/lang/Fun_0_1.h>
 
 #ifdef __CYGWIN__
@@ -19,7 +19,7 @@ namespace x10 {
         template<class T> class Rail;
         template<class T> class ValRail;
 
-        class String : public Ref {
+        class String : public Object {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
@@ -39,7 +39,7 @@ namespace x10 {
             // names that also ought not to be freed.
             static x10aux::ref<String> _make(const char *content, bool steal = false);
             x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
-                this->Ref::_constructor();
+                this->Object::_constructor();
                 this->FMGL(content) = content;
                 this->FMGL(content_length) = content_length;
                 return this;
@@ -58,7 +58,7 @@ namespace x10 {
             }
 
             /*
-            operator x10aux::ref<Ref> () {
+            operator x10aux::ref<Object> () {
                 return x10aux::ref<String>(this);
             }
 
@@ -121,10 +121,10 @@ namespace x10 {
             virtual void _destructor();
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<ValRail<x10aux::ref<Ref> > > parms);
+                                              x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<Rail<x10aux::ref<Ref> > > parms);
+                                              x10aux::ref<Rail<x10aux::ref<Object> > > parms);
 
             virtual x10_boolean equals(x10aux::ref<x10::lang::Any> p0);
 
@@ -163,12 +163,12 @@ namespace x10 {
 
         // Specialized deserialization
         template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf) {
-            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
             x10aux::ref<String> this_;
             if (rr.ref != 0) {
                 this_ = String::_deserializer<String>(buf);
             }
-            return Ref::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<T>(this_, rr);
         }
 
     } // namespace x10::lang

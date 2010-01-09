@@ -2,7 +2,7 @@
 #include <x10aux/alloc.h>
 
 #include <x10/lang/Reference.h>
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 using namespace x10::lang;
 using namespace x10aux;

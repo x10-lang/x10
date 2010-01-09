@@ -2,7 +2,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/RTT.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10/util/GrowableRail.h>
 
 using namespace x10::lang;
@@ -15,7 +15,7 @@ namespace x10 {
 
         void
         _initRTTHelper_GrowableRail(RuntimeType *location, const RuntimeType *element) {
-            const RuntimeType* parents[1] = { Ref::getRTT() };
+            const RuntimeType* parents[1] = { Object::getRTT() };
             const RuntimeType* params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
             const RuntimeType *canonical = x10aux::getRTT<GrowableRail<void> >();
