@@ -9,7 +9,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
+import x10.compiler.NativeClass;
 
 /**
  * A PlaceLocalHandle is used in conjunction with the PlaceLocalStorage
@@ -32,45 +32,34 @@ import x10.compiler.NativeRep;
  * using the particular PlaceLocalHandle (mapping the same object at
  * multiple places or mapping distinct object at each place).</p>
  */
-@NativeRep("c++", "x10::lang::PlaceLocalHandle<#1 >", "x10::lang::PlaceLocalHandle<#1 >", null)
-@NativeRep("java", "x10.runtime.impl.java.PlaceLocalHandle<#1>", null, null)
+@NativeClass("c++", "x10.lang", "PlaceLocalHandle_Impl")
+@NativeClass("java", "x10.runtime.impl.java", "PlaceLocalHandle")
 public final struct PlaceLocalHandle[T]{T <: Object} {
 
-  /**
-   * @return the object mapped to the handle at the current place
-   */
-  // TODO: make everyone use apply() instead
-  @Native("c++", "(#0)->get()")
-  @Native("java", "#0.get()")
-  public native safe def get():T!;
+    public native def this();
 
-  @Native("c++", "(#0)->get()")
-  @Native("java", "#0.get()")
-  public native safe def apply():T!;
+    /**
+     * @return the object mapped to the handle at the current place
+     */
+    public native safe def apply():T!;
 
-  @Native("c++", "(#0)->hashCode()")
-  @Native("java", "#0.hashCode()")
-  public native safe def hashCode():int;
+    // TODO: make everyone use apply() instead
+    public safe def get():T! = apply();
 
-  @Native("c++", "(#0)->toString()")
-  @Native("java", "#0.toString()")
-  public global safe native def toString():String;
+    // Only to be used by create methods in PlaceLocalStorage
+    public native def set(newVal:T!):void;
 
-  // Only to be used by create methods in PlaceLocalStorage
-  @Native("c++", "(#0)->set(#1)")
-  @Native("java", "#0.set(#1)")
-  native def set(newVal:T!):void;
+    // Only to be used by create methods in PlaceLocalStorage
+    static def createHandle[T]():PlaceLocalHandle[T] = PlaceLocalHandle[T]();
 
-  // Only to be used by create methods in PlaceLocalStorage
-  @Native("c++", "x10::lang::PlaceLocalHandle<#1 >::createHandle()")
-  @Native("java", "x10.runtime.impl.java.PlaceLocalHandle.createHandle()")
-  static native def createHandle[T]():PlaceLocalHandle[T];
+    public native safe def hashCode():int;
 
+    public global safe native def toString():String;
 
-  @Native("java", "x10.lang.System.copyTo(#0,#1,#2,#3)")
-  @Native("c++", "x10::lang::System::copyTo(#0,#1,#2,#3)")
-  public native def copyTo (dst:Place, len:Int, notifier:()=>Void) : Void;
-
+    // TODO: fix guard and cast
+    public def copyTo[U](dst:Place, len:Int, notifier:()=>Void)/* {T<:Rail[U]} */:Void {
+        x10.lang.System.copyTo[U](this as Any as PlaceLocalHandle[Rail[U]], dst, len, notifier);
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

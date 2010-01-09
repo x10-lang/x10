@@ -17,11 +17,11 @@ import x10.runtime.impl.java.Runtime;
 public final class PlaceLocalHandle<T>{
   private final Object[] objects;
 
-  private PlaceLocalHandle() {
+  public PlaceLocalHandle(Object t) {
     objects = new Object[Runtime.MAX_PLACES];
   }
 
-  public T get() {
+  public T apply() {
     int here = Thread.currentThread().home();
     Object data = objects[here];
     assert data != null : "At "+here+": get called on uninitialized local object";
@@ -32,9 +32,5 @@ public final class PlaceLocalHandle<T>{
     int here = Thread.currentThread().home();
     assert objects[here] == null : "At "+here+" set called on already initialized local object";
     objects[here] = data;
-  }
-  
-  public static <T> PlaceLocalHandle<T> createHandle() {
-    return new PlaceLocalHandle<T>();
   }
 }
