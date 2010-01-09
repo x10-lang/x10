@@ -940,7 +940,7 @@ public final class Runtime {
     /**
      * The runtime instance associated with each place
      */
-    private const runtime = PlaceLocalHandle.createHandle[Runtime]();
+    private const runtime = PlaceLocalHandle[Runtime]();
 
     static def proxy(rootFinish:RootFinish) = runtime().finishStates(rootFinish);
 
