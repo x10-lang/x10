@@ -98,7 +98,12 @@ void Ref::dealloc_object(Ref* obj) {
         dealloc_remote(obj);
 }
 
+x10aux::RuntimeType x10::lang::Ref::rtt;
 
-RTT_CC_DECLS1(Ref, "x10.lang.Ref", SomeObject)
+void x10::lang::Ref::_initRTT() {
+    rtt.init(&rtt, "x10.lang.Object", 0, NULL, 0, NULL, NULL);
+}
+
+itable_entry Ref::_itables[1] = { itable_entry(NULL,  (void*)x10aux::getRTT<Ref>()) };
 
 // vim:tabstop=4:shiftwidth=4:expandtab
