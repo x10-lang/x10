@@ -535,6 +535,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            context.addVariable(ti);
 	            Expr init = (Expr) dec.init();
 	            assert (init != null);
+	            if (currentClass.isX10Struct()) {
+	                sw.write("this_->");
+	            }
 	            sw.write(mangled_field_name(dec.name().id().toString()));
 	            sw.write(" = ");
 	            Type aType = dec.type().type();
