@@ -53,6 +53,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext;
+import x10.types.ParameterType;
 import x10.types.X10Def;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ClassDef;
@@ -154,12 +155,24 @@ public class NativeClassVisitor extends ContextVisitor {
         Position p = Position.COMPILER_GENERATED;
 
         // create fake def for native class
-        ClassDef fake = xts.createClassDef();
+        X10ClassDef fake = (X10ClassDef) xts.createClassDef();
         fake.name(Name.make(cname));
         fake.kind(ClassDef.TOP_LEVEL);
         fake.setFromEncodedClassFile();
-        fake.setFlags(X10Flags.NONE);
+        if (cdef.isStruct()) {
+            fake.setFlags(X10Flags.STRUCT);
+        } else {
+            fake.setFlags(X10Flags.NONE);
+        }
         fake.setPackage(Types.ref(ts.packageForName(QName.make(getNativeClassPackage(cdef)))));
+
+        java.util.Iterator<ParameterType> ps = cdef.typeParameters().iterator();
+        java.util.Iterator<ParameterType.Variance> vs = cdef.variances().iterator();
+        while (ps.hasNext()) {
+            ParameterType pp = ps.next();
+            ParameterType.Variance vv = vs.next();
+            fake.addTypeParameter(pp, vv);
+        }
 
         // add field with native type
         Name fname = Name.make("__NATIVE_FIELD__");
@@ -169,6 +182,7 @@ public class NativeClassVisitor extends ContextVisitor {
         Flags fflags = X10Flags.GLOBAL.Private().Final();
         FieldDef fdef = xts.fieldDef(p, Types.ref(cdef.asType()), fflags, Types.ref(ftype), fname);
         cmembers.add(xnf.FieldDecl(p, xnf.FlagsNode(p, fflags), ftnode, fid).fieldDef(fdef));
+        cdef.addField(fdef);
 
         // field selector
         Receiver special = xnf.This(p).type(cdef.asType());
@@ -187,7 +201,7 @@ public class NativeClassVisitor extends ContextVisitor {
             ConstructorDef sdef = xts.findConstructor(cdecl.superClass().type(),
                     xts.ConstructorMatcher(cdecl.superClass().type(), Collections.<Type>emptyList(), context)).def();
 
-            ConstructorDecl xd = xnf.ConstructorDecl(p,
+            X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p,
                     xnf.FlagsNode(p, X10Flags.PRIVATE),
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
@@ -195,6 +209,8 @@ public class NativeClassVisitor extends ContextVisitor {
                     xnf.Block(p,
                             xnf.SuperCall(p, Collections.<Expr>emptyList()).constructorInstance(sdef.asInstance()),
                             xnf.Eval(p, assign)));
+            xd.typeParameters(cdecl.typeParameters());
+            xd.returnType(ftnode);
 
             ConstructorDef xdef = xts.constructorDef(p,
                     Types.ref(cdef.asType()),
@@ -235,6 +251,7 @@ public class NativeClassVisitor extends ContextVisitor {
                 // reuse x10 method instance for delegate method but make it global to avoid place check
                 MethodInstance minst = mdef.asInstance();
                 minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()).Global());
+                minst = (MethodInstance) minst.container(ftype);
 
                 // call delegate
                 Receiver target = mdef.flags().isStatic() ? ftnode : field;
@@ -299,7 +316,7 @@ public class NativeClassVisitor extends ContextVisitor {
         }
 
         if (!hasNativeConstructor) {
-            throw new SemanticException("@NativeClass " + cdecl.name() + " must be declare a native constructor.");
+            throw new SemanticException("@NativeClass " + cdecl.name() + " must declare a native constructor.");
         }
 
         return cdecl.body(cbody.members(cmembers));
