@@ -9,6 +9,19 @@ public class StringBuilder implements Builder[Object,String] {
         buf = new ValRailBuilder[Char]();
     }
 
+    /**
+     * When invoked by an activity at the same place as the StringBuider object,
+     * toString returns the String being constructed by the StringBuilder 
+     * (same as calling @link{#result}). When invoked by an activity at a different
+     * place, an UnsupportedOperationException is raised.
+     *
+     * @return the String object being constructed by the StringBuilder
+     */
+    public global safe def toString() {
+      if (!at(here)) throw new UnsupportedOperationException();
+      return (this as StringBuilder!).result();
+    }
+
     public def add(o:Object): StringBuilder {
         if (o == null)
             return addString("null");
