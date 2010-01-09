@@ -23,8 +23,8 @@ final class DistArray[T] extends BaseArray[T] {
     };
 
     private global val localHandle:PlaceLocalHandle[LocalState[T]];
-    final protected global def raw():Rail[T]! = localHandle.get().raw;
-    final protected global def layout() = localHandle.get().layout;
+    final protected global def raw():Rail[T]! = localHandle().raw;
+    final protected global def layout() = localHandle().layout;
 
     //
     // high-performance methods here to facilitate inlining
@@ -104,7 +104,7 @@ final class DistArray[T] extends BaseArray[T] {
 	    return new LocalState[T](localLayout, localRaw);
         };
 
-        localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](dist, plsInit);
+        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
     def this(dist: Dist): DistArray[T]{self.dist==dist} {
         super(dist);
@@ -117,7 +117,7 @@ final class DistArray[T] extends BaseArray[T] {
 	    return new LocalState[T](localLayout, localRaw);
         };
 
-        localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](dist, plsInit);
+        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
     }
 
 
@@ -134,8 +134,8 @@ final class DistArray[T] extends BaseArray[T] {
 
     def this(a: DistArray[T], d: Dist) {
         super(d);
-	localHandle = PlaceLocalStorage.createDistributedObject[LocalState[T]](d,
-		    () => a.localHandle.get());
+	localHandle = PlaceLocalHandle.make[LocalState[T]](d,
+		    () => a.localHandle());
     }
 
 }

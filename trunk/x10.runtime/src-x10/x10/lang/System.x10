@@ -130,7 +130,7 @@ public class System {
     public static def copyTo[T] (srcRail:Rail[T]!, srcIndex:Int,
                                  dst:Place, dstHandle:PlaceLocalHandle[Rail[T]]!, dstIndex:Int,
                                  size:Int) {
-        val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
+        val finder = ()=> Pair[Rail[T],Int](dstHandle(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size);
         Runtime.dealloc(finder);
     }
@@ -139,7 +139,7 @@ public class System {
     public static def copyTo[T] (srcRail:Rail[T]!, srcIndex:Int,
                                  dst:Place, dstHandle:PlaceLocalHandle[Rail[T]]!, dstIndex:Int,
                                  size:Int, notifier:()=>Void) {
-        val finder = ()=> Pair[Rail[T],Int](dstHandle.get(), dstIndex);
+        val finder = ()=> Pair[Rail[T],Int](dstHandle(), dstIndex);
         srcRail.copyTo[T](srcIndex, dst, finder, size, notifier);
         Runtime.dealloc(finder);
         Runtime.dealloc(notifier);
@@ -149,8 +149,8 @@ public class System {
     // Also it is arguably a simpler interface because it has one less param
     public static def copyTo[T] (handle:PlaceLocalHandle[Rail[T]]!,
                                  dst:Place, size:Int, notifier:()=>Void) {
-        val finder = ()=>Pair[Rail[T],Int](handle.get(), 0);
-        handle.get().copyTo[T](0, dst, finder, size, notifier);
+        val finder = ()=>Pair[Rail[T],Int](handle(), 0);
+        handle().copyTo[T](0, dst, finder, size, notifier);
         Runtime.dealloc(finder);
         Runtime.dealloc(notifier);
     }

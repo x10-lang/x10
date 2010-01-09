@@ -3,15 +3,15 @@ import x10.io.Console;
 import x10.util.Timer;
 
 class LocalTable {
-    
+
     val a: Rail[long]{self.at(this)};
     val mask: int;
-    
+
     def this(size:int) {
         mask = size-1;
         a = Rail.make[long](size, (i:int)=>i as long);
     }
-    
+
     public def update(ran:long) {
         //a(ran&mask as int) ^= ran;
         val index = ran&mask as int;
@@ -64,7 +64,7 @@ class FRASimpleDist {
                     val placeId = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as int;
                     val valran = ran;
                     async (Place.places(placeId)) {
-                        tables.get().update(valran);
+                        tables().update(valran);
                     }
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -85,7 +85,7 @@ class FRASimpleDist {
         val num_updates = 4*tableSize;
 
         // create local tables
-	val tables = PlaceLocalStorage.createDistributedObject[LocalTable](Dist.makeUnique(), () => new LocalTable(localTableSize));
+	val tables = PlaceLocalHandle.make[LocalTable](Dist.makeUnique(), () => new LocalTable(localTableSize));
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
@@ -107,7 +107,7 @@ class FRASimpleDist {
 	val result = Array.make[Int](Dist.makeUnique(), (Point)=>0);
         for (var i:int=0; i<Place.MAX_PLACES; i++) {
             async (Place.places(i)) {
-	        val table = tables.get();
+	        val table = tables();
                 var err:int = 0;
                 for (var j:int=0; j<table.a.length; j++) {
                     if (table.a(j) != j) {
