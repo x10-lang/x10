@@ -8,7 +8,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/serialization.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 namespace x10 {
 
@@ -16,7 +16,7 @@ namespace x10 {
 
         void _initRTTHelper_GrowableRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt);
         
-        template<class T> class GrowableRail : public x10::lang::Ref {
+        template<class T> class GrowableRail : public x10::lang::Object {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -83,7 +83,7 @@ namespace x10 {
 namespace x10 {
     namespace util {
         template<class T> x10aux::ref<GrowableRail<T> > GrowableRail<T>::_constructor(x10_int size) {
-            this->x10::lang::Ref::_constructor();
+            this->x10::lang::Object::_constructor();
             _array = x10::lang::Rail<T>::make(size);
             _len = 0;
             return this;
@@ -183,7 +183,7 @@ namespace x10 {
         template<class T> x10aux::RuntimeType GrowableRail<T>::rtt;
 
         template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
-            this->x10::lang::Ref::_serialize_body(buf);
+            this->x10::lang::Object::_serialize_body(buf);
         }
 
         template<class T> template<class U> x10aux::ref<U> GrowableRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
@@ -194,11 +194,11 @@ namespace x10 {
         }
 
         template<class T> void GrowableRail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-            this->x10::lang::Ref::_deserialize_body(buf);
+            this->x10::lang::Object::_deserialize_body(buf);
         }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
-            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Ref>);
+            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Object>);
 
         template<> class GrowableRail<void> {
         public:

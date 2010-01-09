@@ -10,7 +10,7 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10/lang/String.h>
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10aux/serialization.h>
@@ -44,7 +44,7 @@ namespace x10 {
         * augmented with the park/unpark API of java.util.concurrent.
         * locks.LockSupport.
         */
-        class Thread : public x10::lang::Ref {
+        class Thread : public x10::lang::Object {
         public:
             RTT_H_DECLS_CLASS;
 
@@ -54,7 +54,7 @@ namespace x10 {
 
             x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::VoidFun_0_0> task,
                                              x10aux::ref<x10::lang::String> name) {
-                this->x10::lang::Ref::_constructor();
+                this->x10::lang::Object::_constructor();
                 thread_init(task, name);
                 return this;
             }

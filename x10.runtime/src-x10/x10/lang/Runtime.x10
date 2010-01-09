@@ -162,7 +162,7 @@ public final class Runtime {
     @Native("c++","x10aux::deserialized_bytes = #1")
     static def setDeserializedBytes(v:Long) { }
 
-    @Native("c++", "x10::lang::Ref::dealloc_object((x10::lang::Ref*)#1.operator->())")
+    @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#1.operator->())")
     public static def deallocObject (o:Object) { }
 
     @Native("c++", "x10aux::dealloc(#4.operator->())")

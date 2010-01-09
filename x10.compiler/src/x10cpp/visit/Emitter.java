@@ -1012,15 +1012,15 @@ public class Emitter {
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
-            sw.writeln("x10::lang::Ref::_reference_state rr = " +
-                    "x10::lang::Ref::_deserialize_reference_state(buf);");
+            sw.writeln("x10::lang::Object::_reference_state rr = " +
+                    "x10::lang::Object::_deserialize_reference_state(buf);");
             sw.writeln(make_ref(klass)+" this_;");
             sw.write("if (rr.ref != 0) {");
             sw.newline(4); sw.begin(0);
             sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Ref::_finalize_reference"+chevrons("__T")+"(this_, rr);");
+            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();

@@ -18,7 +18,7 @@ FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
 }
 
 const x10aux::serialization_id_t FileWriter__FileOutputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Ref>);
+    x10aux::DeserializationDispatcher::addDeserializer(FileWriter__FileOutputStream::_deserializer<x10::lang::Object>);
 
 void FileWriter__FileOutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     OutputStreamWriter__OutputStream::_serialize_body(buf);

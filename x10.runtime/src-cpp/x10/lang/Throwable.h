@@ -8,7 +8,7 @@
 #define MAX_TRACE_SIZE 1
 #endif
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 namespace x10 { namespace io { class Printer; } }
 
@@ -18,7 +18,7 @@ namespace x10 {
         class String;
         template<class T> class ValRail;
 
-        class Throwable : public Ref {
+        class Throwable : public Object {
         public:
             RTT_H_DECLS_CLASS;
 

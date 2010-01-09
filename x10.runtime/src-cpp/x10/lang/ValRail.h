@@ -7,7 +7,7 @@
 #include <x10aux/rail_utils.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Iterable.h>
 
@@ -18,7 +18,7 @@ namespace x10 {
         void _initRTTHelper_ValRail(x10aux::RuntimeType *location, const x10aux::RuntimeType *element,
                                     const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
 
-        template<class T> class ValRail : public Ref {
+        template<class T> class ValRail : public Object {
 
             public:
             RTT_H_DECLS_CLASS;
@@ -108,7 +108,7 @@ namespace x10 {
         
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::template _deserializer<Ref>);
+                ::addDeserializer(ValRail<T>::template _deserializer<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
             rtt.canonical = &rtt;
@@ -191,7 +191,7 @@ namespace x10 {
         // Specialized serialization
         template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
                                                        x10aux::serialization_buffer &buf) {
-            Ref::_serialize_reference(this_, buf);
+            Object::_serialize_reference(this_, buf);
             if (this_ != x10aux::null) {
                 this_->_serialize_body(buf);
             }
@@ -200,7 +200,7 @@ namespace x10 {
         template <class T> void ValRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
             buf.write(length);
-            this->Ref::_serialize_body(buf); // intentional change of order
+            this->Object::_serialize_body(buf); // intentional change of order
             T* raw = this->raw();
             for (x10_int i=0 ; i<length ; ++i) {
                 buf.write(raw[i]); // avoid bounds check
@@ -209,7 +209,7 @@ namespace x10 {
 
         template <class T> void ValRail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
             // length read out earlier, in _deserializer()
-            this->Ref::_deserialize_body(buf);
+            this->Object::_deserialize_body(buf);
             x10_int length = this->FMGL(length);
             T* raw = this->raw();
             for (x10_int i=0 ; i<length ; ++i) {
@@ -227,12 +227,12 @@ namespace x10 {
 
         // Specialized deserialization
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
-            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
             x10aux::ref<ValRail<T> > this_;
             if (rr.ref != 0) {
                 this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
             }
-            return Ref::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<T>(this_, rr);
         }
     }
 }

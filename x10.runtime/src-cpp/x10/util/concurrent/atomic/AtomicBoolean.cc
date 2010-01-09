@@ -24,16 +24,16 @@ AtomicBoolean::_make(x10_boolean val) {
 }
 
 void AtomicBoolean::_serialize_body(x10aux::serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
 }
 
 void AtomicBoolean::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
 }
 
 const x10aux::serialization_id_t AtomicBoolean::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicBoolean::_deserializer<Ref>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicBoolean::_deserializer<Object>);
 
-RTT_CC_DECLS1(AtomicBoolean, "x10.util.concurrent.atomic.AtomicBoolean", Ref)
+RTT_CC_DECLS1(AtomicBoolean, "x10.util.concurrent.atomic.AtomicBoolean", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

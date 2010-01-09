@@ -47,7 +47,7 @@ namespace x10 {
                 return location == p->FMGL(id);
             }
            
-            virtual x10_boolean at(x10aux::ref<x10::lang::Ref> o);
+            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
             
             virtual x10::lang::Place home();
 

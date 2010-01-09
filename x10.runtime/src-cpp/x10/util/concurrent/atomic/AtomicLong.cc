@@ -24,16 +24,16 @@ AtomicLong::_make(x10_long val) {
 }
 
 void AtomicLong::_serialize_body(x10aux::serialization_buffer &buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
 }
 
 void AtomicLong::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
 }
 
 const x10aux::serialization_id_t AtomicLong::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Ref>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicLong::_deserializer<Object>);
 
-RTT_CC_DECLS1(AtomicLong, "x10.util.concurrent.atomic.AtomicLong", Ref)
+RTT_CC_DECLS1(AtomicLong, "x10.util.concurrent.atomic.AtomicLong", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

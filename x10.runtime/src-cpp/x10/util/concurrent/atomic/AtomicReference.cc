@@ -17,7 +17,7 @@ namespace x10 {
                 RuntimeType AtomicReference<void>::rtt;
 
                 void _initRTTHelper_AtomicReference(RuntimeType *location, const RuntimeType *rtt) {
-                    const RuntimeType* parents[1] = { Ref::getRTT() };
+                    const RuntimeType* parents[1] = { Object::getRTT() };
                     const RuntimeType* params[1] = { rtt };
                     RuntimeType::Variance variances[1] = { RuntimeType::invariant };
                     const RuntimeType *canonical = x10aux::getRTT<AtomicReference<void> >();

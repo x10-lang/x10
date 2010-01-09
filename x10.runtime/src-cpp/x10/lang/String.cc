@@ -166,7 +166,7 @@ ref<ValRail<x10_byte> > String::bytes() {
 }
 
 // TODO: DG: itables: refactor to share the code.
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Ref> > > parms) {
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -224,7 +224,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Ref> > > parms) {
     return String::Lit(ss.str().c_str());
 }
 
-ref<String> String::format(ref<String> format, ref<Rail<ref<Ref> > > parms) {
+ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -291,18 +291,18 @@ x10_boolean String::equals(ref<Any> p0) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer<Ref>);
+    DeserializationDispatcher::addDeserializer(String::_deserializer<Object>);
 
 // Specialized serialization
 void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
-    Ref::_serialize_reference(this_, buf);
+    Object::_serialize_reference(this_, buf);
     if (this_ != x10aux::null) {
         this_->_serialize_body(buf);
     }
 }
 
 void String::_serialize_body(x10aux::serialization_buffer& buf) {
-    this->Ref::_serialize_body(buf);
+    this->Object::_serialize_body(buf);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
     buf.write(sz);
@@ -317,7 +317,7 @@ void String::_destructor() {
 }
 
 void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    this->Ref::_deserialize_body(buf);
+    this->Object::_deserialize_body(buf);
     x10_int sz = buf.read<x10_int>();
     char *content = x10aux::alloc<char>(sz+1);
     for (x10_int i = 0; i < sz; ++i) {
@@ -340,6 +340,6 @@ x10aux::itable_entry String::_itables[2] = {
 
 
 
-RTT_CC_DECLS1(String, "x10.lang.String", Ref)
+RTT_CC_DECLS1(String, "x10.lang.String", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

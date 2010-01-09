@@ -20,7 +20,7 @@ void Closure::_serialize(x10aux::ref<Closure> this_,
     this_->_serialize_body(buf);
 }           
 
-x10_boolean Closure::at(x10aux::ref<x10::lang::Ref> o) {
+x10_boolean Closure::at(x10aux::ref<x10::lang::Object> o) {
     return location == o->location;
 }
 

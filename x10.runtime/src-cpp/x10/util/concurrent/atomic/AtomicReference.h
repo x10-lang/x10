@@ -7,12 +7,11 @@
 #include <x10aux/string_utils.h>
 #include <x10aux/atomic_ops.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 namespace x10 {
     namespace lang {
         class String;
-        class Ref;
     }
 
     namespace util {
@@ -29,7 +28,7 @@ namespace x10 {
                  * S* and volatile S*.  Moving between S and T where S != T needs to be done
                  * with the C++ type system so that object model operations are performed.
                  */
-                template<class T> class AtomicReference : public x10::lang::Ref {
+                template<class T> class AtomicReference : public x10::lang::Object {
                 public:
                     RTT_H_DECLS_CLASS;
 
@@ -37,8 +36,8 @@ namespace x10 {
                     static x10aux::ref<AtomicReference<T> > _make(T val);
 
                 private:
-                    x10aux::ref<AtomicReference<T> > _constructor(x10::lang::Ref *data) {
-                        this->x10::lang::Ref::_constructor();
+                    x10aux::ref<AtomicReference<T> > _constructor(x10::lang::Object *data) {
+                        this->x10::lang::Object::_constructor();
                         _data = data;
                         return this;
                     }
@@ -55,7 +54,7 @@ namespace x10 {
                     virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
                 private:
-                    volatile x10::lang::Ref* _data;
+                    volatile x10::lang::Object* _data;
 
                 public:
                     T get();
@@ -79,29 +78,29 @@ namespace x10 {
 
                 template<class T> x10aux::ref<AtomicReference<T> > AtomicReference<T>::_make(T val) {
                     x10aux::ref<AtomicReference<T> > result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
-                    x10::lang::Ref *tmp = val.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Ref* */
+                    x10::lang::Object *tmp = val.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
                     result->_constructor(tmp);
                     return result;
                 }
                 
                 template<class T> T AtomicReference<T>::get() {
-                    x10::lang::Ref *tmp = (x10::lang::Ref*)_data; /* drops volatile */
-                    x10aux::ref<x10::lang::Ref> tmp2 = tmp; /* boxes to ref */
-                    T tmp3 = tmp2;  /* downcast from ref<Ref> to T (ref<S>) */
+                    x10::lang::Object *tmp = (x10::lang::Object*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2;  /* downcast from ref<Object> to T (ref<S>) */
                     return tmp3;
                 }
 
                 template<class T> void AtomicReference<T>::set(T val) {
-                    x10::lang::Ref* tmp = val.get();
+                    x10::lang::Object* tmp = val.get();
                     _data = tmp;
                 }
 
                 template<class T> T AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
-                    x10::lang::Ref *oldValPtr = oldVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Ref* */
-                    x10::lang::Ref *newValPtr = newVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Ref* */
-                    x10::lang::Ref *res = (x10::lang::Ref *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
-                    x10aux::ref<x10::lang::Ref> res2 = res; /* boxes to ref */
-                    T res3 = res2; /* downcast from ref<Ref> to T (ref<S>) */
+                    x10::lang::Object *oldValPtr = oldVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Object *newValPtr = newVal.get(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Object *res = (x10::lang::Object *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
+                    x10aux::ref<x10::lang::Object> res2 = res; /* boxes to ref */
+                    T res3 = res2; /* downcast from ref<Object> to T (ref<S>) */
                     return res3;
                 }
 
@@ -117,9 +116,9 @@ namespace x10 {
                 }
 
                 template<class T> x10aux::ref<x10::lang::String> AtomicReference<T>::toString() {
-                    x10::lang::Ref* tmp = (x10::lang::Ref*)_data; /* drops volatile */
-                    x10aux::ref<x10::lang::Ref> tmp2 = tmp; /* boxes to ref */
-                    T tmp3 = tmp2; /* downcast from ref<Ref> to T (ref<S) */
+                    x10::lang::Object* tmp = (x10::lang::Object*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2; /* downcast from ref<Object> to T (ref<S) */
                     return x10aux::safe_to_string(tmp3);
                 }
                 
@@ -132,12 +131,12 @@ namespace x10 {
 
                 template<class T> void
                 AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf) {
-                    this->Ref::_serialize_body(buf);
+                    this->Object::_serialize_body(buf);
                 }
 
                 template<class T> void
                 AtomicReference<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-                    this->Ref::_deserialize_body(buf);
+                    this->Object::_deserialize_body(buf);
                 }
 
                 template<class T> template<class U> x10aux::ref<U>

@@ -29,7 +29,7 @@ using namespace x10aux;
 x10aux::ref<Lock__ReentrantLock>
 Lock__ReentrantLock::_make() {
     x10aux::ref<Lock__ReentrantLock> this_ = new (x10aux::alloc<Lock__ReentrantLock>()) Lock__ReentrantLock();
-    this_->x10::lang::Ref::_constructor();
+    this_->x10::lang::Object::_constructor();
     this_->initialize();
     return this_;
 }
@@ -168,6 +168,6 @@ Lock__ReentrantLock::getHoldCount()
     */
 }
 
-RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", Ref)
+RTT_CC_DECLS1(Lock__ReentrantLock, "x10.lang.Lock__ReentrantLock", Object)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

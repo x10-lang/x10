@@ -7,7 +7,7 @@
 #include <x10aux/rail_utils.h>
 #include <x10aux/itables.h>
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 
 #include <x10/lang/Place.struct_h>
 #include <x10/util/Pair.struct_h>
@@ -35,7 +35,7 @@ namespace x10 {
                                  const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
 
 
-        template<class T> class Rail : public Ref {
+        template<class T> class Rail : public Object {
             public:
             RTT_H_DECLS_CLASS;
 
@@ -86,7 +86,7 @@ namespace x10 {
             #if 0
             virtual x10aux::ref<ValRail<T> > view (void) {
                 ValRail<T>* rail = new (x10aux::alloc<ValRail<T> >()) ValRail<T>(FMGL(length),_data);
-                rail->x10::lang::Ref::_constructor();
+                rail->x10::lang::Object::_constructor();
                 return rail;
             }
             #endif
@@ -422,7 +422,7 @@ namespace x10 {
             _X_("Finding a rail for cuda copyTo ("<<(int)code<<")");
             switch (code) {
                 case 0: {
-                    Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+                    Object::_reference_state rr = Object::_deserialize_reference_state(buf);
                     // doesn't work because we don't know what gpu we're going to
                     // assert(rr.loc == here);
                     addr = rr.ref;
@@ -446,7 +446,7 @@ namespace x10 {
             _X_("Completing a rail cuda copyTo ("<<(int)code<<")");
             switch (code) {
                 case 0: {
-                    Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+                    Object::_reference_state rr = Object::_deserialize_reference_state(buf);
                     buf.read<x10_int>();
                     buf.read<x10_int>();
                     Rail_notifyEnclosingFinish(buf);
@@ -699,7 +699,7 @@ namespace x10 {
             _X_("Finding a rail for copyFrom ("<<(int)code<<")");
             switch (code) {
                 case 0: { // get rail+offset explicitly
-                    Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+                    Object::_reference_state rr = Object::_deserialize_reference_state(buf);
                     // doesn't work because we don't know what gpu we're going to
                     // assert(rr.loc == here);
                     addr = rr.ref;
@@ -830,12 +830,12 @@ namespace x10 {
 
         template<class T> const x10aux::serialization_id_t Rail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(Rail<T>::template _deserializer<Ref>);
+                ::addDeserializer(Rail<T>::template _deserializer<Object>);
 
         // Specialized serialization
         template <class T> void Rail<T>::_serialize(x10aux::ref<Rail<T> > this_,
                                                     x10aux::serialization_buffer &buf) {
-            Ref::_serialize_reference(this_, buf);
+            Object::_serialize_reference(this_, buf);
             if (this_ != x10aux::null) {
                 this_->_serialize_body(buf);
             }
@@ -844,12 +844,12 @@ namespace x10 {
         template <class T> void Rail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             x10_int length = this->FMGL(length);
             buf.write(length);
-            this->Ref::_serialize_body(buf); // intentional change of order
+            this->Object::_serialize_body(buf); // intentional change of order
         }
 
         template <class T> void Rail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
             // length read out earlier, in _deserializer()
-            this->Ref::_deserialize_body(buf);
+            this->Object::_deserialize_body(buf);
         }
 
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
@@ -865,12 +865,12 @@ namespace x10 {
 
         // Specialized deserialization
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
-            Ref::_reference_state rr = Ref::_deserialize_reference_state(buf);
+            Object::_reference_state rr = Object::_deserialize_reference_state(buf);
             R this_;
             if (rr.ref != 0) {
                 this_ = Rail<T>::template _deserializer<Rail<T> >(buf);
             }
-            return Ref::_finalize_reference<T>(this_, rr);
+            return Object::_finalize_reference<T>(this_, rr);
         }
     }
 }

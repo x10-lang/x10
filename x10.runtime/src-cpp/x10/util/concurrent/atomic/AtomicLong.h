@@ -8,7 +8,7 @@
 #define X10_UTIL_CONCURRENT_ATOMIC_ATOMICLONG_H
 
 #include <x10rt.h>
-#include <x10/lang/Ref.h>
+#include <x10/lang/Object.h>
 #include <x10aux/serialization.h>
 
 namespace x10 {
@@ -19,7 +19,7 @@ namespace x10 {
                 /**
                  * Native implementation of AtomicLong.
                  */
-                class AtomicLong : public x10::lang::Ref {
+                class AtomicLong : public x10::lang::Object {
                 public:
                     RTT_H_DECLS_CLASS;
 
@@ -28,7 +28,7 @@ namespace x10 {
 
                 protected:
                     x10aux::ref<AtomicLong> _constructor(x10_long val) {
-                        this->x10::lang::Ref::_constructor();
+                        this->x10::lang::Object::_constructor();
                         _val = val;
                         return this;
                     }
