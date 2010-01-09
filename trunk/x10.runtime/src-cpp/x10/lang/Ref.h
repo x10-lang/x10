@@ -23,9 +23,14 @@ namespace x10 {
         class String;
 
         class Ref : public SomeObject {
+        private:
+            static x10aux::itable_entry _itables[1];
+
         public:
             RTT_H_DECLS_CLASS;
 
+            virtual x10aux::itable_entry* _getITables() { return _itables; }
+            
             static x10aux::ref<Ref> _make();
 
             x10aux::ref<Ref> _constructor() {
