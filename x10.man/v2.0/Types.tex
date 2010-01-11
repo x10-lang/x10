@@ -491,11 +491,12 @@ Guard            \: \xcd"{" DepExpression \xcd"}" \\
 DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
 
-In \XtenCurrVer{} value constraints may be equalities 
-(\xcd"=="), disequalities (\xcd"!=") and conjunctions thereof.
-The terms over which these constraints are specified include
-literals and (accessible, immutable) variables and fields,
-and the special constants {\tt here}, {\tt self}, and {\tt this}.
+In \XtenCurrVer{} value constraints may be equalities (\xcd"=="),
+disequalities (\xcd"!=") and conjunctions thereof.  The terms over
+which these constraints are specified include literals and
+(accessible, immutable) variables and fields, and the special
+constants {\tt here}, {\tt self}, and {\tt this}. Additionally, place
+types are permitted (\Sref{PlaceTypes}).
 
 Type constraints may be subtyping and supertyping (\xcd"<:" and
 \xcd":>") expressions over types.
@@ -1096,7 +1097,7 @@ The inferred return type is the computed type of the body.
 
 The return type of a constructor can be omitted if the
 constructor has a body (i.e., is not \xcd"extern").
-The inferred return type if the enclosing class type with
+The inferred return type is the enclosing class type with
 properties bound to the arguments in the constructor's \xcd"property"
 statement, if any, or to the unconstrained class type.
 
@@ -1108,7 +1109,8 @@ inferred type is \xcd"Void".
 
 \subsection{Type arguments}
 
-A call to a polymorphic method, closure, or constructor may omit the
+A call to a polymorphic method %, closure, or constructor 
+may omit the
 explicit type arguments.  If the method has a type parameter
 \xcd"T", the type argument corresponding to \xcd"T" is inferred
 to be the least common ancestor of the types of any formal
@@ -1121,73 +1123,30 @@ def choose[T](a: T, b: T): T { ... }
 %
 Given \xcd"Set[T] <: Collection[T]"
 and \xcd"List[T] <: Collection[T]",
-in the following snippet, the algorithm should infer the type
-\xcd"Collection" for \xcd"x".
+in the following snippet, the algorithm will infer the type
+\xcd"Collection[Any]" for \xcd"x".
 \begin{xten}
-intSet: Set[Int];
-stringList: List[String];
-val x = choose(intSet, stringList);
+def m(intSet: Set[Int], stringList: List[String]) {
+  val x = choose(intSet, stringList);
+...
+}
 \end{xten}
 %
 And in this snippet, the algorithm should infer the type
 \xcd"Collection[Int]" for \xcd"y".
 \begin{xten}
-intSet: Set[Int];
-intList: List[Int];
-val y = choose(intSet, intList);
+def m(intSet: Set[Int], intList: List[Int]) {
+  val y = choose(intSet, intList);
+  ...
+}
 \end{xten}
 %
 Finally, in this snippet, the algorithm should infer the type
 \xcd"Collection{T <: Number}" for \xcd"z".
 \begin{xten}
-intSet: Set[Int];
-numList: List{T <: Number};
-val z = choose(intSet, numList);
-\end{xten}
-
-Now, consider the following example:
-\begin{xten}
-def union[T](a: Set[T], b: Set[T]) : Set[T];
-\end{xten}
-The union method cannot be called with just arguments of type \xcd"Set".
-\begin{xten}
-set1: Set;
-set2: Set;
-val a = union(set1, set2);
-\end{xten}
-This is illegal because the type system cannot demonstrate that
-\xcd"set1.T" and \xcd"set2.T" are equal.
-The following, however, is acceptable:
-\begin{xten}
-set1: Set;
-set2: Set[set1.T];
-val a = union(set1, set2);
-\end{xten}
-
-However, unlike \xcd"union" above,
-the following method can be called with an argument of type \xcd"Set"
-because there are no constraints on \xcd"T":
-\begin{xten}
-def unmodifiableSet[T](set: Set[T]): Set[T];
-\end{xten}
-
-Using desugared syntax, the method is
-equivalent to: 
-\begin{xten}
-def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
-\end{xten}
-Any \xcd"Set" can be passed in: for an argument \xcd"e", the method
-is instantiated on \xcd"e.T".
-%
-Note that if this method were defined as:
-\begin{xten}
-def unmodifiableSet(set: Set): Set;
-\end{xten}
-then the connection between the element types of the
-argument and of the return types would be broken.
-However, one could use the following signature to keep the
-connection, without introducing a method type parameter. 
-\begin{xten}
-def unmodifiableSet(set: Set): Set[set.T];
+def m(intSet: Set[Int], numList: List{T <: Number}) {
+  val z = choose(intSet, numList);
+  ...
+}
 \end{xten}
 
