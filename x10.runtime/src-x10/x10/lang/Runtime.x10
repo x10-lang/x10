@@ -26,13 +26,6 @@ public final class Runtime {
     @Native("c++", "x10aux::system_utils::println((#1)->toString()->c_str())")
     public native static def println(o:Object) : Void;
 
-    /**
-     * Set system exit code
-     */
-    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
-    @Native("c++", "(x10aux::exitCode = (#1))")
-    public static def setExitCode(code: int): void {}
-
     // Configuration options
 
     @Native("java", "x10.runtime.impl.java.Runtime.PLACE_CHECKS")
