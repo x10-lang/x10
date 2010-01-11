@@ -32,14 +32,6 @@ public final class Runtime {
     @Native("c++", "x10aux::no_steals()")
     public const NO_STEALS = false;
 
-    @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-    @Native("c++", "x10aux::num_places")
-    public const MAX_PLACES = 4;
-
-    @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-    @Native("c++", "x10aux::num_hosts")
-    public const MAX_HOSTS = 4;
-
     @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
     @Native("c++", "x10aux::num_threads()")
     public const INIT_THREADS = 1;
@@ -47,55 +39,6 @@ public final class Runtime {
     @Native("java", "x10.runtime.impl.java.Runtime.STATIC_THREADS")
     @Native("c++", "x10aux::static_threads()")
     public const STATIC_THREADS = false;
-
-    /**
-     * Find number of children under a place.
-     * For hosts, this returns the number of accelerators at that host.
-     * For accelerators, it returns 0.
-     */
-    @Native("c++", "x10aux::num_children(#1)")
-    public static def numChildren(id:Int) = 0;
-
-    /**
-     * Returns whether a place is a host.
-     */
-    @Native("c++", "x10aux::is_host(#1)")
-    public static def isHost(id:Int) = true;
-
-    /**
-     * Returns whether a place is an SPE of a Cell CPU.
-     */
-    @Native("c++", "x10aux::is_spe(#1)")
-    public static def isSPE(id:Int) = false;
-
-    /**
-     * Returns whether a place is a CUDA GPU.
-     */
-    @Native("c++", "x10aux::is_cuda(#1)")
-    public static def isCUDA(id:Int) = false;
-
-    /**
-     * Find parent of a place.
-     * For hosts, this returns the host itself.
-     * For accelerators, it is the host of the accelerator.
-     */
-    @Native("c++", "x10aux::parent(#1)")
-    public static def parent(id:Int) = id;
-
-    /**
-     * Iterate over the children of a place.
-     * Use i between 0 and numChildren(p)-1 inclusive.
-     * Throws BadPlaceException if i invalid.
-     */
-    @Native("c++", "x10aux::child(#1,#2)")
-    public static def child(p:Int, i:Int):Int { throw new BadPlaceException(); }
-
-    /**
-     * Return the index of a given child, within a place.
-     * Throws BadPlaceException if given place is not a child.
-     */
-    @Native("c++", "x10aux::child_index(#1)")
-    public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
     /**
      * Run body at place(id).
