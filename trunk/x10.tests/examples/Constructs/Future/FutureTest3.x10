@@ -29,7 +29,7 @@ public class FutureTest3 extends x10Test {
 	 */
 	def m1(val A: Array[int](1), val K: int): int = {
 		foreach (val (i): Point in A) {
-			x10.lang.Runtime.sleep(3000);
+			Activity.sleep(3000);
 			atomic A(i) += 1;
 		}
 		var t: int;
@@ -43,7 +43,7 @@ public class FutureTest3 extends x10Test {
 	 */
 	def m2(val A: Array[int](1), val K: int): int = {
 		foreach (val p(i): Point in A) {
-			x10.lang.Runtime.sleep(3000);
+			Activity.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
 		}

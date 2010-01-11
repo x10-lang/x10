@@ -94,7 +94,7 @@ public class ClockTest15 extends x10Test {
 				next;
 			}
 			/* A3 */ async (here) clocked (b) {
-				x10.lang.Runtime.sleep(5000);
+				Activity.sleep(5000);
 				atomic x++;
 				next;
 				var tmp: int;

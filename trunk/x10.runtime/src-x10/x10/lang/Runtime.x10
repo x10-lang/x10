@@ -170,7 +170,7 @@ public final class Runtime {
 
     @NativeClass("java", "x10.runtime.impl.java", "Deque")
     @NativeClass("c++", "x10.lang", "Deque")
-    public static final class Deque {
+    static final class Deque {
         public native def this();
 
         public native def size():Int;
@@ -185,7 +185,7 @@ public final class Runtime {
 
     @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
     @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    public static class Lock {
+    static class Lock {
         public native def this();
 
         public native def lock():Void;
@@ -656,68 +656,6 @@ public final class Runtime {
     }
 
 
-    public static class Activity {
-        /**
-         * the finish state governing the execution of this activity (may be remote)
-         */
-        val finishState:FinishState;
-
-        /**
-         * safe to run pending jobs while waiting for a finish (temporary)
-         */
-        val safe:Boolean;
-
-        /**
-         * The user-specified code for this activity.
-         */
-         private val body:()=>Void;
-
-        /**
-         * The mapping from registered clocks to phases for this activity.
-         * Lazily created.
-         */
-        var clockPhases:ClockPhases!;
-
-        /**
-         * The finish states for the finish statements currently executed by this activity.
-         * Lazily created.
-         */
-        var finishStack:Stack[FinishState!]!;
-
-        /**
-         * Create activity.
-         */
-        def this(body:()=>Void, finishState:FinishState, safe:Boolean) {
-            this.finishState = finishState;
-            this.safe = safe;
-            finishState.notifyActivityCreation();
-            this.body = body;
-        }
-
-        /**
-         * Create clocked activity.
-         */
-        def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
-            this(body, finishState, false);
-            clockPhases = ClockPhases.make(clocks, phases);
-        }
-
-        /**
-         * Run activity.
-         */
-        def run():Void {
-        try {
-            body();
-        } catch (t:Throwable) {
-            finishState.pushException(t);
-        }
-        if (null != clockPhases) clockPhases.drop();
-            finishState.notifyActivityTermination();
-        dealloc(body);
-        }
-    }
-
-
     final static class Worker implements ()=>Void {
             val latch:Latch!;
         // release the latch to stop the worker
@@ -791,7 +729,7 @@ public final class Runtime {
     }
 
 
-    public static class Pool implements ()=>Void {
+    static class Pool implements ()=>Void {
         private val latch:Latch!;
         private var size:Int; // the number of workers in the pool
 
@@ -1183,27 +1121,6 @@ public final class Runtime {
      */
     public static def release():Void {
         runtime().monitor.release();
-    }
-
-
-    // sleep
-
-    /**
-     * Sleep for the specified number of milliseconds.
-     * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
-     * @param millis the number of milliseconds to sleep
-     * @return true if completed normally, false if interrupted
-     */
-    public static def sleep(millis:long):Boolean {
-        try {
-            increaseParallelism();
-            Thread.sleep(millis);
-            decreaseParallelism(1);
-            return true;
-        } catch (e:InterruptedException) {
-            decreaseParallelism(1);
-            return false;
-        }
     }
 
 
