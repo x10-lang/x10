@@ -195,6 +195,46 @@ public final class PTPUtils {
   }
   
   /**
+   * Determines the workspace directory for the given resource manager and project name provided. Typically it will be the
+   * project name appended to the user home directory. If we fail to get the user home directory for some strange reasons,
+   * we will add the project name to the TEMP directory. If we fail to read the TEMP directory also, the method will return
+   * an empty string.
+   * 
+   * @param resourceManagerId The unique resource manager id.
+   * @param projectName The project name to consider.
+   * @return The workspace directory or an empty string if we could not identify one.
+   */
+  public static String getTargetWorkspaceDirectory(final String resourceManagerId, final String projectName) {
+    final IResourceManager resourceManager = PTPCorePlugin.getDefault().getUniverse().getResourceManager(resourceManagerId);
+    final IResourceManagerControl rmControl = (IResourceManagerControl) resourceManager;
+    final IResourceManagerConfiguration rmc = rmControl.getConfiguration();
+    final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(rmServices);
+
+    final StringBuilder wDirPathBuilder = new StringBuilder();
+    if (isLocal) {
+      wDirPathBuilder.append(System.getProperty("user.home").replace('\\', '/')); //$NON-NLS-1$
+    } else {
+      final IRemoteConnection connection = rmServices.getConnectionManager().getConnection(rmc.getConnectionName());
+      final String userHome = PTPUtils.getUserHomeDirectoryFromEnvVariables(connection);
+      if (userHome == null) {
+        // Somehow we can't get access to user home through the classical environment variables !?
+        final IRemoteFileManager rmFileManager = rmServices.getFileManager(connection);
+        final String tmpDir = getTempDirectory(connection, rmFileManager);
+        if (tmpDir == null) {
+          return ""; //$NON-NLS-1$
+        } else {
+          wDirPathBuilder.append(tmpDir);
+        }
+      } else {
+        wDirPathBuilder.append(userHome);
+      }
+    }
+    wDirPathBuilder.append('/').append(projectName);
+    return wDirPathBuilder.toString();
+  }
+  
+  /**
    * Reads TMP, TEMP and TMPDIR via {@link IRemoteConnection} in order to find the temp directory for the given resource
    * manager. If none of this variables are defined, it tries to check if "/tmp" directory exists.
    * 
@@ -225,6 +265,18 @@ public final class PTPUtils {
     }
   }
   
+  // --- Private code
+  
+  private static String getUserHomeDirectoryFromEnvVariables(final IRemoteConnection connection) {
+    final String homeVar = connection.getEnv(USERPROFILE_VAR);
+    if (homeVar == null) {
+      final String userHomeVar = connection.getEnv(HOME_VAR);
+      return (userHomeVar == null) ? null : userHomeVar;
+    } else {
+      return homeVar.replace('\\', '/');
+    }
+  }
+  
   // --- Fields
   
   private static final String TMP_ENV_VAR = "TMP"; //$NON-NLS-1$
@@ -234,5 +286,9 @@ public final class PTPUtils {
   private static final String TMPDIR_ENV_VAR = "TMPDIR"; //$NON-NLS-1$
   
   private static final String TMP_DIR = "/tmp"; //$NON-NLS-1$
+  
+  private static final String USERPROFILE_VAR = "USERPROFILE"; //$NON-NLS-1$
+  
+  private static final String HOME_VAR = "HOME"; //$NON-NLS-1$
 
 }
