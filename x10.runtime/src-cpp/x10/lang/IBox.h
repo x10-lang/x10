@@ -52,6 +52,8 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return x10aux::getRTT<T>(); }
 
             virtual x10aux::ref<String> toString() { return x10aux::to_string(value); }
+
+            virtual x10_int hashCode() { return x10aux::hash_code(value); }
             
             // TODO: Need to implement serialization/deserialization support for this class!
 
