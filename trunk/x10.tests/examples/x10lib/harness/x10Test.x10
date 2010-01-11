@@ -47,12 +47,12 @@ abstract public class x10Test {
 
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");
-	x10.lang.Runtime.setExitCode(0);
+	System.setExitCode(0);
     }
 
     public static def failure(): void = {
         println(PREFIX+"Test failed.");
-        x10.lang.Runtime.setExitCode(1);
+        System.setExitCode(1);
     }
 
     protected static def reportResult(b: boolean): void = {
@@ -87,7 +87,7 @@ abstract public class x10Test {
     protected var result: boolean;
     protected def check[T](test:String, actual:T, expected:T) = {
 	result = actual == expected;
-	println(test + (result ? " succeeds: got " 
+	println(test + (result ? " succeeds: got "
 			: " fails: exepected " + expected + ", got " )
 		+ actual);
     }

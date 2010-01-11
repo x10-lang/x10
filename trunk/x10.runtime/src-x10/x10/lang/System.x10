@@ -27,6 +27,13 @@ public class System {
     public static def exit() = exit(-1);
 
     /**
+     * Set system exit code
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
+    @Native("c++", "(x10aux::exitCode = (#1))")
+    public static def setExitCode(code: int): void {}
+
+    /**
      * Provides an estimate in bytes of the size of the X10 heap
      * allocated to the current place. The accuracy of this estimate
      * is highly dependent on the implementation details of the
