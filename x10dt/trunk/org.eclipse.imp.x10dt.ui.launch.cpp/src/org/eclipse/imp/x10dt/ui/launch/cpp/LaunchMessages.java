@@ -197,7 +197,7 @@ public class LaunchMessages extends NLS {
 
   public static String XPCPP_NoResManagerStartedError;
 
-  public static String XPCPP_NoTempDirWarning;
+  public static String XTEPP_CleanPreviousWDir;
 
   public static String XTEPP_DataStoringError;
 
@@ -210,6 +210,10 @@ public class LaunchMessages extends NLS {
   public static String XTEPP_MissingX10PlatformError;
 
   // --- Private code
+
+  public static String XTEPP_RebuildProject;
+
+  public static String XTEPP_RebuildTargetWorkspace;
 
   private static final String BUNDLE_NAME = "org.eclipse.imp.x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$
 

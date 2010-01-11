@@ -12,9 +12,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
@@ -165,7 +172,38 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
         setErrorMessage(LaunchMessages.XTEPP_MissingTargetWorkspaceError);
         return false;
       } else {
-        project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
+        final String newWDir = this.fWorkspaceLocText.getText().trim();
+        final String curWDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+        project.setPersistentProperty(Constants.WORKSPACE_DIR, newWDir);
+        
+        if (! newWDir.equals(curWDir)) {
+          final Job job = new Job(LaunchMessages.XTEPP_RebuildTargetWorkspace) {
+            
+            public IStatus run(final IProgressMonitor monitor) {
+              try {
+                monitor.beginTask(null, 3);
+                monitor.subTask(LaunchMessages.XTEPP_CleanPreviousWDir);
+                final String resManagerId = project.getPersistentProperty(Constants.RES_MANAGER_ID);
+                final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resManagerId);
+                final IFileStore curWDirFileStore = pair.second.getResource(curWDir);
+                if (curWDirFileStore.fetchInfo().exists()) {
+                  curWDirFileStore.delete(EFS.NONE, new SubProgressMonitor(monitor, 1));
+                }
+                
+                monitor.subTask(LaunchMessages.XTEPP_RebuildProject);
+                project.build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor, 2));
+                
+                return Status.OK_STATUS;
+              } catch (CoreException except) {
+                return except.getStatus();
+              }
+            }
+            
+          };
+          job.setPriority(Job.BUILD);
+          job.setRule(project.getWorkspace().getRuleFactory().buildRule());
+          job.schedule();
+        }
       }
     } catch (CoreException except) {
       setErrorMessage(NLS.bind(LaunchMessages.XTEPP_DataStoringError, except.getMessage()));
@@ -318,17 +356,10 @@ public final class X10TargetEnvironmentPropertyPage extends PropertyPage impleme
 
     public void widgetSelected(final SelectionEvent event) {
       final Combo combo = X10TargetEnvironmentPropertyPage.this.fResManagerCombo;
-      final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(combo);
-      
-      final String tempDir = PTPUtils.getTempDirectory(pair.first, pair.second);
+      final String resManagerId = (String) combo.getData(combo.getItem(combo.getSelectionIndex()));
       final IProject project = (IProject) getElement().getAdapter(IProject.class);
-      if (tempDir == null) {
-        setMessage(NLS.bind(LaunchMessages.XPCPP_NoTempDirWarning, project.getName()), WARNING);
-      } else {
-        final StringBuilder wDirPath = new StringBuilder();
-        wDirPath.append(tempDir).append('/').append(project.getName());
-        X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(wDirPath.toString());
-      }
+      final String workspaceDir = PTPUtils.getTargetWorkspaceDirectory(resManagerId, project.getName());
+      X10TargetEnvironmentPropertyPage.this.fWorkspaceLocText.setText(workspaceDir);
     }
     
   }
