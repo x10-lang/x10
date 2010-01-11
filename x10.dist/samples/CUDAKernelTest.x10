@@ -36,7 +36,7 @@ public class CUDAKernelTest {
     }
 
     public static def main (args : Rail[String]!) {
-        val len = args.length==1 ? Int.parseInt(args(0)) : 1000000;
+        val len = args.length==1 ? Int.parseInt(args(0)) : 1000;
 
         for (host in Place.places) at (host) {
 
