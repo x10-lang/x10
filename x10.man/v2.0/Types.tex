@@ -169,7 +169,7 @@ package x10.lang;
 public class Object {
     public def toString(): String;
     public def typeName(): String;
-    public def loc():Place;
+    public def home():Place;
     public def at(p:Place):boolean;
     public def at(o:Object):boolean;
 }
@@ -1044,7 +1044,7 @@ The class \xcd"x10.lang.Object" is the supertype of all classes.
 A variable of this type can hold a reference to any object.
 The code for this class (with annotations removed) is:
 \begin{xten}
-public class Object (location: Place) 
+public class Object (home: Place) 
      implements Equals
 {
     public native def this();
@@ -1052,9 +1052,9 @@ public class Object (location: Place)
     public native def hashCode() : Int;
     public native def toString() : String;
     public global native def typeName() : String;
-    public property def loc() = location;
-    public property def at(p:Place) = location==p;
-    public property def at(r:Object) = location==r.location;
+    public property def home() = home;
+    public property def at(p:Place) = home==p;
+    public property def at(r:Object) = home==r.home;
 }
 \end{xten}
 

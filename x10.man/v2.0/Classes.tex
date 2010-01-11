@@ -879,7 +879,7 @@ A method may be declared \xcd"global".
 
 A \xcd"global" method can be invoked on an object \Xcd{o} in any place. The
 body of such a method is type-checked without assuming that
-\Xcd{here==this.loc}. This permits \Xcd{global} fields of \Xcd{o} to
+\Xcd{here==this.home}. This permits \Xcd{global} fields of \Xcd{o} to
 be accessed, but not local fields. The programmer must insert an explicit
 \Xcd{at(this)...} to get to the place where the object lives and access
 the field.

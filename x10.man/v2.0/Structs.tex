@@ -126,9 +126,9 @@ These methods are defined automatically if they are not supplied by the programm
 
 Structs have the following methods implicitly defined on them:
 \begin{xten}
-  global def loc()=here;
-  global def loc(p:Place)=true;
-  global def loc(O:Object)=true;
+  global def home()=here;
+  global def home(p:Place)=true;
+  global def home(O:Object)=true;
 \end{xten}
 
 The operations \Xcd{==} and \Xcd{!=} are available on structs, and
