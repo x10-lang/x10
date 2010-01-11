@@ -28,10 +28,6 @@ public final class Runtime {
 
     // Configuration options
 
-    @Native("java", "x10.runtime.impl.java.Runtime.PLACE_CHECKS")
-    @Native("c++", "(x10_boolean) false")
-    public const PLACE_CHECKS = true;
-
     @Native("java", "x10.runtime.impl.java.Runtime.NO_STEALS")
     @Native("c++", "x10aux::no_steals()")
     public const NO_STEALS = false;
@@ -118,10 +114,16 @@ public final class Runtime {
     public static def runAtLocal(id:Int, body:()=>Void):Void { body(); }
 
     /**
+     * Java: pretend receiver is local.
+     */
+    @Native("java", "#4")
+    public static def pretendLocal[T](x:T):T! = x as T!;
+
+    /**
      * Return true if place(id) is in the current node.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
-    public static def local(id:Int):Boolean = id == here.id;
+    public static def isLocal(id:Int):Boolean = id == here.id;
 
     /**
      * Process one incoming message if any (non-blocking).
@@ -427,7 +429,7 @@ public final class Runtime {
         }
 
         public def waitForFinish(safe:Boolean):Void {
-            if (!NO_STEALS && safe) Runtime.join(this);
+            if (!NO_STEALS && safe) worker().join(this);
             await();
             if (null != exceptions) {
                 if (exceptions.size() == 1) {
@@ -639,12 +641,7 @@ public final class Runtime {
 
         public native global def unpark():Void;
 
-        @NativeDef("c++")
-        public def worker():Worker! {
-            // TODO fix place inconsistency in java backend
-            @Native("java", "return ((x10.lang.Runtime.Worker)(__NATIVE_FIELD__.worker()));")
-            { return null; }
-        }
+        public native def worker():Object;
 
         public native def worker(worker:Worker!):Void;
 
@@ -657,7 +654,7 @@ public final class Runtime {
 
 
     final static class Worker implements ()=>Void {
-            val latch:Latch!;
+        val latch:Latch!;
         // release the latch to stop the worker
 
         // bound on loop iterations to help j9 jit
@@ -722,7 +719,7 @@ public final class Runtime {
                     activity = Runtime.scan(random, latch, block);
                     if (activity == null) return false;
                 }
-                Runtime.run(activity);
+                runAtLocal(activity.home.id, (activity as Activity!).run.());
             }
             return true;
         }
@@ -799,7 +796,7 @@ public final class Runtime {
                     println("TOO MANY THREADS... ABORTING");
                     System.exit(1);
                 }
-                val worker = new Worker(latch as Latch!, i);
+                val worker = new Worker(latch, i);
                 workers(i) = worker;
                 val thread = new Thread(worker.apply.(), "thread-" + i);
                 thread.worker(worker);
@@ -878,7 +875,7 @@ public final class Runtime {
     /**
      * Return the current worker
      */
-    private static def worker():Worker! = Thread.currentThread().worker();
+    private static def worker():Worker! = pretendLocal[Worker](Thread.currentThread().worker() as Worker);
 
     /**
      * Return the current activity
@@ -906,7 +903,7 @@ public final class Runtime {
         val pool = new Pool(rootFinish, INIT_THREADS);
         try {
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
-                if (local(i)) {
+                if (isLocal(i)) {
                     runAtLocal(i, ()=>runtime.set(new Runtime(pool)));
                 }
             }
@@ -914,9 +911,9 @@ public final class Runtime {
             if (Thread.currentThread().locInt() == 0) {
                 execute(new Activity(()=>{finish init(); body();}, rootFinish, true));
                 pool();
-                if (!local(Place.MAX_PLACES - 1)) {
+                if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAt(i, ()=>{ val w=worker(); w.latch.release()});
+                        runAt(i, worker().latch.release.());
                     }
                 }
                 rootFinish.waitForFinish(false);
@@ -961,11 +958,6 @@ public final class Runtime {
             execute(new Activity(body, state, ok));
         } else {
             var closure:()=>Void;
-//            val closure =
-//                ok ? (free ? ()=>execute(new Activity(body, state, true, true))
-//                           : ()=>execute(new Activity(body, state, true, false)))
-//                   : (free ? ()=>execute(new Activity(body, state, false, true))
-//                           : ()=>execute(new Activity(body, state, false, false)));
             // Workaround for XTENLANG_614
             if (ok) {
                 closure = ()=>execute(new Activity(body, state, true));
@@ -1011,7 +1003,7 @@ public final class Runtime {
                 }
             }
         }
-        if (!NO_STEALS && safe()) Runtime.join(box.latch);
+        if (!NO_STEALS && safe()) worker().join(box.latch);
         box.latch.await();
         if (null != box.e) {
             val x = box.e as Throwable;
@@ -1051,7 +1043,7 @@ public final class Runtime {
                 }
             }
         }
-        if (!NO_STEALS && safe()) Runtime.join(box.latch);
+        if (!NO_STEALS && safe()) worker().join(box.latch);
         box.latch.await();
         if (null != box.e) {
             val x = box.e as Throwable;
@@ -1075,25 +1067,6 @@ public final class Runtime {
                 f1
         };
         return f;
-    }
-
-
-    // place checks
-
-    /**
-     * Java place check
-     */
-    public static def placeCheck(p:Place, o:Object):Object {
-        if (PLACE_CHECKS && null != o
-            && o instanceof Object
-            && !(o instanceof Worker)
-            && (o as Object!).home.id != p.id) {
-            println("BAD PLACE EXCEPTION");
-            throw new BadPlaceException("object="
-                        + o.toString()
-                        + " access at place=" + p);
-        }
-        return o;
     }
 
 
@@ -1199,20 +1172,20 @@ public final class Runtime {
 
     // submit an activity to the pool
     private static def execute(activity:Activity!):Void {
-        runAtLocal(runtime().pool.home.id, ()=>worker().push(activity));
+        worker().push(activity);
     }
 
     // notify the pool a worker is about to execute a blocking operation
     static def increaseParallelism():Void {
         if (!STATIC_THREADS) {
-            runAtLocal(runtime().pool.home.id, runtime().pool.increase.());
+            runtime().pool.increase();
         }
     }
 
     // notify the pool a worker resumed execution after a blocking operation
     static def decreaseParallelism(n:Int) {
         if (!STATIC_THREADS) {
-            runAtLocal(runtime().pool.home.id, ()=>runtime().pool.decrease(n));
+            runtime().pool.decrease(n);
         }
     }
 
@@ -1230,15 +1203,6 @@ public final class Runtime {
         if (!STATIC_THREADS) {
             thread.unpark();
         }
-    }
-
-    // run pending activities while waiting on condition
-    static def join(latch:Latch!) {
-        runAtLocal(runtime().pool.home.id, ()=>worker().join(latch));
-    }
-
-    static def run(activity:Activity):Void {
-        runAtLocal(activity.home.id, (activity as Activity!).run.());
     }
 }
 
