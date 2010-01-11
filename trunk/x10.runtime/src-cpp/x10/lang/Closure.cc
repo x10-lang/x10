@@ -28,6 +28,10 @@ Place Closure::home() {
     return x10::lang::Place_methods::_make(location);
 }
 
+x10_int Closure::hashCode() {
+    return x10aux::hash_code(_get_serialization_id());
+}
+
 x10aux::ref<x10::lang::String> x10::lang::Closure::toString() {
     return String::Lit("Closure without toString defined.");
 }

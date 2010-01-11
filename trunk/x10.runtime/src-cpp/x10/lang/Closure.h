@@ -51,6 +51,8 @@ namespace x10 {
             
             virtual x10::lang::Place home();
 
+            virtual x10_int hashCode();
+            
             virtual x10aux::ref<String> toString();
 
             virtual x10aux::ref<x10::lang::String> typeName();

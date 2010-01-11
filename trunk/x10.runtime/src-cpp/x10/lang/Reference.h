@@ -60,6 +60,8 @@ namespace x10 {
                 return other == x10aux::ref<Reference>(this);
             }
             
+            virtual x10_int hashCode() = 0;
+
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/
