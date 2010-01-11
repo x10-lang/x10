@@ -183,8 +183,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         	final IResource[] members = binaryContainer.members();
         	monitor.beginTask(Messages.CPPB_DeletingTaskName, members.length);
         	for (final IResource member : members) {
-        		member.delete(true /* force */, new SubProgressMonitor(monitor, 1));
+        		member.delete(true /* force */, null /* monitor */);
         	}
+        	monitor.worked(1);
         }
       }
     } finally {
