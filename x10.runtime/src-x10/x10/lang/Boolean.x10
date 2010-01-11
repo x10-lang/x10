@@ -49,6 +49,7 @@ public final struct Boolean {
     public native static def parseBoolean(String): Boolean;
 
     @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof x10.core.BoxedBoolean) && #1 == ((x10.core.BoxedBoolean) #2).value.value))")
+    @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
     // These operations are built-in.  Declaring them will prevent the

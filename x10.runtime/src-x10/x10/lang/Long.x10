@@ -200,5 +200,6 @@ public final struct Long {
     public native def reverseBytes(): Long;
 
     @Native("java", "((((#2) instanceof long) && #1 == ((long)#2)) || (((#2) instanceof x10.core.BoxedLong) && #1 == ((x10.core.BoxedLong) #2).value.value))")
+    @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 }
