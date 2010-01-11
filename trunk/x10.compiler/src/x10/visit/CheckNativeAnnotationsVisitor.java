@@ -176,14 +176,6 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                         }
                     }
                 }
-                for (Type t : cd.asType().interfaces()) {
-                    X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
-                    X10ClassDef sd = ct.x10Def();
-                    Map<String,String> map = getNativeRep(sd);
-                    if (! map.containsKey(theLanguage)) {
-                        throw new SemanticException("Class with NativeRep annotation may only implement interfaces with NativeRep.", n.position());
-                    }
-                }
             }
         }
 
