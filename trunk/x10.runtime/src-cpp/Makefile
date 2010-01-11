@@ -170,7 +170,7 @@ x10rt:
 XRXFILES  = $(shell find ../src-x10 -name .svn -prune -o -name '*.x10' -print | sort )
 
 #enable asserts, do not look in jar for x10 files
-X10CPPFLAGS += -J-ea -rtdev -disable CheckNativeAnnotations -commandlineonly
+X10CPPFLAGS += -J-ea -rtdev -commandlineonly
 
 # Generate .cc .inc and .h files for all the X10 classes defined in the above
 # .x10 files.  Rebuilding occurs if the x10 backend is updated or if any of the

@@ -196,7 +196,7 @@
         <echo message="x10c -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} -d '${gen}' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} -d '${gen}' -J-ea -rtdev -sourcepath . -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
