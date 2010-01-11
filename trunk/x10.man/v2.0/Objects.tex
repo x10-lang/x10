@@ -9,7 +9,7 @@ initializer.
 
 All classes subclass from \xcd"x10.lang.Object".
 This class has one property \xcd"home" of type
-\xcd"x10.lang.Place". \index{place.location} Thus all objects in \Xten{}
+\xcd"x10.lang.Place". \index{place.home} Thus all objects in \Xten{}
 are located (have a place). 
 
 In \XtenCurrVer{} an object stays resident at the place at
@@ -147,7 +147,7 @@ transmitted to \Xcd{P} it automatically becomes a local reference to
 \Xcd{o}. Therefore the situation in which a local reference can be compared
 to a remote reference simply cannot arise.
 
-The \Xten{} compiler ensures that non-global methods on \Xcd{o} can only be invoked in a place where \Xcd{here== o.loc()}, i.e. the place where \Xcd{o} was created.
+The \Xten{} compiler ensures that non-global methods on \Xcd{o} can only be invoked in a place where \Xcd{here== o.home()}, i.e. the place where \Xcd{o} was created.
 
 \paragraph{Implementation notes}
 Remote references to an object \Xcd{o} are intended to be implemented
@@ -207,7 +207,7 @@ val x = new C(..);
 // type of x is rooted C{c} if the return type of the constructor is C{c}. 
 at (P) { 
     val x1 = x; // type of x is C{c} because of the place shift introduced by at(P)
-  at (x.loc()) {
+  at (x.home()) {
         // x is now bound to o through a local reference. So is x1.
     Console.out.println(x1==x); // Must print true.
       // rooted methods can be invoked on x or x1 and will execute locally on o
