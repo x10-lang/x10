@@ -212,7 +212,7 @@ public final struct UInt {
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): Int;
 
-    @Native("java", "((((#2) instanceof int) && #1 == ((int)#2)) || (((#2) instanceof x10.core.BoxedInt) && #1 == ((x10.core.BoxedInt) #2).value.value))")
+    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 }

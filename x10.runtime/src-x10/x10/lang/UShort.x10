@@ -203,7 +203,7 @@ public final struct UShort {
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): UShort;
 
-    @Native("java", "((((#2) instanceof short) && #1 == ((short)#2)) || (((#2) instanceof x10.core.BoxedShort) && #1 == ((x10.core.BoxedShort) #2).value.value))")
+    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 }

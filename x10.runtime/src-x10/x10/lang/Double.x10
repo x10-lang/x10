@@ -132,7 +132,7 @@ public final struct Double {
     @Native("c++", "x10aux::double_utils::fromLongBits(#1)")
     public static native def fromLongBits(Long): Double;
 
-    @Native("java", "((((#2) instanceof double) && #1 == ((double)#2)) || (((#2) instanceof x10.core.BoxedDouble) && #1 == ((x10.core.BoxedDouble) #2).value.value))")
+    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 }
