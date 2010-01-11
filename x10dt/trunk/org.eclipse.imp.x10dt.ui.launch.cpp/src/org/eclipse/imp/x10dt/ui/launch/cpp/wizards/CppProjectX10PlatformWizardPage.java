@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
@@ -39,8 +38,6 @@ import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.ui.wizards.RMServicesConfigurationWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -298,17 +295,9 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
   private void updateDisablingPart() {
     final int selectionIndex = this.fResManagerCombo.getSelectionIndex();
     this.fWorkspaceLocText.setEnabled(selectionIndex != -1);
-    if (this.fWorkspaceLocText.isEnabled()) {
-      final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(this.fResManagerCombo);
-      
-      final String tempDir = PTPUtils.getTempDirectory(pair.first, pair.second);
-      if (tempDir == null) {
-        setMessage(NLS.bind(LaunchMessages.XPCPP_NoTempDirWarning, this.fFirstPage.getProjectName()), WARNING);
-      } else {
-        final StringBuilder wDirPath = new StringBuilder();
-        wDirPath.append(tempDir).append('/').append(this.fFirstPage.getProjectName());
-        this.fWorkspaceLocText.setText(wDirPath.toString());
-      }
+    if (this.fWorkspaceLocText.isEnabled()) {      
+      final String resManagerId = (String) this.fResManagerCombo.getData(this.fResManagerCombo.getItem(selectionIndex));
+      this.fWorkspaceLocText.setText(PTPUtils.getTargetWorkspaceDirectory(resManagerId, this.fFirstPage.getProjectName()));
     }
     this.fBrowseBt.setEnabled(selectionIndex != -1);
   }
