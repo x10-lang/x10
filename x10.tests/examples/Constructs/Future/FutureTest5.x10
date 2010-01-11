@@ -38,7 +38,7 @@ public class FutureTest5 extends x10Test {
 			val t1 = future (here) { 42 } ;
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
-				x10.lang.Runtime.sleep(500);
+				Activity.sleep(500);
 		};
 		var t2: Future[Int];
 		when (fut != null) { t2 = fut as Future[Int]; }
@@ -68,7 +68,7 @@ public class FutureTest5 extends x10Test {
 			val t1= future (here) { 42 } ;
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
-				x10.lang.Runtime.sleep(500);
+				Activity.sleep(500);
 		}
 		finish async (here) {
 			var t2: Future[Int];

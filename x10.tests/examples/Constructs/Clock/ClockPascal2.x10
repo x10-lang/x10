@@ -106,7 +106,7 @@ public class ClockPascal2 extends x10Test {
 	static def randDelay(var millis: int): void = {
 		var n: int;
 		atomic n = rand.nextInt(millis);
-		x10.lang.Runtime.sleep(n);
+		Activity.sleep(n);
 	}
 
 	public const startTime: long = System.currentTimeMillis();
