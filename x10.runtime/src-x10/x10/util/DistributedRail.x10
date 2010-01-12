@@ -59,7 +59,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         val master = data();
         var first:Boolean = true;
         for (e in localRails().entries()) {
-            val r = e.getValue();
+            val r = at(e) e.getValue();
             if (first) {
                 finish r.copyTo(0, master, 0, r.length);
                 first = false;
@@ -95,7 +95,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     private global def bcastLocal (op:(T,T)=>T) {
         val master = data();
         for (e in localRails().entries()) {
-            val r = e.getValue();
+            val r = at(e) e.getValue();
             finish r.copyFrom(0, master, 0, r.length);
         }
     }

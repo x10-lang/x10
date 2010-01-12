@@ -99,8 +99,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
     		X10TypeSystem  ts
     		) throws SemanticException {
-    	//System.err.println("PlacedClosure_c: Golden! evaluating placeterm for " + this);
-		Type placeType = place.type();
+ 		Type placeType = place.type();
 		XConstraint d = X10TypeMixin.xclause(placeType);
 		d = (d==null) ? new XConstraint_c() : d.copy();
 		XConstraint pc = null;
@@ -120,7 +119,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
 						term + " and constraint " + d + ".");
 			}
     	} else {
-    		boolean placeIsRef = ts.isImplicitCastValid(placeType, ts.Object(), xc);
+    		boolean placeIsRef = true; // ts.isImplicitCastValid(placeType, ts.Object(), xc);
     		if (placeIsRef) {
     			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
     			if (src == null) {

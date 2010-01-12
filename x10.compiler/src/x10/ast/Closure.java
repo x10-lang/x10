@@ -20,6 +20,12 @@ import polyglot.ast.TypeNode;
 import polyglot.util.Position;
 import x10.types.ClosureDef;
 
+/**
+ * A Closure AST node represents a closure literal in the source text. Its type is a Closuredef.
+ * 
+ * @author vj
+ *
+ */
 public interface Closure extends Expr, CodeBlock {
 	    
    // List<TypeParamNode> typeParameters();

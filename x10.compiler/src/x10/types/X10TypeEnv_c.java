@@ -449,11 +449,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
         
         if (kind == Bound.UPPER && result.isEmpty())
-            if (includeObject)
+            return Collections.<Type>singletonList(ts.Any());
+         /*   if (includeObject)
                 return Collections.<Type>singletonList(ts.Object());
             else
                 return Collections.<Type>emptyList();
-        
+        */
         return new ArrayList<Type>(result);
     }
 
@@ -1982,7 +1983,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	if (acceptable.size() == 0) {
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + container + matcher.signature() + ".");
+		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
 	    }
 
 	    throw error;

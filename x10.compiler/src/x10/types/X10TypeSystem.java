@@ -332,7 +332,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isFunctionType(Type type);
 
-    X10ClassDef closureAnonymousClassDef(ClosureDef def);
+ 
 
   //  List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
 

@@ -80,6 +80,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     		n.checkFieldPlaceType(tc);
     		
     		n= (X10FieldAssign_c) n.type(t);
+    		return n;
     	}
         
         return X10LocalAssign_c.typeCheckAssign(n, tc);

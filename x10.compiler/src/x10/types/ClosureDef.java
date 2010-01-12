@@ -21,6 +21,15 @@ import x10.constraint.XConstrainedTerm;
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 
+/**
+ * A ClosureDef represents the type information for a closure:
+ * its formal parameters, 
+ * its return types, 
+ * throw types
+ * a placeterm representing the place at which the body of this function is intended to execute.
+ * @author vj
+ *
+ */
 public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     
     ClosureInstance asInstance();

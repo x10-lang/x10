@@ -94,6 +94,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 
 /**
@@ -200,19 +201,26 @@ public class Desugarer extends ContextVisitor {
         return visitRemoteClosure(e, EVAL_AT, e.place());
     }
 
-
+    Expr getPlace(Position pos, Expr place) throws SemanticException{
+    	if (! xts.isImplicitCastValid(place.type(), xts.Place(), context)) {
+            	place = synth.makeInstanceCall(pos, place, xts.homeName(),
+            			Collections.EMPTY_LIST, 
+            			Collections.EMPTY_LIST,
+            			xts.Place(),
+            			Collections.EMPTY_LIST,
+            			xContext());
+            }
+    	return place;
+    }
     private Expr visitRemoteClosure(Closure c, Name implName, Expr place) throws SemanticException {
         Position pos = c.position();
-    	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-        	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
-        }
-
+        place = getPlace(pos, place);
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         Position bPos = c.body().position();
         ClosureDef cDef = c.closureDef().position(bPos);
         Expr closure = xnf.Closure(c, bPos)
             .closureDef(cDef)
-        	.type(xts.closureAnonymousClassDef(cDef).asType());
+        	.type(ClosureSynthesizer.closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
             xts.Place(), cDef.asType()
@@ -225,14 +233,13 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
-      	if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-          	place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
-          }
+      	place = getPlace(pos, place);
+      	Expr placeId = synth.makeFieldAccess(pos, place, Name.make("id"), xContext());
         Closure closure =
         	synth.makeClosure(body.position(), xts.Void(),  synth.toBlock(body), xContext());
         Stmt result = xnf.Eval(pos,
         		synth.makeStaticCall(pos, xts.Runtime(), RUN_AT,
-        				Arrays.asList(new Expr[] { place, closure }), xts.Void(),
+        				Arrays.asList(new Expr[] { placeId, closure }), xts.Void(),
         				xContext()));
         return result;
     }

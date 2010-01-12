@@ -14,9 +14,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import polyglot.frontend.Source;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
 import polyglot.types.FieldDef;
 import polyglot.types.LazyRef_c;
+import polyglot.types.Name;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Ref_c;
@@ -332,5 +335,33 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     // This is overridden by the synthetic Fun_** classes created in X10TypeSystem_c.
     public boolean isFunction() {
     	return false;
+    }
+    public String toString() {
+        Name name = name();
+        
+        if (kind() == null) {
+            return "<unknown class " + name + ">";
+        }
+    
+        if (kind() == ANONYMOUS) {
+            if (interfaces != null && ! interfaces.isEmpty()) {
+                return isFunction() ? "" + interfaces.get(0) : "<anonymous subtype of " + interfaces.get(0) + ">";
+            }
+            if (superType != null) {
+                return "<anonymous subclass of " + superType + ">";
+            }
+        }
+    
+        if (kind() == TOP_LEVEL) {
+            Package p = Types.get(package_());
+            return (p != null ? p.toString() + "." : "") + name;
+        }
+        else if (kind() == MEMBER) {
+            ClassDef outer = Types.get(outer());
+            return (outer != null ? outer.toString() + "." : "") + name;
+        }
+        else {
+            return name.toString();
+        }
     }
 }

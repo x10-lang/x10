@@ -215,6 +215,7 @@ import x10.types.X10TypeSystem_c;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
 import x10.util.ClassifiedStream;
+import x10.util.ClosureSynthesizer;
 import x10.util.StreamWrapper;
 import x10.util.Synthesizer;
 import x10cpp.extension.X10ClassBodyExt_c;
@@ -3852,7 +3853,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         Type retType = n.returnType().type();
-        X10ClassType sup = (X10ClassType) xts.closureBaseInterfaceDef(0, n.formals().size(), retType.isVoid()).asType();
+        X10ClassType sup = (X10ClassType) ClosureSynthesizer.closureBaseInterfaceDef(xts,0, n.formals().size(), retType.isVoid()).asType();
         List<Type> supArgs = new ArrayList<Type>();
         for (Formal formal : n.formals())
             supArgs.add(formal.type().typeRef().get());

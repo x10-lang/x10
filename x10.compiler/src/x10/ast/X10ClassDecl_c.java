@@ -93,6 +93,7 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeConstraint;
 import x10.types.TypeConstraint_c;
+import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
@@ -676,6 +677,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 worklist.addAll(ot.interfaces());
             }
         }
+        
+        // Check for instance type definitions -- these are not supported.
+        for (TypeDef def : ((X10ClassDef) type).memberTypes()) {
+        	  MacroType mt = def.asType();
+          	if (mt.container() != null && !mt.flags().isStatic()) {
+          	    throw new SemanticException("Illegal type def " + mt + ": type-defs must be static.", def.position());
+          	}
+        }
+      
         
         Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
         for (X10ClassType ct : supers) {
