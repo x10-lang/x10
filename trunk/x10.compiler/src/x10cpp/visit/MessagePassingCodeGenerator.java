@@ -1380,8 +1380,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_) { return this_->typeName(); }");
 
         // All types support equals(Any).  If there is no user-defined equals, then we define one here.
-        if (!seenEquals) {
-            h.writeln("static x10_boolean equals("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Any> that) { return false; /* FIXME.  This is wrong */}");
+        // We also have to define a redirection method from the struct itself to the implementation
+        // in struct_methods to support usage patterns of equals in x10aux.
+        if (seenEquals) {
+            // define redirection method
+            sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any>);"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any> that) {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
+            sw.end(); sw.newline();
+            sw.writeln("}");            
+        } else {
+            // define default equals that redirects to struct_equals
+            sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any> that);"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any>) {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return false; /* TODO, this is completely wrong. */");
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();            
+            
+            h.writeln("static x10_boolean equals("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Any> that) { return this_->equals(that); }");
         }
 
         // All types support toString.  If there is no user-defined toString, then we define one here.

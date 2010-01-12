@@ -94,11 +94,5 @@ ref<String> x10aux::to_string(x10_char v) {
     return String::Lit(v_);
 }
 
-x10_boolean x10aux::general_equals_impl(x10aux::ref<x10::lang::Any> x, x10aux::ref<x10::lang::Any> y) {
-    nullCheck(x);
-    x10aux::ref<x10::lang::Reference> xAsObj(x);
-    return xAsObj->equals(y);
-}
-
 // vim:tabstop=4:shiftwidth=4:expandtab
 

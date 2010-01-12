@@ -11,6 +11,7 @@ namespace x10 {
     namespace lang {
 
         class String;
+        class Any;
 
         class Struct {
         public:
