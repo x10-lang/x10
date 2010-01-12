@@ -8,7 +8,7 @@
 
 package x10.util;
 
-public interface Map[-K,V] /* @EQ {K <: Equals[K]} */ {
+public interface Map[-K,V]   {
 	public safe def containsKey(k: K): boolean;
 
 	public safe def get(k: K): Box[V];

@@ -1,7 +1,7 @@
 package x10.util;
 
 /** A mutable or immutable collection. */
-public interface Container[+T] /* @EQ {T <: Equals[T]} */ extends Iterable[T] {
+public interface Container[+T]  extends Iterable[T] {
   public def size(): Int;
   public def isEmpty(): Boolean;
   public def contains(T): Boolean;
