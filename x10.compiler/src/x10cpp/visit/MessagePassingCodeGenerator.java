@@ -1254,14 +1254,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream h = sw.header();
         boolean seenToString = false;
         boolean seenHashCode = false;  // autodefine hashCode if not userdefined
-        boolean seenEquals = false;  // autodefine equals(Any) if not userdefined
+        boolean seenEqualsAny = false;  // autodefine equals(Any) if not userdefined
+        boolean seenEqualsSelf = false;  // autodefine equals(S) if not userdefined
+        String StructCType = Emitter.translateType(currentClass, false);
 
 
         sh.write("public:");
         sh.newline();
         sh.write("RTT_H_DECLS_STRUCT");
         sh.newline(); sh.forceNewline();
-        sh.write(Emitter.translateType(currentClass, false)+"* operator->() { return this; }");
+        sh.write(StructCType+"* operator->() { return this; }");
         sh.newline(); sh.forceNewline();
 
         h.write("public:");
@@ -1296,7 +1298,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 prev = member;
                 n.printBlock(member, sw, tr);
 
-                // HACK for struct toString.  See comment below.
+                // The compiler provides implementations of equals, hashCode, and toString if
+                // there are no user-defined implementations.  So, we need to search the struct's members
+                // and determine which methods to auto-generate and which ones are user-provided.
                 if (member instanceof MethodDecl_c) {
                     MethodDecl_c mdecl = (MethodDecl_c)member;
                     if (!mdecl.flags().flags().isAbstract() &&
@@ -1317,7 +1321,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             xts.typeBaseEquals(xts.Any(), mdecl.formals().get(0).type().type(), context) && 
                             !mdecl.flags().flags().isStatic() &&
                             xts.typeBaseEquals(xts.Boolean(), mdecl.returnType().type(), context)) {
-                        seenEquals = true;
+                        seenEqualsAny = true;
+                    }
+                    if (mdecl.name().id().toString().equals("equals") &&
+                            mdecl.formals().size() == 1 &&
+                            xts.typeBaseEquals(currentClass, mdecl.formals().get(0).type().type(), context) && 
+                            !mdecl.flags().flags().isStatic() &&
+                            xts.typeBaseEquals(xts.Boolean(), mdecl.returnType().type(), context)) {
+                        seenEqualsSelf = true;
                     }
 
                 }
@@ -1326,7 +1337,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // Generate structEquals for structs
             emitter.printType(xts.Boolean(), sh);
             sh.write(" " + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
-            sh.write(Emitter.translateType(currentClass, false) + " that");
+            sh.write(StructCType + " that");
             sh.write(");");
             sh.newline();
 
@@ -1334,7 +1345,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             emitter.printType(xts.Boolean(), sw);
             sw.write(" " + Emitter.translateType(currentClass, false)
                      + "::" + mangled_method_name(STRUCT_EQUALS_METHOD)+ "(");
-            sw.write(Emitter.translateType(currentClass, false) + " that");
+            sw.write(StructCType + " that");
             sw.write(") {");
             sw.newline(4);
             sw.begin(0);
@@ -1374,15 +1385,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         // We must define them all in the struct_methods class so they can be picked up by the ITables
         // FIXME: The home method should call Place_methods::make(here) instead of doing a C++ level construction.
-        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
-        h.writeln("static x10_boolean at("+Emitter.translateType(currentClass, false)+" this_, x10::lang::Place place) { return true; }");
-        h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
-        h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_) { return this_->typeName(); }");
+        h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
+        h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
+        h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
+        h.writeln("static x10aux::ref<x10::lang::String> typeName("+StructCType+" this_) { return this_->typeName(); }");
 
         // All types support equals(Any).  If there is no user-defined equals, then we define one here.
         // We also have to define a redirection method from the struct itself to the implementation
         // in struct_methods to support usage patterns of equals in x10aux.
-        if (seenEquals) {
+        if (seenEqualsAny) {
             // define redirection method
             sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any>);"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
@@ -1395,21 +1406,46 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define default equals that redirects to struct_equals
             sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any> that);"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any> that) {");
+            sw.write("x10_boolean "+StructCType+ "::equals(x10aux::ref<x10::lang::Any> that) {");
             sw.newline(4); sw.begin(0);
             sw.writeln("x10aux::ref<x10::lang::Reference> thatAsRef(that);");
-            sw.write("if (thatAsRef->_type()->equals(x10aux::getRTT<"+Emitter.translateType(currentClass, false)+" >())) {");
+            sw.write("if (thatAsRef->_type()->equals(x10aux::getRTT<"+StructCType+" >())) {");
             sw.newline(4); sw.begin(0);
-            sw.writeln("x10aux::ref<x10::lang::IBox<"+Emitter.translateType(currentClass, false)+" > > thatAsIBox(that);");
+            sw.writeln("x10aux::ref<x10::lang::IBox<"+StructCType+" > > thatAsIBox(that);");
             sw.write("return _struct_equals(thatAsIBox->value);");
             sw.end(); sw.newline();
             sw.writeln("}");
             sw.write("return false;");            
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10_boolean equals("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Any> that) { return this_->equals(that); }");
+            h.writeln("static x10_boolean equals("+StructCType+" this_, x10aux::ref<x10::lang::Any> that) { return this_->equals(that); }");
         }
 
+        // Optimized equals(SelfType) to avoid needless boxing.  If there is no user-defined equals(SelfType), then we define one here.
+        // We also have to define a redirection method from the struct itself to the implementation
+        // in struct_methods to support usage patterns of equals in x10aux.
+        if (seenEqualsSelf) {
+            // define redirection method
+            sh.writeln("x10_boolean equals("+StructCType+");"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+            sw.write("x10_boolean "+ StructCType+ "::equals("+StructCType+" that) {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::equals(*this, that);");
+            sw.end(); sw.newline();
+            sw.writeln("}");            
+        } else {
+            // define default equals(SelfType) that redirects to struct_equals
+            sh.writeln("x10_boolean equals("+StructCType+" that);"); sh.forceNewline();
+            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+            sw.write("x10_boolean "+ StructCType+ "::equals("+StructCType+" that) {");
+            sw.newline(4); sw.begin(0);
+            sw.write("return _struct_equals(that);");            
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
+            h.writeln("static x10_boolean equals("+StructCType+" this_, "+StructCType+" that) { return this_->equals(that); }");
+        }
+        
+        
         // All types support toString.  If there is no user-defined toString, then we define one here.
         // We also have to define a redirection method from the struct itself to the implementation
         // in struct_methods to support usage patterns of toString in x10aux.
@@ -1417,7 +1453,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define redirection method
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
+            sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::toString() {");
             sw.newline(4); sw.begin(0);
             sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::toString(*this);");
             sw.end(); sw.newline();
@@ -1426,12 +1462,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define default toString
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::toString() {");
+            sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::toString() {");
             sw.newline(4); sw.begin(0);
             sw.write("return x10::lang::String::Lit(\"Struct without toString defined.\");");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10aux::ref<x10::lang::String> toString("+Emitter.translateType(currentClass, false)+" this_) { return this_->toString(); }");
+            h.writeln("static x10aux::ref<x10::lang::String> toString("+StructCType+" this_) { return this_->toString(); }");
         }
 
         // All types support hashCode.  If there is no user-defined toString, then we define one here.
@@ -1441,7 +1477,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define redirection method
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
+            sw.write("x10_int "+ StructCType+ "::hashCode() {");
             sw.newline(4); sw.begin(0);
             sw.write("return "+Emitter.structMethodClass(currentClass, true, true)+"::hashCode(*this);");
             sw.end(); sw.newline();
@@ -1450,7 +1486,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define default hashCode by hashing all fields.
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_int "+ Emitter.translateType(currentClass, false)+ "::hashCode() {");
+            sw.write("x10_int "+ StructCType+ "::hashCode() {");
             sw.newline(4); sw.begin(0);
             sw.writeln("x10_int result = 0;");
             if (superClass != null) {
@@ -1466,13 +1502,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.writeln("return result;");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
-            h.writeln("static x10_int hashCode("+Emitter.translateType(currentClass, false)+" this_) { return this_->hashCode(); }");
+            h.writeln("static x10_int hashCode("+StructCType+" this_) { return this_->hashCode(); }");
         }
 
         // define typeName
         sh.writeln("x10aux::ref<x10::lang::String> typeName();"); sh.forceNewline();
         emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-        sw.write("x10aux::ref<x10::lang::String> "+ Emitter.translateType(currentClass, false)+ "::typeName() {");
+        sw.write("x10aux::ref<x10::lang::String> "+ StructCType+ "::typeName() {");
         sw.newline(4); sw.begin(0);
         sw.writeln("return x10aux::type_name(*this);");
         sw.end();
