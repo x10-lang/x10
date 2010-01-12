@@ -5,7 +5,7 @@
 
 	<!-- ================================================================================= -->
 
-	<target name="plugin.jar" depends="init,javaInit" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
+	<target name="plugin.jar" depends="init,javaInit,munge.manifest" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<!-- compile the source code -->
@@ -25,7 +25,7 @@
 		<echo message="done copying resources"/>
 		<mkdir dir="${build.result.folder}"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
-			manifest="META-INF/MANIFEST.MF"/>
+			manifest="${temp.folder}/MANIFEST.MF"/>
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 	</target>
 </project>
