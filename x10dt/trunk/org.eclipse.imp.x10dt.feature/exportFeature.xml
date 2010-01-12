@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="org.eclipse.imp.x10dt.feature" default="build.feature.jar" basedir=".">
-	<import file="../org.eclipse.imp.x10dt.feature/buildCommon.xml"/>
+	<import file="./buildCommon.xml"/>
 	<import file="../org.eclipse.imp.x10dt.update/buildFeatureCommon.xml"/>
 
 	<target name="init">
@@ -9,6 +9,7 @@
 		<property name="feature.temp.folder" value="${basedir}/feature.temp.folder"/>
 		<property name="feature.destination" value="${basedir}"/>
 
+		<!-- this should probably be project.ids instead of projects.names -->
         <loadfile property="projects.names" srcfile="feature.xml">
             <filterchain>
                 <!-- Sometimes the PDE splits <plugin> elements into several lines, but the
