@@ -933,7 +933,7 @@ public final class Runtime {
         val latch = new Latch();
     }
 
-    public static def runAt(place:Place, body:()=>Void):Void {
+    public static def runAtPlace(place:Place, body:()=>Void):Void {
         val box = new RemoteControl();
         async (place) {
             try {
@@ -957,8 +957,12 @@ public final class Runtime {
         }
     }
 
+    public static def runAt(place:Place, body:()=>Void):Void {
+        runAtPlace(place, body);
+    }
+
     public static def runAt(place:Object, body:()=>Void):Void {
-        runAt(place.home, body);
+        runAtPlace(place.home, body);
     }
 
     /**
