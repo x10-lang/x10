@@ -5,6 +5,14 @@
 	</target>
 
 	<target name="init" depends="properties">
+		<tstamp>
+			<format property="build.time" pattern="yyyyMMddHHmm"/> 
+		</tstamp>
+		<condition property="x10dt.build.qualifier" value="v${build.time}">
+			<not>
+				<isset property="x10dt.build.qualifier"/>
+			</not>
+		</condition>
 		<loadfile property="plugin.id" srcfile="META-INF/MANIFEST.MF">
 			<filterchain>
 				<containsregex pattern="Bundle-SymbolicName:"/>
@@ -18,10 +26,11 @@
 			<filterchain>
 				<containsregex pattern="Bundle-Version:"/>
 				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+				<replaceregex pattern="(.*)\.qualifier" replace="\1.${x10dt.build.qualifier}"/>
 				<striplinebreaks/>
 			</filterchain>
 		</loadfile>
-		<!-- <echo message="Plugin version = ${plugin.version}"/> -->
+		<echo message="Plugin version = ${plugin.version}"/>
 
 		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.id}_${plugin.version}.zip"/>
@@ -105,6 +114,14 @@
 		<echo message="${plugin.dependencies}"/>
 	</target>
 
+	<target name="munge.manifest" depends="init" description="Rewrite the plug-in manifest to perform build qualifier substitution on the version number.">
+		<copy file="META-INF/MANIFEST.MF" tofile="${temp.folder}/MANIFEST.MF">
+			<filterchain>
+				<replaceregex pattern="Bundle-Version: (.*)\.qualifier" replace="Bundle-Version: \1.${x10dt.build.qualifier}"/>
+			</filterchain>
+		</copy>
+	</target>
+
 	<target name="build.update.jar" depends="init" description="Build the plug-in: ${plugin.name} for an update site.">
 		<delete dir="${temp.folder}"/>
 		<mkdir dir="${temp.folder}"/>
@@ -115,6 +132,11 @@
 
 	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: ${plugin.name}.">
 		<available property="plugin.jar" file="${build.result.folder}/${plugin.jar.name}"/>
+		<propertyRegexp name="all.builds.for.version" input="${plugin.version}" regexp="(.*).${x10dt.build.qualifier}" value="\1.*"/>
+		<echo message="Deleting old builds of plugin ${plugin.id} for version ${all.builds.for.version}"/>
+		<delete>
+			<fileset dir="${build.result.folder}" includes="${plugin.id}_${all.builds.for.version}.jar"/>
+		</delete>			
 		<antcall target="plugin.jar"/>
 	</target>
 
