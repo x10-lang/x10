@@ -29,6 +29,7 @@ public class Ref implements Any {
     public boolean equals(Object o) {
 	return this == o;
     }
+  
 
     
     public static class RTT extends RuntimeType<Ref> {

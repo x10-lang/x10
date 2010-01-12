@@ -21,8 +21,6 @@ public class Object (
         @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
         home: Place) 
         implements Any 
-//        implements Equals
-    /* @EQ implements Equals[Ref] */
 {
 
 //    @Native("java", "new x10.lang.Box<#2>(#3, #4)")

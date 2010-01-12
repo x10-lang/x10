@@ -17,7 +17,7 @@ import x10.compiler.Native;
  * @author vj
  * @author Dave Cunningham
  */
-public final struct Place(id: Int) implements Equals {
+public final struct Place(id: Int)  {
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
