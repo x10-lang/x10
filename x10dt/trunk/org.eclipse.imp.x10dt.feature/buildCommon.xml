@@ -13,12 +13,21 @@
     <echo message="java.home = ${java.home}"/>
     <echo message="ant.home = ${ant.home}"/>
 
-    <!-- Following assumes we're invoking the build from within some plugin project's top-level directory -->
+	<tstamp>
+		<format property="build.time" pattern="yyyyMMddHHmm"/> 
+	</tstamp>
+	<condition property="x10dt.build.qualifier" value="v${build.time}">
+		<not>
+			<isset property="x10dt.build.qualifier"/>
+		</not>
+	</condition>
+
+	<!-- Following assumes we're invoking the build from within some plugin project's top-level directory -->
     <xmlproperty file="../org.eclipse.imp.x10dt.feature/feature.xml" prefix="x10dt"/>
 
-    <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
+	<propertyRegexp name="x10dt.version" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1.${x10dt.build.qualifier}"/>
 
-    <property name="x10dt.version" value="${x10dt.feature(version)}"/>
+	<echo message="Building for X10DT version ${x10dt.version}"/>
 
     <condition property="mac.jre.path" value="${java.home}/../Classes">
         <os family="mac"/>
