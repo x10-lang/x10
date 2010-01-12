@@ -3950,7 +3950,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, &"+cnamet+"::at, &"+cnamet+"::at, &"+cnamet+"::home, &"+cnamet+"::toString, &"+cnamet+"::typeName);");
+        			cnamet+"::_itable(&"+cnamet+"::apply, &"+cnamet+"::at, &"+cnamet+"::at, &"+cnamet+"::equals, &"+
+        			cnamet+"::hashCode, &"+cnamet+"::home, &"+cnamet+"::toString, &"+cnamet+"::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
