@@ -1395,12 +1395,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // define default equals that redirects to struct_equals
             sh.writeln("x10_boolean equals(x10aux::ref<x10::lang::Any> that);"); sh.forceNewline();
             emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any>) {");
+            sw.write("x10_boolean "+ Emitter.translateType(currentClass, false)+ "::equals(x10aux::ref<x10::lang::Any> that) {");
             sw.newline(4); sw.begin(0);
-            sw.write("return false; /* TODO, this is completely wrong. */");
+            sw.writeln("x10aux::ref<x10::lang::Reference> thatAsRef(that);");
+            sw.write("if (thatAsRef->_type()->equals(x10aux::getRTT<"+Emitter.translateType(currentClass, false)+" >())) {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln("x10aux::ref<x10::lang::IBox<"+Emitter.translateType(currentClass, false)+" > > thatAsIBox(that);");
+            sw.write("return _struct_equals(thatAsIBox->value);");
             sw.end(); sw.newline();
-            sw.writeln("}"); sw.forceNewline();            
-            
+            sw.writeln("}");
+            sw.write("return false;");            
+            sw.end(); sw.newline();
+            sw.writeln("}"); sw.forceNewline();
             h.writeln("static x10_boolean equals("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Any> that) { return this_->equals(that); }");
         }
 
