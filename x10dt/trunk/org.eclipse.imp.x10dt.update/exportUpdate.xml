@@ -51,7 +51,7 @@
 	</target>
 	  -->
 
-	<!-- One would typically run this target, then manually edit the site.xml to add the
+	<!-- One would typically run this target, then manually edit the site.xml (in update.temp.folder) to add the
 	     new feature versions, and finally run 'zip.update' to build the update site archive. -->
 	<target name="collect.update" depends="init.collect,init.common" description="Builds and collects all the feature and plugin components for the update site.">
         <delete dir="${update.temp.folder}"/>
