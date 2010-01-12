@@ -3,9 +3,19 @@
 
 #include <x10/lang/Reference.h>
 #include <x10/lang/Object.h>
+#include <x10/lang/Place.h>
 
 using namespace x10::lang;
 using namespace x10aux;
+
+
+x10_boolean Reference::at(x10aux::ref<x10::lang::Object> o) {
+    return location == o->location;
+}
+
+Place Reference::home() {
+    return x10::lang::Place_methods::_make(location);
+}
 
 void Reference::_serialize_interface(x10aux::serialization_buffer &buf)
 {

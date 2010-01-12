@@ -9,6 +9,10 @@
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
 
+#define X10_LANG_PLACE_H_NODEPS
+#include <x10/lang/Place.struct_h>
+#undef X10_LANG_PLACE_H_NODEPS
+
 namespace x10 {
 
     namespace lang {
@@ -50,8 +54,12 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10aux::ref<String> toString() = 0;
-
+            virtual x10_boolean at(x10::lang::Place p) {
+                return location == p->FMGL(id);
+            }
+            
+            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
+            
             virtual x10_boolean equals(x10aux::ref<Any> other) {
                 return this->_struct_equals(x10aux::ref<Reference>(other));
             }
@@ -62,6 +70,10 @@ namespace x10 {
             
             virtual x10_int hashCode() = 0;
 
+            virtual x10::lang::Place home();
+
+            virtual x10aux::ref<String> toString() = 0;
+            
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/

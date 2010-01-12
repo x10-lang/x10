@@ -43,14 +43,6 @@ namespace x10 {
     
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
-            virtual x10_boolean at(x10::lang::Place p) {
-                return location == p->FMGL(id);
-            }
-           
-            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
-            
-            virtual x10::lang::Place home();
-
             virtual x10_int hashCode();
             
             virtual x10aux::ref<String> toString();
