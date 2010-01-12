@@ -538,9 +538,10 @@ For constrained types, both the base
 type and the constraint are checked.
 If the
 value cannot be cast to the appropriate type, a
-\xcd"TypeCastException"
-is thrown. If the value cannot be cast to the
-appropriate place type a \xcd"BadPlaceException" is thrown. 
+\xcd"ClassCastException"
+is thrown. 
+%If the value cannot be cast to the
+%appropriate place type a \xcd"BadPlaceException" is thrown. 
 
 % Any attempt to cast an expression of a reference type to a value type
 % (or vice versa) results in a compile-time error. Some casts---such as
@@ -563,7 +564,7 @@ In the above expression, \grammarrule{Type} is any type.
 At run time, the result of this operator is
 \xcd"true" if the \grammarrule{RelationalExpression} can be
 coerced
-to \grammarrule{Type} without a \xcd"TypeCastException" being
+to \grammarrule{Type} without a \xcd"ClassCastException" being
 thrown.  Otherwise the result is \xcd"false".
 This determination may involve checking
 that the

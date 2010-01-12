@@ -87,7 +87,8 @@ Let \xcd"R" be a region. A subset of \xcd"R" is also called a
 {\em sub-region}.\index{region!sub-region}
 
 Let \xcdmath"R$_1$" and \xcdmath"R$_2$" be two regions whose type
-establishes that they are of the same rank.
+establishes that they are of the same rank. Let 
+\xcdmath"S" be a region of unrelated rank.
 
 \xcdmath"R$_1$ && R$_2$" is the intersection of \xcdmath"R$_1$" and
 \xcdmath"R$_2$". 
@@ -100,14 +101,15 @@ establishes that they are of the same rank.
 \xcdmath"R$_1$ - R$_2$" is the set difference of \xcdmath"R$_1$" and
 \xcdmath"R$_2$".\index{region!set difference}
 
-\xcdmath"R$_1$ * R$_2$" is the Cartesian product of \xcdmath"R$_1$" and
-\xcdmath"R$_2$", 
-formed by pairing each point in \xcdmath"R$_1$"
-with every the point in \xcdmath"R$_2$".
+\xcdmath"R$_1$ * S" is the Cartesian product of \xcdmath"R$_1$" and
+\xcdmath"S",  formed by pairing each point in \xcdmath"R$_1$" with every the point in \xcdmath"S".
 \index{region!product}
-Thus, \xcd"(1..2) * (3..4)"
-is the region consisting of the points
-$\{$\xcd"(1,3)", \xcd"(1,4)", \xcd"(2,3)", \xcd"(2,4)"$\}$.
+Thus, \xcd"([1..2,3..4] as Region 2) * (5..6)"
+is the region of rank \Xcd{3} containing the points \Xcd{(x,y,z)}
+where \Xcd{x} is \Xcd{1} or \Xcd{2}, 
+\Xcd{y} is \Xcd{3} or \Xcd{4}, and
+\Xcd{z} is \Xcd{5} or \Xcd{6}. 
+
 
 For a region \xcdmath"R" and point \xcdmath"p" of the same rank 
 \xcdmath"R+p" and \xcdmath"R-p" represent the translation of the region
@@ -121,4 +123,5 @@ for \xcdmath"R-p".)
 %% Two regions are equal (\xcd"==") if they represent the same set of
 %% points.\index{region!==}
 
-For more details on the available methods on \xcdmath"Region", please consult the API documentation.
+For more details on the available methods on \xcdmath"Region", please
+consult the API documentation.

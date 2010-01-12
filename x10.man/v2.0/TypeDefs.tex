@@ -1,5 +1,3 @@
-\section{Type definitions}
-
 With value arguments, type arguments, and constraints, the
 syntax for \Xten{} types can often be verbose;
 \Xten{} therefore provides {\em type definitions}
@@ -33,7 +31,7 @@ parameters or with different types of value
 parameters, according to the method overloading rules
 (\Sref{MethodOverload}), define distinct type constructors.
 
-Type definitions may appear as a class or interface member or
+Type definitions may appear as (static) class or interface member or
 in a block statement.
 
 Type definitions are applicative, not generative; that is, they
@@ -50,7 +48,7 @@ c: C = b + ", Mom!";
 % An instance of a defined type with no type parameters and no
 % value parameters may 
 If a type definition has no type parameters and no value
-parameters and is an alias for a class type, then a \xcd"new"
+parameters and is an alias for a class type, a \xcd"new"
 expression may be used to create an instance of the class using
 the type definition's name.
 Given the following type definition:
