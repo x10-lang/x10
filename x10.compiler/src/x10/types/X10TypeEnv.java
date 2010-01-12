@@ -36,7 +36,7 @@ public interface X10TypeEnv extends TypeEnv {
 
     boolean isSubtypeWithValueInterfaces(Type t1, Type t2);
 
-    boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces);
+    boolean isSubtype(Type t1, Type t2);
    
     
     /**
