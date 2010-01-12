@@ -375,37 +375,56 @@ public class Synthesizer {
 		
 	}
 	
-	public Closure makeClosure(Position pos, Type retType, Block body,
-			 X10Context context) {
+	public Call makeInstanceCall(Position pos, 
+			Receiver receiver, 
+			Name name,
+			List<TypeNode> typeArgsN, 
+			List<Expr> args,
+			Type returnType,
+			List<Type> argTypes,
+			X10Context xc) throws SemanticException {
+		
+        List<Type> typeArgs = new ArrayList<Type>();
+        for (TypeNode t : typeArgsN) typeArgs.add(t.type());
+        MethodInstance mi = xts.findMethod(receiver.type(),
+                xts.MethodMatcher(receiver.type(), name, typeArgs, argTypes, xc));
+        Call result= (Call) xnf.X10Call(pos, 
+        		receiver,
+                xnf.Id(pos, name), 
+                typeArgsN,
+                args)
+                .methodInstance(mi)
+                .type(returnType);
+        return result;
+		
+	}
+	/**
+	 * Return a synthesized AST node for (parms):retType => body, at the given position and context.
+	 * @param pos
+	 * @param retType
+	 * @param parms
+	 * @param body
+	 * @param context
+	 * @return
+	 */
+	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context) {
+		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context);
+	}
+	
+	/**
+	 * Return a synthesized AST node for ():retType => body, at the given position and context.
+	 * @param pos
+	 * @param retType
+	 * @param parms
+	 * @param body
+	 * @param context
+	 * @return
+	 */
+	
+	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
 		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
 	}
-	 public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body,
-			 X10Context context) {
-	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
-	        List<LocalDef> fNames = new ArrayList<LocalDef>();
-	        for (Formal f : parms) {
-	            fTypes.add(Types.ref(f.type().type()));
-	            fNames.add(f.localDef());
-	        }
-	        ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
-	                Types.ref(context.currentCode().asInstance()),
-	                Types.ref(retType), 
-	            //    Collections.EMPTY_LIST,
-	                fTypes, 
-	                (XRoot) null, 
-	                fNames, 
-	                null, 
-	             //   null, 
-	                Collections.EMPTY_LIST);
-	        Closure closure = (Closure) xnf.Closure(pos, //Collections.EMPTY_LIST,
-	                parms, 
-	                null, 
-	                xnf.CanonicalTypeNode(pos, retType),
-	                Collections.EMPTY_LIST, body)
-	                .closureDef(cDef)
-	                .type(xts.closureAnonymousClassDef(cDef).asType());
-	        return closure;
-	    }
+	 
 	 
 	 public Block toBlock(Stmt body) {
 		   return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);

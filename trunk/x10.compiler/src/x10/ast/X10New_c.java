@@ -501,9 +501,13 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        Type tp = ci.returnType();
-      
-        if (!ts.isSubtype(tp, t, tc.context())) {
+        X10Type tp = (X10Type) ci.returnType();
+        X10Type tp1 = (X10Type) tp.copy();
+        if (tp1.isProto()) {
+        	tp1 = 	tp1.clearFlags(X10Flags.PROTO);
+        }
+        
+        if (!ts.isSubtype(tp1, t, tc.context())) {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
         }
 

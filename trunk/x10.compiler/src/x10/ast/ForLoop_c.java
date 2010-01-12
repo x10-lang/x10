@@ -69,6 +69,9 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 		return succs;
 	}
 
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		return super.typeCheck(tc);
+	}
 	/** Type check the statement. */
 //	public Node typeCheck(TypeChecker tc) throws SemanticException {
 //		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);

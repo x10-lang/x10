@@ -587,8 +587,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		Receiver target = target();
 		
 		
-		// Method invocations on structs and values are always permitted
-		if (! ts.isSubtype(target.type(), ts.Object(), xc))
+		// Method invocations on structs are always permitted
+		if (ts.isStructType(target.type()))
+		//if (! (ts.isSubtype(target.type(), ts.Object(), xc) || ts.isInterfaceType(target.type())))
 			return;
 
 

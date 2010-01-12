@@ -59,6 +59,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.Matcher;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -895,4 +896,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	public Name getNewVarName() {
 		return Name.make(MAGIC_VAR_PREFIX + (varCount++));
 	}
+	
+	
 }

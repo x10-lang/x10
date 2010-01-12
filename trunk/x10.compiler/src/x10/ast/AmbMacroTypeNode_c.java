@@ -23,6 +23,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
@@ -30,6 +31,7 @@ import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
@@ -52,11 +54,12 @@ import x10.types.TypeDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
+import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 
-public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
+public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, AddFlags {
    
     protected Prefix prefix;
     protected Id name;
@@ -103,6 +106,10 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
     
     public List<Expr> args() {
         return this.args;
+    }
+    Flags flags;
+    public void addFlags(Flags f) {
+  	  this.flags = f;
     }
     public AmbMacroTypeNode args(List<Expr> args) {
 	    AmbMacroTypeNode_c n = (AmbMacroTypeNode_c) copy();
@@ -350,7 +357,11 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
         	}
             }
         }
-        
+        if (n.flags != null) {
+        	t = ((X10Type) t).setFlags(flags);
+        	n.flags = null;
+        }
+
         // Update the symbol with the base type so that if we try to get the type while checking the constraint, we don't get a cyclic
         // dependency error, but instead get a less precise type.
         sym.update(t);
@@ -404,12 +415,14 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
     }
     
     Node postprocess(CanonicalTypeNode result, AmbMacroTypeNode_c n, ContextVisitor childtc) throws SemanticException {
-        n = (AmbMacroTypeNode_c) X10Del_c.visitAnnotations(n, childtc);
-        
-        result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
-	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
+    	n = (AmbMacroTypeNode_c) X10Del_c.visitAnnotations(n, childtc);
 
-	return result.del().typeCheck(childtc);
+    	result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
+    	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
+    	result = (CanonicalTypeNode) result.del().typeCheck(childtc);
+    
+    	
+    	return result;
     }
     
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {

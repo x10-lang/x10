@@ -63,7 +63,18 @@ import x10.types.X10ClassDef;
 import x10.types.X10MemberDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
+import x10.util.ClosureSynthesizer;
 
+/**
+ * An implementation of a closure literal in the source text.
+ * 
+ * It has associated with it a ClosurDef.
+ * 
+ * Its type is an anonymous class that implements the Fun_m_n synthesized interface associated with ClosureDef.
+ * @author vj
+ *
+ */
 public class Closure_c extends Expr_c implements Closure {
   //  List<TypeParamNode> typeParameters;
     List<Formal> formals;
@@ -364,7 +375,7 @@ public class Closure_c extends Expr_c implements Closure {
 
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        X10TypeSystem x10ts = (X10TypeSystem) tc.typeSystem();
+        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 
         Context c = tc.context();
         Closure_c n = this;
@@ -374,7 +385,7 @@ public class Closure_c extends Expr_c implements Closure {
             Type t = tn.type();
             if (! t.isThrowable()) {
                 throw new SemanticException("Type \"" + t +
-                    "\" is not a subclass of \"" + x10ts.Throwable() + "\".",
+                    "\" is not a subclass of \"" + xts.Throwable() + "\".",
                     tn.position());
             }
         }
@@ -383,20 +394,18 @@ public class Closure_c extends Expr_c implements Closure {
         	NodeFactory nf = tc.nodeFactory();
         	TypeSystem ts = tc.typeSystem();
         	// Body had no return statement.  Set to void.
-        	Type t;
-        	if (! (((Ref<Type>) n.returnType().typeRef()).getCached() instanceof UnknownType)) {
-        		t = ((Ref<Type>) n.returnType().typeRef()).getCached();
-        	}
-        	else {
+        	Ref<Type> tr=((Ref<Type>) n.returnType().typeRef());
+        	Type t = tr.getCached();
+        	if (t instanceof UnknownType) {
         		t = ts.Void();
         	}
-        	((Ref<Type>) n.returnType().typeRef()).update(t);
+        	tr.update(t);
         	n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
         }
         
         // Create an anonymous subclass of the closure type.
         ClosureDef def = n.closureDef;
-        ClassDef cd = x10ts.closureAnonymousClassDef(def);
+        ClassDef cd = ClosureSynthesizer.closureAnonymousClassDef(xts, def);
         return n.type(cd.asType());
     }
     
@@ -493,7 +502,7 @@ public class Closure_c extends Expr_c implements Closure {
 	    if (iter.hasNext()) sb.append(", ");
 	}
 	sb.append(")");
-	sb.append(guard);
+	sb.append(guard==null?"{}":guard);
 	sb.append(": ");
 	sb.append(returnType.toString());
 	if (throwTypes.size() > 0) {

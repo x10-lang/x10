@@ -1,9 +1,9 @@
 package x10.util;
 
 public abstract class MapSet[T] extends AbstractCollection[T] implements Set[T] {
-    val map: Map[T,boolean];
+    val map: Map[T,boolean]!;
     
-    public def this(map: Map[T,boolean]) { this.map = map; }
+    public def this(map: Map[T,boolean]!) { this.map = map; }
   
     public def size(): Int = map.keySet().size();
     public def contains(v: T): Boolean = map.containsKey(v);

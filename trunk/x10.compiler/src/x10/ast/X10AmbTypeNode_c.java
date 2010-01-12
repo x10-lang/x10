@@ -139,7 +139,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               }
           }
           else if (prefix instanceof Expr) {
-              throw new InternalCompilerError("non-static type members not implemented", pos);
+              throw new SemanticException("Non-static type members not implemented: " + prefix + " cannot be understood.", pos);
           }
     
           if (typeDefContainer != null) {
