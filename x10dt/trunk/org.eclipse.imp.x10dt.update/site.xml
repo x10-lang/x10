@@ -12,11 +12,11 @@
    <feature url="features/org.eclipse.imp.runtime_0.1.101.jar" id="org.eclipse.imp.runtime" version="0.1.101">
       <category name="preReqs"/>
    </feature>
-   <feature url="features/org.eclipse.imp.x10dt_2.0.0.1.jar" id="org.eclipse.imp.x10dt" version="2.0.0.1">
-      <category name="x10dt"/>
-   </feature>
    <feature url="features/org.eclipse.imp.java.hosted_0.1.1.jar" id="org.eclipse.imp.java.hosted" version="0.1.1">
       <category name="preReqs"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_2.0.1.vYYYYmmddhhmm.jar" id="org.eclipse.imp.x10dt" version="2.0.1.vYYYYmmddhhmm">
+      <category name="x10dt"/>
    </feature>
    <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
    <category-def name="preReqs" label="X10DT pre-requisites"/>
