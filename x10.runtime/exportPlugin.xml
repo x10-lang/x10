@@ -6,7 +6,7 @@
 	<!-- ================================================================================= -->
 
 	
-	<target name="plugin.jar" depends="init,javaInit" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
+	<target name="plugin.jar" depends="init,javaInit,munge.manifest" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
 		<mkdir dir="${build.result.folder}"/>
@@ -16,7 +16,7 @@
 		<mkdir dir="${gen}"/>
 			<echo message="gen=${gen}"/>
 		<ant antfile="build.xml" target="build-xrx"/>
-		 <jar jarfile="${build.result.folder}/${plugin.jar.name}"  manifest="META-INF/MANIFEST.MF" >
+		 <jar jarfile="${build.result.folder}/${plugin.jar.name}"  manifest="${temp.folder}/MANIFEST.MF" >
 		            <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
 		            <fileset dir="${build}/gen" includes="x10/**/*.class" excludes="${jar}"/>
 		            <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
