@@ -16,7 +16,7 @@ public interface Any {
     property def home():Place;
 	
     @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "((#0)->home == (#1)->home)")
+    @Native("c++", "((#0)->location == (#1)->location)")
     property def at(p:Object):Boolean;
 	
     @Native("java", "x10.core.Ref.at(#0, #1.id)")

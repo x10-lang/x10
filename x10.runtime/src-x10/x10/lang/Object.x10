@@ -53,7 +53,7 @@ public class Object (
     public property safe def at(p:Place) = home==p;
 
     @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "((#0)->home == (#1)->home)")
+    @Native("c++", "((#0)->location == (#1)->location)")
     public property safe def at(r:Object) = home==r.home;
     
     @Native("java", "x10.core.Ref.typeName(#0)")
