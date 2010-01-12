@@ -2,11 +2,16 @@ Release 2.0.1
 
 This release includes both the C++ and Java code generation backends.
 
-There were no major language changes since the 2.0.0 release.
+The following significant language changes were made since the 2.0.0 release:
+- The interface x10.lang.Any was introduced to specify the operations 
+  available on all X10 types.
+- A number of clarifications and errors were corrected in the language 
+  specification.
+For details on these and other more minor changes, please consult the
+language specification included in the X10 release.
 
 The following features described in the 2.0 language manual do not
-currently work with the Java backend and will be fixed in the subsequent
-releases:
+currently work and will be fixed in the subsequent releases:
 
 - Non-static type definitions as class or interface members
   (static type defs do work)
@@ -16,7 +21,7 @@ releases:
 - Shared local variables
 - Extern methods
 
-Additionally, the following features described in the 2.0 language
+Additionally, the following features described in the language
 manual do not currently work with the C++ backend and will be fixed in
 the subsequent releases:
 
