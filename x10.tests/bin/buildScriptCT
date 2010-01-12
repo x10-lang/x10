@@ -274,7 +274,7 @@ if [[ -z "$CVS_RSH" ]]; then
 fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
-	export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
+	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
 fi
 
 if [[ -z "$POLYGLOT_SVNROOT" ]]; then
