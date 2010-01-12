@@ -27,13 +27,17 @@ namespace x10 {
                 itable(R(I::*apply)(P1,P2,P3,P4,P5,P6,P7),
                        x10_boolean (I::*_m0__at)(x10aux::ref<x10::lang::Object>),
                        x10_boolean (I::*_m1__at)(x10::lang::Place),
+                       x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>),
+                       x10_int (I::*hashCode)(),
                        x10::lang::Place (I::*home)(),
                        x10aux::ref<x10::lang::String> (I::*toString)(),
                        x10aux::ref<x10::lang::String> (I::*typeName)()
-                    ) : apply(apply), _m0__at(_m0__at), _m1__at(_m1__at), home(home), toString(toString), typeName(typeName) {}
+                    ) : apply(apply), _m0__at(_m0__at), _m1__at(_m1__at), equals(equals), hashCode(hashCode), home(home), toString(toString), typeName(typeName) {}
                 R (I::*apply)(P1,P2,P3,P4,P5,P6,P7);
                 x10_boolean (I::*_m0__at)(x10aux::ref<x10::lang::Object>);
                 x10_boolean (I::*_m1__at)(x10::lang::Place);
+                x10_boolean (I::*equals)(x10aux::ref<x10::lang::Any>);
+                x10_int (I::*hashCode)();
                 x10::lang::Place (I::*home)();
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();

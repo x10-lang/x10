@@ -32,10 +32,10 @@ public interface Any {
     global safe def typeName():String;
     
     @Native("java", "#0.equals(#1)")
-     @Native("c++", "x10aux::equals(#0,#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
     global safe def equals(Any):Boolean;
 	
     @Native("java", "#0.hashCode()")
-      @Native("c++", "x10aux::hash_code(#0)")
-	global safe def hashCode():Int;
+    @Native("c++", "x10aux::hash_code(#0)")
+    global safe def hashCode():Int;
 }

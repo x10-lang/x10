@@ -224,6 +224,8 @@ namespace x10 {
 
         template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::at,
                                                                                                      &Rail<T>::at,
+                                                                                                     &Rail<T>::equals,
+                                                                                                     &Rail<T>::hashCode,
                                                                                                      &Rail<T>::home,
                                                                                                      &Rail<T>::iterator,
                                                                                                      &Rail<T>::toString,
@@ -231,6 +233,8 @@ namespace x10 {
 
         template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::at,
                                                                                                               &Rail<T>::at,
+                                                                                                              &Rail<T>::equals,
+                                                                                                              &Rail<T>::hashCode,
                                                                                                               &Rail<T>::home,
                                                                                                               &Rail<T>::set,
                                                                                                               &Rail<T>::toString,

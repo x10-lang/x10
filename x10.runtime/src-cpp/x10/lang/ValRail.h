@@ -127,6 +127,8 @@ namespace x10 {
 
         template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::at,
                                                                                                           &ValRail<T>::at,
+                                                                                                          &ValRail<T>::equals,
+                                                                                                          &ValRail<T>::hashCode,
                                                                                                           &ValRail<T>::home,
                                                                                                           &ValRail<T>::iterator,
                                                                                                           &ValRail<T>::toString,
@@ -135,6 +137,8 @@ namespace x10 {
         template<class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply,
                                                                                                             &ValRail<T>::at,
                                                                                                             &ValRail<T>::at,
+                                                                                                            &ValRail<T>::equals,
+                                                                                                            &ValRail<T>::hashCode,
                                                                                                             &ValRail<T>::home,
                                                                                                             &ValRail<T>::toString,
                                                                                                             &ValRail<T>::typeName);
