@@ -5,7 +5,7 @@
     <property name="tmp" location="${basedir}/tmp"/>
     <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
-    <property name="x10.version" value="2.0.0"/>
+    <property name="x10.version" value="2.0.1"/>
     <property name="x10.timestamp" value="${x10.version}"/> <!-- override if version is, e.g., "svn head" -->
     <property name="x10.platform" value="cygwin_x86"/>
     <property name="x10.dist.location" location="${tmp}"/>
