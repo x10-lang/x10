@@ -19,8 +19,8 @@ import x10.compiler.NativeClass;
  * the Handle may be mapped to distinct objects.  For example (assuming >1 Place):
  * <verbatim>
  *   val plh:PlaceLocalHandle[T] = ....
- *   val obj:T = plh.get();
- *   at (here.next()) Console.out.println(plh.get() == obj);
+ *   val obj:T = plh();
+ *   at (here.next()) Console.out.println(plh() == obj);
  * </verbatim>
  * may print either true or false depending on how the application is
  * using the particular PlaceLocalHandle (mapping the same object at
