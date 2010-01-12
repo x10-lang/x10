@@ -1253,7 +1253,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream sh = context.structHeader;
         ClassifiedStream h = sw.header();
         boolean seenToString = false;
-        boolean seenHashCode = false;  // Temporary HACK.  autodefine hashCode if not userdefined until machinery for Equality interface comes online.
+        boolean seenHashCode = false;  // autodefine hashCode if not userdefined
+        boolean seenEquals = false;  // autodefine equals(Any) if not userdefined
+
 
         sh.write("public:");
         sh.newline();
@@ -1309,6 +1311,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             !mdecl.flags().flags().isStatic() &&
                             xts.typeBaseEquals(xts.Int(), mdecl.returnType().type(), context)) {
                         seenHashCode = true;
+                    }
+                    if (mdecl.name().id().toString().equals("equals") &&
+                            mdecl.formals().size() == 1 &&
+                            xts.typeBaseEquals(xts.Any(), mdecl.formals().get(0).type().type(), context) && 
+                            !mdecl.flags().flags().isStatic() &&
+                            xts.typeBaseEquals(xts.Boolean(), mdecl.returnType().type(), context)) {
+                        seenEquals = true;
                     }
 
                 }
@@ -1370,10 +1379,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static x10::lang::Place home("+Emitter.translateType(currentClass, false)+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
         h.writeln("static x10aux::ref<x10::lang::String> typeName("+Emitter.translateType(currentClass, false)+" this_) { return this_->typeName(); }");
 
+        // All types support equals(Any).  If there is no user-defined equals, then we define one here.
+        if (!seenEquals) {
+            h.writeln("static x10_boolean equals("+Emitter.translateType(currentClass, false)+" this_, x10aux::ref<x10::lang::Any> that) { return false; /* FIXME.  This is wrong */}");
+        }
+
         // All types support toString.  If there is no user-defined toString, then we define one here.
-        // We also have to define a redirection method so that toString is actually defined
-        // on the struct class, not just in the structMethods.  This is to fit in with
-        // how toString is used in x10aux::basic_functions.
+        // We also have to define a redirection method from the struct itself to the implementation
+        // in struct_methods to support usage patterns of toString in x10aux.
         if (seenToString) {
             // define redirection method
             sh.writeln("x10aux::ref<x10::lang::String> toString();"); sh.forceNewline();
@@ -1395,7 +1408,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.writeln("static x10aux::ref<x10::lang::String> toString("+Emitter.translateType(currentClass, false)+" this_) { return this_->toString(); }");
         }
 
-        // HACKS for hashCode.  To be removed once Equality is implemented.
+        // All types support hashCode.  If there is no user-defined toString, then we define one here.
+        // We also have to define a redirection method from the struct itself to the implementation
+        // in struct_methods to support usage patterns of toString in x10aux.        
         if (seenHashCode) {
             // define redirection method
             sh.writeln("x10_int hashCode();"); sh.forceNewline();
@@ -1425,6 +1440,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.writeln("return result;");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
+            h.writeln("static x10_int hashCode("+Emitter.translateType(currentClass, false)+" this_) { return this_->hashCode(); }");
         }
 
         // define typeName
