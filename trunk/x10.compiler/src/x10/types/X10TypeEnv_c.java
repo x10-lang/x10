@@ -256,12 +256,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	List<Type> bounds = bounds(t, Bound.UPPER, includeObject);
         return bounds;
     }
-    public List<Type> upperTypeBounds(Type t, boolean includeObject) {
-    	List<Type> bounds = typeBounds(t, Bound.UPPER, includeObject);
+    public List<Type> upperTypeBounds(Type t) {
+    	List<Type> bounds = typeBounds(t, Bound.UPPER);
         return bounds;
     }
     public List<Type> lowerTypeBounds(Type t) {
-    	List<Type> bounds = typeBounds(t, Bound.LOWER, false);
+    	List<Type> bounds = typeBounds(t, Bound.LOWER);
         return bounds;
     }
     /* (non-Javadoc)
@@ -368,7 +368,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return Kind.NEITHER;
     }
 
-    List<Type> typeBounds(Type t, Bound kind, boolean includeObject) {
+    List<Type> typeBounds(Type t, Bound kind) {
         List<Type> result = new ArrayList<Type>();
         Set<Type> visited = new HashSet<Type>();
         
@@ -450,15 +450,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         
         if (kind == Bound.UPPER && result.isEmpty())
             return Collections.<Type>singletonList(ts.Any());
-         /*   if (includeObject)
-                return Collections.<Type>singletonList(ts.Object());
-            else
-                return Collections.<Type>emptyList();
-        */
         return new ArrayList<Type>(result);
     }
 
-    List<Type> bounds(Type t, Bound kind, boolean includeObject) {
+    List<Type> bounds(Type t, Bound kind, boolean  includeObject) {
         List<Type> result = new ArrayList<Type>();
         Set<Type> visited = new HashSet<Type>();
         
@@ -653,7 +648,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public boolean isSubtype(Type t1, Type t2) {
-        return isSubtype(t1, t2, true);
+        return isSubtype(null, t1, t2);
     }
 
     public boolean behavesLike(Type t1, Type t2) {
@@ -662,26 +657,23 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (xt1.isX10Struct() || xt1.isX10Struct()) {
     		if (xt1.isX10Struct() != xt2.isX10Struct())
     			return false;
-    		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2), true);
+    		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2));
     	}
     	// both are class types
-    	return isSubtype(t1, t2, true);
+    	return isSubtype(t1, t2);
     }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtypeWithValueInterfaces(polyglot.types.Type, polyglot.types.Type)
      */
     public boolean isSubtypeWithValueInterfaces(Type t1, Type t2) {
-        return isSubtype(null, t1, t2, true);
+        return isSubtype(null, t1, t2);
     }
    
-    public boolean isSubtype(Type t1, Type t2, boolean allowValueInterfaces) {
-    	return isSubtype(null, t1, t2, true);
-    }
 
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
-    public boolean isSubtype(XVar x, Type t1, Type t2, boolean allowValueInterfaces) {
+    public boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
     	t1 = ts.expandMacros(t1);
@@ -802,12 +794,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			SubtypeConstraint eq = term;
     			Type l = eq.subtype();
     			Type r = eq.supertype();
-    			if (tenv.isSubtype(t1, l, allowValueInterfaces) 
-    					&& tenv.isSubtype(r, t2, allowValueInterfaces)) {
+    			if (tenv.isSubtype(t1, l) 
+    					&& tenv.isSubtype(r, t2)) {
     				return true;
     			}
-    			if (tenv.isSubtype(t1, r, allowValueInterfaces) 
-    					&& tenv.isSubtype(l, t2, allowValueInterfaces)) {
+    			if (tenv.isSubtype(t1, r) 
+    					&& tenv.isSubtype(l, t2)) {
     				return true;
     			}
 
@@ -816,8 +808,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			SubtypeConstraint s = term;
     			Type l = s.subtype();
     			Type r = s.supertype();
-    			if (tenv.isSubtype(t1, l, allowValueInterfaces) 
-    					&& tenv.isSubtype(r, t2, allowValueInterfaces)) {
+    			if (tenv.isSubtype(t1, l) 
+    					&& tenv.isSubtype(r, t2)) {
     				return true;
     			}
     		}
@@ -868,7 +860,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				if (c2 != null)
                       t2 = Subst.subst(t2, x, c2.self());
     			
-    				return tenv.isSubtype(x, baseType1, t2, allowValueInterfaces);
+    				return tenv.isSubtype(x, baseType1, t2);
     			} catch (XFailure z) {
     				throw new InternalCompilerError("Unexpected failure ", z);
     			} catch (SemanticException z) {
@@ -881,7 +873,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	
     	
     	if (baseType2 != t2)
-    	if (isSubtype(x, t1, baseType2, allowValueInterfaces) && entails(c1,c2))
+    	if (isSubtype(x, t1, baseType2 ) && entails(c1,c2))
     		return true;
 
     	/*if (t1 instanceof PrimitiveType && typeEquals(t2, ts.Value())) {
@@ -910,11 +902,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					ParameterType.Variance v = def.variances().get(i);
     					switch (v) {
     					case COVARIANT:
-    						if (! isSubtype(a1, a2, allowValueInterfaces)) 
+    						if (! isSubtype(a1, a2)) 
     							return false;
     						break;
     					case CONTRAVARIANT:
-    						if (! isSubtype(a2, a1, allowValueInterfaces)) 
+    						if (! isSubtype(a2, a1)) 
     							return false;
     						break;
     					case INVARIANT:
@@ -935,14 +927,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     			// Check subclass relation.
     			if (childRT.superClass() != null) {
-    				if (this.isSubtype(x, childRT.superClass(), ancestor, allowValueInterfaces)) {
+    				if (this.isSubtype(x, childRT.superClass(), ancestor)) {
     					return true;
     				}
     			}
-
-    			boolean allowValueInterfacesHere = allowValueInterfaces;
-    			if (ts.isReferenceOrInterfaceType(childRT, xcontext))
-    				allowValueInterfacesHere = true;
 
     			// Next check interfaces.
     			List<Type> l = childRT.interfaces();
@@ -956,28 +944,24 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					throw new InternalCompilerError("Unexpected semantic exception " + z);
     				}
 
-    				if (allowValueInterfacesHere 
-    					) {
-    					if (isSubtype(x, parentType, ancestor, allowValueInterfaces)) {
-    						return true;
-    					}
+
+    				if (isSubtype(x, parentType, ancestor)) {
+    					return true;
     				}
+    				
     			}
     		}
     	}
 
-    	/*
-    	 * Do not allowValueInterfaces. A type parameter T is not a subtype of Object.
-    	 */
     	if (t1 instanceof ParameterType) {
-    		for (Type s1 : upperTypeBounds(t1, false)) {
-    			if (isSubtype(x, s1, t2, false))
+    		for (Type s1 : upperTypeBounds(t1)) {
+    			if (isSubtype(x, s1, t2))
     				return true;
     		}
     	}
     	if (t2 instanceof ParameterType) {
     		for (Type s2 : lowerTypeBounds(t2)) {
-    			if (isSubtype(x, t1, s2, allowValueInterfaces))
+    			if (isSubtype(x, t1, s2))
     				return true;
     		}
     	}
