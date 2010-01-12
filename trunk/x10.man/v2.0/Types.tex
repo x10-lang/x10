@@ -49,6 +49,27 @@ expressions.\footnote{In order to allow this version of the language
   user-definable class loaders, though there is no technical reason
   why they could not have been added.}
 
+\Xten{} has a unified type system. The top of the type hierarchy
+is the interface \Xcd{x10.lang.Any}. This specifies the following signature:
+\begin{xten}
+package x10.lang;
+public interface Any {
+  property def home():Place;
+  property def at(p:Object):Boolean;
+  property def at(p:Place):Boolean;
+  global safe def toString():String;
+  global safe def equals(Any):Boolean;
+  global safe def hashCode():Int;
+}
+\end{xten}
+
+Properties are described in (\Sref{properties}): in brief they are
+immutable instance fields of objects and structs that can be used to
+construct types through constraints. Property methods (\Sref{properties}) permit
+more complex expressions to be defined using properties and other property methods.
+A method is \Xcd{safe} if it has certain behavioral characteristics \Sref{SafeAnnotation}.
+It is \Xcd{global} if it can be invoked at any place.
+
 Types in \Xten{} are specified through declarations and through
 type constructors, described in the remainder of the chapter:
 
@@ -154,7 +175,7 @@ singleton classes to carry mutable static state.
 
         Classes
         are structured in a
-        single-inheritance hierarchy.  All reference classes
+        single-inheritance hierarchy.  All classes
         extend the class \xcd"x10.lang.Object".
         Classes are declared to extend a single
         superclass (except for \xcd"Object", which extends
@@ -182,7 +203,7 @@ public class Object {
 \index{\Xcd{Object}}
 \index{\Xcd{x10.lang.Object}}
 
-Variables of reference class type may contain the value \xcd"null". 
+Variables of class type may contain the value \xcd"null". 
 
 \subsection{Interface types}
 \label{InterfaceTypes}
@@ -207,11 +228,10 @@ instances of classes that implement the interface. A class implements
 an interface if it is declared to and if it implements all the methods
 and properties defined in the interface.
 
-\subsection{Value properties}
-
-\index{properties!value properties}
-
-        Classes and interfaces may have {\em value properties},
+\subsection{Properties}
+\index{properties}
+\label{properties}
+        Classes and interfaces may have {\em properties},
         public final instance fields bound on object creation.  
 %
         For example, the following code declares a class named
@@ -226,7 +246,7 @@ class Point(x: Int, y: Int) {
 }
 \end{xten}
 
-        The value properties of a class or interface may be
+        The properties of a class or interface may be
         constrained with a boolean expression.  The type
         \xcd"Point{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
@@ -315,6 +335,18 @@ class Set[-X] {
 The \xcd"X" parameter of the \xcd"Get" class is covariant;
 the \xcd"X" parameter of the \xcd"Set" class is contravariant.
 
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+\begin{itemize}
+\item The return type of a method is a covariant position.
+\item The argument types of a method are contravariant positions.
+\item Whether a type argument position of a generic class, interface or struct type \Xcd{C}
+is covariant or contravariant is determined by the \Xcd{+} or \Xcd{-} annotation
+at that position in the declaration of \Xcd{C}.
+
+\end{itemize}
+
+
 Given types \xcd"S" and \xcd"T".
 \begin{itemize}
 \item
@@ -333,99 +365,12 @@ If the parameter of \xcd"Cell" is invariant, then
 \xcd"S" is a {\em equal} to \xcd"T".
 \end{itemize}
 
-
-
 \section{Type definitions}
 \label{TypeDefs}
 
 \index{types!type definitions}
 \index{declarations!type definitions}
-\index{types!path types}
-
-        Types may be defined through {\em type definitions}.
-        A type definition is a type alias or a type-valued function
-        that maps value and type parameters to another type.
-        A type definition may appear as a static or instance
-        class or interface
-        member or in a statement block.
-
-        Type definitions may have zero or more type parameters
-        and value parameters.
-The general form of a type definition is:
-
-\begin{xtenmath}
-type X[Y$_1$, $\dots$, Y$_m$](x$_1$: T$_1$, $\dots$ x$_n$: T$_n$){c} = U;
-\end{xtenmath}
-
-\xcdmath"Y$_1$", \dots, \xcdmath"Y$_m$"
-are the type parameters of \xcd"X";
-\xcdmath"x$_1$", \dots, \xcdmath"x$_n$"
-are the value parameters of \xcd"X" with types
-\xcdmath"T$_1$", \dots, \xcdmath"T$_n$".
-The constraint \xcd"c" is called the \emph{guard} of
-\xcd"X".  Finally, \xcd"U" is the defining type of \xcd"X".
-\label{TypeDefGuard}
-
-The expression \xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
-denotes a type whenever 
-\xcdmath"S$_1$", \dots, \xcdmath"S$_m$" are type arguments and 
-\xcdmath"e$_1$", \dots, \xcdmath"e$_n$" are value arguments with
-types \xcdmath"T$_1$", \dots, \xcdmath"T$_n$"
-such that the guard \xcd"c" holds. The type denoted is
-the defining type \xcd"U" with the appropriate substitutions applied:
-\xcdmath"U[S$_1$/Y$_1$,$\dots$,S$_m$/Y$_m$,e$_1$/x$_1$,$\dots$,e$_n$/x$_n$)".
-
-        If the type definition 
-        is a static member of a class or
-        interface \xcd"C", then the type definition
-        defines the type constructor \xcd"C.X"
-and
-\xcdmath"C.X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
-is a type.
-
-        If the type definition 
-        is an instance member of a class or
-        interface \xcd"C", then, for a final access path expression \xcd"e" of type \xcd"C",
-        the type definition
-        defines the type constructor \xcd"e.X"
-and
-\xcdmath"e.X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
-is a type.
-
-        If the type definition 
-        appears in a statement block, then it
-        defines the type constructor \xcd"X", visible in the
-        remainder of the block,
-and
-\xcdmath"X[S$_1$, $\dots$, S$_m$](e$_1$, $\dots$, e$_n$)"
-is a type.
-
-\section{Path types and path type constructors}
-
-\index{types!path types}
-\index{final access path}
-
-\iftypeparams
-Instance member type definitions declare \emph{path types}.
-
-If the type definition is parametrized, the definition specifies
-a type constructor; instantiating the parameters yields a type.
-A path type (constructor)
-is of the form \xcd"p.X", and consists of a final access path
-\xcd"p", and a type member \xcd"X".
-The final access path \xcd"p" must be either \xcd"this", \xcd"self", a final
-local variable, or a final field or value property whose target
-is itself a final access path.  The path must type-check 
-as a normal expression in the scope in which it appears.
-The type member
-\xcd"X" must be an instance member of the type of the
-path \xcd"p".
-
-The name resolution rules for \xcd"X" are identical to the name
-resolution rules for fields and local variables.
-If an identifier \xcd"X" resolves to a type member or property
-of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
-the path type \xcd"T.this.X".
+\input{TypeDefs.tex}
 
 
 \section{Constrained types}

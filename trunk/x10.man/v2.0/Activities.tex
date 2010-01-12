@@ -188,13 +188,13 @@ An activity $A$ executes \xcd"finish S" by executing \xcd"S".  The
 execution of \xcd"S" may spawn other asynchronous activities (here or
 at other places).  Uncaught exceptions thrown or propagated by any
 activity spawned by \xcd"S" are accumulated at \xcd"finish S".
-\xcd"finish S" terminates locally when all activities spawned by \xcd"S"
-terminate globally (either abruptly or normally). If
-\xcd"S" terminates normally, then \xcd"finish S" terminates normally
-and $A$ continues execution with the next statement after \xcd"finish S".
-If \xcd"S" terminates abruptly, then \xcd"finish S"
-terminates abruptly and throws a single exception formed 
-from the collection of exceptions accumulated at \xcd"finish S".
+\xcd"finish S" terminates locally when all activities spawned by
+\xcd"S" terminate globally (either abruptly or normally). If \xcd"S"
+terminates normally, then \xcd"finish S" terminates normally and $A$
+continues execution with the next statement after \xcd"finish S".  If
+\xcd"S" terminates abruptly, then \xcd"finish S" terminates abruptly
+and throws a single exception, \Xcd{x10.lang.MultipleExceptions}
+formed from the collection of exceptions accumulated at \xcd"finish S".
 
 Thus a \xcd"finish S" statement serves as a collection point for
 uncaught exceptions generated during the execution of \xcd"S".
@@ -448,18 +448,22 @@ non-blocking concurrent algorithms.
 \begin{staticrule*}
 In \xcd"atomic S", \xcd"S" may include method calls,
 conditionals, etc.
-It may {\em not} include an \xcd"async" activity.
+
+It may {\em not} include an \xcd"async" activity (such as creation
+of a \Xcd{future}).
+
 It may {\em not} include any statement that may potentially block at
 runtime (e.g., \xcd"when", \xcd"force" operations, \xcd"next"
-operations on clocks, \xcd"finish").
-
-\limitation{Not checked in the current implementation.}
-\end{staticrule*}
+operations on clocks, \xcd"finish"). 
 
 All locations accessed in an atomic block must statically satisfy the
 {\em locality condition}: they must belong to the place of the current
-activity.\index{locality condition}\label{LocalityCondition} The
-compiler checks for this condition by checking whether the statement
+activity.\index{locality condition}\label{LocalityCondition} 
+
+\end{staticrule*}
+
+
+The compiler checks for this condition by checking whether the statement
 could be the body of a \xcd"void" method annotated with \xcd"safe" at
 that point in the code (\Sref{SafeAnnotation}).
 

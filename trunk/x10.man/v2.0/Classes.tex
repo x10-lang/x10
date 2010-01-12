@@ -214,16 +214,10 @@ Nevertheless we will find it convenient to permit the programmer to
 explicitly specify a depclause after the list of properties, thus:
 \begin{xten}
 class Point(i: Int, j: Int) { ... }
-class Line(start: Point, end: Point){end != start}
-  = { ... }
+class Line(start: Point, end: Point){end != start} { ... }
 class Triangle (a: Line, b: Line, c: Line)
-        {a.end == b.start && b.end == c.start &&
-         c.end == a.start} = { ... }
-class SolvableQuad(a: Int, b: Int, c: Int)
-                   {a*x*x+b*x+c==0} = { ... }
-class Circle (r: Int, x: Int, y: Int)
-              {r > 0 && r*r==x*x+y*y} = { ... }
-class NonEmptyList extends List{n > 0} {...}
+   {a.end == b.start,  b.end == c.start,
+    c.end == a.start} { ... }
 \end{xten}
 
 Consider the definition of the class \xcd"Line". This may be thought of as
@@ -323,7 +317,7 @@ ConstructorDeclarator \:
   \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
   && ReturnType\opt Guard\opt Throws\opt \\
 ReturnType    \: \xcd":" Type \\
-Guard   \: "{" DepExpression "}" \\
+Guard   \: "\{" DepExpression "\}" \\
 Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
 ExceptionType \: ClassBaseType Annotation\star \\
 \end{grammar}
@@ -335,30 +329,38 @@ may specify a \emph{guard} that is to be satisfied by the parameters
 to the list.
 
 \begin{example}
-Here is another example.
+Here is another example, constructed as a simplified 
+version of \Xcd{x10.lang.Region}.
 \begin{xten}
-public class List[T](n: Int{n >= 0}) {
-    protected head: Box[T];
-    protected tail: List[T](n-1);
-    public def this(o: T, t: List[T]) : List[T](t.n+1) = {
-        n = t.n+1;
-        tail = t;
-        head = o;
-    }
-    public def this() : List[T](0) = {
-        n = 0;
-        head = null;
-        tail = null;
-    }
-    ...
+type MyRegion(n:Int)=MyRegion{self.rank==n};
+class MyRegion(rank:Int) {
+  def this(r:Int):MyRegion(r) {
+    property(r);
+  }
+  def this(diag:ValRail[Int]):MyRegion(diag.length){ 
+   ...
+  }
+  def union(r:MyRegion(n)):MyRegion(n) { ...}
+  ...
+}
 }
 \end{xten}
-The second constructor returns a \xcd"List" that is guaranteed to have
-\xcd"n==0";
-the first constructor is guaranteed to return a List with \xcd"n>0"
-(in fact, \xcd"n==t.n+1", where the argument to the constructor is \xcd"t"). 
-This is recorded by the programmer in the constrained type associated with the
-constructor.
+The first constructor returns the empty region of rank \Xcd{r}.  The
+second constructor takes a \Xcd{ValRail[Int]} or arbitrary length
+\Xcd{n} and returns a \Xcd{MyRegion(n)} (intended to represent the set
+of points in the rectangular parallelopiped between the origin and the
+\Xcd{diag}.)
+
+Now the following code type checks:
+\begin{xten}
+   val R1 = new MyRegion([4,4,4]); // R1's type is MyRegion(3)
+   val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
+\end{xten}
+Hence the following code type checks and infers that \Xcd{R3}'s type is
+\Xcd{MyRegion(3)}:
+\begin{xten}
+   val R3 = R1.union(R2);          // R3's type is MyRegion(3)
+\end{xten}
 \end{example}
 
 \begin{staticrule}{Super-invoke}
@@ -410,7 +412,7 @@ constructor, and the conjunction of static types of the argument must
 entail the \grammarrule{Guard} in the parameter list of the constructor.
 \end{staticrule}
 
-\subsection{\Xcd{ proto} qualifier on types}
+\section{\Xcd{ proto} qualifier on types}
 \label{Prototypes}
 \index{proto}
 \Xten{} ensures that every variable must have a value consistent with its type
@@ -696,50 +698,32 @@ not a subtype of \xcd"C{c}".
     \xcdmath"x$_1$, $\dots$, x$_n$" are the formal
     parameters of the method.
 \end{staticrule*}
+The method body is either an expression, a block of statements,
+or a block ending with an expression.
 
 \begin{example}
 Consider the program:
 \begin{xten}
-public class List(n: Int{n>=0}) {
-  protected val head{n>0}: Object;
-  protected val tail{n>0}: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) = {
-     property(t.n+1);
-     head=o;
-     tail=t;
-  }
-  public def this(): List(0) = {
-     property(0);
-  }
-  public def append(l: List): List{self.n==this.n+l.n} = {
-      return (n==0)? l
-         : new List(head, tail.append(l)); 
-  }
-  public def nth(k: Int{1 <= k && k <= n}){n > 0}: Object = {
-      return k==1 ? head : tail.nth(k-1);
-  }
+type Point(r:Int)=Point{self.rank==r};
+final public class Point(rank: Int) implements (Int) => Int {
+    public global val coords: ValRail[Int](rank);
+    public global safe def apply(i: Int) = coords(i);
+    public global safe def coords() = coords;
+    public global safe operator - this: Point(rank) 
+       = Point.make(rank, (i:Int)=>-this.coords(i));
+    public global safe operator this + (that: Point(rank)): Point(rank) 
+       = Point.make(rank, (i:Int)=> this.coords(i) + that.coords(i));
+    ...
 }
 \end{xten}
 
-The following code fragment
+The following code fragment will typecheck:
 \begin{xten}
-u: List{self.n==3} = ...
-t: List{self.n==x} = ...;
-s: List{self.n==x+3} = t.append(u);
-\end{xten}
-\noindent will typecheck. The type of the expression \xcd"t.append(u)" is 
-\begin{xten}
-List{a: List{self.n==x}; 
-     l: List{self.n==3}; self.n==a.n+l.n}  
-\end{xten}
-\noindent which is equivalent to:
-\begin{xten}
-List{self.n==x+3}
+s: Point(3) = new Point([1,2,3]);
+t: Point(3) = new Point([-1,-1,-1]);
+u: Point(3) = s + u;
 \end{xten}
 \end{example}
-
-The method body is either an expression, a block of statements,
-or a block ending with an expression.
 
 \subsection{Property methods}
 

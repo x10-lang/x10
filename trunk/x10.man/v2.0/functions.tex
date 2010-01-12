@@ -23,7 +23,7 @@ in an environment in which \Xcd{c} is true. At runtime, function execution
 results in the evaluation of \Xcd{e} in an environment in which each formal
 is bound to the given actual parameter.
 
-The \emph{method selector expression} \Xcd{e.m(T1,...,Tn)} is type
+The \emph{method selector expression} \Xcd{e.m.(T1,...,Tn)} is type
 correct only if it is the case that the static type of \Xcd{e} is a
 class or struct or interface with a method
 \Xcd{m(x1:T1,...xn:Tn)\{c\}:T} defined on it (for some
