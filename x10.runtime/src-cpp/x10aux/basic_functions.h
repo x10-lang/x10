@@ -6,6 +6,8 @@
 #include <x10aux/hash.h>
 #include <x10/lang/String.h>
 
+#include <x10/lang/IBox.struct_h>
+
 namespace x10aux {
 
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
@@ -28,60 +30,129 @@ namespace x10aux {
     template<class T, class U>
     inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_double y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_float y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_long y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_int y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_short y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_byte y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_ulong y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_uint y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_ushort y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_ubyte y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_char y) { return false; }
-    template<class T>
-    inline x10_boolean equals(ref<T> x, x10_boolean y) { return false; }
+    inline x10_boolean equals(x10_boolean x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_boolean>())) {
+            ref<x10::lang::IBox<x10_boolean> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_byte x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_byte>())) {
+            ref<x10::lang::IBox<x10_byte> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_ubyte x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
+            ref<x10::lang::IBox<x10_ubyte> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_char x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_char>())) {
+            ref<x10::lang::IBox<x10_char> > yAsIBox(y);
+            return x.v == yAsIBox->value.v;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_short x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_short>())) {
+            ref<x10::lang::IBox<x10_short> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_ushort x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_ushort>())) {
+            ref<x10::lang::IBox<x10_ushort> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_int x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_int>())) {
+            ref<x10::lang::IBox<x10_int> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
 
-    template<class T>
-    inline x10_boolean equals(x10_double y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_float y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_long y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_int y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_short y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_byte y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_ulong y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_uint y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_ushort y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_ubyte y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_char y, ref<T> x) { return false; }
-    template<class T>
-    inline x10_boolean equals(x10_boolean y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_uint x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_uint>())) {
+            ref<x10::lang::IBox<x10_uint> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_long x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_long>())) {
+            ref<x10::lang::IBox<x10_long> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_ulong x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_ulong>())) {
+            ref<x10::lang::IBox<x10_ulong> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
+    inline x10_boolean equals(x10_float x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_float>())) {
+            ref<x10::lang::IBox<x10_float> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
 
+    inline x10_boolean equals(x10_double x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> yAsRef(y);
+        if (yAsRef->_type()->equals(getRTT<x10_double>())) {
+            ref<x10::lang::IBox<x10_double> > yAsIBox(y);
+            return x == yAsIBox->value;
+        } else {
+            return false;
+        }
+    }
+    
     // covers Primitive
     template<class T, class U>
     inline x10_boolean equals(T x, U y) { return x->_struct_equals(y); }
-
     
     inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
@@ -177,6 +248,7 @@ namespace x10aux {
     inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
+    
     template<class T> inline x10_int hash_code(ref<T> x) {
         return nullCheck(x)->hashCode();
     }
@@ -206,8 +278,7 @@ namespace x10aux {
     inline x10_int hash_code(const x10_char x) { return x.v; }
     inline x10_int hash_code(const x10_boolean x) { return x; }
 
-
-
+    
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         ref<x10::lang::Reference> asRef = x;
         return nullCheck(asRef)->toString();
@@ -231,7 +302,6 @@ namespace x10aux {
     ref<x10::lang::String> to_string(x10_double v);
 
     ref<x10::lang::String> to_string(x10_char v);
-
 }
 
 #endif
