@@ -11,6 +11,11 @@
 			<param name="os" value="aix,hpux,linux,macosx,qnx,solaris,win32"/>
 			<param name="feature.base" value="${feature.temp.folder}"/>
 		</antcall>
+		<propertyRegexp name="all.builds.for.version" input="${feature.version}" regexp="(.*).${x10dt.build.qualifier}" value="\1.*"/>
+		<echo message="Deleting old builds of feature ${feature.id} for version ${all.builds.for.version}"/>
+		<delete>
+			<fileset dir="${feature.destination}" includes="${feature.name}_${all.builds.for.version}.jar"/>
+		</delete>			
 		<jar destfile="${feature.destination}/${feature.name}_${feature.version}.jar" basedir="${feature.temp.folder}/features/${feature.name}_${feature.version}"/>
 		<delete dir="${feature.temp.folder}"/>
 		<antcall target="gather.plugin.jars"/>
@@ -21,11 +26,15 @@
 		<mkdir dir="${feature.base}/features/${feature.name}_${feature.version}"/>
 		<copy todir="${feature.base}/features/${feature.name}_${feature.version}" failonerror="true" overwrite="false">
 			<fileset dir="${basedir}">
-				<include name="feature.xml"/>
 				<include name="feature.properties"/>
 				<include name="cpl-v10.html"/>
 				<include name="eclipse_update_120.jpg"/>
 			</fileset>
+		</copy>
+		<copy todir="${feature.base}/features/${feature.name}_${feature.version}" file="feature.xml">
+			<filterchain>
+				<replaceregex pattern="version=\&quot;(.*)\.qualifier&quot;" replace="version=&quot;\1.${x10dt.build.qualifier}&quot;"/>
+			</filterchain>
 		</copy>
 	</target>
 
@@ -36,10 +45,18 @@
 	<!-- ========================================================================================= -->
 
 	<target name="build.child">
-		<ant antfile="../${project.name}/exportPlugin.xml" inheritAll="false" dir="../${project.name}" target="build.update.jar"/>
+		<ant antfile="../${project.name}/exportPlugin.xml" dir="../${project.name}" target="build.update.jar"/>
 	</target>
 
 	<target name="copy.child">
+		<tstamp>
+			<format property="build.time" pattern="yyyyMMddHHmm"/> 
+		</tstamp>
+		<condition property="x10dt.build.qualifier" value="v${build.time}">
+			<not>
+				<isset property="x10dt.build.qualifier"/>
+			</not>
+		</condition>
         <loadfile property="plugin.id" srcfile="../${project.name}/META-INF/MANIFEST.MF">
             <filterchain>
                 <containsregex pattern="Bundle-SymbolicName:"/>
@@ -51,6 +68,7 @@
 			<filterchain>
 				<containsregex pattern="Bundle-Version:"/>
 				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+				<replaceregex pattern="(.*)\.qualifier" replace="\1.${x10dt.build.qualifier}"/>
 				<striplinebreaks/>
 			</filterchain>
 		</loadfile>
