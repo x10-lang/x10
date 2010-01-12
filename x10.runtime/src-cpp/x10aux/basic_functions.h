@@ -19,17 +19,16 @@ namespace x10aux {
         return x10::lang::String::Lit(getRTT<T>()->name());
     }
 
-    x10_boolean general_equals_impl(ref<x10::lang::Any> x, ref<x10::lang::Any> y);
-    
-    template<class T, class U>
-    class Equals {
-      public: static inline x10_boolean _(ref<T> x, ref<U> y) { return general_equals_impl(x, y); }
-    };
-
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
-    template<class T, class U>
-    inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
+    template<class T> inline x10_boolean equals(ref<T> x, ref<x10::lang::Any> y) {
+        ref<x10::lang::Reference> xAsRef(x);
+        return xAsRef->equals(y);
+    }
 
+    // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
+    template<class T> inline x10_boolean equals(T x, ref<x10::lang::Any>  y) { return x->equals(y); }
+    
+    // Cover all X10 Structs that are built-in C++ types
     inline x10_boolean equals(x10_boolean x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
         if (yAsRef->_type()->equals(getRTT<x10_boolean>())) {
@@ -150,10 +149,6 @@ namespace x10aux {
         }
     }
     
-    // covers Primitive
-    template<class T, class U>
-    inline x10_boolean equals(T x, U y) { return x->_struct_equals(y); }
-    
     inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
     inline x10_boolean equals(const x10_long x,    const x10_long y)    { return x==y; }
@@ -167,6 +162,7 @@ namespace x10aux {
     inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
+    
     template<class T, class U>
     inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
         if (x.isNull()) {

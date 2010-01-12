@@ -155,7 +155,7 @@ namespace x10 {
             x10aux::ref<ValRail<T> > that = (x10aux::ref<ValRail<T> >)other;
             if (this->FMGL(length) != that->FMGL(length)) return false;
             for (int i=0; i<this->FMGL(length); i++) {
-                if (!x10aux::equals(this->_data[i], that->_data[i])) return false;
+                if (!x10aux::equals(this->_data[i], x10aux::class_cast_unchecked<x10aux::ref<x10::lang::Any> >(that->_data[i]))) return false;
             }
             return true;
         }
