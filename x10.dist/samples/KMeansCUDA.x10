@@ -5,18 +5,11 @@ import x10.io.Marshal;
 import x10.io.IOException;
 
 //import x10.util.DistributedRail;
-import x10.runtime.PlaceLocalStorage;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.Runtime;
-import x10.runtime.Activity;
 import x10.util.Pair;
 import x10.util.HashMap;
 
-
 import x10.util.OptionsParser;
 import x10.util.Option;
-
-
 
 import x10.compiler.Unroll;
 import x10.compiler.CUDA;
@@ -26,15 +19,15 @@ import x10.compiler.CUDAUtilities;
 final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     global val data : PlaceLocalHandle[Rail[T]];
     global val firstPlace : Place;
-    global val localRails = PlaceLocalStorage.createDistributedObject[HashMap[Activity, Rail[T]!]](Dist.makeUnique(), ()=>new HashMap[Activity, Rail[T]!]());
+    global val localRails = PlaceLocalHandle.make[HashMap[Activity!, Rail[T]!]](Dist.makeUnique(), ()=>new HashMap[Activity!, Rail[T]!]());
     global val original : ValRail[T];
     global val original_len : Int;
 
-    global val done = PlaceLocalStorage.createDistributedObject[Cell[Boolean]](Dist.makeUnique(), ()=>new Cell[Boolean](false));
+    global val done = PlaceLocalHandle.make[Cell[Boolean]](Dist.makeUnique(), ()=>new Cell[Boolean](false));
 
     public def this (len:Int, init:ValRail[T]) {
         val vr = ValRail.make(len, init);
-        data = PlaceLocalStorage.createDistributedObject[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
+        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
         firstPlace = here;
         original = vr;
         original_len = len;
@@ -42,7 +35,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public def this (len:Int, init:(Int)=>T) {
         val vr = ValRail.make(len, init);
-        data = PlaceLocalStorage.createDistributedObject[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
+        data = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(), ()=>Rail.make(len,vr));
         firstPlace = here;
         original = vr;
         original_len = len;
@@ -52,18 +45,18 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public global safe def apply () {
         val a = Runtime.activity();
-        val r = localRails.get().getOrElse(a, null);
+        val r = localRails().getOrElse(a, null);
         if (r==null) {
             val r_ = Rail.make(original_len, original);
-            localRails.get().put(a, r_);
+            localRails().put(a, r_);
             return r_;
         }
         return r;
     }
 
-    public global safe def get() = data.get();
+    public global safe def get() = data();
 
-    public global safe def drop() { localRails.get().remove(Runtime.activity()); }
+    public global safe def drop() { localRails().remove(Runtime.activity()); }
 
     public global safe def apply (i:Int) = this()(i);
 
@@ -71,11 +64,15 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     public global safe def iterator () = this().iterator();
 
+    // TODO: remove this once collection API gets improved so that
+    //       entries returns a Set[Map.Entry[K,V]!]!
+    private static global def placeCastHack[T](x:T) = x as T!;
+
     private global def reduceLocal (op:(T,T)=>T) {
-        val master = data.get();
+        val master = data();
         var first:Boolean = true;
-        for (e in localRails.get().entries()) {
-            val r = e.getValue();
+        for (e in localRails().entries()) {
+            val r = placeCastHack(e).getValue();
             if (first) {
                 finish r.copyTo(0, master, 0, r.length);
                 first = false;
@@ -89,12 +86,12 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     private global def reduceGlobal (op:(T,T)=>T) {
         if (firstPlace!=here) {
-            val local_ = data.get();
+            val local_ = data();
             {
                 val local = local_ as ValRail[T];
                 val data_ = data;
                 at (firstPlace) {
-                    val master = data_.get();
+                    val master = data_();
                     atomic for (var i:Int=0 ; i<master.length ; ++i) {
                         master(i) = op(master(i), local(i));
                     }
@@ -102,16 +99,16 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
             }
             //next; // every place has transmitted contents to master
             val handle = data; // avoid 'this' being serialised
-            finish local_.copyFrom[T](0, firstPlace, ()=>Pair[Rail[T],Int](handle.get(),0), local_.length);
+            finish local_.copyFrom[T](0, firstPlace, ()=>Pair[Rail[T],Int](handle(),0), local_.length);
         } else {
             //next;
         }
     }
 
     private global def bcastLocal (op:(T,T)=>T) {
-        val master = data.get();
-        for (e in localRails.get().entries()) {
-            val r = e.getValue();
+        val master = data();
+        for (e in localRails().entries()) {
+            val r = placeCastHack(e).getValue();
             finish r.copyFrom(0, master, 0, r.length);
         }
     }
@@ -120,9 +117,9 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
     public global def collectiveReduce (op:(T,T)=>T) {
         var i_won:Boolean = false;
         atomic {
-            if (!done.get().value) {
+            if (!done().value) {
                 i_won = true;
-                done.get().value = true;
+                done().value = true;
             }
         }
         //next; // activity rails populated at this place
@@ -132,7 +129,7 @@ final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
             //next; // every place has local rail populated
             reduceGlobal(op); // there's one 'next' in here too
             bcastLocal(op);
-            done.get().value = false;
+            done().value = false;
         } else {
             //next;
             //next;
