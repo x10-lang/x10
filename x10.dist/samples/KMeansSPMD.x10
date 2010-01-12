@@ -72,7 +72,7 @@ public class KMeansSPMD {
 
                         // fetch the latest clusters
                         val home = here;
-                        at (central_clusters.location) {
+                        at (central_clusters) {
                             val central_clusters_copy = central_clusters as ValRail[Float];
                             at (home) {
                                 for (var i:Int=0 ; i<CLUSTERS ; ++i) cluster_counts(i) = 0;
@@ -108,7 +108,7 @@ public class KMeansSPMD {
                         }
 
 
-                        if (here == central_clusters.location) {
+                        if (central_clusters.at(here)) {
                             for (var j:Int=0 ; j<CLUSTERS ; ++j) central_cluster_counts(j) = 0;
                             for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                                 central_clusters_old(j) = central_clusters(j);
@@ -123,7 +123,7 @@ public class KMeansSPMD {
                         val new_clusters_copy = new_clusters as ValRail[Float];
                         val cluster_counts_copy = cluster_counts as ValRail[Int];
 
-                        at (central_clusters.location) atomic {
+                        at (central_clusters) atomic {
                             for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                                 central_clusters(j) += new_clusters_copy(j);
                             }
@@ -135,7 +135,7 @@ public class KMeansSPMD {
 
                         next;
 
-                        if (here == central_clusters.location) {
+                        if (central_clusters.at(here)) {
 
                             for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
                                 for (var d:Int=0 ; d<DIM ; ++d) { 
