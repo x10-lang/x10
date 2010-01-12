@@ -234,12 +234,11 @@ public class Desugarer extends ContextVisitor {
 
     private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
       	place = getPlace(pos, place);
-      	Expr placeId = synth.makeFieldAccess(pos, place, Name.make("id"), xContext());
         Closure closure =
         	synth.makeClosure(body.position(), xts.Void(),  synth.toBlock(body), xContext());
         Stmt result = xnf.Eval(pos,
         		synth.makeStaticCall(pos, xts.Runtime(), RUN_AT,
-        				Arrays.asList(new Expr[] { placeId, closure }), xts.Void(),
+        				Arrays.asList(new Expr[] { place, closure }), xts.Void(),
         				xContext()));
         return result;
     }
