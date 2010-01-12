@@ -16,11 +16,11 @@ public interface Any {
     property def home():Place;
 	
     @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "((#0)->location == (#1)->location)")
+    @Native("c++", "((x10aux::ref<x10::lang::Reference>((#0)))->location == (#1)->location)")
     property def at(p:Object):Boolean;
 	
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
-    @Native("c++", "((#0)->location == (#1)->FMGL(id))")
+    @Native("c++", "((x10aux::ref<x10::lang::Reference>((#0)))->location == (#1)->FMGL(id))")
     property def at(p:Place):Boolean;
 	
     @Native("java", "#0.toString()")
