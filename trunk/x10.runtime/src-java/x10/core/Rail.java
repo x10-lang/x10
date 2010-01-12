@@ -134,6 +134,12 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         return type.setArray(value, i, v);
     }
 
+    public void reset(T v) {
+        for (int i=0; i<length; i++) {
+            set(v, i);
+        }
+    }
+    
     //
     // boxed rail
     //
