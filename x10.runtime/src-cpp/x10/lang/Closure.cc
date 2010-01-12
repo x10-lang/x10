@@ -20,14 +20,6 @@ void Closure::_serialize(x10aux::ref<Closure> this_,
     this_->_serialize_body(buf);
 }           
 
-x10_boolean Closure::at(x10aux::ref<x10::lang::Object> o) {
-    return location == o->location;
-}
-
-Place Closure::home() {
-    return x10::lang::Place_methods::_make(location);
-}
-
 x10_int Closure::hashCode() {
     return x10aux::hash_code(_get_serialization_id());
 }
