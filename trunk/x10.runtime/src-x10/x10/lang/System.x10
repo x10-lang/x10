@@ -121,7 +121,7 @@ public class System {
         // this version is optimised to use a single async for the whole rail
         // it could be further optimised to send only the part of the rail needed
         val to_serialize = src as ValRail[T];
-        Runtime.runAt(dst_place.id, ()=>{
+        Runtime.runAtNative(dst_place.id, ()=>{
             val pair = dst_finder();
             val dst = pair.first;
             val dst_off = pair.second;

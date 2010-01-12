@@ -47,7 +47,7 @@ public final class Runtime {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
     @Native("c++", "x10aux::run_at(#1, #2)")
-    public static def runAt(id:Int, body:()=>Void):Void { body(); }
+    public static def runAtNative(id:Int, body:()=>Void):Void { body(); }
 
     /**
      * Java: run body synchronously at place(id) in the same node as the current place.
@@ -517,11 +517,11 @@ public final class Runtime {
                         t = new MultipleExceptions(e);
                     }
                     val closure = () => { (r as RootFinish!).notify(m, t); deallocObject(m); };
-                    runAt(r.home.id, closure);
+                    runAtNative(r.home.id, closure);
                     dealloc(closure);
                 } else {
                     val closure = () => { (r as RootFinish!).notify(m); deallocObject(m); };
-                    runAt(r.home.id, closure);
+                    runAtNative(r.home.id, closure);
                     dealloc(closure);
                 }
                 deallocObject(m);
@@ -538,11 +538,11 @@ public final class Runtime {
                         t = new MultipleExceptions(e);
                     }
                     val closure = () => { (r as RootFinish!).notify2(m, t); deallocObject(m); };
-                    runAt(r.home.id, closure);
+                    runAtNative(r.home.id, closure);
                     dealloc(closure);
                 } else {
                     val closure = () => { (r as RootFinish!).notify2(m) ; deallocObject(m); };
-                    runAt(r.home.id, closure);
+                    runAtNative(r.home.id, closure);
                     dealloc(closure);
                 }
                 deallocObject(m);
@@ -856,7 +856,7 @@ public final class Runtime {
                 pool();
                 if (!isLocal(Place.MAX_PLACES - 1)) {
                     for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        runAt(i, worker().latch.release.());
+                        runAtNative(i, worker().latch.release.());
                     }
                 }
                 rootFinish.waitForFinish(false);
@@ -889,7 +889,7 @@ public final class Runtime {
             execute(new Activity(body, state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
-            runAt(place.id, c);
+            runAtNative(place.id, c);
         }
     }
 
@@ -907,7 +907,7 @@ public final class Runtime {
             } else {
                 closure = ()=>execute(new Activity(body, state, false));
             }
-            runAt(place.id, closure);
+            runAtNative(place.id, closure);
             dealloc(closure);
         }
     }
@@ -933,7 +933,7 @@ public final class Runtime {
         val latch = new Latch();
     }
 
-    public static def runAtPlace(place:Place, body:()=>Void):Void {
+    public static def runAt(place:Place, body:()=>Void):Void {
         val box = new RemoteControl();
         async (place) {
             try {
@@ -955,14 +955,6 @@ public final class Runtime {
             if (x instanceof RuntimeException)
                 throw x as RuntimeException;
         }
-    }
-
-    public static def runAt(place:Place, body:()=>Void):Void {
-        runAtPlace(place, body);
-    }
-
-    public static def runAt(place:Object, body:()=>Void):Void {
-        runAtPlace(place.home, body);
     }
 
     /**
@@ -1001,8 +993,6 @@ public final class Runtime {
         }
         return box.t.value;
     }
-
-    public static def evalAt[T](place:Object, eval:()=>T):T = evalAt[T](place.home, eval);
 
     /**
      * Eval future expression
