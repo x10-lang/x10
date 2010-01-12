@@ -53,7 +53,7 @@
 
 	<!-- One would typically run this target, then manually edit the site.xml (in update.temp.folder) to add the
 	     new feature versions, and finally run 'zip.update' to build the update site archive. -->
-	<target name="collect.update" depends="init.collect,init.common" description="Builds and collects all the feature and plugin components for the update site.">
+	<target name="collect.update" depends="init.collect,init.common" description="Step 1: Builds and collects all the feature and plugin components for the update site.">
         <delete dir="${update.temp.folder}"/>
         <mkdir dir="${update.temp.folder}"/>
         <antcall target="export.features"/>
@@ -70,9 +70,11 @@
     	<antcall target="get.imp.artifacts"/>
 		<!-- save the build qualifier to be used in the zip.update target -->
 		<echo message="${x10dt.build.qualifier}" file=".build.qualifier"/> 
+		<echo message="*** Now modify update.temp.folder/site.xml - change version in TWO PLACES, then run Step 2. zip.update "/>
+			
     </target>
 
-	<target name="zip.update" depends="init.zip,init.common" description="Creates the update site archive from the components collected by collect.update">
+	<target name="zip.update" depends="init.zip,init.common" description="Step 2: Creates the update site archive from the components collected by collect.update">
 		<loadfile property="saved.build.qualifier" srcfile=".build.qualifier"/>
 		<propertyRegexp name="x10dt.version.prefix" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1"/>
 		<echo message="*** The saved build qualifier is ... the envelope please... ${saved.build.qualifier}"/>
