@@ -12,7 +12,7 @@ import x10.compiler.NativeRep;
 public interface Any {
 	
     @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-    @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
+    @Native("c++", "x10::lang::Place_methods::place((x10aux::ref<x10::lang::Reference>((#0)))->location)")
     property def home():Place;
 	
     @Native("java", "x10.core.Ref.at(#0, #1)")
