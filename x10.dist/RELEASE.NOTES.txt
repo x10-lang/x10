@@ -50,6 +50,7 @@ Below is a summary of JIRA issues addressed for the X10 2.0.1 release.
     * [XTENLANG-710] - Odd phrasing 
     * [XTENLANG-730] - Var args are not VAR args
     * [XTENLANG-746] - Overly-brutal type inference forbids overriding
+    * [XTENLANG-885] - Cartesian product defined for Regions of any rank
 
 ** Bug
     * [XTENLANG-49] - _.x10 not imported
@@ -75,6 +76,7 @@ Below is a summary of JIRA issues addressed for the X10 2.0.1 release.
     * [XTENLANG-595] - 'at' method doesn't compile for x10.lang.Object
     * [XTENLANG-606] - Mispredictive parse error message
     * [XTENLANG-607] - Null pointer exception when comparing string to null
+    * [XTENLANG-609] - It's 'location', not 'loc' (as a property)
     * [XTENLANG-617] - Typechecking of ateach is incorrect
     * [XTENLANG-622] - super.toString() codegen
     * [XTENLANG-624] - Confusion between nested struct constructor and static method
@@ -97,14 +99,18 @@ Below is a summary of JIRA issues addressed for the X10 2.0.1 release.
     * [XTENLANG-720] - non-proto method can call proto method
     * [XTENLANG-721] - Can't assign proto to suitable instance field
     * [XTENLANG-722] - C++ codegen bug with generic structs implementing generic interfaces.
+    * [XTENLANG-725] - Field Guards Not in X10 any more, but still in the manual
     * [XTENLANG-728] - Global fields can override non-globals, contra spec
     * [XTENLANG-729] - Duplicate method when class+constraints distinguishes them is not allowed
     * [XTENLANG-742] - Methods with non-equivalent types collide as if the types were equivalent
     * [XTENLANG-752] - Consistient, hack-free semantics/implementation of equals and hashCode
     * [XTENLANG-754] - Can sneakily store a struct in a var of interface type by using a cast.
+    * [XTENLANG-756] - Type checking of method invocations on interface and generic types
+    * [XTENLANG-761] - x10c (as of Dec 11 2009) seems to require -disable CheckNativeAnnotations
     * [XTENLANG-762] - Equality or Equals?
     * [XTENLANG-768] - Incorrect code gen for generic method
     * [XTENLANG-774] - Syntactic ambiguity between nullary method call and nullary method selector expression
+    * [XTENLANG-780] - Incompatible Initialization Protocols
     * [XTENLANG-786] - var in extended for isn't var
     * [XTENLANG-789] - function can return null as an Int value
     * [XTENLANG-793] - Broken toString() of integer expressions
@@ -112,11 +118,15 @@ Below is a summary of JIRA issues addressed for the X10 2.0.1 release.
     * [XTENLANG-796] - Unary Operator Functions don't work
     * [XTENLANG-802] - UInt % doesn't work right
     * [XTENLANG-803] - UInt isn't an integral type wrt &= etc.
+    * [XTENLANG-831] - Confusing error about futures in atomic sections
+    * [XTENLANG-832] - Need to check for non-safe method calls in atomic blocks
     * [XTENLANG-844] - Points don't do equals() right
     * [XTENLANG-849] - Missing Double to Complex binary operators
     * [XTENLANG-853] - No ClockUseException thrown when starting an activity on an unregistered clock, contra spec
     * [XTENLANG-877] - scope error
     * [XTENLANG-880] - typeName() is broken in primitives
+    * [XTENLANG-882] - shared error
+
 
 For the details of JIRA issues fixed in this release, see
 http://jira.codehaus.org/browse/XTENLANG/fixforversion/15901
