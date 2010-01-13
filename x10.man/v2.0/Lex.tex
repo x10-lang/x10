@@ -39,12 +39,14 @@ clocked         const           continue        current
 def             default         do              else
 extends         extern          final           finally
 finish          for             foreach         future
+global
 goto            has             here            if             
 implements      import          instanceof      interface
-local           native          new             next       
-nonblocking     or              package         private        
+native          new             next            nonblocking     
+or              package         pinned          private        
 protected       property        public          return
-safe            self            shared          static
+safe            self            sequential      shared
+static
 super           switch          this            throw
 throws          to              try             type
 val             value           var             when
@@ -55,9 +57,10 @@ The keyword \xcd{goto} is reserved, but not used.
 
 \paragraph{Literals}\label{Literals}\index{literals}
 
-Literals are either integers, floating point numbers, booleans,
+Literals are either integers, unsigned integers, floating point numbers, booleans,
 characters, strings, and \xcd"null".
-\XtenCurrVer{} defines literal syntax in the same way as \java{} does.
+\XtenCurrVer{} defines literal syntax in the same way as \java{} does
+except that the suffix 'u' or 'U' is used for unsigned integers.
 
 \paragraph{Separators}
 \Xten{} has the following separators and delimiters:

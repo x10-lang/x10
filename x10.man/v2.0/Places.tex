@@ -79,7 +79,7 @@ running. Unlike other place expressions, this constant cannot be
 used as the placetype of fields, since the type of a field 
 should be independent of the activity accessing it.
 
-\paragraph{Example.}
+\begin{example}
 The code:
 \begin{xten}
 public class F {
@@ -90,12 +90,14 @@ public class F {
                          + (OldHere == here));
     }
   }
-  public static void main(s: array[String]) {
-    new F().m( (future(Place.FIRST_PLACE.next()) new F())() );
+  public static def main(Rail[String]) {
+    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
   }
 }  
 \end{xten}
+
+
 \noindent will print out \xcd"true" iff the computation was configured
 to start with the number of places set to \xcd"1". 
-
+\end{example}
 

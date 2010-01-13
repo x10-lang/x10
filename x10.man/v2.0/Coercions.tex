@@ -75,7 +75,8 @@ programmer to specify the return type for such operators explicitly.
 For instance, the code for \Xcd{x10.lang.Point} contains:
 
 \begin{xten}
-  public static global safe operator (r: Rail[int]): Point(r.length) = make(r);
+  public static global safe operator (r: Rail[int])
+     : Point(r.length) = make(r);
 \end{xten}
 
 The compiler looks for such operators on the container type \Xcd{B}
@@ -93,6 +94,7 @@ val q = [1, 1, 1, 1, 1] as Point;
 val a = p - q;    
 \end{xten}
 This code fragment compiles successfully, given the above operator definition. 
-The type of \Xcd{p} is inferred to be \Xcd{Point(5)} (i.e.{} the type \Xcd"Point{self.rank==5}".
+The type of \Xcd{p} is inferred to be \Xcd{Point(5)} (i.e.{} the type 
+\xcd"Point{self.rank==5}".
 Similarly for \Xcd{q}. Hence the application of the operator ``\Xcd{-}'' is legal (it requires both arguments to have the same rank). The type of \Xcd{a} is computed as \Xcd{Point(5)}.
 \end{example}

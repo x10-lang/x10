@@ -98,7 +98,7 @@ An activity is created by executing the statement:
 Statement \: AsyncStatement \\
 AsyncStatement \: \xcd"async" PlaceExpressionSingleList\opt Statement \\
 PlaceExpressionSingleList \: \xcd"(" PlaceExpression \xcd")" \\
-PlaceExpression \: Expression \\
+PlaceExpression \: Expression 
 \end{grammar} 
 
 The place expression \xcd"e" is expected to be of type \xcd"Place",
@@ -166,7 +166,7 @@ An activity may change place using the \xcd"at" statement or
 Statement \: AtStatement \\
 AtStatement \: \xcd"at" PlaceExpressionSingleList Statement \\
 Expression \: AtExpression \\
-AtExpression \: \xcd"at" PlaceExpressionSingleList ClosureBody \\
+AtExpression \: \xcd"at" PlaceExpressionSingleList ClosureBody 
 \end{grammar}
 
 The statement \xcd"at (p) S" executes the statement \xcd"S"
@@ -181,7 +181,7 @@ termination and introduces a root activity.
 
 \begin{grammar}
 Statement \: FinishStatement \\
-FinishStatement \: \xcd"finish" Statement \\
+FinishStatement \: \xcd"finish" Statement 
 \end{grammar}
 
 An activity $A$ executes \xcd"finish S" by executing \xcd"S".  The
@@ -255,7 +255,7 @@ places.)
 Statement \: ForEachStatement \\
 ForEachStatement \: 
       \xcd"foreach" \xcd"(" Formal \xcd"in" Expression \xcd")"
-          Statement \\
+          Statement 
 \end{grammar}
 
 The \xcd"foreach" statement is similar to the enhanced \xcd"for"
@@ -281,7 +281,7 @@ the collection is intended to be of type
 Statement \: AtEachStatement \\
 AtEachStatement \:
       \xcd"ateach" \xcd"(" Formal \xcd"in" Expression \xcd")"
-         Statement \\
+         Statement 
 \end{grammar}
 
 The \xcd"ateach" statement is similar to the \xcd"foreach"
@@ -354,29 +354,24 @@ result in multiple evaluations of \xcd"e". The results of the first
 evaluation are stored in the future \xcd"f" and used to respond to all
 queries.
 
-\begin{example}
+
 \begin{xten}
 promise: Future[T] = future (a.dist(3)) a(3);
 value: T = promise();
 \end{xten}
-\end{example}
 
-\eat{
-\subsection{Implementation notes}
-Futures are provided in \Xten{} for convenience; they may be
-programmed using latches, \xcd"async" and \xcd"finish" as
-described in \Sref{future-imp}.
-}
 
 \section{At expressions}
 
 \begin{grammar}
 Expression \: \xcd"at" \xcd"(" Expression \xcd")" Expression
-\\
 \end{grammar}
 
-An at expression evaluates an expression synchronously at a given place.
-The expression \xcd"at (p) e" is equivalent to \xcd"future (p) e).force()".
+An \Xcd{at} expression evaluates an expression synchronously at the
+given place and returns its value. Note that expression evaluation may
+spawn asynchronous activities. The \Xcd{at} expression will return
+without waiting for those activities to terminate. That is, \Xcd{at}
+does not have built-in \Xcd{finish} semantics.
 
 \section{Shared variables}
 \label{Shared}
@@ -499,7 +494,7 @@ Conditional atomic blocks are of the form:
 \begin{grammar}
 Statement \:  WhenStatement \\
 WhenStatement \:  \xcd"when" \xcd"(" Expression \xcd")" Statement \\
-            \| WhenStatement \xcd"or" \xcd"(" Expression \xcd")" Statement \\
+            \| WhenStatement \xcd"or" \xcd"(" Expression \xcd")" Statement 
 \end{grammar}
 
 In such a statement the one or more expressions are called {\em

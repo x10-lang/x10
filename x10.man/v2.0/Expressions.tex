@@ -103,7 +103,8 @@ the current context.
 It is illegal to access a non-static field
 through a static field access expression.
 
-\input{Closures}
+\section{Function Literals}
+Please see \Sref{Functions} for a description of \Xcd{FunctionExpressions}.
 
 \section{Calls}
 \label{Call}
@@ -420,7 +421,7 @@ than negative infinity.
 \begin{grammar}
 ConditionalExpression \: Expression
                 \xcd"?" Expression
-                \xcd":" Expression \\
+                \xcd":" Expression 
 \end{grammar}
 
 A conditional expression evaluates its first subexpression (the
@@ -462,9 +463,7 @@ If the operands both have struct type, then they must be structurally equal;
 that is, they must be instances of the same struct
 and all their fields or components must be \xcd"==". 
 
-The compiler generates an error in case the static type of the
-left or right operand is a function type. Function type cannot be compared
-for equality in \Xten.
+The definition of equality for function types is specified in \S{FunctionEquality}.
 
 If the operands both have numeric type, binary promotion
 (\Sref{XtenPromotions}) is performed on the operands before the
@@ -521,17 +520,11 @@ The cast operation may be used to cast an expression to a given type:
 \begin{grammar}
 UnaryExpression \: CastExpression \\
 CastExpression \: UnaryExpression \xcd"as" Type \\
-\| UnaryExpression \xcd"to" Type \\
 \end{grammar}
 
 The result of this operation is a value of the given type if the cast
 is permissible at run time.
 
-The \xcd"as" operation checks if the value being coerced is of
-the given type.  Object identity is preserved; that is,
-\xcd"e == e as T".
-The \xcd"to" operation converts the value to the given type. 
-Object identity need not be preserved by the conversion.
 Type conversion is checked according to the
 rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
 For constrained types, both the base

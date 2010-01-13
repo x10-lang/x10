@@ -23,9 +23,11 @@ type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
 type Nat = UInt{self!=0};
 type Int(x: Int) = Int{self==x};
+type Dist(r: Int) = Dist{self.rank==r};
+type Dist(r: Region) = Dist{self.region==r};
 \end{xten}
-
-As the two definitions of \xcd"Int" demonstrate, type definitions may 
+\label{TypeDefGuard}
+As the two definitions of \xcd"Dist" demonstrate, type definitions may 
 be overloaded: two type definitions with different numbers of type
 parameters or with different types of value
 parameters, according to the method overloading rules
