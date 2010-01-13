@@ -1,0 +1,137 @@
+Release 2.0.1
+
+This release includes both the C++ and Java code generation backends.
+
+The following significant language changes were made since the 2.0.0 release:
+- The interface x10.lang.Any was introduced to specify the operations 
+  available on all X10 types.
+- The toString() method was made global and safe.  Any overriding method
+  must now have the same modifiers.
+- A number of clarifications and errors were corrected in the language 
+  specification.
+For details on these and other more minor changes, please consult the
+language specification included in the X10 release.
+
+The following features described in the 2.0 language manual do not
+currently work and will be fixed in the subsequent releases:
+
+- Non-static type definitions as class or interface members
+  (static type defs do work)
+- Type definitions as package members (i.e., in the outermost scope of
+  a compilation unit)
+- AST externalization to XML
+- Shared local variables
+- Extern methods
+
+Additionally, the following features described in the language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+
+- Garbage collection on AIX
+- Generic virtual methods
+- Exception stack traces on Cygwin and AIX
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.3.2.  On AIX, you
+may either use g++ 4.2 or better or xlC 10.01.0000.0004 or better.
+
+Below is a summary of JIRA issues addressed for the X10 2.0.1 release.
+
+** New Feature
+    * [XTENLANG-269] - Implement GC for Cygwin
+    * [XTENLANG-633] - Empty ValRails of various types
+
+** Improvement
+    * [XTENLANG-334] - Use specialized gc allocation routine for arrays/rails of primitives
+    * [XTENLANG-387] - enhance x10c/x10c++ so that TOP can be defined by an environment variable
+    * [XTENLANG-586] - Rename x10rt17.h to x10rt.h
+    * [XTENLANG-591] - Error message could be less opaque
+    * [XTENLANG-611] - Rename loc/location to home
+    * [XTENLANG-710] - Odd phrasing 
+    * [XTENLANG-730] - Var args are not VAR args
+    * [XTENLANG-746] - Overly-brutal type inference forbids overriding
+    * [XTENLANG-885] - Cartesian product defined for Regions of any rank
+
+** Bug
+    * [XTENLANG-49] - _.x10 not imported
+    * [XTENLANG-61] - class C implementing (T)=>S also provides function call syntax for all apply(...) signatures?
+    * [XTENLANG-87] - Type inference bug when rhs expression is a function call
+    * [XTENLANG-287] - a(i)+=v typechecks even if the type of a does not have an apply() method
+    * [XTENLANG-289] - a(i)=v typechecks when the type of a does not implement Settable[I,V]
+    * [XTENLANG-407] - Typechecking:  The region 0..n is not tagged as zeroBased
+    * [XTENLANG-496] - Defining a non-static member typedef triggers an internal compiler exception
+    * [XTENLANG-508] - inconsistent ateach / foreach behavior when using local variables inside these constructs
+    * [XTENLANG-512] - Exception-throwing program fails to do so w/ C++ backend
+    * [XTENLANG-517] - Java codegen for X10 2.0 object model
+    * [XTENLANG-524] - Java Codegen for X10 2.0 Structs
+    * [XTENLANG-550] - Cannot infer return value is place local when all return statements return place local values
+    * [XTENLANG-564] - ValRail can't be used as an argument to a function expecting (nat)=>T
+    * [XTENLANG-567] - Make x10.lang.RailIterator a proper class
+    * [XTENLANG-572] - Fix codegen to allow buildling with g++ 4.1
+    * [XTENLANG-574] - workaround in Rail/ValRail.h to compensate for problem with RTT ininitialization on some closures.
+    * [XTENLANG-583] - Strange error when using !p
+    * [XTENLANG-584] - Command Line Arguments sometimes get spurious $Main
+    * [XTENLANG-589] - Strange name mangling 
+    * [XTENLANG-594] - (new Object()).typeName() is java.lang.Object, not x10.lang.Object
+    * [XTENLANG-595] - 'at' method doesn't compile for x10.lang.Object
+    * [XTENLANG-606] - Mispredictive parse error message
+    * [XTENLANG-607] - Null pointer exception when comparing string to null
+    * [XTENLANG-609] - It's 'location', not 'loc' (as a property)
+    * [XTENLANG-617] - Typechecking of ateach is incorrect
+    * [XTENLANG-622] - super.toString() codegen
+    * [XTENLANG-624] - Confusion between nested struct constructor and static method
+    * [XTENLANG-630] - Golden!!
+    * [XTENLANG-631] - Typos in language spec in code examples for classic for-loops
+    * [XTENLANG-632] - ValRail[Int].equals fails
+    * [XTENLANG-641] - All examples in section 16.4 of the spec (array initialization) are wrong (use 1.5 style array initialization expressions)
+    * [XTENLANG-644] - 'instanceof' sometimes doesn't compile.
+    * [XTENLANG-646] - Compiler exception 
+    * [XTENLANG-669] - s:Set; syntax not allowed, but appears in the manual
+    * [XTENLANG-671] - Type property syntax boom
+    * [XTENLANG-677] - Constant expressions in constraints don't seem to work
+    * [XTENLANG-679] - Flaw in type checking constraints (constant propagation?)
+    * [XTENLANG-680] - Quantifiers don't.
+    * [XTENLANG-689] - 'this' can appear in an interface constraint -- maybe
+    * [XTENLANG-695] - Seg fault on serializing nested class
+    * [XTENLANG-699] - Compiler permits passing 'this' to method of another class
+    * [XTENLANG-706] - Typechecking: leastCommonAncestor is broken
+    * [XTENLANG-711] - Misleading phrasing in the manual
+    * [XTENLANG-720] - non-proto method can call proto method
+    * [XTENLANG-721] - Can't assign proto to suitable instance field
+    * [XTENLANG-722] - C++ codegen bug with generic structs implementing generic interfaces.
+    * [XTENLANG-725] - Field Guards Not in X10 any more, but still in the manual
+    * [XTENLANG-728] - Global fields can override non-globals, contra spec
+    * [XTENLANG-729] - Duplicate method when class+constraints distinguishes them is not allowed
+    * [XTENLANG-742] - Methods with non-equivalent types collide as if the types were equivalent
+    * [XTENLANG-752] - Consistient, hack-free semantics/implementation of equals and hashCode
+    * [XTENLANG-754] - Can sneakily store a struct in a var of interface type by using a cast.
+    * [XTENLANG-756] - Type checking of method invocations on interface and generic types
+    * [XTENLANG-761] - x10c (as of Dec 11 2009) seems to require -disable CheckNativeAnnotations
+    * [XTENLANG-762] - Equality or Equals?
+    * [XTENLANG-768] - Incorrect code gen for generic method
+    * [XTENLANG-774] - Syntactic ambiguity between nullary method call and nullary method selector expression
+    * [XTENLANG-780] - Incompatible Initialization Protocols
+    * [XTENLANG-786] - var in extended for isn't var
+    * [XTENLANG-789] - function can return null as an Int value
+    * [XTENLANG-793] - Broken toString() of integer expressions
+    * [XTENLANG-795] - Can't cast UInt to Long
+    * [XTENLANG-796] - Unary Operator Functions don't work
+    * [XTENLANG-802] - UInt % doesn't work right
+    * [XTENLANG-803] - UInt isn't an integral type wrt &= etc.
+    * [XTENLANG-831] - Confusing error about futures in atomic sections
+    * [XTENLANG-832] - Need to check for non-safe method calls in atomic blocks
+    * [XTENLANG-844] - Points don't do equals() right
+    * [XTENLANG-849] - Missing Double to Complex binary operators
+    * [XTENLANG-853] - No ClockUseException thrown when starting an activity on an unregistered clock, contra spec
+    * [XTENLANG-877] - scope error
+    * [XTENLANG-880] - typeName() is broken in primitives
+    * [XTENLANG-882] - shared error
+
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/15901
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

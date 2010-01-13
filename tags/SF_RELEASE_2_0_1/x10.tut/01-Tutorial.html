@@ -1,0 +1,488 @@
+<html>
+<head>
+<style type="text/css">
+.ex{
+  background-color: #dff;
+}
+.output{
+  background-color: #fdf;
+}
+.todo{
+  background-color: red;
+}
+.xiom {
+  background-color: #f88;
+}
+table.ex, th.ex, td.ex{
+  padding: 0px;
+  margin: 0px;
+  border: 0px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>X10 Tutorial</h1>
+
+<p>
+X10 is a new programming language,  designed for concurrent, multicore
+computing.  It gives you detailed control over where your data is and what you
+are doing with it, which is crucial for getting the most out of your multicore
+computer.    
+</p>
+
+<p>
+A lot of X10's concepts should be familiar from Java and C++, though the
+details may be somewhat different.  X10 has:
+</p>
+<ol>
+<li>The familiar
+  C-style <code>if</code>, <code>for</code>, <code>while</code>, etc.</li>
+<li>Classes and objects</li>
+<li>Generics</li>
+</ol>
+
+<h2>The Obligatory <code>Hello, World</code></h2>
+
+The program to print "Hello, World" is: 
+
+
+<!--
+//Tutorial file 01/HelloWorld.x10
+class HelloWorld {
+  public static def main(argv:Rail[String]) {
+    x10.io.Console.OUT.println("Hello, World");
+  }
+}
+
+-->
+<table class="ex">
+<tr class="ex"><td><a name="src-hello-1"/><a href="#hello-1" class="ex">1</a></td><td class="ex"><code>//Tutorial file HelloWorld.x10</code></td></tr>
+<tr class="ex"><td><a name="src-hello-2"/><a href="#hello-2" class="ex">2</a></td><td class="ex"><code>class HelloWorld {</code></td></tr>
+<tr class="ex"><td><a name="src-hello-3"/><a href="#hello-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]) {</code></td></tr>
+<tr class="ex"><td><a name="src-hello-4"/><a href="#hello-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("Hello, World");</code></td></tr>
+<tr class="ex"><td><a name="src-hello-5"/><a href="#hello-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a name="src-hello-6"/><a href="#hello-6" class="ex">6</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+This goes in a file called <kbd>HelloWorld.x10</kbd>.  Compile it with: <br/>
+<code >
+&nbsp;&nbsp;  x10c HelloWorld.x10
+</code><br/>
+and then run it with:
+<code><br/>
+&nbsp;&nbsp;  x10 HelloWorld
+</code><br/>
+and watch it produce the output:<br/>
+<code>
+&nbsp;&nbsp;  Hello, World
+</code>
+
+<p> <a name="hello-1"/> <a href="#src-hello-1">line
+1: </a><kbd class="ex">//Tutorial file HelloWorld.x10</kbd><br/>
+
+Comments in X10 are the same as Java or C++. They can begin with <kbd>//</kbd>
+and go through the end of the line, or begin with <kbd>/*</kbd> and end
+with <kbd>*/</kbd>. For this tutorial, we'll include filenames in our
+examples, so that you can find them easily. There's no need or value to doing
+this in anything but tutorial code, so don't bother.
+</p>
+
+
+<p> <a name="hello-2"/> <a href="#src-hello-2">line 2: </a><kbd class="ex">class HelloWorld {</kbd><br/>
+X10 executable code, as in C++ and Java, lives in classes.  
+Often the class will have the same name as its file -- <kbd>HelloWorld</kbd>
+  and <kbd>HelloWorld.x10</kbd> in this case. 
+</p>
+<p> <a name="hello-3"/> <a href="#src-hello-3">line 3: </a><kbd class="ex">
+    public static def main(argv:Rail[String]) {</kbd><br/>
+As in Java and C++, the program execution starts with the static method
+    named <kbd>main</kbd>, which takes the command-line arguments as a
+    collection of strings.  But here we start to see the first minor differences
+    from Java and C++, though they're cosmetic at this point.
+</p>
+<ol>
+<li>Methods are defined with the keyword <b><kbd>def</kbd></b>.  This makes it
+  easy to tell what's a method and what isn't.
+</li>
+<li>You don't need to give types for all methods.  Sometimes you do need them,
+  but not always.  In this case, the compiler can tell that <kbd>main</kbd>
+  doesn't return anything.  It has type <kbd>Void</kbd>, but you don't need
+  to write that.</li>
+<li>X10 has several choices of built-in collection types.  Some of the fancier
+  ones are extraordinariy powerful; <i>e.g.,</i> the <kbd>Array</kbd> type
+  describes data spread across multiple processors.  We don't need that sort
+  of power here, so <kbd>main</kbd> takes a simple kind of collection:
+  a <kbd>Rail</kbd> of strings.  <kbd>Rail</kbd>s are simple vectors, indexed
+  by integers.
+</li>
+<li>X10 has generic types, along the same general lines as Java and C++.
+  Instantiating a generic type uses square brackets: <kbd>Rail[String],
+  Map[String, Point]</kbd>.  Square brackets aren't used for anything else in
+  X10.
+</li>
+<li>Variable types come after the variable name, with a colon: <kbd>argv :
+    Rail[String]</kbd>, or <kbd>i:Int</kbd>.  
+</li>
+</ol>
+
+
+
+<p> 
+<a name="hello-4"/> <a href="#src-hello-4">line 4: </a><kbd class="ex">
+x10.io.Console.OUT.println("Hello, World");</kbd><br/>
+X10's libraries are arranged in packages, much like those of Java.
+The <kbd>x10.io</kbd> package contains many input-output
+classes.  <kbd>Console</kbd> represents standard input and output,
+and <kbd>Console.OUT</kbd> the output side of that.  <kbd>println</kbd> prints
+a string. 
+
+</p>
+<!--<p> <a name="hello-5"/> <a href="#src-hello-5">line 5: </a><kbd class="ex">  }</kbd><br/></p>-->
+<!--<p> <a name="hello-6"/> <a href="#src-hello-6">line 6: </a><kbd class="ex">}</kbd><br/></p>-->
+
+
+<a name="type-inference"></a>
+<h2>Types and Type Inference</h2>
+
+
+<p>
+Like Java and C++, X10 is a <i>strongly-typed</i> language.  Everything has a
+type.  The compiler keeps track of the type of everything at compile time.
+Certain kinds of errors -- trying to divide a boolean by a string, say -- will
+be caught before the program runs.
+</p>
+
+<p>
+X10's types are richer than those of Java and C++. For example, X10 can say
+"<kbd>a</kbd> is an array of three integers", or even "<kbd>a</kbd> is an
+array of <kbd>n</kbd> integers", which Java can't express.  This can be quite
+helpful.  A matrix-multiply function can check statically that you're
+multiplying matrices of compatible shapes.  You can't multiply a 3&times;4 by
+a 5&times;6 by mistake in X10, any more than you can you divide a boolean by a string.
+</p>
+
+<p>
+But every good feature comes with its cost.  Since X10 types can include a lot
+of information, they can get pretty long and complicated.  Even C++ and Java
+types can get pretty messy, as anyone who has ever written code about maps
+from lists of strings to sets of URLs is well aware.  
+</p>
+
+<p>
+Fortunately, in X10 -- unlike C++ and Java -- you don't always have to write
+types by hand. X10 can do <i>type inference</i> in many 
+circumstances.  It can figure out what types you must mean, and not require
+you to write them. For example, if you want to compute <kbd>13+21</kbd> and call
+it <kbd>sum</kbd>, you can write:
+</p>
+<code class="ex">
+   val sum = 13 + 21;
+</code>
+<p>
+And X10 will figure out that <kbd>13</kbd> and <kbd>21</kbd>
+are <kbd>Int</kbd>s, and <kbd>+</kbd> of two <kbd>Int</kbd>s is
+an <kbd>Int</kbd>, so <kbd>sum</kbd> must be an Int.
+</p>
+
+<p>
+You can also write the type yourself, if you want to.  (This is a good way to
+document your code, to explain to the compiler and future people reading it --
+including yourself, a year from now! -- what you meant.)  You could just as
+well have written the same line with explicit types: 
+</p>
+<code class="ex">
+   val sum : Int = 13 + 21;
+</code>
+<p>
+and used the <kbd>: Int</kbd> to say, unambiguously, that you
+want <kbd>sum</kbd> to be an integer.  Of course, if your idiot co-worker were
+confused about how addition worked, and wrote 
+</p>
+<code class="ex">
+   val sum : Boolean = 13 + 21;
+</code>
+<p>
+the X10 compiler would give a compile-time error message and refuse to execute
+such nonsense.
+</p>
+
+<p>
+There is much more to say about types and variables, but this is enough to
+start with.
+</p>
+
+<a name="location-location-location"></a>
+<h2>Location, Location, Location</h2>
+
+<p>
+The feature of X10 that will give you the most power, and the most trouble,
+is <b>places</b>. A place generally corresponds to a processor (though you can
+run with more places than processors if you like).   Some data
+is <i>global</i>, meaning that it can be read from any place.  
+Most data is <i>non-global</i>: it exists in one place, and, if you want to
+work with it, you need to do so at that place. This is quite easy, but you
+will have to do it intentionally. </p>
+
+<p>
+<b>Advantage:</b> You will always be in control of where your
+data lives and your computation is happening.   You will be able to tune your
+program for peak performance.  
+<b>Disadvantage:</b> You will have to give X10 clues about where data is, even
+when it's obvious to you.
+</p>
+
+<blockquote class="xiom">
+<b>Xiom:</b> A place for everything, and everything in its place.
+</blockquote>
+
+<p>
+X10 has a basic built-in data type <kbd>Place</kbd>. Every non-global piece of
+data, and every segment of computation, exists in precisely one place, called
+its <i>home</i>. (Every global piece of data exists conceptually in all
+places. There are no global computations. A special class of data,
+the <i>array</i>, distributes non-global data across several places, but we'll
+get to that later.) The set of places in your
+program, <kbd>Place.places</kbd>, is chosen when you start your program, and
+does not change.
+</p>
+
+<p>
+The variable <kbd>here</kbd> is always bound to the current place. There might
+or might not be any places other than <kbd>here</kbd>. The X10-to-Java
+compiler produces a one-place program; the X10-to-C++ compiler can produce
+multi-place.  (You can still have concurrency, even if there's only one place:
+you'll have several activities happening at the same time in that one place.)
+</p>
+
+<p>
+There's one other special place: <kbd>Place.FIRST_PLACE</kbd>.   This is the
+place that <kbd>main</kbd> programs are started.  
+</p>
+
+<a name="intro-bang"></a>
+<p>
+A value's home is can be part of its type. The simplest way to say that an
+object's home is <kbd>here</kbd> is to put a &ldquo;<kbd>!</kbd>&rdquo; after
+its type. So, an object of type <kbd>Person</kbd> can be anywhere.  An object
+of type <kbd>Person!</kbd> has to be located <kbd>here</kbd>.  
+</p>
+
+<p>
+One important feature -- the one that will annoy you the most when you start
+using X10 -- is that you can only use non-global data effectively from the
+place that it's defined.  Some methods and fields can be
+marked <kbd>global</kbd>, and you can use them from anywhere.  Others will not
+be marked <kbd>global</kbd>, and you have to use them from the object's home.  
+</p>
+
+
+<table border="1">
+
+
+<tr>
+  <td><b>Can Do From Anywhere</b></td>
+  <td><b>Need To Be <kbd>here</kbd></b></td>
+</tr>
+
+
+<tr>
+  <td>Refer to object</td>
+  <td>Change object</td>
+</tr>
+
+
+
+<tr>
+  <td>Call <kbd>global</kbd> method</td>
+  <td>Call non-global method</td>
+</tr>
+
+
+<tr>
+  <td>Read <kbd>global</kbd> field</td>
+  <td>Read / write non-global field</td>
+</tr>
+
+<tr>
+  <td>Find <kbd>home</kbd> of object</td>
+  <td>&nbsp;</td>
+</tr>
+
+</table>
+
+<p>
+(<b>Aside:</b> Sure, you <i>could</i> mark everything global, and lots of
+programs would sort of work. However, global fields are expensive on
+multiprocessors -- the system has to make sure that every processor which
+needs their value has it. Also, global fields are <i>immutable</i>; you can't
+change them. For best performance, you should make as little global as you
+possibly can.)
+</p>
+
+<blockquote class="xiom">
+<b>Xiom:</b> The global/non-global distinction in X10 is intended to make you
+powerful, not miserable.  This will not be obvious while you are getting used
+to X10.
+</blockquote>
+
+<h3>Hello, &laquo;name&raquo;</h3>
+
+<p>
+With that in mind, let's try modifying <kbd>HelloWorld</kbd> to be friendlier:
+the user can supply a name (<i>e.g.</i> Kim) as the first command line
+argument, and the program will say <kbd>Hello, Kim</kbd>.  Our first attempt
+won't work.
+</p>
+
+
+<!--
+//Tutorial file 02/Hello2_Wrong.x10
+public class Hello2_Wrong {
+  public static def main(argv:Rail[String]) {
+    val you = argv(0);   //BUG: Place error
+    x10.io.Console.OUT.println("Hello, " + you);
+  }
+}
+
+-->
+<table class="ex">
+<tr class="ex"><td><a name="src-hello2wrong-1"/><a href="#hello2wrong-1" class="ex">1</a></td><td class="ex"><code>//Tutorial file 02/Hello2_Wrong.x10</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-2"/><a href="#hello2wrong-2" class="ex">2</a></td><td class="ex"><code>public class Hello2_Wrong {</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-3"/><a href="#hello2wrong-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]) {</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-4"/><a href="#hello2wrong-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val you = argv(0);   //BUG: Place error</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-5"/><a href="#hello2wrong-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("Hello, " + you);</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-6"/><a href="#hello2wrong-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a name="src-hello2wrong-7"/><a href="#hello2wrong-7" class="ex">7</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<!--<p> <a name="hello2wrong-1"/> <a href="#src-hello2wrong-1">line 1: </a><kbd class="ex">//Tutorial file 02/Hello2_Wrong.x10</kbd><br/></p>-->
+<!--<p> <a name="hello2wrong-2"/> <a href="#src-hello2wrong-2">line 2: </a><kbd class="ex">public class Hello2_Wrong {</kbd><br/></p>-->
+<p> <a name="hello2wrong-3"/> <a href="#src-hello2wrong-3">line 3: </a><kbd class="ex">  public static def main(argv:Rail[String]) {</kbd><br/>
+This line is just the same as in the Hello, World example.   (In fact, the
+  Hello, World example had a latent version of the same bug.  It compiled
+  because we never tried to do anything with <kbd>argv</kbd>, and thus never
+  tried to do anything that violated the place rules with it.)
+</p>
+<p> <a name="hello2wrong-4"/> <a href="#src-hello2wrong-4">line
+    4: </a><kbd class="ex">    val you = argv(0);   //BUG: Place
+    error</kbd><br/>
+This attempts to subscript the rail <kbd>argv</kbd> by <kbd>0</kbd>, and store
+    its value as <kbd>you</kbd>.  (Unlike Java and C++, square
+    brackets <kbd>[]</kbd> are only used for type arguments in X10;
+    subscripting uses parentheses <kbd>()</kbd>.)
+    It's using <a href="#type-inference">type inference</a>, correctly, to
+    avoid writing the type down.  
+
+</p>
+<p> <a name="hello2wrong-5"/> <a href="#src-hello2wrong-5">line
+    5: </a><kbd class="ex">    x10.io.Console.OUT.println("Hello, " +
+    you);</kbd><br/>
+<kbd>+</kbd> concatenates strings.  In fact, adding anything to a string will
+convert the anything to a string and concatenate, much as in Java.
+</p>
+<!--<p> <a name="hello2wrong-6"/> <a href="#src-hello2wrong-6">line 6: </a><kbd class="ex">  }</kbd><br/></p>-->
+<!--<p> <a name="hello2wrong-7"/> <a href="#src-hello2wrong-7">line 7: </a><kbd class="ex">}</kbd><br/></p>-->
+
+<p>
+Compiling this, however, produces some error messages:</p>
+<pre class="output">
+~/x10/src/x10/x10.tut/example/02: x10c Hello2_Wrong.x10
+/Users/bard/x10/src/x10/x10.tut/example/02/Hello2_Wrong.x10:4: 
+  Place type error: method target argv cannot be determined to be at x10.lang.Place.FIRST_PLACE{}
+/Users/bard/x10/src/x10/x10.tut/example/02/Hello2_Wrong.x10:4: 
+  Place type error: method target argv cannot be determined to be at x10.lang.Place.FIRST_PLACE{}
+2 errors.
+</pre>
+
+<p>
+<b>Apology:</b> The v.2.0.1 compiler often produces double error messages: a
+known compiler flaw, which the X10 team apologizes for and will fix at some
+point. 
+</p>
+
+<p>
+This error message says that there's an error at line 4
+of <kbd>Hello2_Wrong.x10</kbd>.  We're trying to evaluate <kbd>argv(0)</kbd>,
+to get the first element of the <kbd>Rail[String]</kbd>
+called <kbd>argv</kbd>. This is actually a method call, even if it doesn't
+look like one, and a call of a non-global method at that.  
+<a href="#location-location-location">As noted above,</a> you can't call
+non-global methods unless the compiler can be sure that the object you're
+calling the method on is located <kbd>here</kbd>.
+</p>
+
+<p>
+All the compiler officially knows about <kbd>argv</kbd> is what we have told
+it -- <i>viz.</i> that <kbd>argv</kbd> is a <kbd>Rail[String]</kbd>.  We
+didn't tell it that <kbd>argv</kbd> was located <kbd>here</kbd>.   So, the
+compiler doesn't know that.  
+</p>
+
+<p>
+We must tell the compiler this important clue.
+The <a href="#intro-bang">exclamation point
+    syntax</a> <kbd>argv:Rail[String]!</kbd> is the simplest way to do so: that
+says that <kbd>argv</kbd> is a <kbd>Rail[String]</kbd> and
+located <kbd>here</kbd>.  
+</p>
+
+
+
+<p class="todo">
+Explain the error message, once I understand it.
+</p>
+
+<p>
+Adding this <kbd>!</kbd> to the code, we get: 
+</p>
+
+
+<!--
+//Tutorial file 02/Hello2_Right.x10
+public class Hello2_Right {
+  public static def main(argv:Rail[String]!) {
+    val you = argv(0);   
+    x10.io.Console.OUT.println("Hello, " + you);
+  }
+}
+
+-->
+<table class="ex">
+<tr class="ex"><td><a name="src-hello2-right-1"/><a href="#hello2-right-1" class="ex">1</a></td><td class="ex"><code>//Tutorial file 02/Hello2_Right.x10</code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-2"/><a href="#hello2-right-2" class="ex">2</a></td><td class="ex"><code>public class Hello2_Right {</code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-3"/><a href="#hello2-right-3" class="ex">3</a></td><td class="ex"><code>&nbsp;&nbsp;public static def main(argv:Rail[String]!) {</code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-4"/><a href="#hello2-right-4" class="ex">4</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;val you = argv(0);   </code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-5"/><a href="#hello2-right-5" class="ex">5</a></td><td class="ex"><code>&nbsp;&nbsp;&nbsp;&nbsp;x10.io.Console.OUT.println("Hello, " + you);</code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-6"/><a href="#hello2-right-6" class="ex">6</a></td><td class="ex"><code>&nbsp;&nbsp;}</code></td></tr>
+<tr class="ex"><td><a name="src-hello2-right-7"/><a href="#hello2-right-7" class="ex">7</a></td><td class="ex"><code>}</code></td></tr>
+</table>
+
+<!--<p> <a name="hello2-right-1"/> <a href="#src-hello2-right-1">line 1: </a><kbd class="ex">//Tutorial file 02/Hello2_Right.x10</kbd><br/></p>-->
+<!--<p> <a name="hello2-right-2"/> <a href="#src-hello2-right-2">line 2: </a><kbd class="ex">public class Hello2_Right {</kbd><br/></p>-->
+<p> <a name="hello2-right-3"/> <a href="#src-hello2-right-3">line
+    3: </a><kbd class="ex">  public static def main(argv:Rail[String]!)
+    {</kbd><br/>
+This line was updated by adding that <kbd>!</kbd> to say that <kbd>argc</kbd>
+    is <kbd>here</kbd>.</p>
+<p> <a name="hello2-right-4"/> <a href="#src-hello2-right-4">line
+    4: </a><kbd class="ex">    val you = argv(0);   </kbd><br/>
+This line now compiles properly.
+</p>
+<!--<p> <a name="hello2-right-5"/> <a href="#src-hello2-right-5">line 5: </a><kbd class="ex">    x10.io.Console.OUT.println("Hello, " + you);</kbd><br/></p>-->
+<!--<p> <a name="hello2-right-6"/> <a href="#src-hello2-right-6">line 6: </a><kbd class="ex">  }</kbd><br/></p>-->
+<!--<p> <a name="hello2-right-7"/> <a href="#src-hello2-right-7">line 7: </a><kbd class="ex">}</kbd><br/></p>-->
+
+<p>
+And now, the program does what we want.  Note that the command-line arguments
+follow the name of the main class on the command line. 
+</p>
+<pre class="output">
+% x10 Hello2_Right Kim
+Hello, Kim
+</pre>
+
+</body>
+
+</html>
