@@ -4027,9 +4027,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
+        // TODO: To workaround XTENLANG-467, we are explicitly qualifying inherited member functions here.
+        // This is less than ideal, since it can introduce subtle bugs when the C++ code is refactored
+        // (an overridden member function will not be called from the itable, which is very non-intuitive).
+        // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, &"+cnamet+"::at, &"+cnamet+"::at, &"+cnamet+"::equals, &"+
-        			cnamet+"::hashCode, &"+cnamet+"::home, &"+cnamet+"::toString, &"+cnamet+"::typeName);");
+        			cnamet+"::_itable(&"+cnamet+"::apply, &Reference::at, &Reference::at, &Reference::equals, &Closure::hashCode, &Reference::home, &"
+        			+cnamet+"::toString, &Closure::typeName);");
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
