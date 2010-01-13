@@ -68,7 +68,7 @@ public class ClockTest16a extends x10Test {
 				}
 			}
 
-			var f0: foo = new foo() {
+			var f0: foo! = new foo() {
 				public def apply(): void = {
 					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
@@ -77,7 +77,7 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			var f1: foo = new foo() {
+			var f1: foo! = new foo() {
 				public def apply(): void = {
 					val cx: Clock = ca(x.one());
 					async clocked(cx) { //no clock use error
@@ -86,16 +86,16 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			val fooArray: Rail[foo]! = [f0,f1];
+			val fooArray: Rail[foo]! = [f0,f1];  // FIXME: should be Rail[foo!]!
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error
-			Y.test(fooArray(x.one()));
+			Y.test(fooArray(x.one()) as foo!);
 
 			x10.io.Console.OUT.println("point #1");
 			// Compiler: MAYBE, actual: YES
 			// must have a compiler error
-			Y.test(fooArray(x.zero()));
+			Y.test(fooArray(x.zero()) as foo!);
 
 			x10.io.Console.OUT.println("point #2");
 			// Compiler: MAYBE, actual: YES
@@ -131,7 +131,7 @@ public class ClockTest16a extends x10Test {
 	 * A class to invoke a 'function pointer' that may do an async
 	 */
 	static class Y {
-		static def test(val f: foo): void = {
+		static def test(val f: foo!): void = {
 			{
 				f.apply(); // it is hard to determine f does an async clocked(c) S,
 				//where the current activity is not registered on c

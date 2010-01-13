@@ -74,7 +74,7 @@ public class ClockTest16 extends x10Test {
 					next;
 				}
 
-				val f0: foo = new foo() {
+				val f0: foo! = new foo() {
 					public def apply(): void = {
 						val cx = ca(x.zero());
 						async clocked(cx) { // clock use error
@@ -83,7 +83,7 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val f1: foo = new foo() {
+				val f1: foo! = new foo() {
 					public def apply(): void = {
 						val cx = ca(x.one());
 						async clocked(cx) { // no clock use error
@@ -92,13 +92,13 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val fooArray: Rail[foo]! = [f0,f1];
+				val fooArray: Rail[foo]! = [f0,f1];  // FIXME: should be Rail[foo!]!
 
 				// Compiler: MAYBE, Actual: NO
-				Y.test(fooArray(x.one()), c1);
+				Y.test(fooArray(x.one()) as foo!, c1);
 
 				// Compiler: MAYBE, Actual: YES
-				Y.test(fooArray(x.zero()), c1);
+				Y.test(fooArray(x.zero()) as foo!, c1);
 
 				// Compiler: YES, actual: YES
 				async clocked(c1) {
@@ -130,7 +130,7 @@ public class ClockTest16 extends x10Test {
 	 * A class to invoke a 'function pointer' inside of async
 	 */
 	static class Y {
-		static def test(val f: foo, val c: Clock): void = {
+		static def test(val f: foo!, val c: Clock): void = {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2 != c
