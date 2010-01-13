@@ -196,9 +196,9 @@ abstract public class TestArray extends x10Test {
 
         // scanner api
         var grid:Grid! = new Grid();
-        var it: Iterator[Region.Scanner] = r.scanners();
+        var it: Iterator[Region.Scanner]! = r.scanners();
         while (it.hasNext()) {
-            var s: Region.Scanner = it.next() as Region.Scanner; // XTENLANG-55
+            var s: Region.Scanner! = it.next() as Region.Scanner!; // XTENLANG-55
             pr("  poly");
             if (r.rank==0) {
                 pr("ERROR rank==0");
