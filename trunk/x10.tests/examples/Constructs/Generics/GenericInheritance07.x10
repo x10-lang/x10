@@ -26,8 +26,8 @@ public class GenericInheritance07 extends GenericTest {
     public def run() = {
         
         val a = new A[int]();
-        val i:I[int] = a;
-        val j:J[int] = a;
+        val i:I[int]! = a;
+        val j:J[int]! = a;
 
         check("a.m(0)", a.m(0), 0);
         check("i.m(0)", i.m(0), 0);
