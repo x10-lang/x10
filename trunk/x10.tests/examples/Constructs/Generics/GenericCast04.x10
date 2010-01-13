@@ -22,7 +22,7 @@ public class GenericCast04 extends GenericTest {
     public def run() = {
 
         var a:Object = new A[int]();
-        var i:I[int] = a as I[int];
+        var i:I[int]! = a as I[int];
         check("i.m(0)", i.m(0), 0);
 
         return result;
