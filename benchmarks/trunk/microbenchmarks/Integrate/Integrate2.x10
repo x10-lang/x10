@@ -244,7 +244,7 @@ public final class Integrate2 {
             if (diff <= errorTolerance) {
                 return alr;
 	    } else {
-	        if (x10.runtime.Runtime.surplusActivityCount() <= 3) {
+	        if (x10.lang.Runtime.surplusActivityCount() <= 3) {
 		    val expr1 = future (here) recEval(c, r, fc, fr, ar);
 		    val expr2 = recEval(l, c, fl, fc, al);
 		    return expr1() + expr2;
