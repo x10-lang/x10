@@ -56,7 +56,7 @@ ifeq ($(X10RT_PLATFORM), linux_x86_32)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
-  WPLATFORM      := cygwin_x86_g++3
+  WPLATFORM      := cygwin_x86_g++4
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin)
