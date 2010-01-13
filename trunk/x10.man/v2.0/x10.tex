@@ -42,7 +42,7 @@ urlcolor=blue
           }
 \fi
 
-\def\headertitle{The \XtenCurrVer{} Report }
+\def\headertitle{The \XtenCurrVer{} Report (Draft) }
 \def\integerversion{2.01}
 
 % Sizes and dimensions
@@ -118,10 +118,9 @@ urlcolor=blue
 \input{Interfaces}
 \input{Classes}
 \input{Structs}
-\input{functions}
-\input{VariableDeclarations}	
-\input{Statements}	
+\input{Functions}
 \input{Expressions}	
+\input{Statements}	
 \input{Places}	
 \input{Activities}	
 \input{Clocks}	
@@ -143,6 +142,19 @@ urlcolor=blue
 \input{x10.ind}
 
 \appendix
+
+\chapter{Change Log}
+
+\section{Changes from \Xten{} v2.0}
+
+\begin{itemize}
+\item \Xcd{Any} is now the top of the type hierarchy (every object,
+  struct and function has a type that is a subtype of
+  \Xcd{Any}). \Xcd{Any} defines \Xcd{home}, \Xcd{at}, \Xcd{toString},
+  \Xcd{typeName}, \Xcd{equals} and \Xcd{hashCode}.
+\item Revised discussion of incomplete types (\Sref{ProtoRules}).
+\item The manual has been revised and brought into line with the current implementation. 
+\end{itemize}
 \section{Changes from \Xten{} v1.7}
 
 The language has changed in the following way:

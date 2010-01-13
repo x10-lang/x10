@@ -75,13 +75,13 @@ clocks (e.g. \xcd"drop").
 
 \subsection{Creating new clocks}\index{clock!creation}\label{sec:clock:create}
 
-Clocks are created using the nullary constructor for \xcd"x10.lang.Clock":
+Clocks are created using a factory method on \xcd"x10.lang.Clock":
 
 \begin{xten}
-timeSynchronizer: Clock = new Clock();
+timeSynchronizer: Clock = Clock.make();
 \end{xten}
 
-All clocked variables are implicitly final. The initializer for a
+\eat{All clocked variables are implicitly final. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
 Clocks are created in the place global heap and hence outlive the
@@ -89,7 +89,7 @@ lifetime of the creating activity.  Clocks are structs, hence may be freely
 copied from place to 
 place. (Clock instances typically contain references to mutable state
 that maintains the current state of the clock.)
-
+}
 The current activity is automatically registered with the newly
 created clock.  It may deregister using the \xcd"drop" method on
 clocks (see the documentation of \xcd"x10.lang.Clock"). All activities
@@ -193,7 +193,7 @@ already dropped \xcd"c".
 
 %\input{clock/now.tex}
 
-\subsection{Program equivalences}
+\section{Program equivalences}
 From the discussion above it should be clear that the following
 equivalences hold:
 

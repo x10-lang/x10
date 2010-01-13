@@ -1,17 +1,12 @@
 \chapter{Classes}
 \label{XtenClasses}\index{class}
 
-The {\em class declaration} has
-a list of type \params,
-value properties, 
-a constraint (the {\em class invariant}, a single superclass,
-one or more interfaces, and a class body containing the
-the definition of
-fields, methods, and member types.
-Each such declaration introduces a class
-type (\Sref{ReferenceTypes}).
+The {\em class declaration} has a list of type \params, properties, a
+constraint (the {\em class invariant}, a single superclass, one or
+more interfaces, and a class body containing the the definition of
+fields, properties, methods, and member types.  Each such declaration introduces a
+class type (\Sref{ReferenceTypes}).
 
-\iftypeparams
 
 \begin{grammar}
 NormalClassDeclaration \:
@@ -40,60 +35,18 @@ ClassMember \: ClassDeclaration \\
             \| ConstructorDeclaration \\
 \end{grammar}
 
-A type parameter declaration is given by an optional variance
-tag and an identifier.
-A type parameter must be
-bound to a concrete type when an instance of the class is created.
-
-\else
-
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && Super\opt Interfaces\opt ClassBody \\
-\\
-TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
-TypeProperties       \:  TypeProperty ( \xcd"," TypeProperty )\star \\
-TypeProperty         \:  Annotation\star Identifier     \\
-\\
-PropertyList     \:  \xcd"(" Properties \xcd")" \\
-Properties       \:  Property ( \xcd"," Property )\star \\
-Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
-\\
-Super \: \xcd"extends" ClassType \\
-Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
-\\
-ClassBody \: ClassMember\star \\
-ClassMember \: ClassDeclaration \\
-            \| InterfaceDeclaration \\
-            \| FieldDeclaration \\
-            \| MethodDeclaration \\
-            \| ConstructorDeclaration \\
-\end{grammar}
-
-A type property declaration is given simply by an identifier.
-The type property is an instance member of the class; given
-an instance \xcd"e" of the class, \xcd"e.T" is a type.
-A type property must be
-bound to a concrete type when the instance is created.
-
-\fi
+A type parameter declaration is given by an optional variance tag and an identifier.
+A type parameter must be bound to a concrete type when an instance of the class is created.
 
 
-A value property has a name and a type.   Value properties
+A property has a name and a type.   Properties
 are accessible in the same way as \xcd"public" \xcd"final"
 fields.
 
 \begin{staticrule*}
 It is a compile-time error for a class
-defining a value property \xcd"x: T" to have an ancestor class that defines
-a value property with the name \xcd"x".  
-\iftypeparams\else
-It is a compile-time error for a class
-defining a type property \xcd"X" to have an ancestor class that defines
-a type property with the name \xcd"X".   
-\fi
+defining a property \xcd"x: T" to have an ancestor class that defines
+a property with the name \xcd"x".  
 \end{staticrule*}
 
 Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
@@ -124,11 +77,22 @@ the signature \xcd"x(): T".
 Properties are used to build dependent types from classes, as
 described in \Sref{DepType:DepType}.
 
+Properties are initialized by the invocation of a special \Xcd{property} call in each constructor
+of the class:
+\begin{xten}
+property(e1,..., en);
+\end{xten}
+The number and type of arguments to the \Xcd{property} call must match the number
+and type of properties in the class declaration, in left to right lexical order. Each constructor is required to initialize its properties before normal termination.
+\index{property!call}
+\index{property!initialization}
+\label{PropertyCall}
+
 \label{ClassGuard}
 
 The \grammarrule{Guard} in a class or interface declaration specifies an
 explicit condition on the properties of the type, and is discussed further
-in \Sref{DepType:Guard}.
+in \Sref{DepType:ClassGuard}.
 
 \begin{staticrule*}
      Every constructor for a class defining
@@ -138,8 +102,7 @@ in \Sref{DepType:Guard}.
    constructor returns.
 \end{staticrule*}
 
-Type \params{}
-are used to define generic classes and
+Type \params{} are used to define generic classes and
 interfaces, as described in \Sref{Generics}.
 
 Classes are structured in a single-inheritance code
@@ -147,26 +110,20 @@ hierarchy, may implement multiple interfaces, may have static and
 instance fields, may have static and instance methods, may have
 constructors, may have static and instance initializers, may have
 static and instance inner classes and interfaces. \Xten{} does not
-permit mutable static state, so the role of static methods and
-initializers is quite limited. Instead programmers should use
-singleton classes to carry mutable static state.
+permit mutable static state.
 
 Method signatures may specify checked exceptions. Method definitions
 may be overridden by subclasses; the overriding definition may have a
 declared return type that is a subclass of the return type of the
 definition being overridden. Multiple methods with the same name but
 different signatures may be provided on a class (ad hoc
-polymorphism). The public/private/protected/package-protected access
+polymorphism). The \Xcd{public}/\Xcd{private}/\Xcd{protected}/default-protected access
 modification framework may be used.
 
-\oldtodo{Add the new rule for preventing leakage of this from a constructor.}
-
-Because of its different concurrency model, \Xten{} does not support
-\xcd"transient" and \xcd"volatile" field modifiers.
 
 \oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
 
-\section{Classes}\index{class!reference class}\label{ReferenceClasses}
+\index{class}\label{ReferenceClasses}
 
 Class declarations may
 be used to construct class types (\Sref{ReferenceTypes}). Classes may
@@ -176,8 +133,9 @@ object.  Variables declared at a class type always store a reference
 to the object, regardless of whether the object is local or remote.
 
 
-\section{Type invariants}\label{DepType:Guard}
+\section{Type invariants}\label{DepType:ClassGuard}
 \index{type invariants}
+\index{class invariants}
 \index{guards}
 
 There is a general recipe for constructing a list of parameters or
@@ -230,8 +188,6 @@ In the general case, the production for \grammarrule{NormalClassDeclaration}
 specifies that the list of properties may be followed by a
 \grammarrule{Guard}.
 
-\iftypeparams
-
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
@@ -243,49 +199,69 @@ NormalInterfaceDeclaration \:
    && TypeParameterList\opt PropertyList\opt Guard\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
-
-\else
-
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && Extends\opt Interfaces\opt ClassBody \\
-\\
-NormalInterfaceDeclaration \:
-      InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && ExtendsInterfaces\opt InterfaceBody \\
-\end{grammar}
-
-\fi
 
 All the properties in the list, together with inherited properties,
 may appear in the \grammarrule{Guard}. A guard \xcd"c" with
-\iftypeparams\else
-type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
-\fi
-value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
 for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
 consistent and the constraint
-\iftypeparams
 \begin{xtenmath}
 $\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 \end{xtenmath}
-\else
-\begin{xtenmath}
-$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\fi
 \noindent is valid (always true).
 
-\section{Class definitions}
+\label{DepType:TypeInvariant}
+\index{Class invariant}
+\label{DepType:ClassGuardDef}
 
+The guard is an invariant on all instances of the class or interface.
+
+With every defined class or interface \xcd"T" we associate a {\em type
+invariant} $\mathit{inv}($\xcd"T"$)$ as follows. The type
+invariant associated with \xcd"x10.lang.Object" is 
+\xcd"true".
+
+The type invariant associated with any interface \xcd"I" that extends
+interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
+\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
+specifies a guard \xcd"c" is given by:
+
+\begin{xtenmath}
+$\mathit{inv}$(I$_1$), $\dots$, $\mathit{inv}$(I$_k$),
+    self.x$_1$: P$_1$,  $\dots$,  self.x$_n$: P$_n$, c  
+\end{xtenmath}
+
+Similarly the type invariant associated with any class \xcd"C" that
+implements interfaces \xcdmath"I$_1$, $\dots$, I$_k$",
+extends class \xcd"D" and defines properties
+\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
+specifies a guard \xcd"c" is
+given by:
+\begin{xtenmath}
+$\mathit{inv}$(D), $\mathit{inv}$(I$_1$),  $\dots$, $\mathit{inv}$(I$_k$),
+    self.x$_1$: P$_1$,  $\dots$, self.x$_n$: P$_n$,  c  
+\end{xtenmath}
+
+It is required that the type invariant associated with a class entail
+the type invariants of each interface that it implements.
+
+It is guaranteed that for any variable \xcd"v" of
+type \xcd"T{c}" (where \xcd"T" is an interface name or a class name) the only
+objects \xcd"o" that may be stored in \xcd"v" are such that \xcd"o" satisfies
+$\mathit{inv}(\mbox{\xcd"T"}[\mbox{\xcd"o"}/\mbox{\xcd"this"}])
+\wedge \mbox{\xcd"c"}[\mbox{\xcd"o"}/\mbox{\xcd"self"}]$.
+
+\section{\Xcd{implements} and \Xcd{extends} clauses}\label{DepType:Implements}
+\label{DepType:Extends}
+\index{type-checking!implements clause}
+\index{type-checking!extends clause}
+\index{implements clause}
+\index{extends  clause}
 Consider a class definition
 \begin{xtenmath}
 $\mbox{\emph{ClassModifiers}}^{\mbox{?}}$
 class C(x$_1$: P$_1$, $\dots$, x$_n$: P$_n$) extends D{d}
-   implements I$_1$(:c$_1$), $\dots$, I$_k${c$_k$}
+   implements I$_1${c$_1$}, $\dots$, I$_k${c$_k$}
 $\mbox{\emph{ClassBody}}$
 \end{xtenmath}
 
@@ -353,13 +329,13 @@ of points in the rectangular parallelopiped between the origin and the
 
 Now the following code type checks:
 \begin{xten}
-   val R1 = new MyRegion([4,4,4]); // R1's type is MyRegion(3)
-   val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
+val R1 = new MyRegion([4,4,4]); // R1's type is MyRegion(3)
+val R2 = new MyRegion([5,4,1]); // R2's type is MyRegion(3)
 \end{xten}
 Hence the following code type checks and infers that \Xcd{R3}'s type is
 \Xcd{MyRegion(3)}:
 \begin{xten}
-   val R3 = R1.union(R2);          // R3's type is MyRegion(3)
+val R3 = R1.union(R2);          // R3's type is MyRegion(3)
 \end{xten}
 \end{example}
 
@@ -380,11 +356,10 @@ Hence the following code type checks and infers that \Xcd{R3}'s type is
 \begin{xtenmath}
 x$_1$: S$_1$, $\dots$, x$_i$: S$_i$ $\vdash$ x$_i$: T$_i$  (for $i \in \{1, \dots, k\}$)
 x$_1$: S$_1$, $\dots$, x$_k$: S$_k$ $\vdash$ c  
-d$_1$[a/self] && x$_1$: S$_1$ ... && x$_k$: S$_k$ $\vdash$ d[a/self]      
+d$_1$[a/self], x$_1$: S$_1$, ..., x$_k$: S$_k$ $\vdash$ d[a/self]      
 \end{xtenmath}
 \noindent where \xcd"a" is a constant that does not appear in 
 \xcdmath"x$_1$: S$_1$ $\wedge$ ... $\wedge$ x$_k$: S$_k$".
-  
 \end{staticrule}
 
 \begin{staticrule}{Constructor return}
@@ -487,7 +462,11 @@ type. It will point only to completed objects. It can now be
 assigned to any (type-consistent) field of any object, that is, it is
 now allowed to escape.
 
-\subsubsection{Design}
+\subsubsection{\Xcd{proto} Rules}
+\label{protorules}
+\label{ProtoRules}
+\index{proto!rules}
+
 For every type \Xcd{T} (where \Xcd{T} is not a type variable), we
 introduce the type \Xcd{proto T}. 
 
@@ -575,7 +554,6 @@ complete is when the last constructor for any incomplete value it
 references (including itself) returns.
 
 \subsubsection{Example}
-
 
 \begin{example}
 This example shows how to create a fixed-size circular buffer.
@@ -745,10 +723,11 @@ overridden.
 A property method definition may omit the formal parameters and
 the \xcd"def" keyword.  That is, the following are equivalent:
 
+{\footnotesize
 \begin{xten}
 property def rail(): boolean = rect && onePlace == here && zeroBased;
 property rail: boolean = rect && onePlace == here && zeroBased;
-\end{xten}
+\end{xten}}
 
 \subsection{Method overloading, overriding, hiding, shadowing and obscuring}
 \label{MethodOverload}
@@ -955,17 +934,20 @@ The initialization phase must be thought of as if it is implemented in
 the following fashion: (The implementation may do something more
 efficient as long as it is faithful to this semantics.)
 
-\begin{verbatim}
+\begin{xten}
 Within the scope of a new finish
-for every static field f of every class C (with type T and initializer e):
+for every static field f of every class C 
+   (with type T and initializer e):
 async {
   val l = e; 
   ateach (Dist.makeUnique()) {
-     assign l to the static f field of the local C class object;
-     mark the f field of the local C class object as initialized;
+     assign l to the static f field of 
+         the local C class object;
+     mark the f field of the local C 
+         class object as initialized;
   }
 }
-\end{verbatim}
+\end{xten}
 
 During this phase, any read of a static field \Xcd{C.f} (declared at type \Xcd{T})
 is replaced by a call to the method \Xcd{C.read\_f():T} defined on class \Xcd{C}

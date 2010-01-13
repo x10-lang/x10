@@ -78,8 +78,7 @@ rule for final fields discussed above.
   \Xcd{safe}, and \Xcd{pure}.
 
 
-A method may be marked \Xcd{nonblocking}. 
-A \Xcd{nonblocking} method
+A method may be marked \Xcd{nonblocking}.  A \Xcd{nonblocking} method
 may not contain any \Xcd{when} statement whose condition is not
 statically equivalent to \Xcd{true}m, and must call only
 \Xcd{nonblocking} methods.
@@ -107,13 +106,16 @@ with the  same guid.
 \Xten{} has a rather simple \emph{distributed object model}. 
 
 The state of an object is partitioned into \emph{global} state (a
-programmer defined subset of \Xcd{val} fields, \Sref{GlobalField}) and \emph{non-global} state.
+programmer defined subset of \Xcd{val} fields, \Sref{GlobalField}) and
+\emph{non-global} state.
 
  \begin{itemize}
-\item  Field definitions are marked with the qualifier \Xcd{global} if they are intended to be included in the global state. 
-\item  If the \Xcd{global} qualifier is omitted, the field is considered non-global. 
-\item  Properties and static fields are implicitly marked \Xcd{global}. 
-\item \Xcd{var} fields cannot be marked \Xcd{global}. 
+\item Field definitions are marked with the qualifier \Xcd{global} if
+  they are intended to be included in the global state.
+\item If the \Xcd{global} qualifier is omitted, the field is
+  considered non-global.
+\item Properties and static fields are implicitly marked \Xcd{global}.
+\item \Xcd{var} fields cannot be marked \Xcd{global}.
 %\item  Fields marked \Xcd{global} cannot be overriden by fields not marked \Xcd{global}.
 \end{itemize}
  
@@ -121,7 +123,6 @@ Similarly, the methods of an object may be qualified as
 \Xcd{global}(\Sref{GlobalMethod}) ; if they are not global they are
 said to be \emph{non-global}. 
 Global methods cannot be overridden by non-global methods.
-
 
 Consider the execution of an \Xcd{at (P) S} statement at a place
 \Xcd{Q} different from \Xcd{P}. Suppose \Xcd{x} is an in-scope
@@ -131,7 +132,6 @@ created at \Xcd{Q}. Then within \Xcd{S}, \Xcd{x} is said to be a
 \Xcd{Q} are said to be \emph{local references}. \Xten{} permits
 \Xcd{global} fields to be read and \Xcd{global} methods to be invoked
 through a remote reference.
-
 
 Like local references, remote references are first-class entities:
 they may be passed as arguments to methods, returned from methods,
@@ -147,7 +147,9 @@ transmitted to \Xcd{P} it automatically becomes a local reference to
 \Xcd{o}. Therefore the situation in which a local reference can be compared
 to a remote reference simply cannot arise.
 
-The \Xten{} compiler ensures that non-global methods on \Xcd{o} can only be invoked in a place where \Xcd{here== o.home()}, i.e. the place where \Xcd{o} was created.
+The \Xten{} compiler ensures that non-global methods on \Xcd{o} can
+only be invoked in a place where \Xcd{here== o.home()}, i.e. the place
+where \Xcd{o} was created.
 
 \paragraph{Implementation notes}
 Remote references to an object \Xcd{o} are intended to be implemented
@@ -162,8 +164,6 @@ There is no requirement that a remote reference use only as much space as a loca
 
   
 \paragraph{Local execution}
-
-
  The semantics of \Xcd{atomic} and \Xcd{when} constructs requires that their
  bodies do not execute any \Xcd{at} operations, implicitly or
  explicitly. Hence the compiler must establish that if a non-global method
@@ -172,55 +172,57 @@ There is no requirement that a remote reference use only as much space as a loca
 
   
 \section{Examples}
-
 Assume the class declarations. 
 
- \begin{x10}
+\begin{xten}
 class C { ...} 
 class D {
    var f:C=null;
 }
-\end{x10}
+\end{xten}
  
 Now the code below must behave as described.
-\begin{x10}
-val x = new C(..); // C object o created, reference stored in x. 
-at (P) { // In the body x contains a remote reference to o
+\begin{xten}
+val x = new C(..); 
+// C object o created, reference stored in x. 
+at (P) { 
+      // In the body x contains a remote reference to o
       val f = new D();
       f.x1  = x; // remote reference stored in f.x1
-      Console.OUT.println((f.x1 == x);               // must print true
-      Console.OUT.println((x == x);                  // must print true
-      at (Q) { // x continues to be a remote reference to o1.
+      Console.OUT.println((f.x1 == x);       // must print true
+      Console.OUT.println((x == x);          // must print true
+      at (Q) { 
+         // x continues to be a remote reference to o1.
          at (P) {  
              Console.OUT.println(f.x1 == x);   // must print true
              Console.OUT.println((x == x);   // must print true
          }
       }
 }
-\end{x10}
+\end{xten}
   
 
 Here is another example.
- \begin{x10}
+ \begin{xten}
 val x = new C(..); 
 // C object o created, reference stored in x. 
-// type of x is rooted C{c} if the return type of the constructor is C{c}. 
+// type of x is rooted C{c} if the return type 
+// of the constructor is C{c}. 
 at (P) { 
-    val x1 = x; // type of x is C{c} because of the place shift introduced by at(P)
+    val x1 = x; 
+    // type of x is C{c} because of the place shift 
+    // introduced by at(P)
   at (x.home()) {
         // x is now bound to o through a local reference. So is x1.
     Console.out.println(x1==x); // Must print true.
-      // rooted methods can be invoked on x or x1 and will execute locally on o
+      // rooted methods can be invoked on x or x1 and will 
+      // execute locally on o
       // type of both x and x1 is rooted C{c}.
   }
 }
-\end{x10}
+\end{xten}
  
-
-
-  
 \subsection{Programming Methodology}
-
 
 A programmer wishing to ensure that a \Xcd{val} field is not serialized when
 the containing object is serialized (e.g. because it contains a large

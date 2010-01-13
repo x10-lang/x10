@@ -28,14 +28,13 @@ should return two doubles on the stack. Two values of this type should
 be equal precisely when the two doubles are equal (structural
 equality).
 
-
 \Xten{} supports the notion of \emph{structs} which are precisely
 objects that can be implemented inline with a contiguous chunk of
 memory representing their fields, without any vtable/itable. Structs
 are introduced by struct definitions. struct definitions look very
 similar to class definitions, but have additional restrictions.
 
-\subsection{Structs}
+\section{Struct declaration}
 
 \Xten{} supports user-defined primitives (called
 \emph{structs}). Like classes, structs define zero or more fields and
@@ -83,62 +82,61 @@ Constrained types can be built on top of the base \Xcd{C} in the same way as
 they can be built on top of a class \Xcd{D}. In struct \Xcd{C[T1,..., Tn]\{c\}},
 the type of \Xcd{self} in \Xcd{c} is \Xcd{C[T1,..., Tn]}.
 
+\section{Boxing of structs}
+If a struct \Xcd{S} implements an interface \Xcd{I} (e.g., \Xcd{Any}),
+a value \Xcd{v} of type \Xcd{S} can be assigned to a variable of type
+\Xcd{I}. The implementation creates an object \Xcd{o} that is an
+instance of an anonymous class implementing \Xcd{I} and containing
+\Xcd{v}.  The result of invoking a method of \Xcd{I} on \Xcd{o} is the
+same as invoking it on \Xcd{v}. This operation is termed {\em auto-boxing}
+\index{auto-boxing!struct to interface}
+\label{auto-boxing}
 
-Even if struct \Xcd{C} implements an interface \Xcd{I}, a value of
-type \Xcd{C} cannot be assigned to a variable of type
-\Xcd{I}.\footnote{ The size of a \Xcd{C} is the size of the fields
-  defined at \Xcd{C} (as discussed above), whereas the size of a
-  variable of type \Xcd{I} is always \Xcd{AddressSize} (i.e.{}
-  variables of interface types can only contain objects, not structs).
-} The programmer may wish to define coercions
-(\Sref{User-definedCoercions}) to coerce a struct to an interface,
-typically by boxing.
+In a generic class or struct obtained by instantiating a type parameter
+\Xcd{T} with a struct \Xcd{S}, variables declared at type \Xcd{T} in the body
+of the class are not boxed. Rather they are implemented as if they were declared at
+type \Xcd{S}. 
 
-However,
-if \Xcd{C} implements an interface \Xcd{I}, all the methods and properties defined
-on \Xcd{I} must be implemented by \Xcd{C} and can hence be invoked/accessed on a
-value of type \Xcd{C}. 
-
-\subsubsection{Struct equality}
+\section{Implementation of \Xcd{Any} methods}
+\label{StructAnyMethods}
+\index{Any!structs}
 
 Unlike objects, structs do not have global identity. Instead, two
-structs are equal (\Xcd{==}) if and only if their corresponding fields are
-equal (\Xcd{==}). This is the central property of structs.
+structs are equal (\Xcd{==}) if and only if their corresponding fields
+are equal (\Xcd{==}). This is the central property of structs.
 
-\subsubsection{Interfaces implemented by structs}
-Structs are not required to implement any interface. Structs intended
-to be used in collections such as hashtables should implement
-\Xcd{Equals}:
+All structs implement \Xcd{x10.lang.Any}. All 
+structs have the following methods implicitly defined on them:
 \begin{xten}
-package x10.lang;  
-
-public interface Equals {
-    def equals(Any):boolean;
-    def hashCode():Int;
-}
+  property def home()=here;
+  property def at(Place)=true;
+  property def at(Object)=true;
 \end{xten}
+\noindent It is an error for a programmer to attempt to define them.
+
 Structs are required to implement the following methods: 
 \begin{xten}
-  global def typeName():String;
-  global def toString():String;  
-\end{xten}
-These methods are defined automatically if they are not supplied by the programmer.
-
-Structs have the following methods implicitly defined on them:
-\begin{xten}
-  global def home()=here;
-  global def home(p:Place)=true;
-  global def home(O:Object)=true;
+  public global safe def equals(Any):boolean;
+  public global safe def hashCode():Int;
+  public global safe def typeName():String;
+  public global safe def toString():String;  
 \end{xten}
 
-The operations \Xcd{==} and \Xcd{!=} are available on structs, and
-correspond to performing these operations componentwise.
+These methods are defined automatically if they are not supplied by
+the programmer.  A programmer who provides an explicit implementation
+of \Xcd{equals(Any)} for a struct \Xcd{S} should also consider
+supplying a definition for \Xcd{equals(S):Boolean}. This will often
+yield better performance since the cost of an upcast to \Xcd{Any} and
+then a downcast to \Xcd{S} can be avoided.
 
-Expressions  of a struct type may be used in \Xcd{instanceof} and \Xcd{class-cast} tests.
+Expressions of a struct type may be used in \Xcd{instanceof} and
+\Xcd{class-cast} tests.
 
-\subsection{``Primitives''}
+\section{``Primitives''}
 
-The package x10.lang provides the following structs. Most of the functionality of these structs is implemented natively. 
+The package \Xcd{x10.lang} provides the following structs. Most of
+the functionality of these structs is implemented natively.
+
 \begin{xten}
 boolean, char, 
 byte, short, int, long
@@ -146,23 +144,20 @@ float, double
 ubyte, ushort, uint, ulong
 \end{xten}
  
-  
-\subsection{Generic programming with structs}
+\section{Generic programming with structs}
 
 An unconstrained type variable \Xcd{X} can be instantiated with \Xcd{Object} or
-its subclasses or structs.
+its subclasses or structs or functions.
 
-Within a generic class, all pre-defined operations
-are available on a variable of type
-\Xcd{X}. For instance, variables of \Xcd{X} may be used with \Xcd{==, !=},
-\Xcd{instanceof}, casts etc
+Within a generic class, all the operations of \Xcd{Any} are available
+on a variable of type \Xcd{X}. Additionally, variables of type \Xcd{X} may
+be used with \Xcd{==, !=}, in \Xcd{instanceof}, and casts.
 
 The programmer must be aware of the different interpretations of
 equality for structs and classes and ensure that the code is correctly
 written for both cases. If necessary the programmer can write code
 that distinguishes between the two cases (a type parameter \Xcd{X} is
 instantiated to a struct or not) as follows:
-
 
 \begin{xten}
 val x:X = ...;
@@ -175,36 +170,13 @@ if (x instanceof Object) { // x is a real object
 \end{xten}
  
   
-\subsubsection{The class Box[T]}
-
-This class is defined as follows: 
-
-\begin{xten}
-package x10.lang;
-class Box[T](value:T) implements () => T {
-   public def this(v:T) { property(v);}
-   public def apply() = v;
-   public static def get[T](x:Box[T], default:T) =
-              x == null ? default : x();
-   public static operator (v:T) = new Box(v);
-}
-\end{xten}
-
-
-Thus if \Xcd{x:Box[T]}, then \Xcd{x():T}. Note the evaluation of \Xcd{x()} may
-throw a \Xcd{NullPointerException}. The programmer may wish to use
-\Xcd{Box.get(x, t)}, providing a default value to use if \Xcd{x == null}.
-
-Notice that \Xcd{Box[T]} does not implement any additional interfaces, even
-though \Xcd{T} might.
-  
 \section{Programming Methodology}
 
  A programmer should by default organize his/her code in a class
  hierarchy, providing structs only in those well-thought situations
  where concrete types are appropriate.
 
-\section{Compatibility Note}
+\subsection{Compatibility Note}
 
 A value class in \Xten{} v1.7 can often be translated into a struct in \Xten{} 2.0. The crucial conditions to be checked manually are: \begin{itemize}
 \item  A struct is of bounded size. 
@@ -245,101 +217,4 @@ The following types all make sense:
 \end{itemize}
 \emph{EndOfExample.}
 
-The definition of \Xcd{x10.lang.Complex}:
-\begin{xten}
-public struct Complex {
-    public val re:Double;
-    public val im:Double;
-    public const ZERO = Complex(0.0, 0.0);
-    public const ONE = Complex(1.0, 0.0);
-    public const I = Complex(0.0, 1.0);
-    public const INF = Complex(Double.POSITIVE_INFINITY,
-                               Double.POSITIVE_INFINITY);
-    public const NaN = Complex(Double.NaN, Double.NaN);
-    public def this(real:Double, imaginary:Double) {
-        this.re = real;
-        this.im = imaginary;
-    }
-    public operator this + (that:Complex) =
-               Complex(re + that.re, im + that.im);
-    public operator this + (that:Double)  =
-               Complex(re + that, im);
-    public operator this - (that:Complex) =
-               Complex(re - that.re, im - that.im);
-    public operator this - (that:Double)  =
-               Complex(re - that, im);
-    public operator this * (that:Complex):Complex =
-               Complex(re * that.re - im * that.im,
-                       re * that.im + im * that.re);
-    public operator this * (that:Double)  =
-               Complex(re * that, im * that);
-
-    /**
-     * Gets the quotient of this complex number and the given
-     * complex number.
-     * Uses Smith's algorithm
-     * <a href="http://doi.acm.org/10.1145/368637.368661"/>
-     * TODO: consider using Priest's algorithm
-     * <a href="http://doi.acm.org/10.1145/1039813.1039814"/>
-     * @return the quotient of this complex number and the
-     * given complex number
-     */
-    public operator this / (that:Complex):Complex {
-        if (isNaN() || that.isNaN()) {
-            return Complex.NaN;
-        }
-        val c:Double = that.re;
-        val d:Double = that.im;
-        if (c == 0.0 && d == 0.0) {
-            return Complex.NaN;
-        }
-        if (that.isInfinite() && !isInfinite()) {
-            return Complex.ZERO;
-        }
-        if (Math.abs(d) <= Math.abs(c)) {
-            if (c == 0.0) {
-                return Complex(im/d, -re/c);
-            }
-            val r:Double =  d / c;
-            val denominator:Double = c + d * r;
-            return Complex((re + im * r) / denominator,
-                           (im - re * r) / denominator);
-        } else {
-            if (d == 0.0) {
-                return Complex(re/c, im/c);
-            }
-            val r:Double = c / d;
-            val denominator:Double = c * r + d;
-            return Complex((re * r + im) / denominator,
-                           (im * r - re) / denominator);
-        }
-    }
-    public operator this / (that:Double) =
-               Complex(re / that, im / that);
-    public def conjugate() =
-               isNaN() ? Complex.NaN : Complex(re, -im);
-    public operator - this:Complex =
-               isNaN() ? Complex.NaN : Complex(-re, -im);
-    public def abs():Double {
-        if (isNaN()) {
-            return Double.NaN;
-        }
-        if (isInfinite()) {
-            return Double.POSITIVE_INFINITY;
-        }
-        if (im == 0.0) {
-            return Math.abs(re);
-        } else if (re == 0.0) {
-            return Math.abs(im);
-        } else {
-            // use hypot to avoid unnecessary under/overflow
-            return Math.hypot(re, im);
-        }
-    }
-    public def isNaN()= re.isNaN() || im.isNaN();        
-    public def isInfinite() =
-               !isNaN() && (re.isInfinite() || im.isInfinite();
-    public def toString() = (re + " + " + im + "i");
-
-}
-\end{xten}
+The definition of \Xcd{x10.lang.Complex} provides a good example of the use of structs.

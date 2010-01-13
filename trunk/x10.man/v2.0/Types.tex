@@ -181,22 +181,6 @@ singleton classes to carry mutable static state.
         superclass (except for \xcd"Object", which extends
         no other class).
 
-
-\xcd"Object" has the following signature:
-
-\begin{xten}
-package x10.lang;
-
-public class Object {
-    public def toString(): String;
-    public def typeName(): String;
-    public def home():Place;
-    public def at(p:Place):boolean;
-    public def at(o:Object):boolean;
-}
-\end{xten}
-
-
 \index{class!reference class}
 \index{reference class type}
 \index{class!value class}
@@ -262,7 +246,6 @@ class Point(x: Int, y: Int) {
 \index{parametrized constructors}
 \index{parametrized closures}
 
-\iftypeparams
         A class, interface, method, or closure may have type parameters
         whose scope is the signature and body of the declaring
         class, interface, method,
@@ -388,9 +371,6 @@ If the parameter of \xcd"Cell" is invariant, then
         Given a type \xcd"T", a {\em constrained type}
         \xcd"T{e}" may be
         constructed by constraining its
-        \iftypeparams\else
-        type and value
-        \fi
         properties with a
         boolean expression \xcd"e".
 
@@ -458,14 +438,17 @@ if not all, dynamic array bounds and place checks from \Xten{}.
 
 \subsubsection{Acyclicity restriction}
 
-To ensure that type-checking is decidable, we introduce restrictions
-to ensure that it is impossible to create cycles using just
-properties. Concretely, it is not possible in \Xten{} to write a
-program which can create at runtime a set of objects such that the
+To ensure that type-checking is decidable, we
+require that property graphs be acyclic.
+That is, it should not be the case at runtime that
+a set of objects can be created such that the
 graph formed by taking objects as nodes and adding an edge from $m$ to
 $n$ if $m$ has a property whose value is $n$ has a cycle in it.
 
-The restirction is implemented by using the {\em proto} rules for visibility of {\tt this} during constructor execution (\Sref{Protorules}).
+Currently this restriction is not checked by the compiler. Future
+versions of the compiler will check this restriction by introducing
+rules on escaping of \Xcd{this} (\Sref{protorules}) before the invocation of
+\Xcd{property} calls.
 
 
 \input{PlaceTypes}
@@ -535,7 +518,7 @@ visible at the type \xcd"T". Hence we can always recover the
 underlying dependent type \xcd"C{c}" by replacing all occurrences of \xcd"v"
 in the constraint of \xcd"T" by \xcd"self".)
 
-For instance, \xcd"v: Int{v > 0}" is shorthand for \xcd"v: Int{self > 0}".
+For instance, \xcd"v: Int{v == 0}" is shorthand for \xcd"v: Int{self == 0}".
 
 \begin{staticrule}{Constraint type}
 The type of a constraint \xcd"c" must be \xcd"Boolean".  
@@ -552,70 +535,6 @@ environment, augmented with the binding \xcd"self" $\mapsto$ \xcd"o". We shall
 use the function \LL{\mbox{\Xcd{C\{c\}}}} to denote the set of
 objects that belong to \xcd"C{c}". 
 
-\subsection{Type invariants}\label{DepType:TypeInvariant}\index{Type invariant}
-\label{DepType:Guard}
-
-A class or interface declaration may specify a {\em guard},
-an invariant on all
-instances of that type.
-All the properties of the type, together with inherited properties,
-may appear in the class invariant.
-\iftypeparams
-The class invariant may also constrain the class's type parameters.
-\fi
-A guard \xcd"c" with
-\iftypeparams\else
-type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
-\fi
-value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
-for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
-consistent and the constraint
-\iftypeparams
-\begin{xtenmath}
-$\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\else
-\begin{xtenmath}
-$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\fi
-\noindent is valid (always true).
-
-With every defined class or interface \xcd"T" we associate a {\em type
-invariant} $\mathit{inv}($\xcd"T"$)$ as follows. The type
-invariant associated with \xcd"x10.lang.Object" is 
-\xcd"true".
-
-The type invariant associated with any interface \xcd"I" that extends
-interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
-\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
-specifies a guard \xcd"c" is given by:
-
-\begin{xtenmath}
-$\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$)
-    && self.x$_1$: P$_1$ && $\dots$ && self.x$_n$: P$_n$ && c  
-\end{xtenmath}
-
-Similarly the type invariant associated with any class \xcd"C" that
-implements interfaces \xcdmath"I$_1$, $\dots$, I$_k$",
-extends class \xcd"D" and defines properties
-\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
-specifies a guard \xcd"c" is
-given by:
-\begin{xtenmath}
-$\mathit{inv}$(D) && $\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$)
-    && self.x$_1$: P$_1$ && $\dots$ && self.x$_n$: P$_n$ && c  
-\end{xtenmath}
-
-It is required that the
-type invariant associated with a class entail the type invariants of
-each interface that it implements.
-
-It is guaranteed that for any variable \xcd"v" of
-type \xcd"T{c}" (where \xcd"T" is an interface name or a class name) the only
-objects \xcd"o" that may be stored in \xcd"v" are such that \xcd"o" satisfies
-$\mathit{inv}(\mbox{\xcd"T"}[\mbox{\xcd"o"}/\mbox{\xcd"this"}])
-\wedge \mbox{\xcd"c"}[\mbox{\xcd"o"}/\mbox{\xcd"self"}]$.
 
 \subsection{Consistency of dependent types}\label{DepType:Consistency}\index{dependent type,consistency}
 
@@ -677,7 +596,6 @@ Here is an example:
 class Point(x: Int, y: Int) {...}
 \end{xten}
 
-
 To see that the declaration \xcd"end: Point{self != start}" is
 parametrically consistent, note that the following formula is valid:
 \begin{xtenmath}
@@ -695,7 +613,6 @@ class Triangle
   c: Line{b.end == c.start && c.end == a.start}) 
  { ... }
 \end{xten}
-
 
 Given \xcd"a: Line", the type \xcd"b: Line{a.end == b.start}" is consistent,
 and
@@ -723,8 +640,8 @@ is consistent.
 \end{example}
 
 \section{Function types}
-\subsection{Function types}
 \label{FunctionTypes}
+\label{FunctionType}
 \index{function!types}
 \index{types!function types}
 
@@ -790,35 +707,21 @@ types satisfying \xcd"Si <: Ti" and \xcd"S <: T". Then
 \xcd"(x1:S1,...,xn:Sn){c}=>T".
 
 
-For convenience, a value \xcd"f" of a function type
-\xcd"(x1:T1,...,xn:Tn){c}=>T" has two other functions associated with
-it: \xcd"toString(): ()=> String" and \xcd"typeName():()=>String". These
-functions are called using the method invocation syntax,
-viz. \xcd"f.toString()" and \xcd"f.typeName()". The first returns an
-implementation-defined string. The second returns a string
-representation of the function type, \xcd"(x1:T1,...xn:Tn)=>T". These
-functions can also be named using method selector notation,
-viz. \xcd"f.toString.()" and \xcd"f.typeName.()".
-
-
-Function types do not support equality. Specifically, it is a
-compile-time error for a value of a function type to be passed as
-the first or second argument of an invocation of the operators \xcd"==" or
-\xcd"!=". An important consequence is that the creation of a function does
-not require the generation of a globally unique id.
+A value \xcd"f" of a function type \xcd"(x1:T1,...,xn:Tn){c}=>T" also
+has all the methods of \Xcd{Any} associated with it (see \Sref{FunctionAnyMethods}).
 
 
 A function type \xcd"F=(x1:T1,...,xn:Tn){c}=>T" can be used as the declared type of local variables, parameters, loop variables, return types of methods and in \xcd"_  instanceof F" and \xcd"_ as F" expressions. 
 
 
-A class or struct definition may use a function type "F" in its
-implements clause; this declares an abstract method def
-"apply(x1:T1,...,xn:Tn)\{c\}:T" on that class. Similarly, an interface
+A class or struct definition may use a function type \xcd"F" in its
+implements clause; this declares an abstract method 
+\xcd"def apply(x1:T1,...,xn:Tn)\{c\}:T" on that class. Similarly, an interface
 definition may specify a function type "F" in its "extends" clause. A
 class or struct implementing such an interface implicitly defines an
-abstract method "def apply(x1:T1,..,xn:Tn)\{c\}:T". Expressions of such
+abstract method \xcd"def apply(x1:T1,..,xn:Tn)\{c\}:T". Expressions of such
 a struct, class or interface type can be assigned to variables of type
-"F" and can be applied via juxtaposition to an argument list of the
+\xcd"F" and can be applied via juxtaposition to an argument list of the
 right type.
 
 
@@ -831,23 +734,8 @@ is not an interface type in that it is not a subtype of
 type \xcd"x10.lang.Object".) It is not a struct type in that it has no
 defined fields and hence no notion of structural equality.
 
-\xcd"null" is not a legal value for a function type. 
+\xcd"null" is a legal value for a function type. 
 
-
-\section{Boxed types}
-\label{BoxedTypes}
-\label{BoxType}
-
-\index{types!boxed type}
-\index{\Xcd{Box}}
-
-The type \xcd"x10.lang.Box[T]" is a \emph{boxed type},
-and allows a struct type \xcd"T" to be used as a 
-reference type. The programmer may wish to define his/her own 
-conversions from structs to objects.
-
-If \xcd"T" is a subtype of \xcd"S", then \xcd"Box[T]" and \xcd"Box[S]"
-are unrelated.
 
 \section{Annotated types}
 \label{AnnotatedTypes}
@@ -886,9 +774,6 @@ of any interfaces it is declared to implement.
 \paragraph{Interface types.}  An interface type is a direct
 subtype of any interfaces it is declared to extend.
 
-\paragraph{Boxed types.}
-The type \xcd"Box[T]" is unrelated to \xcd"T".
-
 \paragraph{Function types.}
 
 Function types are covariant on their return type and
@@ -923,12 +808,6 @@ defined on a class \xcd"C"
 refine the unconstrained class type \xcd"C"; \xcd"C" is
 equivalent to \xcd"C{true}".
 
-\paragraph{Path types.}
-
-A path type \xcd"p.X" is a subtype of a type \xcd"T" if
-\xcd"p" has type \xcd"C{c}" (where \xcd"C" has a type member
-\xcd"X") and \xcd"c" implies that \xcd"self.X" is a subtype of \xcd"T".
-
 \paragraph{Type parameters.}
 
 A type parameter \xcd"X" of a class or interface \xcd"C"
@@ -939,9 +818,6 @@ Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
 class invariant implies the relationship.
 
 A type parameter \xcd"X" of a method
-\iftypeparams\else
-or constructor
-\fi
 \xcd"m"
 is a subtype of a type \xcd"T" if
 the 
@@ -990,16 +866,16 @@ A variable of this type can hold a reference to any object.
 The code for this class (with annotations removed) is:
 \begin{xten}
 public class Object (home: Place) 
-     implements Equals
+     implements Any
 {
     public native def this();
-    public def equals(x:Object) = this==x;
-    public native def hashCode() : Int;
-    public native def toString() : String;
-    public global native def typeName() : String;
     public property def home() = home;
     public property def at(p:Place) = home==p;
     public property def at(r:Object) = home==r.home;
+    public native def toString() : String;
+    public global native def typeName() : String;
+    public def equals(x:Object) = this==x;
+    public native def hashCode() : Int;
 }
 \end{xten}
 
