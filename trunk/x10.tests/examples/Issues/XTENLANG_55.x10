@@ -11,7 +11,7 @@ class XTENLANG_55 extends x10Test {
 
     class C {}
     
-    def foo(it:Iterator[C]) {
+    def foo(it:Iterator[C]!) {
         val c:C = it.next();
     }
 
