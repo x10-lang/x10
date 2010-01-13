@@ -34,38 +34,36 @@ public class System {
     /**
      * Terminates the application with a given exit code, as quickly as possible.
      * All finally blocks for the currently executing activities are executed.
-     * May only be invoked from place 0 (Note that this may not be statically checked
-     *   unless XTENLANG-888 is fixed).
-     * LIMITATION: may only be invoked from the main thread (see XTENLANG-874).
+     * LIMITATION: will only work if invoked from the main thread in place 0 (see XTENLANG-874).
      *
      * @see #exit()
      * @see #setExitCode(Int)
      */
     @Native("java", "java.lang.System.exit(#1)")
     @Native("c++", "x10aux::system_utils::exit(#1)")
-    public static native def exit(code: Int){here==Place.FIRST_PLACE}: void;
+    public static native def exit(code: Int): void;
 
     /**
      * Terminates the application with exit code -1, as quickly as possible.
      * Invoking this method is equivalent to invoking {@link #exit(Int)} with argument -1.
+     * LIMITATION: will only work if invoked from the main thread in place 0 (see XTENLANG-874).
      *
      * @see #exit(Int)
      * @see #setExitCode(Int)
      */
-    public static def exit(){here==Place.FIRST_PLACE} = exit(-1);
+    public static def exit() = exit(-1);
 
     /**
      * Sets the system exit code.
      * The exit code will be returned from the application when main() terminates.
-     * May only be invoked from place 0 (Note that this may not be statically checked
-     *   unless XTENLANG-888 is fixed).
+     * LIMITATION: will only work if invoked in place 0 (see XTENLANG-874).
      *
      * @see #exit(int)
      * @see #exit()
      */
     @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
     @Native("c++", "(x10aux::exitCode = (#1))")
-    public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: void {}
+    public static def setExitCode(exitCode: int): void {}
 
     /**
      * Provides an estimate in bytes of the size of the X10 heap
