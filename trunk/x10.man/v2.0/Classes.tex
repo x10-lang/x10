@@ -446,18 +446,18 @@ Incomplete types are designed with the following goals:
 
 \item Guarantee that fields are read only after they are initialized.
 
-\item Ensure that immutable cyclic object graphs can be
-  created.\footnote{(Mutable graphs can be created without escaping \Xcd{this}
-    ny initializing the backpointer to \Xcd{null} and then
+\item  Allow the creation of immutable cyclic object graphs.\footnote{(Mutable
+       graphs can be created without escaping \Xcd{this} 
+    by initializing the backpointer to \Xcd{null} and then
     changing it later.}  This requires that it be possible to pass an
   object under construction into a constructor invocation.
 
-\item Ensure that user-defined methods can be called during object
+\item Allow appropriate user-defined methods can be called during object
   creation (so that the transformation between the values supplied as
   parameters to a constructor and the values actually placed in fields
   is determined by arbitrary user-defined code).
 
-\item Ensure the design is minimally invasive. Most programmers should
+\item Keep the design minimally invasive. Most programmers should
   not have to be concerned about this problem.
 
 \item Ensure that there is no runtime overhead. 
