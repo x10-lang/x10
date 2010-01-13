@@ -3,6 +3,7 @@
 # Dave Grove
 
 svn_command=export
+workdir=/tmp/x10-distribution
 
 while [ $# != 0 ]; do
 
@@ -21,6 +22,20 @@ while [ $# != 0 ]; do
         svn_command=co
     ;;
 
+    -platform)
+        export X10_PLATFORM=$2
+	shift
+    ;;
+
+    -dir)
+        workdir=$2
+	shift
+    ;;
+
+    -nobuild)
+        export SKIP_X10_BUILD=1
+    ;;
+
    esac
    shift
 done
@@ -35,9 +50,13 @@ if [[ -z "$X10_TAG" ]]; then
     exit 1
 fi
 
+if [[ -z "$X10_PLATFORM" ]]; then
+    echo "usage: $0 must give X10 platform as -platform <platform>"
+    exit 1
+fi
+
 date
 
-workdir=$HOME/scratch/distribution
 distdir=$workdir/x10-$X10_VERSION
 
 echo
@@ -64,3 +83,14 @@ done
 )
 
 echo "The distribution is now exported to the directory $workdir"
+
+if [[ -z "$SKIP_X10_BUILD" ]]; then
+    echo "Building distribution"
+    cd $distdir/x10.dist
+    ant -Doptimize=true -Dzip.version=$X10_VERSION testzip
+    ant -Doptimize=true -Dzip.version=$X10_VERSION srczip
+    ant -Doptimize=true -Dzip.version=$X10_VERSION zip
+    ant dist -Doptimize=true
+    $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
+    echo "Platform specific distribuiton tarball created"
+fi
