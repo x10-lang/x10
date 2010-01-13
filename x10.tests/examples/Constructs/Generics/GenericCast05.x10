@@ -30,8 +30,8 @@ public class GenericCast05 extends GenericTest {
     public def run() = {
 
         var a:Object = new A();
-        var i:I[int] = a as I[int];
-        var j:J[int] = a as J[int];
+        var i:I[int]! = a as I[int];
+        var j:J[int]! = a as J[int];
 
         check("i.m(0)", i.m(0), 0);
         check("i.n(0)", i.n(0), 1);

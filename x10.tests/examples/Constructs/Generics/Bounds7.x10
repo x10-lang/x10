@@ -19,7 +19,7 @@ public class Bounds7 extends x10Test {
         }
 
         public class Test[T]{T <: Sum} {
-            def sum(a:T) = a.sum();
+            def sum(a:T!) = a.sum();
 
         }
 
