@@ -5,6 +5,8 @@ This release includes both the C++ and Java code generation backends.
 The following significant language changes were made since the 2.0.0 release:
 - The interface x10.lang.Any was introduced to specify the operations 
   available on all X10 types.
+- The toString() method was made global and safe.  Any overriding method
+  must now have the same modifiers.
 - A number of clarifications and errors were corrected in the language 
   specification.
 For details on these and other more minor changes, please consult the
