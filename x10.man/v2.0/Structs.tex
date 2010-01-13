@@ -192,7 +192,7 @@ into a class with \Xcd{global} fields and methods.
 
 An example illustrating pairing:
 \begin{xten}
-struct Pair[S,T] implements Equals {
+struct Pair[S,T]  {
   val x: S;
   val y: T;
   def this(x: S, y: T) {
@@ -204,7 +204,8 @@ struct Pair[S,T] implements Equals {
   final def hashCode() = x.hashCode() + y.hashCode();
   final def equalsX[U](o:Pair[S,U]) = x==o.x;
   final def equalsY[U](o:Pair[U,T]) = y==o.y;
-  final def equals(o:Any) = this == o;
+  final def equals(that:Any) = this == that;
+  final def equals(that:Pair[X,Y]) = this==that;
 }
 \end{xten}
 
