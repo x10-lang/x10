@@ -12,15 +12,15 @@ import x10.compiler.NativeRep;
 public interface Any {
 	
     @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-    @Native("c++", "x10::lang::Place_methods::place((x10aux::ref<x10::lang::Reference>((#0)))->location)")
+    @Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
     property def home():Place;
 	
     @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "((x10aux::ref<x10::lang::Reference>((#0)))->location == (#1)->location)")
+    @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
     property def at(p:Object):Boolean;
 	
     @Native("java", "x10.core.Ref.at(#0, #1.id)")
-    @Native("c++", "((x10aux::ref<x10::lang::Reference>((#0)))->location == (#1)->FMGL(id))")
+    @Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
     property def at(p:Place):Boolean;
 	
     @Native("java", "#0.toString()")
