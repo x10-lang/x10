@@ -23,13 +23,8 @@ See "bin/x10 --help" for command-line help.
 
 C++ backend instructions
 ------------------------
-Make sure the X10LIB environment variable points to an installation
-of the PGAS common runtime.  If the PGAS common runtime is
-installed into the same directory as the X10 distribution, the
-X10LIB variable does not need to be set.
-
 To compile an X10 source program using the C++ backend, invoke
-"bin/x10c++ -MAIN_CLASS=<class_name> <class_name>.x10".  This will
+"bin/x10c++ -o <class_name> <class_name>.x10".  This will
 produce an executable named "<class_name>" in the current
 directory[*].
 
@@ -45,10 +40,3 @@ To run the compiled X10 executable in one place, invoke
 only one class with a "main" method, the -MAIN_CLASS argument may
 be omitted, but the compiler will then produce an executable with
 the default name ("a.out" on Unix, "a.exe" on Cygwin).
-
-To speed up C++ compilation, use the -commandlineonly flag to make
-the compiler only generate C++ code for the exact files specified
-on the command line.  Note that this will cause the code for user
-files not specified on the command line to not be generated, even
-if they are in the sourcepath and are used to validate the files
-that are specified.
