@@ -22,7 +22,10 @@ class C implements Sum {
 }
 
 class Summer[T]{T<:Sum} {
-   def sum(a:T!) = a.sum();
+   // WORKAROUND XTENLANG-898 by using a cast instead of constraining a to be T!.
+   // As soon as 898 is fixed, revert to the commented out version of the method.
+   // def sum(a:T!) = a.sum();
+   def sum(a:T) = (a as T!).sum();
 }
 
 public class StructInterfaceGenericTest extends x10Test {
