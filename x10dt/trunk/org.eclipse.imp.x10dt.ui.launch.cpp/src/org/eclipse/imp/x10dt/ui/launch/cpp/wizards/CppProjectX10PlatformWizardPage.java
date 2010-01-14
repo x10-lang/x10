@@ -25,6 +25,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.preferences.X10PlatformConfiguration
 import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.preference.IPreferenceNode;
 import org.eclipse.jface.preference.IPreferencePage;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -159,12 +160,30 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
           final WizardDialog dialog = new WizardDialog(getShell(), wizard);
           dialog.open();
           
-          try {
-            if (universe.getResourceManagers().length == 1) {
-              universe.getResourceManagers()[0].startUp(new NullProgressMonitor());
+          final Collection<String> failedRMs = new ArrayList<String>();
+          for (final IResourceManager rmManager : universe.getResourceManagers()) {
+            if (rmManager.getState() != ResourceManagerAttributes.State.STARTED) {
+              try {
+                rmManager.startUp(new NullProgressMonitor());
+              } catch (CoreException except) {
+                failedRMs.add(rmManager.getName());
+              }
             }
-          } catch (CoreException except) {
-            setErrorMessage(LaunchMessages.CPWSP_RMStartFailure);
+          }
+          if (! failedRMs.isEmpty()) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append('[');
+            int i = 0;
+            for (final String failedRM : failedRMs) {
+              if (i == 0) {
+                i = 1;
+              } else {
+                sb.append(',');
+              }
+              sb.append(failedRM);
+            }
+            sb.append(']');
+            setMessage(NLS.bind(LaunchMessages.CPWSP_RMStartFailure, sb.toString()), IMessageProvider.WARNING);
           }
         } else {
           DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedResManagerList);
