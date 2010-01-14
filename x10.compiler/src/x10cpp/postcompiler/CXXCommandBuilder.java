@@ -57,7 +57,7 @@ public class CXXCommandBuilder {
     
     protected static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String X10_DIST = System.getenv("X10_DIST");
-    protected static final String X10GC = System.getenv("X10GC").replace(File.separatorChar, '/');
+    protected static final String X10GC = System.getenv("X10GC")==null?null:System.getenv("X10GC").replace(File.separatorChar, '/');
     protected static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
 
     public static final String MANIFEST = "libx10.mft";
