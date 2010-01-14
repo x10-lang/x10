@@ -22,7 +22,7 @@ class C implements Sum {
 }
 
 class Summer[T]{T<:Sum} {
-  def sum(a:T) = a.sum();
+   def sum(a:T!) = a.sum();
 }
 
 public class StructInterfaceGenericTest extends x10Test {
