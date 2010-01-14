@@ -15,9 +15,11 @@ import harness.x10Test;
 public class GenericMethodEquals extends x10Test {
 
     static class A {
-        public def equals(Object) {
+
+        public global safe def equals(Any) {
             return true;
         }
+
     }
 
     static class B extends A {
