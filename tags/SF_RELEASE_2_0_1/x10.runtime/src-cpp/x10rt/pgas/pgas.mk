@@ -1,4 +1,4 @@
-VERSION=20091216
+VERSION=20100113
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
@@ -56,7 +56,7 @@ ifeq ($(X10RT_PLATFORM), linux_x86_32)
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), cygwin)
-  WPLATFORM      := cygwin_x86_g++3
+  WPLATFORM      := cygwin_x86_g++4
   PLATFORM_SUPPORTS_SOCKETS    := yes
 endif
 ifeq ($(X10RT_PLATFORM), darwin)
