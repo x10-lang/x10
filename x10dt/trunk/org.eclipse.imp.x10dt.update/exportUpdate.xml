@@ -68,6 +68,7 @@
         <antcall target="get.lpg.artifacts"/>
         <antcall target="get.polyglot.artifacts"/>
     	<antcall target="get.imp.artifacts"/>
+		<antcall target="get.ptp.artifacts"/>
 		<!-- save the build qualifier to be used in the zip.update target -->
 		<echo message="${x10dt.build.qualifier}" file=".build.qualifier"/> 
 		<echo message="*** Now modify update.temp.folder/site.xml - change version in TWO PLACES, then run Step 2. zip.update "/>
@@ -158,7 +159,48 @@
 	        	 <fileset dir="${imp.cache.location}/plugins" includes="com.ibm.wala.shrike_*.jar"/>	        
 	        </copy>
 	    </target>
+     <target name="get.ptp.artifacts">
+		<!-- ptp.cache.location is the local cache of the (unzipped) ptp update site   
+		    which is the unzipped contents of ptp-master-*-subset-for-x10dt.zip   -->
+		<property name="ptp.cache.location"        value="/Users/beth/temp/ptp301x"/>
 
+		<copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.master*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.external*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.utils*.jar"/>
+			 
+		</copy>
+		<copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.help*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.launch*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.linux*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.macosx*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.proxy*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.utils*.jar"/>		 
+		</copy>
+
+	</target>
     <target name="export.features">
         <echo message="Building feature jars..."/>
         <for param="feature" values="${feature.list}">
