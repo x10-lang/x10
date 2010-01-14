@@ -10,10 +10,13 @@
     <property name="x10.platform" value="cygwin_x86"/>
     <property name="x10.dist.location" location="${tmp}"/>
     <property name="pgas.location" location="${tmp}"/>
-    <property name="pgas.tarball" value="pgas-${x10.timestamp}_${x10.platform}.tgz"/>
-    <property name="pgas.tarball.url" value="http://dist.codehaus.org/x10/binaryReleases/${x10.version}/${pgas.tarball}"/>
-    <property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/>
-    <property name="x10.tarball.url" value="http://downloads.sourceforge.net/project/x10/x10/${x10.version}/${x10.tarball}?use_mirror=voxel"/>
+	<!-- start: changed for 2.0.1-->
+	<property name="pgas.timestamp" value="20100113"/>
+    <property name="pgas.tarball" value="pgas-${pgas.timestamp}-${x10.platform}_g++4-sockets.tgz"/> 
+    <property name="pgas.tarball.url" value="http://dist.codehaus.org/x10/binaryReleases/${x10.version}/${pgas.tarball}"/> 
+    <property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/> 
+    <property name="x10.tarball.url" value="http://sourceforge.net/projects/x10/files/${x10.version}/${x10.tarball}?use_mirror=voxel"/>
+	<!-- end:   changed for 2.0.1-->
     <property name="x10.transport" value="sockets"/>
     <!-- get the environment variables -->
     <property environment="env"/>
