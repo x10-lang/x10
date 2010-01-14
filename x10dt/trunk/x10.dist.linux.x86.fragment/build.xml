@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
-<project name="x10.dist.linux.x86_64.fragment" default="update" basedir=".">
+<project name="x10.dist.linux.x86.fragment" default="update" basedir=".">
     &buildfile;
     <property name="tmp" location="${basedir}/tmp"/>
     <property name="incdir" location="${basedir}/include"/>
