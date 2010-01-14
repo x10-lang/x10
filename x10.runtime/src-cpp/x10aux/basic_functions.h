@@ -10,14 +10,27 @@
 
 namespace x10aux {
 
+    /******* type_name ********/
+    
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        x10aux::nullCheck(x);
         return x10::lang::String::Lit(((const T*)x.operator->())->_type()->name());
     }
 
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
         return x10::lang::String::Lit(getRTT<T>()->name());
     }
+
+    /******* get_location ********/
+
+    template<class T> inline place get_location(ref<T> x) {
+        return (ref<x10::lang::Reference>(x))->location;
+    }
+
+    template<typename T> inline place get_location(T x) {
+        return x10aux::here;
+    }
+    
+    /******* equals ********/
 
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
     template<class T> inline x10_boolean equals(ref<T> x, ref<x10::lang::Any> y) {
@@ -162,6 +175,7 @@ namespace x10aux {
     inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
+    /*******  struct_equals (==) ********/
     
     template<class T, class U>
     inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
@@ -244,7 +258,8 @@ namespace x10aux {
     inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
-    
+    /******* hash_code ********/
+
     template<class T> inline x10_int hash_code(ref<T> x) {
         return nullCheck(x)->hashCode();
     }
@@ -274,6 +289,7 @@ namespace x10aux {
     inline x10_int hash_code(const x10_char x) { return x.v; }
     inline x10_int hash_code(const x10_boolean x) { return x; }
 
+    /******* to_string ********/
     
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         ref<x10::lang::Reference> asRef = x;
