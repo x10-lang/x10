@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
@@ -157,6 +158,14 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
           final RMServicesConfigurationWizard wizard = new RMServicesConfigurationWizard();
           final WizardDialog dialog = new WizardDialog(getShell(), wizard);
           dialog.open();
+          
+          try {
+            if (universe.getResourceManagers().length == 1) {
+              universe.getResourceManagers()[0].startUp(new NullProgressMonitor());
+            }
+          } catch (CoreException except) {
+            setErrorMessage(LaunchMessages.CPWSP_RMStartFailure);
+          }
         } else {
           DialogsFactory.openResourceManagerStartDialog(getShell(), stoppedResManagerList);
         }
@@ -283,7 +292,7 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       for (final String configurationName : this.fX10Platforms.keySet()) {
         this.fX10PlatformCombo.add(configurationName);
       }
-    } catch (WorkbenchException except) {
+    }  catch (WorkbenchException except) {
       setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
       CppLaunchCore.log(IStatus.ERROR, org.eclipse.imp.x10dt.ui.launch.core.Messages.XPCPP_LoadingErrorLogMsg, except);
     } catch (IOException except) {

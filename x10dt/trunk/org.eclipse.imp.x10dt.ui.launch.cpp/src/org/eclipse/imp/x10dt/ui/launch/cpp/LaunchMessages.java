@@ -127,6 +127,8 @@ public class LaunchMessages extends NLS {
 
   public static String CPWSP_ResourceManager;
 
+  public static String CPWSP_RMStartFailure;
+
   public static String CPWSP_SelectResMsg;
 
   public static String CPWSP_SelectWorkspaceMsg;
