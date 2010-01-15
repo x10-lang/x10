@@ -8,9 +8,9 @@
 
 package x10.core;
 
-import x10.types.Equality;
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.Equality;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 public class Box<T> extends Ref {
     protected final Type<T> type;

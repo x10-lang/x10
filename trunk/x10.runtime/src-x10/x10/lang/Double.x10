@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "double", "x10.core.BoxedDouble", "x10.types.Types.DOUBLE")
+@NativeRep("java", "double", "x10.core.BoxedDouble", "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
 public final struct Double {
     @Native("java", "((#1) < (#2))")
@@ -132,11 +132,11 @@ public final struct Double {
     @Native("c++", "x10aux::double_utils::fromLongBits(#1)")
     public static native def fromLongBits(Long): Double;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Double):Boolean;
 }

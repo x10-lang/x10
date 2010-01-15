@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "boolean", "x10.core.BoxedBoolean", "x10.types.Type.BOOLEAN")
+@NativeRep("java", "boolean", "x10.core.BoxedBoolean", "x10.rtt.Type.BOOLEAN")
 @NativeRep("c++", "x10_boolean", "x10_boolean", null)
 public final struct Boolean {
 
@@ -52,7 +52,7 @@ public final struct Boolean {
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Boolean):Boolean;
 

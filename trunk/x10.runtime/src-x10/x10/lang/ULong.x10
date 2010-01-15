@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "long", "x10.core.BoxedLong", "x10.types.Types.ULONG")
+@NativeRep("java", "long", "x10.core.BoxedLong", "x10.rtt.Types.ULONG")
 //                  v-- when used
 @NativeRep("c++", "x10_ulong", "x10_ulong", null)
 //                            ^ when constructed
@@ -205,11 +205,11 @@ public final struct ULong {
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): ULong;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:ULong):Boolean;
 }

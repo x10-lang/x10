@@ -6,14 +6,14 @@
  *
  */
 
-package x10.types;
+package x10.rtt;
 
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
 
-public class ShortType extends RuntimeType<Short> {
-    public ShortType() {
+public class UShortType extends RuntimeType<Short> {
+    public UShortType() {
         super(short.class);
     }
     
@@ -49,8 +49,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) (x > 0 ? x : -x);
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
         };
     }
     @Override
@@ -59,8 +59,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) (x * k);
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
         };
     }
     
@@ -70,9 +70,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x + y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -81,9 +81,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x - y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -92,9 +92,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x * y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -103,9 +103,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x / y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -114,9 +114,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x % y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -125,9 +125,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (x > y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     @Override
@@ -136,9 +136,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (x < y ? x : y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     
@@ -148,9 +148,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x & y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
 
@@ -160,9 +160,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x | y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
     
@@ -172,9 +172,9 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x, Short y) {
                 return (short) (x ^ y);
             }
-            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z1() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_2_Z2() { return Types.USHORT; }
         };
     }
 
@@ -184,8 +184,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) -x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
         };
     }
     
@@ -195,8 +195,8 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) +x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
         };
     }
     
@@ -206,19 +206,19 @@ public class ShortType extends RuntimeType<Short> {
             public Short apply(Short x) {
                 return (short) ~x;
             }
-            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.SHORT; }
-            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.SHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.USHORT; }
+            public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.USHORT; }
         };
     }
     
     @Override
     public Short minValue() {
-        return Short.MIN_VALUE;
+        return (short) 0;
     }
 
     @Override
     public Short maxValue() {
-        return Short.MAX_VALUE;
+        return (short) 0xffff;
     }
     
     @Override

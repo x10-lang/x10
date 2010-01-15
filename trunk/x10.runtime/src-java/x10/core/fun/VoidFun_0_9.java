@@ -8,8 +8,8 @@
 
 package x10.core.fun;
 
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 public interface VoidFun_0_9<T1,T2,T3,T4,T5,T6,T7,T8,T9> {
     void apply(T1 o1, T2 o2, T3 o3, T4 o4, T5 o5, T6 o6, T7 o7, T8 o8, T9 o9);

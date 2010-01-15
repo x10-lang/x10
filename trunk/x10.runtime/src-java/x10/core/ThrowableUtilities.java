@@ -1,6 +1,6 @@
 package x10.core;
 
-import x10.types.*;
+import x10.rtt.*;
 
 public class ThrowableUtilities {
 

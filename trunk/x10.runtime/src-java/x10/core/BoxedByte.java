@@ -3,7 +3,7 @@
  */
 package x10.core;
 
-import x10.types.Types;
+import x10.rtt.Types;
 
 public class BoxedByte<T> extends Box<Byte> {
 	public BoxedByte(byte v) {

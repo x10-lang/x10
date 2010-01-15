@@ -6,7 +6,7 @@
  *
  */
 
-package x10.types;
+package x10.rtt;
 
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;

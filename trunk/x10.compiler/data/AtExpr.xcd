@@ -4,7 +4,7 @@ x10.runtime.Runtime.evalAt(#3, #0,
 		public #1 apply() {
 			#2
 		}
-		public x10.types.Type<?> rtt_x10$lang$Fun_0_0_U() {
+		public x10.rtt.Type<?> rtt_x10$lang$Fun_0_0_U() {
 			return #3;
 		}
 	})

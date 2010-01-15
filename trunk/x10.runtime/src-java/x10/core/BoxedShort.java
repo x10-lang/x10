@@ -3,7 +3,7 @@
  */
 package x10.core;
 
-import x10.types.Types;
+import x10.rtt.Types;
 
 public class BoxedShort<T> extends Box<Short> {
 	public BoxedShort(short v) {

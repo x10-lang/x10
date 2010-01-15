@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "byte", "x10.core.BoxedByte", "x10.types.Type.BYTE")
+@NativeRep("java", "byte", "x10.core.BoxedByte", "x10.rtt.Type.BYTE")
 @NativeRep("c++", "x10_byte", "x10_byte", null)
 public final struct Byte {
     @Native("java", "((#1) < (#2))")
@@ -158,11 +158,11 @@ public final struct Byte {
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(String): Byte throws NumberFormatException;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Byte):Boolean;
 }

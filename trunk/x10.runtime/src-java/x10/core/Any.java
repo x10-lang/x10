@@ -8,8 +8,8 @@
 
 package x10.core;
 
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 // Base interface of all X10 entities.
 public interface Any {

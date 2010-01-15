@@ -92,7 +92,7 @@ final public class RuntimeTypeExpander extends Expander {
             
             // Check for @NativeRep with null RTT class
             if (pat == null && er.getJavaRep(cd) != null) {
-            	er.w.write("x10.types.Types.runtimeType(");
+            	er.w.write("x10.rtt.Types.runtimeType(");
             	er.printType(at, 0);
             	er.w.write(".class");
             	er.w.write(")");
@@ -144,7 +144,7 @@ final public class RuntimeTypeExpander extends Expander {
             Type base = ct.baseType().get();
             if (X10PrettyPrinterVisitor.serialize_runtime_constraints) {
                 XConstraint constraint = ct.constraint().get();
-                er.w.write("new x10.types.ConstrainedType(");
+                er.w.write("new x10.rtt.ConstrainedType(");
                 new RuntimeTypeExpander(er, base).expand(tr);
                 er.w.write(", ");
                 er.w.write("null, ");
@@ -157,7 +157,7 @@ final public class RuntimeTypeExpander extends Expander {
             return;
         }
 
-        er.w.write("x10.types.Types.runtimeType(");
+        er.w.write("x10.rtt.Types.runtimeType(");
         er.printType(at, 0);
         er.w.write(".class");
         er.w.write(")");
@@ -165,21 +165,21 @@ final public class RuntimeTypeExpander extends Expander {
 
     String typeof(Type t) {
         if (t.isBoolean())
-            return "x10.types.Types.BOOLEAN";
+            return "x10.rtt.Types.BOOLEAN";
         if (t.isByte())
-            return "x10.types.Types.BYTE";
+            return "x10.rtt.Types.BYTE";
         if (t.isShort())
-            return "x10.types.Types.SHORT";
+            return "x10.rtt.Types.SHORT";
         if (t.isChar())
-            return "x10.types.Types.CHAR";
+            return "x10.rtt.Types.CHAR";
         if (t.isInt())
-            return "x10.types.Types.INT";
+            return "x10.rtt.Types.INT";
         if (t.isLong())
-            return "x10.types.Types.LONG";
+            return "x10.rtt.Types.LONG";
         if (t.isFloat())
-            return "x10.types.Types.FLOAT";
+            return "x10.rtt.Types.FLOAT";
         if (t.isDouble())
-            return "x10.types.Types.DOUBLE";
+            return "x10.rtt.Types.DOUBLE";
         return null;
     }
 }

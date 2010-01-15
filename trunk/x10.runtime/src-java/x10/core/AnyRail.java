@@ -11,7 +11,7 @@ package x10.core;
 import x10.core.Iterator;
 import x10.core.Iterable;
 import x10.core.fun.Fun_0_1;
-import x10.types.Type;
+import x10.rtt.Type;
 
 public interface AnyRail<T> extends Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
 	public Iterator<T> iterator();

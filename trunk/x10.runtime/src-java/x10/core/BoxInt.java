@@ -8,10 +8,10 @@
 
 package x10.core;
 
-import x10.types.Equality;
-import x10.types.RuntimeType;
-import x10.types.Type;
-import x10.types.Types;
+import x10.rtt.Equality;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+import x10.rtt.Types;
 
 public class BoxInt extends Box<Integer> {
     public BoxInt(int v) {

@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "char", "x10.core.BoxedChar", "x10.types.Type.CHAR")
+@NativeRep("java", "char", "x10.core.BoxedChar", "x10.rtt.Type.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
 public final struct Char {
     @Native("java", "((char) (#1))")
@@ -130,11 +130,11 @@ public final struct Char {
     @Native("c++", "x10aux::char_utils::reverseBytes(#0)")
     public native def reverseBytes(): Char;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Char):Boolean;
 }

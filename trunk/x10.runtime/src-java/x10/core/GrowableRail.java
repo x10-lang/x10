@@ -2,8 +2,8 @@ package x10.core;
 
 
 import x10.core.fun.Fun_0_1;
-import x10.types.Type;
-import x10.types.Types;
+import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.core.Iterable;
 import x10.core.Iterator;
 
@@ -175,7 +175,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
     // Runtime type information
     //
     
-    static public class RTT extends x10.types.RuntimeType<GrowableRail<?>> {
+    static public class RTT extends x10.rtt.RuntimeType<GrowableRail<?>> {
         Type<?> type;
         
         public RTT(Type<?> type) {

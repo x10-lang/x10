@@ -6,7 +6,7 @@
  *
  */
 
-package x10.types;
+package x10.rtt;
 
 import x10.core.Box;
 import x10.core.Ref;

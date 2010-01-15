@@ -3,7 +3,7 @@
  */
 package x10.core;
 
-import x10.types.RuntimeType;
+import x10.rtt.RuntimeType;
 
 public class BoxedString<T> extends Box<String> {
 	public BoxedString(String v) {

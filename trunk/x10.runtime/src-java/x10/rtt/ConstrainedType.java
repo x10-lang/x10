@@ -6,7 +6,7 @@
  *
  */
 
-package x10.types;
+package x10.rtt;
 
 import java.util.ArrayList;
 import java.util.Arrays;

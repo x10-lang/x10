@@ -9,9 +9,9 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
-import x10.types.RuntimeType;
-import x10.types.Type;
-import x10.types.Types;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+import x10.rtt.Types;
 
 public class RailFactory {
     public static <T> ValRail<T> makeValRail(Type<T> type, int length, Fun_0_1<Integer,T> init) {
