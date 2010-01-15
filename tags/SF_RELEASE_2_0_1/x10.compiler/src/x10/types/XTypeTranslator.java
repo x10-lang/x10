@@ -102,6 +102,8 @@ public class XTypeTranslator {
 		 XConstraint c2 = new XConstraint_c();
 		 try {
 			 XTerm id = Synthesizer.makeProperty(ts.Place(), c2.self(), "id");
+			 if (id == null)
+			     return null;
 			 c.addBinding(id, XTerms.makeLit(i));
 			 type = X10TypeMixin.xclause(type, c);
 		 } catch (XFailure z) {
@@ -144,6 +146,8 @@ public class XTypeTranslator {
 	}
 
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi)  {
+		if (fi == null)
+			return null;
 		try {
 		return trans(c, target, fi, fi.type());
 		} catch (SemanticException z) {
