@@ -189,7 +189,8 @@ final class PlatformConfChecker implements IPlatformConfChecker {
         for (final Object fileName : compiler.outputFiles()) {
           for (final File generatedFile : workDirFile.listFiles(new CppFileNameFilter((String) fileName))) {
             generatedFiles.add(generatedFile);
-            
+          }
+          for (final File generatedFile : generatedFiles) {
             final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
             curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);            
           }
