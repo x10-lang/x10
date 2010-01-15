@@ -12,10 +12,10 @@
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.ui.launch.cpp,org.eclipse.imp.x10dt.ui.launch.cpp"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/org.eclipse.imp.x10dt.update,org.eclipse.imp.x10dt.update"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.host,x10.dist.host"/>
-<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.host.feature,x10.dist.host.feature"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.linux.x86.fragment,x10.dist.linux.x86.fragment"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.linux.x86_64.fragment,x10.dist.linux.x86_64.fragment"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.macosx.x86.fragment,x10.dist.macosx.x86.fragment"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.macosx.x86_64.fragment,x10.dist.macosx.x86_64.fragment"/>
 <project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/x10dt/trunk/x10.dist.win32.x86.fragment,x10.dist.win32.x86.fragment"/>
 
 </provider>
