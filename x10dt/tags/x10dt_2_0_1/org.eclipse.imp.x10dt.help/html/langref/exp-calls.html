@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Calls</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Calls</h2>
+<a name="Call">
+</a>
+<a name="MethodInvocation">
+</a>
+<a name="MethodInvocationSubstitution">
+</a>
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">MethodCall &nbsp;::=&nbsp; TypeName . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  <tt>super</tt> . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  ClassName . <tt>super</tt> . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right">Call &nbsp;::=&nbsp; Primary TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right">TypeArguments &nbsp;::=&nbsp; [ Type ( , Type )<sup>*</sup>&nbsp;] </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+<div class="p"><!----></div>
+A  may be to either &#223;tatic" or to
+instance methods.  A  may to either a method
+or a closure.  The syntax is ambiguous; the target must be
+type-checked to determine if it is the name of a method or if it
+refers to a closure.
+
+<div class="p"><!----></div>
+It is a static error if a call may resolve to both a closure
+call or to a method call.  
+
+<div class="p"><!----></div>
+A closure call &#235;(...)" is shorthand for a method call &#235;.apply(...)".
+
+<div class="p"><!----></div>
+Method selection rules are similar to that of  Java.
+For a call with no explicit type arguments, a method with 
+no parameters is considered more specific than a method with one or more
+type parameters that would have to be inferred.
+
+<div class="p"><!----></div>
+Type arguments may be omitted and inferred, as described in
+.
+
+<div class="p"><!----></div>
+It is a static error if a method's  is not satisfied by the caller.
+
+<div class="p"><!----></div>
+</body>
+</html>

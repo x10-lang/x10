@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Spawning an Activity</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Spawning an activity</h2><a name="AsynchronousActivity">
+</a><a name="AsyncActivity">
+</a>
+
+<div class="p"><!----></div>
+Asynchronous activities serve as a single abstraction for supporting a
+wide range of concurrency constructs such as message passing, threads,
+DMA, streaming, data prefetching. (In general, asynchronous operations
+are better suited for supporting scalability than synchronous
+operations.)
+
+<div class="p"><!----></div>
+An activity is created by executing the statement:
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; AsyncStatement </td></tr>
+<tr><td align="right">AsyncStatement &nbsp;::=&nbsp; <tt>async</tt> PlaceExpressionSingleList<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">PlaceExpressionSingleList &nbsp;::=&nbsp; ( PlaceExpression ) </td></tr>
+<tr><td align="right">PlaceExpression &nbsp;::=&nbsp; Expression </td></tr>
+<tr><td align="right"></td></tr></table>
+</em> 
+ 
+
+<div class="p"><!----></div>
+The place expression &#235;" is expected to be of type "Place",
+e.g., "here" or "d(p)" for some
+distribution "d" and point "p" ().  
+If not, the compiler replaces
+&#235;" with &#235;.location" if
+&#235;" is of type "x10.lang.Ref". Otherwise the compiler reports a type error. 
+
+<div class="p"><!----></div>
+Note specifically that the expression &#228;(i)" when used as a place
+expression may evaluate to &#228;(i).location", which may not be
+the same place as &#228;.dist(i)". The programmer must be 
+careful to choose the right expression, appropriate for the statement.
+Accesses to &#228;(i)" within  should typically be guarded 
+by the place expression &#228;.dist(i)".
+
+<div class="p"><!----></div>
+In many cases the compiler may infer the unique place at which the
+statement is to be executed by an analysis of the types of the
+variables occuring in the statement. (The place must be such that the
+statement can be executed safely, without generating a
+"BadPlaceException".) In such cases the programmer may omit the
+place designator; the compiler will throw an error if it cannot
+determine the unique designated place.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
+
+<div class="p"><!----></div>
+An activity A executes the statement &#228;sync (P) S" by launching
+a new activity B at the designated place, to execute the specified
+statement. The statement terminates locally as soon as B is
+launched.  The activation path for B is that of A, augmented with
+information about the line number at which B was spawned.  B
+terminates normally when S terminates normally.  It terminates
+abruptly if S throws an (uncaught) exception. The exception is
+propagated to A if A is a root activity (see ),
+otherwise through A to A's root activity. Note that while an
+activity is running, exceptions thrown by activities it has already
+generated may propagate through it up to its root activity.
+
+<div class="p"><!----></div>
+Multiple activities launched by a single activity at another place are
+not ordered in any way. They are added to the pool of activities at
+the target place and will be executed in sequence or in parallel based
+on the local scheduler's decisions. If the programmer wishes to
+sequence their execution s/he must use  X10 constructs, such as
+clocks and "finish" to obtain the desired effect.  Further, the
+ X10 implementations are not required to have fair schedulers,
+though every implementation should make a best faith effort to ensure
+that every activity eventually gets a chance to make forward progress.
+
+<div class="p"><!----></div>
+The statement in the body of an &#228;sync" is subject to the
+restriction that it must be acceptable as the body of a "void"
+method for an anoymous inner class declared at that point in the code,
+which throws no checked exceptions. As such, it may reference
+variables in lexically enclosing scopes (including "clock"
+variables, ) provided that such variables are
+(implicitly or explicitly) "final".
+
+
+<div class="p"><!----></div>
+
+<b>Returning from within an &#228;sync".&nbsp;&nbsp;</b>
+The body "S" of an  &#228;sync S" is not permitted to contain a 
+"return" statement since there are two candidate scopes from which
+the programmer might intend the return: the   
+&#228;sync" itself, and the enclosing method.
+
+<div class="p"><!----></div>
+Programmers wishing to use a "return" statement in "S" to
+return from the &#228;sync S" should use the idiom 
+"val x=()=&#62;S;async x();" instead (for some new variable "x". 
+(Note that it does not make sense for code executing in the body of an
+&#228;sync" to attempt to return from the enclosing method - the
+method may already have returned asynchronously.)
+
+<div class="p"><!----></div>
+</body>
+</html>

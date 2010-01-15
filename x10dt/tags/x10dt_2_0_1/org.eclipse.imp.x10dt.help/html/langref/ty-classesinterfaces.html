@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Classes and interfaces</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Classes and interfaces</h2>
+<a name="ReferenceTypes">
+</a>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Class types</h3>
+
+<div class="p"><!----></div>
+        A <em>class declaration</em> ()
+        introduces a 
+        <em>class type</em>
+        containing all instances of the class.
+
+<div class="p"><!----></div>
+        Class instances are created via
+        constructor calls.  Class instances have fields and
+        methods, type members, and
+
+        value properties bound at construction time.
+
+        In addition, classes have static
+        members: constant fields, type definitions, and member
+        classes and member interfaces.
+
+<div class="p"><!----></div>
+        A class with type parameters is <em>generic</em>.  A class
+        type is legal only if all of its parameters are instantiated
+        on concrete types.
+
+
+<div class="p"><!----></div>
+ X10 does
+not
+permit mutable static state, so the role of static methods and
+initializers is quite limited. Instead programmers should use
+singleton classes to carry mutable static state.
+
+<div class="p"><!----></div>
+        Classes may be declared to be either reference classes,
+        or value classes.
+A <em>value class type</em>, declared with the "value"
+modifier,
+is a class type in which all fields of the class are final.
+Variables of reference class type may be "null"; 
+variables of value class type may not be "null".
+
+<div class="p"><!----></div>
+        Classes
+        are structured in a
+        single-inheritance hierarchy.  All reference classes
+        implicitly extend the class "x10.lang.Ref".
+        All value classes implicitly extend the class "x10.lang.Value".
+        It is a static error if a value class explicitly extends
+        "Ref" (or any subclass of "Ref").
+        It is a static error if a reference class explicitly extends
+        "Value" (or any subclass of "Value").
+
+<div class="p"><!----></div>
+        Classes are declared to extend a single
+        superclass (except for "Ref" and "Value", which extend
+        no other class),
+        All classes implement the
+        interface "x10.lang.Object"
+        and zero or more other interfaces.
+
+<div class="p"><!----></div>
+&#214;bject" has the following signature:
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+
+<div class="p"><!----></div>
+public interface Object {
+    public def toString(): String;
+    public def equals(Object): Boolean;
+    public def hashCode(): Int;
+    /** Return the full name of the class, e.g., "x10.lang.String" */
+    public def className(): String;
+}
+</pre>
+
+<div class="p"><!----></div>
+"Ref" and "Value" have the following signatures:
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+
+<div class="p"><!----></div>
+public class Ref(location: Place) {
+    public Ref() { property(here); } 
+}
+
+<div class="p"><!----></div>
+public class Value { } 
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Interface types</h3>
+<a name="InterfaceTypes">
+</a>
+
+<div class="p"><!----></div>
+        An <em>interface declaration</em> ()
+        defines an <em>interface type</em>, which specifies a set of
+        methods, type members, and properties to be implemented by any class
+        declared to implement the interface.  Interfaces also
+        have static members: constant fields, type definitions,
+        and member classes and interfaces.
+
+<div class="p"><!----></div>
+        An interface may extend multiple interfaces.
+        All interfaces extend "x10.lang.Object".
+
+<div class="p"><!----></div>
+Classes may be declared to implement 
+multiple interfaces. 
+Semantically, the interface type is the set of all objects that are
+instances of (value or reference) classes that implement the
+interface. A class implements an interface if it is declared to
+and if
+it implements all the methods and properties defined in the interface.
+
+<div class="p"><!----></div>
+
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Value properties</h3>
+
+<div class="p"><!----></div>
+        Classes and interfaces may have <em>value properties</em>,
+        public final fields bound to object creation.  
+        For example, the following code declares a class named
+        "Point" with properties "x" and &#255;"
+        and a "move" method.  The properties are bound
+        using the "property" statement in the constructor.
+
+<div class="p"><!----></div>
+<pre>
+class Point(x: Int, y: Int) {
+  def this(x: Int, y: Int) { property(x, y); } 
+  def move(dx: Int, dy: Int) = new Point(x+dx, y+dy);
+}
+</pre>
+
+<div class="p"><!----></div>
+        The value properties of a class or interface may be
+        constrained with a boolean expression.  The type
+        "Point {x==0}" is the set of all points whose "x"
+        property is "0".
+
+<div class="p"><!----></div>
+</body>
+</html>

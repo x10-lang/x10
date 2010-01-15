@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Changes</title>
+</head>
+
+<body>
+<h1>Changes</h1>
+This is the first reference manual that corresponds to a working
+implementation. As such a number of details missing from v0.32 have
+been spelled out. A number of mistakes have been corrected, and
+clarifications added.
+
+<div class="p"><!----></div>
+The semantics of exception handling across asynchronous activities has
+been clarified.
+
+<div class="p"><!----></div>
+Exploded syntax has been introduced to make it convenient to
+destructure points. 
+
+<div class="p"><!----></div>
+Arrays are implemented at all built-in types as well as at all
+user-defined types.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Limitations</h2>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> All the static semantics rules are not yet implemented. 
+Thus if your program is already correct, it will execute correctly. If
+it is not correct, it may still execute and give a
+result. Specifically, the implementation does not yet check <tt>
+local</tt> annotations.
+<div class="p"><!----></div>
+</li>
+
+<li> The implementation does not support a way to specify just the rank of
+an array in its type.
+<div class="p"><!----></div>
+</li>
+
+<li> Arrays of arrays ("jagged" arrays) are not yet implemented.
+<div class="p"><!----></div>
+</li>
+
+<li> Local, 1-d, 0-based arrays do not currently support all the
+functionality of more general arrays. (They are optimized through to
+ Java arrays.)
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ X10 v1.7 does not formally define a model for interoperability with
+Java. The following guidelines may be used temporarily:
+
+<div class="p"><!----></div>
+
+<ul>
+<li>  Java classes may be imported.
+<div class="p"><!----></div>
+</li>
+
+<li> Confine the use of  Java to system classes, e.g.,
+<tt>System.out</tt> for I/O.
+<div class="p"><!----></div>
+</li>
+
+<li> Do not use synchronized keyword, or create new <tt>java.lang.Threads</tt>.
+<div class="p"><!----></div>
+</li>
+
+<li>  Java objects may be created. These are "placeless". Do not use
+     such an object as an argument to async, or wherever a placeful
+     value is expectd.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Future work</h2>
+
+<div class="p"><!----></div>
+Language needs to be extended to support generic types, with
+type and value parameters.
+
+<div class="p"><!----></div>
+Language needs to be extended to support type inference.
+
+<div class="p"><!----></div>
+Language needs to be extended to support implicit syntax.
+
+</body>
+</html>
