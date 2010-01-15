@@ -7,7 +7,7 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="x10.version" value="2.0.1"/>
     <property name="x10.timestamp" value="${x10.version}"/> <!-- override if version is, e.g., "svn head" -->
-    <property name="x10.platform" value="macos_x86"/>
+    <property name="x10.platform" value="macos_x86_64"/>
     <property name="x10.dist.location" location="${tmp}"/>
     <property name="pgas.location" location="${tmp}"/>
 	<!-- start: changed for 2.0.1-->
