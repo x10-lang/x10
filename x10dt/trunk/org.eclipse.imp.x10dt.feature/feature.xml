@@ -162,4 +162,12 @@
          version="2.0.1.qualifier"
          fragment="true"/>
 
+   <plugin
+         id="x10.dist.macosx.x86_64.fragment"
+         download-size="0"
+         install-size="0"
+         version="2.0.1.qualifier"
+         fragment="true"
+         unpack="false"/>
+
 </feature>
