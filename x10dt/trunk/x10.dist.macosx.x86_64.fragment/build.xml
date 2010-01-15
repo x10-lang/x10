@@ -51,7 +51,7 @@
     <target name="clean">
         <delete>
             <fileset dir="${lib}">
-                <include name="libxlpgas_${x10.transport}.a"/>
+                <include name="lib*pgas*.a"/> ,<!-- changed for 2.0.1 -->
                 <include name="libx10.a"/>
                 <include name="libx10.mft"/>
                 <include name="libgc.a"/>
@@ -81,11 +81,13 @@
         <property name="local.pgas.tarball" location="${tmp}/${pgas.tarball}"/>
     </target>
     <target name="expand-pgas-tarball" depends="init,pgas-tarball-download" unless="pgas.already.expanded">
+    	<!--
         <untar src="${local.pgas.tarball}" dest="${tmp}" compression="gzip">
             <patternset>
                 <include name="lib/libxlpgas_${x10.transport}.a"/>
             </patternset>
-        </untar>
+        </untar>  changed for 2.0.1 (omit)
+    	-->
     </target>
     <target name="x10-tarball-download" depends="init" unless="local.x10.tarball">
         <mkdir dir="${tmp}"/>
@@ -99,6 +101,7 @@
                 <include name="lib/libx10.a"/>
                 <include name="lib/libx10.mft"/>
                 <include name="lib/libgc.a"/>
+            	<include name="lib/libx10rt_pgas_sockets.a"/> <!-- added/changed for 2.0.1 -->
             </patternset>
         </untar>
     </target>
@@ -110,8 +113,8 @@
             <fileset dir="${x10.dist.location}/include" includes="**"/>
         </copy>
         <copy todir="${lib}">
-            <fileset dir="${x10.dist.location}/lib" includes="libx10.a,libx10.mft,libgc.a"/>
-            <fileset dir="${pgas.location}/lib" includes="libxlpgas_${x10.transport}.a"/>
+            <fileset dir="${x10.dist.location}/lib" includes="libx10.a,libx10.mft,libgc.a,libx10rt_pgas_sockets.a"/><!-- 2.0.1-->
+            <!-- <fileset dir="${pgas.location}/lib" includes="libxlpgas_${x10.transport}.a"/> omit for 2.0.1 -->
         </copy>
     </target>
     <target name="dist" depends="init,update"/>
