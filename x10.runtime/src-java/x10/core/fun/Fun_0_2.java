@@ -8,8 +8,8 @@
 
 package x10.core.fun;
 
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 public interface Fun_0_2<T1,T2,U> {
     U apply(T1 o1, T2 o2);

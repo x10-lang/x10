@@ -181,7 +181,7 @@ import x10.types.XTypeTranslator.XTypeLit_c;
  * @author vj Refactored Emitter out.
  */
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
-	public static final String X10_RUNTIME_TYPE_CLASS = "x10.types.Type";
+	public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
 	public static final String X10_FUN_CLASS_PREFIX = "x10.core.fun.Fun";
 	public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
 

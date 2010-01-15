@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Type.SHORT")
+@NativeRep("java", "short", "x10.core.BoxedShort", "x10.rtt.Type.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
 public final struct Short {
     @Native("java", "((#1) < (#2))")
@@ -162,11 +162,11 @@ public final struct Short {
     @Native("c++", "x10aux::short_utils::reverseBytes(#0)")
     public native def reverseBytes(): Short;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Short):Boolean;
 }

@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
+@NativeRep("java", "int", "x10.core.BoxedInt", "x10.rtt.Type.INT")
 //                  v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
@@ -201,11 +201,11 @@ public struct Int {
     @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): Int;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 
-    @Native("java", "x10.types.Equality.equalsequals(#0, #1)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Int):Boolean;
 }

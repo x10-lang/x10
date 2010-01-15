@@ -8,7 +8,7 @@
 
 package x10.core.fun;
 
-import x10.types.RuntimeType;
+import x10.rtt.RuntimeType;
 
 public interface VoidFun_0_0 {
     void apply();

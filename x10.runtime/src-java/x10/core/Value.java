@@ -12,9 +12,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import x10.types.Equality;
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.Equality;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 // Base class of all X10 value objects -- should be generated, but we need this class to get Box to compile.
 public class Value {

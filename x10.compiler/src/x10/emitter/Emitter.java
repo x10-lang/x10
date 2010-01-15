@@ -620,7 +620,7 @@ public class Emitter {
 								w.write(")");
 							} else
 								if (term instanceof XTypeLit_c) {
-									w.write("new x10.types.ConstrainedType.XTypeLit_c(");
+									w.write("new x10.rtt.ConstrainedType.XTypeLit_c(");
 									w.begin(0);
 									new RuntimeTypeExpander(this, ((XTypeLit_c)term).type()).expand(tr);
 									w.end();
@@ -990,7 +990,7 @@ public class Emitter {
 			ParameterType pt = def.typeParameters().get(i);
 			ParameterType.Variance var = def.variances().get(i);
 
-			w.write("public x10.types.Type<?> " + "rtt_" + mangle(def.fullName()) + "_");
+			w.write("public x10.rtt.Type<?> " + "rtt_" + mangle(def.fullName()) + "_");
 			w.write(mangleIdentifier(pt.name()).toString());
 			w.write("()");
 
@@ -1035,7 +1035,7 @@ public class Emitter {
 
 					for (int i = 0; i < idef.typeParameters().size(); i++) {
 						ParameterType pt = idef.typeParameters().get(i);
-						w.write("public x10.types.Type<?> " + "rtt_" + mangle(idef.fullName()) + "_");
+						w.write("public x10.rtt.Type<?> " + "rtt_" + mangle(idef.fullName()) + "_");
 						w.write(mangleIdentifier(pt.name()).toString());
 						w.write("() { ");
 
@@ -1271,9 +1271,9 @@ public class Emitter {
 
 		boolean isConstrained = def.classInvariant() != null && !def.classInvariant().get().valid();
 
-		String superClass = "x10.types.RuntimeType";
+		String superClass = "x10.rtt.RuntimeType";
 		if (X10PrettyPrinterVisitor.serialize_runtime_constraints && isConstrained) { // constrained type; treat specially
-			superClass = "x10.types.ConstrainedType";
+			superClass = "x10.rtt.ConstrainedType";
 		}
 
 		if (def.asType().isGloballyAccessible()) {
@@ -1321,7 +1321,7 @@ public class Emitter {
 		}
 		for (int i = 0; i < def.typeParameters().size(); i++) {
 			ParameterType pt = def.typeParameters().get(i);
-			w.write("public final x10.types.Type ");
+			w.write("public final x10.rtt.Type ");
 			w.write(Emitter.mangleIdentifier(pt.name()).toString());
 			w.write(";");
 			w.newline();
@@ -1333,7 +1333,7 @@ public class Emitter {
 			ParameterType pt = def.typeParameters().get(i);
 			if (i != 0)
 				w.write(", ");
-			w.write("final x10.types.Type ");
+			w.write("final x10.rtt.Type ");
 			w.write(Emitter.mangleIdentifier(pt.name()).toString());
 		}
 
@@ -1342,7 +1342,7 @@ public class Emitter {
 		w.write("super(");
 
 		if (X10PrettyPrinterVisitor.serialize_runtime_constraints && isConstrained) { // constrained type; treat specially
-			w.write("new x10.types.RuntimeType<");
+			w.write("new x10.rtt.RuntimeType<");
 			printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 			w.write(">(");
 			printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
@@ -1443,13 +1443,13 @@ public class Emitter {
 			generateRTType(mt.x10Def());
 		}
 
-		w.write("public java.util.List<x10.types.Type<?>> getTypeParameters() {");
+		w.write("public java.util.List<x10.rtt.Type<?>> getTypeParameters() {");
 		w.newline();
 		w.begin(4);
 		if (def.typeParameters().isEmpty())
 			w.write("return null;");
 		else {
-			w.write("return java.util.Arrays.asList(new x10.types.Type<?>[] { ");
+			w.write("return java.util.Arrays.asList(new x10.rtt.Type<?>[] { ");
 			w.newline();
 			w.begin(4);
 			for (int i = 0; i <  def.typeParameters().size(); i++) {
@@ -1478,7 +1478,7 @@ public class Emitter {
 		tr.print(parent, e, w);
 		w.write(")");
 
-		//	    w.write("x10.types.Types.<");
+		//	    w.write("x10.rtt.Types.<");
 		//            printType(t, flags | BOX_PRIMITIVES);
 		//            w.write(">javacast(");
 		//	    tr.print(parent, e, w);
@@ -1490,7 +1490,7 @@ public class Emitter {
 		w.write(") ");
 		e.expand(tr);
 		w.write(")");
-		//            w.write("x10.types.Types.<");
+		//            w.write("x10.rtt.Types.<");
 		//            printType(t, flags | BOX_PRIMITIVES);
 		//            w.write(">javacast(");
 		//	    e.expand(tr);
@@ -1502,7 +1502,7 @@ public class Emitter {
 		w.write(") ");
 		w.write(e);
 		w.write(")");
-		//            w.write("x10.types.Types.<");
+		//            w.write("x10.rtt.Types.<");
 		//            printType(t, flags | BOX_PRIMITIVES);
 		//            w.write(">javacast(");
 		//	    w.write(e);
@@ -1581,7 +1581,7 @@ public class Emitter {
 	    tr.print(parent, e, w);
 	    w.write(")");
 	    
-//            w.write("x10.types.Types.<");
+//            w.write("x10.rtt.Types.<");
 //            printType(expected, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 //            w.write(">javacast(");
 //	    tr.print(parent, e, w);

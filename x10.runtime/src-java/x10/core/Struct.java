@@ -4,9 +4,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import x10.types.Equality;
-import x10.types.RuntimeType;
-import x10.types.Type;
+import x10.rtt.Equality;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 
 // Base class for all X10 structs
 public abstract class Struct implements Any {

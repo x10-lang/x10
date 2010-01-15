@@ -9,8 +9,8 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
-import x10.types.Type;
-import x10.types.Types;
+import x10.rtt.Type;
+import x10.rtt.Types;
 
 public final class ValRail<T> implements AnyRail<T> {
     public final int length;
@@ -182,7 +182,7 @@ public final class ValRail<T> implements AnyRail<T> {
     // Runtime type information
     //
     
-    static public class RTT<T> extends x10.types.RuntimeType<ValRail<T>> {
+    static public class RTT<T> extends x10.rtt.RuntimeType<ValRail<T>> {
         Type<T> type;
         
         public RTT(Type<T> type) {

@@ -3,7 +3,7 @@
  */
 package x10.core;
 
-import x10.types.Types;
+import x10.rtt.Types;
 
 public class BoxedLong<T> extends Box<Long> {
 	public BoxedLong(long v) {
