@@ -160,6 +160,8 @@ public class Synthesizer {
 	 public static XTerm makeProperty(Type type, XVar receiver, String name) {
 		 X10FieldInstance fi = 
 				X10TypeMixin.getProperty(type, Name.make(name));
+		 if (fi == null)
+			 return null;
 			XName field = XTerms.makeName(fi.def(), 
 					Types.get(fi.def().container()) 
 					+ "#" + fi.name().toString());
