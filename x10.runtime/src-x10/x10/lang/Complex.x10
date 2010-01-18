@@ -37,7 +37,7 @@ public struct Complex {
     /**
      * @return the sum of this complex number and the given complex number
      */
-    public operator this + (that:Complex):Complex {
+    public safe operator this + (that:Complex):Complex {
         return Complex(re + that.re, im + that.im);
     }
 
@@ -46,14 +46,14 @@ public struct Complex {
     /**
      * @return the sum of this complex number and the given Double
      */
-    public operator this + (that:Double):Complex {
+    public safe operator this + (that:Double):Complex {
         return Complex(re + that, im);
     }
 
     /**
      * @return the difference between this complex number and the given complex number
      */
-    public operator this - (that:Complex):Complex {
+    public safe operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
 
@@ -62,14 +62,14 @@ public struct Complex {
     /**
      * @return the difference between this complex number and the given Double
      */
-    public operator this - (that:Double):Complex {
+    public safe operator this - (that:Double):Complex {
         return Complex(re - that, im);
     }
     
     /**
      * @return the product of this complex number and the given complex number
      */
-    public operator this * (that:Complex):Complex {
+    public safe operator this * (that:Complex):Complex {
         return Complex(re * that.re - im * that.im, 
                        re * that.im + im * that.re);
     }
@@ -79,7 +79,7 @@ public struct Complex {
     /**
      * @return the product of this complex number and the given Double
      */
-    public operator this * (that:Double):Complex {
+    public safe operator this * (that:Double):Complex {
         return Complex(re * that, im * that);
     }
 
@@ -89,7 +89,7 @@ public struct Complex {
      * TODO: consider using Priest's algorithm <a href="http://doi.acm.org/10.1145/1039813.1039814"/>
      * @return the quotient of this complex number and the given complex number
      */
-    public operator this / (that:Complex):Complex {
+    public safe operator this / (that:Complex):Complex {
         if (isNaN() || that.isNaN()) {
             return Complex.NaN;
         }
@@ -128,14 +128,14 @@ public struct Complex {
     /**
      * Gets the quotient of this complex number and the given Double.
      */
-    public operator this / (that:Double):Complex {
+    public safe operator this / (that:Double):Complex {
         return Complex(re / that, im / that);
     }
 
     /** 
      * @return the conjugate of this complex number
      */
-    public def conjugate():Complex {
+    public safe def conjugate():Complex {
         if (isNaN()) {
             return Complex.NaN;
         }   
@@ -145,7 +145,7 @@ public struct Complex {
     /**
      * @return the negation of this complex number
      */
-    public operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
+    public safe operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
 
     /**
      * Return the absolute value of this complex number.
@@ -157,7 +157,7 @@ public struct Complex {
      *
      * @return the absolute value
      */
-    public def abs():Double {
+    public safe def abs():Double {
         if (isNaN()) {
             return Double.NaN;
         }
@@ -179,7 +179,7 @@ public struct Complex {
     /**
      * @return true if either part of this complex number is NaN
      */
-    public def isNaN():boolean {
+    public safe def isNaN():boolean {
         return re.isNaN() || im.isNaN();        
     }
 
@@ -187,7 +187,7 @@ public struct Complex {
      * @return true if either part of this complex number is infinite
      * and neither part is <code>NaN</code>
      */
-    public def isInfinite():boolean {
+    public safe def isInfinite():boolean {
         return !isNaN() && 
         (re.isInfinite() || im.isInfinite());
     }
