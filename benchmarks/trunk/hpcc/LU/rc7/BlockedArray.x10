@@ -1,8 +1,6 @@
 package rc7;
 
 import x10.compiler.Native;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
 import x10.util.Random;
 
 public final class BlockedArray implements (Int,Int)=>Double {
@@ -143,7 +141,7 @@ public final class BlockedArray implements (Int,Int)=>Double {
     }
 
     public static def make(M:Int, N:Int, bx:Int, by:Int, px:Int, py:Int) {
-        return PlaceLocalStorage.createDistributedObject[BlockedArray](Dist.makeUnique(),
+        return PlaceLocalHandle.make[BlockedArray](Dist.makeUnique(),
             ()=>new BlockedArray(M, N, bx, by, px ,py));
     }
 }

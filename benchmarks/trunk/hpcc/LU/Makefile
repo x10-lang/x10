@@ -5,8 +5,8 @@ PACKAGE	:= rc7
 SRCS = ${PACKAGE}/LU.x10 ${PACKAGE}/BlockedArray.x10 ${PACKAGE}/Comm.x10 ${PACKAGE}/Timer.x10
 
 NATIVE_HDR 	:= ${PACKAGE}/essl_natives.h
-NATIVE_SRC 	:= ${PACKAGE}/essl_natives.cc ${PACKAGE}/Comm.cc
-NATIVE_INC	:= ${PACKAGE}/Comm.h
+NATIVE_SRC 	:= ${PACKAGE}/essl_natives.cc
+NATIVE_INC	:= 
 NATIVE_LIB	:= ${BLAS_LIB} ${EXTRA_LIBS}
 
 all: lu-opt lu-dbg

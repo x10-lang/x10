@@ -1,8 +1,6 @@
 package rc7;
 
 import x10.compiler.Native;
-import x10.runtime.PlaceLocalHandle;
-import x10.runtime.PlaceLocalStorage;
 
 class LU {
 
@@ -19,8 +17,8 @@ class LU {
         native static def blockMulSubRow(me:Rail[Double], diag:Rail[Double], B:Int, j:Int, cond:boolean):Void;
     
     static def runAt(id:Int, c:()=>Void) {
-         x10.runtime.NativeRuntime.runAt(id, c);
-         x10.runtime.NativeRuntime.dealloc(c);
+         x10.lang.Runtime.runAtNative(id, c);
+         x10.lang.Runtime.dealloc(c);
     }
 
     const unique = Dist.makeUnique();
@@ -92,9 +90,9 @@ class LU {
         val size = A_here.getRow(row, min, max, buffer);
         val _buffers = buffers;
         val _A = A;
-        buffers.copyTo(Place.places(dest), size, ()=>{
-            val size = _A.get().swapRow(row2, min, max, _buffers.get());
-            _buffers.copyTo(source, size, ()=>{
+        buffers.copyTo[Double](Place.places(dest), size, ()=>{
+            val size = _A().swapRow(row2, min, max, _buffers());
+            _buffers.copyTo[Double](source, size, ()=>{
                 A_here.setRow(row, min, max, buffer);
                 atomic ready=true;
             });
@@ -269,7 +267,7 @@ class LU {
             val _rowBuffer = rowBuffer;
             val _B = B;
             runAt(A_here.placeOfBlock(I, J), ()=>{
-                _A.get().block(I, J).raw.copyTo(0, _rowBuffer, 0, _B * _B, ()=>{
+                _A().block(I, J).raw.copyTo(0, _rowBuffer, 0, _B * _B, ()=>{
                     atomic ready=true;
                 });
             });
@@ -322,16 +320,16 @@ class LU {
         val px = Int.parseInt(args(2));
         val py = Int.parseInt(args(3));
         val A = BlockedArray.make(M, N, B, B, px, py);
-        val buffers = PlaceLocalStorage.createDistributedObject[Rail[Double]](unique, ()=>Rail.make[Double](N));        
-        val lus = PlaceLocalStorage.createDistributedObject[LU](unique, ()=>new LU(M, N, B, px, py, A, buffers));
+        val buffers = PlaceLocalHandle.make[Rail[Double]](unique, ()=>Rail.make[Double](N));        
+        val lus = PlaceLocalHandle.make[LU](unique, ()=>new LU(M, N, B, px, py, A, buffers));
         Console.OUT.println ("LU Starting: M " + M + " B " + B + " px " + px + " py " + py);
         start(lus);
     }
 
     def this(M:Int, N:Int, B:Int, px:Int, py:Int, A:PlaceLocalHandle[BlockedArray], buffers:PlaceLocalHandle[Rail[Double]]) { 
         this.M = M; this.N = N; this.B = B; this.px = px; this.py = py;
-        this.A = A; A_here = A.get();
-        this.buffers = buffers; buffer = buffers.get();
+        this.A = A; A_here = A();
+        this.buffers = buffers; buffer = buffers();
         MB = M / B - 1;
         NB = N / B - 1;
         val world = Comm.WORLD();
@@ -356,7 +354,7 @@ class LU {
         var t:Long = -System.nanoTime();
 
         finish ateach (p in unique) {
-            val lu = lus.get();
+            val lu = lus();
             val timer = new Timer(15);
 
             timer.start(0);
@@ -397,7 +395,7 @@ class LU {
         t += System.nanoTime();
 
         Console.OUT.println();
-        Console.OUT.println(" Time= "+ t/1e9 + " seconds" + " Rate= " + flops(lus.get().N)/t + " GFlops");
+        Console.OUT.println(" Time= "+ t/1e9 + " seconds" + " Rate= " + flops(lus().N)/t + " GFlops");
     }
 
     static def flops(n:Int) = ((4.0*n-3.0)*n-1.0)*n/6.0;

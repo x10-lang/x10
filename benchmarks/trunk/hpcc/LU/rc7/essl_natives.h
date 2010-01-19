@@ -1,3 +1,5 @@
+#include <pgasrt.h>
+
 extern "C" {
 void blockTriSolve(double*, double*, signed int);
 void blockBackSolve(double*, double*, int);
