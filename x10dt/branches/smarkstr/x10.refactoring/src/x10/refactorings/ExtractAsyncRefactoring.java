@@ -67,6 +67,7 @@ import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.ExtractVarsVisitor.VarUseType;
@@ -906,6 +907,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 						}
 						else if ((cType & (VarUseType.RVAL | VarUseType.LEFT)) != 0) {
 							if ((cType & VarUseType.GETFIELD) != 0)
+								// problematic now because of generated field derefs...
 								createDummyInstanceFieldKey(cast2VarMap, cast2KeyMap, cNode);
 							else {
 								if ((inst instanceof SSAArrayStoreInstruction) || (inst instanceof X10ArrayStoreByPointInstruction)){
@@ -975,7 +977,11 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	private void createDummyArrayInstanceKey(HashMap<CAstNode, Variable> cast2VarMap, Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode, CGNode srcNode) {
-		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.', '/'));
+		//CAstNode child = cNode.getChild(0);
+		Variable variable = cast2VarMap.get(cNode);
+//		Variable variable = cast2VarMap.get(child);
+		Type type = variable.type();
+		TypeName typeName = TypeName.findOrCreate("[L"+type.toString().replace('.', '/'));
 		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension()).getSourceLoader().lookupClass(typeName);
 // Shane's change
 		cast2KeyMap.put(cNode, new ArrayContentsKey(new NormalAllocationInNode(srcNode,null,cNodeClass)));
