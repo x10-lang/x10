@@ -1,8 +1,8 @@
 #ifndef X10_LANG_PLACELOCALHANDLE_IMPL_STRUCT_H
 #define X10_LANG_PLACELOCALHANDLE_IMPL_STRUCT_H
 
-#include <x10rt.h>
-
+#include <x10aux/basic_functions.h>
+#include <x10aux/place_local.h>
 #include <x10/lang/String.h>
 
 namespace x10 {

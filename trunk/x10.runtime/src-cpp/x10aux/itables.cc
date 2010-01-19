@@ -1,10 +1,9 @@
 #include <stdio.h>
 
-#include<x10rt.h>
+#include <x10aux/itables.h>
 
 using namespace x10aux;
 using namespace x10::lang;
-
 
 void* x10aux::outlinedITableLookup(itable_entry* itables, RuntimeType* targetInterface) {
     if (targetInterface->paramsc > 0) {
