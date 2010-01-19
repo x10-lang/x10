@@ -96,15 +96,13 @@ namespace x10 {
             static void _serialize(x10aux::ref<Reference> this_,
                                    x10aux::serialization_buffer &buf);
 
-            // Should only be overridden in Ref
-            virtual x10aux::serialization_id_t _get_interface_serialization_id() {
-                _S_("===> Reference's _get_interface_serialization_id() called");
-                return _get_serialization_id();
-            }
-            // Should only be overridden in Ref
-            virtual void _serialize_interface(x10aux::serialization_buffer &buf);
-
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
+
+            // Should only be overridden in Object
+            virtual x10aux::serialization_id_t _get_interface_serialization_id();
+
+            // Should only be overridden in Object
+            virtual void _serialize_interface(x10aux::serialization_buffer &buf);
         };
 
         template<class T> x10aux::ref<T> Reference::_deserialize(x10aux::deserialization_buffer &buf) {
