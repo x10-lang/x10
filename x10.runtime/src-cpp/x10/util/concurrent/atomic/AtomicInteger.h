@@ -7,9 +7,10 @@
 #ifndef X10_UTIL_CONCURRENT_ATOMIC_ATOMICINTEGER_H
 #define X10_UTIL_CONCURRENT_ATOMIC_ATOMICINTEGER_H
 
-#include <x10rt.h>
 #include <x10/lang/Object.h>
 #include <x10aux/serialization.h>
+#include <x10aux/atomic_ops.h>
+#include <x10aux/int_utils.h>
 
 namespace x10 {
     namespace util {

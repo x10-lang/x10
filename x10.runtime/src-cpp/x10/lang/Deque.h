@@ -7,7 +7,6 @@
 #ifndef X10_LANG_DEQUE_H
 #define X10_LANG_DEQUE_H
 
-#include <x10rt.h>
 #include <x10/lang/Object.h>
 #include <x10aux/serialization.h>
 

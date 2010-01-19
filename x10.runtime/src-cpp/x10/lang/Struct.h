@@ -1,7 +1,7 @@
 #ifndef __X10_LANG_STRUCT_H
 #define __X10_LANG_STRUCT_H
 
-#include <x10rt.h>
+#include <x10/lang/Struct.struct_h>
 
 namespace x10 {
     namespace lang {
