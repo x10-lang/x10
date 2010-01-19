@@ -17,6 +17,11 @@ Place Reference::home() {
     return x10::lang::Place_methods::_make(location);
 }
 
+x10aux::serialization_id_t Reference::_get_interface_serialization_id() {
+    _S_("===> Reference's _get_interface_serialization_id() called");
+    return _get_serialization_id();
+}
+
 void Reference::_serialize_interface(x10aux::serialization_buffer &buf)
 {
     _S_("Serializing the "<<ANSI_SER<<"interface body"<<ANSI_RESET<<" to buf: "<<&buf);
