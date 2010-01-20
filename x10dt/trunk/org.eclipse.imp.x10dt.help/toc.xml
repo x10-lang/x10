@@ -10,7 +10,7 @@
 	<topic label="Overview of X10"  href="html/langref/Overview.html"> 
 		<topic label="Object-oriented features" href="html/langref/ove-oofeatures.html"/> 
 		<topic label="The sequential core" href="html/langref/ove-seqcore.html"/> 
-		<topic label="Places and activities" href="html/langref/ove-placeact.html"/> 
+		<topic label="Places and activities" href="html/langref/ove-placesacts.html"/> 
 		<topic label="Clocks" href="html/langref/ove-clocks.html"/> 
 		<topic label="Arrays, Regions and Distributions" href="html/langref/ove-arraysregionsdists.html"/> 
 		<topic label="Annotations" href="html/langref/ove-annotations.html"/> 
