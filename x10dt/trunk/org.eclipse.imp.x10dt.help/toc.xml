@@ -44,7 +44,7 @@
 		<topic label="Final variables" href="html/langref/obj-basic.html"/>
 		<topic label="Initial values of variables" href="html/obj-examples.html"/>
 	</topic>
-	<topic label="Names and packages" href="html/langref/names.html"/>
+	<topic label="Names and packages" href="html/langref/namespackages.html"/>
 	<topic label="Interfaces" href="html/langref/interfaces.html"/>
 	<topic label="Classes" href="html/langref/classes.html"> 
 		<topic label="Type invariants" href="html/langref/cla-typeinvariants.html"/> 
@@ -68,7 +68,7 @@
 		<topic label="Function literals" href="html/langref/fun-literals.html"/>
 		<topic label="Methods selectors" href="html/langref/fun-methodssels.html"/> 
 		<topic label="Operator functions" href="html/langref/fun-ops.html"/>  
-		<topic label="Functions as objects of type Any" href="html/langref/fun-objects.html"/> 
+		<topic label="Functions as objects of type Any" href="html/langref/fun-astypeany.html"/> 
 	</topic>
 	<topic label="Expressions" href="html/langref/expressions.html"> 
 		<topic label="Literals" href="html/langref/exp-literals.html"/> 
