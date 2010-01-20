@@ -48,11 +48,11 @@
 	<topic label="Interfaces" href="html/langref/interfaces.html"/>
 	<topic label="Classes" href="html/langref/classes.html"> 
 		<topic label="Type invariants" href="html/langref/cla-typeinvariants.html"/> 
-		<topic label="implements and extends clauses" href="html/langref/cla-implements.html"/> 
-		<topic label="Constructor definitions" href="html/langref/cla-constructordef.html"/>
-		<topic label="proto qualifiers" href="html/langref/cla-qualifiers.html"/> 		
-		<topic label="Field definitions" href="html/langref/cla-fielddef.html"/>
-		<topic label="Method definitions" href="html/langref/cla-methoddef.html"/>
+		<topic label="implements and extends clauses" href="html/langref/cla-clauses.html"/> 
+		<topic label="Constructor definitions" href="html/langref/cla-constructordefs.html"/>
+		<topic label="proto qualifiers" href="html/langref/cla-protoqual.html"/> 		
+		<topic label="Field definitions" href="html/langref/cla-fielddefs.html"/>
+		<topic label="Method definitions" href="html/langref/cla-methoddefs.html"/>
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
