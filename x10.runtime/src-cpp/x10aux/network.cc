@@ -225,7 +225,7 @@ void x10aux::send_get (x10aux::place place, x10aux::serialization_id_t id_,
     msg_type id = DeserializationDispatcher::getMsgType(id_);
     x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a get: "<<ANSI_RESET
-        <<data<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
+        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
     x10rt_send_get(p, data, len);
 }
 
@@ -236,7 +236,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
     msg_type id = DeserializationDispatcher::getMsgType(id_);
     x10rt_msg_params p = { place, id, buf.steal(), buf_length };
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a put: "<<ANSI_RESET
-        <<data<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
+        <<data<<" sid "<<id_<<" id "<<id<<" size "<<len<<" header "<<buf_length<<" to place: "<<place);
     x10rt_send_put(p, data, len);
 }
 
