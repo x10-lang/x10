@@ -8,28 +8,28 @@
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
 	<topic label="Overview of X10"  href="html/langref/Overview.html"> 
-		<topic label="Object-oriented features" href="html/langref/ov-oofeatures.html"/> 
-		<topic label="The sequential core" href="html/langref/ov-seqcore.html"/> 
-		<topic label="Places and activities" href="html/langref/ov-placeact.html"/> 
-		<topic label="Clocks" href="html/langref/ov-clocks.html"/> 
-		<topic label="Arrays, Regions and Distributions" href="html/langref/ov-arraysregionsdists.html"/> 
-		<topic label="Annotations" href="html/langref/ov-annotations.html"/> 
-		<topic label="Translating MPI programs to X10" href="html/langref/ov-tranmpiprogs.html"/> 
-		<topic label="Summary and future work" href="html/langref/ov-summaryfuturework.html"/> 
+		<topic label="Object-oriented features" href="html/langref/ove-oofeatures.html"/> 
+		<topic label="The sequential core" href="html/langref/ove-seqcore.html"/> 
+		<topic label="Places and activities" href="html/langref/ove-placeact.html"/> 
+		<topic label="Clocks" href="html/langref/ove-clocks.html"/> 
+		<topic label="Arrays, Regions and Distributions" href="html/langref/ove-arraysregionsdists.html"/> 
+		<topic label="Annotations" href="html/langref/ove-annotations.html"/> 
+		<topic label="Translating MPI programs to X10" href="html/langref/ove-tranmpiprogs.html"/> 
+		<topic label="Summary and future work" href="html/langref/ove-summaryfuturework.html"/> 
 	</topic>
 	<topic label="Lexical structure"  href="html/langref/lexicalstructure.html"/> 
 	<topic label="Types" href="html/langref/types.html"> 
-		<topic label="Classes and interfaces" href="html/langref/ty-classesinterfaces.html"/> 
-		<topic label="Type parameters" href="html/langref/ty-typeparameters.html"/> 
-		<topic label="Type definitions" href="html/langref/ty-typedefinitions.html"/> 
-		<topic label="Constrained types" href="html/langref/ty-constrainedtypes.html"/> 
-		<topic label="Function types" href="html/langref/ty-functiontypes.html"/>
-		<topic label="Annotated types" href="html/langref/ty-annotatedtypes.html"/>
-		<topic label="Subtyping and type equivalence" href="html/langref/ty-subtyping.html"/> 
-		<topic label="Least common ancestor types" href="html/langref/ty-leastcommontypes.html"/>
-		<topic label="Coercions and conversions" href="html/langref/ty-coercionsconversions.html"/> 
-		<topic label="Built-in types" href="html/langref/ty-builtin.html"/>
-		<topic label="Type inference" href="html/langref/ty-typeinference.html"/>
+		<topic label="Classes and interfaces" href="html/langref/typ-classesinterfaces.html"/> 
+		<topic label="Type parameters" href="html/langref/typ-typeparameters.html"/> 
+		<topic label="Type definitions" href="html/langref/typ-typedefinitions.html"/> 
+		<topic label="Constrained types" href="html/langref/typ-constrainedtypes.html"/> 
+		<topic label="Function types" href="html/langref/typ-functiontypes.html"/>
+		<topic label="Annotated types" href="html/langref/typ-annotatedtypes.html"/>
+		<topic label="Subtyping and type equivalence" href="html/langref/typ-subtyping.html"/> 
+		<topic label="Least common ancestor types" href="html/langref/typ-leastcommontypes.html"/>
+		<topic label="Coercions and conversions" href="html/langref/typ-coercionsconversions.html"/> 
+		<topic label="Built-in types" href="html/langref/typ-builtin.html"/>
+		<topic label="Type inference" href="html/langref/typ-typeinference.html"/>
 	</topic>
 	<topic label="Variables" href="html/langref/variables.html">
 		<topic label="Final variables" href="html/langref/var-final.html"/>
@@ -42,13 +42,13 @@
 	<topic label="Names and packages" href="html/langref/names.html"/>
 	<topic label="Interfaces" href="html/langref/interfaces.html"/>
 	<topic label="Classes" href="html/langref/classes.html"> 
-		<topic label="Type invariants" href="html/langref/cl-typeinvariants.html"/> 
-		<topic label="implements and extends clauses" href="html/langref/cl-implements.html"/> 
-		<topic label="Constructor definitions" href="html/langref/cl-constructordef.html"/>
-		<topic label="proto qualifiers" href="html/langref/cl-qualifiers.html"/> 		
-		<topic label="Field definitions" href="html/langref/cl-fielddef.html"/>
-		<topic label="Method definitions" href="html/langref/cl-methoddef.html"/>
-		<topic label="Static initialization" href="html/langref/cl-staticinit.html"/>
+		<topic label="Type invariants" href="html/langref/cla-typeinvariants.html"/> 
+		<topic label="implements and extends clauses" href="html/langref/cla-implements.html"/> 
+		<topic label="Constructor definitions" href="html/langref/cla-constructordef.html"/>
+		<topic label="proto qualifiers" href="html/langref/cla-qualifiers.html"/> 		
+		<topic label="Field definitions" href="html/langref/cla-fielddef.html"/>
+		<topic label="Method definitions" href="html/langref/cla-methoddef.html"/>
+		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
 		<topic label="Struct declarations" href="html/langref/str-decl.html"/> 
@@ -59,11 +59,11 @@
 		<topic label="Programming methodology" href="html/langref/str-methodology.html"/> 
 	</topic>
 	<topic label="Functions" href="html/langref/functions.html"> 
-		<topic label="Overview" href="html/langref/func-overview.html"/> 
-		<topic label="Function literals" href="html/langref/func-literals.html"/>
-		<topic label="Methods selectors" href="html/langref/func-selectors.html"/> 
-		<topic label="Operator functions" href="html/langref/func-ops.html"/>  
-		<topic label="Functions as objects of type Any" href="html/langref/func-objects.html"/> 
+		<topic label="Overview" href="html/langref/fun-overview.html"/> 
+		<topic label="Function literals" href="html/langref/fun-literals.html"/>
+		<topic label="Methods selectors" href="html/langref/fun-selectors.html"/> 
+		<topic label="Operator functions" href="html/langref/fun-ops.html"/>  
+		<topic label="Functions as objects of type Any" href="html/langref/fun-objects.html"/> 
 	</topic>
 	<topic label="Expressions" href="html/langref/expressions.html"> 
 		<topic label="Literals" href="html/langref/exp-literals.html"/> 
@@ -95,25 +95,25 @@
 		<topic label="Rail constructors" href="html/langref/exp-rails.html"/> 
 	</topic>
 	<topic label="Statements" href="html/langref/statements.html"> 
-		<topic label="Empty statement" href="html/langref/st-empty.html"/> 
-		<topic label="Local variable statement" href="html/langref/st-localvar.html"/> 
-		<topic label="Block statement" href="html/langref/st-block.html"/> 
-		<topic label="Expression statment" href="html/langref/st-expression.html"/> 
-		<topic label="Labeled statement" href="html/langref/st-labeled.html"/>
-		<topic label="Break statement" href="html/langref/st-break.html"/>  
-		<topic label="Continue statement" href="html/langref/st-continue.html"/>
-		<topic label="If statement" href="html/langref/st-if.html"/> 
-		<topic label="Switch statement" href="html/langref/st-switch.html"/> 
-		<topic label="While statement" href="html/langref/st-while.html"/> 
-		<topic label="Do-while statement" href="html/langref/st-dowhile.html"/>  
-		<topic label="For statement" href="html/langref/st-for.html"/> 
-		<topic label="Throw statement" href="html/langref/st-throw.html"/> 
-		<topic label="Try-catch statement" href="html/langref/st-trycatch.html"/> 
-		<topic label="Return statement" href="html/langref/st-return.html"/> 
+		<topic label="Empty statement" href="html/langref/sta-empty.html"/> 
+		<topic label="Local variable statement" href="html/langref/sta-localvar.html"/> 
+		<topic label="Block statement" href="html/langref/sta-block.html"/> 
+		<topic label="Expression statment" href="html/langref/sta-expression.html"/> 
+		<topic label="Labeled statement" href="html/langref/sta-labeled.html"/>
+		<topic label="Break statement" href="html/langref/sta-break.html"/>  
+		<topic label="Continue statement" href="html/langref/sta-continue.html"/>
+		<topic label="If statement" href="html/langref/sta-if.html"/> 
+		<topic label="Switch statement" href="html/langref/sta-switch.html"/> 
+		<topic label="While statement" href="html/langref/sta-while.html"/> 
+		<topic label="Do-while statement" href="html/langref/sta-dowhile.html"/>  
+		<topic label="For statement" href="html/langref/sta-for.html"/> 
+		<topic label="Throw statement" href="html/langref/sta-throw.html"/> 
+		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/> 
+		<topic label="Return statement" href="html/langref/sta-return.html"/> 
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
-		<topic label="Place expressions" href="html/langref/pl-expr.html"/> 
-		<topic label="here" href="html/langref/pl-here.html"/> 
+		<topic label="Place expressions" href="html/langref/pla-expr.html"/> 
+		<topic label="here" href="html/langref/pla-here.html"/> 
 	</topic>
 	<topic label="Activities" href="html/langref/activities.html"> 
 		<topic label="The X10 Rooted Exception Model" href="html/langref/act-rootexceptionmodel.html"/> 
