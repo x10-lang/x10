@@ -75,29 +75,29 @@
 		<topic label="this" href="html/langref/exp-this.html"/> 
 		<topic label="Local variables" href="html/langref/exp-localvars.html"/> 
 		<topic label="Field access" href="html/langref/exp-fieldacc.html"/> 
-		<topic label="Function literals" href="html/langref/exp-functionlits.html"/> 
+		<topic label="Function literals" href="html/langref/exp-funliterals.html"/> 
 		<topic label="Calls" href="html/langref/exp-calls.html"/> 
 		<topic label="Assignment" href="html/langref/exp-assign.html"/> 
-		<topic label="Increment and decrement" href="html/langref/exp-incdec.html"/> 
-		<topic label="Numeric promotion" href="html/langref/exp-numpro.html"/>  
+		<topic label="Increment and decrement" href="html/langref/exp-incrdecr.html"/> 
+		<topic label="Numeric promotion" href="html/langref/exp-numericpro.html"/>  
 		<topic label="Unary plus and unary minus" href="html/langref/exp-unary.html"/> 
-		<topic label="Bitwise complement" href="html/langref/exp-bitwise.html"/> 
-		<topic label="Binary arithmetic operations" href="html/langref/exp-binops.html"/> 
-		<topic label="Binary shift" href="html/langref/exp-binshift.html"/>
-		<topic label="Binary bitwise operations" href="html/langref/exp-binbitops.html"/>  
+		<topic label="Bitwise complement" href="html/langref/exp-bitwisecompl.html"/> 
+		<topic label="Binary arithmetic operations" href="html/langref/exp-binarithops.html"/> 
+		<topic label="Binary shift" href="html/langref/exp-binshiftops.html"/>
+		<topic label="Binary bitwise operations" href="html/langref/exp-binbitwiseops.html"/>  
 		<topic label="String concatenation" href="html/langref/exp-strcat.html"/> 
-		<topic label="Logical negation" href="html/langref/exp-logneg.html"/> 
+		<topic label="Logical negation" href="html/langref/exp-logicalneg.html"/> 
 		<topic label="Boolean logical operations" href="html/langref/exp-boolops.html"/> 
-		<topic label="Boolean conditional operations" href="html/langref/exp-boolcond.html"/> 
+		<topic label="Boolean conditional operations" href="html/langref/exp-boolcondops.html"/> 
 		<topic label="Relational operations" href="html/langref/exp-relops.html"/> 
-		<topic label="Conditional expressions" href="html/langref/exp-condex.html"/>
-		<topic label="Stable equality" href="html/langref/exp-stable.html"/>  
+		<topic label="Conditional expressions" href="html/langref/exp-condexpr.html"/>
+		<topic label="Stable equality" href="html/langref/exp-stableeq.html"/>  
 		<topic label="Allocation" href="html/langref/exp-alloc.html"/> 
 		<topic label="Casts" href="html/langref/exp-casts.html"/> 
 		<topic label="instanceof" href="html/langref/exp-instanceof.html"/> 
 		<topic label="Subtyping expressions" href="html/langref/exp-subtyping.html"/> 
 		<topic label="Contains expressions" href="html/langref/exp-contains.html"/> 
-		<topic label="Rail constructors" href="html/langref/exp-rails.html"/> 
+		<topic label="Rail constructors" href="html/langref/exp-railconds.html"/> 
 	</topic>
 	<topic label="Statements" href="html/langref/statements.html"> 
 		<topic label="Empty statement" href="html/langref/sta-empty.html"/> 
