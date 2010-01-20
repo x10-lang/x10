@@ -66,7 +66,7 @@
 	<topic label="Functions" href="html/langref/functions.html"> 
 		<topic label="Overview" href="html/langref/fun-overview.html"/> 
 		<topic label="Function literals" href="html/langref/fun-literals.html"/>
-		<topic label="Methods selectors" href="html/langref/fun-methodssels.html"/> 
+		<topic label="Methods selectors" href="html/langref/fun-methodsel.html"/> 
 		<topic label="Operator functions" href="html/langref/fun-ops.html"/>  
 		<topic label="Functions as objects of type Any" href="html/langref/fun-astypeany.html"/> 
 	</topic>
