@@ -14,26 +14,31 @@
 		<topic label="Clocks" href="html/langref/ove-clocks.html"/> 
 		<topic label="Arrays, Regions and Distributions" href="html/langref/ove-arraysregionsdists.html"/> 
 		<topic label="Annotations" href="html/langref/ove-annotations.html"/> 
-		<topic label="Translating MPI programs to X10" href="html/langref/ove-tranmpiprogs.html"/> 
+		<topic label="Translating MPI programs to X10" href="html/langref/ove-translatingmpi.html"/> 
 		<topic label="Summary and future work" href="html/langref/ove-summaryfuturework.html"/> 
 	</topic>
 	<topic label="Lexical structure"  href="html/langref/lexicalstructure.html"/> 
 	<topic label="Types" href="html/langref/types.html"> 
 		<topic label="Classes and interfaces" href="html/langref/typ-classesinterfaces.html"/> 
-		<topic label="Type parameters" href="html/langref/typ-typeparameters.html"/> 
-		<topic label="Type definitions" href="html/langref/typ-typedefinitions.html"/> 
-		<topic label="Constrained types" href="html/langref/typ-constrainedtypes.html"/> 
-		<topic label="Function types" href="html/langref/typ-functiontypes.html"/>
-		<topic label="Annotated types" href="html/langref/typ-annotatedtypes.html"/>
+		<topic label="Type parameters" href="html/langref/typ-parameters.html"/> 
+		<topic label="Type definitions" href="html/langref/typ-typedefs.html"/> 
+		<topic label="Constrained types" href="html/langref/typ-constrained.html"/> 
+		<topic label="Function types" href="html/langref/typ-function.html"/>
+		<topic label="Annotated types" href="html/langref/typ-annotated.html"/>
 		<topic label="Subtyping and type equivalence" href="html/langref/typ-subtyping.html"/> 
-		<topic label="Least common ancestor types" href="html/langref/typ-leastcommontypes.html"/>
+		<topic label="Least common ancestor types" href="html/langref/typ-leastcommon.html"/>
 		<topic label="Coercions and conversions" href="html/langref/typ-coercionsconversions.html"/> 
 		<topic label="Built-in types" href="html/langref/typ-builtin.html"/>
-		<topic label="Type inference" href="html/langref/typ-typeinference.html"/>
+		<topic label="Type inference" href="html/langref/typ-inference.html"/>
 	</topic>
 	<topic label="Variables" href="html/langref/variables.html">
 		<topic label="Final variables" href="html/langref/var-final.html"/>
-		<topic label="Initial values of variables" href="html/var-initvals.html"/>
+		<topic label="Initial values of variables" href="html/var-initialsvals.html"/>
+    <topic label="Initial values of variables" href="html/var-destructuringsyntax.html"/>
+    <topic label="Initial values of variables" href="html/var-formal.html"/>
+    <topic label="Initial values of variables" href="html/var-localvars.html"/>
+    <topic label="Initial values of variables" href="html/var-fields.html"/>
+    <topic label="Initial values of variables" href="html/var-properties.html"/>
 	</topic>
 	<topic label="Objects" href="html/langref/objects.html">
 		<topic label="Final variables" href="html/langref/obj-basic.html"/>
