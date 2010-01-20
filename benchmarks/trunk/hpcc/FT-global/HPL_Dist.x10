@@ -98,11 +98,11 @@ public final class HPL_Dist[T] {
         def flat_region_max_y() = array.block(max_x, max_y).max_y;   
     }
 
-    private val bx:Int;
-    private val by:Int;
-    private val px:Int;
-    private val py:Int; 
-    private val A:PlaceLocalHandle[LocalArray[T]];
+    private global val bx:Int;
+    private global val by:Int;
+    private global val px:Int;
+    private global val py:Int; 
+    private global val A:PlaceLocalHandle[LocalArray[T]];
 
     def this(M:Int, N:Int, bx:Int, by:Int, px:Int, py:Int, unique:Dist) {
         this.bx = bx;

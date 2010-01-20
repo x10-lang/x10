@@ -74,8 +74,8 @@ final static class FFTPlans {
         def init(verify:Boolean) {
             val rand = new Random(here.id);
             val A_lcl = A.blockFullHere().block(here.id,0);
-            val D_lcl = (D.blockFullHere()).block(here.id,0) ;
             if (verify) {
+               val D_lcl = (D.blockFullHere()).block(here.id,0) ;
                 for ((i, j): Point in [A_lcl.min_x..A_lcl.max_x, A_lcl.min_y..A_lcl.max_y]) {
                   A_lcl(i, j)  = Complex(rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
                   D_lcl(i, j) = A_lcl(i,j);
