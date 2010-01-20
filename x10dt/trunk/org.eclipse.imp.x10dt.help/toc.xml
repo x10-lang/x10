@@ -121,17 +121,17 @@
 		<topic label="here" href="html/langref/pla-here.html"/> 
 	</topic>
 	<topic label="Activities" href="html/langref/activities.html"> 
-		<topic label="The X10 Rooted Exception Model" href="html/langref/act-rootexceptionmodel.html"/> 
-		<topic label="Spawning an Activity" href="html/langref/act-spawnactivity.html"/> 
+		<topic label="The X10 Rooted Exception Model" href="html/langref/act-rootedexmodel.html"/> 
+		<topic label="Spawning an Activity" href="html/langref/act-spawn.html"/> 
 		<topic label="Place changes" href="html/langref/act-placechanges.html"/> 
 		<topic label="Finish" href="html/langref/act-finish.html"/> 
-		<topic label="Initial Activity" href="html/langref/act-initactivity.html"/> 
+		<topic label="Initial Activity" href="html/langref/act-initial.html"/> 
 		<topic label="Foreach" href="html/langref/act-foreach.html"/>
 		<topic label="Ateach" href="html/langref/act-ateach.html"/>  
 		<topic label="Futures" href="html/langref/act-futures.html"/>
 		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
-		<topic label="Shared variables" href="html/langref/act-sharedvar.html"/>   
-		<topic label="Atomic Blocks" href="html/langref/act-atomicblock.html"/> 
+		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/>   
+		<topic label="Atomic Blocks" href="html/langref/act-atomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
 		<topic label="Clock Operations" href="html/langref/clockoper.html"/> 
