@@ -61,7 +61,7 @@
 		<topic label="Implementation of Any methods" href="html/langref/str-anymethods.html"/> 
 		<topic label="Struct primitives" href="html/langref/str-primitives.html"/> 
 		<topic label="Generic programming with structs" href="html/langref/str-genericprog.html"/> 
-		<topic label="Programming methodology" href="html/langref/str-methodology.html"/> 
+		<topic label="Programming methodology" href="html/langref/str-progmethodology.html"/> 
 	</topic>
 	<topic label="Functions" href="html/langref/functions.html"> 
 		<topic label="Overview" href="html/langref/fun-overview.html"/> 
@@ -97,7 +97,7 @@
 		<topic label="instanceof" href="html/langref/exp-instanceof.html"/> 
 		<topic label="Subtyping expressions" href="html/langref/exp-subtyping.html"/> 
 		<topic label="Contains expressions" href="html/langref/exp-contains.html"/> 
-		<topic label="Rail constructors" href="html/langref/exp-railconds.html"/> 
+		<topic label="Rail constructors" href="html/langref/exp-railcons.html"/> 
 	</topic>
 	<topic label="Statements" href="html/langref/statements.html"> 
 		<topic label="Empty statement" href="html/langref/sta-empty.html"/> 
