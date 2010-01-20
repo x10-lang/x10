@@ -24,26 +24,25 @@ The statement "finish S" converts global termination to local
 termination and introduces a root activity. 
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; FinishStatement </td></tr>
-<tr><td align="right">FinishStatement &nbsp;::=&nbsp; <tt>finish</tt> Statement </td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">Statement &nbsp;FinishStatement </td></tr>
+<tr><td align="right">FinishStatement &nbsp;"finish" Statement 
+</td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 An activity A executes "finish S" by executing "S".  The
 execution of "S" may spawn other asynchronous activities (here or
 at other places).  Uncaught exceptions thrown or propagated by any
 activity spawned by "S" are accumulated at "finish S".
-"finish S" terminates locally when all activities spawned by "S"
-terminate globally (either abruptly or normally). If
-"S" terminates normally, then "finish S" terminates normally
-and A continues execution with the next statement after "finish S".
-If "S" terminates abruptly, then "finish S"
-terminates abruptly and throws a single exception formed 
-from the collection of exceptions accumulated at "finish S".
+"finish S" terminates locally when all activities spawned by
+"S" terminate globally (either abruptly or normally). If "S"
+terminates normally, then "finish S" terminates normally and A
+continues execution with the next statement after "finish S".  If
+"S" terminates abruptly, then "finish S" terminates abruptly
+and throws a single exception, "x10.lang.MultipleExceptions"
+formed from the collection of exceptions accumulated at "finish S".
 
 <div class="p"><!----></div>
 Thus a "finish S" statement serves as a collection point for
@@ -58,7 +57,7 @@ from "finish S".
 
 <b>Interaction with clocks.&nbsp;&nbsp;</b><a name="sec:finish:clock-rule">
 </a>
-"finish S" interacts with clocks (). 
+"finish S" interacts with clocks (&#167;). 
 
 <div class="p"><!----></div>
 While executing "S", an activity must not spawn any "clocked"
@@ -68,12 +67,24 @@ clocked asyncs.) A
 if (and when) this condition is violated.
 
 <div class="p"><!----></div>
-In  X10 v1.7 this condition is checked dynamically; future
+In X10 v2.0 this condition is checked dynamically; future
 versions of the language will introduce type qualifiers which permit
 this condition to be checked statically.
 
 <div class="p"><!----></div>
+<em>
+<b>Future Extensions.&nbsp;&nbsp;</b>
+The semantics of "finish S" is conjunctive; it terminates when all
+the activities created during the execution of "S" (recursively)
+terminate. In many situations (e.g., nondeterministic search) it is
+natural to require a statement to terminate when any <em>one</em> of the
+activities it has spawned succeeds. The other activities may then be
+safely aborted. Future versions of the language may introduce a
+"finishone S" construct to support such speculative or nondeterministic
+computation.
+</em>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

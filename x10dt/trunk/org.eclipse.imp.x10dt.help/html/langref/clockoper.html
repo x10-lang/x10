@@ -23,14 +23,13 @@
 The special statements introduced for clock operations are listed below.
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; ClockedStatement </td></tr>
-<tr><td align="right">ClockedStatement &nbsp;::=&nbsp; <tt>clocked</tt> ( ClockList ) Statement </td></tr>
-<tr><td align="right">NextStatement &nbsp;::=&nbsp; next ; </td></tr>
+<tr><td align="right">Statement &nbsp;ClockedStatement </td></tr>
+<tr><td align="right">ClockedStatement &nbsp;"clocked" "(" ClockList ")" Statement </td></tr>
+<tr><td align="right">NextStatement &nbsp;"next" ";" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 Note that "x10.lang.Clock" provides several useful methods on
@@ -42,19 +41,12 @@ clocks (e.g. "drop").
 </a>
 
 <div class="p"><!----></div>
-Clocks are created using the nullary constructor for "x10.lang.Clock":
+Clocks are created using a factory method on "x10.lang.Clock":
 
 <div class="p"><!----></div>
 <pre>
 timeSynchronizer: Clock = Clock.make();
 </pre>
-
-<div class="p"><!----></div>
-Clocks are created in the place global heap and hence outlive the
-lifetime of the creating activity.  Clocks are instances of value
-classes, hence may be freely copied from place to
-place.
-
 
 <div class="p"><!----></div>
 The current activity is automatically registered with the newly
@@ -75,7 +67,7 @@ registered with using the "clocked" clause.
 
 <div class="p"><!----></div>
 An activity may transmit only those clocks that is registered with and
-has not quiesced on (). 
+has not quiesced on (&#167;). 
 A "ClockUseException" is
 thrown if (and when) this condition is violated.
 
@@ -89,7 +81,8 @@ c.registered()
 activity is registered on "c"; otherwise it returns "false".
 
 <div class="p"><!----></div>
- X10 does not contain a "register" statement that would allow an
+ Note:
+X10 does not contain a "register" statement that would allow an
 activity to discover a clock in a datastructure and register itself on
 it. Therefore, while clocks may be stored in a datastructure by one
 activity and read from that by another, the new activity cannot
@@ -101,7 +94,7 @@ activity and read from that by another, the new activity cannot
 1.3</a>&nbsp;&nbsp;Resuming clocks</h3><a name="resume">
 </a><a name="sec:clock:resume">
 </a>
- X10 permits <em>split phase</em> clocks. An activity may wish
+X10 permits <em>split phase</em> clocks. An activity may wish
 to indicate that it has completed whatever work it wishes to perform
 in the current phase of a  clock "c" it is registered with, without
 suspending all activity. It may do so  by executing the method
@@ -112,7 +105,7 @@ c.resume();
 
 <div class="p"><!----></div>
 An activity may invoke this method only on a clock it is registered
-with, and has not yet dropped (). A "ClockUseException" is thrown if (and
+with, and has not yet dropped (&#167;). A "ClockUseException" is thrown if (and
 when) this condition is violated.  Nothing happens if the activity has
 already invoked a "resume" on this clock in the current phase.
 Otherwise execution of this statement indicates that the activity will
@@ -121,6 +114,7 @@ clause),
 until it terminates, drops "c" or executes a "next". 
 
 <div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 The compiler should issue an error if any activity has a potentially
 live execution path from a "resume" statement on a clock "c"
 to a
@@ -146,7 +140,7 @@ implicitly issues a "resume" on all clocks it is registered
 with before suspending.)
 
 <div class="p"><!----></div>
-An  X10 computation is said to be <em>quiescent</em> on a clock
+An X10 computation is said to be <em>quiescent</em> on a clock
 "c" if each activity registered with "c" has resumed "c".
 Note that once a computation is quiescent on "c", it will remain
 quiescent on "c" forever (unless the system takes some action),
@@ -154,7 +148,7 @@ since no other activity can become registered with "c".  That is,
 quiescence on a clock is a <em>stable property</em>.
 
 <div class="p"><!----></div>
-Once the implementation has detected quiecence on "c", the system
+Once the implementation has detected quiescence on "c", the system
 marks all activities registered with "c" as being able to progress
 on "c". An activity blocked on "next" resumes execution once
 it is marked for progress by all the clocks it is registered with.
@@ -176,25 +170,6 @@ already dropped "c".
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc1.6">
-1.6</a>&nbsp;&nbsp;Program equivalences</h3>
-From the discussion above it should be clear that the following
-equivalences hold:
 
-<div class="p"><!----></div>
-<pre>
-c.resume(); next; = next; (15.1)
-c.resume(); d.resume(); = d.resume(); c.resume(); (15.2)
-c.resume(); c.resume(); = c.resume(); (15.3)
-</pre>
-
-<div class="p"><!----></div>
-Note that "next; next;" is not the same as "next;". The
-first will wait for clocks to advance twice, and the second
-once.  
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
 </body>
 </html>

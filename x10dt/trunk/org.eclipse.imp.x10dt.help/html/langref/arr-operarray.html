@@ -20,8 +20,7 @@
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Operations on arrays</h2>
 In the following let &#228;" be an array with distribution "D" and
-base type "T". &#228;" may be mutable or immutable, unless
-indicated otherwise.
+base type "T". &#228;".
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.1">
@@ -30,7 +29,7 @@ The value of &#228;" at a point "p" in its region of definition is
 obtained by using the indexing operation &#228;(p)". This operation
 may be used on the left hand side of an assignment operation to update
 the value. The operator assignments &#228;(i) op= e" are also available
-in  X10.
+in X10.
 
 <div class="p"><!----></div>
 For array variables, the right-hand-side of an assignment must
@@ -48,7 +47,7 @@ sites hosting "D".
 
 <div class="p"><!----></div>
 For a distribution "D" and a constant or final variable "v" of
-type "T" the expression &#196;rray.make[T](D, (p: Point) =&#62; v)"
+type "T" the expression "new Array[T](D, (p: Point) =&#62; v)"
 denotes the mutable array with
 distribution "D" and base type "T" initialized with "v"
 at every point.
@@ -58,12 +57,12 @@ at every point.
 5.3</a>&nbsp;&nbsp;Restriction of an array</h3>
 
 <div class="p"><!----></div>
-Let "D1" be a sub-distribution of "D". Then &#228;  |  D1"
+Let "D1" be a sub-distribution of "D". Then &#228; | D1"
 represents the sub-array of &#228;" with the distribution "D1".
 
 <div class="p"><!----></div>
 Recall that a rich set of operators are available on distributions
-() to obtain sub-distributions
+(&#167;<a href="#XtenDistributions">3</a>) to obtain sub-distributions
 (e.g. restricting to a sub-region, to a specific place etc).
 
 <div class="p"><!----></div>
@@ -77,8 +76,8 @@ arrays are value or reference arrays.
 <b>Assembling arrays over disjoint regions&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-If "D1" and "D2" are disjoint then the expression &#228;1  | |  a2" denotes the unique array of base type "T" defined over the
-distribution "D1  |  |  D2" such that its value at point "p" is
+If "D1" and "D2" are disjoint then the expression &#228;1 || a2" denotes the unique array of base type "T" defined over the
+distribution "D1 || D2" such that its value at point "p" is
 &#228;1(p)" if "p" lies in "D1" and &#228;2(p)"
 otherwise. This array is a reference (value) array if &#228;1" is.
 
@@ -145,7 +144,7 @@ commutative.  The value &#252;nit" should satisfy
 
 <div class="p"><!----></div>
 This operation involves communication between the places over which
-the array is distributed. The  X10 implementation guarantees that
+the array is distributed. The X10 implementation guarantees that
 only one value of type "T" is communicated from a place as part of
 this reduction process.
 
@@ -157,19 +156,20 @@ this reduction process.
 <div class="p"><!----></div>
 Let "f" be a reduction operator defined on type "T". Let
 &#228;" be a value or reference array over base type "T" and
-distribution "D". Then the operation &#228; -  - f()" returns an array
+distribution "D". Then the operation &#228;\ - \ - f()" returns an array
 of base type "T" and distribution "D" whose ith element
 (in canonical order) is obtained by performing the reduction "f"
 on the first i elements of &#228;" (in canonical order).
 
 <div class="p"><!----></div>
 This operation involves communication between the places over which
-the array is distributed. The  X10 implementation will endeavour to
+the array is distributed. The X10 implementation will endeavour to
 minimize the communication between places to implement this operation.
 
 <div class="p"><!----></div>
 Other operations on arrays may be found in "x10.lang.Array" and
 other related classes.
+
 
 </body>
 </html>

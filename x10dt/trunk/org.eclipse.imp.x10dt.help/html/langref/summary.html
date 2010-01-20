@@ -18,36 +18,30 @@
 
 <body>
 <h1>Summary</h1>
-<h1 align="center">Report on the Experimental Language  X10 <br />
-<font size="+1">Version 1.7  </font> </h1>
+<h1 align="center">Report on the Programming Language X10<br />
+<font size="+1">Version 2.01</font> </h1>
 
-
-<h3 align="center"> D<font size="-2">RAFT</font> - May 28, 2009
+<h3 align="center"> D<font size="-2">RAFT</font> - Jan 19, 2010
 <br />
 <br />
 Vijay Saraswat <br />
-Nathaniel Nystrom <br />
 <br />
-Please send comments to <br />
-Nathaniel Nystrom at <tt>nystrom@us.ibm.com</tt> </h3>
-
-
-<h3 align="center">May 28, 2009
-</h3>
+Please send comments to 
+<tt>vsaraswa@us.ibm.com</tt> </h3>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
 This report provides a description of the programming
-language  X10.  X10 is a single-inheritance class-based object-oriented
-(OO) programming language designed for high-performance, high-productivity
+language X10. X10 is a class-based object-oriented
+programming language designed for high-performance, high-productivity
 computing on high-end computers supporting  <font face="symbol">»</font
 > 10<sup>5</sup> hardware threads
 and  <font face="symbol">»</font
 > 10<sup>15</sup> operations per second. 
 
 <div class="p"><!----></div>
- X10 is based on state-of-the-art object-oriented programming
+X10 is based on state-of-the-art object-oriented programming
 languages and deviates from them only as necessary to support its
 design goals. The language is intended to have a simple and clear
 semantics and be readily accessible to mainstream OO programmers. It
@@ -57,23 +51,21 @@ idioms.
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The  X10 design team consists of
+The X10 design team consists of
 Ganesh Bikshandi, 
 David Cunningham,
 Robert Fuhrer,
 David Grove,
 Sreedhar Kodali, 
-Bruce Lucas,
 Nathaniel Nystrom,
 Igor Peshansky, 
 Vijay Saraswat,
 Sayantan Sur, 
-Olivier Tardieu,
-Pradeep Varma, and
-Krishna Nandivada Venkata.
+Olivier Tardieu.
 
 <div class="p"><!----></div>
 Past members include
+Shivali Agarwal, 
 David Bacon, 
 Raj Barik, 
 Bob Blainey, 
@@ -86,10 +78,13 @@ Patrick Gallop,
 Christian Grothoff, 
 Allan Kielstra, 
 Sriram Krishnamoorthy, 
+Bruce Lucas,
 Vivek Sarkar,
 Armando Solar-Lezama,  
 S. Alexander Spoon, 
 Christoph von Praun,
+Pradeep Varma, 
+Krishna Nandivada Venkata,
 Jan Vitek, and
 Tong Wen.
 
@@ -109,28 +104,39 @@ Doug Lea,
 John McCalpin, 
 Paul McKenney, 
 Andrew Myers,
-Ram Rajamony,
-R.K.&nbsp;Shyamasundar, 
 Filip Pizlo, 
-V.T.&nbsp;Rajan, 
-Frank Tip, Mandana Vaziri, and Hanhong Xue.
+Ram Rajamony,
+R.&nbsp;K. Shyamasundar, 
+V.&nbsp;T. Rajan, 
+Frank Tip,
+Mandana Vaziri,
+and
+Hanhong Xue.
+
+<div class="p"><!----></div>
+Special thanks is due to Bard Bloom who meticulously read
+every section and provided detailed feedback. This document is much
+better because of his diligence and hard work.
 
 <div class="p"><!----></div>
 We thank Jonathan Rhees and William Clinger with help in obtaining the
 <span class="roman">L</span><sup><span class="roman">A</span></sup><span class="roman">T</span><sub><span class="roman">E</span></sub><span class="roman">X</span> style file and macros used in producing the Scheme report,
 on which this document is based. We acknowledge the influence of
-the  Java<sup> <font size="-2">TM</font></sup> Language
+the Java<sup> <font size="-2">TM</font></sup> Language
 Specification [].
 
 <div class="p"><!----></div>
-This document revises Version 1.5 of the Report, released in
-June 2007.  It documents the language corresponding to Version
-1.7 of the implementation, which is currently under development.
+This document revises Version 1.7 of the Report, released in
+September 2008.  It documents the language corresponding to Version
+2.0 of the implementation. Version 1.7 of the report was co-authored by
+Nathaniel Nystrom. The design of structs in X10 was led by Olivier Tardieu
+and Nathaniel Nystrom.
 
 <div class="p"><!----></div>
 Earlier implementations benefited from significant contributions by
 Raj Barik, 
 Philippe Charles, 
+David Cunningham,
 Christopher Donawa, 
 Robert Fuhrer,
 Christian Grothoff,
@@ -141,13 +147,14 @@ Vivek Sarkar,
 Olivier Tardieu,  
 Pradeep Varma, 
 Krishna Nandivada Venkata, and
-Christoph von Praun.)
+Christoph von Praun.
 Tong Wen has written many application programs
-in  X10. Guojing Cong has helped in the
+in X10. Guojing Cong has helped in the
 development of many applications.
-The implementation of generics in  X10 was influenced by the
+The implementation of generics in X10 was influenced by the
 implementation of PolyJ&nbsp;[] by Andrew Myers and Michael Clarkson.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

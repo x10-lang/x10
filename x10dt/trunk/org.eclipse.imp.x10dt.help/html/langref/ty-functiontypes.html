@@ -17,24 +17,27 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;Function types</h2>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Function types</h2>
 <a name="FunctionTypes">
 </a>
+<a name="FunctionType">
+</a>
+
+
 
 <div class="p"><!----></div>
         Function types are defined via the "=&#62;" type
-        constructor.  Closures () and method
-        selectors () are of function type.
+        constructor.  Closures (&#167;) and method
+        selectors (&#167;) are of function type.
         The general form of a function type is:
-
-[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>)c =&#62; T
+<pre>
+(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T
         throws S<sub>1</sub>, ..., S<sub>k</sub>
-
+</pre>
         This
-        is the type of functions that take type parameters
-        "X<sub>i</sub>"
-        and value parameters
+        is the type of functions that take 
+        value parameters
         "x<sub>i</sub>"
         of types
         "T<sub>i</sub>"
@@ -44,57 +47,85 @@
         types S<sub>i</sub>.
 
 <div class="p"><!----></div>
-The
-
-type and value parameters
-
-are in scope throughout the function signature-they may be
-used
-in the types of other formal parameters and in the return type.
-Value parameters names (but not types) may be omitted if
-they are not used. 
-Like other types, function types may be constrained.
+The value parameters are in scope throughout the function
+signature-they may be used in the types of other formal parameters
+and in the return type.  Value parameters names  may be
+omitted if they are not used.  The guard specifies a condition that 
+must hold for an application to be well-typed.
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">FunctionType &nbsp;::=&nbsp; TypeParameters<sup>?</sup>&nbsp;( Formals<sup>?</sup>&nbsp;) Constraint<sup>?</sup>&nbsp;
-=&#62; Type Throws<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">TypeParameters  &nbsp;::=&nbsp; [ TypeParameter ( , TypeParameter
-)<sup>*</sup>&nbsp;] </td></tr>
-<tr><td align="right">TypeParameter  &nbsp;::=&nbsp; Identifier </td></tr>
-<tr><td align="right">Formals  &nbsp;::=&nbsp; Formal ( , Formal )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">FunctionType &nbsp;TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")" Constraint<sup>?</sup>&nbsp;
+"=&#62;" Type Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">TypeParameters &nbsp;"[" TypeParameter ( "," TypeParameter
+)<sup>*</sup>&nbsp;"]" </td></tr>
+<tr><td align="right">TypeParameter &nbsp;Identifier </td></tr>
+<tr><td align="right">Formals &nbsp;Formal ( "," Formal )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.1">
-6.1</a>&nbsp;&nbsp;Functions are value objects</h3>
-<a name="FunctionsAreObjects">
-</a>
+For every sequence of types "T1,..., Tn,T", and "n" distinct variables
+"x1,...,xn" and constraint "c", the expression
+"(x1:T1,...,xn:Tn){c}=&#62;T" is a <em>function type</em>. It stands for
+ the set of all functions "f" which can be applied in a place "p" to a
+ list of values "(v1,...,vn)" provided that the constraint
+ "c[v1,...,vn,p/x1,...,xn,here]" is true, and which returns a value of
+ type "T[v1,...vn/x1,...,xn]". When "c" is true, the clause "{c}" can be
+ omitted. When "x1,...,xn" do not occur in "c" or "T", they can be
+ omitted. Thus the type "(T1,...,Tn)=&#62;T" is actually shorthand for
+ "(x1:T1,...,xn:Tn){true}=&#62;T", for some variables "x1,...,xn".
 
 <div class="p"><!----></div>
-Functions in  X10 are value objects.  
-The function type
-"[X<sub>1</sub>, ..., X<sub>k</sub>](x<sub>1</sub>: T<sub>1</sub> ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; S"
-may be considered equivalent to an interface type
-with a method:
-
-<pre>
-def apply[X<sub>1</sub>, ..., X<sub>k</sub>](x<sub>1</sub>: Y<sub>1</sub>, ..., x<sub>n</sub>: Y<sub>n</sub>): Z;
-</pre>
-
-Classes and interfaces may implement or extend a function type
-by defining the &#228;pply" method.  Since each function type is 
-anonymous, a class or interface may implement or extend
-more than one function type as long as the &#228;pply" methods
-do not have the same signature.
+Juxtaposition is used to express function application: the expression
+"f(a1,..,an)" expresses the application of a function "f" to the argument
+list &#228;1,...,an".
 
 <div class="p"><!----></div>
-As objects, closure body may refer to
-"this", which is a reference to the current function,
-and use it to invoke the closure recursively.
+Note that function invocation may throw unchecked exceptions. 
 
 <div class="p"><!----></div>
+A function type is covariant in its result type and contravariant in
+each of its argument types. That is, let 
+"S1,...,Sn,S,T1,...Tn,T" be any
+types satisfying "Si &lt;: Ti" and "S &lt;: T". Then
+"(x1:T1,...,xn:Tn){c}=&#62;S" is a subtype of
+"(x1:S1,...,xn:Sn){c}=&#62;T".
+
+<div class="p"><!----></div>
+A value "f" of a function type "(x1:T1,...,xn:Tn){c}=&#62;T" also
+has all the methods of &#196;ny" associated with it (see &#167;).
+
+<div class="p"><!----></div>
+A function type "F=(x1:T1,...,xn:Tn){c}=&#62;T" can be used as the declared type of local variables, parameters, loop variables, return types of methods and in "_  instanceof F" and "_ as F" expressions. 
+
+<div class="p"><!----></div>
+A class or struct definition may use a function type "F" in its
+implements clause; this declares an abstract method 
+"def apply(x1:T1,...,xn:Tn){c}:T" on that class. Similarly, an interface
+definition may specify a function type "F" in its &#235;xtends" clause. A
+class or struct implementing such an interface implicitly defines an
+abstract method "def apply(x1:T1,..,xn:Tn){c}:T". Expressions of such
+a struct, class or interface type can be assigned to variables of type
+"F" and can be applied via juxtaposition to an argument list of the
+right type.
+
+<div class="p"><!----></div>
+Thus, objects and structs in X10 may behave like functions. 
+
+<div class="p"><!----></div>
+A function type "F" is not a class type in that it does not extend any
+type or implement any interfaces, or support equality tests. "F" cannot be extended by any type. It
+is not an interface type in that it is not a subtype of
+"x10.lang.Object". (Values of type "F" cannot be assigned to variables of
+type "x10.lang.Object".) It is not a struct type in that it has no
+defined fields and hence no notion of structural equality.
+
+<div class="p"><!----></div>
+"null" is a legal value for a function type. 
+
+<div class="p"><!----></div>
+
 </body>
 </html>

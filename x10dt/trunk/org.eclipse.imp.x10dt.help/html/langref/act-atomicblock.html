@@ -20,9 +20,9 @@
  <h2><a name="tth_sEc11">
 11</a>&nbsp;&nbsp;Atomic blocks</h2><a name="AtomicBlocks">
 </a>
-Languages such as  java use low-level synchronization locks to allow
+Languages such as Java use low-level synchronization locks to allow
 multiple interacting threads to coordinate the mutation of shared
-data.  X10 eschews locks in favor of a very simple high-level
+data. X10 eschews locks in favor of a very simple high-level
 construct, the <em>atomic block</em>.
 
 <div class="p"><!----></div>
@@ -37,19 +37,18 @@ The simplest form of an atomic block is the <em>unconditional
 atomic block</em>:
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; AtomicStatement </td></tr>
-<tr><td align="right">AtomicStatement &nbsp;::=&nbsp; <tt>atomic</tt>  Statement </td></tr>
-<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>atomic</tt> </td></tr>
+<tr><td align="right">Statement &nbsp;AtomicStatement </td></tr>
+<tr><td align="right">AtomicStatement &nbsp;&#228;tomic"  Statement </td></tr>
+<tr><td align="right">MethodModifier &nbsp;&#228;tomic" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
-
 <div class="p"><!----></div>
-For the sake of efficient implementation  X10 v1.7 requires
+For the sake of efficient implementation X10 v2.0 requires
 that the atomic block be <em>analyzable</em>, that is, the set of
-locations that are read and written by the  are
+locations that are read and written by the <em>BlockStatement</em> are
 bounded and determined statically.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
 The exact algorithm to be used by
 the compiler to perform this analysis will be specified in future
@@ -76,38 +75,46 @@ constructs [], and can be used to implement
 non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 In &#228;tomic S", "S" may include method calls,
 conditionals, etc.
-It may <em>not</em> include an &#228;sync" activity.
-It may <em>not</em> include any statement that may potentially block at
-runtime (e.g., "when", "force" operations, "next"
-operations on clocks, "finish").
 
 <div class="p"><!----></div>
-All locations accessed in an atomic block must reside "here"
-(). A
-"BadPlaceException" is thrown
-if (and when) this condition is violated.
+It may <em>not</em> include an &#228;sync" activity (such as creation
+of a "future").
+
+<div class="p"><!----></div>
+It may <em>not</em> include any statement that may potentially block at
+runtime (e.g., "when", "force" operations, "next"
+operations on clocks, "finish"). 
 
 <div class="p"><!----></div>
 All locations accessed in an atomic block must statically satisfy the
 <em>locality condition</em>: they must belong to the place of the current
 activity.<a name="LocalityCondition">
-</a> The
-compiler checks for this condition by checking whether the statement
-could be the body of a "void" method annotated with "local" at
-that point in the code ().
+</a> 
+
+<div class="p"><!----></div>
+The compiler checks for this condition by checking whether the statement
+could be the body of a "void" method annotated with &#223;afe" at
+that point in the code (&#167;).
 
 <div class="p"><!----></div>
 
 <b>Consequences.&nbsp;&nbsp;</b>
-Note an important property of an (unconditonal) atomic block:
+Note an important property of an (unconditional) atomic block:
 
 <div class="p"><!----></div>
-<pre>
-atomic s1; atomic s2 = atomic s1; s2 (14.1)
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table border="0" cellspacing="0" cellpadding="0">
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ \xcd&#228;<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">atomic</span> <span class="roman">s</span><span class="roman">2</span>}" </td></tr></table></td><td nowrap="nowrap" align="left">
+<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+=</td></tr></table></td><td nowrap="nowrap" align="left">
+<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd&#228;<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">s</span><span class="roman">2</span>}"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
 </td></tr></table>
-</pre>
+
 
 
 <div class="p"><!----></div>
@@ -141,12 +148,12 @@ public atomic def CAS(old: Object, new: Object): Boolean {
 Conditional atomic blocks are of the form:
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; WhenStatement </td></tr>
-<tr><td align="right">WhenStatement &nbsp;::=&nbsp; <tt>when</tt> ( Expression ) Statement </td></tr>
-<tr><td align="right"> |  WhenStatement <tt>or</tt> ( Expression ) Statement </td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">Statement &nbsp;WhenStatement </td></tr>
+<tr><td align="right">WhenStatement &nbsp;"when" "(" Expression ")" Statement </td></tr>
+<tr><td align="right">\ -  WhenStatement &#246;r" "(" Expression ")" Statement 
+</td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -165,8 +172,8 @@ The checking of the guards and the execution of the corresponding
 guarded statement is done atomically. 
 
 <div class="p"><!----></div>
- X10 does not guarantee that a conditional atomic block
-will execute if its condition holds only intermmitently. For, based on
+X10 does not guarantee that a conditional atomic block
+will execute if its condition holds only intermmittently. For, based on
 the vagaries of the scheduler, the precise instant at which a
 condition holds may be missed. Therefore the programmer is advised to
 ensure that conditions being tested by conditional atomic blocks are
@@ -177,15 +184,16 @@ to not hold any more).
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The guarantee provided by "wait"/"notify" in  java is no
+ Rationale:
+The guarantee provided by "wait"/"notify" in Java is no
 stronger. Indeed conditional atomic blocks may be thought of as a
-replacement for  java's wait/notify functionality.
+replacement for Java's wait/notify functionality.
  
 
 <div class="p"><!----></div>
 We note two common abbreviations. The statement "when (true) S" is
 behaviorally identical to &#228;tomic S": it never suspends. Second,
-"when (c) {;}" may be abbreviated to &#228;wait(c);"-it
+"when (c) ;" may be abbreviated to &#228;wait(c);"-it
 simply indicates that the thread must await the occurrence of a
 certain condition before proceeding.  Finally note that a "when"
 statement with multiple branches is behaviorally identical to a
@@ -194,6 +202,7 @@ the condition of each branch, and whose body contains an
 &#239;f"/"then"/&#235;lse" checking each of the branch conditions.
 
 <div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 For the sake of efficient implementation certain restrictions are
 placed on the guards and statements in a conditional atomic
 block. 
@@ -229,7 +238,7 @@ guarantee.
 
 <div class="p"><!----></div>
 The following class shows how to implement a bounded buffer of size
-1 in  X10 for repeated communication between a sender and a
+1 in X10 for repeated communication between a sender and a
 receiver.
 
 <div class="p"><!----></div>
@@ -237,13 +246,13 @@ receiver.
 class OneBuffer {
   datum: Object = null;
   filled: Boolean = false;
-  public def send(v: Object) { 
+  public def send(v: Object) {
     when (!filled) {
       this.datum = v;
       this.filled = true;
     }
   }
-  public def receive(): Object { 
+  public def receive(): Object {
     when (filled) {
       v: Object = datum;
       datum = null;
@@ -256,24 +265,6 @@ class OneBuffer {
 
 
 <div class="p"><!----></div>
-<hr /><h3>Footnotes:</h3>
 
-<div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Note that depending on the state of the computation
-the activation path may traverse activities that are running,
-suspended or terminated.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In   X10 v1.7 the  "finish"
-statement is the only statement that marks its activity as a root
-activity. Future versions of the language may introduce more such
-statements.
-<div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>  X10 v1.7 does
-not specify a particular algorithm; this will be fixed in future
-versions.
-<div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>A static bound is a constant
-that depends only on the program text, and is independent 
-of any runtime parameters. 
 </body>
 </html>

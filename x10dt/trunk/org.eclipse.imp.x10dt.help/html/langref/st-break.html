@@ -21,13 +21,12 @@
 6</a>&nbsp;&nbsp;Break statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; BreakStatement </td></tr>
-<tr><td align="right">BreakStatement &nbsp;::=&nbsp; <tt>break</tt> Identifier<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">Statement &nbsp;BreakStatement </td></tr>
+<tr><td align="right">BreakStatement &nbsp;"break" Identifier<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 An unlabeled break statement exits the currently enclosing loop
@@ -48,14 +47,15 @@ array and breaks out of the loop when found:
 <div class="p"><!----></div>
 <pre>
 var found: Boolean = false;
-for (i: Int = 0; i &lt; a.length; i++)
-    for (j: Int = 0; j &lt; a(i).length; j++)
+outer: for (var i: Int = 0; i &lt; a.length; i++)
+    for (var j: Int = 0; j &lt; a(i).length; j++)
         if (a(i)(j) == v) {
             found = true;
-            break;
+            break outer;
         }
 </pre>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

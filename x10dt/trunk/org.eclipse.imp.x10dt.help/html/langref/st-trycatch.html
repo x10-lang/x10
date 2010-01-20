@@ -21,17 +21,15 @@
 14</a>&nbsp;&nbsp;Try-catch statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; TryStatement </td></tr>
-<tr><td align="right">TryStatement &nbsp;::=&nbsp; <tt>try</tt> BlockStatement Catch<sup>+</sup>&nbsp;Finally<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"> |  <tt>try</tt> BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
-<tr><td align="right">Catch &nbsp;::=&nbsp; <tt>catch</tt> ( Formal ) BlockStatement </td></tr>
-<tr><td align="right">Finally &nbsp;::=&nbsp; <tt>finally</tt> BlockStatement </td></tr>
+<tr><td align="right">Statement &nbsp;TryStatement </td></tr>
+<tr><td align="right">TryStatement &nbsp;"try" BlockStatement Catch<sup>+</sup>&nbsp;Finally<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  "try" BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
+<tr><td align="right">Catch &nbsp;"catch" "(" Formal ")" BlockStatement </td></tr>
+<tr><td align="right">Finally &nbsp;"finally" BlockStatement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
-
 
 <div class="p"><!----></div>
 Exceptions are handled with a "try" statement.
@@ -61,5 +59,6 @@ matching "catch" block, if any, and then the
 exception is rethrown.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

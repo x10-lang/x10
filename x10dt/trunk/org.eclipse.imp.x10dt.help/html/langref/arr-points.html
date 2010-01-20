@@ -24,34 +24,78 @@
 <div class="p"><!----></div>
 Arrays are indexed by points-n-dimensional tuples of
 integers, implemented by the value class "x10.lang.Point".
- X10 specifies a simple syntax for the construction of points.
-A rail constructor () of type "ValRail[Int]"
+X10 specifies a simple syntax for the construction of points.
+A rail constructor (&#167;) of type "ValRail[Int]"
 of length n
 can be implicitly coerced to a "Point" of rank n.  For
 example, the following code initializes "p" to a point of
 rank two using a rail constructor:
 
 <div class="p"><!----></div>
+CHECK: <em>Huh? Why do we say rail constructor above? As opposed to just any old valrail?</em>
 <pre>
-p: Point = [1,2];
+p: Point(2) = [1,2];
 </pre>
 
 <div class="p"><!----></div>
-The "Point" constructor can take a rail constructor as
+The "Point" factory method "make" can take a rail constructor as
 argument.  The assignment above can be written, without
 implicit coercion, as:
 
 <div class="p"><!----></div>
 <pre>
-p: Point = new Point([1,2]);
+p: Point = Point.make([1,2]);
 </pre>
 
 <div class="p"><!----></div>
 Points implement the function type "(Int) =&#62; Int"; thus, the
 &#239;"the element of a point "p" may be accessed as "p(i)".
-If &#239;" is out of range, an
-&#196;rrayIndexOutOfBoundsException" is thrown.
 
 <div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+<div class="p"><!----></div>
+    
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
 </body>
 </html>

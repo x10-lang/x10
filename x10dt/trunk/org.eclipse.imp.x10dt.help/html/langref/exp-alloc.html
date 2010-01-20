@@ -17,17 +17,17 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc24">
-24</a>&nbsp;&nbsp;Allocation</h2>
+ <h2><a name="tth_sEc22">
+22</a>&nbsp;&nbsp;Allocation</h2>
 <a name="ClassCreation">
 </a>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">NewExpression &nbsp;::=&nbsp; <tt>new</tt> ClassName TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;)
+<tr><td align="right">NewExpression &nbsp;"new" ClassName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
         ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"> |  <tt>new</tt> InterfaceName TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;)
+<tr><td align="right">\ -  "new" InterfaceName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
         ClassBody
 </td></tr></table>
 </em>
@@ -49,13 +49,13 @@ of the anonymous class is "x10.lang.Object".
 If the class is anonymous-that is, if a class body is
 provided-then the constructor is selected from the superclass.
 The constructor to invoke is selected using the same rules as
-for method invocation ().
+for method invocation (&#167;<a href="#MethodInvocation">6</a>).
 
 <div class="p"><!----></div>
 The type of an allocation expression
 is the return type of the constructor invoked, with appropriate
 substitutions  of actual arguments for formal parameters, as
-specified in .
+specified in &#167;<a href="#MethodInvocationSubstitution">6</a>.
 
 <div class="p"><!----></div>
 It is illegal to allocate an instance of an &#228;bstract" class.
@@ -64,5 +64,6 @@ constructor that is not visible at
 the allocation expression.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

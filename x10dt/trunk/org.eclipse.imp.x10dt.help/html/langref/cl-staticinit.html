@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Static initialization</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Static initialization</h2>
+<a name="StaticInitialization">
+</a>
+
+The X10 runtime implements the following procedure to ensure
+reliable initialization of the static state of classes.
+
+<div class="p"><!----></div>
+Execution commences with a single thread executing the
+<em>initialization</em> phase of an X10 computation at place "0". This
+phase must complete successfully before the body of the "main" method is
+executed.
+
+<div class="p"><!----></div>
+The initialization phase must be thought of as if it is implemented in
+the following fashion: (The implementation may do something more
+efficient as long as it is faithful to this semantics.)
+
+<div class="p"><!----></div>
+<pre>
+Within the scope of a new finish
+for every static field f of every class C 
+   (with type T and initializer e):
+async {
+  val l = e; 
+  ateach (Dist.makeUnique()) {
+     assign l to the static f field of 
+         the local C class object;
+     mark the f field of the local C 
+         class object as initialized;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+During this phase, any read of a static field "C.f" (declared at type "T")
+is replaced by a call to the method "C.read_f():T" defined on class "C"
+as follows
+
+<div class="p"><!----></div>
+<pre>
+def read_f():T {
+   await (initialized(C.f));
+   return C.f;
+}
+</pre>
+
+<div class="p"><!----></div>
+If all these activities terminate normally, all static field have a
+legal value (per their type), and the finish terminates normally. If
+any activity throws an exception, the finish throws an
+exception. Since no user code is executing which can catch exceptions
+thrown by the finish, the exceptions are printed on the console, and
+computation aborts.
+
+<div class="p"><!----></div>
+If the activities deadlock, the implementation deadlocks.
+
+<div class="p"><!----></div>
+In all cases, the main method is executed only once all static fields
+have been initialized correctly.
+
+<div class="p"><!----></div>
+Since static state is immutable, it can be accessed from any
+place.
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>(Mutable
+       graphs can be created without escaping  "this" 
+    by initializing the backpointer to  "null" and then
+    changing it later.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Clearly, a value of type
+   "proto T" cannot be used anywhere that a  "T" is needed,
+  since its fields cannot be read.  As discussed below, an incomplete
+  value  "v" can be assigned to a field <tt>f</tt> of an object <tt>
+    o</tt> only if <tt>o</tt> is incomplete. This ensures that  "v" cannot
+  escape through this assignment. A completed value  "p" cannot be
+  substituted for  &#246;" - it may permit  "v" to escape through
+  an assignment to its field. Therefore  "T" cannot be a subtype of
+   "proto T".
+
+</body>
+</html>

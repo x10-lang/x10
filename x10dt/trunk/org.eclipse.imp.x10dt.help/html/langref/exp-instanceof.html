@@ -17,28 +17,29 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc26">
-26</a>&nbsp;&nbsp;instanceof</h2><a name="instanceOf">
+ <h2><a name="tth_sEc24">
+24</a>&nbsp;&nbsp;&#239;nstanceof"</h2>
+<a name="instanceOf">
 </a>
 
+
 <div class="p"><!----></div>
- X10 permits types to be used in an in instanceof expression
+X10 permits types to be used in an in instanceof expression
 to determine whether an object is an instance of the given type:
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">RelationalExpression &nbsp;::=&nbsp; RelationalExpression <tt>instanceof</tt> Type
+<tr><td align="right">RelationalExpression &nbsp;RelationalExpression &#239;nstanceof" Type
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-In the above expression,  is any type including
-constrained types and value types. 
+In the above expression, <em>Type</em> is any type.
 At run time, the result of this operator is
-"true" if the  can be
+"true" if the <em>RelationalExpression</em> can be
 coerced
-to  without a "TypeCastException" being
+to <em>Type</em> without a "ClassCastException" being
 thrown.  Otherwise the result is "false".
 This determination may involve checking
 that the
@@ -46,5 +47,6 @@ constraint, if any, associated with the type is true for the
 given expression.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

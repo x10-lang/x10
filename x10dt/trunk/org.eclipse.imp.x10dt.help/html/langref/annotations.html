@@ -22,16 +22,16 @@ Chapter 1 </a><br />Annotations and compiler plugins</h1><a name="XtenAnnotation
 </a>
 
 <div class="p"><!----></div>
- X10 provides an 
+X10 provides an 
 an annotation system and compiler plugin system for to allow the
 compiler to be extended with new static analyses and new
 transformations.
 
 <div class="p"><!----></div>
 Annotations are interface types that decorate the abstract syntax tree
-of an  X10 program.  The  X10 type-checker ensures that an annotation
+of an X10 program.  The X10 type-checker ensures that an annotation
 is a legal interface type.
-In  X10, interfaces may declare
+In X10, interfaces may declare
 both methods and properties.  Therefore, like any interface type, an
 annotation may instantiate
 one or more of its interface's properties.
@@ -42,11 +42,12 @@ compile-time constants;
 however, a given compiler plugin
 may do additional checks to constrain the allowable
 initializer expressions.
-The  X10 type-checker does not check that
+The X10 type-checker does not check that
 all properties of an annotation are initialized,
 although this could be enforced by
 a compiler plugin.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

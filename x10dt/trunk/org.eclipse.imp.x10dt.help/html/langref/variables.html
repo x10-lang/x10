@@ -22,14 +22,37 @@ Chapter 1 </a><br />Variables</h1><a name="XtenVariables">
 </a>
 
 <div class="p"><!----></div>
-A variable is a storage location. All
-variables are initialized with a value and cannot be observed
-without
-a value.
+A variable is a storage location.  X10 supports seven kinds of
+variables: constant <em>class variables</em> (static variables), <em>
+  instance variables</em> (the instance fields of a class), <em>array
+  components</em>, <em>method parameters</em>, <em>constructor parameters</em>,
+<em>exception-handler parameters</em> and <em>local variables</em>.
+
+<div class="p"><!----></div>
+Variables are declared thus:
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">VarDeclaratorWithType &nbsp;VarDeclaratorId ResultType </td></tr>
+<tr><td align="right">VarDeclarator &nbsp;VarDeclaratorId ResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">VarDeclaratorId &nbsp;Annotation<sup>*</sup>&nbsp;Identifier </td></tr>
+<tr><td align="right">\ -  Annotation<sup>*</sup>&nbsp;Identifier "(" VarDeclaratorList ")" </td></tr>
+<tr><td align="right">\ -  Annotation<sup>*</sup>&nbsp;"(" VarDeclaratorList ")" </td></tr>
+<tr><td align="right">VarDeclaratorList &nbsp;VarDeclarator ( "," VarDeclarator )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ResultType &nbsp;":" Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<a name="exploded-syntax">
+</a><a name="VariableDeclarations">
+</a>All variables are initialized with a value and cannot be observed without
+a value. 
 
 <div class="p"><!----></div>
 Variables whose value may not be changed after initialization
-are called <em>final variables</em> (or sometimes <em>constants</em>).
+are said to be <em>final</em> or <em>immutable</em>, or <em>constants</em> (&#167;).
 The programmer indicates that a variable is final by declaring
 it with the "val" keyword rather than the "var" keyword.
 Variables that are annotated neither "val" nor "var"
@@ -42,8 +65,11 @@ reference to an instance of the class "T" or a class that is a
 subclass of "T", or a "null" reference.
 
 <div class="p"><!----></div>
-A variable of a reference rail type "Rail[T]" has
+A variable of a rail type "Rail[T]" has
 as many variables as the size of the rail.
+A variable of a rail type "ValRail[T]" has
+as many variables as the size of the rail.
+Each of these variables is immutable and has the type "T".
 
 <div class="p"><!----></div>
 
@@ -54,83 +80,16 @@ a boxed value class that implements &#207;"), or a "null"
 reference.
 
 <div class="p"><!----></div>
-A variable of a value data type "T" where "T" is the name of a
-value class always holds a reference to an instance of "T" (or a
-class that is a subclass of "T") or to an instance of "T" (or a
-class that is a subclass of "T"). No program can distinguish
-between the two cases.
+A variable of a struct data type "T"  always takes as much
+space as necessary to represent an instance of "T". That is
+structs are implemented "inline" or in an unboxed fashion.
 
 <div class="p"><!----></div>
-A variable of an function type always holds an instance
-of a value class with implementing the function type.
+A variable of a function type always holds a reference to enough
+memory to represent the constants accessed within the body of the
+function.
 
 <div class="p"><!----></div>
-A variable of a reference rail type "ValRail[T]" has
-as many variables as the size of the rail.
-Each of these variables is immutable and has the type "T".
 
-<div class="p"><!----></div>
- X10 supports seven kinds of variables: constant <em>class
-variables</em> (static variables), <em>instance variables</em> (the instance
-fields of a class), <em>array components</em>, <em>method parameters</em>,
-<em>constructor parameters</em>, <em>exception-handler parameters</em> and
-<em>local variables</em>.
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Final variables</h2><a name="FinalVariable">
-</a>
-A final variable satisfies two conditions: 
-
-<ul>
-<li> it can be assigned to at most once,
-<div class="p"><!----></div>
-</li>
-
-<li> it must be assigned to before use.
-<div class="p"><!----></div>
-</li>
-</ul>
-
-<div class="p"><!----></div>
- X10 follows  Java language rules in this respect [,&#167;
-4.5.4,8.3.1.2,16]. Briefly, the compiler must undertake a
-specific analysis to statically guarantee the two properties above.
-
-<div class="p"><!----></div>
-Final local variables and fields are defined by the "val"
-keyword.  Elements of value arrays are also final.
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;Initial values of variables</h2>
-<a name="NullaryConstructor">
-</a>
-
-<div class="p"><!----></div>
-Every variable declared at a type must always contain a value of that type.
-
-<div class="p"><!----></div>
-Every class variable must be initialized before it is read, through
-the execution of an explicit initializer or a static block. Every
-instance variable must be initialized before it is read, through the
-execution of an explicit initializer or a constructor.
-Non-final instance variables of reference type are 
-assumed to have an initializer that sets the value to "null".
-Non-final instance variables of value type are 
-assumed to have an initializer that sets the value to the
-result of invoking the nullary constructor on the class. 
-An initializer is required if the default initial value is not
-assignable to the variable's type.
-
-<div class="p"><!----></div>
-Each method and constructor parameter is initialized to the
-corresponding argument value provided by the invoker of the method. An
-exception-handling parameter is initialized to the object thrown by
-the exception. A local variable must be explicitly given a value by
-initialization or assignment, in a way that the compiler can verify
-using the rules for definite assignment [,&#167;&nbsp;16].
-
-<div class="p"><!----></div>
 </body>
 </html>

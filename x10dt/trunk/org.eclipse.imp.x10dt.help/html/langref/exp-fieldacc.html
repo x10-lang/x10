@@ -23,15 +23,14 @@
 </a>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">FieldExpression &nbsp;::=&nbsp; Expression . Identifier </td></tr>
-<tr><td align="right"> |  <tt>super</tt> . Identifier </td></tr>
-<tr><td align="right"> |  ClassName . Identifier </td></tr>
-<tr><td align="right"> |  ClassName . <tt>super</tt> . Identifier </td></tr>
+<tr><td align="right">FieldExpression &nbsp;Expression "." Identifier </td></tr>
+<tr><td align="right">\ -  &#223;uper" "." Identifier </td></tr>
+<tr><td align="right">\ -  ClassName "." Identifier </td></tr>
+<tr><td align="right">\ -  ClassName "." &#223;uper" "." Identifier </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 A field of an object instance may be  accessed
@@ -39,9 +38,7 @@ with a field access expression.
 
 <div class="p"><!----></div>
 The type of the access is the declared type of the field with the
-actual target substituted for "this" in the type.  If the actual
-target is not a final access path (),
-an anonymous path is substituted for "this".
+actual target substituted for "this" in the type. 
 
 <div class="p"><!----></div>
 The field accessed is selected from the fields and value properties
@@ -67,5 +64,6 @@ It is illegal to access a non-static field
 through a static field access expression.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

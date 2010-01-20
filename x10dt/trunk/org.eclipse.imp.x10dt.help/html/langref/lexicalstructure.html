@@ -21,7 +21,7 @@
 Chapter 1 </a><br />Lexical structure</h1>
 
 <div class="p"><!----></div>
-In general,  X10 follows  java rules [,Chapter 3] for
+In general, X10 follows Java rules [,Chapter 3] for
 lexical structure.
 
 <div class="p"><!----></div>
@@ -48,17 +48,17 @@ allowed.  All text from the ASCII characters
 <b>Identifiers&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-Identifiers  are defined as in  java.
+Identifiers  are defined as in Java.
 Identifiers consist of a single letter followed by zero or more
 letters or digits.
-Letters are defined as the characters for which the  java
+Letters are defined as the characters for which the Java
 method "Character.isJavaIdentifierStart" returns true.
 Digits are defined as the ASCII characters "0" through "9".
 
 <div class="p"><!----></div>
 
 <b>Keywords&nbsp;&nbsp;</b>
- X10 reserves the following keywords:
+X10 reserves the following keywords:
 <pre>
 abstract        any             as              async
 at              ateach          atomic          await
@@ -67,19 +67,21 @@ clocked         const           continue        current
 def             default         do              else
 extends         extern          final           finally
 finish          for             foreach         future
-goto            has             here            if
-implements      import          in              instanceof
-interface       local           native          new
-next            nonblocking     or              package
-private         protected       property        public
-return          safe            self            shared
-static          super           switch          this
-throw           throws          try             type
+global
+goto            has             here            if             
+implements      import          instanceof      interface
+native          new             next            nonblocking     
+or              package         pinned          private        
+protected       property        public          return
+safe            self            sequential      shared
+static
+super           switch          this            throw
+throws          to              try             type
 val             value           var             when
 while
 </pre>
 Note that the primitive types are not considered keywords.
-The keyword  is reserved, but not used.
+The keyword "goto" is reserved, but not used.
 
 <div class="p"><!----></div>
 
@@ -87,35 +89,37 @@ The keyword  is reserved, but not used.
 </a>
 
 <div class="p"><!----></div>
-Literals are either integers, floating point numbers, booleans,
+Literals are either integers, unsigned integers, floating point numbers, booleans,
 characters, strings, and "null".
- X10 v1.7 defines literal syntax in the same way as  java does.
+X10 v2.0 defines literal syntax in the same way as Java does
+except that the suffix 'u' or 'U' is used for unsigned integers.
 
 <div class="p"><!----></div>
 
 <b>Separators&nbsp;&nbsp;</b>
- X10 has the following separators and delimiters:
+X10 has the following separators and delimiters:
 <pre>
-( ) { } [ ]  ;  ,  .
+( )  { }  [ ]  ;  ,  .
 </pre>
 
 <div class="p"><!----></div>
 
 <b>Operators&nbsp;&nbsp;</b>
- X10 has the following operators:
+X10 has the following operators:
 <pre>
 ==  !=  &lt;   &#62;   &lt;=  &#62;=
-&&  ||  &  |   ^
+&amp;&amp;   ||   &amp;    |    ^
 &lt;&lt;  &#62;&#62;  &#62;&#62;&#62;
-+   -   *   /  % 
-++  --  !  ~  &nbsp;
-&=   |=  ^=
-&lt;&lt;= &#62;&#62;= &#62;&#62;&#62;
-+=  -=  *=  /=  %=   
++   -   *   /   %
+++  --  !   &#126;
+&amp;=  |=  ^=
+&lt;&lt;= &#62;&#62;= &#62;&#62;&#62;=
++=  -=  *=  /=  %=
 =   ?   :   =&#62;  -&#62;
 &lt;:  :&#62;  @   ..
 </pre>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

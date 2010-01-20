@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Constrained types</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Constrained types</h2>
 <a name="ConstrainedTypes">
 </a>
 <a name="DepType:DepType">
@@ -30,7 +30,6 @@
         Given a type "T", a <em>constrained type</em>
         "T{e}" may be
         constructed by constraining its
-        
         properties with a
         boolean expression &#235;".
 
@@ -43,143 +42,185 @@
         specify the places at which the object resides.
 
 <div class="p"><!----></div>
-        The constraint expression &#235;" is evaluated symbolically by the
-        compiler; there is no run-time check when assigning to a
-        variable with a constrained type.  Constraints are
-        written in a restricted subset of the expression
-        language so that the compile-time check is decidable.
-        We discuss this subset further in
-        Section&nbsp;.
-
-<div class="p"><!----></div>
 For brevity, the constraint may be omitted and
 interpreted as "true".
-
 
 <div class="p"><!----></div>
 Constraints on properties induce a natural subtyping relationship:
 "C{c}" is a subtype of
 "D{d}" if "C" is a subclass of "D" and
-"c" implies "d".
+"c" entails "d".
 
 <div class="p"><!----></div>
-Type parameters "X" cannot be constrained; that is,
-"X{c}" is not legal.
+Type parameters cannot be constrained.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.1">
-5.1</a>&nbsp;&nbsp;Constraints</h3>
-<a name="sec:constraints">
-</a>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Constraints</h3>
 
 <div class="p"><!----></div>
+Expressions used as constraints are restricted by the constraint
+system in use to ensure that the constraints can be solved at compile
+time.  The X10 compiler allows compiler plugins to be installed to
+extend the constraint language and the constraint system.  Constraints
+must be of type "Boolean".  The compiler supports the following
+constraint syntax.
 
 <div class="p"><!----></div>
-Expressions used as constraints are restricted by the
-constraint system in use to ensure that the constraints can
-be solved at compile time.
-Constraints must be of type "Boolean".
-The compiler supports the following constraint syntax.
-
-<div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Constraint &nbsp;::=&nbsp; ValueArguments     Guard<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"> |  ValueArguments<sup>?</sup>&nbsp;Guard     </td></tr>
+<tr><td align="right">Constraint &nbsp;ValueArguments     Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  ValueArguments<sup>?</sup>&nbsp;Guard     </td></tr>
 <tr><td align="right"></td></tr>
-<tr><td align="right">ValueArguments    &nbsp;::=&nbsp; ( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
-<tr><td align="right">ArgumentList      &nbsp;::=&nbsp; Expression ( , Expression )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">Guard             &nbsp;::=&nbsp; { DepExpression } </td></tr>
-<tr><td align="right">DepExpression     &nbsp;::=&nbsp; ( Formal ; )<sup>*</sup>&nbsp;ArgumentList </td></tr>
+<tr><td align="right">ValueArguments   &nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")" </td></tr>
+<tr><td align="right">ArgumentList     &nbsp;Expression ( "," Expression )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">Guard            &nbsp;"{" DepExpression "}" </td></tr>
+<tr><td align="right">DepExpression    &nbsp;( Formal ";" )<sup>*</sup>&nbsp;ArgumentList </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
+<div class="p"><!----></div>
+In X10 v2.0 value constraints may be equalities ("=="),
+disequalities ("!=") and conjunctions thereof.  The terms over
+which these constraints are specified include literals and
+(accessible, immutable) variables and fields, and the special
+constants <tt>here</tt>, <tt>self</tt>, and <tt>this</tt>. Additionally, place
+types are permitted (&#167;).
 
 <div class="p"><!----></div>
-The default  X10 constraint system supports equality expressions
-("=="), conjunction ("&&"), and subtyping and supertyping (<:" and
-":>") expressions over constants, final access paths, and
-types, and existential quantification over typed variables.
+Type constraints may be subtyping and supertyping (&#171;:" and
+":&#62;") expressions over types.
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 <em>Subsequent implementations are intended to support boolean algebra,
 arithmetic, relational algebra, etc., to permit types over regions and
 distributions. We envision this as a major step towards removing most,
-if not all, dynamic array bounds and place checks from  X10.
+if not all, dynamic array bounds and place checks from X10.
 </em>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.2">
-5.2</a>&nbsp;&nbsp;Place constraints</h3><a name="PlaceTypes">
+      <h4><a name="tth_sEc4.1.1">
+4.1.1</a>&nbsp;&nbsp;Acyclicity restriction</h4>
+
+<div class="p"><!----></div>
+To ensure that type-checking is decidable, we
+require that property graphs be acyclic.
+That is, it should not be the case at runtime that
+a set of objects can be created such that the
+graph formed by taking objects as nodes and adding an edge from m to
+n if m has a property whose value is n has a cycle in it.
+
+<div class="p"><!----></div>
+Currently this restriction is not checked by the compiler. Future
+versions of the compiler will check this restriction by introducing
+rules on escaping of "this" (&#167;) before the invocation of
+"property" calls.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+<div class="p"><!----></div>
+    
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Place constraints</h3>
+<a name="PlaceTypes">
 </a>
+<a name="PlaceType">
+</a>
+
 <a name="DepType:PlaceType">
 </a>
 
 <div class="p"><!----></div>
-Recall that an  X10 computation spans multiple places
-(). Each place constains data and activities that
-operate on that data.   X10 v1.7 does not permit the dynamic
-creation of a place. Each  X10 computation is initiated with a
+An X10 computation spans multiple places
+(&#167;). Each place constains data and activities that
+operate on that data.  X10 v2.0 does not permit the dynamic
+creation of a place. Each X10 computation is initiated with a
 fixed number of places, as determined by a configuration parameter.
 In this section we discuss how the programmer may supply place type
 information, thereby allowing the compiler to check data locality,
 i.e., that data items being accessed in an atomic section are local.
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">PlaceConstraint     &nbsp;::=&nbsp; ! Place<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">Place              &nbsp;::=&nbsp;current </td></tr>
-<tr><td align="right"> |  Expression </td></tr>
+<tr><td align="right">PlaceConstraint     &nbsp;"!" Place<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">Place              &nbsp;Expression </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Because of the importance of places in the  X10 design, special
+Because of the importance of places in the X10 design, special
 syntactic support is provided for constrained types involving places.
 
 <div class="p"><!----></div>
-All  X10 reference classes extend the class
-"x10.lang.Ref", which defines a property
-"location" of type
+All X10 classes extend the class
+"x10.lang.Object", which defines a property
+"home" of type
 "Place".
-
-<div class="p"><!----></div>
-<pre>
-package x10.lang;
-public class Ref(location: place) { ... }   
-</pre>
 
 <div class="p"><!----></div>
 If a constrained reference type "T" has an "!p" suffix,
 the constraint for "T" is implicitly assumed to contain the clause
-&#223;elf.location==p"; that is,
-"C{c}!p" is equivalent to "C{self.location==p && c}".
+&#223;elf.home==p"; that is,
+"C{c}!p" is equivalent to "C{self.home==p &amp;&amp; c}".
 
 <div class="p"><!----></div>
-If the place "p" is ommitted, "here" is assumed; that is,
-"C{c}!" is equivalent to "C{self.location==here && c}".
+The place "p" may be ommitted. It defaults to "this" 
+for types in field declarations, and to "here" elsewhere.
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The place specifier "current" on an array base type
-specifies that an object with that type at point "p"
-in the array 
-is located at "dist(p)".  The "current" specifier can be
-used only with array types.
 
 <div class="p"><!----></div>
-  It is a compile time error for the "!"-annotation to
-  be used for value types.
-
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.3">
-5.3</a>&nbsp;&nbsp;Constraint semantics</h3>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Constraint semantics</h3>
 
 <div class="p"><!----></div>
-Variable occurrence
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Variable occurrence):
 In a dependent type "T" = "C{c}", the only variables that may
 occur in "c" are (a)
 &#223;elf", (b) properties visible at "T", (c) final local variables, final
@@ -188,7 +229,7 @@ final fields visible at "T''s lexical place in the source program.
 
 
 <div class="p"><!----></div>
-Restrictions on "this"
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Restrictions on "this"):
   The special variable "this" may be used in a dependent clause for a type "T"
   only if (a)&nbsp;"T" occurs in a property declaration for a
   class, (b)&nbsp;"T"
@@ -205,7 +246,7 @@ Restrictions on "this"
 
 
 <div class="p"><!----></div>
-Variable visibility
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Variable visibility):
   If a type "T" occurs in a field, method or constructor
   declaration, then all variables used in "T" must have at least the
   same visibility as the declaration.  The relation "at least the same
@@ -248,10 +289,10 @@ underlying dependent type "C{c}" by replacing all occurrences of "v"
 in the constraint of "T" by &#223;elf".)
 
 <div class="p"><!----></div>
-For instance, "v: Int{v &#62; 0}" is shorthand for "v: Int{self &#62; 0}".
+For instance, "v: Int{v == 0}" is shorthand for "v: Int{self == 0}".
 
 <div class="p"><!----></div>
-Constraint type
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constraint type):
 The type of a constraint "c" must be "Boolean".  
 
 
@@ -267,86 +308,12 @@ An instance &#246;" of "C" is said to be of type "C{c}"
 "C{c}") if the predicate "c" evaluates to "true" in the current lexical
 environment, augmented with the binding &#223;elf" <font face="symbol">®</font
 > &#246;". We shall
-use the function  [C{c}]   to denote the set of
+use the function  "C{c} " to denote the set of
 objects that belong to "C{c}". 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.4">
-5.4</a>&nbsp;&nbsp;Type invariants</h3><a name="DepType:TypeInvariant">
-</a>
-<a name="DepType:Guard">
-</a>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-A class or interface declaration may specify a <em>guard</em>,
-an invariant on all
-instances of that type.
-All the properties of the type, together with inherited properties,
-may appear in the class invariant.
-
-The class invariant may also constrain the class's type parameters.
-
-A guard "c" with
-
-value property list "x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>"
-for a class "C" is said to be consistent if each of the "T<sub>i</sub>" are
-consistent and the constraint
-
-<pre>
-<font face="symbol">$</font
->x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>, self: C. c
-</pre>
-
- is valid (always true).
-
-<div class="p"><!----></div>
-With every defined class or interface "T" we associate a <em>type
-invariant</em> <i>inv</i>("T") as follows. The type
-invariant associated with "x10.lang.Object" is 
-"true".
-
-<div class="p"><!----></div>
-The type invariant associated with any interface &#207;" that extends
-interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>" and defines properties
-"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
-specifies a guard "c" is given by:
-
-<div class="p"><!----></div>
-<pre>
-<i>inv</i>(I<sub>1</sub>) && ... && <i>inv</i>(I<sub>k</sub>)
- && self.x<sub>1</sub>: P<sub>1</sub> && ... &&  self.x<sub>n</sub>: P<sub>n</sub> && c  
-</pre>
-
-<div class="p"><!----></div>
-Similarly the type invariant associated with any class "C" that
-implements interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>",
-extends class "D" and defines properties
-"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
-specifies a guard "c" is
-given by:
-
-<pre>
-<i>inv</i>(D) && <i>inv</i>(I<sub>1</sub>) && ... &&  <i>inv</i>(I<sub>k</sub>)
- && self.x<sub>1</sub>: P<sub>1</sub> && ... &&  self.x<sub>n</sub>: P<sub>n</sub>  && c  
-</pre>
-
-<div class="p"><!----></div>
-It is required that the
-type invariant associated with a class entail the type invariants of
-each interface that it implements.
-
-<div class="p"><!----></div>
-It is guaranteed that for any variable "v" of
-type "Tc" (where "T" is an interface name or a class name) the only
-objects &#246;" that may be stored in "v" are such that &#246;" satisfies
-<i>inv</i>("T"[&#246;"/"this"])<font face="symbol">Ù</font
->"c"[&#246;"/self"].
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.5">
-5.5</a>&nbsp;&nbsp;Consistency of dependent types</h3><a name="DepType:Consistency">
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Consistency of dependent types</h3><a name="DepType:Consistency">
 </a>
 
 <div class="p"><!----></div>
@@ -358,7 +325,7 @@ by parameters to the constraint (if any). Formally, consider a type
 "T" = "C{c}", with the variables
 "f<sub>1</sub>: F<sub>1</sub>, ..., f<sub>k</sub>: F<sub>k</sub>"
 free in "c".  Let 
-"S = f<sub>1</sub>: F<sub>1</sub>, ..., f<sub>k</sub>: F<sub>k</sub>, f<sub>k+1</sub>: F<sub>k+1</sub>, ..., f<sub>n</sub>: F<sub>n</sub>"
+"S = {f<sub>1</sub>: F<sub>1</sub>, ..., f<sub>k</sub>: F<sub>k</sub>, f<sub>k+1</sub>: F<sub>k+1</sub>, ..., f<sub>n</sub>: F<sub>n</sub>}"
 be the smallest set of
 declarations containing
 "f<sub>1</sub>: F<sub>1</sub>, ..., f<sub>k</sub>: F<sub>k</sub>"
@@ -372,7 +339,7 @@ finite. The type for a variable "v" cannot reference a variable whose
 type depends on "v".)
 
 <div class="p"><!----></div>
-We say that "T" = "Cc" is <em>parametrically consistent</em> (in brief:
+We say that "T" = "C{c}" is <em>parametrically consistent</em> (in brief:
 <em>consistent</em>) if:
 
 <div class="p"><!----></div>
@@ -385,19 +352,18 @@ We say that "T" = "Cc" is <em>parametrically consistent</em> (in brief:
 <li> It can be established that
 "<font face="symbol">"</font
 >f<sub>1</sub>: F<sub>1</sub>, ..., f<sub>n</sub>: F<sub>n</sub>. <font face="symbol">$</font
->self: C. c &&</td><td width="150">
-</td><td width="150">
- <i>inv</i>(C)".
+>self: C. c &amp;&amp; <i>inv</i>(C)".
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
 where "<i>inv</i>(C)" is the invariant associated
-with the type "C" ().  Note by
+with the type "C" (&#167;).  Note by
 definition of S the formula above has no free variables.
 
 <div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 For a declaration "v: T" to be type-correct, "T" must be parametrically
 consistent. The compiler issues an error if it cannot determine
 the type is parametrically consistent.
@@ -409,7 +375,7 @@ A class that represents a line has two distinct points:
 <div class="p"><!----></div>
 <pre>
 class Line(start: Point, 
-           end: Point{self != this.start}) { ... }      
+           end: Point{self != this.start}) {...}      
 </pre>
 
 
@@ -419,20 +385,17 @@ One can use dependent type to define other closed geometric figures as well.
 <div class="p"><!----></div>
 Here is an example:
 <pre>
-class Point(x: Int, y: Int) { ... }
+class Point(x: Int, y: Int) {...}
 </pre>
 
 <div class="p"><!----></div>
 To see that the declaration &#235;nd: Point{self != start}" is
 parametrically consistent, note that the following formula is valid:
-<br>
-<br>
 <pre>
 <font face="symbol">"</font
 >this: Line. <font face="symbol">$</font
 >self: Point. self != this.start  
 </pre>
-
  since the set of all "Point&#223; has more than one element.
 
 
@@ -442,8 +405,8 @@ A triangle has three lines sharing three vertices.
 class Triangle 
  (a: Line, 
   b: Line{a.end == b.start}, 
-  c: Line{b.end == c.start &&  c.end == a.start}) 
- { ... } 
+  c: Line{b.end == c.start &amp;&amp; c.end == a.start}) 
+ { ... }
 </pre>
 
 <div class="p"><!----></div>
@@ -456,5 +419,6 @@ is consistent.
 
 
 <div class="p"><!----></div>
+
 </body>
 </html>

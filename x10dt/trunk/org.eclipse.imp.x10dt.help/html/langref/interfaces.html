@@ -23,50 +23,34 @@ Chapter 1 </a><br />Interfaces</h1>
 </a>
 
 <div class="p"><!----></div>
- X10 v1.7 interfaces are essentially the same  java
+X10 v2.0 interfaces are essentially the same Java
 interfaces [,&#167; 9]. An interface primarily specifies
 signatures for public methods. It may extend multiple interfaces. 
 
 <div class="p"><!----></div>
-Future version of  X10 will introduce additional structure in
-interface definitions that will allow the programmer to state
-additional properties of classes that implement that interface. For
-instance a method may be declared <tt>pure</tt> to indicate that its
-evaluation cannot have any side-effects. A method may be declared <tt>
-local</tt> to indicate that its execution is confined purely to the
-current place (no communication with other places). Similarly,
-behavioral properties of the method as they relate to the usage of
-clocks of the current activity may be specified.
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Interfaces with properties</h2><a name="DepType:Interface">
-</a>
-
-<div class="p"><!----></div>
- X10 permits interfaces to have properties and specify an interface
+<a name="DepType:Interface">
+</a>X10 permits interfaces to have properties and specify an interface
 invariant. This is necessary so that programmers can build dependent
 types on top of interfaces and not just classes.
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">NormalInterfaceDeclaration &nbsp;::=&nbsp;
-      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface Identifier  </td></tr>
-<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Constraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td><td align="center"></td><td>ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">NormalInterfaceDeclaration &nbsp;
+      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
+<tr><td align="right">&amp;&amp; TypePropertyList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Constraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
-
-<div class="p"><!----></div>
 The invariant associated with an interface is the conjunction of the
 invariants associated with its superinterfaces and the invariant
 defined at the interface. 
 
 <div class="p"><!----></div>
-   The compiler declares an error if this constraint
-   is not consistent ().  
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler declares an error if this constraint
+   is not consistent (&#167;).  
 
 
 <div class="p"><!----></div>
@@ -74,8 +58,9 @@ Each interface implicitly defines a nullary getter method
 "def p(): T" for each property "p: T". 
 
 <div class="p"><!----></div>
-   The compiler issues a warning if the programmer
-   explicitly defines a method with this signature for an interface.
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler issues a warning if an interface body
+   contains an explicit definition for a method with this signature.
 
 
 <div class="p"><!----></div>
@@ -94,5 +79,6 @@ A class "C" (with properties) is said to implement an interface &#207;" if
 </ul>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

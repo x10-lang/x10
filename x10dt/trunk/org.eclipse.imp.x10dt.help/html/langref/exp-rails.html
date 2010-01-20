@@ -17,20 +17,18 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc29">
-29</a>&nbsp;&nbsp;Rail constructors</h2>
+ <h2><a name="tth_sEc27">
+27</a>&nbsp;&nbsp;Rail constructors</h2>
 <a name="RailConstructors">
 </a>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">RailConstructor &nbsp;::=&nbsp; [ Expressions ] </td></tr>
-<tr><td align="right">Expressions &nbsp;::=&nbsp; Expression ( , Expression )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">RailConstructor &nbsp;"[" Expressions "]" </td></tr>
+<tr><td align="right">Expressions &nbsp;Expression ( "," Expression )<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
-
 
 <div class="p"><!----></div>
 The rail constructor "[a<sub>0</sub>, ..., a<sub>k<font face="symbol">-</font
@@ -39,7 +37,7 @@ creates an instance of "ValRail" with length k
 where the ith element is
 &#228;<sub>i</sub>".  The element type of the array ("T") is
 bound to the least common ancestor of the types of the
-&#228;<sub>i</sub>" ().
+&#228;<sub>i</sub>" (&#167;).
 
 <div class="p"><!----></div>
 Since arrays are subtypes of "(Point) =&#62; T",
@@ -53,5 +51,6 @@ Rail constructors of type "ValRail[Region]" and length "n"
 may be implicitly converted to type "Region{rank==n}".
 
 <div class="p"><!----></div>
+
 </body>
 </html>

@@ -22,13 +22,12 @@
 
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; ThrowStatement </td></tr>
-<tr><td align="right">ThrowStatement &nbsp;::=&nbsp; <tt>throw</tt> Expression ;
+<tr><td align="right">Statement &nbsp;ThrowStatement </td></tr>
+<tr><td align="right">ThrowStatement &nbsp;"throw" Expression ";"
 </td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 The "throw" statement throws an exception.  The exception
@@ -38,11 +37,12 @@ must be a subclass of the value class "x10.lang.Throwable".
 The following statement checks if an index is in range and
 throws an exception if not.
 <pre>
-if (i &lt; 0  -  -  i &#62; x.length)
+if (i &lt; 0 || i &#62; x.length)
     throw new IndexOutOfBoundsException();
 </pre>
 
 
 <div class="p"><!----></div>
+
 </body>
 </html>

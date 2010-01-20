@@ -18,14 +18,14 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;here</h2><a name="Here">
+2</a>&nbsp;&nbsp;"here"</h2><a name="Here">
 </a>
- X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> "here":
+X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> "here":
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">ExpressionName &nbsp;::=&nbsp; <tt>here</tt> </td></tr>
+<tr><td align="right">ExpressionName &nbsp;"here" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -36,25 +36,26 @@ used as the placetype of fields, since the type of a field
 should be independent of the activity accessing it.
 
 <div class="p"><!----></div>
-
-<b>Example.&nbsp;&nbsp;</b>
 The code:
 <pre>
 public class F {
-  public def m(a: F) { 
+  public def m(a: F) {
     val OldHere: place = here;
     async (a) {
-      Console.OUT.println("OldHere == here:" 
-                          + (OldHere == here));
+      System.out.println(&#214;ldHere == here:" 
+                         + (OldHere == here));
     }
   }
-  public static void main(s: array[String]) { 
-    new F().m( (future(Place.FIRST_PLACE.next()) new F())() );
+  public static def main(Rail[String]) {
+    new F().m( (at(Place.FIRST_PLACE.next()) new F()));
   }
 }  
 </pre>
+
+<div class="p"><!----></div>
  will print out "true" iff the computation was configured
 to start with the number of places set to "1". 
+
 
 <div class="p"><!----></div>
 <hr /><h3>Footnotes:</h3>
@@ -63,5 +64,6 @@ to start with the number of places set to "1".
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
 An indexical constant is one whose value depends on its context
 of use.
+
 </body>
 </html>

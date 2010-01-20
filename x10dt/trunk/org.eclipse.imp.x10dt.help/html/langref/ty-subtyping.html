@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc8">
-8</a>&nbsp;&nbsp;Subtyping and type equivalence</h2><a name="DepType:Equivalence">
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Subtyping and type equivalence</h2><a name="DepType:Equivalence">
 </a>
 
 
@@ -63,34 +63,25 @@ and "T1" is a subtype of "T2".
 <div class="p"><!----></div>
 Two dependent types "C{c}" and "C{d}" are said to be <em>equivalent</em> if 
 "c" is true whenever "d" is, and vice versa. Thus, 
-<relax>[[</relax>C{c}<relax>]]</relax> = <relax>[[</relax>C{d}<relax>]]</relax>.
+\relax[["C{c}"]] = \relax[["C{d}"]].
 
 <div class="p"><!----></div>
 Note that two dependent type that are syntactically different may be
 equivalent. For instance, &#207;nt{self &#62;= 0}" and
-&#207;nt{self == 0  ||  self &#62; 0}" are equivalent though they are syntactically
-distinct. The  Java type system is essentially a nominal system-two
-types are the same if and only if they have the same name. The  X10
-type system extends the nominal type system of  Java to permit
+&#207;nt{self == 0 || self &#62; 0}" are equivalent though they are syntactically
+distinct. The Java type system is essentially a nominal system-two
+types are the same if and only if they have the same name. The X10
+type system extends the nominal type system of Java to permit
 constraint-based equivalence.
 
 <div class="p"><!----></div>
 A dependent type "C{c}" is a subtype of a type "C{d}" if
 "c" implies "d".  In such a case we have
-<relax>[[C{c}]]</relax> is a
-subset of <relax>[[</relax>C{d}<relax>]]</relax>. All dependent types
+\relax[["C{c}"]] is a
+subset of \relax[["C{d}"]]. All dependent types
 defined on a class "C"
 refine the unconstrained class type "C"; "C" is
 equivalent to "C{true}".
-
-<div class="p"><!----></div>
-
-<b>Path types.&nbsp;&nbsp;</b>
-
-<div class="p"><!----></div>
-A path type "p.X" is a subtype of a type "T" if
-"p" has type "C{c}" (where "C" has a type member
-"X") and "c" implies that &#223;elf.X" is a subtype of "T".
 
 <div class="p"><!----></div>
 
@@ -106,7 +97,6 @@ class invariant implies the relationship.
 
 <div class="p"><!----></div>
 A type parameter "X" of a method
-
 "m"
 is a subtype of a type "T" if
 the 
@@ -115,5 +105,6 @@ Similarly, "T" is a subtype of parameter "X" if the
 guard implies the relationship.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

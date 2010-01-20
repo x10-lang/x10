@@ -21,12 +21,11 @@
 1</a>&nbsp;&nbsp;Empty statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; ; </td></tr>
+<tr><td align="right">Statement &nbsp;";" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 The empty statement ";" does nothing.  It is useful when a
@@ -34,10 +33,11 @@ loop header is evaluated for its side effects.  For example,
 the following code sums the elements of an array.
 <pre>
 var sum: Int = 0;
-for (i: Int = 0; i &lt; a.length; i++, sum += a[i])
+for (var i: Int = 0; i &lt; a.length; i++, sum += a[i])
     ;
 </pre>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

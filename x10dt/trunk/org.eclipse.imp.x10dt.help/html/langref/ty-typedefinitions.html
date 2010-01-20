@@ -23,72 +23,85 @@
 </a>
 
 <div class="p"><!----></div>
-        Types may be defined through <em>type definitions</em>.
-        A type definition is a type alias or a type-valued function
-        that maps value and type parameters to another type.
-        A type definition may appear as a static or instance
-        class or interface
-        member or in a statement block.
+With value arguments, type arguments, and constraints, the
+syntax for X10 types can often be verbose;
+X10 therefore provides <em>type definitions</em>
+to allow users to define new type constructors.
 
 <div class="p"><!----></div>
-        Type definitions may have zero or more type parameters
-        and value parameters.
-The general form of a type definition is:
+Type definitions have the following syntax:
 
 <div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">TypeDefinition &nbsp;
+                "type"&nbsp;Identifier
+                           ( "[" TypeParameters "]" )<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ( "(" Formals ")" )<sup>?</sup>&nbsp;
+Constraint<sup>?</sup>&nbsp;"=" Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A type definition can be thought of as a type-valued function,
+mapping type parameters and value parameters to a concrete type.
+The following examples are legal type definitions:
 <pre>
-type X[Y<sub>1</sub>, ..., Y<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ... x<sub>n</sub>: T<sub>n</sub>){c} = U;
+type StringSet = Set[String];
+type MapToList[K,V] = Map[K,List[V]];
+type Nat = UInt{self!=0};
+type Int(x: Int) = Int{self==x};
+type Dist(r: Int) = Dist{self.rank==r};
+type Dist(r: Region) = Dist{self.region==r};
 </pre>
+<a name="TypeDefGuard">
+</a>
+As the two definitions of "Dist" demonstrate, type definitions may 
+be overloaded: two type definitions with different numbers of type
+parameters or with different types of value
+parameters, according to the method overloading rules
+(&#167;), define distinct type constructors.
 
 <div class="p"><!----></div>
-"Y<sub>1</sub>", ..., "Y<sub>m</sub>"
-are the type parameters of "X";
-"x<sub>1</sub>", ..., "x<sub>n</sub>"
-are the value parameters of "X" with types
-"T<sub>1</sub>", ..., "T<sub>n</sub>".
-The constraint "c" is called the <em>guard</em> of
-"X".  Finally, &#220;" is the defining type of "X".
-<a name="TypeDefGuard">
+Type definitions may appear as (static) class or interface member or
+in a block statement.
+
+<div class="p"><!----></div>
+Type definitions are applicative, not generative; that is, they
+define aliases for types but do not introduce new types.
+Thus, the following code is legal:
+<pre>
+type A = Int;
+type B = String;
+type C = String;
+a: A = 3;
+b: B = new C("Hi");
+c: C = b + ", Mom!";
+</pre>
+If a type definition has no type parameters and no value
+parameters and is an alias for a class type, a "new"
+expression may be used to create an instance of the class using
+the type definition's name.
+Given the following type definition:
+<pre>
+type A = C[T<sub>1</sub>, ..., T<sub>k</sub>]{c};
+</pre>
+where 
+"C[T<sub>1</sub>, ..., T<sub>k</sub>]" is a
+class type, a constructor of "C" may be invoked with
+"new A(e<sub>1</sub>, ..., e<sub>n</sub>)", if the
+invocation
+"new C[T<sub>1</sub>, ..., T<sub>k</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)" is
+legal and if the constructor return type is a subtype of
+&#196;".
+
+<div class="p"><!----></div>
+The collection of type definitions in
+"x10.lang._" is automatically imported in every compilation unit.
+<a name="X10LangUnderscore">
 </a>
 
 <div class="p"><!----></div>
-The expresion "X[S<sub>1</sub>, ..., S<sub>m</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)"
-denotes a type whenever 
-"S<sub>1</sub>", ..., "S<sub>m</sub>" are type arguments and 
-&#235;<sub>1</sub>", ..., &#235;<sub>n</sub>" are value arguments with
-types "T<sub>1</sub>", ..., "T<sub>n</sub>"
-such that the guard "c" holds. The type denoted is
-the defining type &#220;" with the appropriate substitutions applied:
-&#220;[S<sub>1</sub>/Y<sub>1</sub>,...,S<sub>m</sub>/Y<sub>m</sub>,e<sub>1</sub>/x<sub>1</sub>,...,e<sub>n</sub>/x<sub>n</sub>)".
 
-<div class="p"><!----></div>
-        If the type definition 
-        is a static member of a class or
-        interface "C", then the type definition
-        defines the type constructor "C.X"
-and
-"C.X[S<sub>1</sub>, ..., S<sub>m</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)"
-is a type.
-
-<div class="p"><!----></div>
-        If the type definition 
-        is an instance member of a class or
-        interface "C", then, for a final access path expression &#235;" of type "C",
-        the type definition
-        defines the type constructor &#235;.X"
-and
-&#235;.X[S<sub>1</sub>, ..., S<sub>m</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)"
-is a type.
-
-<div class="p"><!----></div>
-        If the type definition 
-        appears in a statement block, then it
-        defines the type constructor "X", visible in the
-        remainder of the block,
-and
-"X[S<sub>1</sub>, ..., S<sub>m</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)"
-is a type.
-
-<div class="p"><!----></div>
 </body>
 </html>

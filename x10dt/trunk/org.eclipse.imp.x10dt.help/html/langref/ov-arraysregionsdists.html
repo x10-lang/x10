@@ -21,15 +21,15 @@
 5</a>&nbsp;&nbsp;Arrays, regions and distributions</h2>
 
 <div class="p"><!----></div>
-An  X10 array type is a map from a <em>distribution</em>
-() to a type, which may itself be an
+An X10 array type is a map from a <em>distribution</em>
+(&#167;) to a type, which may itself be an
 array type.
 
 <div class="p"><!----></div>
-A distribution is a map from a <em>region</em> () to
+A distribution is a map from a <em>region</em> (&#167;) to
 places.  A region is a collection of <em>points</em> or
 <em>indices</em>. For instance, the region "[0..200,1..100]" specifies
-a collection of two-dimensional points "[i,j]" with 
+a collection of two-dimensional points "(i,j)" with 
 &#239;" ranging from "0" to "200" and "j" ranging
 from "1" to "100". Points are used in array index expressions
 to pick out a particular array element.
@@ -54,13 +54,15 @@ sub-distribution, by combining multiple arrays, and by performing
 pointwise operations on arrays with the same distribution.
 
 <div class="p"><!----></div>
- X10 allows array constructors to iterate over the underlying
+X10 allows array constructors to iterate over the underlying
 distribution and specify a value at each item in the underlying
 region. Such a constructor may spawn activities at multiple places.
 
 <div class="p"><!----></div>
 <em>In future versions of the language, a programmer may specify new
 distributions, and new operations on distributions.</em>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

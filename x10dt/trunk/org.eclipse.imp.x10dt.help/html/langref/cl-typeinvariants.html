@@ -17,9 +17,10 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Type invariants</h2><a name="DepType:Guard">
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Type invariants</h2><a name="DepType:ClassGuard">
 </a>
+
 
 
 
@@ -37,7 +38,6 @@ class Foo(x<sub>1</sub>: T1{x<sub>2</sub>: T<sub>2</sub>; ...; x<sub>k</sub>: T<
   ...
 }
 </pre>
-
 
 <div class="p"><!----></div>
 The first type "x<sub>1</sub>: T<sub>1</sub>{x<sub>2</sub>: T<sub>2</sub>; ...; x<sub>k</sub>: T<sub>k</sub>; c}" is consistent iff
@@ -66,17 +66,11 @@ quantifiers.
 Nevertheless we will find it convenient to permit the programmer to
 explicitly specify a depclause after the list of properties, thus:
 <pre>
-class Point(i: Int, j: Int) { ... } 
-class Line(start: Point, end: Point){end != start}
-  = { ... }
+class Point(i: Int, j: Int) { ... }
+class Line(start: Point, end: Point){end != start} { ... }
 class Triangle (a: Line, b: Line, c: Line)
-        {a.end == b.start && b.end == c.start && 
-         c.end == a.start} = { ... }
-class SolvableQuad(a: Int, b: Int, c: Int)
-                   {a*x*x+b*x+c==0} = { ... }
-class Circle (r: Int, x: Int, y: Int)
-              {r &#62; 0 </td><td width="150"> && r*r==x*x+y*y} = { ... }
-class NonEmptyList extends List{n &#62; 0} { ... }
+   {a.end == b.start,  b.end == c.start,
+    c.end == a.start} { ... }
 </pre>
 
 <div class="p"><!----></div>
@@ -87,41 +81,84 @@ Further, every instance of "Line" must satisfy the constraint that
 &#235;nd != start". Similarly for the other class definitions. 
 
 <div class="p"><!----></div>
-In the general case, the production for 
+In the general case, the production for <em>NormalClassDeclaration</em>
 specifies that the list of properties may be followed by a
-.
+<em>Guard</em>.
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">NormalClassDeclaration &nbsp;::=&nbsp; 
+<tr><td align="right">NormalClassDeclaration &nbsp;
       ClassModifiers<sup>?</sup>&nbsp;"class" Identifier  </td></tr>
-<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td><td align="center"></td><td>Extends<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right">&amp;&amp; TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; Extends<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
 <tr><td align="right"></td></tr>
-<tr><td align="right">NormalInterfaceDeclaration  &nbsp;::=&nbsp; 
+<tr><td align="right">NormalInterfaceDeclaration &nbsp;
       InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
-<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td><td align="center"></td><td>ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">&amp;&amp; TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
-
 <div class="p"><!----></div>
 All the properties in the list, together with inherited properties,
-may appear in the . A guard "c" with
-
-value property list "x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>"
+may appear in the <em>Guard</em>. A guard "c" with
+property list "x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>"
 for a class "C" is said to be consistent if each of the "T<sub>i</sub>" are
 consistent and the constraint
-
 <pre>
 <font face="symbol">$</font
 >x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>, self: C. c
 </pre>
-
  is valid (always true).
 
 <div class="p"><!----></div>
+<a name="DepType:TypeInvariant">
+</a><a name="DepType:ClassGuardDef">
+</a>The guard is an invariant on all instances of the class or interface.
+
+<div class="p"><!----></div>
+With every defined class or interface "T" we associate a <em>type
+invariant</em> <i>inv</i>("T") as follows. The type
+invariant associated with "x10.lang.Object" is 
+"true".
+
+<div class="p"><!----></div>
+The type invariant associated with any interface &#207;" that extends
+interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>" and defines properties
+"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
+specifies a guard "c" is given by:
+
+<div class="p"><!----></div>
+<pre>
+<i>inv</i>(I<sub>1</sub>), ..., <i>inv</i>(I<sub>k</sub>),
+    self.x<sub>1</sub>: P<sub>1</sub>,  ...,  self.x<sub>n</sub>: P<sub>n</sub>, c  
+</pre>
+
+<div class="p"><!----></div>
+Similarly the type invariant associated with any class "C" that
+implements interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>",
+extends class "D" and defines properties
+"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
+specifies a guard "c" is
+given by:
+<pre>
+<i>inv</i>(D), <i>inv</i>(I<sub>1</sub>),  ..., <i>inv</i>(I<sub>k</sub>),
+    self.x<sub>1</sub>: P<sub>1</sub>,  ..., self.x<sub>n</sub>: P<sub>n</sub>,  c  
+</pre>
+
+<div class="p"><!----></div>
+It is required that the type invariant associated with a class entail
+the type invariants of each interface that it implements.
+
+<div class="p"><!----></div>
+It is guaranteed that for any variable "v" of
+type "T{c}" (where "T" is an interface name or a class name) the only
+objects &#246;" that may be stored in "v" are such that &#246;" satisfies
+<i>inv</i>("T"[&#246;"/"this"])<font face="symbol">Ù</font
+>"c"[&#246;"/&#223;elf"].
+
+<div class="p"><!----></div>
+
 </body>
 </html>

@@ -17,23 +17,27 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc10">
-10</a>&nbsp;&nbsp;Coercions and conversions</h2>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Coercions and conversions</h2>
 <a name="XtenConversions">
+</a>
+<a name="User-definedCoercions">
 </a>
 
 
 <div class="p"><!----></div>
- X10 v1.7 supports the following coercions and conversions
+X10 v2.0 supports the following coercions and conversions
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc10.1">
-10.1</a>&nbsp;&nbsp;Coercions</h3>
+     <h3><a name="tth_sEc9.1">
+9.1</a>&nbsp;&nbsp;Coercions</h3>
 
 <div class="p"><!----></div>
-A <em>coercion</em> does not change object identity;
-a coerced object may be explicitly coerced back to its original
-type through a cast.
+A <em>coercion</em> does not change object identity; a coerced object may
+be explicitly coerced back to its original type through a cast. A <em>
+  conversion</em> may change object identity if the type being converted
+to is not the same as the type converted from. X10 permits
+user-defined conversions (&#167;).
 
 <div class="p"><!----></div>
 
@@ -47,7 +51,7 @@ A subtype may be implicitly coerced to any supertype.
 A reference type may be explicitly coerced to any other
 reference type using the &#228;s" operation.
 If the value coerced is not an instance of the target type,
-a "TypeCastException" is thrown.  Casting to a constrained
+a "ClassCastException" is thrown.  Casting to a constrained
 type may require a run-time check that the constraint is
 satisfied.
 
@@ -55,12 +59,8 @@ satisfied.
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc10.2">
-10.2</a>&nbsp;&nbsp;Conversions</h3>
-
-<div class="p"><!----></div>
-A <em>conversion</em> may change object identity if the type being
-converted to is not the same as the type converted from.
+     <h3><a name="tth_sEc9.2">
+9.2</a>&nbsp;&nbsp;Conversions</h3>
 
 <div class="p"><!----></div>
 
@@ -71,31 +71,14 @@ using the &#228;s" operation.
 <div class="p"><!----></div>
 
 <b>Widening numeric conversion.&nbsp;&nbsp;</b>
-A numeric type may be implicitly converted to a wider
-numeric type.
-In particular, an implicit conversion may be performed between
-a numeric type and a type to its right, below:
+A numeric type may be implicitly converted to a wider numeric type. In
+particular, an implicit conversion may be performed between a numeric
+type and a type to its right, below:
+
+<div class="p"><!----></div>
 <pre>
 Byte &lt; Short &lt; Int &lt; Long &lt; Float &lt; Double
 </pre>
-
-<div class="p"><!----></div>
-
-<b>Boxing conversion.&nbsp;&nbsp;</b>
-A type "T" may be implicitly converted to the
-boxed type "Box[T]".
-
-<div class="p"><!----></div>
-
-<b>Unboxing conversion.&nbsp;&nbsp;</b>
-A value type "Box[T]" may be implicitly converted to the
-type "T".
-
-<div class="p"><!----></div>
-
-<b>Explicit conversion (casting with &#228;s")&nbsp;&nbsp;</b>
-A type may be explicitly converted to any type to which it can be
-implicitly converted or implicitly or explicitly coerced.
 
 <div class="p"><!----></div>
 
@@ -108,6 +91,59 @@ method of the object.
 
 <div class="p"><!----></div>
 
+<b>User defined conversions.&nbsp;&nbsp;</b><a name="sec:user-defined-conversions">
+</a>
+
+
 <div class="p"><!----></div>
+The user may define conversion operators from type &#196;" <em>to</em> a
+container type "B" by specifying a method on "B" as follows:
+
+<div class="p"><!----></div>
+<pre>
+  public static operator (r: A): T = ... 
+</pre>
+
+<div class="p"><!----></div>
+The return type "T" should be a subtype of "B". The return
+type need not be specified explicitly; it will be computed in the
+usual fashion if it is not. However, it is good practice for the
+programmer to specify the return type for such operators explicitly.
+
+<div class="p"><!----></div>
+For instance, the code for "x10.lang.Point" contains:
+
+<div class="p"><!----></div>
+<pre>
+  public static global safe operator (r: Rail[int])
+     : Point(r.length) = make(r);
+</pre>
+
+<div class="p"><!----></div>
+The compiler looks for such operators on the container type "B"
+when it encounters an expression of the form "r as B" (where
+"r" is of type &#196;"). If it finds such a method, it sets the
+type of the expression "r as B" to be the return type of the
+method. Thus the type of "r as B" is guaranteed to be some subtype
+of "B".
+
+<div class="p"><!----></div>
+Consider the following code:  
+<pre>
+val p  = [2, 2, 2, 2, 2] as Point;
+val q = [1, 1, 1, 1, 1] as Point;
+val a = p - q;    
+</pre>
+This code fragment compiles successfully, given the above operator definition. 
+The type of "p" is inferred to be "Point(5)" (i.e.{} the type 
+"Point{self.rank==5}".
+Similarly for "q". Hence the application of the operator ""-''' is legal (it requires both arguments to have the same rank). The type of &#228;" is computed as "Point(5)".
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
 </body>
 </html>

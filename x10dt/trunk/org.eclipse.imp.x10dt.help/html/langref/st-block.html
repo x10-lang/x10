@@ -23,19 +23,20 @@
 </a>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; BlockStatement </td></tr>
-<tr><td align="right">BlockStatement &nbsp;::=&nbsp; { Statement<sup>*</sup>&nbsp;} </td></tr>
+<tr><td align="right">Statement &nbsp;BlockStatement </td></tr>
+<tr><td align="right">BlockStatement &nbsp;"{" Statement<sup>*</sup>&nbsp;"}" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 A block statement consists of a sequence of statements delimited
-by "{" and "}".  Statements are evaluated in
+by ""{''' and ""}'''.  Statements are evaluated in
 order.  The scope of local variables introduced within the block  
 is the remainder of the block following the variable declaration.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

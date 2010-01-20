@@ -21,15 +21,14 @@
 9</a>&nbsp;&nbsp;Switch statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; SwitchStatement </td></tr>
-<tr><td align="right">SwitchStatement &nbsp;::=&nbsp; <tt>switch</tt> ( Expression ) { Case<sup>+</sup>&nbsp;} </td></tr>
-<tr><td align="right">Case &nbsp;::=&nbsp; <tt>case</tt> Expression : Statement<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right"> | <tt>default</tt> : Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">Statement &nbsp;SwitchStatement </td></tr>
+<tr><td align="right">SwitchStatement &nbsp;&#223;witch" "(" Expression ")" "{" Case<sup>+</sup>&nbsp;"}" </td></tr>
+<tr><td align="right">Case &nbsp;"case" Expression ":" Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  "default" ":" Statement<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 A switch statement evaluates an index expression and then branches to
@@ -52,5 +51,6 @@ constants.  Case labels cannot be duplicated within the
 &#223;witch" statement.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

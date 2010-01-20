@@ -22,12 +22,12 @@ Chapter 1 </a><br />Activities</h1><a name="XtenActivities">
 </a>
 
 <div class="p"><!----></div>
-An  computation may have many concurrent <em>activities</em> "in
+An X10 computation may have many concurrent <em>activities</em> "in
 flight" at any give time. We use the term activity to denote a
 dynamic execution instance of a piece of code (with references to
 data). An activity is intended to execute in parallel with other
 activities. An activity may be thought of as a very light-weight
-thread.  In  X10 v1.7, an activity may not be interrupted,
+thread.  In X10 v2.0, an activity may not be interrupted,
 suspended or resumed as the result of actions taken by any other
 activity.
 
@@ -37,7 +37,7 @@ its lifetime.  An activity may be <em>running</em>, <em>blocked</em> on some
 condition or <em>terminated</em>. When the statement associated with an
 activity terminates normally, the activity terminates normally; when
 it terminates abruptly with some reason R, the activity terminates
-with the same reason ().
+with the same reason (&#167;).
 
 <div class="p"><!----></div>
 An activity may be long-running and may invoke recursive methods (thus
@@ -52,7 +52,7 @@ An activity may asynchronously and in parallel launch activities at
 other places.
 
 <div class="p"><!----></div>
- X10 distinguishes between <em>local</em> termination and <em>global</em>
+X10 distinguishes between <em>local</em> termination and <em>global</em>
 termination of a statement. The execution of a statement by an
 activity is said to terminate locally when the activity has finished
 all its computation related to that statement. (For instance the
@@ -62,14 +62,21 @@ has terminated locally and all activities that it may have spawned at
 any place (if any) have, recursively, terminated globally.
 
 <div class="p"><!----></div>
-An  X10 computation is initiated as a single activity from the
+An X10 computation is initiated as a single activity from the
 command line. This activity is the <em>root activity</em> for the entire computation. The entire computation
 terminates when (and only when) this activity globally
-terminates. Thus  X10 does not permit the creation of so called
+terminates. Thus X10 does not permit the creation of so called
 "daemon threads"-threads that outlive the lifetime of the root
-activity. We say that an  X10 computation is <em>rooted</em>
-().
+activity. We say that an X10 computation is <em>rooted</em>
+(&#167;).
 
 <div class="p"><!----></div>
+<em>
+<b>Future Extensions.&nbsp;&nbsp;</b> We may permit the initial activity to be a daemon activity
+to permit reactive computations, such as webservers, that may not
+terminate.</em>
+
+<div class="p"><!----></div>
+
 </body>
 </html>

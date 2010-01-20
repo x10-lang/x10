@@ -28,16 +28,15 @@
         class, interface, method,
         or closure.
 
+<div class="p"><!----></div>
         Similarly, a type definition may have
         type parameters that scope over the body of the type
         definition.
 
 <div class="p"><!----></div>
         Type parameters may be constrained by a <em>guard</em> on the declaration
-        (, ,
-
-        ,).
-
+        (&#167;, &#167;,
+        &#167;,&#167;).
         The type parameters of classes and interfaces must be
         bound to concrete types (possibly to a type parameter)
         for the type to be legal; thus "List[int]" and
@@ -45,7 +44,6 @@
         not.
         The type parameters of
         methods and closures
-
         must be bound to
         concrete types at invocation.
         Parametrized type definitions specify new type
@@ -79,47 +77,17 @@ This declares a class "Cell" with a type parameter "X".
 "Cell" may be used as a type by instantiating "X".
 
 <div class="p"><!----></div>
-"Cell[int]" is the type of all "Cell" containing an
-&#239;nt".  The "get" method returns an &#239;nt"; the
-&#223;et" method takes an &#239;nt" as argument.  Note that
+"Cell[Int]" is the type of all "Cell" containing an
+&#207;nt".  The "get" method returns an &#207;nt"; the
+&#223;et" method takes an &#207;nt" as argument.  Note that
 "Cell" alone is not a legal type because the parameter is
 not bound.
 
 <div class="p"><!----></div>
-Parameters may be declared as invariant, covariant (""+'''),
-or contravariant (""-''').
-
-<div class="p"><!----></div>
-Given types "S" and "T".
-
-<ul>
-<li>If a parameter "X" of a class or interface "C" is
-<em>covariant</em>, then 
-"C[S]" is a subtype of "C[T]" if
-"S" is a <em>subtype</em> of "T".
-<div class="p"><!----></div>
-</li>
-
-<li>
-If a parameter "X" of a class or interface "C" is
-<em>covariant</em>, then 
-"C[S]" is a subtype of "C[T]" if
-"S" is a <em>supertype</em> of "T".
-<div class="p"><!----></div>
-</li>
-
-<li>
-If a parameter "X" of a class or interface "C" is
-<em>invariant</em>, then 
-if "S" is a <em>supertype</em> of "T", then
-"C[S]" is a subtype of "C[T]" if
-"S" is <em>equal</em> to "T".
-<div class="p"><!----></div>
-</li>
-</ul>
-
-<div class="p"><!----></div>
-Consider the following class declarations:
+Parameters may be declares as <em>invariant</em>, <em>covariant</em>, or
+<em>contravariant</em>.  The "X" parameter of "Cell" above is
+invariant.  
+Consider the following classes:
 <pre>
 class Get[+X] {
     var x: X;
@@ -134,22 +102,53 @@ class Set[-X] {
     def set(x: X) = { this.x = x: }
 }
 </pre>
-In this example, "Get[Integer]" is a subtype of
-"Get[Number]" since &#207;nteger" is a subtype of
-"Number" and the parameter "X" of "Get" is covariant;
-"Set[Number]" is a subtype of
-"Get[Integer]" since "Number" is a supertype of
-&#207;nteger"
- and the parameter "X" of "Set" is contravariant;
+The "X" parameter of the "Get" class is covariant;
+the "X" parameter of the "Set" class is contravariant.
 
 <div class="p"><!----></div>
-The "X" parameter of the "Cell" class above is invariant.
-Thus, "Cell[Integer]" and "Cell[Number]" are
-incomparable;
-      "Cell[Integer]" is a (reflexive) subtype of "Cell[Integer]"
-      and
-      "Cell[Number]" is a (reflexive) subtype of
-      "Cell[Number]".
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+
+<ul>
+<li> The return type of a method is a covariant position.
+<div class="p"><!----></div>
+</li>
+
+<li> The argument types of a method are contravariant positions.
+<div class="p"><!----></div>
+</li>
+
+<li> Whether a type argument position of a generic class, interface or struct type "C"
+is covariant or contravariant is determined by the "+" or "-" annotation
+at that position in the declaration of "C".
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Given types "S" and "T".
+
+<ul>
+<li>If the parameter of "Get" is covariant, then
+"Get[S]" is a subtype of "Get[T]" if
+"S" is a <em>subtype</em> of "T".
+<div class="p"><!----></div>
+</li>
+
+<li>
+If the parameter of "Set" is covariant, then
+"Set[S]" is a subtype of "Set[T]" if
+"S" is a <em>supertype</em> of "T".
+<div class="p"><!----></div>
+</li>
+
+<li>
+If the parameter of "Cell" is invariant, then
+"Cell[S]" is a subtype of "Cell[T]" if
+"S" is a <em>equal</em> to "T".
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
 

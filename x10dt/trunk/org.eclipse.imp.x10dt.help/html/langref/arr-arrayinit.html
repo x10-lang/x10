@@ -23,8 +23,14 @@
 </a>
 
 <div class="p"><!----></div>
-Arrays are instantiated by invoking a factory method for the
-class &#196;rray".
+Arrays are instantiated by invoking one of the "make" factory
+methods of the &#196;rray" class.
+
+<div class="p"><!----></div>
+An array creation 
+must take either an &#207;nt" as an argument or a "Dist". In the first
+case an array is created over the distribution "[0:N-1]-&#62;here";
+in the second over the given distribution. 
 
 <div class="p"><!----></div>
 An array creation operation may also specify an initializer
@@ -39,33 +45,41 @@ distribution).
 For instance:
 <pre>
 val data : Array[Int]
-    = Array.make[Int](1000-&#62;here, Point(i) =&#62; i);
-val data2 : Array[Int]
-    = Array.make[Int]([1:1000,1:1000]-&#62;here, Point(i,j) =&#62; i*j);
+    = Array.make[Int](1..1000-&#62;here, ((i):Point) =&#62; i);
+val data2 : Array[Int,Int]
+    = Array.make[Int]([1..1000,1..1000]-&#62;here, ((i,j):Point) =&#62; i*j);
 </pre>
 
 <div class="p"><!----></div>
- The first declaration stores in "data" a reference to a
+ The first declaration stores in "data" a reference to a mutable
 array with "1000" elements each of which is located in the
 same place as the array. Each array component is initialized to &#239;".
 
 <div class="p"><!----></div>
-The second declaration stores in "data2" a
+The second declaration stores in "data2" a reference to a mutable
 2-d array over "[1:1000, 1:1000]" initialized with &#239;*j"
-at point "[i,j]". It uses a more abbreviated form to specify 
-the array initializer function.
+at point "[i,j]".
 
 <div class="p"><!----></div>
 Other examples:
 <pre>
+val D1:Dist(1) = ...; /* An expression that creates a Dist */
+val D2:Dist(2) = ...; /* An expression that creates a Dist */
+
+<div class="p"><!----></div>
 val data : Array[Int]
-    = Array.make[Int](1000, ((i): Point) =&#62; i*i);
-val d : Array[Float](D)
-    = Array.make[Float](D, ((i): Point) =&#62; 10.0*i);
-val result : Array[Float](D)
-    = Array.make[Float](D, ((i,j): Point) =&#62; i+j);
+    = Array.make[Int](1000, ((i):Point) =&#62; i*i);
+
+<div class="p"><!----></div>
+val data2 : Array[Float]
+    = Array.make[Float](D1, ((i):Point) =&#62; i*i as Float);
+
+<div class="p"><!----></div>
+val result : Array[Float]
+   = Array.make[Float](D2, ((i,j):Point) =&#62; i+j as Float);;
 </pre>
 
 <div class="p"><!----></div>
+
 </body>
 </html>

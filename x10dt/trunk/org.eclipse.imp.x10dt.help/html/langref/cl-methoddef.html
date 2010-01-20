@@ -17,36 +17,37 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc7">
-7</a>&nbsp;&nbsp;Method definitions</h2>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Method definitions</h2>
 
 <div class="p"><!----></div>
- X10 permits guarded method definitions, similar to guarded
-field definitions. Additionally, the parameter list for a method may
-contain a .
+X10 permits guarded method definitions. 
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">MethodDeclaration &nbsp;::=&nbsp; MethodHeader ; </td></tr>
-<tr><td align="right"> |  MethodHeader = ClosureBody </td></tr>
-<tr><td align="right">MethodHeader &nbsp;::=&nbsp;
-  MethodModifiers<sup>?</sup>&nbsp;<tt>def</tt> Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td><td align="center"></td><td>( 
-  FormalParameterList<sup>?</sup>&nbsp;) Guard<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td><td align="center"></td><td>ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">MethodDeclaration &nbsp;MethodHeader ";" </td></tr>
+<tr><td align="right">\ -  MethodHeader "=" ClosureBody </td></tr>
+<tr><td align="right">MethodHeader &nbsp;
+  MethodModifiers<sup>?</sup>&nbsp;"def" Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; "(" 
+  FormalParameterList<sup>?</sup>&nbsp;")" Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
-
 <div class="p"><!----></div>
-In the formal parameter list, variables may be declared with
-"val" or "var".  If neither is specified, the variable
-is "val".
+A formal parameter may optionally have a "val" or "var"
+modifier (default: "val").  
+The body of the method is executed in an environment in which 
+each formal parameter corresponds to a local variable
+and is initialized with the value of the actual parameter.
+The local variable  is mutable if and only if the
+parameter is a "var" parameter.
 
 <div class="p"><!----></div>
 <a name="MethodGuard">
-</a>The guard (specified by )
+</a>The guard (specified by <em>Guard</em>)
 specifies a constraint "c" on the
 properties of the class "C" on which the method is being defined. The
 method exists only for those instances of "C" which satisfy "c".  It is
@@ -54,7 +55,8 @@ illegal for code to invoke the method on objects whose static type is
 not a subtype of "C{c}".
 
 <div class="p"><!----></div>
-    The compiler checks that every method invocation
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler checks that every method invocation
     &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
     for a method is type correct. Each each argument
     &#235;<sub>i</sub>" must have a
@@ -82,64 +84,51 @@ not a subtype of "C{c}".
     "x<sub>1</sub>, ..., x<sub>n</sub>" are the formal
     parameters of the method.
 
-
-<div class="p"><!----></div>
-Consider the program:
-<pre>
-public class List(n: Int{n&#62;=0}) { 
-  protected val head{n&#62;0}: Object;
-  protected val tail{n&#62;0}: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) = { 
-     property(t.n+1);
-     head=o;
-     tail=t;
-  }
-  public def this(): List(0) = { 
-     property(0);
-  }
-  public def append(l: List): List{self.n==this.n+l.n} = {
-      return (n==0)? l
-         : new List(head, tail.append(l)); 
-  }
-  public def nth(k: Int{1 &lt;= k && k &lt;= n}){n &#62; 0}: Object = { 
-      return k==1 ? head : tail.nth(k-1);
-  }
-}
-</pre>
-
-<div class="p"><!----></div>
-The following code fragment
-<pre>
-u: List{self.n==3} = ...
-t: List{self.n==x} = ...;
-s: List{self.n==x+3} = t.append(u);
-</pre>
- will typecheck. The type of the expression "t.append(u)" is 
-<pre>
-List{a: List{self.n==x}; 
-     l: List{self.n==3}; self.n==a.n+l.n}  
-</pre>
- which is equivalent to:
-<pre>
-List{self.n==x+3}
-</pre>
-
-
-<div class="p"><!----></div>
 The method body is either an expression, a block of statements,
 or a block ending with an expression.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.1">
-7.1</a>&nbsp;&nbsp;Property methods</h3>
+Consider the program:
+<pre>
+type Point(r:Int)=Point{self.rank==r};
+final public class Point(rank: Int) implements (Int) =&#62; Int {
+    public global val coords: ValRail[Int](rank);
+    public global safe def apply(i: Int) = coords(i);
+    public global safe def coords() = coords;
+    public global safe operator - this: Point(rank) 
+       = Point.make(rank, (i:Int)=&#62;-this.coords(i));
+    public global safe operator this + (that: Point(rank)): Point(rank) 
+       = Point.make(rank, (i:Int)=&#62; this.coords(i) + that.coords(i));
+    ...
+}
+</pre>
+
+<div class="p"><!----></div>
+The following code fragment will typecheck:
+<pre>
+s: Point(3) = new Point([1,2,3]);
+t: Point(3) = new Point([-1,-1,-1]);
+u: Point(3) = s + u;
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;Property methods</h3>
 
 <div class="p"><!----></div>
 A method declared with the modifier "property" may be used
 in constraints.  A property method declared in a class must have
 a body and must not be "void".  The body of the method must
 consist of only a single "return" statement or a single
-expression.  It is a static error of the expression cannot be
-represented in the constraint system.
+expression.  It is a static error if the expression cannot be
+represented in the constraint system. 
+
+<div class="p"><!----></div>
+The expression may contain invocations of other properties. It is the
+responsibility of the programmer to ensure that the evaluation of 
+a property terminates at compile-time, otherwise the type-checker
+will not terminate and the program will fail to compile.
 
 <div class="p"><!----></div>
 Property methods in classes are implicitly "final"; they cannot be
@@ -151,19 +140,19 @@ the "def" keyword.  That is, the following are equivalent:
 
 <div class="p"><!----></div>
 <pre>
-property def rail(): boolean = rect && onePlace == here && zeroBased;
-property rail: boolean = rect && onePlace == here && zeroBased;
+property def rail(): boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+property rail: boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.2">
-7.2</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+     <h3><a name="tth_sEc6.2">
+6.2</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 
 <div class="p"><!----></div>
 The definitions of method overloading, overriding, hiding, shadowing
-and obscuring in  X10 are the same as in  Java, modulo the following
+and obscuring in X10 are the same as in Java, modulo the following
 considerations motivated by type parameters and dependent types.
 
 <div class="p"><!----></div>
@@ -172,27 +161,39 @@ name if they have a different number of type parameters, or
 they have value parameters of different types.
 
 <div class="p"><!----></div>
-The definition of a method declaration "m<sub>1</sub>" "having the same signature
-as" a method declaration "m<sub>2</sub>" involves identity of types. Two  X10 types
-are defined to be identical iff they are equivalent ().
-Two methods are said to have <em>the same signature</em> if (a)
-they have the same number of type parameters, (b) they have the
-same number of formal (value) parameters, and (c) for each formal parameter
-their types are equivalent. It is a compile-time error for there
-to be two methods with the same name and same signature in a class
-(either defined in that class or in a superclass).
+X10 v2.0 does not permit overloading based on constraints. 
 
 <div class="p"><!----></div>
-  A class "C" may not have two declarations for a method named "m"-either
+The definition of a method declaration "m<sub>1</sub>" "having the same signature
+as" a method declaration "m<sub>2</sub>" involves identity of types. 
+
+<div class="p"><!----></div>
+The <em>constraint erasure</em> of a type "T" is defined as follows.
+The constraint erasure of  (a)&nbsp;a class, interface or struct type "T" is 
+"T"; (b)&nbsp;a type "T{c}" is the constraint erasure of 
+"T"; (b)&nbsp;a type "T[S<sub>1</sub>,...,S<sub>n</sub>]" 
+is "T'[S<sub>1</sub>',...,S<sub>n</sub>']" where each primed type is the erasure of 
+the corresponding unprimed type.
+ Two methods are said to have <em>the
+  same signature</em> if (a) they have the same number of type parameters,
+(b) they have the same number of formal (value) parameters, and (c)
+for each formal parameter the constraint erasure of its types are equivalent. It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+A class "C" may not have two declarations for a method named "m"-either
   defined at "C" or inherited:
 <pre>
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>{t<sub>1</sub>}, ..., v<sub>n</sub>: T<sub>n</sub>{t<sub>n</sub>}){tc}: T {...}
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>{s<sub>1</sub>}, ..., v<sub>n</sub>: S<sub>n</sub>{s<sub>n</sub>{){sc}: S {...}
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>, ..., v<sub>n</sub>: T<sub>n</sub>){tc}: T {...}
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>, ..., v<sub>n</sub>: S<sub>n</sub>){sc}: S {...}
 </pre>
 
-if it is the case that the types "C{tc}", "T<sub>1</sub>{t<sub>1</sub>}",
-..., "T<sub>n</sub>{t<sub>n</sub>}" are
-equivalent to the types "C{sc}, S<sub>1</sub>{t<sub>1</sub>}, ..., T<sub>n</sub>{t<sub>n</sub>}"
+if it is the case that the constraint erasures of the types "T<sub>1</sub>",
+..., "T<sub>n</sub>" are
+equivalent to the constraint erasures of the types "S<sub>1</sub>, ..., T<sub>n</sub>"
 respectively.
 
 
@@ -203,16 +204,16 @@ ensures that any virtual call to the method
 satisfies the guard of the callee.
 
 <div class="p"><!----></div>
-  If a class "C" overrides a method of a class or interface
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+If a class "C" overrides a method of a class or interface
   "B", the guard of the method in "B" must entail
   the guard of the method in "C".
 
 
 <div class="p"><!----></div>
 A class "C" inherits from its direct superclass and superinterfaces all
-their methods visible according to the access restriction modifiers
-public/private/protected/(package) of the superclass/superinterfaces
-that are not hidden or overridden. A method "M<sub>1</sub>" in a class
+their methods visible according to the access modifiers
+of the superclass/superinterfaces that are not hidden or overridden. A method "M<sub>1</sub>" in a class
 "C" overrides
 a method "M<sub>2</sub>" in a superclass "D" if
 "M<sub>1</sub>" and "M<sub>2</sub>" have the same signature.
@@ -228,10 +229,10 @@ is said to have the <em>static signature</em>
 "T<sub>n</sub>"
 are the static types of &#235;<sub>1</sub>", ..., &#235;<sub>n</sub>",
 respectively.  As in
- Java, it must be the case that the compiler can determine a single
+Java, it must be the case that the compiler can determine a single
 method defined on "T" with argument type
 "T<sub>1</sub>", ... "T<sub>n</sub>"; otherwise, a
-compile-time error is declared. However, unlike  Java, the  X10 type "T"
+compile-time error is declared. However, unlike Java, the X10 type "T"
 may be a dependent type "C{c}". Therefore, given a class definition for
 "C" we must determine which methods of "C" are available at a type
 "C{c}". But the answer to this question is clear: exactly those methods
@@ -239,115 +240,26 @@ defined on "C" are available at the type "C{c}"
 whose guard "d" is implied by "c".
 
 <div class="p"><!----></div>
-  Consider the definitions:
-<pre>
-class Point(i: Int, j: Int) {...}
-class Line(s: Point, e: Point{self != i}) {
-  // m1: Both points lie in the right half of the plane
-  def draw(){s.i&#62;= 0 && e.i &#62;= 0} = {...}
-  // m2: Both points lie on the y-axis
-  def draw(){s.i== 0 && e.i == 0} = {...}
-  // m3: Both points lie in the top half of the plane
-  def draw(){s.j&#62;= 0 && e.j &#62;= 0} = {...}
-  // m4: The general method
-  def draw() = {...}
-} 
-</pre> 
-  Three different implementations are given for the
-"draw" method, one
-  for the case in which the line lies in the right half of the plane,
-  one for the case that the line lies on the y-axis and the third for
-  the case that the line lies in the top half of the plane.
-
-<div class="p"><!----></div>
-  Consider the invocation
-<pre>
-m: Line{s.i &lt; 0} = ...
-m.draw();
-</pre>
-
-<div class="p"><!----></div>
-  This generates a compile time error because there is no applicable
-  method definition.
-
-<div class="p"><!----></div>
-  Consider the invocation
-
-<div class="p"><!----></div>
-<pre>
-m: Line{s.i&#62;=0 && s.j&#62;=0 && e.i&#62;=0 && e.j&#62;=0} = ...
-m.draw();
-</pre>
-
-<div class="p"><!----></div>
-  This generates a compile time error because both
-"m1" and "m3" are applicable.
-
-<div class="p"><!----></div>
-  Consider the invocation
-<pre>
-m: Line{s.i&#62;=0 && s.j&#62;=0 && e.i&#62;=0} = ...
-m.draw();
-</pre>
-  This does not generate any compile-time error since only m1 is
-  applicable. 
+     <h3><a name="tth_sEc6.3">
+6.3</a>&nbsp;&nbsp;Method qualifiers</h3>
+<a name="MethodQualifier">
+</a>
 
 
 <div class="p"><!----></div>
-In the last example, notice that at runtime "m1" will be invoked
-(assuming "m" contains an instance of the "Line" class, and not some
-subclass of "Line" that overrides this method). This will be the case
-even if "m" satisfies at runtime the stronger conditions for "m2" (i.e.,
-&#223;.i==0 </td><td width="150">
-</td><td width="150">
- e.i==0"). That is, dynamic method lookup will not take into
-account the  "strongest" constraint that the receiver may
-satisfy, i.e.,
-its "strongest constrained type". 
+      <h4><a name="tth_sEc6.3.1">
+6.3.1</a>&nbsp;&nbsp;&#228;tomic" qualifier</h4>
+<a name="AtomicAnnotation">
+</a>
 
-<div class="p"><!----></div>
-  The design decision that dynamic method lookup should ignore
-  dependent type information was made to keep the design and the
-  implementation simple and to ensure that serious errors such as
-  method invocation errors are captured at compile-time.
-
-<div class="p"><!----></div>
-  Consider the above example and the invocation
-<pre>
-m: Line = ...
-m.draw();    
-</pre>
-
-<div class="p"><!----></div>
-   Statically the compiler will not report an error because m4 is the
-   only method that is applicable. However, if dynamic method lookup
-   were to use constrained types then we would face the problem that if m is a
-   line that lives in the upper right quadrant then both "m2"
-   and "m3"
-   are applicable and one does not override the other. Hence we must
-   report an error dynamically.
-
-<div class="p"><!----></div>
-   As discussed above, the programmer can write code with &#239;nstanceof"
-   and class casts that perform any application-appropriate
-   discrimination.  
-
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc7.3">
-7.3</a>&nbsp;&nbsp;Method annotations</h3>
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc7.3.1">
-7.3.1</a>&nbsp;&nbsp;<tt>atomic</tt> annotation</h4>
 
 <div class="p"><!----></div>
 A method may be declared &#228;tomic".
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>atomic</tt>  
+<tr><td align="right">MethodModifier &nbsp;&#228;tomic"  
 </td></tr></table>
 </em>
 
@@ -356,87 +268,143 @@ Such a method is treated as if the statement in its body is wrapped
 implicitly in an &#228;tomic" statement.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.3.2">
-7.3.2</a>&nbsp;&nbsp;<tt>local</tt> annotation</h4><a name="LocalAnnotation">
+      <h4><a name="tth_sEc6.3.2">
+6.3.2</a>&nbsp;&nbsp;"global" qualifier</h4>
+<a name="LocalAnnotation">
+</a>
+<a name="GlobalMethod">
 </a>
 
-<div class="p"><!----></div>
-A method may be declared "local".
 
 <div class="p"><!----></div>
-<em>  
+A method may be declared "global".
+
+<div class="p"><!----></div>
+  :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>local</tt>  
+<tr><td align="right">MethodModifier &nbsp;"global"  
 </td></tr></table>
 </em>
 
+<div class="p"><!----></div>
+A "global" method can be invoked on an object &#246;" in any place. The
+body of such a method is type-checked without assuming that
+"here==this.home". This permits "global" fields of &#246;" to
+be accessed, but not local fields. The programmer must insert an explicit
+&#228;t(this)..." to get to the place where the object lives and access
+the field.
 
 <div class="p"><!----></div>
-By declaring a method "local" the programmer asserts that while
-executing this method an activity will only access local memory.
+"global" methods can be overridden only by methods also marked "global".
 
 <div class="p"><!----></div>
-The compiler implements the following rules to guarantee this property.
+      <h4><a name="tth_sEc6.3.3">
+6.3.3</a>&nbsp;&nbsp;"pinned" qualifier</h4>
+<a name="PinnedAnnotation">
+</a>
+<a name="PinnedMethod">
+</a>
+
 
 <div class="p"><!----></div>
-Let &#246;" be any expression occurring in the body of the
-method. Assume its static datatype is "F". 
+A method may be declared "pinned".
 
 <div class="p"><!----></div>
-
-<ul>
-<li> Local methods can only be overridden by local methods.
-<div class="p"><!----></div>
-</li>
-
-<li> If the body of the method contains any field access &#246;.e", then
-the static placetype of &#246;" must be "here". 
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;"pinned"  
+</td></tr></table>
+</em>
 
 <div class="p"><!----></div>
-The programmer can always ensure that this condition is satisfied
-(albeit at the risk of introducing a runtime exception) by replacing
-each field access &#246;.e" with "(o as F!here).e".
-<div class="p"><!----></div>
-</li>
-
-<li> If the body of the method contains any assignments to fields
-(e.g. &#246;.e Op= t", or &#214;p o.e" or &#246;.e Op") then the
-static placetype of &#246;" must be "here".
+A "pinned" method may not
+contain any &#228;t" statement or expression whose place argument
+is not statically equivalent to "here". It must call only
+"pinned" methods. That is, a "pinned" method does not cause
+any communication.
 
 <div class="p"><!----></div>
-The programmer can always ensure that this condition is satisfied by
-replacing &#246;.e Op= t" by &#246;1.e Op=t" and preceding it (in the
-same basic block) with the local variable declaration &#246;1: F!here = o as F!here" (for some new local variable &#246;1"). Similarly for
-&#214;p o.e" and &#246;.e Op".
-<div class="p"><!----></div>
-</li>
-
-<li> Recall that the static placetype of an array access &#246;(e)"
-is &#246;.dist(e)". Therefore, any read/write array access
-&#246;(e)" must be guarded by the condition &#246;.dist(e) == here".  (Since  &#235;" may have side-effects, the compiler must
-ensure that the place check uses the value returned by the same
-expression evaluation that is used to access the array element.)
-<div class="p"><!----></div>
-</li>
-
-<li> If the body of the method contains any method invocation
-&#246;.m(t<sub>1</sub>,...,t<sub>k</sub>)" then the method invoked must be local. Additionally,
-the static place type of &#246;" must be "here". 
-As above, the programmer can always ensure the second
-condition is satisfied by writing such a method invocation
-as "(o as F!here).m(t<sub>1</sub>,...,t<sub>k</sub>)".
-<div class="p"><!----></div>
-</li>
-</ul>
+"pinned" methods can be overridden only by methods marked "pinned".
 
 <div class="p"><!----></div>
-Note that reads/writes to local variables or method parameters are
-always local, hence the compiler does not have to check any extra
-conditions.
+      <h4><a name="tth_sEc6.3.4">
+6.3.4</a>&nbsp;&nbsp;"nonblocking" qualifier</h4>
+<a name="NonblockingAnnotation">
+</a>
+<a name="NonblockingMethod">
+</a>
+
 
 <div class="p"><!----></div>
-A method declared &#228;tomic" is automatically declared
-to be "local".
+A method may be declared "nonblocking".
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;"nonblocking"  
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A "nonblocking" method may not
+contain any "when" statement whose condition
+is not statically equivalent to "true". It must call only
+"nonblocking" methods. That is, a "nonblocking" method does not block.
+
+<div class="p"><!----></div>
+"nonblocking" methods can be overridden only by methods marked "nonblocking".
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.3.5">
+6.3.5</a>&nbsp;&nbsp;&#223;equential" qualifier</h4>
+<a name="SequentialAnnotation">
+</a>
+<a name="SequentialMethod">
+</a>
+
+
+<div class="p"><!----></div>
+A method may be declared &#223;equential".
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;&#223;equential"  
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A &#223;equential" method may not contain any &#228;sync"
+statement. It must call only &#223;equential" methods. That is, a
+&#223;equential" method does not spawn any activity.
+
+<div class="p"><!----></div>
+&#223;equential" methods can be overridden only by methods marked &#223;equential".
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.3.6">
+6.3.6</a>&nbsp;&nbsp;&#223;afe" qualifier</h4>
+<a name="SafeAnnotation">
+</a>
+<a name="SafeMethod">
+</a>
+
+
+<div class="p"><!----></div>
+A method may be declared &#223;afe".
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;&#223;afe"  
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The &#223;afe" annotation is considered shorthand for "pinned
+  nonblocking sequential".
+
+<div class="p"><!----></div>
 
 </body>
 </html>

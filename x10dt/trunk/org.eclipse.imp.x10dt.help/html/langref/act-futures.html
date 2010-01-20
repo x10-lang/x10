@@ -22,18 +22,17 @@
 </a>
 
 <div class="p"><!----></div>
- X10 provides syntactic support for <em>asynchronous expressions</em>, also
+X10 provides syntactic support for <em>asynchronous expressions</em>, also
 known as futures:
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Primary &nbsp;::=&nbsp; FutureExpression </td></tr>
-<tr><td align="right">FutureExpression &nbsp;::=&nbsp; 
-  <tt>future</tt> PlaceExpressionSingleList<sup>?</sup>&nbsp;ClosureBody
+<tr><td align="right">Primary &nbsp;FutureExpression </td></tr>
+<tr><td align="right">FutureExpression &nbsp;
+  "future" PlaceExpressionSingleList<sup>?</sup>&nbsp;ClosureBody
 </td></tr></table>
 </em> 
-
 
 <div class="p"><!----></div>
 Intuitively such an expression evaluates its body asynchronously at
@@ -49,12 +48,13 @@ declared to be "final".
 
 <div class="p"><!----></div>
 If the type of &#235;" is "T" then the type of
-"future (Q) e" is "future[T]".  This 
+"future (Q) e" is "Future[T]".  This 
 type "Future[T]" is defined as if by:
 <pre>
 package x10.lang;
 public interface Future[T] implements () =&#62; T {
-  def forced(): Boolean;
+  global def forced(): Boolean;
+  global def force(): T;
 }
 </pre>
 
@@ -88,7 +88,7 @@ promise: Future[T] = future (a.dist(3)) a(3);
 value: T = promise();
 </pre>
 
-
 <div class="p"><!----></div>
+
 </body>
 </html>

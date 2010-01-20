@@ -22,20 +22,28 @@
 <a name="ReturnStatement">
 </a>
 
-<em>
+
+  :
+  |
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">Statement &nbsp;::=&nbsp; ReturnStatement </td></tr>
-<tr><td align="right">ReturnStatement &nbsp;::=&nbsp; <tt>return</tt> Expression ; </td></tr>
-<tr><td align="right"> |  <tt>return</tt> ; </td></tr>
+
+<tr><td align="right">Statement &nbsp;ReturnStatement </td></tr>
+<tr><td align="right">ReturnStatement &nbsp;"return" Expression ";" </td></tr>
+<tr><td align="right">\ -  "return" ";" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
-
 
 <div class="p"><!----></div>
 Methods and closures may return values using a return statement.
 If the method's return type is expliclty declared "Void",
-the method may return without a value; otherwise, it must return
+the method must return without a value; otherwise, it must return
 a value of the appropriate type.
+
 
 </body>
 </html>

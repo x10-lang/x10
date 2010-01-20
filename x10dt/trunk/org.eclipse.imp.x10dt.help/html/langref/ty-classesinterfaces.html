@@ -27,7 +27,7 @@
 1.1</a>&nbsp;&nbsp;Class types</h3>
 
 <div class="p"><!----></div>
-        A <em>class declaration</em> ()
+        A <em>class declaration</em> (&#167;)
         introduces a 
         <em>class type</em>
         containing all instances of the class.
@@ -36,9 +36,7 @@
         Class instances are created via
         constructor calls.  Class instances have fields and
         methods, type members, and
-
         value properties bound at construction time.
-
         In addition, classes have static
         members: constant fields, type definitions, and member
         classes and member interfaces.
@@ -48,74 +46,22 @@
         type is legal only if all of its parameters are instantiated
         on concrete types.
 
-
 <div class="p"><!----></div>
- X10 does
-not
-permit mutable static state, so the role of static methods and
+X10 does not permit mutable static state, so the role of static methods and
 initializers is quite limited. Instead programmers should use
 singleton classes to carry mutable static state.
 
 <div class="p"><!----></div>
-        Classes may be declared to be either reference classes,
-        or value classes.
-A <em>value class type</em>, declared with the "value"
-modifier,
-is a class type in which all fields of the class are final.
-Variables of reference class type may be "null"; 
-variables of value class type may not be "null".
-
-<div class="p"><!----></div>
         Classes
         are structured in a
-        single-inheritance hierarchy.  All reference classes
-        implicitly extend the class "x10.lang.Ref".
-        All value classes implicitly extend the class "x10.lang.Value".
-        It is a static error if a value class explicitly extends
-        "Ref" (or any subclass of "Ref").
-        It is a static error if a reference class explicitly extends
-        "Value" (or any subclass of "Value").
-
-<div class="p"><!----></div>
+        single-inheritance hierarchy.  All classes
+        extend the class "x10.lang.Object".
         Classes are declared to extend a single
-        superclass (except for "Ref" and "Value", which extend
-        no other class),
-        All classes implement the
-        interface "x10.lang.Object"
-        and zero or more other interfaces.
+        superclass (except for &#214;bject", which extends
+        no other class).
 
 <div class="p"><!----></div>
-&#214;bject" has the following signature:
-
-<div class="p"><!----></div>
-<pre>
-package x10.lang;
-
-<div class="p"><!----></div>
-public interface Object {
-    public def toString(): String;
-    public def equals(Object): Boolean;
-    public def hashCode(): Int;
-    /** Return the full name of the class, e.g., "x10.lang.String" */
-    public def className(): String;
-}
-</pre>
-
-<div class="p"><!----></div>
-"Ref" and "Value" have the following signatures:
-
-<div class="p"><!----></div>
-<pre>
-package x10.lang;
-
-<div class="p"><!----></div>
-public class Ref(location: Place) {
-    public Ref() { property(here); } 
-}
-
-<div class="p"><!----></div>
-public class Value { } 
-</pre>
+Variables of class type may contain the value "null". 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.2">
@@ -124,7 +70,7 @@ public class Value { }
 </a>
 
 <div class="p"><!----></div>
-        An <em>interface declaration</em> ()
+        An <em>interface declaration</em> (&#167;)
         defines an <em>interface type</em>, which specifies a set of
         methods, type members, and properties to be implemented by any class
         declared to implement the interface.  Interfaces also
@@ -133,25 +79,22 @@ public class Value { }
 
 <div class="p"><!----></div>
         An interface may extend multiple interfaces.
-        All interfaces extend "x10.lang.Object".
 
 <div class="p"><!----></div>
-Classes may be declared to implement 
-multiple interfaces. 
+Classes may be declared to implement multiple interfaces.
 Semantically, the interface type is the set of all objects that are
-instances of (value or reference) classes that implement the
-interface. A class implements an interface if it is declared to
-and if
-it implements all the methods and properties defined in the interface.
+instances of classes that implement the interface. A class implements
+an interface if it is declared to and if it implements all the methods
+and properties defined in the interface.
 
 <div class="p"><!----></div>
-
      <h3><a name="tth_sEc1.3">
-1.3</a>&nbsp;&nbsp;Value properties</h3>
+1.3</a>&nbsp;&nbsp;Properties</h3>
 
-<div class="p"><!----></div>
-        Classes and interfaces may have <em>value properties</em>,
-        public final fields bound to object creation.  
+<a name="properties">
+</a>
+        Classes and interfaces may have <em>properties</em>,
+        public final instance fields bound on object creation.  
         For example, the following code declares a class named
         "Point" with properties "x" and &#255;"
         and a "move" method.  The properties are bound
@@ -160,17 +103,18 @@ it implements all the methods and properties defined in the interface.
 <div class="p"><!----></div>
 <pre>
 class Point(x: Int, y: Int) {
-  def this(x: Int, y: Int) { property(x, y); } 
+  def this(x: Int, y: Int) { property(x, y); }
   def move(dx: Int, dy: Int) = new Point(x+dx, y+dy);
 }
 </pre>
 
 <div class="p"><!----></div>
-        The value properties of a class or interface may be
+        The properties of a class or interface may be
         constrained with a boolean expression.  The type
-        "Point {x==0}" is the set of all points whose "x"
+        "Point{x==0}" is the set of all points whose "x"
         property is "0".
 
 <div class="p"><!----></div>
+
 </body>
 </html>

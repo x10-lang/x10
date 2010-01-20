@@ -21,17 +21,20 @@
 9</a>&nbsp;&nbsp;At expressions</h2>
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">Expression &nbsp;::=&nbsp; <tt>at</tt> ( Expression ) Expression
-</td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">Expression &nbsp;&#228;t" "(" Expression ")" Expression
+</td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-An at expression evaluates an expression synchronously at a given place.
-The expression &#228;t (p) e" is equivalent to "future (p) e).force()".
+An &#228;t" expression evaluates an expression synchronously at the
+given place and returns its value. Note that expression evaluation may
+spawn asynchronous activities. The &#228;t" expression will return
+without waiting for those activities to terminate. That is, &#228;t"
+does not have built-in "finish" semantics.
 
 <div class="p"><!----></div>
+
 </body>
 </html>

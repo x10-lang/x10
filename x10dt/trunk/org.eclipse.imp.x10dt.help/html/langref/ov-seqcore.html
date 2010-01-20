@@ -17,55 +17,39 @@
 </head>
 
 <body>
-<div class="p"><!----></div>
  <h2><a name="tth_sEc2">
 2</a>&nbsp;&nbsp;The sequential core</h2>
 
 <div class="p"><!----></div>
 
-<b>Control flow.&nbsp;&nbsp;</b>   X10 supports standard sequential control flow
+<b>Control flow.&nbsp;&nbsp;</b>  X10 supports standard sequential control flow
 constructs: &#239;f" statements, "while" loops, "for" loops,
-switch" statements, etc.   X10 also supports exceptions: exceptions are
+&#223;witch" statements, etc.  X10 also supports exceptions: exceptions are
 raised by "throw" statements and are handled by "try"-"catch"
 statements.
 
 <div class="p"><!----></div>
 
 <b>Primitive operations.&nbsp;&nbsp;</b>  The language provides syntax for performing
-binary and unary operations on values of types defined in the standard library.
-
-<div class="p"><!----></div>
-
-<b>Closures.&nbsp;&nbsp;</b>
- X10 provides closures () to allow code to be used
-as values.  The body of a closure may capture variables in the closure's
-environment.  Closures are used implicitly in asyncs, futures, and array
-initializers.
-For example, the following method uses a closure to increment
-elements of an array by invoking the "lift" method on the
-array.  The syntax "(x: Int) =&#62; x+1" specifies a closure
-that takes an integer argument "x" and returns "x+1".
-<pre>
-def incr(A: Array[Int]): Array[Int] = {
-    val f = (x: Int) =&#62; x+1; // e.g., f(1) == 2
-    return A.lift(f);
-}
-</pre>
+binary and unary operations on values. The programmer may specify code
+by using &#246;perator" definitions. 
 
 <div class="p"><!----></div>
 
 <b>Allocation.&nbsp;&nbsp;</b>
 Objects are allocated with the "new" operator
-(), which takes
-a class name and type and value arguments to pass to the class's
-constructor.  The constructor must ensure that all properties of
-the class and its superclasses are bound.
+(&#167;), which takes a class name and type and value
+arguments to pass to the class's constructor.  The constructor must
+ensure that all properties of the class and its superclasses are
+bound. Structs are created through the invocation of a constructor
+without using the "new" operator and live on the heap only in 
+the fields of objects.
 
 <div class="p"><!----></div>
 
 <b>Coercions and conversions&nbsp;&nbsp;</b>
- X10 supports implicit and explicit coercions and
-conversions ().
+X10 supports implicit and explicit coercions and
+conversions (&#167;).
 
 <div class="p"><!----></div>
 Values of one type can be converted to another type using the
@@ -90,5 +74,10 @@ val x: B = new C();
 val y: C = x as C; // run-time check succeeds
 val z: D = x as D; // run-time check fails
 </pre>
+For reference types a "to" conversion behaves identically to
+an &#228;s" coercion.
+
+<div class="p"><!----></div>
+
 </body>
 </html>

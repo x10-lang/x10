@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Generic programming with structs</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Generic programming with structs</h2>
+
+<div class="p"><!----></div>
+An unconstrained type variable "X" can be instantiated with &#214;bject" or
+its subclasses or structs or functions.
+
+<div class="p"><!----></div>
+Within a generic class, all the operations of &#196;ny" are available
+on a variable of type "X". Additionally, variables of type "X" may
+be used with "==, !=", in &#239;nstanceof", and casts.
+
+<div class="p"><!----></div>
+The programmer must be aware of the different interpretations of
+equality for structs and classes and ensure that the code is correctly
+written for both cases. If necessary the programmer can write code
+that distinguishes between the two cases (a type parameter "X" is
+instantiated to a struct or not) as follows:
+
+<div class="p"><!----></div>
+<pre>
+val x:X = ...;
+if (x instanceof Object) { // x is a real object
+   val x2 = x as Object; // this cast will always succeed.
+   ...
+} else { // x is a struct
+   ...
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>
