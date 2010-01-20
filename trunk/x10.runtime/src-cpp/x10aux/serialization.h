@@ -229,6 +229,17 @@ namespace x10aux {
         T::_serialize(val,buf);
     }
     // Specializations for the simple primitives
+    #define PRIMITIVE_WRITE_AS_INT(TYPE) \
+    template<> inline void serialization_buffer::Write<TYPE>::_(serialization_buffer &buf, \
+                                                                const TYPE &val) {\
+        _S_("Serializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
+                          <<(int)val<<" into buf: "<<&buf); \
+        /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
+        if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
+        memcpy(buf.cursor, &val, sizeof(TYPE)); \
+        code_bytes((TYPE*)buf.cursor); \
+        buf.cursor += sizeof(TYPE); \
+    }
     #define PRIMITIVE_WRITE(TYPE) \
     template<> inline void serialization_buffer::Write<TYPE>::_(serialization_buffer &buf, \
                                                                 const TYPE &val) {\
@@ -241,8 +252,8 @@ namespace x10aux {
         buf.cursor += sizeof(TYPE); \
     }
     PRIMITIVE_WRITE(x10_boolean)
-    PRIMITIVE_WRITE(x10_byte)
-    PRIMITIVE_WRITE(x10_ubyte)
+    PRIMITIVE_WRITE_AS_INT(x10_byte)
+    PRIMITIVE_WRITE_AS_INT(x10_ubyte)
     PRIMITIVE_WRITE(x10_char)
     PRIMITIVE_WRITE(x10_short)
     PRIMITIVE_WRITE(x10_ushort)
@@ -336,6 +347,17 @@ namespace x10aux {
     }
 
     // Specializations for all simple primitives
+    #define PRIMITIVE_READ_AS_INT(TYPE) \
+    template<> inline TYPE deserialization_buffer::Read<TYPE>::_(deserialization_buffer &buf) { \
+        /* //TYPE &val = *(TYPE*) buf.cursor; // Cannot do this because of alignment */ \
+        TYPE val; \
+        memcpy(&val, buf.cursor, sizeof(TYPE)); \
+        buf.cursor += sizeof(TYPE); \
+        code_bytes(&val); \
+        _S_("Deserializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
+            <<(int)val<<" from buf: "<<&buf); \
+        return val; \
+    }
     #define PRIMITIVE_READ(TYPE) \
     template<> inline TYPE deserialization_buffer::Read<TYPE>::_(deserialization_buffer &buf) { \
         /* //TYPE &val = *(TYPE*) buf.cursor; // Cannot do this because of alignment */ \
@@ -348,8 +370,8 @@ namespace x10aux {
         return val; \
     }
     PRIMITIVE_READ(x10_boolean)
-    PRIMITIVE_READ(x10_byte)
-    PRIMITIVE_READ(x10_ubyte)
+    PRIMITIVE_READ_AS_INT(x10_byte)
+    PRIMITIVE_READ_AS_INT(x10_ubyte)
     PRIMITIVE_READ(x10_char)
     PRIMITIVE_READ(x10_short)
     PRIMITIVE_READ(x10_ushort)
