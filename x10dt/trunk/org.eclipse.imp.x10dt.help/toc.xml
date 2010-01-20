@@ -134,15 +134,15 @@
 		<topic label="Atomic Blocks" href="html/langref/act-atomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
-		<topic label="Clock Operations" href="html/langref/clockoper.html"/> 
+		<topic label="Clock Operations" href="html/langref/clockops.html"/> 
 		<topic label="Program equivalences" href="html/langref/clockeq.html"/> 
 	</topic>
 	<topic label="Arrays" href="html/langref/arrays.html"> 
 		<topic label="Points" href="html/langref/arr-points.html"/> 
 		<topic label="Regions" href="html/langref/arr-regions.html"/> 
 		<topic label="Distributions" href="html/langref/arr-dists.html"/> 
-		<topic label="Array Initializer" href="html/langref/arr-arrayinit.html"/> 
-		<topic label="Operations on Arrays" href="html/langref/arr-operarray.html"/> 
+		<topic label="Array Initializer" href="html/langref/arr-initializer.html"/> 
+		<topic label="Operations on Arrays" href="html/langref/arr-opers.html"/> 
 	</topic>
 	<topic label="Annotations and compiler plugins" href="html/langref/annotations.html"> 
 		<topic label="Annotation syntax" href="html/langref/ann-syntax.html"/> 
