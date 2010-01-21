@@ -59,10 +59,10 @@ objects and object references include:
 \begin{itemize}
 
 {}\item Field access (\Sref{FieldAccess}). An activity holding a
-reference to a reference object may perform this operation only if the
-object is local.  An activity holding a reference to a value object
-may perform this operation regardless of the location of the object
-(since value objects can be copied freely from place to place).  The
+reference to an object may perform this operation only if the
+object is local.  (By contrast, an activity holding a reference to a struct
+may perform this operation regardless of the location of the struct, 
+since structs can be copied freely from place to place.).  The
 implementation should try to ensure that the cost of copying the field
 from the place where the object was created to the referencing place
 will be incurred at most once per referencing place, according to the
