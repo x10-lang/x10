@@ -26,7 +26,20 @@ public class FlattenPlaceCast extends x10Test {
     static class Test {};
 
     public def run():boolean  = {
-        val x =  (a(1,1) as Test{self.home == d(1).next()}) ;
+        val d1next = d(1).next();
+        /*
+        Original code: 
+        val x =  (a(1,1) as Test{self.home == d1next}) ;
+        return true;
+        Bard's reaction: 
+        WTF? a(1,1) is defined to be here, 
+          so it's probably not going to be at here.next(), 
+          so this cast should fail, shouldn't it?
+        */
+        val d1 = d(1);
+        val x = a(1,1) as Test{self.home == d1};
+        val y = a(1,1) as Test{self.home == here};
+        val z = a(1,1) as Test!;
         return true;
     }
 

@@ -5,6 +5,9 @@
  *  This file is part of X10 Test.
  *
  */
+/* STATUS: 1/21/2010 -- this file doesn't compile, because 
+   it uses some unimplemented Array operations.
+*/
 
 import harness.x10Test;
 
