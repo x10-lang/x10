@@ -6,6 +6,9 @@
  *
  */
 import harness.x10Test;
+/* STATUS: 1/21/2010 -- this file doesn't compile, because 
+   it uses some unimplemented Array operations.
+*/
 
 /**
  * Constant promotions to arrays: (D n)
