@@ -19,6 +19,7 @@ struct S1 {
   public final def sum() = x + y;
 }
 
+/*This isn't valid X10
 struct S2 extends struct S1 {
   val z:int;
   public def this(a:int, b:int, c:int) {
@@ -28,11 +29,11 @@ struct S2 extends struct S1 {
   
   public final def sum2() = sum() + z;
 }
-
+*/
 public class StructCall extends x10Test  {
 	
 	public def run():boolean {
-		  val a:struct S1 = S1(1, 3,4);
+		  val a:S1 = S1(1);
           return true;
 	}
 	public static def main(var args: Rail[String]): void = {

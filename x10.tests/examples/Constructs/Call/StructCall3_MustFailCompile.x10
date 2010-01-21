@@ -19,6 +19,7 @@ struct S1 {
   public final def sum() = x + y;
 }
 
+/* S2 isn't a valid struct definition in X10 2.0
 struct S2 extends struct S1 {
   val z:int;
   public def this(a:int, b:int, c:int) {
@@ -28,6 +29,7 @@ struct S2 extends struct S1 {
   
   public final def sum2() = sum() + z;
 }
+*/
 
 public class StructCall3_MustFailCompile extends x10Test  {
 	
