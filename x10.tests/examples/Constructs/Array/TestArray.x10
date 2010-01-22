@@ -3,6 +3,8 @@ import x10.io.StringWriter;
 
 import x10.array.UnboundedRegionException;
 
+import x10.util.Box;
+
 import harness.x10Test;
 
 

@@ -5,6 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
+import x10.util.Box;
 import harness.x10Test;
 
 /**
@@ -41,7 +42,7 @@ public class FutureTest5 extends x10Test {
 				Activity.sleep(500);
 		};
 		var t2: Future[Int];
-		when (fut != null) { t2 = fut as Future[Int]; }
+		when (fut != null) { t2 = fut(); }
 		var fortytwo: int = t2.force();
 		x10.io.Console.OUT.println("up done");
 		return fortytwo == 42;
@@ -72,7 +73,7 @@ public class FutureTest5 extends x10Test {
 		}
 		finish async (here) {
 			var t2: Future[Int];
-			when (fut != null) { t2 = fut as Future[Int]; }
+			when (fut != null) { t2 = fut(); }
 			var fortytwo: int = t2.force();
 			x10.io.Console.OUT.println("sibling done");
 		};
