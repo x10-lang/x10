@@ -1,6 +1,7 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
 
+import x10.util.Box;
 import harness.x10Test;
 
 /**
@@ -9,8 +10,8 @@ import harness.x10Test;
 
 class XTENLANG_90 extends x10Test {
 
-    val y:Box[int] = 3;
-    val z = y as int;
+    val y:Box[int]! = 3;
+    val z = y();
 
     public def run(): boolean {
         return true;

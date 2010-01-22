@@ -1,6 +1,7 @@
 // (C) Copyright IBM Corporation 2009
 // This file is part of X10 Test. *
 
+import x10.util.Box;
 import harness.x10Test;
 
 /**
@@ -17,9 +18,9 @@ public class XTENLANG_473 extends x10Test {
     }
 
     public def run(): boolean {
-        val x: Box[String] = "aaa";
+        val x: Box[String]! = "aaa";
         val y = new G[String]().foo(x);
-        val z = x as String;
+        val z = x();
         return y == z;
     }
 
