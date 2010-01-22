@@ -31,6 +31,7 @@ public class HeatTransfer_v4 {
     static def reduceMax(z:Point{self.rank==diff.rank}, diff:Array[Real], scratch:Array[Real]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
+        next;
     }
 
     def run() {
@@ -51,7 +52,6 @@ public class HeatTransfer_v4 {
                         A(p) = Temp(p);
                     }
                     reduceMax(z, diff, scratch);
-                    next;
                 } while (diff(z) > epsilon);
             }
         }
