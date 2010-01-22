@@ -9,8 +9,14 @@ namespace x10 {
         template <class T> inline x10aux::itable_entry* getITablesForIBox(T value) { return value->_getIBoxITables(); } 
 
         // TODO: As soon as we change the basic numeric types to implement interfaces
-        //       at the X10 level, we will have to change this code to return to the
-        //       itables for IBox that we handwrite for the primitives.
+        //       other than Any at the X10 level, we will have to change this code to
+        //       return to the itables for IBox that we handwrite for the primitives.
+        //       As long as the only interface that is implemented by the C++ built-in primitives
+        //       is Any, we don't actually need the itables at runtime because the methods of
+        //       Any are all implemented via @Native annotations that go to templatized functions
+        //       in x10aux.  We do need these stub methods as specializations of the general getITablesForIBox
+        //       template so that when IBox<x10_int> etc are instantiated, we don't try to call
+        //       _getIBoxITables() on a C++ primitive type.
         inline x10aux::itable_entry *getITablesForIBox(x10_boolean) { assert(false); return NULL; }
         inline x10aux::itable_entry *getITablesForIBox(x10_byte) { assert(false); return NULL; }
         inline x10aux::itable_entry *getITablesForIBox(x10_ubyte) { assert(false); return NULL; }
