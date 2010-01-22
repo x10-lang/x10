@@ -506,7 +506,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             assert async_target_type_node.nameString().equals("Runtime"); // FIXME:
                                                                             // proper
                                                                             // error
-            assert async_call.arguments().size() == 2 : async_call.arguments(); // FIXME:
+            assert async_call.arguments().size() == 1 : async_call.arguments(); // FIXME:
                                                                                 // proper
                                                                                 // error
             Expr async_arg = async_call.arguments().get(0);
