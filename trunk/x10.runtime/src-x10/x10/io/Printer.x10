@@ -32,7 +32,7 @@ public class Printer extends FilterWriter {
     public global def println(): Void = print(NEWLINE);
     
     public final global def println(o:Any): Void {
-    	print(o==null? "null\n" : o.toString()+"\n");
+        print(o==null? "null\n" : o.toString()+"\n");
     }
     public final global def print(o:Any): Void {
     	print(o==null? "null" : o.toString());
@@ -48,24 +48,21 @@ public class Printer extends FilterWriter {
         }
     }
 
-
-    
     public global def printf(fmt: String): Void { printf(fmt, []); }
     public global def printf(fmt: String, o1: Any): Void { printf(fmt, [o1]); }
     public global def printf(fmt: String, o1: Any, o2: Any): Void { printf(fmt, [o1,o2]); }
     public global def printf(fmt: String, o1: Any, o2: Any, o3: Any): Void { printf(fmt, [o1,o2,o3]); }
     public global def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any): Void { 
-   printf(fmt, [o1,o2,o3,o4]); 
+        printf(fmt, [o1,o2,o3,o4]); 
     }
     public global def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any): Void { 
-   printf(fmt, [o1,o2,o3,o4,o5]); 
+       printf(fmt, [o1,o2,o3,o4,o5]); 
     }
     public global def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any, o6: Any): Void { 
-   printf(fmt, [o1,o2,o3,o4,o5,o6]); 
+       printf(fmt, [o1,o2,o3,o4,o5,o6]); 
     }
     public global def printf(fmt: String, args: Rail[Any]): Void { print(String.format(fmt, args)); }
     public global def printf(fmt: String, args: ValRail[Any]): Void { print(String.format(fmt, args)); }
-    
         
     public global def flush(): Void {
         try {
