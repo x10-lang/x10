@@ -124,10 +124,8 @@ class ParUTSBin1 extends Benchmark {
             val expSize = b0 / (1.0 - q*m);
             val obsBranch = (sumb as double) / size;
             val expBranch = q * m;
-//            x10.io.Console.OUT.printf("exp size / obs size: %.3f\n", expSize/size);
-//            x10.io.Console.OUT.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
-            x10.io.Console.OUT.println("exp size / obs size: " + expSize/size);
-            x10.io.Console.OUT.println("exp branching / obs branching: " + expBranch / obsBranch);
+            x10.io.Console.OUT.printf("exp size / obs size: %.3f\n", expSize/size);
+            x10.io.Console.OUT.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
         } 
         first = false;
 
