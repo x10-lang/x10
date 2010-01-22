@@ -31,6 +31,7 @@ public class _ {
     public static type Float(b:Float) = Float{self==b};
     public static type Double(b:Double) = Double{self==b};
     public static type String(s:String) = String{self==s};
+    public static type Any(x:Any) = Any{self==x};
    
 
     public static type signed = Int;

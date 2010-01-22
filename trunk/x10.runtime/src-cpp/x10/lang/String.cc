@@ -9,7 +9,6 @@
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
-#include <x10/lang/Box.h>
 
 #include <cstdarg>
 #include <sstream>
@@ -166,7 +165,7 @@ ref<ValRail<x10_byte> > String::bytes() {
 }
 
 // TODO: DG: itables: refactor to share the code.
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -189,6 +188,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
             ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
         } else if (x10aux::instanceof<ref<String> >(p)) {
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
+            /* FIXME: XTENLANG-818: 
         } else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p)) {
 			ref<Box<x10_boolean> > tmp = class_cast<ref<Box<x10_boolean> > >(p);
             ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
@@ -213,6 +213,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
         } else if (x10aux::instanceof<ref<Box<x10_double> > >(p)) {
 			ref<Box<x10_double> > tmp = class_cast<ref<Box<x10_double> > >(p);
             ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
+            */
         } else {
             ss << (buf = x10aux::alloc_printf(fmt, p->toString()->c_str()));
 		}
@@ -224,7 +225,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
     return String::Lit(ss.str().c_str());
 }
 
-ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
+ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     char* fmt = const_cast<char*>(format->c_str());
@@ -247,6 +248,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
             ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
         } else if (x10aux::instanceof<ref<String> >(p)) {
             ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
+            /* FIXME: XTENLANG-818: 
         } else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p)) {
 			ref<Box<x10_boolean> > tmp = class_cast<ref<Box<x10_boolean> > >(p);
             ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
@@ -271,6 +273,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
         } else if (x10aux::instanceof<ref<Box<x10_double> > >(p)) {
 			ref<Box<x10_double> > tmp = class_cast<ref<Box<x10_double> > >(p);
             ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
+            */
 		}
         if (buf != NULL)
             dealloc(buf);

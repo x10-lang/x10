@@ -8,9 +8,9 @@
 
 package x10.rtt;
 
-import x10.core.Box;
+
 import x10.core.Ref;
-import x10.core.Value;
+
 import x10.core.Struct;
 
 public class Equality {
@@ -82,7 +82,7 @@ public class Equality {
         }
     }
     public static boolean equalsequals(Struct a, Struct b) { return a.structEquals(b); }
-    public static boolean equalsequals(Value a, Value b) { return a.structEquals(b); }
+  //  public static boolean equalsequals(Value a, Value b) { return a.structEquals(b); }
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
     public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, (Object) b); }
@@ -107,7 +107,7 @@ public class Equality {
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
         if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
-        if (a instanceof Value) return ((Value) a).structEquals(b);
+     //  if (a instanceof Value) return ((Value) a).structEquals(b);
         if (a instanceof Struct) return ((Struct) a).structEquals(b);
         
         return false;

@@ -9,7 +9,7 @@
 package x10.io;
 
 import x10.util.NoSuchElementException;
-
+import x10.util.Box;
 /**
  * Usage:
  *
@@ -32,7 +32,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     public def this(m: Marshal[T], r: Reader) {
        this.m = m;
        this.r = r;
-       this.next = null;
+       //       this.next = null;
     }
     
     /** Allow the iterator to be used in a for loop. */
@@ -41,7 +41,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
     public def next(): T = {
         if (! hasNext())
             throw new NoSuchElementException();
-        val x: T = next as T;
+        val x: T = next.value;
         next = null;
         return x;
     }
@@ -50,7 +50,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
         if (next == null) {
             try {
                 val x: T = r.read[T](m);
-                next = x as Box[T];
+                next = new Box[T](x);
             }
             catch (IOException) {
                 return false;

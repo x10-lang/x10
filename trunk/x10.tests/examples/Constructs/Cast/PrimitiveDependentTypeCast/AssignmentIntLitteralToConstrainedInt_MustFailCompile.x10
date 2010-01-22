@@ -17,7 +17,7 @@ public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Te
 	public def run(): boolean = {
 		
 		try { 
-			var j: int{self == 0} = 1;
+         val j = 1 as Int(0);
 		}catch (e: Throwable) {
 			return false;
 		}
@@ -25,7 +25,7 @@ public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Te
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+   public static def main( Rail[String]) {
 		new AssignmentIntLitteralToConstrainedInt_MustFailCompile().execute();
 	}
 

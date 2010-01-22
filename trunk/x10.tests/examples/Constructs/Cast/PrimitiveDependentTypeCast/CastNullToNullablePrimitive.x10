@@ -16,7 +16,7 @@ import harness.x10Test;
 
 	public def run(): boolean = {
 		// Expression type changes to /*nullable*/BoxedInteger
-		var i: Box[int] = null as Box[int];
+      var i: x10.util.Box[int] = null as x10.util.Box[int];
 		return true;
 	}
 

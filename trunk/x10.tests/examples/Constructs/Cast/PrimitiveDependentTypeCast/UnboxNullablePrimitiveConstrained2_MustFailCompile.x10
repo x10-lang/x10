@@ -6,7 +6,7 @@
  *
  */
 import harness.x10Test;
-
+import x10.util.Box;
 /**
  * Purpose: Checks Unboxing from a nullable primitive constrained cast works.
  * Issue: deptype type information helps detects wrong cast at compile time.
@@ -17,11 +17,11 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res4: boolean = false;
 		
-		var ni: Box[int{self==4}] = 4;
+      var ni: Box[int(4)] = 4;
 
 		try {
 			// (nullable<int(:self==3)>) <-- nullable<int(:c)>
-			var case4a: Box[int{self==3}] = ni as Box[int{self==3}];
+         var case4a: Box[int(3)] = ni as Box[int(4)];
 		} catch (var e: ClassCastException) {
 			res4 = true;
 		}

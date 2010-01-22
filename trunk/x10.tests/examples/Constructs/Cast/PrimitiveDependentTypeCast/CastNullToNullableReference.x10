@@ -14,7 +14,7 @@ import harness.x10Test;
  public class CastNullToNullableReference extends x10Test {
 
 	public def run(): boolean = {
-		var obj: Box[Object] = null as Box[Object];
+      var obj: x10.util.Box[Object] = null as x10.util.Box[Object];
 		return true;
 	}
 

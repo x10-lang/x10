@@ -323,13 +323,13 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type ULong();
 
-    /** x10.lang.Box */
+    /** x10.lang.Box *
     Type Box();
 
     Type boxOf(Ref<? extends Type> base);
 
     boolean isBox(Type type);
-
+*/
     boolean isFunctionType(Type type);
 
  

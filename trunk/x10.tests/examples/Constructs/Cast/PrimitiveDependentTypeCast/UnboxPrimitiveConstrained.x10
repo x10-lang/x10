@@ -7,6 +7,7 @@
  */
 import harness.x10Test;
 
+import x10.util.Box;
 /**
  * Purpose: Checks Unboxing from a primitive constrained cast works.
  * @author vcave
@@ -16,7 +17,7 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res1: boolean = true;
 		
-		var ni: int{self==4} = 4;
+      var ni: int(4) = 4;
 		
 		// test 1 to primitive
 		// (int) <-- int(:c)

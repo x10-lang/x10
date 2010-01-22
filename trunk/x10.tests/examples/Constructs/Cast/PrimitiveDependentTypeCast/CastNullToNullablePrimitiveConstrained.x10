@@ -14,7 +14,7 @@ import harness.x10Test;
  public class CastNullToNullablePrimitiveConstrained extends x10Test {
 
 	public def run(): boolean = {
-		var i: Box[int{self==3}] = null as Box[int{self==3}];
+      var i: x10.util.Box[int(3)] = null as x10.util.Box[int(3)];
 		return true;
 	}
 

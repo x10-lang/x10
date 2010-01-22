@@ -14,7 +14,6 @@ package x10.rtt;
 import java.util.List;
 
 import x10.core.Ref;
-import x10.core.Value;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 import x10.constraint.XConstraint;
@@ -78,9 +77,10 @@ public class RuntimeType<T> implements Type<T> {
 
     public T zeroValue() {
         // null for ref types, otherwise complain
-        if (!x10.runtime.impl.java.Configuration.NULL_DEFAULT_VALUE && Value.class.isAssignableFrom(c)) {
+       /* if (!x10.runtime.impl.java.Configuration.NULL_DEFAULT_VALUE 
+              && Value.class.isAssignableFrom(c)) {
             throw new UnsupportedOperationException();
-        }
+        }*/
         return null;
     }
     

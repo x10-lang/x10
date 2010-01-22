@@ -7,6 +7,7 @@
  */
 import harness.x10Test;
 
+import x10.util.Box;
 /**
  * Purpose: Checks Unboxing from a primitive constrained cast works.
  * Issue: deptype type information helps detects wrong cast at compile time.
@@ -17,11 +18,11 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res4: boolean = false;
 		
-		var ni: int{self==4} = 4;
+      var ni: int(4) = 4;
 		
 		try {
 			// (nullable<int(:self==3)>) <-- int(:c)
-			var case4b: Box[int{self==3}] = new Box[int{self==3}](ni); //deptype check
+         var case4b: Box[int(3)] = new Box[int(3)](ni); //deptype check
 		} catch (e: ClassCastException) {
 			res4 = true;
 		}

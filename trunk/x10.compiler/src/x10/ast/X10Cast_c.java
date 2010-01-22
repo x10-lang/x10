@@ -312,29 +312,29 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         //          }
         //      }
 
-        Type boxOfTo = ts.boxOf(Types.ref(toType));
-        Type boxOfFrom = ts.boxOf(Types.ref(fromType));
+   //     Type boxOfTo = ts.boxOf(Types.ref(toType));
+   //     Type boxOfFrom = ts.boxOf(Types.ref(fromType));
 
         // v: Ref
         // v as Value
         // ->
         // (v as Box[Ref]).value as Value
-        if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isParameterType(toType))) {
+      /*  if (ts.isReferenceOrInterfaceType(fromType, context) && (ts.isParameterType(toType))) {
             Expr boxed = expr;
             if (! ts.typeEquals(baseFrom, boxOfTo, context)) {
                 boxed = check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), boxOfTo), expr, convert), tc);
                 return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), boxed, convert), tc);
             }
-        }
+        }*/
 
-        if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(baseFrom, boxOfTo, context)) {
+       /* if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(baseFrom, boxOfTo, context)) {
             //            System.out.println("UNBOXING " + expr + " from " + fromType + " to " + toType);
             Expr unboxed = check(nf.Field(position(), expr, nf.Id(position(), Name.make("value"))), tc);
             return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), unboxed, convert), tc);
-        }
+        }*/
 
         // v to I, where I is not a value interface (i.e., a function type)
-        if (ts.isParameterType(fromType) && ts.typeBaseEquals(toType, ts.Object(), context)) {
+ /*       if (ts.isParameterType(fromType) && ts.typeBaseEquals(toType, ts.Object(), context)) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, context)) {
                 //                TypeBuilder tb = new TypeBuilder(tc.job(), ts, nf);
                 //                tb = tb.pushPackage(tc.context().package_());
@@ -352,7 +352,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 return check(boxed, tc);
             }
         }
-
+*/
         // v to I, where I is not a value interface (i.e., a function type)
         if (( ts.isParameterType(fromType)) && ts.isInterfaceType(toType)) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, context)) {

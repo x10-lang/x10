@@ -149,34 +149,7 @@ public final class ValRail<T> implements AnyRail<T> {
     	return value.toString();
     }
 
-    
-    //
-    // boxed rail
-    //
-    
-   // @Override
-    public Ref box$() {
-    	return new BoxedValRail(type, this);
-    }
-    
-    public static class BoxedValRail<T> extends Box<ValRail<T>> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
-    	public BoxedValRail(Type<T> T, ValRail<T> v) {
-    		super(new ValRail.RTT(T), v);
-		}
-
-		public T apply(Integer o) {
-			return this.value.apply(o);
-		}
-
-		public Type<?> rtt_x10$lang$Fun_0_1_U() {
-			throw new RuntimeException();
-		}
-
-		public Type<?> rtt_x10$lang$Fun_0_1_Z1() {
-			throw new RuntimeException();
-		}
-    }
-
+  
     
     //
     // Runtime type information

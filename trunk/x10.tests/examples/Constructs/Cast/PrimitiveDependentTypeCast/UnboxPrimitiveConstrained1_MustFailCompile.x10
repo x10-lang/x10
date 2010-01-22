@@ -17,12 +17,12 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res2: boolean = false;
 		
-		var ni: int{self==4} = 4;
+      var ni: int(4) = 4;
 		
 		try {
 			// (int(:self==3)) <-- int(:c)
 			// not null check when unboxing and deptype check
-			var case2a: int{self==3} = ni as int{self==3};
+         var case2a: int(3) = ni as int(3);
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}

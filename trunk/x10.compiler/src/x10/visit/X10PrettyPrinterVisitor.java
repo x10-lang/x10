@@ -691,7 +691,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 					xct.restoreAnonObjectScope(inAnonObjectScope);
 				}
 				else 
-					if (((X10TypeSystem) type.typeSystem()).isAny(type) && (t.isBoolean() || t.isNumeric())) {
+               if (((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type))
+                     && (t.isBoolean() || t.isNumeric())) {
 						if (t.isBoolean()) {
 							er.dumpCodeString("((Boolean) #0).booleanValue()", expr);
 						} else if (t.isInt()) {
