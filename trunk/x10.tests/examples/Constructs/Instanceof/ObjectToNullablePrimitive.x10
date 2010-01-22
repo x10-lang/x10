@@ -8,16 +8,15 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks a boxed primitive is an instanceof a nullable of the same type.
+ * Purpose: Checks a boxed struct is an instanceof of the same type.
  * @author vcave
  **/
 public class ObjectToNullablePrimitive extends x10Test {
 	 
 	public def run(): boolean = {
-		// transformed to new Box(3)
-		var primitive: Object = 3;
+		var primitive:Any = 3;
 		// Type to check is transformed to BoxedInt
-		return (primitive instanceof Box[Int]);
+		return (primitive instanceof Int);
 	}
 	
 	public static def main(var args: Rail[String]): void = {

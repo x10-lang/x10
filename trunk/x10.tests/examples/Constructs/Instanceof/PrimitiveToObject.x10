@@ -8,13 +8,12 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks a primitive literal is an instanceof x10.lang.Object
- * NoteL: Obviously the Boxed representation extends x10.lang.Object
+ * Purpose: Checks if a struct literal is an instanceof x10.lang.Any
  * @author vcave
  **/
 public class PrimitiveToObject extends x10Test {
 	 
-	public def run() = 3 instanceof Object;
+	public def run() = 3 instanceof Any;
 		
 	public static def main(var args: Rail[String]): void = {
 		new PrimitiveToObject().execute();

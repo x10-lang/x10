@@ -5,6 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
+import x10.util.Box;
 import harness.x10Test;
 
 /**
@@ -14,7 +15,7 @@ import harness.x10Test;
 public class PrimitiveToBoxPrimitiveConstrained4 extends x10Test {
 	 
 	public def run(): boolean = {
-		val a:Object = 3;
+		val a:Any = 3;
 		return !(a instanceof Box[Int(4)]);
 	}
 	
