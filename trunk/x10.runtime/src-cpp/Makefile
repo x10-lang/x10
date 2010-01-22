@@ -325,6 +325,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 
 
 depend:
+	touch depend.mk
 	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -I $(INCLUDE_DIRS) -fdepend.mk 
 
 
