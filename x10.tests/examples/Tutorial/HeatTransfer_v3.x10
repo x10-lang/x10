@@ -69,7 +69,7 @@ public class HeatTransfer_v3 {
     }
  
     static def format(x:double, numDecimals:int) {
-        return String.format("%1."+numDecimals+"f", [x as Box[Double]]);
+        return String.format("%1."+numDecimals+"f", [x]);
     }
 
    def prettyPrintResult() {
