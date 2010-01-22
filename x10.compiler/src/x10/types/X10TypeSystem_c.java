@@ -709,6 +709,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     @Override
     protected ClassType load(String name) {
+       if (name.equals("x10.lang.Box") || name.equals("Box"))
+          new Error("Loading Box??").printStackTrace();
         QName qualName = QName.make(name);
         try {
             return (ClassType) typeForName(qualName);
@@ -762,7 +764,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     */
-    private X10ParsedClassType boxType_;
+  /*  private X10ParsedClassType boxType_;
 
     public Type Box() {
         if (boxType_ == null)
@@ -773,7 +775,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     public Type boxOf(Ref<? extends Type> base) {
         return boxOf(Position.COMPILER_GENERATED, base);
     }
-
+*/
     public List<Type> superTypes(ObjectType t) {
         Type sup = t.superClass();
         if (sup == null)
@@ -830,9 +832,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	return (xt instanceof FunctionType) || ((X10ClassDef) xt.def()).isFunction();
     }
 
-    public boolean isBox(Type t) {
+   /* public boolean isBox(Type t) {
         return hasSameClassDef(t, this.Box());
-    }
+    }*/
 
     public boolean isInterfaceType(Type t) {
         t = X10TypeMixin.baseType(t);
@@ -1067,8 +1069,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
      * nullableType() -- the name is misleading.
      */
     public Type boxOf(Position pos, Ref<? extends Type> type) {
-        X10ParsedClassType box = (X10ParsedClassType) Box();
-        return X10TypeMixin.instantiate(box, type);
+       return type.get();
+      //  X10ParsedClassType box = (X10ParsedClassType) Box();
+      //  return X10TypeMixin.instantiate(box, type);
     }
 
     X10ParsedClassType futureType_;

@@ -16,7 +16,7 @@ import x10.util.Pair;
 import x10.util.Random;
 import x10.util.Stack;
 import x10.util.concurrent.atomic.AtomicInteger;
-
+import x10.util.Box;
 /**
  * @author tardieu
  */
@@ -941,7 +941,7 @@ public final class Runtime {
                 async (box) box.latch.release();
             } catch (e:Throwable) {
                 async (box) {
-                    box.e = e;
+                    box.e = new Box[Throwable](e);
                     box.latch.release();
                 }
             }
@@ -949,7 +949,7 @@ public final class Runtime {
         if (!NO_STEALS && safe()) worker().join(box.latch);
         box.latch.await();
         if (null != box.e) {
-            val x = box.e as Throwable;
+            val x = box.e.value;
             if (x instanceof Error)
                 throw x as Error;
             if (x instanceof RuntimeException)
@@ -985,7 +985,7 @@ public final class Runtime {
         if (!NO_STEALS && safe()) worker().join(box.latch);
         box.latch.await();
         if (null != box.e) {
-            val x = box.e as Throwable;
+            val x = box.e.value;
             if (x instanceof Error)
                 throw x as Error;
             if (x instanceof RuntimeException)

@@ -16,8 +16,8 @@ public class AssignmentIntLitteralToConstrainedInt extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			i = 0;
+         val j = 1 as Int(0);
+         
 		}catch (e: Throwable) {
 			return false;
 		}
@@ -25,7 +25,7 @@ public class AssignmentIntLitteralToConstrainedInt extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+   public static def main(Rail[String]){
 		new AssignmentIntLitteralToConstrainedInt().execute();
 	}
 

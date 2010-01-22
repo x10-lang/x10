@@ -28,7 +28,7 @@ import harness.x10Test;
 		try {
 			// (int(:self==3)) <-- int
 			// check deptype is valid
-			val case2a = ni as int{self==3};
+         val case2a = ni as int(3);
 		} catch (e: ClassCastException) {
 			res2 = true;
 		}

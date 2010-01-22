@@ -30,11 +30,11 @@ public class Clock(name:String) {
         property(name);
     }
 
-    private global def get() = Runtime.clockPhases().get(this) as Int;
+    private global def get() = Runtime.clockPhases().get(this).value;
 
     private global def put(ph:Int) = Runtime.clockPhases().put(this, ph);
 
-    private global def remove() = Runtime.clockPhases().remove(this) as Int;
+    private global def remove() = Runtime.clockPhases().remove(this).value;
 
     private atomic def resumeLocal() {
         if (--alive == 0) {

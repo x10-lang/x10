@@ -48,7 +48,7 @@ public final struct Boolean {
     @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
     public native static def parseBoolean(String): Boolean;
 
-    @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof x10.core.BoxedBoolean) && #1 == ((x10.core.BoxedBoolean) #2).value.value))")
+    @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof Boolean) && #1 == ((Boolean) #2).booleanValue()))")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Any):Boolean;
 

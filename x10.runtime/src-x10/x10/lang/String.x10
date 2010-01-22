@@ -78,11 +78,11 @@ public final class String implements (Int) => Char {
     @Native("c++", "x10aux::safe_to_string(#4)")
     public native static def valueOf[T](T):String;
     
-    @Native("java", "java.lang.String.format(#1, new Object() { final Object[] unbox(Object[] a) { Object[] b = new Object[a.length]; for (int i = 0; i < a.length; i++) { if (a[i] instanceof x10.lang.Box) b[i] = ((x10.lang.Box) a[i]).value(); else b[i] = a[i]; } return b; } }.unbox(#2.getBoxedArray()))")
+    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
     @Native("c++", "x10::lang::String::format(#1,#2)")
-    public native static def format(fmt: String, Rail[Object]): String;
+    public native static def format(fmt: String, Rail[Any]): String;
     
-    @Native("java", "java.lang.String.format(#1, new Object() { final Object[] unbox(Object[] a) { Object[] b = new Object[a.length]; for (int i = 0; i < a.length; i++) { if (a[i] instanceof x10.lang.Box) b[i] = ((x10.lang.Box) a[i]).value(); else b[i] = a[i]; } return b; } }.unbox(#2.getBoxedArray()))")
+    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
     @Native("c++", "x10::lang::String::format(#1,#2)")
-    public native static def format(fmt: String, ValRail[Object]): String;
+    public native static def format(fmt: String, ValRail[Any]): String;
 }

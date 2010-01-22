@@ -17,17 +17,17 @@ public class AssignmentPrimitiveConstrainedIdentity extends x10Test {
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 0} = 0;
-			var j: int{self == 0} = 0;
-			i = j;
+         var i: int(0) = 0;
+         var j: int(0) = 0;
+         return i == j;
 		}catch(e: Throwable) {
 			return false;
 		}
 
-		return true;
+      
 	}
 
-	public static def main(var args: Rail[String]): void = {
+   public static def main(Rail[String]) {
 		new AssignmentPrimitiveConstrainedIdentity().execute();
 	}
 

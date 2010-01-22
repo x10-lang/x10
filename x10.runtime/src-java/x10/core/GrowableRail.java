@@ -127,48 +127,8 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		return elementType;
 	}
 
-    @Override
-    public Ref box$() {
-    	return new BoxedGrowableRail(elementType, this);
-    }
     
-    public static class BoxedGrowableRail<T> extends Box<GrowableRail<T>> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T>, Settable<Integer,T> {
-    	public BoxedGrowableRail(Type<T> T, GrowableRail<T> v) {
-    		super(new GrowableRail.RTT(T), v);
-        }
-
-		public T apply(Integer o) {
-			return this.value.apply(o);
-		}
-
-		public Type<?> rtt_x10$lang$Fun_0_1_U() {
-			throw new RuntimeException();
-		}
-
-		public Type<?> rtt_x10$lang$Fun_0_1_Z1() {
-			throw new RuntimeException();
-		}
-
-		public Iterator<T> iterator() {
-			return this.value.iterator();
-		}
-
-                public T set(T v, Integer i) {
-                        return this.value.set(v, i);
-                }
-
-                public Integer length() {
-                        return this.value.length();
-                }
-
-                public void add(T v) {
-                        this.value.add(v);
-                }
-
-                public void removeLast() {
-                        this.value.removeLast();
-                }
-    }
+   
 
     
     //

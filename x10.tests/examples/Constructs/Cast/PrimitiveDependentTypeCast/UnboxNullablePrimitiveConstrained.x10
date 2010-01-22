@@ -6,7 +6,7 @@
  *
  */
 import harness.x10Test;
-
+import x10.util.Box;
 /**
  * Purpose: Checks Unboxing from a nullable primitive constrained cast works.
  * @author vcave
@@ -16,16 +16,16 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var res1: boolean = false;
 		
-		var ni: Box[int{self==4}] = 4;
-		var nn: Box[int{self==4}] = null;
+      var ni: Box[int(4)] = new Box[Int(4)](4);
+      var nn: Box[int(4)] = null;
 		
 		// test 1 to primitive		
 		// (int) <-- nullable<int>
-		var case1a: int = ni as int; // not null check
+      var case1a: int = ni.t as int; // not null check
 
 		try {
 			// (int) <-- nullable<int>
-			var case1b: int = nn as int; // not null check
+         var case1b: int = nn.t as int; // not null check
 		} catch (var e: ClassCastException) {
 			res1 = true;
 		} catch (e: NullPointerException) {

@@ -37,6 +37,15 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString)();
                 x10aux::ref<x10::lang::String> (I::*typeName)();
             };
+
+            static void _serialize(x10aux::ref<Any> this_,
+                                   x10aux::serialization_buffer &buf) {
+                x10::lang::Reference::_serialize(this_, buf);
+            }
+
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf) {
+                return x10::lang::Reference::_deserialize<T>(buf);
+            }
         };
     }
 }

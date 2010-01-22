@@ -79,12 +79,12 @@ public class X10Boxed_c extends X10Cast_c {
 
         assert ts.isInterfaceType(toType);
         
-        if (ts.typeEquals(toType, ts.Object(), context)) {
+     /*   if (ts.typeEquals(toType, ts.Object(), context)) {
             Position pos = this.position();
             Type t = ts.boxOf(Types.ref(expr.type()));
             return X10Cast_c.check(nf.New(pos, nf.CanonicalTypeNode(pos, Types.ref(t)), Collections.singletonList(expr)), tc);
         }
-
+*/
         boolean local = false;
         Type fromType = e.type();
         Type fromBase = X10TypeMixin.baseType(fromType);
@@ -116,7 +116,7 @@ public class X10Boxed_c extends X10Cast_c {
         Name className = Name.makeFresh("Boxed$");
         Name xname = Name.make("v");
 
-        Type superType = ts.boxOf(Types.ref(fromType));
+        Type superType = fromType; // ts.boxOf(Types.ref(fromType));
 
         List<ClassMember> members = new ArrayList<ClassMember>();
 

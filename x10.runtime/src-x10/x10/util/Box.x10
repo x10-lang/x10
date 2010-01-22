@@ -1,11 +1,9 @@
-package x10.lang;
+package x10.util;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-public final class Box[+T](value: T) {
+public final class Box[+T](value: T) implements ()=> T {
     public def this(x: T) { property(x); }
 
+    public def apply()=value;
     public global safe def hashCode(): int = value.hashCode();
 
     public global safe def toString(): String = value.toString();

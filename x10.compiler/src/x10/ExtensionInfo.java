@@ -261,7 +261,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
-           goals.add(X10Boxed(job));
+        //   goals.add(X10Boxed(job));
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
            goals.add(ConformanceChecked(job));
