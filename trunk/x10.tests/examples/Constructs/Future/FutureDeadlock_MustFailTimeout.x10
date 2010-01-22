@@ -5,6 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
+import x10.util.Box;
 import harness.x10Test;
 
 /**
@@ -33,23 +34,23 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class FutureDeadlock_MustFailTimeout extends x10Test {
-	var f1: Box[Future[Int]] = null;
-	var f2: Box[Future[Int]] = null;
+	var f1: Box[Future[Int]]! = null;
+	var f2: Box[Future[Int]]! = null;
 
 	def a1(): Int = {
 		Activity.sleep(5000); // to make deadlock occur deterministically
-		var tmpf: Box[Future[Int]] = null;
+		var tmpf: Box[Future[Int]]! = null;
 		atomic tmpf = f2;
 		x10.io.Console.OUT.println("Activity #1 about to force "+tmpf+" to wait for #2 to complete");
-		return (tmpf as Future[Int])();
+		return (tmpf())();
 	}
 
 	def a2(): int = {
 		Activity.sleep(5000); // to make deadlock occur deterministically
-	    var tmpf: Box[Future[Int]] = null;
+                var tmpf: Box[Future[Int]]! = null;
 		atomic tmpf = f1;
 		x10.io.Console.OUT.println("Activity #2 about to force "+tmpf+" to wait for #1 to complete");
-		return (tmpf as Future[Int])();
+		return (tmpf())();
 	}
 
 	public def run(): boolean = {

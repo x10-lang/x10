@@ -7,6 +7,8 @@
  */
 import harness.x10Test;
 
+import x10.util.Box;
+
 /**
  * When test using producer-consumer paradigm.
  * This is a circular buffer implementation of a FIFO queue.

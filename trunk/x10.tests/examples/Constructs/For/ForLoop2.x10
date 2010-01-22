@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+import x10.util.Box;
+
 import harness.x10Test;
 
 /**
@@ -43,9 +45,9 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[Point], var p: Point): boolean = {
+	static def successor(var prev: Box[Point]!, var p: Point): boolean = {
 		if (prev == null) return true;
-		val pt = prev as Point;
+		val pt = prev();
 		var i: int = pt(0);
 		var j: int = pt(1);
 		var k: int = pt(2);
