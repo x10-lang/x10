@@ -194,10 +194,16 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
 
 
 
+/*
+        // This version for runAt
         x10aux::ref<nightmarish_hack> almost_there = body_->body;
-
         x10aux::ref<x10::lang::Reference> real_body = almost_there->body;
         x10aux::ref<x10::lang::Reference> fs = almost_there->fs;
+*/
+
+        // This version for runAt
+        x10aux::ref<x10::lang::Reference> real_body = body_->body;
+        x10aux::ref<x10::lang::Reference> fs = body_->fs;
 
         serialization_id_t real_sid = real_body->_get_serialization_id();
         msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
