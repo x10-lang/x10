@@ -148,8 +148,7 @@ struct x10_runtime_Runtime__closure__5 : x10::lang::Closure {
 };
 */
 
-struct x10_runtime_Runtime__closure__6__hack : x10::lang::Closure {
-    static const x10aux::serialization_id_t _serialization_id;
+struct nightmarish_hack : x10::lang::Closure {
     x10aux::ref<x10::lang::VoidFun_0_0> body;
     x10aux::ref<x10::lang::Reference> fs;
 };
@@ -191,11 +190,14 @@ void x10aux::run_at(x10aux::place p, x10aux::ref<Reference> body) {
                 sid == x10_runtime_Runtime__closure__5::_serialization_id);
 */
 
-        x10aux::ref<x10_runtime_Runtime__closure__6__hack> body_ = body;
+        x10aux::ref<nightmarish_hack> body_ = body;
 
 
-        x10aux::ref<x10::lang::Reference> real_body = body_->body;
-        x10aux::ref<x10::lang::Reference> fs = body_->fs;
+
+        x10aux::ref<nightmarish_hack> almost_there = body_->body;
+
+        x10aux::ref<x10::lang::Reference> real_body = almost_there->body;
+        x10aux::ref<x10::lang::Reference> fs = almost_there->fs;
 
         serialization_id_t real_sid = real_body->_get_serialization_id();
         msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
