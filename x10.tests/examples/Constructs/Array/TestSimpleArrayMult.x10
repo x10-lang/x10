@@ -31,7 +31,7 @@ public class TestSimpleArrayMult extends x10Test {
         }
 
         var multStop: long = System.currentTimeMillis();
-        var sum: int = ia.sum();
+        var sum: int = sum(ia);
         var expectedValue: int = (N * (N+1));
 
         //expectedValue = expectedValue * 2;
@@ -47,6 +47,12 @@ public class TestSimpleArrayMult extends x10Test {
         x10.io.Console.OUT.println("Multiplication time     :"+(multTime/1000.0));
 
         return true;
+    }
+    
+    public static def sum(ia : Array[Int]) : Int {
+        var s : Int = 0;
+        for(i in ia) s += at(ia.dist(i)) ia(i);
+        return s;
     }
 
     
