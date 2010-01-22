@@ -39,17 +39,13 @@ public class HeatTransfer_v2 {
         } while (delta > epsilon);
     }
  
-    static def format(x:double, numDecimals:int) {
-        return String.format("%1."+numDecimals+"f", [x]);
-    }
-
    def prettyPrintResult() {
        for ((i) in A.region.projection(0)) {
            for ((j) in A.region.projection(1)) {
                 val pt = Point.make(i,j);
                 at (BigD(pt)) { 
-		    val str = format(A(pt), 4) + " ";
-                    at (Place.FIRST_PLACE) Console.OUT.print(str);
+		    val tmp = A(pt);
+                    at (Place.FIRST_PLACE) Console.OUT.printf("%1.4f ", tmp);
                 }
             }
             Console.OUT.println();
@@ -64,7 +60,7 @@ public class HeatTransfer_v2 {
 	val start = System.nanoTime();
         s.run();
 	val stop = System.nanoTime();
-	Console.OUT.println("...completed in "+format(((stop-start as double)/1e9), 3)+" seconds.");
+	Console.OUT.printf("...completed in %1.3f seconds.\n", (stop-start as double)/1e9);
 	s.prettyPrintResult();
     }
 }
