@@ -4660,8 +4660,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Tuple_c c) {
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    Context context = tr.context();
+
 		// Handles Rails initializer.
-		Type T = X10TypeMixin.getParameterType(c.type(), 0);
+		Type T = X10TypeMixin.getParameterType(c.type(), 0);		
 		String type = Emitter.translateType(c.type());
 		// [DC] this cast is needed to ensure everything has a ref type
 		// otherwise overloads don't seem to work properly
@@ -4673,8 +4676,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(type);
 		sw.write(" >("+c.arguments().size());
 		for (Expr e : c.arguments()) {
-			sw.write(",");
-			c.printSubExpr(e, false, sw, tr);
+		    sw.write(",");
+		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
+		    if (rhsNeedsCast) {
+		        // Cast is needed to ensure conversion/autoboxing.
+		        // However, it is statically correct to do the assignment, therefore it can be unchecked.
+		        sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(T, true)) + "(");
+		    }
+		    c.printSubExpr(e, false, sw, tr);
+		    if (rhsNeedsCast)
+		        sw.write(")");
 		}
 		sw.write(")");
 	}
