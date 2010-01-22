@@ -146,7 +146,7 @@ public class KMeansCUDA {
         for (var d:Int=0 ; d<dims ; ++d) { 
             for (var k:Int=0 ; k<clusters.length/dims ; ++k) { 
                 if (k>0) Console.OUT.print(" ");
-                Console.OUT.printf("%.2f",clusters(k*dims+d) as Box[Float]);
+                Console.OUT.printf("%.2f",clusters(k*dims+d));
             }
             Console.OUT.println();
         }
