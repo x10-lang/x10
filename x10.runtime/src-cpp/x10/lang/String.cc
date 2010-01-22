@@ -164,7 +164,44 @@ ref<ValRail<x10_byte> > String::bytes() {
     return rail;
 }
 
-// TODO: DG: itables: refactor to share the code.
+void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
+    char* buf = NULL;
+    if (p.isNull()) {
+        ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
+    } else if (x10aux::instanceof<ref<String> >(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<ref<String> >(p)->c_str()));
+    } else if (x10aux::instanceof<ref<Object> >(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<ref<Object> >(p)->toString()->c_str()));
+    } else if (x10aux::instanceof<x10_boolean>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_boolean>(p)));
+    } else if (x10aux::instanceof<x10_byte>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_byte>(p)));
+    } else if (x10aux::instanceof<x10_ubyte>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ubyte>(p)));
+    } else if (x10aux::instanceof<x10_char>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_char>(p).v));
+    } else if (x10aux::instanceof<x10_short>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_short>(p)));
+    } else if (x10aux::instanceof<x10_ushort>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ushort>(p)));
+    } else if (x10aux::instanceof<x10_int>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_int>(p)));
+    } else if (x10aux::instanceof<x10_uint>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_uint>(p)));
+    } else if (x10aux::instanceof<x10_long>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_ulong>(p)));
+    } else if (x10aux::instanceof<x10_float>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_float>(p)));
+    } else if (x10aux::instanceof<x10_double>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_double>(p)));
+    } else {
+        ref<Reference> tmp(p);
+        ss << (buf = x10aux::alloc_printf(fmt, tmp->toString()->c_str()));
+    }
+    if (buf != NULL)
+        dealloc(buf);
+}
+
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
@@ -183,42 +220,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
         }
         nullCheck(parms);
         const ref<Reference> p = parms->operator[](i);
-        char* buf = NULL;
-        if (p.isNull()) {
-            ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
-        } else if (x10aux::instanceof<ref<String> >(p)) {
-            ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
-            /* FIXME: XTENLANG-818: 
-        } else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p)) {
-			ref<Box<x10_boolean> > tmp = class_cast<ref<Box<x10_boolean> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-		} else if (x10aux::instanceof<ref<Box<x10_byte> > >(p)) {
-			ref<Box<x10_byte> > tmp = class_cast<ref<Box<x10_byte> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_char> > >(p)) {
-			ref<Box<x10_char> > tmp = class_cast<ref<Box<x10_char> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, (char)(tmp->FMGL(value).v)));
-        } else if (x10aux::instanceof<ref<Box<x10_short> > >(p)) {
-			ref<Box<x10_short> > tmp = class_cast<ref<Box<x10_short> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_int> > >(p)) {
-			ref<Box<x10_int> > tmp = class_cast<ref<Box<x10_int> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_long> > >(p)) {
-			ref<Box<x10_long> > tmp = class_cast<ref<Box<x10_long> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_float> > >(p)) {
-			ref<Box<x10_float> > tmp = class_cast<ref<Box<x10_float> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_double> > >(p)) {
-			ref<Box<x10_double> > tmp = class_cast<ref<Box<x10_double> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-            */
-        } else {
-            ss << (buf = x10aux::alloc_printf(fmt, p->toString()->c_str()));
-		}
-        if (buf != NULL)
-            dealloc(buf);
+        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
@@ -243,40 +245,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
         }
         placeCheck(nullCheck(parms));
         const ref<Reference> p = parms->operator[](i);
-        char* buf = NULL;
-        if (p.isNull()) {
-            ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
-        } else if (x10aux::instanceof<ref<String> >(p)) {
-            ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
-            /* FIXME: XTENLANG-818: 
-        } else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p)) {
-			ref<Box<x10_boolean> > tmp = class_cast<ref<Box<x10_boolean> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-		} else if (x10aux::instanceof<ref<Box<x10_byte> > >(p)) {
-			ref<Box<x10_byte> > tmp = class_cast<ref<Box<x10_byte> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_char> > >(p)) {
-			ref<Box<x10_char> > tmp = class_cast<ref<Box<x10_char> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, (char)(tmp->FMGL(value).v)));
-        } else if (x10aux::instanceof<ref<Box<x10_short> > >(p)) {
-			ref<Box<x10_short> > tmp = class_cast<ref<Box<x10_short> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_int> > >(p)) {
-			ref<Box<x10_int> > tmp = class_cast<ref<Box<x10_int> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_long> > >(p)) {
-			ref<Box<x10_long> > tmp = class_cast<ref<Box<x10_long> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_float> > >(p)) {
-			ref<Box<x10_float> > tmp = class_cast<ref<Box<x10_float> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-        } else if (x10aux::instanceof<ref<Box<x10_double> > >(p)) {
-			ref<Box<x10_double> > tmp = class_cast<ref<Box<x10_double> > >(p);
-            ss << (buf = x10aux::alloc_printf(fmt, tmp->FMGL(value)));
-            */
-		}
-        if (buf != NULL)
-            dealloc(buf);
+        _formatHelper(ss, fmt, p);
         if (next != NULL)
             *next = '%';
     }
