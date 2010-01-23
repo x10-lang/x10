@@ -11,8 +11,8 @@ import harness.x10Test;
 public class XTENLANG_473 extends x10Test {
 
     public static class G[T] {
-        public def foo(x: Box[T]): T {
-            val y = x as T;
+        public def foo(x: Box[T]!): T {
+            val y = x();
             return y;
         }
     }
