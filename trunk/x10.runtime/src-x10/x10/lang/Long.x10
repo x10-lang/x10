@@ -72,7 +72,7 @@ public final struct Long {
 
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
-    public native static safe operator (x:Long) >>> (y:Long): Int;
+    public native static safe operator (x:Long) >>> (y:Long): Long;
     
     @Native("java", "((#1) << (#2))")
     @Native("c++",  "((x10_long) ((#1) << (#2)))")
@@ -84,7 +84,7 @@ public final struct Long {
 
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
-    public native static safe operator (x:Long) >>> (y:Int): Int;
+    public native static safe operator (x:Long) >>> (y:Int): Long;
     
     @Native("java", "+(#1)")
     @Native("c++",  "((x10_long) +(#1))")
