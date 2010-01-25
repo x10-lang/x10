@@ -54,7 +54,6 @@ import x10.types.TypeDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -358,7 +357,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode, 
             }
         }
         if (n.flags != null) {
-        	t = ((X10Type) t).setFlags(flags);
+        	t = X10TypeMixin.processFlags(flags, t);
         	n.flags = null;
         }
 

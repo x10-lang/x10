@@ -111,7 +111,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
-                    	if (X10TypeMixin.isStruct(ct)) {
+                    	if (X10TypeMixin.isX10Struct(ct)) {
                     		// Ignore checking requirement if the method is equals(Any), and ct is a struct.
                     		if (mi.name().toString().equals("equals")) {
                     			List<Type> argTypes = mi.formalTypes();
@@ -651,17 +651,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return isSubtype(null, t1, t2);
     }
 
-    public boolean behavesLike(Type t1, Type t2) {
-    	X10Type xt1 = (X10Type) t1;
-    	X10Type xt2 = (X10Type) t2;
-    	if (xt1.isX10Struct() || xt1.isX10Struct()) {
-    		if (xt1.isX10Struct() != xt2.isX10Struct())
-    			return false;
-    		return isSubtype(X10TypeMixin.makeRef(xt1), X10TypeMixin.makeRef(xt2));
-    	}
-    	// both are class types
-    	return isSubtype(t1, t2);
-    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtypeWithValueInterfaces(polyglot.types.Type, polyglot.types.Type)
      */
@@ -678,46 +667,46 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	assert t2 != null;
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
+    	if (ts.isAny(t2))
+    		return true;
     	X10Context xcontext = (X10Context) context;
 
-    	X10Type xt1 = (X10Type) t1;
-    	X10Type xt2 = (X10Type) t2;
+    	{ 
+    		boolean isProto1 = X10TypeMixin.isProto(t1);
+    		boolean isProto2 = X10TypeMixin.isProto(t2);
 
-    	/*if (xt2.isRooted() && ! xt1.isRooted()) {
-    		if (xt1.isRooted() != xt2.isRooted())
-    			return false;
-    		// they are both rooted
-    		t1 = xt1.clearFlags(X10Flags.ROOTED);
-    		t2 = xt2.clearFlags(X10Flags.ROOTED);
-    	}*/
-    		
- 
-    	if (xt1.isProto() || xt2.isProto()) {
-    		if (xt1.isProto() != xt2.isProto())
-    			return false;
-    		// they are both proto
-    		t1 = xt1.clearFlags(X10Flags.PROTO);
-    		t2 = xt2.clearFlags(X10Flags.PROTO);
-    		xt1 = X10TypeMixin.baseForProto(xt1);
-        	xt2 = X10TypeMixin.baseForProto(xt2);
-    	}
-    	
-    	if (xt1.isX10Struct() || xt2.isX10Struct()) {
-    		if (xt1.isX10Struct() && xt2.isX10Struct()) {
-    			if (xt1.isX10Struct() != xt2.isX10Struct())
+    		if (isProto1 || isProto2) {
+    			if (isProto1 != isProto2)
     				return false;
-    			if (! ts.typeEquals(X10TypeMixin.baseType(xt1), X10TypeMixin.baseType(xt2),
+    			// they are both proto
+
+    			t1 = X10TypeMixin.baseOfProto(t1);
+    			t2 = X10TypeMixin.baseOfProto(t2);
+    		
+    		}
+    	}
+    	{
+    		boolean isStruct1 = X10TypeMixin.isX10Struct(t1);
+    		boolean isStruct2 = X10TypeMixin.isX10Struct(t2);
+
+
+    		if (isStruct1 || isStruct2) {
+    			if (isStruct1 != isStruct2) 
+    				return false;
+
+    			if (! ts.typeEquals(X10TypeMixin.baseType(t1), X10TypeMixin.baseType(t2),
     					xcontext))
     				return false;
+
+    			// now keep going, the clause entailment will be checked by the
+    			// logic below.
+    		//	xt1 = X10TypeMixin.makeRef(xt1);
+    		//	xt2 = X10TypeMixin.makeRef(xt2);
+
     		}
-    		xt1 = X10TypeMixin.makeRef(xt1);
-    		xt2 = X10TypeMixin.makeRef(xt2);
-    		// now keep going, the clause entailment will be checked by the
-    		// logic below.
     	}
     	
-    	
-    	if (t1 == t2)
+    	if (t1 == t2) 
     		return true;
    
     	if (t1.isVoid()) 
@@ -725,38 +714,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (t2.isVoid())
     		return false;
 
-    	if (t1.isNull() && (t2.isNull() 
-    			|| ts.isReferenceOrInterfaceType(t2, xcontext))) {
+    	if (t1.isNull() && X10TypeMixin.permitsNull(t2)) 
     		return true;
-    	}
+    	
 
-    	if (t2.isNull()) {
+    	if (t2.isNull()) 
     		return false;
-    	}
+    	
 
-    	// HACK: treat (S) => T as a subtype of Value.
-    /*	if (ts.isFunction(t1, xcontext) 
-    			&& ts.typeEquals(t2, ts.Value(), xcontext))
-    		return true;
-
-    	if (ts.isValueType(t1, xcontext) 
-    			&& ts.isReferenceType(t2, xcontext))
-    		return false;
-
-    	if (ts.isValueType(t2, xcontext) 
-    			&& ts.isReferenceType(t1, xcontext))
-    		return false;
-
-    	if (! allowValueInterfaces) {
-    		if (ts.isValueType(t1, xcontext) 
-    				&& ts.isReferenceOrInterfaceType(t2, xcontext))
-    			return false;
-
-    		if (ts.isValueType(t2, xcontext) 
-    				&& ts.isReferenceOrInterfaceType(t1, xcontext))
-    			return false;
-    	}
-*/
     	if (typeEquals(t1, t2))
     		return true;
 
@@ -936,7 +901,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			List<Type> l = childRT.interfaces();
     			for (Type parentType : l) {
     				boolean tryIt = false;
-    				X10Type pt = (X10Type) parentType;
+    				Type pt =  parentType;
     				XRoot thisVar = childRT.x10Def().thisVar();
     				try {
     					parentType = Subst.subst(parentType, x, thisVar);
@@ -984,12 +949,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (t1.isVoid() || t2.isVoid())
             return false;
-        
-        X10Type xt1 = (X10Type) t1;
-        X10Type xt2 = (X10Type) t2;
-        if (xt1.isProto() != xt2.isProto()) 
+       
+        if (X10TypeMixin.isProto(t1) != X10TypeMixin.isProto(t2)) 
         	return false;
-        if (xt1.isX10Struct() != xt2.isX10Struct())
+        if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2)) 
         	return false;
      
         X10Context xc = (X10Context) context;
@@ -1443,99 +1406,98 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	
     }
     
-    public Type leastCommonAncestorBase(Type type1, Type type2)
+    // Assumes type1 and type2 are base types, no constraint clauses.
+    private Type leastCommonAncestorBase(Type type1, Type type2)
     throws SemanticException
     {
-        try { 
-            if (typeEquals(type1, type2)) {
-                return type1;
-            }
-
-            type1 = X10TypeMixin.baseType(type1);
-            type2 = X10TypeMixin.baseType(type2);
-
-            if (typeEquals(type1, type2)) {
-                return type1;
-            }
-
-            if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
-                if (hasSameClassDef(type1, type2)) {
-                    X10ClassType ct1 = (X10ClassType) type1;
-                    X10ClassType ct2 = (X10ClassType) type2;
-                    int n = ct1.typeArguments().size();
-                    List<Type> newArgs = new ArrayList<Type>(n);
-                    for (int i = 0; i < n; i++) {
-                        Type a1 = ct1.typeArguments().get(i);
-                        Type a2 = ct2.typeArguments().get(i);
-                        ParameterType.Variance v = ct1.x10Def().variances().get(i);
-                        switch (v) {
-                        case INVARIANT:
-                            if (typeEquals(a1, a2))
-                                newArgs.add(a1);
-                            else
-                                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-                                                            "\" and \"" + type2 + "\".");
-                            break;
-                        case COVARIANT:
-                            newArgs.add(leastCommonAncestor(a1, a2));
-                            break;
-                        case CONTRAVARIANT:
-                            if (isSubtype(a1, a2))
-                                newArgs.add(a1);
-                            else if (isSubtype(a2, a1))
-                                newArgs.add(a2);
-                            else
-                                throw new SemanticException("No least common ancestor found for types \"" + type1 +
-                                                            "\" and \"" + type2 + "\".");
-                            break;
-                        }
-                    }
-                    return ct1.typeArguments(newArgs);
-                }
-            }
-
-            if (type1.isReference() && type2.isNull()) return type1;
-            if (type2.isReference() && type1.isNull()) return type2;
-
-            // Don't consider interfaces.
-            if (type1.isClass() && type1.toClass().flags().isInterface()) {
-                return ts.Object();
-            }
-
-            if (type2.isClass() && type2.toClass().flags().isInterface()) {
-                return ts.Object();
-            }
-
-            if (isSubtype(type1, type2)) return type2;
-            if (isSubtype(type2, type1)) return type1;
-
-            if (isSubtype(type1, X10TypeMixin.baseType(type2))) return X10TypeMixin.baseType(type2);
-            if (isSubtype(type2, X10TypeMixin.baseType(type1))) return X10TypeMixin.baseType(type1);
+       
+    	if (typeEquals(type1, type2)) {
+    		return type1;
+    	}
 
 
+    	if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+    		if (hasSameClassDef(type1, type2)) {
+    			X10ClassType ct1 = (X10ClassType) type1;
+    			X10ClassType ct2 = (X10ClassType) type2;
+    			int n = ct1.typeArguments().size();
+    			List<Type> newArgs = new ArrayList<Type>(n);
+    			for (int i = 0; i < n; i++) {
+    				Type a1 = ct1.typeArguments().get(i);
+    				Type a2 = ct2.typeArguments().get(i);
+    				ParameterType.Variance v = ct1.x10Def().variances().get(i);
+    				switch (v) {
+    				case INVARIANT:
+    					if (typeEquals(a1, a2))
+    						newArgs.add(a1);
+    					else
+    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");
+    					break;
+    				case COVARIANT:
+    					newArgs.add(leastCommonAncestor(a1, a2));
+    					break;
+    				case CONTRAVARIANT:
+    					if (isSubtype(a1, a2))
+    						newArgs.add(a1);
+    					else if (isSubtype(a2, a1))
+    						newArgs.add(a2);
+    					else
+    						throw new SemanticException("No least common ancestor found for types \"" + type1 +
+    								"\" and \"" + type2 + "\".");
+    					break;
+    				}
+    			}
+    			return ct1.typeArguments(newArgs);
+    		}
+    	}
 
-            if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
-                // Walk up the hierarchy
-                Type sup1 = ((ObjectType) type1).superClass();
-                Type sup2 = ((ObjectType) type2).superClass();
+    	if (type1.isNull()) {
+    		return X10TypeMixin.permitsNull(type2) ? type2 : ts.Any(); 
+    	}
+    	if (type2.isNull()) {
+    		return X10TypeMixin.permitsNull(type1) ? type1 : ts.Any(); 
+    	}
 
-                if (sup1 == null) return ts.Object();
-                if (sup2 == null) return ts.Object();
 
-                Type t1 = leastCommonAncestor(sup1, type2);
-                Type t2 = leastCommonAncestor(sup2, type1);
+    	// Don't consider interfaces.
+    	if (type1.isClass() && type2.toClass().flags().isInterface()) {
+    		return ts.Any(); // an interface may be implemented by a struct
+    	}
 
-                if (typeEquals(t1, t2)) return t1;
+    	if (type2.isClass() && type1.toClass().flags().isInterface()) {
+    		return ts.Any();
+    	}
 
-                return ts.Object();
-            }
-        }
-        finally {
-            //Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
-        }
+    	if (isSubtype(type1, type2)) 
+    		return type2;
+    	if (isSubtype(type2, type1)) 
+    		return type1;
 
-        throw new SemanticException("No least common ancestor found for types \"" + type1 +
-                                    "\" and \"" + type2 + "\".");
+    	// Since they are not equal, and one is not a subtype of another
+    	// and one of them is a struct, the lub has to be Any.
+    	if (X10TypeMixin.isX10Struct(type1) || X10TypeMixin.isX10Struct(type2)) {
+    		return ts.Any();
+    	}
+    	// Now neither is a struct. Neither is null.
+    	if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
+    		// Walk up the hierarchy
+    		Type sup1 = ((ObjectType) type1).superClass();
+    		Type sup2 = ((ObjectType) type2).superClass();
+
+    		if (sup1 == null) return ts.Object();
+    		if (sup2 == null) return ts.Object();
+
+    		Type t1 = leastCommonAncestor(sup1, type2);
+    		Type t2 = leastCommonAncestor(sup2, type1);
+
+    		if (typeEquals(t1, t2)) 
+    			return t1;
+
+
+    	}
+    	return ts.Any();
+
     }
 
     /* (non-Javadoc)

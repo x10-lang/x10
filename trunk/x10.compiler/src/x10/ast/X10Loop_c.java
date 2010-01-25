@@ -58,7 +58,7 @@ import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
@@ -130,7 +130,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	    if (domain.type() instanceof UnknownType) {
 	        throw new SemanticException();
 	    }
-	    X10Type domainType = (X10Type) domain.type();
+	    Type domainType =  domain.type();
 	    
 	    Formal formal = (Formal) this.visitChild(this.formal, tc1);
 	    
@@ -156,10 +156,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	public Node typeCheckNode(ContextVisitor tc) throws SemanticException {
                 NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Type domainType = (X10Type) domainTypeRef.get();
+		Type domainType =  domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType = (X10Type) domain.type();
+			domainType =  domain.type();
 		}
 		Type formalType = formal.declType();
 		Type Iterable = ts.Iterable(formalType);
@@ -329,11 +329,11 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	// obligation (Iterable[indexType] <: domainType) is satisfied.
 	
 	LazyRef<Type> domainTypeRef = Types.lazyRef(null);
-	public X10Type domainType() {
-		X10Type domainType = (X10Type) domainTypeRef.get();
+	public Type domainType() {
+		Type domainType =  domainTypeRef.get();
 		if (domainType == null ) {
 			// aha, in this case the type inferencer did not run, since an explicit type was givem.
-			domainType = (X10Type) domain.type();
+			domainType =  domain.type();
 		}
 		return domainType;
 	}

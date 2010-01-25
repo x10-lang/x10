@@ -38,7 +38,7 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.types.X10Context;
 import x10.types.X10NamedType;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.ExprFlattener;
@@ -74,8 +74,8 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                 Expr e1 = consequent;
                 Expr e2 = alternative;
               
-                X10Type t1 = (X10Type) e1.type();
-                X10Type t2 = (X10Type) e2.type();
+                Type t1 =  e1.type();
+                Type t2 =  e2.type();
               
                 // From the JLS, section:
                 // If the second and third operands have the same type (which may be

@@ -29,7 +29,6 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10Loop.LoopKind;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
 import x10.types.X10TypeSystem;
 
 /**

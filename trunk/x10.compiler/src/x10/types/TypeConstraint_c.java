@@ -78,11 +78,7 @@ public class TypeConstraint_c implements TypeConstraint {
                     return false;
                 }
             }
-            else if (t.isBehavesLikeConstraint()) {
-            	if (!xts.behavesLike(t.subtype(), t.supertype(), xc)) {
-            		return false;
-            	}
-            }
+            
         }
         return true;
     }

@@ -208,7 +208,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -3161,8 +3160,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				return;
 			} else {
 			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
-			    boolean needsNullCheck = !((X10Type)t).isX10Struct() && needsNullCheck(target);
-			    boolean needsPlaceCheck = !((X10Type)t).isX10Struct() && !xf.isGlobal() && needsPlaceCheck(target, context);
+			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
+			    boolean needsPlaceCheck = !X10TypeMixin.isX10Struct(t) && !xf.isGlobal() && needsPlaceCheck(target, context);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 				if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
@@ -3840,7 +3839,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
-            	if (((X10Type)n.type()).isX10Struct()) {
+            	if (X10TypeMixin.isX10Struct(n.type())) {
                     sw.write("this_");
             	} else {
             		sw.write("(("+Emitter.translateType(n.type(),true)+")"+n.kind()+")");
@@ -4086,7 +4085,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = mangled_non_method_name(name);
             else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
                 name = SAVED_THIS;
-            else if (((X10Type)var.type()).isX10Struct()) // FIXME: duplication from visit(X10Special_c)
+            else if (X10TypeMixin.isX10Struct(var.type())) // FIXME: duplication from visit(X10Special_c)
                 name = "this_";
             sw.write(name);
         }

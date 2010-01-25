@@ -39,7 +39,6 @@ import x10.types.MacroType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -168,7 +167,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
           if (n instanceof TypeNode) {
               TypeNode tn = (TypeNode) n;
               LazyRef<Type> sym = (LazyRef<Type>) type;
-              X10Type t2 = (X10Type) tn.type();
+              Type t2 = tn.type();
               
        /*       if (t2 instanceof X10ParsedClassType) {
         	  X10ParsedClassType ct = (X10ParsedClassType) tn.type();
@@ -204,8 +203,8 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	  Flags  f = ((X10AmbTypeNode_c) n).flags;
 	  if (f != null) {
 		  LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
-		  X10Type t = (X10Type) Types.get(sym);
-		  t = t.setFlags(f);
+		  Type t =  Types.get(sym);
+		  t = X10TypeMixin.processFlags(f, t);
 	      sym.update(t);
 	  }
       return AmbDepTypeNode_c.postprocess(result, n, childtc);

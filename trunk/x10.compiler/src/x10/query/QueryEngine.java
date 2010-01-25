@@ -21,7 +21,6 @@ import x10.ExtensionInfo;
 import x10.ast.SettableAssign;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 

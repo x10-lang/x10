@@ -23,9 +23,10 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 
 public class X10FieldAssign_c extends FieldAssign_c {
@@ -45,21 +46,21 @@ public class X10FieldAssign_c extends FieldAssign_c {
     
     	TypeSystem ts = tc.typeSystem();
         X10FieldAssign_c n = (X10FieldAssign_c) typeCheckLeft(tc);
-        X10Type t = (X10Type) n.leftType();
-        X10Type targetType = (X10Type) n.target().type();
+        Type t =  n.leftType();
+        Type targetType =  n.target().type();
 
         if (t == null)
-            t = (X10Type) ts.unknownType(n.position());
+            t =  ts.unknownType(n.position());
 
         Expr right = n.right();
         Assign.Operator op = n.operator();
 
-        X10Type s = (X10Type) right.type();
+        Type s =  right.type();
         
     	// Check the proto condition.
     	
-    	if (s.isProto()) {
-    		if (! targetType.isProto()) {
+    	if (X10TypeMixin.isProto(s)) {
+    		if (! X10TypeMixin.isProto(targetType)) {
     			throw new SemanticException("The receiver " + this.target() + 
     					" does not have a proto type; hence " + 
     					this.right() + 
@@ -71,7 +72,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     					+ " assign the proto value " + this.right() +
     					" to a field.", position());
     		}
-    		s = s.clearFlags(X10Flags.PROTO);
+    		s = X10TypeMixin.baseOfProto(s);
     		if (! (ts.isSubtype(s, t, tc.context()))) {
     			throw new SemanticException("Cannot assign " + s + " to " + t + ".",
         				n.position());

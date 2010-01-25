@@ -104,7 +104,7 @@ import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -633,7 +633,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         if (type.superType() != null) {
         	if (((X10ClassDef) type).isStruct()) {
-        		if (! ((X10Type) type.superType().get()).isX10Struct()) {
+        		if (! (X10TypeMixin.isX10Struct(type.superType().get()))) {
+        		
         			throw new SemanticException(type.superType() 
         					+ " cannot be the superclass for " + type 
         					+ "; a struct must subclass a struct.",position());
@@ -731,7 +732,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         t + "; not a class.",
                         superClass != null ? superClass.position() : position());
             }
-            if (((X10Type) t).isProto()) {
+            if (X10TypeMixin.isProto(t)) {
             	throw new SemanticException("proto supertypes are not permitted.", 
             			superClass().position());
             }
@@ -748,10 +749,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
                         position());
             }
-            if (((X10Type) t).isProto()) {
+            if (X10TypeMixin.isProto(t))
             	throw new SemanticException("Cannot implement " + t + "; proto interfaces are illegal.",
             			position());
-            }
+            
             ts.checkCycles((ReferenceType) t);
         }
     }

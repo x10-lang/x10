@@ -51,7 +51,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -84,8 +84,8 @@ public class X10Field_c extends Field_c {
 		if (! ((X10Context) tc.context()).inAssignment()) {
 			if (n instanceof X10Field_c) {
 				
-			X10Type xtType = (X10Type) ((X10Field_c) n).target().type();
-			if (xtType.isProto()) {
+			Type xtType = ((X10Field_c) n).target().type();
+			if (X10TypeMixin.isProto(xtType)) {
 				throw new SemanticException("Not permitted to read field " + 
 				n + " of proto value "  + target() +"."
 						

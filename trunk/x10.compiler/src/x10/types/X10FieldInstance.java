@@ -13,6 +13,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
+import polyglot.types.TypeObject;
 /**
  * Represents information about a Property. A property has the same
  * attributes as a Field, except that it is always public, instance and final
@@ -20,7 +21,7 @@ import x10.constraint.XConstraint;
  * @author vj
  *
  */
-public interface X10FieldInstance extends FieldInstance, X10TypeObject, X10Use<X10FieldDef> {
+public interface X10FieldInstance extends FieldInstance, TypeObject, X10Use<X10FieldDef> {
 	
 	public static final String MAGIC_PROPERTY_NAME = "propertyNames$";
 	public static final String MAGIC_CI_PROPERTY_NAME = "classInvariant$";

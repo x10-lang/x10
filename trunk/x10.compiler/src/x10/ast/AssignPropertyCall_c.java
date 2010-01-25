@@ -44,7 +44,6 @@ import x10.constraint.XVar;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;

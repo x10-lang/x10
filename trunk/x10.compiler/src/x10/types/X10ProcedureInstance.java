@@ -18,6 +18,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import x10.constraint.XConstraint;
 
@@ -25,7 +26,7 @@ import x10.constraint.XConstraint;
  * @author vj
  *
  */
-public interface X10ProcedureInstance<T extends ProcedureDef> extends X10TypeObject, ProcedureInstance<T> {
+public interface X10ProcedureInstance<T extends ProcedureDef> extends TypeObject, ProcedureInstance<T> {
     // Constructors, methods, and closures all have return types.
     Type returnType();
     ProcedureInstance<T> returnType(Type t);

@@ -68,7 +68,7 @@ import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -255,7 +255,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				else {
 				    otn = tn2;
 				}
-				if (X10TypeMixin.isStruct(otn.type())) {
+				if (X10TypeMixin.isX10Struct(otn.type())) {
 				    X10New_c neu = (X10New_c) nf.X10New(position(), otn, Collections.EMPTY_LIST, args);
 				    neu.setStructConstructorCall();
 
@@ -312,11 +312,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			// different from mi.container().  mi.container() returns a super type
 			// of the class we want.
 			Type scope = c.findMethodScope(name.id());
-			XRoot this_ = getThis(scope);
-			if (this_ != null)
-			    scope = X10TypeMixin.setSelfVar(scope, this_);
+		
 
 			if (! ts.typeEquals(scope, c.currentClass(), c)) {
+				XRoot this_ = getThis(scope);
+				if (this_ != null)
+				    scope = X10TypeMixin.setSelfVar(scope, this_);
 				r = (Special) nf.This(position().startOf(),
 						nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
 			}
@@ -335,7 +336,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	}
 	
 	void checkProtoMethod() throws SemanticException {
-		if (((X10Type) target().type()).isProto()
+		if (X10TypeMixin.isProto(target().type())
 				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto() 
 			)
 			throw new SemanticException(methodInstance() 
@@ -622,8 +623,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
 		                                        position());
 		        if (c.inLocalCode() 
-		                && ! (mi.isSafe() || flags.isRooted() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only rooted methods can be called from rooted code.", 
+		                && ! (mi.isSafe() || flags.isPinned() || flags.isExtern()))
+		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.", 
 		                                        position());
 		    }
 		}

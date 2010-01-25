@@ -40,6 +40,7 @@ public class X10Flags extends Flags {
    // public static final Flags ROOTED = createFlag("rooted", null);
     public static final Flags STRUCT = createFlag("struct", null);
     public static final Flags PROTO = createFlag("proto", null);
+    public static final Flags PINNED = createFlag("pinned", null);
 
     /**
      * Return a new Flags object with a new name. Should be called only once per
@@ -67,11 +68,9 @@ public class X10Flags extends Flags {
      * @return
      */
     public static X10Flags toX10Flags(Flags f) {
-        if (f instanceof X10Flags)
-            return (X10Flags) f;
-        X10Flags result = new X10Flags();
-        return result.setX(f);
-
+    	if (f instanceof X10Flags)
+    		return (X10Flags) f;
+    	return new X10Flags().setX(f == null? Flags.NONE : f);
     }
 
     public static boolean isX10Flag(Flags f) {
@@ -349,14 +348,6 @@ public class X10Flags extends Flags {
         return contains(GLOBAL) || contains(PROPERTY);
     }
     
-    
-    
-    /**
-     * Return true if <code>this</code> has the <code>global</code> flag set.
-     */
-    public boolean isRooted() {
-        return ! contains(GLOBAL);
-    }
     /**
      * Return a copy of this <code>this</code> with the <code>struct</code> flag
      * set.
@@ -587,6 +578,38 @@ public class X10Flags extends Flags {
         return contains(PROTO);
     }
 
+    /**
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
+     * flag set.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public X10Flags Pinned() {
+        return setX(PINNED);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
+     * flag clear.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public X10Flags clearPinned() {
+        return clearX(PINNED);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>pinned</code> flag
+     * set.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public boolean isPinned() {
+        return contains(PINNED);
+    }
     /**
      * Return "" if no flags set, or toString() + " " if some flags are set.
      */

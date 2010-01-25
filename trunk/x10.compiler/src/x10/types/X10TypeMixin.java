@@ -24,6 +24,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef_c;
 import polyglot.types.Name;
 import polyglot.types.Ref;
@@ -31,6 +32,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.SemanticError;
@@ -181,41 +183,34 @@ public class X10TypeMixin {
 		}
 		return null;
 	}
-	/**
-     * If t is the type proto S, return S. Else return t.
-     * @param t
-     * @return
-     */
-	public static X10Type baseForProto(X10Type x) {
-    	if (! x.isProto())
-    		return x;
-    	return x.clearFlags(X10Flags.PROTO);
-    }
+	
 	
 	/**
 	 * If x is a class type, return struct x. Else return x.
 	 * @param x
 	 * @return
 	 */
-	public static X10Type makeStruct(X10Type x) {
-		if (x.isX10Struct())
-			return x;
-		return x.setFlags(X10Flags.STRUCT);
+	public static Type makeX10Struct(Type t) {
+		if (! (t instanceof X10Struct))
+			return t;
+    	X10Struct type = (X10Struct) t; 
+    	return type.makeX10Struct();
+		
 	}
 	
-	/**
-	 * If x is a class type, return x, else return struct x.
-	 * @param x
-	 * @return
-	 */
-	public static X10Type makeRef(X10Type x) {
-		if (! x.isX10Struct())
-			return x;
-		return x.clearFlags(X10Flags.STRUCT);
-	}
-	public static Type baseTypeWithoutProto(Type t) {
-		return baseForProto((X10Type) baseType(t));
-	}
+    public static Type processFlags(Flags f, Type x) {
+    	if (f==null || !(f instanceof X10Flags))
+    		return x;
+    	X10Flags xf = (X10Flags) f;
+    	if (xf.isProto()) 
+    		x =  ((Proto) x).makeProto();
+    	if (xf.isStruct()) {
+    		x = ((X10Struct) x).makeX10Struct();
+    	}
+    	return x;
+    	
+    }
+	
 	public static Type baseType(Type t) {
 	        if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
@@ -334,15 +329,40 @@ public class X10TypeMixin {
     public static boolean isConstrained(Type t) {
 	    return t instanceof ConstrainedType;
     }
-    public static boolean isStruct(Type t) {
-	    return ((X10Type) t).isX10Struct();
+    public static boolean isX10Struct(Type t) {
+    	if (! (t instanceof X10Struct))
+    		return false;
+    	return ((X10Struct) t).isX10Struct();
     }
     public static boolean isClass(Type t) {
-	    return ! isStruct(t);
+	    return ! isX10Struct(t);
     }
     
+    public static boolean isProto(Type t) {
+    	return (t instanceof Proto) && ((Proto) t).isProto();
+    }
+    public static Type baseOfProto(Type t) {
+    	if (! (t instanceof Proto))
+    		return t;
+    	Proto type = (Proto) t; 
+    	return type.baseOfProto();
+    	
+    }
+    public static Type superClass(Type t) {
+    	t = baseType(t);
+    	assert t instanceof ClassType;
+    	return ((ClassType) t).superClass();
+    }
+
+    public static Type makeProto(Type t) {
+    	if (! (t instanceof Proto)) 
+    		return t;
+    	Proto type = (Proto) t; 
+    	return type.makeProto();
+    	
+    }
     public static Type addBinding(Type t, XTerm t1, XTerm t2) {
-    	assert (! (t instanceof X10UnknownType));
+    	assert (! (t instanceof UnknownType));
         try {
             XConstraint c = xclause(t);
             c = c == null ? new XConstraint_c() :c.copy();
@@ -354,7 +374,7 @@ public class X10TypeMixin {
         }
     }
 	public static Type instantiateSelf(XTerm t, Type type) throws SemanticException {
-	 	assert (! (t instanceof X10UnknownType));
+	 	assert (! (t instanceof UnknownType));
 		 XConstraint c = xclause(type);
 	        if (! ((c==null) || c.valid())) {
 	        	XConstraint env = c = c.copy().instantiateSelf(t);
@@ -366,7 +386,7 @@ public class X10TypeMixin {
 	        return type;
 	}
     public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
-     	assert (! (t instanceof X10UnknownType));
+     	assert (! (t instanceof UnknownType));
         try {
             XConstraint c = xclause(t);
             c = c == null ? new XConstraint_c() :c.copy();
@@ -379,7 +399,7 @@ public class X10TypeMixin {
     }
     
     public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
-     	assert (! (t instanceof X10UnknownType));
+     	assert (! (t instanceof UnknownType));
         try {
             XConstraint c = xclause(t);
             c = c == null ? new XConstraint_c() :c.copy();
@@ -391,7 +411,7 @@ public class X10TypeMixin {
         }
     }
     public static Type addConstraint(Type t, XConstraint xc) {
-    	assert (! (t instanceof X10UnknownType));
+    	assert (! (t instanceof UnknownType));
         try {
             XConstraint c = xclause(t);
             c = c == null ? new XConstraint_c() :c.copy();
@@ -415,7 +435,7 @@ public class X10TypeMixin {
         }
     }
 
-    public static boolean consistent(X10Type t) {
+    public static boolean consistent(Type t) {
 	    XConstraint c = xclause(t);
         if (c == null) return true;
         return c.consistent();
@@ -478,7 +498,7 @@ public class X10TypeMixin {
      * @param name -- the name of the property.
      * @return null if there is no value associated with the property in the type.
      */
-    public static XTerm propVal(X10Type t, Name name) {
+    public static XTerm propVal(Type t, Name name) {
         XConstraint c = xclause(t);
         if (c == null) return null;
         try {
@@ -496,7 +516,7 @@ public class X10TypeMixin {
     //     return Mixin.foo(this, o)
     // ...
     
-    public static boolean eitherIsDependent(X10Type t1, X10Type t2) {
+    public static boolean eitherIsDependent(Type t1, Type t2) {
     	return isDependentOrDependentPath(t1) || isDependentOrDependentPath(t2);
     }
     
@@ -620,16 +640,12 @@ public class X10TypeMixin {
 	    return false;
 	}
 	
-	  public static X10Type makeProto(X10Type t) {
-	    	X10Type r = (X10Type) t.copy();
-	    	r=r.setFlags(X10Flags.toX10Flags(t.flags()).Proto());
-	    	return r;
-	    }
-	  public static void protoTypeCheck(List<Formal> formals, X10Type retType, Position pos,
+	  
+	  public static void protoTypeCheck(List<Formal> formals, Type retType, Position pos,
 			  boolean isMethod) throws SemanticException {
 	    	for (Formal f : formals) {
-	    		if (((X10Type) f.type().type()).isProto()) {
-	    			if (! retType.isVoid() && ! retType.isProto()) {
+	    		if ( X10TypeMixin.isProto(f.type().type())) {
+	    			if (! retType.isVoid() && ! X10TypeMixin.isProto(retType)) {
 	    				throw new SemanticException("The argument " + f 
 	    						+ " has a proto type; hence the return type must be "
 	    						+ (isMethod ? "void or proto" : "proto")+", not "
@@ -869,7 +885,7 @@ public class X10TypeMixin {
 	 * @return
 	 */
 	public static boolean isGlobalType(Type t) {
-		if (isStruct(t))
+		if (isX10Struct(t))
 			return true;
 		return false;
 		
@@ -901,5 +917,9 @@ public class X10TypeMixin {
 		if (selfVarBinding(t) == null)
 		assert selfVarBinding(t) != null;
 		return t;
+	}
+	
+	public static boolean permitsNull(Type t) {
+		return ! isX10Struct(t);
 	}
 }

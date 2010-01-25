@@ -58,7 +58,6 @@ import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10Context_c;
 import x10.types.X10FieldInstance;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;

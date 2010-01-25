@@ -18,6 +18,7 @@ import polyglot.types.PrimitiveType;
 import polyglot.types.PrimitiveType_c;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
@@ -63,13 +64,7 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	    return super.toString();
 	}
 	
-	
-
-	/** All primitive types are safe. */
-	public boolean safe() { return true; }
-	public boolean isRooted() { return false; }
-	public boolean isProto() { return false; }
-	public boolean isX10Struct() { return true; }
+	public boolean isX10Struct() { return true;}
 	/* All primitive types are structs. */
 
 	Flags flags = X10Flags.NONE;
@@ -77,17 +72,17 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 		return flags;
 	}
 	// No flags can be added to primitives. They are struct and not rooted.
-	public X10Type setFlags(Flags flags) {
+	public Type setFlags(Flags flags) {
 		return this;
 	}
-	public X10Type clearFlags(Flags flags) {
+	public Type clearFlags(Flags flags) {
 		X10PrimitiveType_c c = (X10PrimitiveType_c) copy();
 		if (c.flags != null) {
 			c.flags = c.flags.clear(flags);
 		}
 		return c;
 	}
-	 public boolean equalsNoFlag(X10Type t2) {
+	 public boolean equalsNoFlag(Type t2) {
 			return this == t2;
 		}
 }

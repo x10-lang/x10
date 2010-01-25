@@ -85,7 +85,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return baseType;
 	}
 	
-	public X10Type clearFlags(Flags f) {
+	/*public X10Type clearFlags(Flags f) {
 		ConstrainedType_c c = (ConstrainedType_c) this.copy();
 		X10Type t = (X10Type) Types.get(c.baseType);
 		if (t==null)
@@ -95,17 +95,39 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	//	((Ref<Type>)c.baseType).update(t);
 		return c;
 	}
-	
-	public X10Type setFlags(Flags f) {
+	*/
+	public Proto baseOfProto() {
+		Type t = Types.get(baseType);
+		assert t!=null;
+		if (! X10TypeMixin.isProto(t))
+			return this;
 		ConstrainedType_c c = (ConstrainedType_c) this.copy();
-		X10Type t = (X10Type) Types.get(c.baseType);
-		if (t==null)
-			throw new InternalCompilerError("Cannot set flags " + f + " on null type.");
-		t = t.setFlags(f);
-		//((Ref<Type>)c.baseType).update(t);
+		c.baseType = Types.ref(X10TypeMixin.baseOfProto(t));
 		return c;
 	}
+	public Proto makeProto() {
+		Type t = Types.get(baseType);
+		assert t!=null;
+		if (X10TypeMixin.isProto(t))
+			return this;
+		ConstrainedType_c c = (ConstrainedType_c) this.copy();
+		c.baseType = Types.ref(X10TypeMixin.makeProto(t));
+		return c;
+
+	}
 	
+	public X10Struct makeX10Struct() {
+		Type t = Types.get(baseType);
+		assert t!=null;
+		if (X10TypeMixin.isX10Struct(t))
+			return this;
+		ConstrainedType_c c = (ConstrainedType_c) this.copy();
+		c.baseType = Types.ref(X10TypeMixin.makeX10Struct(t));
+		return c;
+
+	}
+
+	/*
 	public Flags flags() {
 		X10Type t = (X10Type) Types.get(this.baseType);
 		assert t != null : "Cannot get flags on null type.";
@@ -113,7 +135,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			throw new InternalCompilerError("Cannot get flags on null type.");
 		return t.flags();
 	}
-	
+	*/
 	public ConstrainedType baseType(Ref<? extends Type> baseType) {
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.baseType = baseType;
@@ -199,9 +221,9 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 	
 
-	public boolean safe() {
-		return ((X10Type) baseType.get()).safe();
-	}
+	/*public boolean isSafe() {
+		return ((X10Type) baseType.get()).isSafe();
+	}*/
 
 	@Override
 	public String toString() {
@@ -362,18 +384,14 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	
 	
 	public boolean isX10Struct() {
-		X10Type base = (X10Type) baseType.get();
-		return base.isX10Struct();
+		return X10TypeMixin.isX10Struct(baseType.get());
 	}
 	
-	/*public boolean isRooted() {
-		X10Type base = (X10Type) baseType.get();
-		return base.isRooted();
-	}*/
-	public boolean isProto() {
-		X10Type base = (X10Type) baseType.get();
-		return base.isProto();
+	
+	public boolean isProto() { 
+		return X10TypeMixin.isProto(baseType.get());
 	}
+	
 	
 	@Override
 	public boolean isClass() {
@@ -424,7 +442,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		Type base = baseType.get();
 		base.print(w);
 	}
-	public boolean equalsNoFlag(X10Type t2) {
+	public boolean equalsNoFlag(Type t2) {
 		return false;
 	}
 
