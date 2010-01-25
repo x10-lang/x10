@@ -40,9 +40,7 @@ public class SubtypeConstraint_c implements SubtypeConstraint {
     public boolean isSubtypeConstraint() {
         return KIND==SubtypeConstraint.SUBTYPE_KIND;
     }
-    public boolean isBehavesLikeConstraint() {
-        return KIND==SubtypeConstraint.BEHAVES_LIKE_KIND;
-    }
+   
     public boolean isKind(int k) { return k==KIND;}
     public int kind() { return KIND;}
     

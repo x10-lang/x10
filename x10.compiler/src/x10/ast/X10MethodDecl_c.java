@@ -99,7 +99,7 @@ import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureDef;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
@@ -423,7 +423,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         dupFormalCheck(typeParameters, formals);
         
-        X10TypeMixin.protoTypeCheck(formals(), (X10Type) returnType().type(), position(),
+        X10TypeMixin.protoTypeCheck(formals(),  returnType().type(), position(),
         		true);
 
         return n;
@@ -860,7 +860,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
                     for (Formal n : formals) {
                         Ref<Type> ref = (Ref<Type>) n.type().typeRef();
-                        X10Type newType = (X10Type) ref.get();
+                        Type newType =  ref.get();
 
                         // Fold the formal's constraint into the guard.
                         XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
@@ -880,7 +880,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
                 // Fold this's constraint (the class invariant) into the guard.
                 {
-                    X10Type t = (X10Type) tc.context().currentClass();
+                    Type t =  tc.context().currentClass();
                     XConstraint dep = X10TypeMixin.xclause(t);
                     if (c != null && dep != null) {
                         XRoot thisVar = ((X10MemberDef) methodDef()).thisVar();

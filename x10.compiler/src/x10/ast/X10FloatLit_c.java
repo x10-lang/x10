@@ -21,7 +21,7 @@ import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10Context;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
@@ -45,7 +45,7 @@ public class X10FloatLit_c extends FloatLit_c {
 	}
 	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-		  X10Type Type = (X10Type) (kind==FLOAT ? xts.Float() : xts.Double());
+		  Type Type =  (kind==FLOAT ? xts.Float() : xts.Double());
 		  
 			  XConstraint c = new XConstraint_c();
 			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());

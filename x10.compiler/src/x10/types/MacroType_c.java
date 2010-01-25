@@ -47,6 +47,11 @@ import x10.constraint.XRef_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
+/**
+ * Represents a type definition
+ * 
+ * @author njnystrom
+ */
 public class MacroType_c extends ParametrizedType_c implements MacroType {
 	Ref<TypeDef> def;
 	
@@ -89,7 +94,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return ((X10TypeSystem) typeSystem()).isStructType(this);
 	}
 	
-	public X10Type setFlags(Flags f) {
+	public Type setFlags(Flags f) {
 		X10Flags xf = X10Flags.toX10Flags(f);
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
@@ -99,7 +104,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 						: ((xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags);
 		return c;
 	}
-	public X10Type clearFlags(Flags f) {
+	public Type clearFlags(Flags f) {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
 			c.flags = X10Flags.toX10Flags(Flags.NONE);
@@ -233,7 +238,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public Type definedType() {
 		if (definedType == null)
 			return Types.get(def().definedType());
-		return ((X10Type) Types.get(definedType)).setFlags(flags());
+		Type t = X10TypeMixin.processFlags(flags(), Types.get(definedType));
+		return t;
 	}
 	public Ref<? extends Type> definedTypeRef() {
 	    if (definedType == null)
@@ -411,7 +417,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public boolean throwsSubset(ProcedureInstance<TypeDef> pi) {
 	    return true;
 	}
-	public boolean equalsNoFlag(X10Type t2) {
+	public boolean equalsNoFlag(Type t2) {
 		return false;
 	}
 }

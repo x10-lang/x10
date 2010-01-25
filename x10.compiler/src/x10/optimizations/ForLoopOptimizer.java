@@ -39,7 +39,6 @@ import x10.ast.X10Unary_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10Context;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.util.Synthesizer;
@@ -67,7 +66,7 @@ public class ForLoopOptimizer extends ContextVisitor {
 	 
 	 public Node visitForLoop(ForLoop_c loop) throws SemanticException {
 		    Synthesizer syn = new Synthesizer(xnf, xts);
-			X10Type domainType = loop.domainType();
+			Type domainType = loop.domainType();
 			XVar var = XTerms.makeEQV("self");
 			Type regionType =  syn.addRankConstraint(xts.Region(), var, 1, xts);
 			regionType = syn.addRectConstraint(regionType, var);

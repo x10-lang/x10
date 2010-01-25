@@ -43,13 +43,16 @@ import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XVar;
 
-/** 08/011/09 An X10ParsedClassType_c represents a type C[T1,..., Tn], where
+/** 08/11/09 
+ * 
+ * An X10ParsedClassType_c represents a type C[T1,..., Tn], where
  * C is a class and T1,..., Tn are type parameters. Almost all the information
  * supplied by an X10ParsedClassType_c is obtained from the x10ClassDef(), a reference
  * to the ClassDef object with which this object is created and that represents the
  * underlying class definition.
  * 
- * TODO: 
+ * <p> This class is used to represent information parsed from both structs and classes.
+ * 
  * @author vj
  */
 public class X10ParsedClassType_c extends ParsedClassType_c
@@ -110,7 +113,7 @@ implements X10ParsedClassType
         subst = null;
     }
  
-	public X10Type setFlags(Flags f) {
+	public Type setFlags(Flags f) {
 		X10Flags xf = X10Flags.toX10Flags(f);
 		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
 		c.flags = flags().set(f);
@@ -130,12 +133,6 @@ implements X10ParsedClassType
 		return c;
 	}
 	
-	public X10Type clearFlags(Flags f) {
-		X10ParsedClassType_c c = (X10ParsedClassType_c) this.copy();
-		if (c.flags() != null)
-			c.flags = c.flags().clear(f);
-		return c;
-	}
 	
     /** Property initializers, used in annotations. */
     List<Expr> propertyInitializers;
@@ -264,7 +261,7 @@ implements X10ParsedClassType
 	/**
 	 * A parsed class is safe iff it explicitly has a flag saying so.
 	 */
-	public boolean safe() {
+	public boolean isSafe() {
 		return X10Flags.toX10Flags(flags()).isSafe();
 	}
 
@@ -388,17 +385,33 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	    
-	public boolean isRooted() { 
-		return X10Flags.toX10Flags(flags()).isRooted(); 
-		}
-	public boolean isProto() { 
-		return X10Flags.toX10Flags(flags()).isProto(); 
-		}
-	public boolean isX10Struct() { 
-		return X10Flags.toX10Flags(flags()).isStruct(); 
-		}
-	
-	public boolean equalsNoFlag(X10Type o) {
+	public boolean isProto() { return X10Flags.toX10Flags(flags()).isProto(); }
+	public boolean isX10Struct() { 	return X10Flags.toX10Flags(flags()).isStruct(); }
+    public Proto makeProto() {
+    	if (isProto())
+    		return this;
+    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
+    	c.setFlags(X10Flags.toX10Flags(flags()).Proto());
+    	return c;
+    	
+    }
+    public Proto baseOfProto() {
+    	if (! isProto())
+    		return this;
+    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
+    	c.setFlags(X10Flags.toX10Flags(flags()).clearProto());
+    	return c;
+    }
+    public X10Struct makeX10Struct() {
+    	if (isX10Struct())
+    		return this;
+    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
+    	c.setFlags(X10Flags.toX10Flags(flags()).Struct());
+    	return c;
+    	
+    }
+    
+	public boolean equalsNoFlag(Type o) {
 		if (! (o instanceof X10ParsedClassType_c))
 			return false;
 		X10ParsedClassType_c  other = (X10ParsedClassType_c) o;

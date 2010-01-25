@@ -58,7 +58,6 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -501,10 +500,10 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10Type tp = (X10Type) ci.returnType();
-        X10Type tp1 = (X10Type) tp.copy();
-        if (tp1.isProto()) {
-        	tp1 = 	tp1.clearFlags(X10Flags.PROTO);
+        Type tp = ci.returnType();
+        Type tp1 = (Type) tp.copy();
+        if (X10TypeMixin.isProto(tp1)) {
+        	tp1 = X10TypeMixin.baseOfProto(tp1);
         }
         
         if (!ts.isSubtype(tp1, t, tc.context())) {

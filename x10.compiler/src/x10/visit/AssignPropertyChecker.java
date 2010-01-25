@@ -36,7 +36,6 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 
 public class AssignPropertyChecker extends DataFlow {

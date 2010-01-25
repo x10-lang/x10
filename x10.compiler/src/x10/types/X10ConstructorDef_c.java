@@ -31,7 +31,7 @@ import x10.constraint.XTerm;
 
 /**
  * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it
- * maintains a returnType. Note that in X10 2.0 the returnType is rooted.
+ * maintains a returnType. 
  * 
  * If an explicit returnType is not declared in the constructor
  * then the returnType is simply a noClause variant of the container.

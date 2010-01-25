@@ -53,7 +53,7 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		return name.toString();
 	}
 
-	public boolean safe() {
+	public boolean isSafe() {
 		return false;
 	}
 	
@@ -75,23 +75,8 @@ public class ParameterType_c extends Type_c implements ParameterType {
 		n.def = def;
 		return n;
 	}
-	 // begin Flagged mixin
-    public Flags flags() { return Flags.NONE;}
-    public X10Type setFlags(Flags flags) { 
-    	assert false : "Canot set flags on ParameterType_c";
-    	throw new InternalCompilerError("Cannot set flags on " + this);
-    }
-    public X10Type clearFlags(Flags flags) { 
-    	return this;
-    }
+
+    public boolean permitsNull() { return false;}
+
     
-    public boolean isRooted() { return false; }
-    public boolean isProto() { return false; }
-    public boolean isX10Struct() { 
-    	return ((X10TypeSystem) typeSystem()).isStructType(this);
-    }
-    // end Flagged mixin
-    public boolean equalsNoFlag(X10Type t2) {
-		return this == t2;
-	}
 }

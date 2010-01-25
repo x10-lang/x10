@@ -155,7 +155,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                 ConstrainedType ct = (ConstrainedType) o;
                 return transform(Types.get(ct.baseType()));
             }
-            return ((X10Type) o);
+            return  o;
         }
     }
 
@@ -354,15 +354,15 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         }
         return false;
     }
-    public boolean isSafe() {
+   /* public boolean isSafe() {
         StructType container = this.container();
         assert container instanceof X10ParsedClassType : container + " for " + this;
-        boolean result = ((X10ParsedClassType) container).safe();
+        boolean result = ((X10ParsedClassType) container).isSafe();
         if (result) return true;
         X10Flags f = X10Flags.toX10Flags(flags());
         result = f.isSafe();
         return result;
-    }
+    }*/
     protected static String myListToString(List l) {
         StringBuffer sb = new StringBuffer();
 
@@ -1279,6 +1279,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return xthis;
     }
 
+    public boolean isSafe() {
+    	return X10Flags.toX10Flags(flags()).isSafe();
+    }
     static private String toString( XVar[] ys) {
     	String s = "";
     		for (XVar x : ys) s += x.toString() + " ";

@@ -557,9 +557,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return new X10MostSpecificComparator<S, T>(matcher, context);
     }
 
-    private boolean contains(Collection<X10Type> c, X10Type x) {
+    private boolean contains(Collection<Type> c, Type x) {
     	Context cxt = emptyContext();
-    	for (X10Type t : c) {
+    	for (Type t : c) {
     		if (typeEquals(t, x, cxt)) {
     			return true;
     		}
@@ -1752,7 +1752,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(me, ContainsAll(), emptyContext());
     }
 
-    public VarDef createSelf(X10Type t) {
+    public VarDef createSelf(Type t) {
         VarDef v = localDef(Position.COMPILER_GENERATED, Flags.PUBLIC, Types.ref(t), Name.make("self"));
         return v;
     }
@@ -2488,9 +2488,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return isSubtype(t1, t2, emptyContext());
     }
 
-    public boolean behavesLike(Type t1, Type t2, Context context) {
-    	return env(context).behavesLike(t1, t2);
-    }
+ 
     public boolean isSubtypeWithValueInterfaces(Type t1, Type t2, Context context) {
         X10Context xc = (X10Context) context;
         return env(context).isSubtypeWithValueInterfaces(t1, t2);

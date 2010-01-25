@@ -22,7 +22,7 @@ import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.types.X10Context;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;

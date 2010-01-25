@@ -610,7 +610,7 @@ public class XTypeTranslator {
 				}
 			}
 		}
-		X10Type type = (X10Type) t.type();
+		Type type =   t.type();
 		return X10TypeMixin.selfVarBinding(type); // maybe null.
 
 //	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");

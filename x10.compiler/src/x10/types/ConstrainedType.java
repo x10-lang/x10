@@ -20,7 +20,7 @@ import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 
-public interface ConstrainedType extends ObjectType, X10NamedType, X10ThisVar {
+public interface ConstrainedType extends ObjectType, X10NamedType, Proto, X10Struct, X10ThisVar {
 	Ref<? extends Type> baseType();
 	ConstrainedType baseType(Ref<? extends Type> baseType);
 	

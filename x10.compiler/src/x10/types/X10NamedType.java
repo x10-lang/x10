@@ -12,8 +12,9 @@ package x10.types;
  * Examples of such types are X10PrimitiveTypes, X10ParsedClassTypes, X10ArrayTypes.
  */
 import polyglot.types.Named;
+import polyglot.types.Type;
 
-public interface X10NamedType extends Named, X10Type {
+public interface X10NamedType extends Named, Type {
 	
 	
 }

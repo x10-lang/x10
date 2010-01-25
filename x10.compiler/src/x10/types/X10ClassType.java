@@ -27,42 +27,43 @@ import polyglot.util.TransformingList;
 /** The representative of ClassType in the X10 type hierarchy. 
  * 
  * A class is a reference; arrays are examples of references which are not classes.
- * (This is inherited from Java. Needs to be fixed in The Great X01 2.0 Type Redesign.
  * 
  * @author vj
  *
  */
-public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
+public interface X10ClassType extends ClassType, Proto, X10Struct, X10Use<X10ClassDef> {
 
-    /** Property initializers, used in annotations. */
-    List<Expr> propertyInitializers();
-    Expr propertyInitializer(int i);
-    X10ClassType propertyInitializers(List<Expr> inits);
-    
-    boolean isIdentityInstantiation();
-    
-    /**
-     * The list of properties of the class. 
-     * @return
-     */
-    List<FieldInstance> properties();
+	/** Property initializers, used in annotations. */
+	List<Expr> propertyInitializers();
+	Expr propertyInitializer(int i);
+	X10ClassType propertyInitializers(List<Expr> inits);
 
-    /**
-     * The sublist of properties defined at this class.
-     * All and exactly the properties in this list need to be 
-     * set in each constructor using a property(...) construct.
-     * @return
-     */
-    List<FieldInstance> definedProperties();
+	boolean isIdentityInstantiation();
 
-    List<Type> typeArguments();
-    X10ClassType typeArguments(List<Type> typeArgs);
-    
-    boolean hasParams();
-    List<Type> typeMembers();
+	/**
+	 * The list of properties of the class. 
+	 * @return
+	 */
+	List<FieldInstance> properties();
 
-    MacroType typeMemberMatching(Matcher<Named> matcher);
-    
-    boolean isJavaType();
+	/**
+	 * The sublist of properties defined at this class.
+	 * All and exactly the properties in this list need to be 
+	 * set in each constructor using a property(...) construct.
+	 * @return
+	 */
+	List<FieldInstance> definedProperties();
 
+	List<Type> typeArguments();
+	X10ClassType typeArguments(List<Type> typeArgs);
+
+	boolean hasParams();
+	List<Type> typeMembers();
+
+	MacroType typeMemberMatching(Matcher<Named> matcher);
+
+	boolean isJavaType();
+
+	
+	
 }

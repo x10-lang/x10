@@ -18,6 +18,6 @@ import polyglot.types.NullType;
 /**
  * @author vj
  */
-public interface X10NullType extends X10Type, NullType {
+public interface X10NullType extends  NullType {
 
 }

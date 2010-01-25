@@ -48,7 +48,7 @@ import x10.constraint.XConstraint;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -122,8 +122,8 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        Type superType = ct.superClass();
 	        if (superType == null) {
 	        	// this can happen for structs, and for Object
-	        	X10Type type = (X10Type) context.currentClass();
-	        	if (X10TypeMixin.isStruct(type)
+	        	Type type =  context.currentClass();
+	        	if (X10TypeMixin.isX10Struct(type)
 	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
 	        		// the super() call inserted by the parser needs to be thrown out
 	        		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();

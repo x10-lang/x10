@@ -82,7 +82,7 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 		return t;
 	}
 
-	public boolean safe() {
+	public boolean isSafe() {
 		return true;
 	}
 

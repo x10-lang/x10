@@ -52,7 +52,7 @@ import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -102,15 +102,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             throw new SemanticException("Cannot declare a non-final field in a value class.", position());
         }
 */
-        if (ref instanceof X10Type) {
-        	X10Type container = (X10Type) ref;
-        	if (container.isX10Struct()) {
+      
+        	if (X10TypeMixin.isX10Struct(ref)) {
         		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
         		if (! x10flags.isFinal()) 
         			throw new SemanticException("Illegal " + fi
         					+  "; structs cannot have var fields.", position());
         	}
-        }
+        
         checkVariance(tc);
         
         X10MethodDecl_c.checkVisibility(tc.typeSystem(), context, this);
@@ -264,17 +263,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        
 	    @Override
 	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    	X10Type type = (X10Type) this.type().type();
+	    	Type type =  this.type().type();
 	    	
 	            if (type.isVoid())
 	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
 
-	            if (type.isProto()) {
+	            if (X10TypeMixin.isProto(type)) {
 	                throw new SemanticException("Field cannot have type " 
 	                		+ this.type().type() + " (a proto type).", position());
 	            	
 	            }
-	            if (X10TypeMixin.isStruct(fieldDef().container().get()) &&
+	            if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
 	            		! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
 	                throw new SemanticException("A struct may not have var fields.",
 	                		position());

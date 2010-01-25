@@ -38,7 +38,6 @@ import x10.extension.X10Del_c;
 import x10.types.TypeConstraint;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10Type;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -130,7 +129,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         XConstraint c = Types.get(dep.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
         if (flags != null) {
-        	t = ((X10Type) t).setFlags(flags);
+        	t = X10TypeMixin.processFlags(flags, t);
         	flags = null;
         }
 

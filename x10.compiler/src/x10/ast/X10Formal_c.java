@@ -54,7 +54,7 @@ import x10.types.X10Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;

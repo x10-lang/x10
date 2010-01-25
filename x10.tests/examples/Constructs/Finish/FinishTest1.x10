@@ -14,18 +14,18 @@ import harness.x10Test;
  */
 public class FinishTest1 extends x10Test {
 
-	var flag: boolean;
+	var flag: boolean = false;
 
-	public def run(): boolean = {
+	public def run() {
 		finish {
 			async (here) { atomic { flag = true; } }
 		}
-		var b: boolean;
+		var b: boolean = false;
 		atomic { b = flag; }
 		return b;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(args: Rail[String]) {
 		new FinishTest1().execute();
 	}
 }

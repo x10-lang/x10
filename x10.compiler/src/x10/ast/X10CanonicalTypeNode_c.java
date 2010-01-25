@@ -42,7 +42,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -94,16 +94,13 @@ AddFlags {
 	X10Context c = (X10Context) tc.context();
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
+	// Expand, and transfer flags from the type node to the type.
 	Type t = Types.get(type);
 	
 	t = ts.expandMacros(t);
-	X10Type xt = (X10Type) t;
+	Type xt =  t;
 	if (flags != null) {
-		X10Flags xflags = X10Flags.toX10Flags(flags);
-		X10Flags f = X10Flags.toX10Flags( xt.flags());
-		if (f  == null)
-			f = (X10Flags) X10Flags.toX10Flags(Flags.NONE);
-		xt = xt.setFlags(flags);
+		xt = X10TypeMixin.processFlags(X10Flags.toX10Flags(flags), xt);
 		flags = null;
 	}
 	((Ref<Type>) type).update(xt);

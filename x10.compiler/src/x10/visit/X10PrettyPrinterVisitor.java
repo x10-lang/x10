@@ -164,7 +164,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator.XTypeLit_c;
@@ -1558,7 +1558,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10Unary_c n) {
 		Expr left = n.expr();
-		X10Type l = (X10Type) left.type();
+		Type l =  left.type();
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		Unary.Operator op = n.operator();
@@ -1726,9 +1726,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10Binary_c n) {
 		Expr left = n.left();
-		X10Type l = (X10Type) left.type();
+		Type l = left.type();
 		Expr right = n.right();
-		X10Type r = (X10Type) right.type();
+		Type r =  right.type();
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		Binary.Operator op = n.operator();

@@ -30,7 +30,7 @@ import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
-import x10.types.X10Type;
+
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
@@ -70,7 +70,7 @@ public class X10Special_c extends Special_c implements X10Special {
             return type(tt);
     	}
         
-        ClassType t = null;
+        Type t = null;
 
         if (qualifier == null) {
             // an unqualified "this" 
@@ -92,36 +92,39 @@ public class X10Special_c extends Special_c implements X10Special {
             		returnType =  ts.expandMacros(returnType);
             		// Set the type of this to be proto T, where T is the return
             		// type of the constructor.
+            		returnType = X10TypeMixin.makeProto(returnType);
+            	/*
             		if (returnType.isClass()) {
-            			t = X10TypeMixin.makeProto((X10Type) returnType).toClass();
+            			t = (ClassType) X10TypeMixin.makeProto(returnType);
             		}
             		else {
             			throw new SemanticException("Constructor return type is not a class type.", cd.position());
-            		}
+            		}*/
             	} else 
             		// Check if this is a proto method, then the type of this needs 
             		// to be set to proto C
             		if (c.currentCode() instanceof X10MethodDef) {
             			X10MethodDef cd = (X10MethodDef) c.currentCode();
             			if (cd.isProto()) {
-            				t = X10TypeMixin.makeProto((X10Type) t).toClass();
+            				t =  X10TypeMixin.makeProto(t);
             			}
             		}
         }
         else {
             if (qualifier.type().isClass()) {
-                t = qualifier.type().toClass();
+                ClassType ct =  qualifier.type().toClass();
+                t=ct;
                 CodeDef cd = c.currentCode();
            
-                if (!c.currentClass().hasEnclosingInstance(t)) {
+                if (!c.currentClass().hasEnclosingInstance(ct)) {
                     throw new SemanticException("The nested class \"" + 
                                                 c.currentClass() + "\" does not have " +
                                                 "an enclosing instance of type \"" +
-                                                t + "\".", qualifier.position());
+                                                ct + "\".", qualifier.position());
                 }
                 if (cd instanceof X10ConstructorDef
                 		|| (cd instanceof X10MethodDef && ((X10MethodDef) cd).isProto()))
-                	t = X10TypeMixin.makeProto((X10Type) t).toClass();
+                	t = X10TypeMixin.makeProto(ct);
                 
             }
             else {
@@ -161,8 +164,9 @@ public class X10Special_c extends Special_c implements X10Special {
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
-            Type tt = X10TypeMixin.baseType(t.superClass());
-            XConstraint cc = X10TypeMixin.xclause(t.superClass());
+        	Type superClass =  X10TypeMixin.superClass(t);
+            Type tt = X10TypeMixin.baseType(superClass);
+            XConstraint cc = X10TypeMixin.xclause(superClass);
             cc = cc == null ? new XConstraint_c() : cc.copy();
             try {
                 cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
@@ -203,7 +207,7 @@ public class X10Special_c extends Special_c implements X10Special {
     	if (qualifier != null)
     		typeString = qualifier.toString();
     	else {
-    		X10Type type = (X10Type) type();
+    		Type type =  type();
     		if (type != null) {
     			ClassType k = type.toClass();
     			if (k != null)
