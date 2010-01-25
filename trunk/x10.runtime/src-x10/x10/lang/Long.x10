@@ -206,4 +206,5 @@ public final struct Long {
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     public global safe native def equals(x:Long):Boolean;
+    
 }
