@@ -213,7 +213,7 @@ public final class X10TestRunner extends Suite {
     
   }
   
-  private static final class X10InvokeMethod extends Statement {
+  static final class X10InvokeMethod extends Statement {
     
     X10InvokeMethod(final FrameworkMethod frameworkMethod, final Object test, final File testedFile) {
       this.fFrameworkMethod = frameworkMethod;
