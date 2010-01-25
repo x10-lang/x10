@@ -27,7 +27,7 @@ import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
 
 /**
- * Test cases for <b>com.ibm.wala.cast.x10</b> project.
+ * Runs test cases for IR sanity checking.
  * 
  * @author egeay
  */

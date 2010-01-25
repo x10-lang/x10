@@ -6,7 +6,7 @@ import com.ibm.wala.cast.x10.tests.X10TestRunner.TestRootPath;
 import com.ibm.wala.cast.x10.tests.X10TestRunner.X10Tests;
 
 /**
- * Test cases for <b>com.ibm.wala.cast.x10</b> project.
+ * Runs all test cases in the Constructs directory of x10.tests plugin.
  * 
  * @author egeay
  */
