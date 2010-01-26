@@ -9,7 +9,7 @@ public class CUDAKernelTest {
         //finish init.copyTo(0, remote, 0, len); // dma there
         val init_ = init as ValRail[Float];
 
-        at (p) @CUDA {
+        finish async (p) @CUDA {
             for ((block):Point in 0..7) {
                 for ((thread):Point in 0..63) async {
                     val tid = block*64 + thread;
