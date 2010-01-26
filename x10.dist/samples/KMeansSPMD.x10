@@ -107,6 +107,7 @@ public class KMeansSPMD {
                             cluster_counts(closest)++;
                         }
 
+                        next;
 
                         if (central_clusters.at(here)) {
                             for (var j:Int=0 ; j<CLUSTERS ; ++j) central_cluster_counts(j) = 0;
@@ -154,6 +155,8 @@ public class KMeansSPMD {
                             }
                             
                         }
+
+                        next;
 
 
 
