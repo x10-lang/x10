@@ -76,13 +76,13 @@ public abstract class BaseArray[T] extends Array[T] {
 
     public static def makeVar1[T](rail: Rail[T]!): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
-        return makeVar[T](r, (p:Point)=>rail(p(0)))
+        return makeVar1[T](r, (p:Point)=>rail(p(0)))
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
     public static def makeVar1[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
-        return makeVar[T](r, (p:Point)=>rail(p(0)))
+        return makeVar1[T](r, (p:Point)=>rail(p(0)))
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
