@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
 <project name="org.eclipse.imp.x10dt.update" default="copyjars" basedir=".">
+		<property name="build.qualifier" value="v201001261119"/>
 
 	<target name="copyjars" description="Copy the X10 Jars to your eclipse installation for testing">
-		<echo message="BRT copyjars basedir= ${basedir}" />
+		<echo message="BRT copyjars basedir= ${basedir}; build qualifier is ${build.qualifier}" />
 		<property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar" />
 
 		<antcall target="copyjar">
@@ -24,7 +25,6 @@
 	</target>
 
 	<target name="copyjar">
-		<echo message="proj=${proj}" />
 		<loadfile property="plugin.id" srcfile="../${proj}/META-INF/MANIFEST.MF">
 			<filterchain>
 				<containsregex pattern="Bundle-SymbolicName:" />
@@ -32,7 +32,6 @@
 				<striplinebreaks />
 			</filterchain>
 		</loadfile>
-		<echo message="Plugin ID = ${plugin.id}" />
 
 		<loadfile property="plugin.version" srcfile="../${proj}/META-INF/MANIFEST.MF">
 			<filterchain>
@@ -41,11 +40,10 @@
 				<striplinebreaks />
 			</filterchain>
 		</loadfile>
-		<echo message="Plugin version = ${plugin.version}" />
-		<echo message="pjn = ${plugin.id}_${plugin.version}.jar" />
-		<!-- ?? property name="plugin.jar.name" value="${plugin.id}_${plugin.version}.jar"/> -->
-		<echo message="plugin.jar.name = ${plugin.jar.name}" />
-		<echo message="copy to = ${x10dt.eclipse.target}/plugins" />
+		<!-- replace the '.qualifier' with proper build qualifier-->
+		<propertyRegexp name="plugin.version" input="${plugin.version}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+		<!-- <echo message="proj=${proj}; Plugin ID = ${plugin.id}; Plugin version = ${plugin.version}" /> -->
+		<!-- <echo message="copy to = ${x10dt.eclipse.target}/plugins" /> -->
 		<copy file="../${proj}/${plugin.id}_${plugin.version}.jar" todir="${x10dt.eclipse.target}/plugins" failonerror="true" overwrite="false" />
 		<echo message="Copied ../${proj}/${plugin.id}_${plugin.version}.jar -- to -- ${x10dt.eclipse.target}/plugins" />
 
