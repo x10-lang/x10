@@ -23,7 +23,7 @@ public class RegionWithHoles2 extends x10Test {
         x10.io.Console.OUT.println("r " + r);
         x10.io.Console.OUT.println("r.boundingBox() " + r.boundingBox());
 
-        val a = Array.makeVal[short](r);
+        val a = Array.make[short](r);
 
         // check if r is convex - it should not!
         var cv: boolean = r.isConvex();
