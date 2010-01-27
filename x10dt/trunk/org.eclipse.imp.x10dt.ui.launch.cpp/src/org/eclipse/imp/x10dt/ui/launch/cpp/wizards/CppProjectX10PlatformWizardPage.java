@@ -216,6 +216,9 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       this.fResManagerCombo.add(resourceManager.getName());
       this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getUniqueName());
     }
+    if (startedResManagerList.size() == 1) {
+      this.fResManagerCombo.select(0);
+    }
     this.fResManagerCombo.addSelectionListener(new PageUpdateSelectionListener());
   }
   
@@ -313,10 +316,15 @@ final class CppProjectX10PlatformWizardPage extends WizardPage {
       this.fX10PlatformCombo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
       this.fX10PlatformCombo.addSelectionListener(new PageUpdateSelectionListener());
     
+      int nbValidConfigs = 0;
       for (final IX10PlatformConfiguration x10Conf : this.fX10Platforms.values()) {
         if (x10Conf.getValidationStatus() == EValidStatus.VALID) {
           this.fX10PlatformCombo.add(x10Conf.getName());
+          ++nbValidConfigs;
         }
+      }
+      if (nbValidConfigs == 1) {
+        this.fX10PlatformCombo.select(0);
       }
     }  catch (WorkbenchException except) {
       setErrorMessage(Messages.XPCPP_LoadingErrorMsg);
