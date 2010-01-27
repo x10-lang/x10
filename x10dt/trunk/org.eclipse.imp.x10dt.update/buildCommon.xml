@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10dt.update.common" basedir=".">
-    <property name="basews" value="${ws}"/>
-    <property name="baseos" value="${os}"/>
-    <property name="basearch" value="${arch}"/>
-    <property name="basenl" value="${nl}"/>
+    <tstamp>
+        <format property="build.time" pattern="yyyyMMddHHmm"/> 
+    </tstamp>
+    <condition property="x10dt.build.qualifier" value="v${build.time}">
+        <not>
+            <isset property="x10dt.build.qualifier"/>
+        </not>
+    </condition>
 
-    <!-- Compiler settings. -->
+    <!-- Global Java compiler settings -->
     <property name="javacFailOnError" value="true"/>
     <property name="javacDebugInfo" value="on"/>
     <property name="javacVerbose" value="false"/>
 
+<!--
     <echo message="java.home = ${java.home}"/>
+    <echo message="java.class.path = ${java.class.path}"/>
     <echo message="ant.home = ${ant.home}"/>
+  -->
 
     <condition property="mac.jre.path" value="${java.home}/../Classes">
         <os family="mac"/>
@@ -21,9 +28,10 @@
         <not> <os family="mac"/> </not>
     </condition>
 
-    <echo message="mac.jre.path = ${mac.jre.path}"/>
+<!-- <echo message="mac.jre.path = ${mac.jre.path}"/> -->
 
     <path id="path_bootclasspath">
+    	<pathelement path="${java.class.path}"/>
         <fileset dir="${mac.jre.path}">
             <include name="*.jar"/>
         </fileset>
