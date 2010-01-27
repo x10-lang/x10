@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Local variables</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Local variables</h2>
+Local variable declarations may have optional
+initializer expressions.  The initializer must be a subtype of
+the declared type of the variable.  If the variable is final
+("val")
+the type may be omitted and
+inferred from the initializer type (&#167;).
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">LocalDeclaration
+        &nbsp;LocalModifier<sup>*</sup>&nbsp;"var" LocalDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  LocalModifier<sup>*</sup>&nbsp;"val" LocalDeclarators </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  LocalModifier<sup>*</sup>&nbsp;LocalDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">LocalDeclarators
+        &nbsp;LocalDeclaratorsWithType </td></tr>
+<tr><td align="right">&nbsp;LocalDeclaratorWithInit </td></tr>
+<tr><td align="right">LocalDeclaratorWithInit
+        &nbsp;VarDeclarator Init </td></tr>
+<tr><td align="right">LocalDeclaratorsWithType
+        &nbsp;VarDeclaratorId
+                ( "," VarDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">LocalModifier &nbsp;Annotation </td></tr>
+<tr><td align="right">\ -  &#223;hared" </td></tr>
+<tr><td align="right">Init &nbsp;"=" Expression </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

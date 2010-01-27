@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Binary shift operations</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc13">
+13</a>&nbsp;&nbsp;Binary shift operations</h2>
+
+<div class="p"><!----></div>
+Unary promotion is performed on each operand separately. 
+The operands must be of integral type.
+The type of the result is the promoted type of the left operand.
+
+<div class="p"><!----></div>
+If the promoted type of the left operand is &#207;nt",
+the right operand is masked with "0x1f" using the bitwise
+AND ("&amp;") operator.
+If the promoted type of the left operand is "Long",
+the right operand is masked with "0x3f" using the bitwise
+AND ("&amp;") operator.
+
+<div class="p"><!----></div>
+The &#171;&lt;" operator left-shifts the left operand by the number of
+bits given by the right operand.
+
+<div class="p"><!----></div>
+The &#187;&#62;" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is sign extended;
+that is, if the right operand is k,
+the most significant k bits of the result are set to the most
+significant bit of the operand.
+
+<div class="p"><!----></div>
+The &#187;&#62;&#62;" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is not sign extended;
+that is, if the right operand is k,
+the most significant k bits of the result are set to "0".
+
+<div class="p"><!----></div>
+
+</body>
+</html>

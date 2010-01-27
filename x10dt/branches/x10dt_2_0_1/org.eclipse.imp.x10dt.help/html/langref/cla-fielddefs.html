@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Field definitions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Field definitions</h2>
+
+<div class="p"><!----></div>
+A class may have zero or more mutable or immutable fields. 
+No two fields declared in a class may have the same name. 
+
+<div class="p"><!----></div>
+Fields may be marked &#223;tatic". Only one instance of such a field
+exists, and it may be accessed through the name of the class in which
+it is defined (&#167;).  Fields not marked
+&#223;tatic" are said to be <em>instance</em> fields. One copy of such a
+field exists for every instance of the class.
+
+<div class="p"><!----></div>
+To avoid an ambiguity, it is a static error for a class to
+declare a field with a function type (&#167;) with
+the same name and signature  as a method of the same class.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;Field hiding</h3>
+
+<div class="p"><!----></div>
+A subclass that defines a field "f" hides any field "f"
+declared in a superclass, regardless of their types.  The
+superclass field "f" may be accessed within the body of
+the subclass via the reference &#223;uper.f".
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Field qualifiers</h3>
+<a name="FieldQualifier">
+</a>
+
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc5.2.1">
+5.2.1</a>&nbsp;&nbsp;"global" qualifier</h4>
+
+<a name="GlobalField">
+</a>
+
+<div class="p"><!----></div>
+A field may be declared "global".
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">FieldModifier &nbsp;"global"  
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+A "global" field must be immutable. It may be read from any place.
+Properties and static fields are implicitly marked "global".
+Fields not marked "global" cannot be overridden by fields marked
+"global".
+
+<div class="p"><!----></div>
+
+</body>
+</html>

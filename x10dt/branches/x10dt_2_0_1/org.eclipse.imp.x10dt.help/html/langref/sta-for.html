@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>For statement</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;For statement</h2>
+
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement &nbsp;ForStatement </td></tr>
+<tr><td align="right">\ -  EnhancedForStatement </td></tr>
+<tr><td align="right">ForStatement &nbsp;"for" "("
+        ForInit<sup>?</sup>&nbsp;";" Expression<sup>?</sup>&nbsp;";" ForUpdate<sup>?</sup>&nbsp;
+")" Statement </td></tr>
+<tr><td align="right">ForInit &nbsp;
+        StatementExpression ( "," StatementExpression )<sup>*</sup>&nbsp;
+</td></tr>
+<tr><td align="right">\ -  LocalVariableDeclaration </td></tr>
+<tr><td align="right">EnhancedForStatement &nbsp;"for" "("
+        Formal &#239;n" Expression 
+        ")" Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+X10 provides two forms of for statement: a basic for
+statement and an enhanced for statement.
+
+<div class="p"><!----></div>
+A basic for statement consists of an initializer, a condition, an
+iterator, and a body.  First, the initializer is evaluated.
+The initializer may introduce local variables that are in scope
+throughout the for statement.  An empty initializer is
+permitted.
+Next, the condition is evaluated.  If "true", the loop body
+is executed; otherwise, the loop exits.
+The condition may be omitted, in which case the condition is
+considered "true".
+If the loop completes normally (either by reaching the end
+or via a "continue" statement with the loop header as
+target),
+the iterator is evaluated and then the condition is reevaluated
+and the loop repeats if
+"true".  If the condition is "false", the loop
+exits.
+
+<div class="p"><!----></div>
+The condition must be of type "Boolean".
+The initializer and iterator are statements, not expressions
+and so do not have types.
+
+<div class="p"><!----></div>
+<a name="ForAllLoop">
+</a>
+<div class="p"><!----></div>
+An enhanced for statement is used to iterate over a collection.
+If the formal parameter is of type "T",
+the collection expression must be of type &#207;terable[T]".
+Destructuring
+syntax may
+be used for the formal parameter (&#167;).
+Each iteration of the loop
+binds the parameter to another element of the collection.
+The formal paramter must be immutable. 
+
+<div class="p"><!----></div>
+In a common case, 
+the collection is intended to be of type
+"Region" and the formal parameter is of type "Point".
+Expressions &#235;" of type "Dist" and
+&#196;rray" are also accepted, and treated as if they were
+&#235;.region".
+If the collection is a region, the "for" statement
+enumerates the points in the region in canonical order.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

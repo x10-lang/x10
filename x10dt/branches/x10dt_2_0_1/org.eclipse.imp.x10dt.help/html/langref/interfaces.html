@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Interfaces</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Interfaces</h1>
+<a name="XtenInterfaces">
+</a>
+
+<div class="p"><!----></div>
+X10 v2.0 interfaces are essentially the same Java
+interfaces [,&#167; 9]. An interface primarily specifies
+signatures for public methods. It may extend multiple interfaces. 
+
+<div class="p"><!----></div>
+<a name="DepType:Interface">
+</a>X10 permits interfaces to have properties and specify an interface
+invariant. This is necessary so that programmers can build dependent
+types on top of interfaces and not just classes.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">NormalInterfaceDeclaration &nbsp;
+      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
+<tr><td align="right">&amp;&amp; TypePropertyList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Constraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler declares an error if this constraint
+   is not consistent (&#167;).  
+
+
+<div class="p"><!----></div>
+Each interface implicitly defines a nullary getter method
+"def p(): T" for each property "p: T". 
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler issues a warning if an interface body
+   contains an explicit definition for a method with this signature.
+
+
+<div class="p"><!----></div>
+A class "C" (with properties) is said to implement an interface &#207;" if
+
+<ul>
+<li> its properties contains all the properties of &#207;",
+<div class="p"><!----></div>
+</li>
+
+<li> its class invariant
+<i>inv</i>("C") implies
+<i>inv</i>(&#207;").
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Fields</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Fields</h2>
+Fields are declared either "var" (non-final, non-static),
+"val" (final, non-static), or "const" (final, static);
+the default is "val".
+Field declarations may have optional
+initializer expressions.  The initializer must be a subtype of
+the declared type of the variable.
+For "var" fields,
+if the initializer is omitted, the constructor must initialize
+the field, or else the field is initialized with
+"null" if a reference type, "0" if an &#207;nt", "0L"
+if a "Long",
+"0.0F" if a "Float", "0.0" if a "Double", or
+"false" if a "Boolean".  It is a static error if the
+default value is not a member of the type (e.g., it is a static
+error to elide the initializer for &#207;nt{self==1}").
+
+<div class="p"><!----></div>
+If the variable is final,
+the type may be omitted and
+inferred from the initializer type (&#167;).
+Mutable fields must be declared with a type.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">FieldDeclaration
+        &nbsp;FieldModifier<sup>*</sup>&nbsp;"var" FieldDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;"const" FieldDeclarators </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;"val" FieldDeclarators </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center">&amp; ( "," FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">FieldDeclarators
+        &nbsp;FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&nbsp;FieldDeclaratorWithInit </td></tr>
+<tr><td align="right">FieldDeclaratorId
+        &nbsp;Identifier  </td></tr>
+<tr><td align="right">FieldDeclaratorWithInit
+        &nbsp;FieldDeclaratorId Init </td></tr>
+<tr><td align="right">\ -  FieldDeclaratorId ResultType Init </td></tr>
+<tr><td align="right">FieldDeclaratorsWithType
+        &nbsp;FieldDeclaratorId ( "," FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">FieldModifier &nbsp;Annotation </td></tr>
+<tr><td align="right">\ -  &#223;tatic" </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

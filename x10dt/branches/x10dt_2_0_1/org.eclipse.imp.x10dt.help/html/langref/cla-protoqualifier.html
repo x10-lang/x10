@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Proto qualifier on types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;" proto" qualifier on types</h2>
+<a name="Prototypes">
+</a>
+
+X10 ensures that every variable must have a value consistent with its type
+before it is read.
+
+<div class="p"><!----></div>
+For local variables, this is ensured by using a pre-specified static
+analysis to ensure that every local variable is written into before it
+is read. Type-checking of assignment ensures the value written is
+consistent with the static type of the variable.
+
+<div class="p"><!----></div>
+For fields, this is ensured by introducing a form of ownership types
+called <em>incomplete types</em> to address the <em>escaping-this</em>
+problem.  To permit flexibility in writing constructors, X10 v1.7
+permits "this" to be used in a constructor as a reference to the
+object currently being constructed. Unfortunately there are no
+restrictions on the usage of "this". In particular, this reference
+can be permitted to escape: it may be stored in variables on the heap
+(thereby permitting concurrently executing activities to read the
+value of fields that may not yet have been initialized), passed as an
+argument to method invocations, or used as the target for a method
+invocation. Indeed, the method may be invoked in a super constructor,
+and may have been overridden at a subclass, guaranteeing that accesses
+to fields defined in the subclass are accesses to uninitialized
+variables. For instance an immutable field may be observed containing
+a value (the value the field was initialized with) which may be
+different from the value it will contain once the constructor has
+returned.
+
+<div class="p"><!----></div>
+Incomplete types are designed with the following goals:
+ 
+<ul>
+<li> Guarantee that fields are read only after they are initialized.
+<div class="p"><!----></div>
+</li>
+
+<li>  Allow the creation of immutable cyclic object graphs.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  This requires that it be possible to pass an
+  object under construction into a constructor invocation.
+<div class="p"><!----></div>
+</li>
+
+<li> Allow appropriate user-defined methods can be called during object
+  creation (so that the transformation between the values supplied as
+  parameters to a constructor and the values actually placed in fields
+  is determined by arbitrary user-defined code).
+<div class="p"><!----></div>
+</li>
+
+<li> Keep the design minimally invasive. Most programmers should
+  not have to be concerned about this problem.
+<div class="p"><!----></div>
+</li>
+
+<li> Ensure that there is no runtime overhead.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+These goals are met by introducing incomplete types through the type
+qualifier "proto". Types of the form "proto T" are said to be
+<em>incomplete types</em>; types that do not have the qualifier are said to be
+<em>complete</em>.
+ Say that an object &#246;" is <em>confined</em>
+to a given activity &#196;" if it can be reached only from stack
+frames of &#196;" or from objects which are, recursively, confined to
+&#196;". Thus confined objects cannot be accessed by activities other
+than &#196;".
+
+<div class="p"><!----></div>
+Incomplete types ensure that objects whose construtors have not exited
+are confined. Further, all references to such objects on the stack
+are contained in variables of incomplete types. The compiler does not
+permit the fields of variables of incomplete types to be read. 
+Thus incomplete types permit the construction of graphs of objects
+while ensuring that these objects are confined and their fields are not
+read during construction. 
+
+<div class="p"><!----></div>
+The return value of a constructor for class "C" that takes no
+incomplete arguments is (a subtype of) "C", that is, a complete
+type. It will point only to completed objects. It can now be
+assigned to any (type-consistent) field of any object, that is, it is
+now allowed to escape.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.0.1">
+4.0.1</a>&nbsp;&nbsp;"proto" Rules</h4>
+<a name="protorules">
+</a>
+<a name="ProtoRules">
+</a>
+
+
+<div class="p"><!----></div>
+For every type "T" (where "T" is not a type variable), we
+introduce the type "proto T". 
+
+<div class="p"><!----></div>
+There is no relationship between types "T" and "proto T" -
+neither is a subtype of the other.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+
+<div class="p"><!----></div>
+Incomplete types are permitted to occur only as types of method
+parameters or local variables or as return types for methods and
+constructors. They may not occur in (the source or target of) cast
+statements, &#235;xtends" or &#239;mplements" clauses, "catch"
+clauses, or as types of class fields.
+
+<div class="p"><!----></div>
+Within the body of a class "C" the type of "this" in
+constructors, instance initializers and instance variable initializers
+is "proto C".
+
+<div class="p"><!----></div>
+Let "v" be a value of type "proto C", for some class "C". 
+
+<div class="p"><!----></div>
+No fields of "v" can be read.  (This is the defining property of
+"proto" types.)  However, "v''s (accessible) instance fields
+can be assigned.
+
+<div class="p"><!----></div>
+"v" can be assigned to an instance field &#246;.f" only if "f"
+is of some type "S" such that "T &lt;: S" and &#246;" has an
+incomplete type.
+
+<div class="p"><!----></div>
+"v" can be assigned to local variables  only if they are of some type
+"proto S" (such that "T &lt;: S").
+
+<div class="p"><!----></div>
+Instance methods of class "C" may be qualified with "proto"
+(these methods are called <em>incomplete methods</em>). The type of "this"
+in incomplete methods is "proto C". Incomplete methods can be
+overridden only by incomplete methods.  Only incomplete methods can be
+invoked on "v". Incomplete methods which do not take an argument of incomplete
+type can be invoked on completed values. 
+
+<div class="p"><!----></div>
+"v" can be passed as argument into a constructor or method call,
+or returned from a method.  The return type of a method taking an
+argument at an incomplete type must be "void" or incomplete.  The
+return type of a constructor taking an argument at a "proto" type
+must be incomplete.
+
+<div class="p"><!----></div>
+A generic class (method) type parameter "T" can be
+  instantiated with the type "proto S" (where "S" is not a type
+  parameter itself), provided that the class (method) body satisfies
+  the conditions above for "proto S".
+
+<div class="p"><!----></div>
+During code generation, the type "proto T" is treated as if it were
+"T". That is, there is no run-time cost to "proto" types.
+
+<div class="p"><!----></div>
+The invariants maintained by the design are as follows.  Say that an
+object field or stack variable (local variable) contains an incomplete
+value if a value of type "proto T" (for some "T") was written
+into it.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> If an object &#246;" has a field containing an incomplete value "v",
+then either "v''s constructor has exited or &#246;" is confined.
+Further, every reference to &#246;" on the stack is held at an incomplete type.
+<div class="p"><!----></div>
+</li>
+
+<li> If a stack variable contains an incomplete value, then
+  the variable's type is incomplete.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Say that a constructor invocation for a class "C" on the call
+stack is a <em>root</em> if it takes no incomplete arguments. Such a
+constructor invocation will return an object of type "C" whose
+fields may point to an arbitrary graph of newly created objects
+(objects created by the activity after the constructor
+invocation). Since the object returned is at type "C" - and not
+"proto C" - It may be assigned to any field of any object on the
+heap of type "D" such that "C &lt;: D".  It is no longer
+confined. Thus the "magic moment" when an incomplete value becomes
+complete is when the last constructor for any incomplete value it
+references (including itself) returns.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.0.2">
+4.0.2</a>&nbsp;&nbsp;Example</h4>
+
+<div class="p"><!----></div>
+This example shows how to create a fixed-size circular buffer.
+(Its pointer structure is immutable, though the contents of each
+field are mutable.)
+
+<pre>
+class  CircularBuffer[A] {
+  var a: A;
+  val next: CircularBuffer[A];
+  private def this(x: proto CircularBuffer[A]): proto CircularBuffer[A] {
+    next = x;
+  }
+  def this(var n:Int) {
+    var temp: proto CircularBuffer[A] = this;
+    while (-n &#62; 0) 
+    temp = new CircularBuffer[A](temp);
+    next = temp;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

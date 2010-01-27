@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Finish</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Finish</h2><a name="finish">
+</a>
+The statement "finish S" converts global termination to local
+termination and introduces a root activity. 
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement &nbsp;FinishStatement </td></tr>
+<tr><td align="right">FinishStatement &nbsp;"finish" Statement 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+An activity A executes "finish S" by executing "S".  The
+execution of "S" may spawn other asynchronous activities (here or
+at other places).  Uncaught exceptions thrown or propagated by any
+activity spawned by "S" are accumulated at "finish S".
+"finish S" terminates locally when all activities spawned by
+"S" terminate globally (either abruptly or normally). If "S"
+terminates normally, then "finish S" terminates normally and A
+continues execution with the next statement after "finish S".  If
+"S" terminates abruptly, then "finish S" terminates abruptly
+and throws a single exception, "x10.lang.MultipleExceptions"
+formed from the collection of exceptions accumulated at "finish S".
+
+<div class="p"><!----></div>
+Thus a "finish S" statement serves as a collection point for
+uncaught exceptions generated during the execution of "S".
+
+<div class="p"><!----></div>
+Note that repeatedly "finish&#239;ng a statement has no effect after
+the first "finish": "finish finish S" is indistinguishable
+from "finish S".
+
+<div class="p"><!----></div>
+
+<b>Interaction with clocks.&nbsp;&nbsp;</b><a name="sec:finish:clock-rule">
+</a>
+"finish S" interacts with clocks (&#167;). 
+
+<div class="p"><!----></div>
+While executing "S", an activity must not spawn any "clocked"
+asyncs. (Asyncs spawned during the execution of "S" may spawn
+clocked asyncs.) A
+"ClockUseException" is thrown
+if (and when) this condition is violated.
+
+<div class="p"><!----></div>
+In X10 v2.0 this condition is checked dynamically; future
+versions of the language will introduce type qualifiers which permit
+this condition to be checked statically.
+
+<div class="p"><!----></div>
+<em>
+<b>Future Extensions.&nbsp;&nbsp;</b>
+The semantics of "finish S" is conjunctive; it terminates when all
+the activities created during the execution of "S" (recursively)
+terminate. In many situations (e.g., nondeterministic search) it is
+natural to require a statement to terminate when any <em>one</em> of the
+activities it has spawned succeeds. The other activities may then be
+safely aborted. Future versions of the language may introduce a
+"finishone S" construct to support such speculative or nondeterministic
+computation.
+</em>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

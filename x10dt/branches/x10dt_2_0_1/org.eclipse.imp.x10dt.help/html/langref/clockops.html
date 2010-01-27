@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Clock operations</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Clock operations</h2><a name="sec:clock">
+</a>
+The special statements introduced for clock operations are listed below.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement &nbsp;ClockedStatement </td></tr>
+<tr><td align="right">ClockedStatement &nbsp;"clocked" "(" ClockList ")" Statement </td></tr>
+<tr><td align="right">NextStatement &nbsp;"next" ";" </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Note that "x10.lang.Clock" provides several useful methods on
+clocks (e.g. "drop").
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Creating new clocks</h3><a name="sec:clock:create">
+</a>
+
+<div class="p"><!----></div>
+Clocks are created using a factory method on "x10.lang.Clock":
+
+<div class="p"><!----></div>
+<pre>
+timeSynchronizer: Clock = Clock.make();
+</pre>
+
+<div class="p"><!----></div>
+The current activity is automatically registered with the newly
+created clock.  It may deregister using the "drop" method on
+clocks (see the documentation of "x10.lang.Clock"). All activities
+are automatically deregistered from all clocks they are registered
+with on termination (normal or abrupt).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Registering new activities on clocks</h3>
+<a name="sec:clock:register">
+</a>
+
+<div class="p"><!----></div>
+The programmer may specify which clocks a new activity is to be
+registered with using the "clocked" clause.
+
+<div class="p"><!----></div>
+An activity may transmit only those clocks that is registered with and
+has not quiesced on (&#167;). 
+A "ClockUseException" is
+thrown if (and when) this condition is violated.
+
+<div class="p"><!----></div>
+An activity may check that it is registered on a clock "c" by
+executing:
+<pre>
+c.registered()
+</pre>
+ This call returns the "Boolean" value "true" iff the
+activity is registered on "c"; otherwise it returns "false".
+
+<div class="p"><!----></div>
+ Note:
+X10 does not contain a "register" statement that would allow an
+activity to discover a clock in a datastructure and register itself on
+it. Therefore, while clocks may be stored in a datastructure by one
+activity and read from that by another, the new activity cannot
+"use" the clock unless it is already registered with it.
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Resuming clocks</h3><a name="resume">
+</a><a name="sec:clock:resume">
+</a>
+X10 permits <em>split phase</em> clocks. An activity may wish
+to indicate that it has completed whatever work it wishes to perform
+in the current phase of a  clock "c" it is registered with, without
+suspending all activity. It may do so  by executing the method
+invocation:
+<pre>
+c.resume();
+</pre>
+
+<div class="p"><!----></div>
+An activity may invoke this method only on a clock it is registered
+with, and has not yet dropped (&#167;). A "ClockUseException" is thrown if (and
+when) this condition is violated.  Nothing happens if the activity has
+already invoked a "resume" on this clock in the current phase.
+Otherwise execution of this statement indicates that the activity will
+not transmit "c" to an &#228;sync" (through a "clocked"
+clause),
+until it terminates, drops "c" or executes a "next". 
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler should issue an error if any activity has a potentially
+live execution path from a "resume" statement on a clock "c"
+to a
+async spawn statement (which registers the new
+activity on "c") unless the path goes through a "next"
+statement. (A "c.drop()" following a "c.resume()" is legal,
+as is "c.resume()" following a "c.resume()".)
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Advancing clocks</h3><a name="sec:clock:next">
+</a>
+An activity may execute the statement
+<pre>
+next;
+</pre>
+
+<div class="p"><!----></div>
+ Execution of this statement blocks until all the clocks that the
+activity is registered with (if any) have advanced. (The activity
+implicitly issues a "resume" on all clocks it is registered
+with before suspending.)
+
+<div class="p"><!----></div>
+An X10 computation is said to be <em>quiescent</em> on a clock
+"c" if each activity registered with "c" has resumed "c".
+Note that once a computation is quiescent on "c", it will remain
+quiescent on "c" forever (unless the system takes some action),
+since no other activity can become registered with "c".  That is,
+quiescence on a clock is a <em>stable property</em>.
+
+<div class="p"><!----></div>
+Once the implementation has detected quiescence on "c", the system
+marks all activities registered with "c" as being able to progress
+on "c". An activity blocked on "next" resumes execution once
+it is marked for progress by all the clocks it is registered with.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.5">
+1.5</a>&nbsp;&nbsp;Dropping clocks</h3><a name="sec:clock:drop">
+</a>
+An activity may drop a clock by executing:
+<pre>
+c.drop();
+</pre>
+
+<div class="p"><!----></div>
+ The activity is no longer considered registered with this
+clock.  A "ClockUseException" is thrown if the activity has
+already dropped "c".
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

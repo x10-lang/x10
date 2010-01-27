@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Foreach statements</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Foreach statements</h2>
++<a name="ForLoop">
+</a>
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement &nbsp;ForEachStatement </td></tr>
+<tr><td align="right">ForEachStatement &nbsp;
+      "foreach" "(" Formal &#239;n" Expression ")"
+          Statement 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The "foreach" statement is similar to the enhanced "for"
+statement (&#167;).
+
+<div class="p"><!----></div>
+An activity executes a "foreach" statement in a similar fashion
+except that separate &#228;sync" activities are launched in parallel
+in the local place of each object returned by the iteration.
+The statement
+terminates locally when all the activities have been spawned. It never
+throws an exception, though exceptions thrown by the spawned
+activities are propagated through to the root activity.
+
+<div class="p"><!----></div>
+In a common case, the
+the collection is intended to be of type
+"Region" and the formal parameter is of type "Point".  Expressions &#235;" of type "Dist" and
+&#196;rray" are also accepted, and treated as if they were &#235;.region".
+
+<div class="p"><!----></div>
+
+</body>
+</html>
