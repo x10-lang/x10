@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.core.dialogs;
 
 import java.util.Collection;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.swt.widgets.Shell;
 
@@ -27,8 +28,23 @@ public final class DialogsFactory {
    * @return The dialog return code.
    */
   public static int openResourceManagerStartDialog(final Shell parentShell, final Collection<IResourceManager> rmList) {
-    final ResourceManagerStartDialog dialog = new ResourceManagerStartDialog(parentShell, rmList);
-    return dialog.open();
+    return new ResourceManagerStartDialog(parentShell, rmList).open();
+  }
+  
+  /**
+   * Defines a dialog allowing to start a list of resource managers, with a particular dialog text message, and to return
+   * a unique one of interest for the end-user.
+   * 
+   * @param parentShell The parent shell to use for the dialog.
+   * @param rmList The list of resource managers of interest.
+   * @param dialogText The dialog text.
+   * @return The resource manager started and selected by the end-user or <b>null</b> if one canceled the operation.
+   */
+  public static IResourceManager selectResourceManagerStartDialog(final Shell parentShell, 
+                                                                  final Collection<IResourceManager> rmList,
+                                                                  final String dialogText) {
+    final CustomizableRMStartDialog dialog = new CustomizableRMStartDialog(parentShell, rmList, dialogText);
+    return (dialog.open() == Window.OK) ? dialog.getSelectedResourceManager() : null;
   }
 
 }
