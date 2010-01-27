@@ -39,6 +39,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfigurat
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IInputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.JavaProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
@@ -163,7 +164,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     final IRemoteFileManager fileManager = remoteServices.getFileManager(connection);
     try {
-      final String workspaceDir = project.getPersistentProperty(Constants.WORKSPACE_DIR);
+      final String workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(project);
       final String platformConfName = project.getPersistentProperty(Constants.X10_PLATFORM_CONF);
       final Map<String, IX10PlatformConfiguration> platforms = X10PlatformsManager.loadPlatformsConfiguration();
       final IX10PlatformConfiguration platform = platforms.get(platformConfName);
@@ -201,6 +202,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final IRemoteProcess process = processBuilder.start();
       
       final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+      messageConsole.clearConsole();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       final StringBuilder cmdBuilder = new StringBuilder();
       for (final String str : command) {
