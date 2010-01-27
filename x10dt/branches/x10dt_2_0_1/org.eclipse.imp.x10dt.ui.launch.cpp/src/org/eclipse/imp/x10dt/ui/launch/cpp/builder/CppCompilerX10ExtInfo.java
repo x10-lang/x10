@@ -50,9 +50,7 @@ public final class CppCompilerX10ExtInfo implements ICompilerX10ExtInfo {
     options.source_path = sourcePath;
     options.compile_command_line_only = true;
     options.post_compiler = null;
-    if (! withMainMethod) {
-      Configuration.MAIN_CLASS = ""; //$NON-NLS-1$ We do generate main class stub during partial compilation.
-    }
+    Configuration.MAIN_CLASS = (withMainMethod) ? null : ""; //$NON-NLS-1$
   }
 
 }
