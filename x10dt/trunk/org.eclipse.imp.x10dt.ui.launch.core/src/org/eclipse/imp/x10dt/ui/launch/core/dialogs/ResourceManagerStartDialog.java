@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 
-final class ResourceManagerStartDialog extends TitleAreaDialog {
+class ResourceManagerStartDialog extends TitleAreaDialog {
 
   ResourceManagerStartDialog(final Shell parent, final Collection<IResourceManager> resourceManagerList) {
     super(parent);
@@ -61,7 +61,14 @@ final class ResourceManagerStartDialog extends TitleAreaDialog {
   
   protected void createButtonsForButtonBar(final Composite parent) {
     final Button button = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
-    button.setEnabled(false);
+    boolean shouldBeEnabled = false;
+    for (final IResourceManager resourceManager : this.fResManagerList) {
+      if (resourceManager.getState() == State.STARTED) {
+        shouldBeEnabled = true;
+        break;
+      }
+    }
+    button.setEnabled(shouldBeEnabled);
     button.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
