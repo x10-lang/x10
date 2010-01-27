@@ -53,11 +53,11 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.WorkbenchException;
 
 import polyglot.frontend.Compiler;
@@ -93,8 +93,20 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       monitor.beginTask(null, 100);
       
       // Let's get the resource manager.
-      final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
-      final IResourceManager resourceManager = PTPCorePlugin.getDefault().getUniverse().getResourceManager(resManagerID);
+      final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
+      final IResourceManager[] rmFound = new IResourceManager[1];
+      workbench.getDisplay().syncExec(new Runnable() {
+
+        public void run() {
+          try {
+            rmFound[0] = PTPUtils.getResourceManager(workbench.getDisplay().getActiveShell(), getProject());
+          } catch (CoreException except) {
+            // Let's forget that.
+          }
+        }
+        
+      });
+      final IResourceManager resourceManager = rmFound[0];
       if (resourceManager == null) {
         IResourceUtils.addMarkerTo(getProject(), NLS.bind(Messages.CPPB_NoResManagerError, getProject().getName()), 
                                    IMarker.SEVERITY_ERROR, 
@@ -118,8 +130,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
       
       // Let's clean the target workspace directory.
+      final String resManagerID = getProject().getPersistentProperty(Constants.RES_MANAGER_ID);
       final Pair<IRemoteConnection, IRemoteFileManager> pair = PTPUtils.getConnectionAndFileManager(resManagerID);
-      final String workspaceDir = getProject().getPersistentProperty(Constants.WORKSPACE_DIR);
+      final String workspaceDir = JavaProjectUtils.getTargetWorkspaceDir(getProject());
       final IFileStore wDirFileStore = pair.second.getResource(workspaceDir);
       if (wDirFileStore.fetchInfo().exists()) {
         wDirFileStore.delete(EFS.NONE, new SubProgressMonitor(monitor, 3));
