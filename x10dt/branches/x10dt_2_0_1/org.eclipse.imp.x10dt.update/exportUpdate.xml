@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.imp.x10dt.update" default="collect.update" basedir=".">
+    <import file="../org.eclipse.imp.x10dt.feature/buildCommon.xml"/>
+
+	<target name="init.collect">
+		<tstamp>
+			<format property="build.time" pattern="yyyyMMddHHmm"/> 
+		</tstamp>
+		<property name="x10dt.build.qualifier" value="v${build.time}"/>
+	</target>
+
+	<target name="init.common">
+		<echo message="Build qualifier is ${x10dt.build.qualifier}"/>
+
+	    <property name="update.name"        value="org.eclipse.imp.x10dt.update"/>
+	    <property name="update.version"     value="${x10dt.version}"/>
+	    <property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
+	    <property name="update.destination" value="${basedir}"/>
+	    <property name="update.server"      value="orquesta.watson.ibm.com"/>
+	    <property name="update.server.dir"  value="/usr/src/imp"/>
+		<!-- Fix the following to use the build qualifier that gets read in, once we reorganize things
+		     to avoid executing the stuff in buildCommon.xml that *always* recomputes the build qualifier.
+		     I.e., substitute ${update.version} for vYYYYMMddHHmm in the following line.
+		  --> 
+	    <property name="zip.file"           value="${update.destination}/${update.name}_vYYYYMMddHHmm.zip"/>
+
+		<!-- feature name(s) comma-separated, w/o trailing ".feature" -->
+		<!-- note: don't include IMP stuff here, we cache that and copy it -->
+	    <property name="feature.list"       value="org.eclipse.imp.x10dt"/> 
+	</target>
+
+	<target name="init.zip">
+		<loadfile property="x10dt.build.qualifier" srcfile=".build.qualifier"/>
+<!--		<echo message="build qualifier is ${x10dt.build.qualifier}"/> -->
+	</target>
+
+	<target name="publish.zip" depends="init.zip,init.common" description="Copies the update archive to the update server.">
+        <echo message="Copying update zip file to update server ${update.server}"/>
+        <scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${user.name}@${update.server}:${update.server.dir}"></scp>
+    </target>
+
+	<!-- The following target doesn't currently work properly, since one really needs to
+	     update the site.xml manually to add the new feature versions *before* building
+	     the .zip file. This is because it seems problematic to write in Ant the logic
+	     needed to remove the old builds of the current versions of the features in the
+	     site, and we don't really want the site.xml to accumulate every build of every
+	     feature, each time we run the build script.
+	<target name="build.update.zip">
+		<antcall target="collect.update"/>
+		<antcall target="zip.update"/>
+	</target>
+	  -->
+
+	<!-- One would typically run this target, then manually edit the site.xml (in update.temp.folder) to add the
+	     new feature versions, and finally run 'zip.update' to build the update site archive. -->
+	<target name="collect.update" depends="init.collect,init.common" description="Step 1: Builds and collects all the feature and plugin components for the update site.">
+        <delete dir="${update.temp.folder}"/>
+        <mkdir dir="${update.temp.folder}"/>
+        <antcall target="export.features"/>
+        <for param="feature" values="${feature.list}">
+            <antcall target="copy.feature">
+                <param name="feature.name"    value="${feature}"/>
+                <param name="feature.version" value="${update.version}"/>
+                <param name="feature.dir"     value="../${feature}.feature"/>
+            </antcall>
+        </for>
+    	
+        <antcall target="get.lpg.artifacts"/>
+        <antcall target="get.polyglot.artifacts"/>
+    	<antcall target="get.imp.artifacts"/>
+		<antcall target="get.ptp.artifacts"/>
+		<!-- save the build qualifier to be used in the zip.update target -->
+		<echo message="${x10dt.build.qualifier}" file=".build.qualifier"/> 
+		<echo message="*** Now modify update.temp.folder/site.xml - change version in TWO PLACES, then run Step 2. zip.update "/>
+			
+    </target>
+
+	<target name="zip.update" depends="init.zip,init.common" description="Step 2: Creates the update site archive from the components collected by collect.update">
+		<loadfile property="saved.build.qualifier" srcfile=".build.qualifier"/>
+		<propertyRegexp name="x10dt.version.prefix" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1"/>
+		<echo message="*** The saved build qualifier is ... the envelope please... ${saved.build.qualifier}"/>
+		<property name="zip.file.name" value="${update.destination}/${update.name}_${x10dt.version.prefix}.${saved.build.qualifier}.zip"/>
+        <zip destfile="${zip.file.name}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+      <!--  <delete dir="${update.temp.folder}"/>   -->
+    </target>
+
+    <target name="copy.feature">
+        <echo message="Feature directory is ${feature.dir}"/>
+
+        <mkdir dir="${update.temp.folder}/features"/>
+        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+            <fileset dir="${feature.dir}" includes="${feature.name}_${feature.version}.jar"/>
+        </copy>
+
+        <mkdir dir="${update.temp.folder}/plugins"/>
+        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+            <fileset dir="${feature.dir}/plugins" includes="*.jar"/>
+        </copy>
+
+        <copy file="site.xml" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+        <copy file="index.html" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+
+        <mkdir dir="${update.temp.folder}/web"/>
+        <copy todir="${update.temp.folder}/web" failonerror="true" overwrite="false">
+            <fileset dir="${basedir}/web" includes="site.css"/>
+            <fileset dir="${basedir}/web" includes="site.xsl"/>
+        </copy>
+    </target>
+	
+	 <target name="get.lpg.artifacts">
+	        <delete dir="../lpg.update/plugins" includes="*.jar"/>
+	        <delete dir="../lpg.update/features" includes="*.jar"/>
+
+	        <ant antfile="../lpg.update/exportUpdate.xml" target="build.plugins"/>
+	        <ant antfile="../lpg.update/exportUpdate.xml" target="build.features"/>
+
+	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+	           <fileset dir="../lpg.update/plugins" includes="lpg.runtime_*.jar"/>
+	        </copy>
+	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+	            <fileset dir="../lpg.update/features" includes="lpg.runtime_*.jar"/>
+	        </copy>
+	    </target>
+
+	    <target name="get.polyglot.artifacts">
+	    	<property name="polyglotPluginId"        value="polyglot3"/>
+	    	<property name="polyglotFeatureId"        value="polyglot3"/>
+	    	<!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
+	    	<property name="polyglotProjectName"   value="polyglot3"/>
+	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="*.jar"/>
+	        <delete dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="*.jar"/>
+
+	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-plugin"/>
+	        <ant antfile="../${polyglotProjectName}/build.xml" dir="../${polyglotProjectName}" target="build-features"/>
+	    
+	        <copy verbose="true" todir="${update.temp.folder}/plugins" failonerror="true" overwrite="true">
+	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/plugins" includes="${polyglotPluginId}_*.jar"/>
+	        </copy>
+	        <copy verbose="true" todir="${update.temp.folder}/features" failonerror="true" overwrite="true">
+	           <fileset dir="../${polyglotProjectName}/eclipseUpdates3/features" includes="${polyglotFeatureId}_*.jar"/>
+	        </copy>
+	    </target>
+	
+	 <target name="get.imp.artifacts">
+	 	<!-- imp.cache.location is the local cache of the (unzipped) IMP update site   -->
+	 	<property name="imp.cache.location"        value="/Users/beth/temp/imp104"/>
+	        <copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+	           <fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	<fileset dir="${imp.cache.location}/features/" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        </copy>
+	 	<!-- fixme really should dynamically copy plugin jars based on list in feature manifest -->
+	        <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+	            <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.doc_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.runtime_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapi_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.smapifier_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.xform_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="org.eclipse.imp.java.hosted_*.jar"/>
+	        	 <fileset dir="${imp.cache.location}/plugins" includes="com.ibm.wala.shrike_*.jar"/>	        
+	        </copy>
+	    </target>
+     <target name="get.ptp.artifacts">
+		<!-- ptp.cache.location is the local cache of the (unzipped) ptp update site   
+		    which is the unzipped contents of ptp-master-*-subset-for-x10dt.zip   -->
+		<property name="ptp.cache.location"        value="/Users/beth/temp/ptp301x"/>
+
+		<copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.master*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.external*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/features/" includes="org.eclipse.ptp.utils*.jar"/>
+			 
+		</copy>
+		<copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+			<!--
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp*.jar"/>
+			-->
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp_*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.aix*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.core*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.debug*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.help*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.launch*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.linux*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.macosx*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.proxy*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.remote*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.rm*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.services*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.ui*.jar"/>
+			<fileset dir="${ptp.cache.location}/plugins/" includes="org.eclipse.ptp.utils*.jar"/>		 
+		</copy>
+
+	</target>
+    <target name="export.features">
+        <echo message="Building feature jars..."/>
+        <for param="feature" values="${feature.list}">
+            <ant antfile="../${feature}.feature/exportFeature.xml" target="build.feature.jar" dir="../${feature}.feature">
+            	<property name="x10dt.build.qualifier" value="${x10dt.build.qualifier}"/>
+        	</ant>
+        </for>
+        <echo message="Done building feature jars."/>
+    </target>
+</project>
