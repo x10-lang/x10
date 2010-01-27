@@ -259,16 +259,15 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
-
-
+ALL_MANUAL_SOURCES=$(ALL_MANUAL_OBJECTS:.o=.cc)
 
 
 # This target will build the XRX cc files into object files
-gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
+gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST) 
 	$(MAKE) $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST))
 	touch $@
 
-$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)
+$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_SOURCES)
 	$(MAKE) $(ALL_MANUAL_OBJECTS)
 	$(AR) $(ARFLAGS) $@ \
 	    $(shell sed -e 's@^\(.*\)\.cc$$@gen/\1.o@' -e '/\.x10$$/d' -e '/\.jar$$/d' $(XRX_MANIFEST)) \
