@@ -78,13 +78,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.analysis.p3"
-         download-size="0"
-         install-size="0"
-         version="1.7.1"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.imp.x10dt.debug"
          download-size="0"
          install-size="0"
