@@ -25,7 +25,6 @@ import java.util.List;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -84,7 +83,7 @@ final class PlatformConfChecker implements IPlatformConfChecker {
     final IRemoteFileManager fileManager = this.fRemoteServices.getFileManager(this.fRemoteConnection);
     try {
       return execute(getArchivingCommand(archiver, archivingOptions), fileManager, monitor);
-    } catch (Exception except ) {
+    } catch (Exception except) {
       fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
       throw except;
     }
@@ -99,9 +98,11 @@ final class PlatformConfChecker implements IPlatformConfChecker {
     final IRemoteFileManager fileManager = this.fRemoteServices.getFileManager(this.fRemoteConnection);
 
     try {
-      this.fWorkDir = createWorkDir(fileManager, getTempDirectory());
-      final String testFilePath = createTestFile(fileManager, monitor.newChild(1));
-    
+      final String uniqueDirName = createUniqueDirName();
+      this.fWorkDir = String.format(PATH_SEP_STRFORMAT, getTempDirectory(), uniqueDirName);
+      fileManager.getResource(this.fWorkDir).mkdir(EFS.NONE, new NullProgressMonitor());
+      final File testFilePath = createTestFile(fileManager, uniqueDirName, monitor.newChild(1));
+
       // X10 compilation
       final Pair<String, String> compilationResults = compileX10File(language, testFilePath, getContentSampleStream(),
                                                                      this.fWorkDir, x10DistLoc, pgasDistLoc,
@@ -115,7 +116,7 @@ final class PlatformConfChecker implements IPlatformConfChecker {
       final List<String> command = getCompilationCommand(compiler, compilingOptions, x10HeadersLocs, this.fWorkDir, 
                                                          compilationResults.second);
       return execute(command, fileManager, monitor.newChild(14));
-    } catch (Exception except ) {
+    } catch (Exception except) {
       fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
       throw except;
     }
@@ -139,27 +140,19 @@ final class PlatformConfChecker implements IPlatformConfChecker {
   // --- Private code
   
   @SuppressWarnings("unchecked")
-  private Pair<String, String> compileX10File(final ELanguage language, final String testFilePath, 
+  private Pair<String, String> compileX10File(final ELanguage language, final File testFilePath, 
                                               final InputStream sourceInputStream, final String workspaceDir,
                                               final String x10DistLoc, final String pgasDistLoc, 
                                               final String[] x10LibsLocs, final IRemoteFileManager fileManager, 
                                               final SubMonitor monitor) throws Exception {
     monitor.beginTask(Messages.APCC_GeneratingFilesMsg, 10);
-    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
-    final String workDir;
-    if (isLocal) {
-      workDir = workspaceDir;
-    } else {
-      workDir = System.getProperty(TMPDIR_JAVA_ENV_VAR);
-    }
-    
-    final ICompilerX10ExtInfo compilerExtInfo = X10BuilderUtils.createCompilerX10ExtInfo(language);
     
     final Bundle x10RuntimeBundle = Platform.getBundle(X10_RUNTIME_BUNDLE);
     final File x10RuntimeDir = getDirectory(x10RuntimeBundle);
     
+    final File localTestDir = testFilePath.getParentFile();
     final StringBuilder classPathBuider = new StringBuilder();
-    classPathBuider.append(workDir);
+    classPathBuider.append(localTestDir.getAbsolutePath());
     final IFilter<File> libFilter = new LibFilter();
     for (final String x10LibsLoc : x10LibsLocs) {
       for (final File libFile : FileUtils.collect(new File(x10LibsLoc), libFilter, false /* recurse */)) {
@@ -169,39 +162,32 @@ final class PlatformConfChecker implements IPlatformConfChecker {
     classPathBuider.append(File.pathSeparatorChar).append(x10RuntimeDir.getAbsolutePath());
     
     final List<File> srcPath = new ArrayList<File>();
-    srcPath.add(new File(workDir));
+    srcPath.add(localTestDir);
     srcPath.add(x10RuntimeDir);
     
-    final ExtensionInfo extInfo = compilerExtInfo.createExtensionInfo(classPathBuider.toString(), srcPath, workDir, 
+    final ICompilerX10ExtInfo compilerExtInfo = X10BuilderUtils.createCompilerX10ExtInfo(language);
+    final ExtensionInfo extInfo = compilerExtInfo.createExtensionInfo(classPathBuider.toString(), srcPath, 
+                                                                      localTestDir.getAbsolutePath(), 
                                                                       true /* withMainMethod */, monitor);
     final CompilationErrorQueue errorQueue = new CompilationErrorQueue();
     final Compiler compiler = new Compiler(extInfo, errorQueue);
     Globals.initialize(compiler);
     
-    compiler.compile(Arrays.<Source>asList(new StreamSource(sourceInputStream, new File(testFilePath).getAbsolutePath())));
+    compiler.compile(Arrays.<Source>asList(new StreamSource(sourceInputStream, testFilePath.getAbsolutePath())));
     
+    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
     if (! isLocal) {
       final IFileSystem fileSystem = EFS.getLocalFileSystem();
       final IFileStore destDir = fileManager.getResource(workspaceDir);
-      final Collection<File> generatedFiles = new ArrayList<File>();
       try {
-        final File workDirFile = new File(workDir);
         for (final Object fileName : compiler.outputFiles()) {
-          for (final File generatedFile : workDirFile.listFiles(new CppFileNameFilter((String) fileName))) {
-            generatedFiles.add(generatedFile);
-          }
-          for (final File generatedFile : generatedFiles) {
+          for (final File generatedFile : localTestDir.listFiles(new CppFileNameFilter((String) fileName))) {
             final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
             curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);            
           }
         }
       } finally {
-        for (final File file : generatedFiles) {
-          if (file.exists()) {
-            file.delete();
-          }
-        }
-        new File(testFilePath).delete();
+        FileUtils.deleteDirectory(localTestDir);
       }
     }
 
@@ -219,9 +205,12 @@ final class PlatformConfChecker implements IPlatformConfChecker {
     }
   }
   
-  private String createTestFile(final IRemoteFileManager fileManager, final SubMonitor monitor) throws Exception {
-    final String tempDir = System.getProperty(TMPDIR_JAVA_ENV_VAR);
-    final String testFilePath = tempDir + '/' + TEST_FILENAME;
+  private File createTestFile(final IRemoteFileManager fileManager, final String uniqueDirName,
+                              final SubMonitor monitor) throws Exception {
+    final String dirPath = String.format(PATH_SEP_STRFORMAT, System.getProperty(TMPDIR_JAVA_ENV_VAR), uniqueDirName);
+    final String testFilePath = String.format(PATH_SEP_STRFORMAT, dirPath, TEST_FILENAME);
+    final File localTestFileDir = new File(dirPath);
+    localTestFileDir.mkdirs();
     
     final OutputStream os = new FileOutputStream(new File(testFilePath));
     final InputStream is = getContentSampleStream();
@@ -236,19 +225,18 @@ final class PlatformConfChecker implements IPlatformConfChecker {
       os.close();
       monitor.done();
     }
-    return testFilePath;
+    return new File(testFilePath);
   }
   
-  private String createWorkDir(final IRemoteFileManager fileManager, final String tempDir) throws CoreException {
+  private String createUniqueDirName() {
     final SimpleDateFormat format = new SimpleDateFormat("hh-mm-ss"); //$NON-NLS-1$
-    final String dirPath = tempDir + "/x10-validation-" + format.format(new Date()); //$NON-NLS-1$
-    fileManager.getResource(dirPath).mkdir(EFS.NONE, new NullProgressMonitor());
-    return dirPath;
+    final String userName = System.getProperty("user.name").replace(" ", "_"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    return String.format("x10-validation-%s-%s", userName, format.format(new Date())); //$NON-NLS-1$
   }
   
   private String execute(final List<String> command, final IRemoteFileManager fileManager, 
                          final SubMonitor monitor) throws Exception {
-    monitor.beginTask(null, 10);
+    monitor.beginTask(null, 1);
     IRemoteProcess process = null;
     try {
       process = getProcessBuilder(command).directory(fileManager.getResource(this.fWorkDir)).start();
@@ -282,17 +270,8 @@ final class PlatformConfChecker implements IPlatformConfChecker {
       
       process.waitFor();
       final int exitValue = process.exitValue();
-      monitor.worked(5);
-      if (exitValue == 0) {
-        return null;
-      } else {
-        monitor.subTask(Messages.APCC_ProcessErrorStreamMsg);
-        monitor.worked(5);
-        
-        fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
-        
-        return errMsgBuilder.toString();
-      }
+      monitor.worked(1);
+      return (exitValue == 0) ? null : errMsgBuilder.toString();
     } finally {
       if (process != null) {
         process.destroy();
@@ -526,6 +505,7 @@ final class PlatformConfChecker implements IPlatformConfChecker {
   private static final String H_EXT = ".h"; //$NON-NLS-1$
   
   private static final String INC_EXT = ".inc"; //$NON-NLS-1$
-  
+
+  private static final String PATH_SEP_STRFORMAT = "%s/%s"; //$NON-NLS-1$
 
 }
