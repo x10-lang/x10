@@ -9,7 +9,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/network.h>
 
-namespace x10 { namespace lang { class Reference; } }
+namespace x10 { namespace lang { class NullType; } }
 
 namespace x10aux {
 
@@ -181,9 +181,8 @@ namespace x10aux {
         return obj;
     }
 
-    // will be initialised to null
-    typedef ref<x10::lang::Reference> NullType;
-    static NullType null;
+    // will be initialised to NULL
+    static ref<x10::lang::NullType> null;
 
     template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }
     // comparison of a primitive with a ref

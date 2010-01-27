@@ -116,6 +116,20 @@ namespace x10 {
                 " (expecting id " << id << ") from buf: "<<&buf);
             return x10aux::DeserializationDispatcher::create<T>(buf);
         }
+
+        /**
+         * This is a class that exists only at the C++ implementation level,
+         * not at the X10 language level.  It's only real purpose is to
+         * provide a C++ level type for x10aux::NullType and therefore permit
+         * a unique RTT object to be associated with the X10 value null.
+         * 
+         * This is an abstract class because no instance of it will ever be
+         * created (we use NULL as the value for X10's null).
+         */
+        class NullType : public Reference {
+          public:
+            RTT_H_DECLS_CLASS;
+        };
     }
 }
 
