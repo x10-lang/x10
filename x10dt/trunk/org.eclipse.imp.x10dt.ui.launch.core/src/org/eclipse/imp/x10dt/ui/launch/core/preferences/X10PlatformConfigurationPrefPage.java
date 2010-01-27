@@ -32,6 +32,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.IX10PlatformConfiguration;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.X10PlatformsManager;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.wizards.X10NewPlatformConfWizard;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IInputValidator;
@@ -218,7 +219,6 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     tableWrapper.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 7));
     
     final TableViewer tableViewer = new TableViewer(tableWrapper, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.FULL_SELECTION);
-
     tableViewer.setContentProvider(new IStructuredContentProvider() {
       
       public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
@@ -414,10 +414,10 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     final Collection<IResourceManager> stoppedResManagerList = new ArrayList<IResourceManager>();
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
-        if ((resourceManagerId == null) || (resourceManager.getID().equals(resourceManagerId))) {
+        if ((resourceManagerId == null) || (resourceManager.getUniqueName().equals(resourceManagerId))) {
           return true;
         }
-      } else if ((resourceManagerId == null) || (resourceManager.getID().equals(resourceManagerId))) {
+      } else if ((resourceManagerId == null) || (resourceManager.getUniqueName().equals(resourceManagerId))) {
         stoppedResManagerList.add(resourceManager);
       }
     }
@@ -515,17 +515,7 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
   private void updateSummaryText(final IX10PlatformConfiguration platformConfiguration) {
     final EValidStatus validStatus = platformConfiguration.getValidationStatus();
     if ((validStatus == EValidStatus.ERROR) || (validStatus == EValidStatus.FAILURE)) {
-      final String statusMsg = (validStatus == EValidStatus.ERROR) ? Messages.XPCPP_ValidationInternalError : 
-                                                                     Messages.XPCPP_ValidationFailure;
-      this.fPlatformConfSummaryText.setText(NLS.bind(Messages.XPCPP_TwoLinesBreak, statusMsg, 
-                                                     platformConfiguration.getValidationErrorMessage()));  
-      final StyleRange styleRange = new StyleRange();
-      styleRange.start = 0;
-      styleRange.length = statusMsg.length();
-      styleRange.underline = true;
-      final int color = (validStatus == EValidStatus.ERROR) ? SWT.COLOR_RED : SWT.COLOR_MAGENTA;
-      styleRange.foreground = this.fPlatformConfSummaryText.getDisplay().getSystemColor(color);
-      this.fPlatformConfSummaryText.setStyleRange(styleRange);
+      writeFailureOrError(platformConfiguration);
     } else {
       final StringBuilder sb = new StringBuilder();
       sb.append(NLS.bind(Messages.XPCPP_ConfSummary, platformConfiguration.getName()));
@@ -542,22 +532,43 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
         sb.append(NLS.bind(Messages.XPCPP_LinkingOpts, platformConfiguration.getLinkingOpts()));
         sb.append(NLS.bind(Messages.XPCPP_LinkingLibs, platformConfiguration.getLinkingLibs()));
       }
+      boolean hasResourceManager = true;
       if (platformConfiguration.getResourceManagerId() != null) {
-        final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
-        final IResourceManager resourceManager = universe.getResourceManager(platformConfiguration.getResourceManagerId());
-        sb.append(NLS.bind(Messages.XPCPP_ResourceManagerName, resourceManager.getName()));
+        final String rmUniqueName = platformConfiguration.getResourceManagerId();
+        final IResourceManager resourceManager = PTPUtils.getResourceManager(getShell(), rmUniqueName);
+        if (resourceManager == null) {
+          hasResourceManager = false;
+          sb.append(NLS.bind(Messages.XPCPP_ResourceManagerName, Messages.XPCPP_UnknownRMName));
+          sb.insert(0, Messages.XPCPP_NoRMForIdSaved);
+        } else {
+          sb.append(NLS.bind(Messages.XPCPP_ResourceManagerName, resourceManager.getName()));
+          
+          if (! resourceManager.getUniqueName().equals(rmUniqueName)) {
+            final String newUniqueName = resourceManager.getUniqueName();
+            final IX10PlatformConfiguration newConf = X10PlatformsManager.createNewConfigurationRMId(platformConfiguration, 
+                                                                                                     newUniqueName);
+            this.fX10Platforms.put(platformConfiguration.getName(), newConf);
+          }
+        }
       }
       sb.append(NLS.bind(Messages.XPCPP_TargetOS, platformConfiguration.getTargetOS()));
       final String architectureName = (platformConfiguration.getArchitecture() == EArchitecture.E32Arch) ? "32" : "64"; //$NON-NLS-1$ //$NON-NLS-2$
       sb.append(NLS.bind(Messages.XPCPP_Architecture, architectureName));
       this.fPlatformConfSummaryText.setText(sb.toString());
+      
+      if (! hasResourceManager) {
+        final StyleRange styleRange = new StyleRange();
+        styleRange.start = 0;
+        styleRange.length = Messages.XPCPP_NoRMForIdSaved.length();
+        styleRange.foreground = this.fPlatformConfSummaryText.getDisplay().getSystemColor(SWT.COLOR_RED);
+        this.fPlatformConfSummaryText.setStyleRange(styleRange);
+      }
     }
   }
   
   private void validateConfiguration(final IX10PlatformConfiguration platformConfiguration, final TableViewer tableViewer) {
-    final String resId = platformConfiguration.getResourceManagerId();
-    final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
-    final IResourceManager resourceManager = universe.getResourceManager(resId);
+    final String resUniqueName = platformConfiguration.getResourceManagerId();
+    final IResourceManager resourceManager = PTPUtils.getResourceManager(getShell(), resUniqueName);
     
     final ELanguage language = platformConfiguration.isCplusPlus() ? ELanguage.CPP : ELanguage.JAVA;
     final IPlatformConfChecker checker = new PlatformConfChecker(resourceManager);
@@ -637,7 +648,23 @@ public final class X10PlatformConfigurationPrefPage extends PreferencePage
     final ConfTableEntry entry = this.fNameToTableEntry.get(platformConfiguration.getName());
     entry.setNewStatus(platformConfiguration.getValidationStatus());
     tableViewer.refresh(entry);
+    
     updateSummaryText(platformConfiguration);
+  }
+  
+  private void writeFailureOrError(final IX10PlatformConfiguration platformConfiguration) {
+    final EValidStatus validStatus = platformConfiguration.getValidationStatus();
+    final String statusMsg = (validStatus == EValidStatus.ERROR) ? Messages.XPCPP_ValidationInternalError : 
+                                                                   Messages.XPCPP_ValidationFailure;
+    this.fPlatformConfSummaryText.setText(NLS.bind(Messages.XPCPP_TwoLinesBreak, statusMsg, 
+                                                   platformConfiguration.getValidationErrorMessage()));  
+    final StyleRange styleRange = new StyleRange();
+    styleRange.start = 0;
+    styleRange.length = statusMsg.length();
+    styleRange.underline = true;
+    final int color = (validStatus == EValidStatus.ERROR) ? SWT.COLOR_RED : SWT.COLOR_MAGENTA;
+    styleRange.foreground = this.fPlatformConfSummaryText.getDisplay().getSystemColor(color);
+    this.fPlatformConfSummaryText.setStyleRange(styleRange);
   }
   
   // --- Private classes
