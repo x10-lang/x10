@@ -28,6 +28,7 @@ import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -49,6 +50,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
@@ -102,8 +104,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             throw new SemanticException("Cannot declare a non-final field in a value class.", position());
         }
 */
-      
-        	if (X10TypeMixin.isX10Struct(ref)) {
+        	if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
         		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
         		if (! x10flags.isFinal()) 
         			throw new SemanticException("Illegal " + fi
@@ -115,6 +116,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         X10MethodDecl_c.checkVisibility(tc.typeSystem(), context, this);
         
         return result;
+    }
+    
+    protected boolean isMutable(X10TypeSystem xts, Type t) {
+        if (!(t instanceof X10ClassType)) return false;
+        X10ClassType ct = (X10ClassType) t;
+        try {
+            Type m = (Type) xts.systemResolver().find(QName.make("x10.compiler.Mutable"));
+            return ct.annotations().contains(m);
+        } catch (SemanticException e) {
+            return false;
+        }
     }
     
     protected void checkVariance(ContextVisitor tc) throws SemanticException {
@@ -273,13 +285,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                		+ this.type().type() + " (a proto type).", position());
 	            	
 	            }
-	            if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
+                X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+                if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
+	                    !isMutable(ts, fieldDef().container().get()) &&
 	            		! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
 	                throw new SemanticException("A struct may not have var fields.",
 	                		position());
 	            }
 	            	
-	            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	            X10Context context = (X10Context) tc.context();
 	            
