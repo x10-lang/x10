@@ -13,4 +13,4 @@ package x10.compiler;
  * which means restrictions on what language features are allowed.
  * @author Dave Cunningham
  */
-public interface CUDA { };
+public interface CUDA { }
