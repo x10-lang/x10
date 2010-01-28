@@ -3,6 +3,7 @@
 
 #include <x10aux/config.h>
 #include <assert.h>
+#include <pthread.h>
 
 /* Macro to use in class declaration for boilerplate RTT junk */
 #define RTT_H_DECLS_CLASS \
@@ -41,7 +42,7 @@ namespace x10aux {
 
     class RuntimeType {
     private:
-        static x10aux::ref<x10::lang::Lock__ReentrantLock> initRTTLock;
+        static volatile x10::lang::Lock__ReentrantLock *initRTTLock;
         
     public:
         /*

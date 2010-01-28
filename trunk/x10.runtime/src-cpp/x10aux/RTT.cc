@@ -92,12 +92,12 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
     // a thread asks for an RTT, it gets a fully initialized RTT before it starts
     // operating on it and we don't get a race with multiple threads partially
     // initializing an RTT.
-    while (initRTTLock.isNull()) {
+    while (NULL == initRTTLock) {
         ref<x10::lang::Lock__ReentrantLock> tmpLock = x10::lang::Lock__ReentrantLock::_make();
         x10aux::atomic_ops::store_load_barrier();
         atomic_ops::compareAndSet_ptr((volatile void**)(&initRTTLock), NULL, tmpLock.operator->());
     }
-    initRTTLock->lock();
+    const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->lock();
 
     if (canonical != NULL) {
         if (isInitialized) return; // another thread finished the job while this thread was blocked on initRTTLock.
@@ -135,7 +135,7 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
 
     x10aux::atomic_ops::store_load_barrier();
     isInitialized = true; // must come after the store_load_barrier
-    initRTTLock->unlock();
+    const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
 }
     
 void RuntimeType::initBooleanType() {
@@ -200,6 +200,6 @@ RuntimeType RuntimeType::UShortType;
 RuntimeType RuntimeType::UIntType;
 RuntimeType RuntimeType::ULongType;
 
-x10aux::ref<x10::lang::Lock__ReentrantLock> RuntimeType::initRTTLock;
+volatile x10::lang::Lock__ReentrantLock* RuntimeType::initRTTLock;
 
 // vim:tabstop=4:shiftwidth=4:expandtab
