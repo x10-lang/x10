@@ -18,6 +18,12 @@
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.1.1.jar"/>
+    <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
+    <property name="polyglot.bytecode.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
+    <property name="polyglot.bytecode.jar.url" value="${polyglot.bytecode.url}/polyglot-bytecode.jar"/>
+    <property name="asm.jar" value="asm.jar"/>
+    <property name="asm.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/polyglot.bytecode/lib"/>
+    <property name="asm.jar.url" value="${asm.url}/asm-all-3.2.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -39,6 +45,12 @@
         <mkdir dir="${lib}" />
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
+        </condition>
+        <condition property="local.polyglot.bytecode.jar" value="${env.LOCAL_POLYGLOT_BYTECODE_JAR}">
+            <isset property="env.LOCAL_POLYGLOT_BYTECODE_JAR"/>
+        </condition>
+        <condition property="local.asm.jar" value="${env.LOCAL_ASM_JAR}">
+            <isset property="env.LOCAL_ASM_JAR"/>
         </condition>
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
@@ -130,7 +142,33 @@
         <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
 
-    <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar">
+    <target name="polyglot-bytecode-jar" depends="init,polyglot-bytecode-local-jar" unless="local.polyglot.bytecode.jar">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${polyglot.bytecode.jar.url}" dest="${lib}/${polyglot.bytecode.jar}"/>
+        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
+        <fail message="Unable to get ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
+    </target>
+    <target name="polyglot-bytecode-local-jar" depends="init" if="local.polyglot.bytecode.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.polyglot.bytecode.jar}" tofile="${lib}/${polyglot.bytecode.jar}"/>
+        <available property="polyglot.bytecode.jar.present" file="${lib}/${polyglot.bytecode.jar}"/>
+        <fail message="Unable to find ${polyglot.bytecode.jar}" unless="polyglot.bytecode.jar.present"/>
+    </target>
+
+    <target name="asm-jar" depends="init,asm-local-jar" unless="local.asm.jar">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${asm.jar.url}" dest="${lib}/${asm.jar}"/>
+        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
+        <fail message="Unable to get ${asm.jar}" unless="asm.jar.present"/>
+    </target>
+    <target name="asm-local-jar" depends="init" if="local.asm.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.asm.jar}" tofile="${lib}/${asm.jar}"/>
+        <available property="asm.jar.present" file="${lib}/${asm.jar}"/>
+        <fail message="Unable to find ${asm.jar}" unless="asm.jar.present"/>
+    </target>
+
+    <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar,polyglot-bytecode-jar,asm-jar">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
@@ -281,9 +319,13 @@
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
 POLYGLOT_JAR='${polyglot.jar}'
+POLYGLOT_BYTECODE_JAR='${polyglot.bytecode.jar}'
+ASM_JAR='${asm.jar}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
 POLYGLOT_URL='${polyglot.jar.url}'
+POLYGLOT_BYTECODE_URL='${polyglot.bytecode.jar.url}'
+ASM_URL='${asm.jar.url}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
 
@@ -423,7 +465,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${polyglot.bytecode.jar},lib/${asm.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>

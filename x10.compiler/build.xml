@@ -18,11 +18,15 @@
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
+    <property name="polyglot.bytecode.jar" value="polyglot-bytecode.jar"/>
+    <property name="asm.jar" value="asm-all-3.2.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
         <path refid="polyglot.classpath"/>
+        <path refid="polyglot.bytecode.classpath"/>
+        <path refid="asm.classpath"/>
         <path refid="x10.runtime.classpath"/>
         <path refid="x10.constraints.classpath"/>
         <path refid="x10.common.classpath"/>
@@ -35,6 +39,12 @@
     </path>
     <path id="polyglot.classpath">
         <pathelement location="${lib}/${polyglot.jar}"/>
+    </path>
+    <path id="polyglot.bytecode.classpath">
+        <pathelement location="${lib}/${polyglot.bytecode.jar}"/>
+    </path>
+    <path id="asm.classpath">
+        <pathelement location="${lib}/${asm.jar}"/>
     </path>
     <path id="x10.runtime.classpath">
         <pathelement location="${lib}/${runtime.jar}"/>
@@ -65,7 +75,7 @@
         </copy>
     </target>
     <target name="check-jar" depends="init">
-        <fileset id="compiler.classes" dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>
+        <fileset id="compiler.classes" dir="${build}" includes="org/**,x10/**,x10bc/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>
         <fileset id="constraints.classes" dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         <fileset id="common.classes" dir="${x10.common.location}/classes" includes="x10/**"/>
         <uptodate property="compiler.uptodate" targetfile="${build}/${jar}">
@@ -80,7 +90,7 @@
             <fileset refid="compiler.classes"/>
             <fileset refid="constraints.classes"/>
             <fileset refid="common.classes"/>
-            <!--<fileset dir="${build}" includes="org/**,x10/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>-->
+            <!--<fileset dir="${build}" includes="org/**,x10/**,x10bc/**,x10cpp/**,x10c/**,x10cuda/**,data/**" excludes="${jar}"/>-->
             <!--<fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>-->
             <!--<fileset dir="${x10.common.location}/classes" includes="x10/**"/>-->
         </jar>
@@ -97,7 +107,7 @@
     </target>
     <target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10/**,x10c/**,x10cpp/**,x10cuda/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="x10/**,x10bc/**,x10c/**,x10cpp/**,x10cuda/**" excludes="polyglot/ext/x10/dom/**,polyglot/ext/x10/plugin/**,polyglot/ext/x10/visit/Propagate*AnnotationsVisitor.java">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
