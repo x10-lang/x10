@@ -586,6 +586,20 @@ public class Emitter {
 //		h.write("const ");
 		printType(n.type().type(), h);
 		h.write(" ");
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		Type param_type = n.type().type();
+		param_type = X10TypeMixin.baseType(param_type);
+		if (param_type instanceof X10ClassType) {
+			X10ClassType c = (X10ClassType)param_type;
+			if (c.isX10Struct()) {
+		        try {
+					Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.ByRef"));
+					if (!c.annotationsMatching(annotation).isEmpty()) h.write("&");
+		        } catch (SemanticException e) {
+		            assert false : e;
+		        }
+			}
+		}
 		h.write(mangled_non_method_name(n.name().id().toString()));
 		h.end();
 	}
