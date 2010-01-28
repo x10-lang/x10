@@ -135,7 +135,7 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
 
     x10aux::atomic_ops::store_load_barrier();
     isInitialized = true; // must come after the store_load_barrier
-    initRTTLock->lock();
+    initRTTLock->unlock();
 }
     
 void RuntimeType::initBooleanType() {
