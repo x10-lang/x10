@@ -12,4 +12,4 @@ package x10.compiler;
  * of this struct by reference and not value.
  * @author Dave Cunningham
  */
-public interface ByRef { };
+public interface ByRef { }
