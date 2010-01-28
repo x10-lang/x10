@@ -26,7 +26,6 @@ x10_int Struct::hashCode() {
 
 RuntimeType Struct::rtt;
 void Struct::_initRTT() {
-    rtt.canonical = &rtt;
     rtt.init(&rtt, "x10.lang.Struct", 0, NULL, 0, NULL, NULL);
 }
 

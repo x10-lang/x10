@@ -123,7 +123,6 @@ namespace x10 {
                 }
                 
                 template<class T> void AtomicReference<T>::_initRTT() {
-                    rtt.canonical = &rtt;
                     x10::util::concurrent::atomic::_initRTTHelper_AtomicReference(&rtt, x10aux::getRTT<T>());
                 }
 

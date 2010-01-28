@@ -4037,15 +4037,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
 		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		inc.write("x10aux::itable_entry(&"+superType+"::rtt, &"+cnamet+"::_itable),");
+		inc.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
 		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
-
-        /*
-        if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("x10aux::RuntimeType * "+cnamet+"::rtt = const_cast<x10aux::RuntimeType *>(x10aux::getRTT"+chevrons(superType)+"());");
-        inc.newline(); inc.forceNewline();
-        */
 
 		generateClosureDeserializationIdDef(inc, cnamet, freeTypeParams, hostClassName, n.body());
 

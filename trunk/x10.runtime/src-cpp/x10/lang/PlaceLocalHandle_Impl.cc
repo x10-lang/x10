@@ -17,8 +17,7 @@ namespace x10 {
             const RuntimeType* params[1] = { rtt };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
             const RuntimeType *canonical = x10aux::getRTT<PlaceLocalHandle_Impl<void> >();
-            const char *name = alloc_printf("x10.lang.PlaceLocalHandle_Impl[+%s]",rtt->name());
-            location->init(canonical, name, 0, NULL, 1, params, variances);
+            location->init(canonical, "x10.lang.PlaceLocalHandle_Impl", 0, NULL, 1, params, variances);
         }
     }
 }
