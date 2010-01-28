@@ -130,7 +130,7 @@ $(SOCKETS_TGZ).phony:
 $(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 
 lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(SOCKETS_TGZ)
-	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xvf -
+	$(GZIP) -cd $(SOCKETS_TGZ) | $(TAR) -xf -
 endif
 
 lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) lib/libxlpgas_sockets.a
@@ -173,7 +173,7 @@ $(LAPI_TGZ).phony:
 $(LAPI_TGZ): $(LAPI_TGZ).phony
 
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(LAPI_TGZ)
-	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xvf -
+	$(GZIP) -cd $(LAPI_TGZ) | $(TAR) -xf -
 endif
 
 lib/libx10rt_pgas_lapi.a: $(COMMON_OBJS) lib/libxlpgas_lapi.a
@@ -212,7 +212,7 @@ $(BGP_TGZ).phony:
 $(BGP_TGZ): $(BGP_TGZ).phony
 
 lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(BGP_TGZ)
-	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xvf -
+	$(GZIP) -cd $(BGP_TGZ) | $(TAR) -xf -
 endif
 
 lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
