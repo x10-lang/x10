@@ -111,7 +111,6 @@ namespace x10 {
                 ::addDeserializer(ValRail<T>::template _deserializer<Object>);
 
         template<class T> void ValRail<T>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(),
                                               x10aux::getRTT<Fun_0_1<x10_int,T> >(),
                                               x10aux::getRTT<Iterable<T> >());

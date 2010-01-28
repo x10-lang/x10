@@ -4,18 +4,42 @@
 #include <x10aux/atomic_ops.h>
 
 #include <x10/lang/Reference.h>
+#include <x10/lang/Lock__ReentrantLock.h>
 
 #include <cstdarg>
 
 using namespace x10aux;
 using namespace x10::lang;
 
+const char *RuntimeType::name() const {
+    if (NULL == fullTypeName) {
+        assert(paramsc > 0); // if paramssc == 0, then fullTypeName is set to baseName in initRTT();
+        std::ostringstream ss;
+        ss << baseName;
+        ss << "[";
+        for (int i=0; i<paramsc; i++) {
+            if (i>0) ss << ", ";
+            ss << params[i]->name();
+        }
+        ss << "]";
+        const_cast<RuntimeType*>(this)->fullTypeName = ss.str().c_str();
+    }
+    
+    return fullTypeName;
+}
+
 bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     // Checks to try to catch partially initialized RTT objects before we use them.
-    assert(canonical != NULL);
-    assert(other->canonical != NULL);
+    assert(isInitialized);
+    assert(other->isInitialized);
 
     if (equals(other)) return true; // trivial case
+
+    // the NullType should be considered a subtype of any type that extends x10.lang.Object.
+    if (equals(getRTT<x10::lang::NullType>())) {
+        if (other->subtypeOf(getRTT<x10::lang::Object>())) return true;
+    }
+    
     if (paramsc > 0 && canonical->equals(other->canonical)) {
         // Different instances of the same generic type (since canonical is equal).
         // this->subtypeOf(other) will be true exactly when the type parameters
@@ -58,12 +82,33 @@ bool RuntimeType::concreteInstanceOf (const ref<Reference> &other) const {
     return other->_type()->equals(this);
 }
 
-void RuntimeType::init(const RuntimeType *canonical_, const char* typeName_,
+void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
                        int parentsc_, const RuntimeType** parents_,
                        int paramsc_, const RuntimeType** params_,
                        Variance* variances_) {
+    // Ensure that at most one thread is doing any RTT initialization at a time.
+    // This is overkill, since many RTT's have nothing to do with each other and
+    // RTT initialization is idempotent. However, we want to make sure that if
+    // a thread asks for an RTT, it gets a fully initialized RTT before it starts
+    // operating on it and we don't get a race with multiple threads partially
+    // initializing an RTT.
+    while (initRTTLock.isNull()) {
+        ref<x10::lang::Lock__ReentrantLock> tmpLock = x10::lang::Lock__ReentrantLock::_make();
+        x10aux::atomic_ops::store_load_barrier();
+        atomic_ops::compareAndSet_ptr((volatile void**)(&initRTTLock), NULL, tmpLock.operator->());
+    }
+    initRTTLock->lock();
+
+    if (canonical != NULL) {
+        if (isInitialized) return; // another thread finished the job while this thread was blocked on initRTTLock.
+        // We should only get here if there is a cyclic intialization in progress.
+        // We don't have a 100% foolproof way to be sure that is what is happening, so
+        // just hope that is what is happening and return.
+        return;
+    }
+    
     canonical = canonical_;
-    typeName = typeName_;
+    baseName = baseName_;
     parentsc = parentsc_;
     paramsc = paramsc_;
     containsPtrs = true; // TODO: Eventually the compiler should analyze structs and where possible set containsPtrs for their RTT's to false.
@@ -85,8 +130,12 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* typeName_,
     } else {
         params = NULL;
         variances = NULL;
+        fullTypeName = baseName;
     }
+
     x10aux::atomic_ops::store_load_barrier();
+    isInitialized = true; // must come after the store_load_barrier
+    initRTTLock->lock();
 }
     
 void RuntimeType::initBooleanType() {
@@ -150,5 +199,7 @@ RuntimeType RuntimeType::UByteType;
 RuntimeType RuntimeType::UShortType;
 RuntimeType RuntimeType::UIntType;
 RuntimeType RuntimeType::ULongType;
+
+x10aux::ref<x10::lang::Lock__ReentrantLock> RuntimeType::initRTTLock;
 
 // vim:tabstop=4:shiftwidth=4:expandtab

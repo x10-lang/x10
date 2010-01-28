@@ -43,7 +43,7 @@ void Reference::_serialize(x10aux::ref<Reference> this_,
 x10aux::RuntimeType x10::lang::NullType::rtt;
 
 void x10::lang::NullType::_initRTT() {
-    rtt.init(&rtt, "null", 0, NULL, 0, NULL, NULL);
+    rtt.init(&rtt, "Null", 0, NULL, 0, NULL, NULL);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

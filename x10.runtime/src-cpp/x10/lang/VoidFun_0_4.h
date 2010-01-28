@@ -43,7 +43,6 @@ namespace x10 {
 
         template<class P1, class P2, class P3, class P4>
             void VoidFun_0_4<P1,P2,P3,P4>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_VoidFun_0_4(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
                                                         x10aux::getRTT<P3>(), x10aux::getRTT<P4>());
         }

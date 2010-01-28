@@ -48,7 +48,6 @@ namespace x10 {
 
         template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9, class R>
             void Fun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9,R>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Fun_0_9(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
                                                     x10aux::getRTT<P3>(), x10aux::getRTT<P4>(), 
                                                     x10aux::getRTT<P5>(), x10aux::getRTT<P6>(),

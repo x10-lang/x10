@@ -176,7 +176,6 @@ namespace x10 {
         template<class T> x10_int GrowableRail<T>::size() { return _array->FMGL(length); }
 
         template<class T> void GrowableRail<T>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
         }
         

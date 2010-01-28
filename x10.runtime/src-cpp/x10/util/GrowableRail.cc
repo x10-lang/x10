@@ -19,8 +19,7 @@ namespace x10 {
             const RuntimeType* params[1] = { element };
             RuntimeType::Variance variances[1] = { RuntimeType::invariant };
             const RuntimeType *canonical = x10aux::getRTT<GrowableRail<void> >();
-            const char *name = alloc_printf("x10.lang.GrowableRail[%s]", element->name());
-            location->init(canonical, name, 1, parents, 1, params, variances);
+            location->init(canonical, "x10.lang.GrowableRail", 1, parents, 1, params, variances);
         }
     }
 }

@@ -67,7 +67,6 @@ namespace x10 {
         };
 
         template<class T> void PlaceLocalHandle_Impl<T>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_PlaceLocalHandle_Impl(&rtt, x10aux::getRTT<T>());
         }
 

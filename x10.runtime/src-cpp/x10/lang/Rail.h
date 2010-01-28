@@ -216,7 +216,6 @@ namespace x10 {
     namespace lang {
 
         template<class T> void Rail<T>::_initRTT() {
-            rtt.canonical = &rtt;
             x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(),
                                            x10aux::getRTT<Settable<x10_int,T> >(),
                                            x10aux::getRTT<Iterable<T> >());

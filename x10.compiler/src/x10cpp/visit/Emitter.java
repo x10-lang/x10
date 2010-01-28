@@ -625,7 +625,6 @@ public class Emitter {
 		  boolean first = true;
           h.write("x10aux::RuntimeType "+translateType(ct)+"::rtt;"); h.newline();
           h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-          h.write("rtt.canonical = &rtt;"); h.newline();
           if (numParents > 0) { 
               h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
               if (ct.superClass() != null) {
@@ -655,7 +654,6 @@ public class Emitter {
 
             printTemplateSignature(ct.typeArguments(), h);
             h.write("void "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-            h.write("rtt.canonical = &rtt;"); h.newline();
             if (numParents > 0) {
                 h.write("const x10aux::RuntimeType* parents["+numParents+"] = { ");
                 if (ct.superClass() != null) {
@@ -697,18 +695,8 @@ public class Emitter {
             h.write("const x10aux::RuntimeType *canonical = x10aux::getRTT"+chevrons(translateType(MessagePassingCodeGenerator.getStaticMemberContainer(ct),false))+"();");
             h.newline();
             
-            h.write("const char *name = "); h.newline(4);
-            h.write("x10aux::alloc_printf("); h.begin(0);
-            h.write("\""+x10name+"[");
-            for (int i=0; i<numTypeParams; i++) {
-                h.write(i > 0 ? ",%s" : "%s");
-            }
-            h.write("]\"");
-            for (int i=0; i<numTypeParams; i++) {
-                h.write(", params["+i+"]->name()"); h.newline();
-            }
-            h.write(");") ; h.end(); h.newline();
-            h.write("rtt.init(canonical, name, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
+            h.write("const char *baseName = \""+x10name+"\";"); h.newline();
+            h.write("rtt.init(canonical, baseName, "+numParents+", parents, "+numTypeParams+", params, variances);"); h.end(); h.newline();
             h.write("}"); h.newline();
 		}
 		h.newline();
