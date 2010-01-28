@@ -91,6 +91,11 @@ public class Activity {
         finishState.notifyActivityTermination();
         Runtime.dealloc(body);
     }
+
+    /**
+     * Activity-local storage
+     */
+    public var tag:Object!;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
