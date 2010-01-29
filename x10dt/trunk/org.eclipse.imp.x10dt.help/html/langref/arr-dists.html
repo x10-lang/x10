@@ -51,7 +51,7 @@ region. "D.places" is the set of places constituting the range of
 "D" (viewed as a function). Given a point "p", the expression
 "D(p)" represents the application of "D" to "p", that is,
 the place that "p" is mapped to by "D". The evaluation of the
-expression "D(p)" throws an &#196;rrayIndexOutofBoundsException"
+expression "D(p)" throws an "ArrayIndexOutofBoundsException"
 if "p" does not lie in the underlying region.
 
 <div class="p"><!----></div>
@@ -73,8 +73,8 @@ described below may be performed on "Dist.factory".
 <div class="p"><!----></div>
 
 <b>Unique distribution&nbsp;&nbsp;</b> 
-The distribution &#252;nique(Q)" is the unique distribution from the
-region "1..k" to "Q" mapping each point &#239;" to "pi".
+The distribution "unique(Q)" is the unique distribution from the
+region "1..k" to "Q" mapping each point "i" to "pi".
 
 <div class="p"><!----></div>
 
@@ -108,7 +108,7 @@ The distribution "cyclic(R)" is the same distribution as "cyclic(R, Place.places
 <div class="p"><!----></div>
 Thus the distribution "cyclic(Place.MAX_PLACES)" provides a 1-1
 mapping from the region "Place.MAX_PLACES" to the set of all
-places and is the same as the distribution &#252;nique(Place.places)".
+places and is the same as the distribution "unique(Place.places)".
 
 <div class="p"><!----></div>
 
@@ -120,9 +120,9 @@ of "R" cyclically over the set of places "Q" in blocks of size
 <div class="p"><!----></div>
 
 <b>Arbitrary distributions.&nbsp;&nbsp;</b> 
-The distribution &#228;rbitrary(R,Q)" arbitrarily allocates points in <tt>
-R</tt> to "Q". As above, &#228;rbitrary(R)" is the same distribution as
-&#228;rbitrary(R, Place.places)".
+The distribution "arbitrary(R,Q)" arbitrarily allocates points in <tt>
+R</tt> to "Q". As above, "arbitrary(R)" is the same distribution as
+"arbitrary(R, Place.places)".
 
 <div class="p"><!----></div>
 
@@ -166,10 +166,10 @@ a way that supports static reasoning.
 
 <div class="p"><!----></div>
 A <em>sub-distribution</em> of "D" is
-any distribution &#203;" defined on some subset of the region of
+any distribution "E" defined on some subset of the region of
 "D", which agrees with "D" on all points in its region.
 We also say that "D" is a <em>super-distribution</em> of
-&#203;". A distribution "D<sub>1</sub>" <em>is larger than</em>
+"E". A distribution "D<sub>1</sub>" <em>is larger than</em>
 "D<sub>2</sub>" if "D<sub>1</sub>" is a super-distribution of
 "D<sub>2</sub>".
 
@@ -227,7 +227,7 @@ over the same (otherwise unknown) distribution. The result is the sum
 reduction of an array of "T" with one element at each place in the
 range of "D". The value of this array at each point is the sum
 reduction of the array formed by multiplying the corresponding
-elements of &#228;" and "b" in the local sub-array at the current
+elements of "a" and "b" in the local sub-array at the current
 place.
 
 <div class="p"><!----></div>

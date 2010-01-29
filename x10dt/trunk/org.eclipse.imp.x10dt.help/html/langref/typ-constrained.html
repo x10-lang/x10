@@ -31,13 +31,13 @@
         "T{e}" may be
         constructed by constraining its
         properties with a
-        boolean expression &#235;".
+        boolean expression "e".
 
 <div class="p"><!----></div>
         "T{e}" is a <em>dependent type</em>, that is, a type
         dependent on values.
         The type "T" is called the
-        <em>base type</em> and &#235;" is called the <em>constraint</em>.
+        <em>base type</em> and "e" is called the <em>constraint</em>.
         For reference types, the constraint may
         specify the places at which the object resides.
 
@@ -204,7 +204,7 @@ All X10 classes extend the class
 <div class="p"><!----></div>
 If a constrained reference type "T" has an "!p" suffix,
 the constraint for "T" is implicitly assumed to contain the clause
-&#223;elf.home==p"; that is,
+"self.home==p"; that is,
 "C{c}!p" is equivalent to "C{self.home==p &amp;&amp; c}".
 
 <div class="p"><!----></div>
@@ -223,7 +223,7 @@ for types in field declarations, and to "here" elsewhere.
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Variable occurrence):
 In a dependent type "T" = "C{c}", the only variables that may
 occur in "c" are (a)
-&#223;elf", (b) properties visible at "T", (c) final local variables, final
+"self", (b) properties visible at "T", (c) final local variables, final
 method parameters or final constructor parameters visible at "T", (d)
 final fields visible at "T''s lexical place in the source program.  
 
@@ -276,17 +276,17 @@ variable "this" is in scope at each property
 declaration, constructor signatures and bodies, instance method signatures
 and bodies,
 and instance field signatures and initializers, but not in scope
-at &#223;tatic" method or field declarations or &#223;tatic"
+at "static" method or field declarations or "static"
 initializers.  
 
 <div class="p"><!----></div>
 We permit variable declarations "v: T" where "T" is obtained
 from a dependent type "C{c}" by replacing one or more occurrences
-of &#223;elf" in "c" by "v". (If such a declaration "v: T"
+of "self" in "c" by "v". (If such a declaration "v: T"
 is type-correct, it must be the case that the variable "v" is not
 visible at the type "T". Hence we can always recover the
 underlying dependent type "C{c}" by replacing all occurrences of "v"
-in the constraint of "T" by &#223;elf".)
+in the constraint of "T" by "self".)
 
 <div class="p"><!----></div>
 For instance, "v: Int{v == 0}" is shorthand for "v: Int{self == 0}".
@@ -298,16 +298,16 @@ The type of a constraint "c" must be "Boolean".
 
 <div class="p"><!----></div>
 A variable occurring in the constraint "c" of a dependent type, other than
-&#223;elf" or a property of &#223;elf", is said to be a <em>
+"self" or a property of "self", is said to be a <em>
 parameter</em> of "c".<a name="DepType:Parameter">
 </a> 
 
 <div class="p"><!----></div>
-An instance &#246;" of "C" is said to be of type "C{c}"
+An instance "o" of "C" is said to be of type "C{c}"
 (or: <em>belong to</em>
 "C{c}") if the predicate "c" evaluates to "true" in the current lexical
-environment, augmented with the binding &#223;elf" <font face="symbol">®</font
-> &#246;". We shall
+environment, augmented with the binding "self" <font face="symbol">®</font
+> "o". We shall
 use the function  "C{c} " to denote the set of
 objects that belong to "C{c}". 
 
@@ -389,14 +389,14 @@ class Point(x: Int, y: Int) {...}
 </pre>
 
 <div class="p"><!----></div>
-To see that the declaration &#235;nd: Point{self != start}" is
+To see that the declaration "end: Point{self != start}" is
 parametrically consistent, note that the following formula is valid:
 <pre>
 <font face="symbol">"</font
 >this: Line. <font face="symbol">$</font
 >self: Point. self != this.start  
 </pre>
- since the set of all "Point&#223; has more than one element.
+ since the set of all "Points" has more than one element.
 
 
 <div class="p"><!----></div>
@@ -410,7 +410,7 @@ class Triangle
 </pre>
 
 <div class="p"><!----></div>
-Given &#228;: Line", the type "b: Line{a.end == b.start}" is consistent,
+Given "a: Line", the type "b: Line{a.end == b.start}" is consistent,
 and
 given the two, the type "c: Line{b.end == c.start, c.end == a.start}"
 is consistent.

@@ -25,10 +25,10 @@ A class may have zero or more mutable or immutable fields.
 No two fields declared in a class may have the same name. 
 
 <div class="p"><!----></div>
-Fields may be marked &#223;tatic". Only one instance of such a field
+Fields may be marked "static". Only one instance of such a field
 exists, and it may be accessed through the name of the class in which
 it is defined (&#167;).  Fields not marked
-&#223;tatic" are said to be <em>instance</em> fields. One copy of such a
+"static" are said to be <em>instance</em> fields. One copy of such a
 field exists for every instance of the class.
 
 <div class="p"><!----></div>
@@ -44,7 +44,7 @@ the same name and signature  as a method of the same class.
 A subclass that defines a field "f" hides any field "f"
 declared in a superclass, regardless of their types.  The
 superclass field "f" may be accessed within the body of
-the subclass via the reference &#223;uper.f".
+the subclass via the reference "super.f".
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.2">

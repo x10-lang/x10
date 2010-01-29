@@ -47,9 +47,9 @@ A subtype may be implicitly coerced to any supertype.
 
 <div class="p"><!----></div>
 
-<b>Explicit coercion (casting with &#228;s")&nbsp;&nbsp;</b>
+<b>Explicit coercion (casting with "as")&nbsp;&nbsp;</b>
 A reference type may be explicitly coerced to any other
-reference type using the &#228;s" operation.
+reference type using the "as" operation.
 If the value coerced is not an instance of the target type,
 a "ClassCastException" is thrown.  Casting to a constrained
 type may require a run-time check that the constraint is
@@ -66,7 +66,7 @@ satisfied.
 
 <b>Narrowing conversion.&nbsp;&nbsp;</b>
 A value class may be explicitly converted to any superclass
-using the &#228;s" operation.
+using the "as" operation.
 
 <div class="p"><!----></div>
 
@@ -96,7 +96,7 @@ method of the object.
 
 
 <div class="p"><!----></div>
-The user may define conversion operators from type &#196;" <em>to</em> a
+The user may define conversion operators from type "A" <em>to</em> a
 container type "B" by specifying a method on "B" as follows:
 
 <div class="p"><!----></div>
@@ -122,7 +122,7 @@ For instance, the code for "x10.lang.Point" contains:
 <div class="p"><!----></div>
 The compiler looks for such operators on the container type "B"
 when it encounters an expression of the form "r as B" (where
-"r" is of type &#196;"). If it finds such a method, it sets the
+"r" is of type "A"). If it finds such a method, it sets the
 type of the expression "r as B" to be the return type of the
 method. Thus the type of "r as B" is guaranteed to be some subtype
 of "B".
@@ -137,7 +137,7 @@ val a = p - q;
 This code fragment compiles successfully, given the above operator definition. 
 The type of "p" is inferred to be "Point(5)" (i.e.{} the type 
 "Point{self.rank==5}".
-Similarly for "q". Hence the application of the operator ""-''' is legal (it requires both arguments to have the same rank). The type of &#228;" is computed as "Point(5)".
+Similarly for "q". Hence the application of the operator ""-''' is legal (it requires both arguments to have the same rank). The type of "a" is computed as "Point(5)".
 
 
 

@@ -38,7 +38,7 @@ distributed X10 arrays.
 <div class="p"><!----></div>
 The interface consists of two parts. First, an array intended to be
 communicated to native code must be created as an unsafe array
-via the &#252;nsafe" annotation.
+via the "unsafe" annotation.
 <pre>
 new unsafe Array[T](dist)
 </pre>
@@ -54,22 +54,22 @@ their efficient transmission to natively linked code.
 
 <div class="p"><!----></div>
 Second, the X10 programmer may specify that certain methods are to
-be implemented natively by using the modifier &#235;xtern":
+be implemented natively by using the modifier "extern":
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;&#235;xtern"
+<tr><td align="right">MethodModifier &nbsp;"extern"
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Such a method must be declared &#223;tatic" and may not have a
+Such a method must be declared "static" and may not have a
 method body.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  Primitive types in
 the method argument are translated to their corresponding JNI type
 (e.g., <tt>Float</tt> is translated to <tt>jfloat</tt>, <tt>Double</tt> to
 <tt>jdouble</tt>, etc.).  The only non-primitive type permitted in an
-&#235;xtern" method is an unsafe array. This is passed at type
+"extern" method is an unsafe array. This is passed at type
 "jlong" as an eight-byte address into the unsafe region that contains
 the data for the array.  Note that <tt>jlong</tt> is not the same as <tt>long</tt> on
 32-bit machines.
@@ -83,11 +83,11 @@ arrays are created in row-major order, and so any native routine must
 also access them in the same order.
 
 <div class="p"><!----></div>
-For each class "C" that contains an &#235;xtern" method, the
+For each class "C" that contains an "extern" method, the
 X10 compiler generates a text file <tt>C_x10stub.c</tt>.  This file
 contains generated "C" stub functions that are called from the
-&#235;xtern" routines.  The name of the stub function is derived from
-the name of the &#235;xtern" method. If the method is
+"extern" routines.  The name of the stub function is derived from
+the name of the "extern" method. If the method is
 <tt>C.process()</tt>, the stub function will be
 <tt>Java_C_C_process()</tt>. The name is suffixed with the signature of the
 method if the method is overloaded.
@@ -104,7 +104,7 @@ adding a
 X10 class).
 
 <div class="p"><!----></div>
-The following class illustrates the use of &#252;nsafe" and native
+The following class illustrates the use of "unsafe" and native
 linking. 
 <pre>
 public class IntArrayExternUnsafe {

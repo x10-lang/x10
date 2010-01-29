@@ -77,7 +77,7 @@ type. This is the only language construct that throws a "BadPlaceException".
 <b>Atomic blocks.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-X10 introduces statements of the form &#228;tomic S" where "S"
+X10 introduces statements of the form "atomic S" where "S"
 is a statement.  The type system ensures that such a statement will
 dynamically access only local data. (The statement may throw
 a "BadPlaceException"-but only because of a failed place cast.)
@@ -89,17 +89,17 @@ during which all other activities are frozen.
 <b>Asynchronous activities.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-An asynchronous activity is created by a statement &#228;sync (P) S"
+An asynchronous activity is created by a statement "async (P) S"
 where "P" is a place expression and "S" is a statement.  Such
 a statement is executed by spawning an activity at the place
 designated by "P" to execute statement "S".
 
 <div class="p"><!----></div>
 An asynchronous expression of type "Future[T]" has the form
-"future (p) e" where &#235;" is an expression of type
-"T".  The expression &#235;"
+"future (p) e" where "e" is an expression of type
+"T".  The expression "e"
 may reference final and shared variables declared in the lexically
-enclosing environment.  It executes the expression &#235;" at the
+enclosing environment.  It executes the expression "e" at the
 place "p" as an asynchronous activity, immediately returning with
 a future. The future may later be forced causing the activity to be
 blocked until the return value has been computed by the asynchronous

@@ -28,12 +28,12 @@ the declared type of the variable.
 For "var" fields,
 if the initializer is omitted, the constructor must initialize
 the field, or else the field is initialized with
-"null" if a reference type, "0" if an &#207;nt", "0L"
+"null" if a reference type, "0" if an "Int", "0L"
 if a "Long",
 "0.0F" if a "Float", "0.0" if a "Double", or
 "false" if a "Boolean".  It is a static error if the
 default value is not a member of the type (e.g., it is a static
-error to elide the initializer for &#207;nt{self==1}").
+error to elide the initializer for "Int{self==1}").
 
 <div class="p"><!----></div>
 If the variable is final,
@@ -64,7 +64,7 @@ Mutable fields must be declared with a type.
 <tr><td align="right">FieldDeclaratorsWithType
         &nbsp;FieldDeclaratorId ( "," FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
 <tr><td align="right">FieldModifier &nbsp;Annotation </td></tr>
-<tr><td align="right">\ -  &#223;tatic" </td></tr>
+<tr><td align="right">\ -  "static" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

@@ -34,7 +34,7 @@
 </td></tr>
 <tr><td align="right">\ -  LocalVariableDeclaration </td></tr>
 <tr><td align="right">EnhancedForStatement &nbsp;"for" "("
-        Formal &#239;n" Expression 
+        Formal "in" Expression 
         ")" Statement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
@@ -72,7 +72,7 @@ and so do not have types.
 <div class="p"><!----></div>
 An enhanced for statement is used to iterate over a collection.
 If the formal parameter is of type "T",
-the collection expression must be of type &#207;terable[T]".
+the collection expression must be of type "Iterable[T]".
 Destructuring
 syntax may
 be used for the formal parameter (&#167;).
@@ -84,9 +84,9 @@ The formal paramter must be immutable.
 In a common case, 
 the collection is intended to be of type
 "Region" and the formal parameter is of type "Point".
-Expressions &#235;" of type "Dist" and
-&#196;rray" are also accepted, and treated as if they were
-&#235;.region".
+Expressions "e" of type "Dist" and
+"Array" are also accepted, and treated as if they were
+"e.region".
 If the collection is a region, the "for" statement
 enumerates the points in the region in canonical order.
 

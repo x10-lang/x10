@@ -27,7 +27,7 @@
 <table>
 <tr><td align="right">Statement &nbsp;ForEachStatement </td></tr>
 <tr><td align="right">ForEachStatement &nbsp;
-      "foreach" "(" Formal &#239;n" Expression ")"
+      "foreach" "(" Formal "in" Expression ")"
           Statement 
 </td></tr></table>
 </em>
@@ -38,7 +38,7 @@ statement (&#167;).
 
 <div class="p"><!----></div>
 An activity executes a "foreach" statement in a similar fashion
-except that separate &#228;sync" activities are launched in parallel
+except that separate "async" activities are launched in parallel
 in the local place of each object returned by the iteration.
 The statement
 terminates locally when all the activities have been spawned. It never
@@ -48,8 +48,8 @@ activities are propagated through to the root activity.
 <div class="p"><!----></div>
 In a common case, the
 the collection is intended to be of type
-"Region" and the formal parameter is of type "Point".  Expressions &#235;" of type "Dist" and
-&#196;rray" are also accepted, and treated as if they were &#235;.region".
+"Region" and the formal parameter is of type "Point".  Expressions "e" of type "Dist" and
+"Array" are also accepted, and treated as if they were "e.region".
 
 <div class="p"><!----></div>
 

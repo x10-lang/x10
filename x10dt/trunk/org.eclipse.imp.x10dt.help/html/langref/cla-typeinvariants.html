@@ -75,10 +75,10 @@ class Triangle (a: Line, b: Line, c: Line)
 
 <div class="p"><!----></div>
 Consider the definition of the class "Line". This may be thought of as
-saying: the class "Line" has two fields, &#223;tart: Point" and
-&#235;nd: Point".
+saying: the class "Line" has two fields, "start: Point" and
+"end: Point".
 Further, every instance of "Line" must satisfy the constraint that
-&#235;nd != start". Similarly for the other class definitions. 
+"end != start". Similarly for the other class definitions. 
 
 <div class="p"><!----></div>
 In the general case, the production for <em>NormalClassDeclaration</em>
@@ -94,7 +94,7 @@ specifies that the list of properties may be followed by a
 <tr><td align="right">&amp;&amp; Extends<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
 <tr><td align="right"></td></tr>
 <tr><td align="right">NormalInterfaceDeclaration &nbsp;
-      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
+      InterfaceModifiers<sup>?</sup>&nbsp;"interface" Identifier  </td></tr>
 <tr><td align="right">&amp;&amp; TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right"></td></tr></table>
@@ -124,8 +124,8 @@ invariant associated with "x10.lang.Object" is
 "true".
 
 <div class="p"><!----></div>
-The type invariant associated with any interface &#207;" that extends
-interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>" and defines properties
+The type invariant associated with any interface "I" that extends
+interfaces "I<sub>1</sub>, ..., I<sub>k</sub>" and defines properties
 "x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
 specifies a guard "c" is given by:
 
@@ -137,7 +137,7 @@ specifies a guard "c" is given by:
 
 <div class="p"><!----></div>
 Similarly the type invariant associated with any class "C" that
-implements interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>",
+implements interfaces "I<sub>1</sub>, ..., I<sub>k</sub>",
 extends class "D" and defines properties
 "x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
 specifies a guard "c" is
@@ -154,9 +154,9 @@ the type invariants of each interface that it implements.
 <div class="p"><!----></div>
 It is guaranteed that for any variable "v" of
 type "T{c}" (where "T" is an interface name or a class name) the only
-objects &#246;" that may be stored in "v" are such that &#246;" satisfies
-<i>inv</i>("T"[&#246;"/"this"])<font face="symbol">Ù</font
->"c"[&#246;"/&#223;elf"].
+objects "o" that may be stored in "v" are such that "o" satisfies
+<i>inv</i>("T"["o"/"this"])<font face="symbol">Ù</font
+>"c"["o"/"self"].
 
 <div class="p"><!----></div>
 

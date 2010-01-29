@@ -58,7 +58,7 @@ using a return statement (&#167;). The type of a
 function is a function type (&#167;).  In some cases the
 return type "T" is also optional and defaults to the type of the
 body. If a formal "xi" does not occur in any
-"Tj","c","T" or &#235;", the declaration "xi:Ti" may
+"Tj","c","T" or "e", the declaration "xi:Ti" may
 be replaced by just "Ti".
 
 <div class="p"><!----></div>
@@ -113,7 +113,7 @@ clause.
 <div class="p"><!----></div>
 In a function
 "(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; { s }"
-the types "T<sub>i</sub>", the guard "c" and the body &#223;"
+the types "T<sub>i</sub>", the guard "c" and the body "s"
 may access fields of enclosing classes and local variables and type
 parameters declared in an outer scope.
 
@@ -141,9 +141,9 @@ This motivates the following rule:
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 In an expression
 "(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; e",
-any outer local variable accessed by &#235;" must be final or
+any outer local variable accessed by "e" must be final or
 must be declared
-as &#223;hared" (&#167;).
+as "shared" (&#167;).
 
 
 <div class="p"><!----></div>

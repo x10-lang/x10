@@ -126,25 +126,25 @@ performing operations on arrays.
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The array type &#196;rray[T]" is the type of all
+The array type "Array[T]" is the type of all
 reference arrays of base type "T". Such an array can take on any
 distribution, over any region. 
 
 <div class="p"><!----></div>
 Both array classes implement the function type
-"(Point) =&#62; T"; the element of array &#196;" at point
+"(Point) =&#62; T"; the element of array "A" at point
 "p" may be accessed using the 
-syntax &#196;(p)".  The &#196;rray" class 
+syntax "A(p)".  The "Array" class 
 also implements the "Settable[Point,T]" interface 
 permitting assignment to an array element using the syntax
-&#196;(p) = v".
+"A(p) = v".
 
 <div class="p"><!----></div>
 X10 also supports dependent types for arrays,
 e.g.,
-&#196;rray[Double]{rank==3}" is the type of all arrays of 
+"Array[Double]{rank==3}" is the type of all arrays of 
 "Double" of rank "3".
-The &#196;rray" class has distribution, region, and rank
+The "Array" class has distribution, region, and rank
 properties. 
 X10 v2.0 defines type definitions that
 allows a distribution, region, or rank to be specified 
@@ -164,10 +164,10 @@ type Array[T](r: Region) = Array[T]{region==r};
 
 <div class="p"><!----></div>
 A <em>rail</em> is a one-dimensional, zero-based, local array. 
-It is more primitive than the &#196;rray" class.
+It is more primitive than the "Array" class.
 Rails are indexed by integers rather than multi-dimensional
 points.  Rails have a single "length" property of type
-&#207;nt".  Rails can be mutable or immutable and are defined
+"Int".  Rails can be mutable or immutable and are defined
 by the following class definitions:
 
 <div class="p"><!----></div>

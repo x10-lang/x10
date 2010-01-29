@@ -31,7 +31,7 @@ is of the form "p.X", and consists of a final access path
 member
 
 "X".
-The final access path "p" must be either "this", &#223;elf", a final
+The final access path "p" must be either "this", "self", a final
 local variable, or a final field or value property whose target
 is itself a final access path.  The path must type-check 
 as a normal expression in the scope in which it appears.
@@ -57,8 +57,8 @@ the path type "T.this.X".
 
 
 <div class="p"><!----></div>
-        To ensure soundness of the type system, the expression &#235;"
-	used in a path type &#235;.X" must be a <em>final access
+        To ensure soundness of the type system, the expression "e"
+	used in a path type "e.X" must be a <em>final access
 	path</em>, either a final local variable or formal parameter
 	(including the special variables "this" and "self"),
 	or a final field or value property of a final access path.

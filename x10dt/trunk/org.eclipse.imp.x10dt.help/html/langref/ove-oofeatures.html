@@ -80,7 +80,7 @@ can be copied freely.
 <div class="p"><!----></div>
 X10 has no primitive classes. However, the standard library
 "x10.lang" supplies structs "Boolean", "Byte",
-"Short", "Char", &#207;nt", "Long", "Float",
+"Short", "Char", "Int", "Long", "Float",
 "Double", "Complex" and "String". The user may defined
 additional arithmetic structs using the facilities of the
 language.
@@ -112,14 +112,14 @@ Properties enable the definition of <em>dependent types</em>.
 
 <div class="p"><!----></div>
 For example, the following code declares a class for a two-dimensional 
-"Point" class with an &#228;dd" method.
+"Point" class with an "add" method.
 <pre>
 struct Point(x: Int, y: Int) {
     def add(p: Point) = Point(x+p.x,y+p.y); 
 }
 </pre>
 The class has integer value properties "x" and &#255;".
-The &#228;dd" method creates and returns a new point by
+The "add" method creates and returns a new point by
 element-wise addition.
 The dependent type "Point{x==0}" is the type of all points 
 with "x" set to "0"; that is, all points along the y-axis.
@@ -153,11 +153,11 @@ class List[T] {
 }
 </pre>
 The constructor ("def this") initializes the fields of the new object.
-The &#228;dd" method appends an element to the list.
+The "add" method appends an element to the list.
 "List" is a generic type.  When  instances of "List" are
 allocated, the type parameter "T" must be bound to a concrete
 type.  "List[Int]" is the type of lists of element type
-&#207;nt", "List[String]" is the type of lists of element
+"Int", "List[String]" is the type of lists of element
 type "String".
 
 <div class="p"><!----></div>

@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Implementation of &#196;ny" methods</h2>
+3</a>&nbsp;&nbsp;Implementation of "Any" methods</h2>
 <a name="StructAnyMethods">
 </a>
 
@@ -50,13 +50,13 @@ Structs are required to implement the following methods:
 <div class="p"><!----></div>
 These methods are defined automatically if they are not supplied by
 the programmer.  A programmer who provides an explicit implementation
-of &#235;quals(Any)" for a struct "S" should also consider
-supplying a definition for &#235;quals(S):Boolean". This will often
-yield better performance since the cost of an upcast to &#196;ny" and
+of "equals(Any)" for a struct "S" should also consider
+supplying a definition for "equals(S):Boolean". This will often
+yield better performance since the cost of an upcast to "Any" and
 then a downcast to "S" can be avoided.
 
 <div class="p"><!----></div>
-Expressions of a struct type may be used in &#239;nstanceof" and
+Expressions of a struct type may be used in "instanceof" and
 "class-cast" tests.
 
 <div class="p"><!----></div>

@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Functions as objects of type &#196;ny"</h2>
+5</a>&nbsp;&nbsp;Functions as objects of type "Any"</h2>
 <a name="FunctionAnyMethods">
 </a>
 
@@ -33,17 +33,17 @@ environment are comparable).
 
 
 <div class="p"><!----></div>
-Every function type implements all the methods of &#196;ny".
+Every function type implements all the methods of "Any".
 For a value "f" of a function type "((x1:T1,...xn:Tn):T", 
 the expression "f.equals(g)" is of type "Boolean".
 It succeeds if and only if "f==g" succeeds. Similarly, the 
-expression "f.hashCode()" is of type &#207;nt" and returns
+expression "f.hashCode()" is of type "Int" and returns
 an implementation defined hash code which is guaranteed to be the
-same for two values that are &#235;qual". The expression
+same for two values that are "equal". The expression
 "f.toString()" returns an implementation-dependent string.
-Two strings returned on different evaluations are &#235;qual" to each other. 
+Two strings returned on different evaluations are "equal" to each other. 
 Similarly, "f.typeName()"  returns an implementation-dependent string.
-Two strings returned on different evaluations are &#235;qual" to each other. 
+Two strings returned on different evaluations are "equal" to each other. 
 
 
 
@@ -53,7 +53,7 @@ Two strings returned on different evaluations are &#235;qual" to each other.
 The method "f.home()" always returns "here". The call
 "f.at(p)" for "p" a value of type "Place" always returns
 "true". The call 
-"f.at(o)" for &#246;" a value of type &#214;bject" always returns
+"f.at(o)" for "o" a value of type &#214;bject" always returns
 "true"
 
 

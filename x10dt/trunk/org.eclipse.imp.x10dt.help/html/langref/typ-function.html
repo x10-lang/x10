@@ -80,7 +80,7 @@ For every sequence of types "T1,..., Tn,T", and "n" distinct variables
 <div class="p"><!----></div>
 Juxtaposition is used to express function application: the expression
 "f(a1,..,an)" expresses the application of a function "f" to the argument
-list &#228;1,...,an".
+list "a1,...,an".
 
 <div class="p"><!----></div>
 Note that function invocation may throw unchecked exceptions. 
@@ -95,7 +95,7 @@ types satisfying "Si &lt;: Ti" and "S &lt;: T". Then
 
 <div class="p"><!----></div>
 A value "f" of a function type "(x1:T1,...,xn:Tn){c}=&#62;T" also
-has all the methods of &#196;ny" associated with it (see &#167;).
+has all the methods of "Any" associated with it (see &#167;).
 
 <div class="p"><!----></div>
 A function type "F=(x1:T1,...,xn:Tn){c}=&#62;T" can be used as the declared type of local variables, parameters, loop variables, return types of methods and in "_  instanceof F" and "_ as F" expressions. 
@@ -104,7 +104,7 @@ A function type "F=(x1:T1,...,xn:Tn){c}=&#62;T" can be used as the declared type
 A class or struct definition may use a function type "F" in its
 implements clause; this declares an abstract method 
 "def apply(x1:T1,...,xn:Tn){c}:T" on that class. Similarly, an interface
-definition may specify a function type "F" in its &#235;xtends" clause. A
+definition may specify a function type "F" in its "extends" clause. A
 class or struct implementing such an interface implicitly defines an
 abstract method "def apply(x1:T1,..,xn:Tn){c}:T". Expressions of such
 a struct, class or interface type can be assigned to variables of type

@@ -43,20 +43,20 @@ the language.
 <div class="p"><!----></div>
 A <em>function literal</em> "(x1:T1,..,xn:Tn){c}:T=&#62;e" creates a
 function of type "(x1:T1,...,xn:Tn){c}:T"
-(&#167;). The body &#235;" of such an expression is
+(&#167;). The body "e" of such an expression is
 type-checked in an environment in which "c" is true. At runtime,
-function execution results in the evaluation of &#235;" in an
+function execution results in the evaluation of "e" in an
 environment in which each formal is bound to the given actual
 parameter.
 
 <div class="p"><!----></div>
-The <em>method selector expression</em> &#235;.m.(x1:T1,...,xn:Tn)" (&#167;)
+The <em>method selector expression</em> "e.m.(x1:T1,...,xn:Tn)" (&#167;)
 permits the specification of the function underlying
 the method "m", which takes arguments of type "(x1:T1,..., xn:Tn)".
-Within this function, "this" is bound to the result of evaluating &#235;".
+Within this function, "this" is bound to the result of evaluating "e".
 
 <div class="p"><!----></div>
-Function types may be used in &#239;mplements" clauses of class
+Function types may be used in "implements" clauses of class
 definitions. Instances of such classes may be used as functions of the
 given type.  Indeed, an object may behave like any (fixed) number of
 functions, since the class it is an instance of may implement any

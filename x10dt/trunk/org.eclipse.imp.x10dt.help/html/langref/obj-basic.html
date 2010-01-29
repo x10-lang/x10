@@ -57,12 +57,12 @@ one reference is visible through another reference.
 
 <div class="p"><!----></div>
 Note that the creation of a remote async activity
-(&#167;) &#196;" at "P" may cause the automatic creation of
+(&#167;) "A" at "P" may cause the automatic creation of
 references to remote objects at "P". (A reference to a remote
 object is called a <em>remote object reference</em>, to a local object a
-<em>local object reference</em>.)  For instance &#196;" may be created
+<em>local object reference</em>.)  For instance "A" may be created
 with a reference to an object at "P" held in a variable referenced
-by the statement in &#196;".  Similarly the return of a value by a
+by the statement in "A".  Similarly the return of a value by a
 "future" may cause the automatic creation of a remote object
 reference, incurring some communication cost.  An X10
 implementation should try to ensure that the creation of a second or
@@ -100,10 +100,10 @@ rule for final fields discussed above.
   marked "global". A "global" method may be invoked at any
   place. It may access only the global fields of the object. The
   mutable fields of an object may be accessed only by activities
-  operating in its home.  Any activity may use an &#228;t" statement
+  operating in its home.  Any activity may use an "at" statement
   to place-shift to the place of the object. Methods may also be
-  marked "pinned", "nonblocking", &#223;equential",
-  &#223;afe", and "pure".
+  marked "pinned", "nonblocking", "sequential",
+  "safe", and "pure".
 
 <div class="p"><!----></div>
 A method may be marked "nonblocking".  A "nonblocking" method
@@ -112,7 +112,7 @@ statically equivalent to "true"m, and must call only
 "nonblocking" methods.
 
 <div class="p"><!----></div>
-A method may be marked &#223;equential". A &#223;equential" method 
+A method may be marked "sequential". A "sequential" method 
 
 <div class="p"><!----></div>
 
@@ -129,7 +129,7 @@ per place.
 <div class="p"><!----></div>
 </li>
 
-<li> &#239;nstanceof" operator (&#167;).  An activity
+<li> "instanceof" operator (&#167;).  An activity
 can perform this operation on local or remote objects, and should not
 incur communication costs (to bring over type information) more than
 once per place.
@@ -182,11 +182,11 @@ said to be <em>non-global</em>.
 Global methods cannot be overridden by non-global methods.
 
 <div class="p"><!----></div>
-Consider the execution of an &#228;t (P) S" statement at a place
+Consider the execution of an "at (P) S" statement at a place
 "Q" different from "P". Suppose "x" is an in-scope
-immutable local variable and contains a reference to an object &#246;"
+immutable local variable and contains a reference to an object "o"
 created at "Q". Then within "S", "x" is said to be a
-<em>remote reference</em> to &#246;". References to &#246;" from place
+<em>remote reference</em> to "o". References to "o" from place
 "Q" are said to be <em>local references</em>. X10 permits
 "global" fields to be read and "global" methods to be invoked
 through a remote reference.
@@ -203,21 +203,21 @@ object. Equality is guaranteed to be a constant-time operation and not
 involve any communication.
 
 <div class="p"><!----></div>
-When a remote reference to an object &#246;" located at place "P" is
+When a remote reference to an object "o" located at place "P" is
 transmitted to "P" it automatically becomes a local reference to
-&#246;". Therefore the situation in which a local reference can be compared
+"o". Therefore the situation in which a local reference can be compared
 to a remote reference simply cannot arise.
 
 <div class="p"><!----></div>
-The X10 compiler ensures that non-global methods on &#246;" can
+The X10 compiler ensures that non-global methods on "o" can
 only be invoked in a place where "here== o.home()", i.e. the place
-where &#246;" was created.
+where "o" was created.
 
 <div class="p"><!----></div>
 
 <b>Implementation notes&nbsp;&nbsp;</b>
-Remote references to an object &#246;" are intended to be implemented
-by serializing the global state of &#246;" across the network,
+Remote references to an object "o" are intended to be implemented
+by serializing the global state of "o" across the network,
 together with a globally unique id (guid). The data is deserialized at
 the receiver to create an implementation-level entity that is the
 remote reference. There is no requirement that the implementation
@@ -230,11 +230,11 @@ There is no requirement that a remote reference use only as much space as a loca
 <div class="p"><!----></div>
   
 <b>Local execution&nbsp;&nbsp;</b>
- The semantics of &#228;tomic" and "when" constructs requires that their
- bodies do not execute any &#228;t" operations, implicitly or
+ The semantics of "atomic" and "when" constructs requires that their
+ bodies do not execute any "at" operations, implicitly or
  explicitly. Hence the compiler must establish that if a non-global method
-"m" is being invoked on a reference &#246;" in the body of such a construct,
- then &#246;" is a local reference. This can be done using place types (&#167;).
+"m" is being invoked on a reference "o" in the body of such a construct,
+ then "o" is a local reference. This can be done using place types (&#167;).
 
 <div class="p"><!----></div>
 

@@ -37,7 +37,7 @@ types on top of interfaces and not just classes.
   :  |        <em>  
 <table>
 <tr><td align="right">NormalInterfaceDeclaration &nbsp;
-      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
+      InterfaceModifiers<sup>?</sup>&nbsp;"interface" Identifier  </td></tr>
 <tr><td align="right">&amp;&amp; TypePropertyList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Constraint<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&amp;&amp; ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right"></td></tr></table>
@@ -64,16 +64,16 @@ The compiler issues a warning if an interface body
 
 
 <div class="p"><!----></div>
-A class "C" (with properties) is said to implement an interface &#207;" if
+A class "C" (with properties) is said to implement an interface "I" if
 
 <ul>
-<li> its properties contains all the properties of &#207;",
+<li> its properties contains all the properties of "I",
 <div class="p"><!----></div>
 </li>
 
 <li> its class invariant
 <i>inv</i>("C") implies
-<i>inv</i>(&#207;").
+<i>inv</i>("I").
 <div class="p"><!----></div>
 </li>
 </ul>

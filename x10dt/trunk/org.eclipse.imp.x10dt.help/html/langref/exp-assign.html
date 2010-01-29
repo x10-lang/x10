@@ -49,13 +49,13 @@
 
 <div class="p"><!----></div>
 The assignment expression "x = e" assigns a value given by
-expression &#235;"
+expression "e"
 to a mutable variable "x".  There are three forms of
 assignment: "x" may be a local variable, it may be a field
-&#255;.f", or it may be the variable obtained by evaluating the expression &#228;(i)".
-In the last case, &#228;" must be an instance of a class implementing the interface
+&#255;.f", or it may be the variable obtained by evaluating the expression "a(i)".
+In the last case, "a" must be an instance of a class implementing the interface
  "x10.lang.Settable[S,T]", where 
-"S" and "T" are the types of &#239;" and &#235;", respectively.
+"S" and "T" are the types of "i" and "e", respectively.
 
 <div class="p"><!----></div>
 This interface is defined thus:
@@ -65,8 +65,8 @@ public interface Settable[S,T] {
     def set[S,T](i: S, v: T): T;
 }
 </pre>
-The assignment &#228;(i) = e" is equivalent to the call
-&#228;.set(i, e)".
+The assignment "a(i) = e" is equivalent to the call
+"a.set(i, e)".
 
 <div class="p"><!----></div>
 
@@ -75,7 +75,7 @@ For a binary operator
 <i>op</i>,
 the
 <i>op</i>-assignment expression "x <i>op</i>= e"
-evaluates "x" to a memory location, then evaluates &#235;",
+evaluates "x" to a memory location, then evaluates "e",
 applies the operation "x  e", and assigns the
 result into the location computed for "x".
 The expression is equivalent to "x = x <i>op</i> e"

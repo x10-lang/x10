@@ -57,9 +57,9 @@ not a subtype of "C{c}".
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 The compiler checks that every method invocation
-    &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
+    "o.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
     for a method is type correct. Each each argument
-    &#235;<sub>i</sub>" must have a
+    "e<sub>i</sub>" must have a
     static type "S<sub>i</sub>" that is a subtype of the declared type
     "T<sub>i</sub>" for the ith
     argument of the method, and the conjunction of static types
@@ -68,8 +68,8 @@ The compiler checks that every method invocation
 
 <div class="p"><!----></div>
     The compiler checks that in every method invocation
-    &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
-    the static type of &#246;", "S", is a subtype of "C{c}", where the method
+    "o.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
+    the static type of "o", "S", is a subtype of "C{c}", where the method
     is defined in class "C" and the guard for "m" is equivalent to
     "c".
 
@@ -78,7 +78,7 @@ The compiler checks that every method invocation
     "D{d}", the
     return type computed for the call is
     "D{a: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]}",
-    where &#228;" is a new
+    where "a" is a new
     variable that does not occur in
     "d, S, S<sub>1</sub>, ..., S<sub>n</sub>", and
     "x<sub>1</sub>, ..., x<sub>n</sub>" are the formal
@@ -220,14 +220,14 @@ a method "M<sub>2</sub>" in a superclass "D" if
 Methods are overriden on a signature-by-signature basis.
 
 <div class="p"><!----></div>
-A method invocation &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
+A method invocation "o.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
 is said to have the <em>static signature</em>
 &#171;T, T<sub>1</sub>, ..., T<sub>n</sub>&#62;" where "T" is the static type of
-&#246;", and
+"o", and
 "T<sub>1</sub>",
 ...,
 "T<sub>n</sub>"
-are the static types of &#235;<sub>1</sub>", ..., &#235;<sub>n</sub>",
+are the static types of "e<sub>1</sub>", ..., "e<sub>n</sub>",
 respectively.  As in
 Java, it must be the case that the compiler can determine a single
 method defined on "T" with argument type
@@ -248,24 +248,24 @@ whose guard "d" is implied by "c".
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc6.3.1">
-6.3.1</a>&nbsp;&nbsp;&#228;tomic" qualifier</h4>
+6.3.1</a>&nbsp;&nbsp;"atomic" qualifier</h4>
 <a name="AtomicAnnotation">
 </a>
 
 
 <div class="p"><!----></div>
-A method may be declared &#228;tomic".
+A method may be declared "atomic".
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;&#228;tomic"  
+<tr><td align="right">MethodModifier &nbsp;"atomic"  
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 Such a method is treated as if the statement in its body is wrapped 
-implicitly in an &#228;tomic" statement.
+implicitly in an "atomic" statement.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc6.3.2">
@@ -287,11 +287,11 @@ A method may be declared "global".
 </em>
 
 <div class="p"><!----></div>
-A "global" method can be invoked on an object &#246;" in any place. The
+A "global" method can be invoked on an object "o" in any place. The
 body of such a method is type-checked without assuming that
-"here==this.home". This permits "global" fields of &#246;" to
+"here==this.home". This permits "global" fields of "o" to
 be accessed, but not local fields. The programmer must insert an explicit
-&#228;t(this)..." to get to the place where the object lives and access
+"at(this)..." to get to the place where the object lives and access
 the field.
 
 <div class="p"><!----></div>
@@ -318,7 +318,7 @@ A method may be declared "pinned".
 
 <div class="p"><!----></div>
 A "pinned" method may not
-contain any &#228;t" statement or expression whose place argument
+contain any "at" statement or expression whose place argument
 is not statically equivalent to "here". It must call only
 "pinned" methods. That is, a "pinned" method does not cause
 any communication.
@@ -356,7 +356,7 @@ is not statically equivalent to "true". It must call only
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc6.3.5">
-6.3.5</a>&nbsp;&nbsp;&#223;equential" qualifier</h4>
+6.3.5</a>&nbsp;&nbsp;"sequential" qualifier</h4>
 <a name="SequentialAnnotation">
 </a>
 <a name="SequentialMethod">
@@ -364,26 +364,26 @@ is not statically equivalent to "true". It must call only
 
 
 <div class="p"><!----></div>
-A method may be declared &#223;equential".
+A method may be declared "sequential".
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;&#223;equential"  
+<tr><td align="right">MethodModifier &nbsp;"sequential"  
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-A &#223;equential" method may not contain any &#228;sync"
-statement. It must call only &#223;equential" methods. That is, a
-&#223;equential" method does not spawn any activity.
+A "sequential" method may not contain any "async"
+statement. It must call only "sequential" methods. That is, a
+"sequential" method does not spawn any activity.
 
 <div class="p"><!----></div>
-&#223;equential" methods can be overridden only by methods marked &#223;equential".
+"sequential" methods can be overridden only by methods marked "sequential".
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc6.3.6">
-6.3.6</a>&nbsp;&nbsp;&#223;afe" qualifier</h4>
+6.3.6</a>&nbsp;&nbsp;"safe" qualifier</h4>
 <a name="SafeAnnotation">
 </a>
 <a name="SafeMethod">
@@ -391,17 +391,17 @@ statement. It must call only &#223;equential" methods. That is, a
 
 
 <div class="p"><!----></div>
-A method may be declared &#223;afe".
+A method may be declared "safe".
 
 <div class="p"><!----></div>
   :  |        <em>  
 <table>
-<tr><td align="right">MethodModifier &nbsp;&#223;afe"  
+<tr><td align="right">MethodModifier &nbsp;"safe"  
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The &#223;afe" annotation is considered shorthand for "pinned
+The "safe" annotation is considered shorthand for "pinned
   nonblocking sequential".
 
 <div class="p"><!----></div>

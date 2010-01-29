@@ -85,11 +85,11 @@ These goals are met by introducing incomplete types through the type
 qualifier "proto". Types of the form "proto T" are said to be
 <em>incomplete types</em>; types that do not have the qualifier are said to be
 <em>complete</em>.
- Say that an object &#246;" is <em>confined</em>
-to a given activity &#196;" if it can be reached only from stack
-frames of &#196;" or from objects which are, recursively, confined to
-&#196;". Thus confined objects cannot be accessed by activities other
-than &#196;".
+ Say that an object "o" is <em>confined</em>
+to a given activity "A" if it can be reached only from stack
+frames of "A" or from objects which are, recursively, confined to
+"A". Thus confined objects cannot be accessed by activities other
+than "A".
 
 <div class="p"><!----></div>
 Incomplete types ensure that objects whose construtors have not exited
@@ -128,7 +128,7 @@ neither is a subtype of the other.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2
 Incomplete types are permitted to occur only as types of method
 parameters or local variables or as return types for methods and
 constructors. They may not occur in (the source or target of) cast
-statements, &#235;xtends" or &#239;mplements" clauses, "catch"
+statements, "extends" or "implements" clauses, "catch"
 clauses, or as types of class fields.
 
 <div class="p"><!----></div>
@@ -145,8 +145,8 @@ No fields of "v" can be read.  (This is the defining property of
 can be assigned.
 
 <div class="p"><!----></div>
-"v" can be assigned to an instance field &#246;.f" only if "f"
-is of some type "S" such that "T &lt;: S" and &#246;" has an
+"v" can be assigned to an instance field "o.f" only if "f"
+is of some type "S" such that "T &lt;: S" and "o" has an
 incomplete type.
 
 <div class="p"><!----></div>
@@ -187,9 +187,9 @@ into it.
 <div class="p"><!----></div>
 
 <ul>
-<li> If an object &#246;" has a field containing an incomplete value "v",
-then either "v''s constructor has exited or &#246;" is confined.
-Further, every reference to &#246;" on the stack is held at an incomplete type.
+<li> If an object "o" has a field containing an incomplete value "v",
+then either "v''s constructor has exited or "o" is confined.
+Further, every reference to "o" on the stack is held at an incomplete type.
 <div class="p"><!----></div>
 </li>
 

@@ -24,7 +24,7 @@
   :  |        <em>  
 <table>
 <tr><td align="right">Statement &nbsp;SwitchStatement </td></tr>
-<tr><td align="right">SwitchStatement &nbsp;&#223;witch" "(" Expression ")" "{" Case<sup>+</sup>&nbsp;"}" </td></tr>
+<tr><td align="right">SwitchStatement &nbsp;"switch" "(" Expression ")" "{" Case<sup>+</sup>&nbsp;"}" </td></tr>
 <tr><td align="right">Case &nbsp;"case" Expression ":" Statement<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right">\ -  "default" ":" Statement<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
@@ -43,12 +43,12 @@ any.  To prevent fall-through, a case branch may be exited using
 a "break" statement.
 
 <div class="p"><!----></div>
-The index expression must be of type &#207;nt".
+The index expression must be of type "Int".
 
 <div class="p"><!----></div>
-Case labels must be of type &#207;nt" and must be compile-time
+Case labels must be of type "Int" and must be compile-time
 constants.  Case labels cannot be duplicated within the
-&#223;witch" statement.
+"switch" statement.
 
 <div class="p"><!----></div>
 

@@ -40,8 +40,8 @@ atomic block</em>:
   :  |        <em>  
 <table>
 <tr><td align="right">Statement &nbsp;AtomicStatement </td></tr>
-<tr><td align="right">AtomicStatement &nbsp;&#228;tomic"  Statement </td></tr>
-<tr><td align="right">MethodModifier &nbsp;&#228;tomic" </td></tr>
+<tr><td align="right">AtomicStatement &nbsp;"atomic"  Statement </td></tr>
+<tr><td align="right">MethodModifier &nbsp;"atomic" </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -61,13 +61,13 @@ during which all other concurrent activities in the same place are
 suspended. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
 "try"/"finally" clause and include undo code in the finally
-clause. Thus the &#228;tomic" statement only guarantees atomicity on
+clause. Thus the "atomic" statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 
 <div class="p"><!----></div>
-We allow methods of an object to be annotated with &#228;tomic". Such
+We allow methods of an object to be annotated with "atomic". Such
 a method is taken to stand for a method whose body is wrapped within an
-&#228;tomic" statement.
+"atomic" statement.
 
 <div class="p"><!----></div>
 Atomic blocks are closely related to non-blocking synchronization
@@ -76,11 +76,11 @@ non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-In &#228;tomic S", "S" may include method calls,
+In "atomic S", "S" may include method calls,
 conditionals, etc.
 
 <div class="p"><!----></div>
-It may <em>not</em> include an &#228;sync" activity (such as creation
+It may <em>not</em> include an "async" activity (such as creation
 of a "future").
 
 <div class="p"><!----></div>
@@ -96,7 +96,7 @@ activity.<a name="LocalityCondition">
 
 <div class="p"><!----></div>
 The compiler checks for this condition by checking whether the statement
-could be the body of a "void" method annotated with &#223;afe" at
+could be the body of a "void" method annotated with "safe" at
 that point in the code (&#167;).
 
 <div class="p"><!----></div>
@@ -109,10 +109,10 @@ Note an important property of an (unconditional) atomic block:
 <br clear="all" /><table border="0" width="100%"><tr><td>
 <table border="0" cellspacing="0" cellpadding="0">
  <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd&#228;<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">atomic</span> <span class="roman">s</span><span class="roman">2</span>}" </td></tr></table></td><td nowrap="nowrap" align="left">
+ \xcd"a<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">atomic</span> <span class="roman">s</span><span class="roman">2</span>}" </td></tr></table></td><td nowrap="nowrap" align="left">
 <table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
 =</td></tr></table></td><td nowrap="nowrap" align="left">
-<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd&#228;<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">s</span><span class="roman">2</span>}"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
+<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd"a<span class="roman">tomic</span> {<span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">s</span><span class="roman">2</span>}"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
 </td></tr></table>
 
 
@@ -152,7 +152,7 @@ Conditional atomic blocks are of the form:
 <table>
 <tr><td align="right">Statement &nbsp;WhenStatement </td></tr>
 <tr><td align="right">WhenStatement &nbsp;"when" "(" Expression ")" Statement </td></tr>
-<tr><td align="right">\ -  WhenStatement &#246;r" "(" Expression ")" Statement 
+<tr><td align="right">\ -  WhenStatement "or" "(" Expression ")" Statement 
 </td></tr></table>
 </em>
 
@@ -192,14 +192,14 @@ replacement for Java's wait/notify functionality.
 
 <div class="p"><!----></div>
 We note two common abbreviations. The statement "when (true) S" is
-behaviorally identical to &#228;tomic S": it never suspends. Second,
-"when (c) ;" may be abbreviated to &#228;wait(c);"-it
+behaviorally identical to "atomic S": it never suspends. Second,
+"when (c) ;" may be abbreviated to "await(c);"-it
 simply indicates that the thread must await the occurrence of a
 certain condition before proceeding.  Finally note that a "when"
 statement with multiple branches is behaviorally identical to a
 "when" statement with a single branch that checks the disjunction of
 the condition of each branch, and whose body contains an
-&#239;f"/"then"/&#235;lse" checking each of the branch conditions.
+"if"/"then"/"else" checking each of the branch conditions.
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
@@ -216,7 +216,7 @@ statically by the compiler.
 
 <div class="p"><!----></div>
 The body of a "when" statement must satisfy the conditions
-for the body of an &#228;tomic" block.
+for the body of an "atomic" block.
 
 <div class="p"><!----></div>
 Note that this implies that guarded statements are required to be <em>

@@ -95,8 +95,8 @@ val R3 = R1.union(R2);          // R3's type is MyRegion(3)
    For every constructor in "C" the compiler checks that the call to
    super invokes a constructor for "D" whose return type is strong enough
    to entail "d". Specifically, if the call to super is of the form 
-     &#223;uper(e<sub>1</sub>, ..., e<sub>k</sub>)"
-   and the static type of each expression &#235;<sub>i</sub>" is
+     "super(e<sub>1</sub>, ..., e<sub>k</sub>)"
+   and the static type of each expression "e<sub>i</sub>" is
    "S<sub>i</sub>", and the invocation
    is statically resolved to a constructor
 "def this(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>k</sub>: T<sub>k</sub>){c}: D{d<sub>1</sub>}"
@@ -107,7 +107,7 @@ x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> \vdash x<sub>i</
 x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash c  
 d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash d[a/self]      
 </pre>
- where &#228;" is a constant that does not appear in 
+ where "a" is a constant that does not appear in 
 "x<sub>1</sub>: S<sub>1</sub> <font face="symbol">Ù</font
 > ... <font face="symbol">Ù</font
 > x<sub>k</sub>: S<sub>k</sub>".
@@ -118,7 +118,7 @@ d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k
    The compiler checks that every constructor for "C" ensures that
    the properties "p<sub>1</sub>,..., p<sub>n</sub>" are initialized with values which satisfy
    "t(C)", and its own return type "c'" as follows.  In each constructor, the
-   compiler checks that the static types "T<sub>i</sub>" of the expressions &#235;<sub>i</sub>"
+   compiler checks that the static types "T<sub>i</sub>" of the expressions "e<sub>i</sub>"
    assigned to "p<sub>i</sub>" are such that the following is
    true:
 <pre>
@@ -126,7 +126,7 @@ p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> \vdash t(C) <fon
 > c'     
 </pre>
 
-(Note that for the assignment of &#235;<sub>i</sub>" to "p<sub>i</sub>"
+(Note that for the assignment of "e<sub>i</sub>" to "p<sub>i</sub>"
 to be type-correct it must be the
     case that "p<sub>i</sub>: T<sub>i</sub> <font face="symbol">Ù</font
 > p<sub>i</sub>: P<sub>i</sub>".) 
@@ -134,7 +134,7 @@ to be type-correct it must be the
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constructor invocation):
 The compiler must check that every invocation "C(e<sub>1</sub>, ..., e<sub>n</sub>)" to a
-constructor is type correct: each argument &#235;<sub>i</sub>" must have a static type
+constructor is type correct: each argument "e<sub>i</sub>" must have a static type
 that is a subtype of the declared type "T<sub>i</sub>" for the ith
 argument of the
 constructor, and the conjunction of static types of the argument must

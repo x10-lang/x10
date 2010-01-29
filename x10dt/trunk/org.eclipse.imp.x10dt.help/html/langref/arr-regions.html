@@ -48,13 +48,13 @@ val R8 = R4 || R5; // union of two regions
 </pre>
 
 <div class="p"><!----></div>
-The expression &#228;<sub>1</sub>..a<sub>2</sub>"
+The expression "a<sub>1</sub>..a<sub>2</sub>"
 is shorthand for the rectangular, rank-1 region
 consisting of the points
 {"[a<sub>1</sub>]", ..., "[a<sub>2</sub>]"}.
-Each subexpression of &#228;<sub>i</sub>" must be of type &#207;nt".
-If &#228;<sub>1</sub>"
-is greater than &#228;<sub>2</sub>", the region is empty.
+Each subexpression of "a<sub>i</sub>" must be of type "Int".
+If "a<sub>1</sub>"
+is greater than "a<sub>2</sub>", the region is empty.
 
 <div class="p"><!----></div>
 A region may be constructed by converting from a rail of
@@ -106,9 +106,9 @@ in the region, then so is every point p<sub>2</sub> between them (that is, it is
 
 <div class="p"><!----></div>
 For each region "R", the <em>rectangular closure</em> of "R" is the
-smallest rectangular region enclosing "R".  For each integer &#239;"
+smallest rectangular region enclosing "R".  For each integer "i"
 less than "R.rank", the term "R(i)" represents the enumeration
-in the &#239;"th dimension of the rectangular closure of "R". It may be
+in the "i"th dimension of the rectangular closure of "R". It may be
 used in a type expression wherever an enumeration may be used.
 
 <div class="p"><!----></div>

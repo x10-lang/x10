@@ -19,16 +19,16 @@
 <body>
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Operations on arrays</h2>
-In the following let &#228;" be an array with distribution "D" and
-base type "T". &#228;".
+In the following let "a" be an array with distribution "D" and
+base type "T". "a".
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.1">
 5.1</a>&nbsp;&nbsp;Element operations</h3>
-The value of &#228;" at a point "p" in its region of definition is
-obtained by using the indexing operation &#228;(p)". This operation
+The value of "a" at a point "p" in its region of definition is
+obtained by using the indexing operation "a(p)". This operation
 may be used on the left hand side of an assignment operation to update
-the value. The operator assignments &#228;(i) op= e" are also available
+the value. The operator assignments "a(i) op= e" are also available
 in X10.
 
 <div class="p"><!----></div>
@@ -57,8 +57,8 @@ at every point.
 5.3</a>&nbsp;&nbsp;Restriction of an array</h3>
 
 <div class="p"><!----></div>
-Let "D1" be a sub-distribution of "D". Then &#228; | D1"
-represents the sub-array of &#228;" with the distribution "D1".
+Let "D1" be a sub-distribution of "D". Then "a | D1"
+represents the sub-array of "a" with the distribution "D1".
 
 <div class="p"><!----></div>
 Recall that a rich set of operators are available on distributions
@@ -68,7 +68,7 @@ Recall that a rich set of operators are available on distributions
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.4">
 5.4</a>&nbsp;&nbsp;Assembling an array</h3>
-Let &#228;1,a2" be arrays of the same base type "T" defined over
+Let "a1,a2" be arrays of the same base type "T" defined over
 distributions "D1" and "D2" respectively. Assume that both
 arrays are value or reference arrays. 
 
@@ -76,27 +76,27 @@ arrays are value or reference arrays.
 <b>Assembling arrays over disjoint regions&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-If "D1" and "D2" are disjoint then the expression &#228;1 || a2" denotes the unique array of base type "T" defined over the
+If "D1" and "D2" are disjoint then the expression "a1 || a2" denotes the unique array of base type "T" defined over the
 distribution "D1 || D2" such that its value at point "p" is
-&#228;1(p)" if "p" lies in "D1" and &#228;2(p)"
-otherwise. This array is a reference (value) array if &#228;1" is.
+"a1(p)" if "p" lies in "D1" and "a2(p)"
+otherwise. This array is a reference (value) array if "a1" is.
 
 <div class="p"><!----></div>
 
 <b>Overlaying an array on another&nbsp;&nbsp;</b>
 The expression
-&#228;1.overlay(a2)" (read: the array &#228;1" <em>overlaid with</em> &#228;2")
+"a1.overlay(a2)" (read: the array "a1" <em>overlaid with</em> "a2")
 represents an array whose underlying region is the union of that of
-&#228;1" and &#228;2" and whose distribution maps each point "p"
+"a1" and "a2" and whose distribution maps each point "p"
 in this region to "D2(p)" if that is defined and to "D1(p)"
-otherwise. The value &#228;1.overlay(a2)(p)" is &#228;2(p)" if it is defined and &#228;1(p)" otherwise.
+otherwise. The value "a1.overlay(a2)(p)" is "a2(p)" if it is defined and "a1(p)" otherwise.
 
 <div class="p"><!----></div>
-This array is a reference (value) array if &#228;1" is.
+This array is a reference (value) array if "a1" is.
 
 <div class="p"><!----></div>
-The expression &#228;1.update(a2)" updates the array &#228;1" in place
-with the result of &#228;1.overlay(a2)".
+The expression "a1.update(a2)" updates the array "a1" in place
+with the result of "a1.overlay(a2)".
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.5">
@@ -109,7 +109,7 @@ with the result of &#228;1.overlay(a2)".
 The unary "lift" operation applies a function to each element of
 an array, returning a new array with the same distribution.
 The "lift" operation is implemented by the following method
-in &#196;rray[T]":
+in "Array[T]":
 <pre>
 def lift[S](f: (T) =&#62; S): Array[S](dist);
 </pre>
@@ -121,7 +121,7 @@ array over the same distribution and applies the function
 pointwise to corresponding elements of the two arrays, returning
 a new array with the same distribution.
 The "lift" operation is implemented by the following method
-in &#196;rray[T]":
+in "Array[T]":
 <pre>
 def lift[S,R](f: (T,S) =&#62; R, Array[S](dist)): Array[R](dist);
 </pre>
@@ -133,13 +133,13 @@ def lift[S,R](f: (T,S) =&#62; R, Array[S](dist)): Array[R](dist);
 
 <div class="p"><!----></div>
 Let "f" be a function of type "(T,T)=&#62;T".  Let
-&#228;" be a value or reference array over base type "T".
-Let &#252;nit" be a value of type "T".
+"a" be a value or reference array over base type "T".
+Let "unit" be a value of type "T".
 Then the
-operation &#228;.reduce(f, unit)" returns a value of type "T" obtained
-by performing "f" on all points in &#228;" in some order, and in
+operation "a.reduce(f, unit)" returns a value of type "T" obtained
+by performing "f" on all points in "a" in some order, and in
 parallel.  The function "f" must be associative and
-commutative.  The value &#252;nit" should satisfy
+commutative.  The value "unit" should satisfy
 "f(unit,x)" "==" "x" "==" "f(x,unit)".
 
 <div class="p"><!----></div>
@@ -155,11 +155,11 @@ this reduction process.
 
 <div class="p"><!----></div>
 Let "f" be a reduction operator defined on type "T". Let
-&#228;" be a value or reference array over base type "T" and
-distribution "D". Then the operation &#228;\ - \ - f()" returns an array
+"a" be a value or reference array over base type "T" and
+distribution "D". Then the operation "a\ - \ - f()" returns an array
 of base type "T" and distribution "D" whose ith element
 (in canonical order) is obtained by performing the reduction "f"
-on the first i elements of &#228;" (in canonical order).
+on the first i elements of "a" (in canonical order).
 
 <div class="p"><!----></div>
 This operation involves communication between the places over which

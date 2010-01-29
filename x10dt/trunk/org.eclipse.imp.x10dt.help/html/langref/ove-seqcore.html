@@ -23,8 +23,8 @@
 <div class="p"><!----></div>
 
 <b>Control flow.&nbsp;&nbsp;</b>  X10 supports standard sequential control flow
-constructs: &#239;f" statements, "while" loops, "for" loops,
-&#223;witch" statements, etc.  X10 also supports exceptions: exceptions are
+constructs: "if" statements, "while" loops, "for" loops,
+"switch" statements, etc.  X10 also supports exceptions: exceptions are
 raised by "throw" statements and are handled by "try"-"catch"
 statements.
 
@@ -32,7 +32,7 @@ statements.
 
 <b>Primitive operations.&nbsp;&nbsp;</b>  The language provides syntax for performing
 binary and unary operations on values. The programmer may specify code
-by using &#246;perator" definitions. 
+by using "operator" definitions. 
 
 <div class="p"><!----></div>
 
@@ -53,13 +53,13 @@ conversions (&#167;).
 
 <div class="p"><!----></div>
 Values of one type can be converted to another type using the
-&#228;s" operation:
+"as" operation:
 <pre>
 val x: Int = 65535;
 val y: Byte = x as Byte; // convert to Byte,
                          // retaining the lower 8 bits
 </pre>
-The &#228;s" operation does not necessarily preserve equality
+The "as" operation does not necessarily preserve equality
 and for numeric values may 
 result in a loss of precision.
 
@@ -75,7 +75,7 @@ val y: C = x as C; // run-time check succeeds
 val z: D = x as D; // run-time check fails
 </pre>
 For reference types a "to" conversion behaves identically to
-an &#228;s" coercion.
+an "as" coercion.
 
 <div class="p"><!----></div>
 

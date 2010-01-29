@@ -36,27 +36,27 @@ An activity is created by executing the statement:
   :  |        <em>  
 <table>
 <tr><td align="right">Statement &nbsp;AsyncStatement </td></tr>
-<tr><td align="right">AsyncStatement &nbsp;&#228;sync" PlaceExpressionSingleList<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">AsyncStatement &nbsp;"async" PlaceExpressionSingleList<sup>?</sup>&nbsp;Statement </td></tr>
 <tr><td align="right">PlaceExpressionSingleList &nbsp;"(" PlaceExpression ")" </td></tr>
 <tr><td align="right">PlaceExpression &nbsp;Expression 
 </td></tr></table>
 </em> 
 
 <div class="p"><!----></div>
-The place expression &#235;" is expected to be of type "Place",
+The place expression "e" is expected to be of type "Place",
 e.g., "here" or "d(p)" for some
 distribution "d" and point "p" (&#167;).  
 If not, the compiler replaces
-&#235;" with &#235;.home" if
-&#235;" is of type "x10.lang.Object". Otherwise the compiler reports a type error. 
+"e" with "e.home" if
+"e" is of type "x10.lang.Object". Otherwise the compiler reports a type error. 
 
 <div class="p"><!----></div>
-Note specifically that the expression &#228;(i)" when used as a place
-expression may evaluate to &#228;(i).home", which may not be
-the same place as &#228;.dist(i)". The programmer must be 
+Note specifically that the expression "a(i)" when used as a place
+expression may evaluate to "a(i).home", which may not be
+the same place as "a.dist(i)". The programmer must be 
 careful to choose the right expression, appropriate for the statement.
-Accesses to &#228;(i)" within <em>Statement</em> should typically be guarded 
-by the place expression &#228;.dist(i)".
+Accesses to "a(i)" within <em>Statement</em> should typically be guarded 
+by the place expression "a.dist(i)".
 
 <div class="p"><!----></div>
 In many cases the compiler may infer the unique place at which the
@@ -68,7 +68,7 @@ place designator; the compiler will throw an error if it cannot
 determine the unique designated place.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
 
 <div class="p"><!----></div>
-An activity A executes the statement &#228;sync (P) S" by launching
+An activity A executes the statement "async (P) S" by launching
 a new activity B at the designated place, to execute the specified
 statement. The statement terminates locally as soon as B is
 launched.  The activation path for B is that of A, augmented with
@@ -93,7 +93,7 @@ that every activity eventually gets a chance to make forward progress.
 
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-The statement in the body of an &#228;sync" is subject to the
+The statement in the body of an "async" is subject to the
 restriction that it must be acceptable as the body of a "void"
 method for an anonymous inner class declared at that point in the code,
 which throws no checked exceptions. As such, it may reference
