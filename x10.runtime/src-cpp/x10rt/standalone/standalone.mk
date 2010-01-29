@@ -11,10 +11,10 @@ lib/libx10rt_standalone.a: standalone/x10rt_standalone.o $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 etc/x10rt_standalone.properties:
-	echo "CXX=$(CXX)" > $@
-	echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	echo "LDLIBS=-lx10rt_standalone $(CUDA_LDLIBS)" >> $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "CXXFLAGS=" >> $@
+	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
+	@echo "LDLIBS=-lx10rt_standalone $(CUDA_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_standalone.properties
 

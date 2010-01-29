@@ -16,10 +16,10 @@ lib/libx10rt_mpi.a: mpi/x10rt_mpi.o $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
 etc/x10rt_mpi.properties:
-	echo "CXX=$(MPICXX)" > $@
-	echo "CXXFLAGS=" >> $@
-	echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	echo "LDLIBS=-lx10rt_mpi $(CUDA_LDLIBS)" >> $@
+	@echo "CXX=$(MPICXX)" > $@
+	@echo "CXXFLAGS=" >> $@
+	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
+	@echo "LDLIBS=-lx10rt_mpi $(CUDA_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_mpi.properties
 
