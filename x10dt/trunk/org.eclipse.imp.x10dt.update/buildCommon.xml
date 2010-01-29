@@ -47,7 +47,7 @@
 
     <fail unless="x10dt.eclipse.target" message="You must define x10dt.eclipse.target as the location of the Eclipse installation against which X10DT should be built."/>
 
-    <echo message="x10dt.eclipse.target = ${x10dt.eclipse.target}"/>
+<!-- <echo message="x10dt.eclipse.target = ${x10dt.eclipse.target}"/> -->
 
     <path id="path_eclipse.build.path">
         <fileset dir="${x10dt.eclipse.target}/plugins">
