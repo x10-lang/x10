@@ -104,6 +104,7 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
         // We should only get here if there is a cyclic intialization in progress.
         // We don't have a 100% foolproof way to be sure that is what is happening, so
         // just hope that is what is happening and return.
+        const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
         return;
     }
     
