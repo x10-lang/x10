@@ -138,9 +138,9 @@ lib/libx10rt_pgas_sockets.a: $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 
 etc/x10rt_pgas_sockets.properties:
-	echo "CXX=$(CXX)" > $@
-	echo "LDFLAGS=$(SOCKETS_LDFLAGS)" >> $@
-	echo "LDLIBS=$(SOCKETS_LDLIBS)" >> $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "LDFLAGS=$(SOCKETS_LDFLAGS)" >> $@
+	@echo "LDLIBS=$(SOCKETS_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_sockets.properties
 .PHONY: $(SOCKETS_TGZ).phony
@@ -220,9 +220,9 @@ lib/libx10rt_pgas_bgp.a: $(COMMON_OBJS) lib/libxlpgas_bgp.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 
 etc/x10rt_pgas_bgp.properties:
-	echo "CXX=$(CXX)" > $@
-	echo "LDFLAGS=$(BGP_LDFLAGS)" >> $@
-	echo "LDLIBS=$(BGP_LDLIBS)" >> $@
+	@echo "CXX=$(CXX)" > $@
+	@echo "LDFLAGS=$(BGP_LDFLAGS)" >> $@
+	@echo "LDLIBS=$(BGP_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_pgas_bgp.properties
 .PHONY: $(BGP_TGZ).phony

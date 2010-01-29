@@ -152,7 +152,7 @@ export ARFLAGS
 
 # why must X10RT_PLATFORM be specified explicitly?
 x10rt:
-	cd x10rt && $(MAKE) -j1 X10RT_PLATFORM=$(X10RT_PLATFORM) debug default
+	cd x10rt && $(MAKE) -j1 X10RT_PLATFORM=$(X10RT_PLATFORM) default
 
 ###################
 # Generated Files #
@@ -289,17 +289,18 @@ endif
 
 # FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
-	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
-	(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
-	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
-	cp -p x10rt.h $(INSTDIR)/include
-	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
-	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
-	cd x10rt && $(MAKE) -j1 debug all install X10RT_PLATFORM=$(X10RT_PLATFORM)
+	@echo "Installing into $(INSTDIR)"
+	@mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
+	@(cd gen && find . -name \*.h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
+	@(cd gen && find . -name \*.struct_h | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
+	@(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG)) | (cd $(INSTDIR)/include && tar xf -)
+	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
+	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
+	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
+	@cp -p x10rt.h $(INSTDIR)/include
+	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
+	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
+	@cd x10rt && $(MAKE) -j1 all install X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 .PHONY: install
 
@@ -340,7 +341,7 @@ cleangen:
 	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 clean: cleanobj cleangen
-	cd x10rt && $(MAKE) -j1 debug clean X10RT_PLATFORM=$(X10RT_PLATFORM)
+	cd x10rt && $(MAKE) -j1 clean X10RT_PLATFORM=$(X10RT_PLATFORM)
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
