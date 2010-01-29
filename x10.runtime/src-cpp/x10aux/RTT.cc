@@ -100,7 +100,10 @@ void RuntimeType::init(const RuntimeType *canonical_, const char* baseName_,
     const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->lock();
 
     if (canonical != NULL) {
-        if (isInitialized) return; // another thread finished the job while this thread was blocked on initRTTLock.
+        if (isInitialized) {
+            const_cast<x10::lang::Lock__ReentrantLock *>(initRTTLock)->unlock();
+            return; // another thread finished the job while this thread was blocked on initRTTLock.
+        }
         // We should only get here if there is a cyclic intialization in progress.
         // We don't have a 100% foolproof way to be sure that is what is happening, so
         // just hope that is what is happening and return.
