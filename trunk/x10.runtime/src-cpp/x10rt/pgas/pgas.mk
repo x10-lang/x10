@@ -125,7 +125,7 @@ lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a i
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a lib/libxlpgas_sockets.a
 else
 $(SOCKETS_TGZ).phony:
-	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(SOCKETS_TGZ)"
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(SOCKETS_TGZ)"
 
 $(SOCKETS_TGZ): $(SOCKETS_TGZ).phony
 
@@ -168,7 +168,7 @@ lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a lib/libxlpgas_lapi.a
 else
 $(LAPI_TGZ).phony:
-	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(LAPI_TGZ)"
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(LAPI_TGZ)"
 
 $(LAPI_TGZ): $(LAPI_TGZ).phony
 
@@ -207,7 +207,7 @@ lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/p
 	$(CP) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a lib/libxlpgas_bgp.a
 else
 $(BGP_TGZ).phony:
-	-$(WGET) -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(BGP_TGZ)"
+	-$(WGET) -q -N  "http://dist.codehaus.org/x10/binaryReleases/$(X10_VERSION)/$(BGP_TGZ)"
 
 $(BGP_TGZ): $(BGP_TGZ).phony
 
