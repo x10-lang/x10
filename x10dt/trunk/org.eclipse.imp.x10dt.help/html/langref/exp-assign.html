@@ -34,11 +34,11 @@
 <tr><td align="right">&nbsp;LeftHandSide "/=" Expression </td></tr>
 <tr><td align="right">&nbsp;LeftHandSide "%=" Expression </td></tr>
 <tr><td align="right">&nbsp;LeftHandSide "&amp;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide "\ - =" Expression </td></tr>
+<tr><td align="right">&nbsp;LeftHandSide "|=" Expression </td></tr>
 <tr><td align="right">&nbsp;LeftHandSide "^=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &#171;&lt;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &#187;&#62;=" Expression </td></tr>
-<tr><td align="right">&nbsp;LeftHandSide &#187;&#62;&#62;=" Expression </td></tr>
+<tr><td align="right">&nbsp;LeftHandSide &lt;&lt;=" Expression </td></tr>
+<tr><td align="right">&nbsp;LeftHandSide &#62;&#62;=" Expression </td></tr>
+<tr><td align="right">&nbsp;LeftHandSide &#62;&#62;&#62;=" Expression </td></tr>
 <tr><td align="right">LeftHandSide &nbsp;Identifier </td></tr>
 <tr><td align="right">\ -  Primary "." Identifier </td></tr>
 <tr><td align="right">\ -  Primary "(" Expression ")" </td></tr>
@@ -52,7 +52,7 @@ The assignment expression "x = e" assigns a value given by
 expression "e"
 to a mutable variable "x".  There are three forms of
 assignment: "x" may be a local variable, it may be a field
-&#255;.f", or it may be the variable obtained by evaluating the expression "a(i)".
+"y.f", or it may be the variable obtained by evaluating the expression "a(i)".
 In the last case, "a" must be an instance of a class implementing the interface
  "x10.lang.Settable[S,T]", where 
 "S" and "T" are the types of "i" and "e", respectively.
