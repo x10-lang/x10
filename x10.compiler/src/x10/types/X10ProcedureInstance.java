@@ -20,7 +20,8 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
+
 
 /**
  * @author vj
@@ -43,8 +44,8 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends TypeObject
      * Return the constraint on the formal parameters, if any.
      * @return
      */
-    XConstraint guard();
-    X10ProcedureInstance<T> guard(XConstraint guard);
+    CConstraint guard();
+    X10ProcedureInstance<T> guard(CConstraint guard);
     
     /**
      * Return the constraint on the type parameters, if any.

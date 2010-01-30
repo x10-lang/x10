@@ -39,7 +39,6 @@ import polyglot.types.MethodInstance;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.ast.ClassBody_c;
-import x10.constraint.XConstrainedTerm;
 import x10.constraint.XRoot;
 import x10.types.ClosureDef;
 import x10.types.MacroType;
@@ -57,6 +56,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.XConstrainedTerm;
 
 public class X10ClassBody_c extends ClassBody_c {
     public X10ClassBody_c(Position pos, java.util.List<ClassMember> members) {

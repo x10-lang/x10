@@ -53,10 +53,29 @@ public class XTerms {
 	public static final XName makeFreshName() {
 	    return makeFreshName("_");
 	}
-	public static final XVar makeEQV(String name) {
-		return new XEQV_c(makeName(name));
-	}
 	
+	public static XEQV makeEQV() {
+		return makeEQV(makeFreshName());
+	}
+	public static XEQV makeUQV() {
+		return makeUQV(makeFreshName());
+	}
+	public static XEQV makeEQV(XName name) {
+		return new XEQV_c(name, true);
+	}
+	public static XEQV makeUQV(XName name) {
+		return new XEQV_c(name, false);
+	}
+	public static final XEQV makeEQV(String name) {
+		return new XEQV_c(makeName(name), true);
+	}
+	public static final XEQV makeUQV(String name) {
+		return new XEQV_c(makeName(name), false);
+	}
+	public static XEQV makeEQV(XName name, boolean hidden) {
+		return new XEQV_c(name, hidden);
+	}
+	    
 	public static final XLocal makeFreshLocal() {
 		return makeLocal(XTerms.makeFreshName());
 	}

@@ -81,9 +81,9 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
-	public XPromise lookup(XVar[] vars, int index) throws XFailure {
+	public XPromise lookup(XVar[] vars, int index) {
 		if (index != vars.length) {
-			throw new XFailure("Cannot extend path " + vars + "index=" + index + " beyond the literal " + this + ".");
+			return null;
 		}
 		return this;
 	}
@@ -140,7 +140,7 @@ public class XLit_c extends XTerm_c implements XLit {
 	}
 
 
-	public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
+	public void dump(XVar path, List<XTerm> result,  boolean dumpEQV) {
 		// nothing to dump.
 	}
 
@@ -183,7 +183,7 @@ public class XLit_c extends XTerm_c implements XLit {
 
 	public void variables(List<XVar> result) {}
 
-	public XPromise internIntoConstraint(XConstraint constraint, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint_c constraint, XPromise last) throws XFailure {
 		throw new XFailure("Internal error -- should not be called.");
 	}
 	public void addDisEquals(XPromise p) throws XFailure {

@@ -27,8 +27,7 @@ import polyglot.types.UnknownType;
 import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
@@ -39,6 +38,8 @@ import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 public class X10Local_c extends Local_c {
 
@@ -82,7 +83,7 @@ public class X10Local_c extends Local_c {
 			CodeDef ci = context.currentCode();
 			if (ci instanceof X10ProcedureDef) {
 			    X10ProcedureDef pi = (X10ProcedureDef) ci;
-				XConstraint c = Types.get(pi.guard());
+				CConstraint c = Types.get(pi.guard());
 				if (c != null) {
 					X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
@@ -96,8 +97,8 @@ public class X10Local_c extends Local_c {
       			    // Add the guard into the constraint for this type. 
         			Type t = result.type();
 
-        			XConstraint dep = X10TypeMixin.xclause(t);
-        			if (dep == null) dep = new XConstraint_c();
+        			CConstraint dep = X10TypeMixin.xclause(t);
+        			if (dep == null) dep = new CConstraint_c();
         			else dep = dep.copy();
 //        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
 //        			dep.addSelfBinding((XVar) resultTerm);

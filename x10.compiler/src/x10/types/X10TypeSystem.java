@@ -38,11 +38,11 @@ import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
 import x10.constraint.XLit;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * Parts of this code are taken from the pao extension in the polyglot
@@ -169,12 +169,14 @@ public interface X10TypeSystem extends TypeSystem {
     				List<Ref<? extends Type>> argTypes, 
     				XRoot thisVar, 
     				List<LocalDef> formalNames,
-    				Ref<XConstraint> guard, 
+    				Ref<CConstraint> guard, 
     				List<Ref<? extends Type>> throwTypes);
 
+  
+    
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
     /**
      * Return the ClassType object for the x10.lang.Array interface.
@@ -280,7 +282,7 @@ public interface X10TypeSystem extends TypeSystem {
     XTypeTranslator xtypeTranslator();
 
     boolean entailsClause(Type me, Type other, X10Context context);
-    boolean entailsClause(XConstraint me, XConstraint other, X10Context context, Type selfType);
+    boolean entailsClause(CConstraint me, CConstraint other, X10Context context, Type selfType);
 
     /**
      * True if the two types are equal, ignoring their dep clauses.
@@ -303,7 +305,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
@@ -341,7 +343,7 @@ public interface X10TypeSystem extends TypeSystem {
     FunctionType closureType(Position position, Ref<? extends Type> typeRef, 
     	//	List<Ref<? extends Type>> typeParams, 
     		List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, 
+            List<LocalDef> formalNames, Ref<CConstraint> guard, 
            // Ref<TypeConstraint> typeGuard, 
             List<Ref<? extends Type>> throwTypes);
 
@@ -351,10 +353,10 @@ public interface X10TypeSystem extends TypeSystem {
 //    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
 //    Type coerceType(Type fromType, Type toType);
 
-    boolean clausesConsistent(XConstraint c1, XConstraint c2, Context context);
+    boolean clausesConsistent(CConstraint c1, CConstraint c2, Context context);
 
     /** Return true if the constraint is consistent. */
-    boolean consistent(XConstraint c);
+    boolean consistent(CConstraint c);
     boolean consistent(TypeConstraint c, X10Context context);
 
     /** Return true if constraints in the type are all consistent.
@@ -413,7 +415,7 @@ public interface X10TypeSystem extends TypeSystem {
      */
     boolean isAtPlace(Receiver r, Expr place, X10Context context);
     
-    XConstraint isHereConstraint(Receiver r, X10Context xc);
+    CConstraint isHereConstraint(Receiver r, X10Context xc);
     /**
      * Return r.home.
      * @param r

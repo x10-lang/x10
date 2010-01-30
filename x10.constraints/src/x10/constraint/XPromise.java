@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * All nodes that occur in the graph maintained by a constraint
- * must implement Promise. 
+ * must implement Promise. Thus a Promise is a pointer into the state of some specific constraint.
  * 
  * @author vj
  *
@@ -22,18 +22,17 @@ import java.util.Set;
 public interface XPromise extends Cloneable {
 
 	/**
-	 * vars must be a sequence XVar, XField, ... XField, satisfying the property
-	 * that the receiver of each element (other than the first) is the preceding element.
-	 * this must be the promise corresponding to the index'th element in this list. 
+	 * this must be the promise corresponding to the index'th element in the list vars.
 	 * Return the node in the graph of constraint c obtained
-	 * by following the path specified by vars[index],.., vars[path.length-1] from this
-	 * node. Create new nodes if necessary so that this path is defined
-	 * in the graph of c. Return the node at the end of the path. The returned node
-	 * must not be a forwarded node.
-	 * @param path
+	 * by following the path specified by vars[index],.., vars[vars.length-1] from this
+	 * node. 
+	 * 
+	 * <p> Create new nodes if necessary so that this path is defined in the graph of c.  
+	 * @param vars vars must be a sequence XVar, XField, ... XField, satisfying the property
+	 * that the receiver of each element (other than the first) is the preceding element.
 	 * @param index
 	 * @param c
-	 * @return
+	 * @return the node at the end of the path. This must not be a forwarded node.
 	 * @throws XFailure 
 	 */
 	XPromise intern(XVar[] vars, int index) throws XFailure;
@@ -56,9 +55,9 @@ public interface XPromise extends Cloneable {
 	 * @return
 	 * @throws XFailure 
 	 */
-	XPromise lookup(XVar[] vars, int index) throws XFailure;
+	XPromise lookup(XVar[] vars, int index);
 
-	XPromise lookup(XName s) throws XFailure ;
+	XPromise lookup(XName s)  ;
 
 	XPromise lookup();
 
@@ -137,7 +136,7 @@ public interface XPromise extends Cloneable {
 	 * @param result
 	 * @param oldSelf 
 	 */
-	void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV);
+	void dump(XVar path, List<XTerm> result,  boolean dumpEQV);
 
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical XTerm

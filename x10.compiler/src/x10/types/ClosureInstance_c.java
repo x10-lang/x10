@@ -31,8 +31,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
 import x10.types.X10MethodInstance_c.NoClauseVariant;
+import x10.types.constraints.CConstraint;
 
 public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements ClosureInstance {
     private static final long serialVersionUID= 2804222307728697502L;
@@ -151,15 +151,15 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return (ClosureInstance) super.throwTypes(throwTypes);
     }
 
-    XConstraint guard;
+    CConstraint guard;
     
-    public XConstraint guard() {
+    public CConstraint guard() {
             if (guard == null)
                     return Types.get(def().guard());
             return guard;
     }
     
-    public ClosureInstance guard(XConstraint guard) {
+    public ClosureInstance guard(CConstraint guard) {
         ClosureInstance_c n = (ClosureInstance_c) copy();
         n.guard = guard;
         return n;

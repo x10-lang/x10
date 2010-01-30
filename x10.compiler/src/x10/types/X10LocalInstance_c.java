@@ -22,11 +22,11 @@ import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * @author vj
@@ -72,9 +72,9 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         // If the local variable is final, replace T by T{self==t}, 
         // do this even if depclause==null
         try {
-        	XConstraint c = X10TypeMixin.xclause(rightType);
+        	CConstraint c = X10TypeMixin.xclause(rightType);
         	if (c == null)
-        		c = new XConstraint_c();
+        		c = new CConstraint_c();
         	else
         		c = c.copy();
         	X10TypeSystem xts = (X10TypeSystem) ts;

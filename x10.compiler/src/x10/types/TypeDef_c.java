@@ -26,9 +26,9 @@ import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
 
 public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends StructType> container;
@@ -38,7 +38,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected List<Ref<? extends Type>> typeParameters;
 	protected List<LocalDef> formalNames;
 	protected List<Ref<? extends Type>> formalTypes;
-	protected Ref<XConstraint> guard;
+	protected Ref<CConstraint> guard;
 	protected Ref<TypeConstraint> typeGuard;
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
@@ -48,7 +48,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public polyglot.ast.TypeNode astNode() { return astNode; }
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
+	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
@@ -129,11 +129,11 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
 	}
 
-	public Ref<XConstraint> guard() {
+	public Ref<CConstraint> guard() {
 		return guard;
 	}
 
-	public void setGuard(Ref<XConstraint> guard) {
+	public void setGuard(Ref<CConstraint> guard) {
 		this.guard = guard;
 	}
 

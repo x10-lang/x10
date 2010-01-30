@@ -26,12 +26,14 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.PrettyPrinter;
 import x10.ast.X10Loop.LoopKind;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.types.X10Context;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * An immutable representation of the X10 statement: ateach (i : D) S
@@ -67,8 +69,8 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	@Override
 	public Context enterChildScope(Node child, Context c) {
 		X10Context xc = (X10Context) super.enterChildScope(child, c);
-		XConstraint d = new XConstraint_c();
-		XTerm term = XConstraint_c.genUQV();
+		CConstraint d = new CConstraint_c();
+		XTerm term = XTerms.makeUQV();
 		try {
 			// FIXME: this creates a new place term; ideally, it should be the place associated with each
 			// point in the ateach distribution 

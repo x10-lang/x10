@@ -15,7 +15,7 @@ import harness.x10Test;
 public class ObjectEqualsPrimitive extends x10Test {
 
 	public def run(): boolean = {
-		var x: x10.lang.Object = 2+1;
+		var x: Any = 2+1;
 		var res: boolean = 3==x;
 		res &= x==3;
 		return res;

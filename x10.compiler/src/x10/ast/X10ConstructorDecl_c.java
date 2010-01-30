@@ -39,11 +39,9 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XPromise;
 import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
@@ -60,6 +58,7 @@ import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
  *
@@ -253,8 +252,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 //    		Type newType = ref.get();
 //    		
 //    		if (n.localDef().flags().isFinal()) {
-//    			XConstraint c = X10TypeMixin.xclause(newType);
-//    			if (c == null) c = new XConstraint_c();
+//    			CConstraint c = X10TypeMixin.xclause(newType);
+//    			if (c == null) c = new CConstraint_c();
 //    			try {
 //				c.addSelfBinding(xts.xtypeTranslator().trans(n.localDef().asInstance()));
 //			}
@@ -280,7 +279,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	
         	//List newFormals = new ArrayList(formals.size());
         	X10ProcedureDef pi = (X10ProcedureDef) nn.memberDef();
-        	XConstraint c = pi.guard().get();
+        	CConstraint c = pi.guard().get();
             	try {
             		if (c != null) {
             			c = c.copy();
@@ -291,11 +290,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
             				// Fold the formal's constraint into the guard.
             				XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
-            				XConstraint dep = X10TypeMixin.xclause(newType);
+            				CConstraint dep = X10TypeMixin.xclause(newType);
             				if (dep != null) {
             				    dep = dep.copy();
-            				    XPromise p = dep.intern(var);
-            				    dep = dep.substitute(p.term(), c.self());
+            				    dep = dep.substitute(var, c.self());
+                                /*
+                                XPromise p = dep.intern(var);
+                                dep = dep.substitute(p.term(), c.self());
+                                */
             				    c.addIn(dep);
             				}
 
@@ -308,7 +310,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             		// Fold this's constraint (the class invariant) into the guard.
             		{
             			Type t =  tc.context().currentClass();
-            			XConstraint dep = X10TypeMixin.xclause(t);
+            			CConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
             				XRoot thisVar = ((X10MemberDef) constructorDef()).thisVar();
             				if (thisVar != null)
@@ -391,7 +393,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = this;
         
         for (TypeNode type : n.throwTypes()) {
-            XConstraint rc = X10TypeMixin.xclause(type.type());
+            CConstraint rc = X10TypeMixin.xclause(type.type());
             if (rc != null && ! rc.valid())
                 throw new SemanticException("Cannot throw a dependent type.", type.position());
         }
@@ -408,7 +410,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         Type retTypeBase =  X10TypeMixin.baseOfProto(n.returnType().type());
         retTypeBase = X10TypeMixin.baseType(retTypeBase);
-        XConstraint c =         X10TypeMixin.xclause(n.returnType().type());
+        CConstraint c =         X10TypeMixin.xclause(n.returnType().type());
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);

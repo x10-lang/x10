@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The representation of a local variable reference.
+ * The representation of a local variable reference in the constraint system.
  * 
  * @author vj
  * 

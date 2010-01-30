@@ -94,7 +94,7 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
             sb.append(t);
         }
         XConstraint guard = guard();
-        return "(" + sb.toString() + ")" + (guard==null? "{}" : guard) + "=> " + mi.returnType();
+        return "(" + sb.toString() + ")" + (guard==null? "" : guard) + "=> " + mi.returnType();
     }
 
 	@Override

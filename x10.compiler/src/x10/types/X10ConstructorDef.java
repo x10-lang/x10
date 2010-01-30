@@ -16,7 +16,7 @@ import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
 
 public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
     /**
@@ -33,7 +33,7 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
      * to super in the body of this constructor. 
      * @return
      */
-    Ref<XConstraint> supClause();
+    Ref<CConstraint> supClause();
     
     /** Set the constraint on properties obtained from
      * the return type of the call to super. Set when type-checking
@@ -41,7 +41,7 @@ public interface X10ConstructorDef extends ConstructorDef, X10ProcedureDef {
      * 
      * @param c
      */
-    void setSupClause(Ref<XConstraint> c);
+    void setSupClause(Ref<CConstraint> c);
 
 //    /**
 //     * Return an instance of this, specialized with (a) any references

@@ -21,6 +21,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
 
 public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef>, Named {
 	Type definedType();
@@ -33,5 +34,5 @@ public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X1
 	MacroType typeParameters(List<Type> typeParams);
 	MacroType formals(List<XVar> formals);
 	MacroType formalTypes(List<Type> formalTypes);
-	MacroType guard(XConstraint guard);
+	MacroType guard(CConstraint guard);
 }

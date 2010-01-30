@@ -42,6 +42,8 @@ import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /** 08/11/09 
  * 
@@ -424,11 +426,11 @@ implements X10ParsedClassType
 		return thisVar;
 	}
 	
-	XConstraint xClause;
+	CConstraint xClause;
 	
-	public XConstraint getXClause() {
+	public CConstraint getXClause() {
 		if (xClause == null) {
-			xClause = new XConstraint_c();
+			xClause = new CConstraint_c();
 			try {
 			xClause.setThisVar(X10TypeMixin.getThisVar(typeArguments()));
 			} catch (XFailure f) {

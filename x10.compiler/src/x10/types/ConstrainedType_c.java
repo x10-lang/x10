@@ -35,29 +35,29 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * 09/11/09
  * A ConstrainedType_c represents the type T{c}. It has a basetype (of type Ref<? extends Type>)
- * and a constraint (of type Ref<XConstraint>).
+ * and a constraint (of type Ref<CConstraint>).
  * 
  * @author njnystrom
  * @author vj
  *
  */
 public class ConstrainedType_c extends ReferenceType_c implements ConstrainedType {
-	private Ref<x10.constraint.XConstraint> constraint;
+	private Ref<CConstraint> constraint;
 	private Ref<? extends Type> baseType;
 
 	public ConstrainedType_c(X10TypeSystem ts, Position pos, 
-			Ref<? extends Type> baseType, Ref<x10.constraint.XConstraint> constraint) {
+			Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
 		super(ts, pos);
 		assert ts != null;
 		this.baseType = baseType;
@@ -70,6 +70,13 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	    return false;
 	}
 	
+	@Override 
+	public ConstrainedType_c copy() {
+		ConstrainedType_c result = (ConstrainedType_c) super.copy();
+		result.constraint = Types.ref(constraint.get().copy());
+		result.baseType = (Ref<? extends Type>) Types.ref((Type) baseType.get().copy());
+		return result;
+	}
 	/**
 	 * Check that the basetype and constraint agree on thisVar.
 	 */
@@ -142,37 +149,37 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return n;
 	}
 	
-	public Ref<x10.constraint.XConstraint> constraint() {
+	public Ref<CConstraint> constraint() {
 		return constraint;
 	}
 	
-	public ConstrainedType constraint(Ref<x10.constraint.XConstraint> constraint) {
+	public ConstrainedType constraint(Ref<CConstraint> constraint) {
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.constraint = constraint;
 		return n;
 	}
 	
-	protected XConstraint realXClause;
+	protected CConstraint realXClause;
 	protected SemanticException realClauseInvalid;
 	
-	public XConstraint getRealXClause() { 
+	public CConstraint getRealXClause() { 
 		if (realXClause == null) {
 			realXClause = realX();
 		}
 		return realXClause; 
 	}
-	/*public void setRealXClause(XConstraint c, SemanticException error) {
+	/*public void setRealXClause(CConstraint c, SemanticException error) {
 		this.realXClause = c;
 		this.realClauseInvalid = error;
 	}*/
 	
-	protected XConstraint realX() {
+	protected CConstraint realX() {
 		// Now get the root clause and join it with the dep clause.
-		XConstraint rootClause = X10TypeMixin.realX(Types.get(this.baseType()));
+		CConstraint rootClause = X10TypeMixin.realX(Types.get(this.baseType()));
 		if (rootClause == null)
 			assert rootClause != null;
 
-		XConstraint depClause = X10TypeMixin.xclause(this);
+		CConstraint depClause = X10TypeMixin.xclause(this);
 
 		try {
 			X10TypeMixin.getThisVar(rootClause, depClause);
@@ -187,11 +194,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		if (depClause == null) 
 			return rootClause;
 
-		XConstraint realClause = rootClause.copy();
+		CConstraint realClause = rootClause.copy();
 
 		try {
 			realClause.addIn(depClause);
-			realClause.setThisVar(XConstraint_c.getThisVar(rootClause, depClause));
+			realClause.setThisVar(CConstraint_c.getThisVar(rootClause, depClause));
 		}
 		catch (XFailure f) {
 			realClause.setInconsistent();
@@ -233,7 +240,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	private String constraintString() {
 		StringBuilder sb = new StringBuilder();
 		Type base = baseType.getCached();
-		XConstraint c = constraint.getCached();
+		CConstraint c = constraint.getCached();
 		if (c != null && ! c.valid()) {
 			sb.append(c);
 		}
@@ -246,14 +253,14 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	@Override
 	public List<FieldInstance> fields() {
 		Type base = baseType.get();
-		XConstraint c = getRealXClause();
+		CConstraint c = getRealXClause();
 		final XVar thisVar = thisVar();
 		/*try {
 		c = c.substitute(thisVar, c.self());
 		} catch (XFailure f) {
 		    throw new InternalCompilerError("Unexpected failure when substituting thisVar() for self in " + c);
 		}*/
-		final XConstraint cc = c;
+		final CConstraint cc = c;
 		if (base instanceof StructType) {
 			final List<FieldInstance> fis = ((StructType) base).fields();
 			return fis;
@@ -278,12 +285,12 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		assert constraint != null;
 		XVar self = X10TypeMixin.selfVarBinding(this);
 		if (self == null) {
-			self = XConstraint_c.genEQV();
-			XConstraint c = constraint.get();
+			self = XTerms.makeEQV();
+			CConstraint c = constraint.get();
 			try {
 			c.addSelfBinding(self);
 			} catch (XFailure z) {
-				// cannot happen
+				System.out.println("failure " + z);
 			}
 			constraint.update(c);
 		}
@@ -298,11 +305,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 			return Collections.emptyList();
 
 		List<Type> l = ((ObjectType) base).interfaces();
-		XConstraint c = constraint.get();
+		CConstraint c = constraint.get();
 		// Get or make a name tt for self.
 		XTerm t = c.bindingForVar(c.self());
 		if (t == null) {
-			t = XConstraint_c.genEQV(true);
+			t = XTerms.makeEQV();
 			
 		}
 		final XTerm tt = t;
@@ -310,8 +317,8 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 			public Type transform(Type o) {
 				X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
-				XConstraint c2 = X10TypeMixin.xclause(o);
-				c2 = c2 != null ? c2.copy() : new XConstraint_c();
+				CConstraint c2 = X10TypeMixin.xclause(o);
+				c2 = c2 != null ? c2.copy() : new CConstraint_c();
 				try {
 					if (c2.thisVar() != null)
 						c2.addBinding(c2.thisVar(), tt);
@@ -341,11 +348,11 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		if (base instanceof ObjectType) {
 		    Type o = ((ObjectType) base).superClass();
 		    if (o != null) {
-		    XConstraint c = constraint.get();
+		    CConstraint c = constraint.get();
 		    final XTerm t = c.bindingForVar(c.self());
 		    if (t != null) {
-		        XConstraint c2 = X10TypeMixin.xclause(o);
-		        c2 = c2 != null ? c2.copy() : new XConstraint_c();
+		        CConstraint c2 = X10TypeMixin.xclause(o);
+		        c2 = c2 != null ? c2.copy() : new CConstraint_c();
 		        try {
 		            X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 		            c2.addSelfBinding(t);

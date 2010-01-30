@@ -14,7 +14,7 @@ public class XAnd_c extends XFormula_c implements XAnd {
 		super(XTerms.andName, left, right);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
 		return super.internIntoConstraint(c, last);
 	}
 

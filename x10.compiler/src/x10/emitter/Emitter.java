@@ -62,7 +62,6 @@ import x10.ast.X10Cast_c;
 import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
 import x10.constraint.XAnd_c;
-import x10.constraint.XConstraint;
 import x10.constraint.XEQV_c;
 import x10.constraint.XEquals_c;
 import x10.constraint.XField_c;
@@ -88,6 +87,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator.XTypeLit_c;
+import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10.visit.X10PrettyPrinterVisitor.CircularList;
@@ -536,11 +536,11 @@ public class Emitter {
 			}
 		}
 	}
-	public void serializeConstraint(XConstraint constraint) {
+	public void serializeConstraint(CConstraint constraint) {
 		//       String serializedConstraint = serializedForm(constraint);
 		//       StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, serializedConstraint);
 		//       tr.print(null, lit, w);
-		w.write("new x10.constraint.XConstraint_c() {{");
+		w.write("new x10.constraint.CConstraint_c() {{");
 		w.newline(4);
 		w.begin(0);
 		w.write("try {");
@@ -570,7 +570,7 @@ public class Emitter {
 		w.write("}}");
 	}
 	private static final String XTERMS = "x10.constraint.XTerms";
-	private void serializeTerm(XTerm term, XConstraint parent) {
+	private void serializeTerm(XTerm term, CConstraint parent) {
 		if (term.equals(parent.self())) {
 			w.write("self()");
 		} else
@@ -1351,7 +1351,7 @@ public class Emitter {
 			//            new RuntimeTypeExpander(def.asType()).expand(tr); // Cannot do this, because we are *defining* T.it here
 			w.write(", ");
 			w.write("null, "); // TODO
-			XConstraint constraint = def.classInvariant().get();
+			CConstraint constraint = def.classInvariant().get();
 			assert (constraint != null);
 			serializeConstraint(constraint);
 		}

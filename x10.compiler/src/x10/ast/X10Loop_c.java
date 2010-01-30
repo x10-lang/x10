@@ -44,8 +44,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XRoot;
@@ -63,6 +61,7 @@ import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 import x10.util.Synthesizer;
 
 /**
@@ -396,7 +395,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 						Type indexType = getIndexType(domainType);    
 
 						Type base = X10TypeMixin.baseType(domainType);
-						XConstraint c = X10TypeMixin.xclause(domainType);
+						CConstraint c = X10TypeMixin.xclause(domainType);
 						
 						XVar selfValue = X10TypeMixin.selfVarBinding(domainType);
 						XVar selfVar = c != null ? c.self() : null;
@@ -408,7 +407,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 							try {
 								
 								// Generate a new local variable if needed
-								XVar var = selfValue != null ? selfValue : XConstraint_c.genEQV(false);
+								XVar var = selfValue != null ? selfValue : XTerms.makeUQV();
 								// And substitute it for this in indexType
 								indexType = Subst.subst(indexType, var, thisVar);
 								if (ts.isSubtype(indexType, ts.Point(),tcp.context())) {

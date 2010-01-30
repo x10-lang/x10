@@ -70,7 +70,7 @@ import x10.ast.RegionMaker;
 import x10.ast.Tuple;
 import x10.ast.X10Formal;
 import x10.ast.X10NodeFactory;
-import x10.constraint.XConstraint;
+
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
@@ -83,6 +83,7 @@ import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
 
 /**
@@ -434,7 +435,7 @@ public class LoopUnroller extends ContextVisitor {
             return true;
         }
 
-        XConstraint typeCons= type.constraint().get();
+        CConstraint typeCons= type.constraint().get();
         XTerm rankConstraint= findRankConstraint(typeCons);
         if (rankConstraint != null) {
             if (constraintEq1(rankConstraint)) {
@@ -477,7 +478,7 @@ public class LoopUnroller extends ContextVisitor {
         }
         return name.toString();
     }
-    private XTerm findRankConstraint(XConstraint typeCons) {
+    private XTerm findRankConstraint(CConstraint typeCons) {
         List<XTerm> consTerms= typeCons.constraints();
         for(XTerm term: consTerms) {
             if (term instanceof XEquals) {
@@ -493,13 +494,13 @@ public class LoopUnroller extends ContextVisitor {
 
                     // HACK Would like to know whether leftRcvr is on "self", but the only indication seems to be
                     // that its name looks like "_selfNNNN"
-                    try {
-                        boolean isSelf= typeCons.entails(typeCons.self(), leftRcvr); //leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
-                        boolean isRank= getFQN(leftName).equals("x10.lang.Region#rank");
-                        if (isSelf && isRank) {
-                            return term;
-                        }
-                    } catch (XFailure e) { }
+
+                    boolean isSelf= typeCons.entails(typeCons.self(), leftRcvr); //leftRcvr instanceof XLocal && ((XLocal) leftRcvr).name().toString().contains("self");
+                    boolean isRank= getFQN(leftName).equals("x10.lang.Region#rank");
+                    if (isSelf && isRank) {
+                    	return term;
+                    }
+
                 }
             }
         }

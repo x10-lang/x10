@@ -36,7 +36,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
+
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -83,7 +84,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /* (non-Javadoc)
      * @see x10.types.X10ConstructorInstance#depClause()
      */
-    public XConstraint constraint() { return X10TypeMixin.realX(returnType()); }
+    public CConstraint constraint() { return X10TypeMixin.realX(returnType()); }
 
     public Ref<? extends Type> returnType;
     
@@ -111,20 +112,20 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     /** Constraint on superclass constructor call return type. */
-    public XConstraint supClause() { 
+    public CConstraint supClause() { 
         return Types.get(x10Def().supClause());
         }
 
-    XConstraint guard;
+    CConstraint guard;
     
     /** Constraint on formal parameters. */
-    public XConstraint guard() {
+    public CConstraint guard() {
         if (guard == null) 
             return Types.get(x10Def().guard());
         return guard;
     }
 
-    public X10ConstructorInstance guard(XConstraint c) {
+    public X10ConstructorInstance guard(CConstraint c) {
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.guard = c;
         return n;

@@ -23,15 +23,16 @@ import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
+import x10.types.constraints.XConstrainedTerm;
 
 
 /**
@@ -76,7 +77,7 @@ public class Here_c extends Expr_c
 		X10Context xc = (X10Context) tc.context();
 
 		Type tt = ts.Place();
-		XConstraint cc = new XConstraint_c();
+		CConstraint cc = new CConstraint_c();
 		try {
 			cc.addSelfBinding(xc.currentPlaceTerm());
 		}

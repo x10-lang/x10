@@ -41,11 +41,11 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
-import x10.constraint.XConstraint;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XRef_c;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
 
 /**
  * Represents a type definition
@@ -58,7 +58,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	List<Type> typeParams;
 	List<XVar> formals;
 	List<Type> formalTypes;
-	XConstraint guard;
+	CConstraint guard;
 	Ref<? extends Type> definedType;
 
 	public MacroType_c(TypeSystem ts, Position pos, Ref<TypeDef> def) {
@@ -210,13 +210,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    return formalTypes(formalTypes);
 	}
 	
-	public XConstraint guard() {
+	public CConstraint guard() {
 		if (guard == null)
 			return Types.get(def().guard());
 		return guard;
 	}
 	
-	public MacroType guard(XConstraint guard) {
+	public MacroType guard(CConstraint guard) {
 		MacroType_c t = (MacroType_c) copy();
 		t.guard = guard;
 		return (MacroType) t;

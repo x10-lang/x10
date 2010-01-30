@@ -45,8 +45,6 @@ import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.ast.X10NodeFactory;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XRoot;
@@ -61,6 +59,8 @@ import x10.types.X10FieldInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to
@@ -432,7 +432,7 @@ public class Synthesizer {
 	 }
 	 
 	 public Field firstPlace() {
-		 XConstraint c = new XConstraint_c();
+		 CConstraint c = new CConstraint_c();
 		 XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		 try {
 			 c.addBinding(id, XTerms.makeLit(0));

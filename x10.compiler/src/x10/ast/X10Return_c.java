@@ -31,8 +31,6 @@ import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
@@ -44,6 +42,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
 
 public class X10Return_c extends Return_c {
 
@@ -58,14 +57,14 @@ public class X10Return_c extends Return_c {
 	    Type b = X10TypeMixin.baseType(t);
 	    if (b != t)
 	        b = removeLocals(ctx, b, thisCode);
-	    XConstraint c = X10TypeMixin.xclause(t);
+	    CConstraint c = X10TypeMixin.xclause(t);
 	    if (c == null)
 	        return b;
 	    c = removeLocals(ctx, c, thisCode);
 	    return X10TypeMixin.xclause(b, c);
 	}
 	
-	public XConstraint removeLocals(X10Context ctx, XConstraint c, CodeDef thisCode) {
+	public CConstraint removeLocals(X10Context ctx, CConstraint c, CodeDef thisCode) {
 	    if (ctx.currentCode() != thisCode) {
 	        return c;
 	    }
@@ -79,7 +78,7 @@ public class X10Return_c extends Return_c {
 	                            continue LI;
 	                }
 	                XLocal l = ts.xtypeTranslator().trans(li.asInstance());
-	                XEQV x = XConstraint_c.genEQV(true);
+	                XEQV x = XTerms.makeEQV();
 	                c = c.substitute(x, l);
 	            }
 	            catch (SemanticException e) {

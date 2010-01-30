@@ -17,7 +17,7 @@ public class XEquals_c extends XFormula_c implements XEquals {
 		super(XTerms.equalsName, left, right);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+	public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
 //	    XTerm left = left();
 //	    XTerm right = right();
 //	    if (left instanceof XLit && right instanceof XLit) {

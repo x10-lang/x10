@@ -24,12 +24,12 @@ import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * An implementation of PropertyInstance
@@ -47,11 +47,11 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
 
     /** Constraint on formal parameters. */
-    protected XConstraint guard;
-    public XConstraint guard() { 
+    protected CConstraint guard;
+    public CConstraint guard() { 
         return guard;
     }
-    public X10FieldInstance guard(XConstraint s) { 
+    public X10FieldInstance guard(CConstraint s) { 
 	X10FieldInstance_c n = (X10FieldInstance_c) copy();
 	n.guard = s; 
 	return n;
@@ -109,9 +109,9 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     rightType = t;
                 }
                 else {
-                    XConstraint rc = X10TypeMixin.xclause(t);
+                    CConstraint rc = X10TypeMixin.xclause(t);
                     if (rc == null)
-                        rc = new XConstraint_c();
+                        rc = new CConstraint_c();
 
                     XTerm receiver;
 
@@ -124,7 +124,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     }
 
                     try {
-                        XConstraint c = rc.copy();
+                        CConstraint c = rc.copy();
 
                         // ### pass in the type rather than letting XField call fi.type();
                         // otherwise, we'll get called recursively.

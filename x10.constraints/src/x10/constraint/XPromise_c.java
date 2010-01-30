@@ -192,7 +192,7 @@ public class XPromise_c implements XPromise, Serializable {
         return lookupReturnValue;
     }
 
-    public XPromise lookup(XVar[] vars, int index) throws XFailure {
+    public XPromise lookup(XVar[] vars, int index)  {
         assert index >= 1;
 
         // follow the eq link if there is one.
@@ -224,7 +224,7 @@ public class XPromise_c implements XPromise, Serializable {
         return this;
     }
 
-    public XPromise lookup(XName s) throws XFailure {
+    public XPromise lookup(XName s) {
         // follow the eq link if there is one.
         if (value != null)
             return value.lookup(s);
@@ -311,7 +311,8 @@ public class XPromise_c implements XPromise, Serializable {
             // Check for cycles!
             if (canReach(target) || target.canReach(this))
                 throw new XFailure("Binding " + this + " to " + target + " creates a cycle.");
-            if (!term().prefersBeingBound() && target.term().prefersBeingBound()) {
+            if ((!term().prefersBeingBound() && target.term().prefersBeingBound())
+            		){
                 return target.bind(this);
             }
             value = target;
@@ -366,7 +367,7 @@ public class XPromise_c implements XPromise, Serializable {
         return false;
     }
 
-    public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
+    public void dump(XVar path, List<XTerm> result, boolean dumpEQV) {
         XTerm t1 = path == null? term() : path;
         if (t1 == null)
             return;
@@ -390,7 +391,7 @@ public class XPromise_c implements XPromise, Serializable {
             	XName name = m.getKey();
             	XPromise p = m.getValue();
             	XVar path2 =  v==null? null : XTerms.makeField(v, name);
-                p.dump(path2, result, oldSelf, dumpEQV);
+                p.dump(path2, result, dumpEQV);
             }
         }
         if (disEquals != null) {

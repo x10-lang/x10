@@ -20,6 +20,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 import x10.constraint.XVar;
+import x10.types.constraints.CConstraint;
 
 /**
  * Generalization of path types and typedef'd types.
@@ -41,7 +42,7 @@ public interface ParametrizedType extends X10NamedType, ReferenceType, StructTyp
 	List<Type> typeParameters();
 	List<XVar> formals();
 	List<Type> formalTypes();
-	XConstraint guard();
+	CConstraint guard();
 	
 	Def def();
 

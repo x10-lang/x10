@@ -38,11 +38,12 @@ import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
+
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
@@ -94,7 +95,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 				//   typeParams, 
 				formalTypes, formalNames, 
 				guard != null ? guard.valueConstraint() 
-						: Types.<XConstraint>lazyRef(new XConstraint_c()),
+						: Types.<CConstraint>lazyRef(new CConstraint_c()),
 						// guard != null ? guard.typeConstraint() : null,
 						throwTypes);
 

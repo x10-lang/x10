@@ -22,12 +22,12 @@ import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraint_c;
 
 /**
  * Comments by vj.
@@ -109,7 +109,7 @@ public class TypeParamSubst {
 					return formalTypes;
 				}
 				@Override
-				public XConstraint guard() {
+				public CConstraint guard() {
 					if (guard == null)
 						return reinstantiate(fi.guard());
 					return guard;
@@ -197,7 +197,7 @@ public class TypeParamSubst {
 		if (t instanceof X10MethodInstance) return (T) reinstantiateMI((X10MethodInstance) t);
 		if (t instanceof X10ConstructorInstance) return (T) reinstantiateCI((X10ConstructorInstance) t);
 		if (t instanceof ClosureInstance) return (T) reinstantiateClosure((ClosureInstance) t);
-		if (t instanceof XConstraint) return (T) reinstantiateConstraint((XConstraint) t);
+		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
 		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
 		return t;
@@ -237,7 +237,7 @@ public class TypeParamSubst {
 				return throwTypes;
 			}
 			@Override
-			public XConstraint guard() {
+			public CConstraint guard() {
 				if (guard == null)
 					return reinstantiate(fi.guard());
 				return guard;
@@ -258,10 +258,10 @@ public class TypeParamSubst {
 		return r;
 	}
 
-	public static XConstraint reinstantiateConstraint(X10ClassType ct, XConstraint c) {
+	public static CConstraint reinstantiateConstraint(X10ClassType ct, CConstraint c) {
 		if (c == null || c.valid())
 			return c;
-		XConstraint result = c;
+		CConstraint result = c;
 		if (ct instanceof X10ParsedClassType_c) {
 			X10ParsedClassType_c t = (X10ParsedClassType_c) ct;
 			result = t.subst().reinstantiateConstraint(c);
@@ -280,7 +280,7 @@ public class TypeParamSubst {
 		return result;
 	}
 
-	public XConstraint reinstantiateConstraint(XConstraint c) {
+	public CConstraint reinstantiateConstraint(CConstraint c) {
 		if (isIdentityInstantiation()) {
 			return c;
 		}
@@ -308,13 +308,13 @@ public class TypeParamSubst {
 			}
 		}
 
-		XConstraint result;
+		CConstraint result;
 
 		try {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = new XConstraint_c();
+			result = new CConstraint_c();
 			result.setInconsistent();
 		}
 
@@ -407,7 +407,7 @@ public class TypeParamSubst {
 				return throwTypes;
 			}
 			@Override
-			public XConstraint guard() {
+			public CConstraint guard() {
 				if (guard == null)
 					return reinstantiate(fi.guard());
 				return guard;
@@ -456,7 +456,7 @@ public class TypeParamSubst {
 				return throwTypes;
 			}
 			@Override
-			public XConstraint guard() {
+			public CConstraint guard() {
 				if (guard == null)
 					return reinstantiate(fi.guard());
 				return guard;
@@ -485,7 +485,7 @@ public class TypeParamSubst {
 				return type;
 			}
 			@Override
-			public XConstraint guard() {
+			public CConstraint guard() {
 				if (guard == null)
 					return reinstantiate(fi.guard());
 				return guard;

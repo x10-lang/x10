@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XFormula_c;
 import x10.constraint.XLit;
@@ -26,6 +27,7 @@ import x10.core.fun.Fun_0_1;
 // new List[int{self==x}]();
 // ->
 // new List(Types.constrained(Type.INT, (self) => self==x));    // this works for instanceof T, but not for <:
+
 public class ConstrainedType<T> extends RuntimeType<T> {
     Type<T> base;
     Fun_0_1<T,Boolean> tester;
@@ -43,15 +45,11 @@ public class ConstrainedType<T> extends RuntimeType<T> {
     }
     
     public boolean isSubtype(Type<?> o) {
-        if (!(o instanceof ConstrainedType))
-            return base.isSubtype(o);
-        ConstrainedType<?> ct = (ConstrainedType<?>) o;
-        try {
-            return base.isSubtype(ct.base) && ct.constraint.entails(constraint, null);
-        } catch (XFailure e) {
-            // The base.isSubtype test has succeeded
-            return false;
-        }
+    	if (!(o instanceof ConstrainedType))
+    		return base.isSubtype(o);
+    	ConstrainedType<?> ct = (ConstrainedType<?>) o;
+    	return base.isSubtype(ct.base) && ct.constraint.entails(constraint, null);
+
     }
     
     public XConstraint getConstraint() {
@@ -106,7 +104,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return getType(right());
         }
 
-        public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+        public XPromise internIntoConstraint(XConstraint_c c, XPromise last) throws XFailure {
             Type<?> l = subtype();
             Type<?> r = supertype();
             // Check that l descends from r.  See TODO in SubtypeSolver.java
@@ -198,4 +196,6 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return n;
         }
     }
+   
 }
+ 

@@ -17,9 +17,8 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
-import x10.constraint.XConstrainedTerm;
-import x10.constraint.XConstraint;
-import x10.constraint.XTerm;
+
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * A ClosureDef represents the type information for a closure:

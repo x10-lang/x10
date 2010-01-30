@@ -16,6 +16,7 @@ import polyglot.types.Flags;
 import polyglot.types.ParsedClassType;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
+import x10.types.constraints.CConstraint;
 
 /**
  * @author vj
@@ -24,5 +25,5 @@ import x10.constraint.XConstraint;
  */
 public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10NamedType, X10ThisVar {
 
-	 XConstraint getXClause();
+	 CConstraint getXClause();
 }
